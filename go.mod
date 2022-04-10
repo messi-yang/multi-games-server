@@ -2,7 +2,7 @@ module github.com/DumDumGeniuss/game-of-liberty-computer
 
 go 1.18
 
-require github.com/DumDumGeniuss/ggol v0.1.5
+require github.com/DumDumGeniuss/ggol v0.2.0
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
