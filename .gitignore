@@ -17,6 +17,8 @@
 # Dist Folder
 dist
 
+# Air
+tmp
 
 # Config
 .env
