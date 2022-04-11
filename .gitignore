@@ -16,3 +16,7 @@
 
 # Dist Folder
 dist
+
+
+# Config
+.env
