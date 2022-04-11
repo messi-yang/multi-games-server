@@ -2,11 +2,13 @@ module github.com/DumDumGeniuss/game-of-liberty-computer
 
 go 1.18
 
-require github.com/DumDumGeniuss/ggol v0.2.0
+require (
+	github.com/DumDumGeniuss/ggol v0.2.1
+	github.com/gin-gonic/gin v1.7.7
+)
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.7.7 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.1 // indirect

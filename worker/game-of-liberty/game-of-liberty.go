@@ -12,7 +12,7 @@ type CgolCell struct {
 }
 
 var game ggol.Game[CgolCell]
-var gameFieldGenerationTicker *time.Ticker
+var gameUnitsGenerationTicker *time.Ticker
 
 func conwaysGameOfLifeNextUnitGenerator(
 	coord *ggol.Coordinate,
@@ -55,30 +55,35 @@ func StartGame() {
 	if game != nil {
 		return
 	}
-	size := ggol.FieldSize{
-		Width:  100,
-		Height: 100,
+	size := ggol.Size{
+		Width:  1000,
+		Height: 1000,
 	}
 	initialCgolCell := CgolCell{
 		Alive: false,
 	}
 	game, _ = ggol.NewGame(&size, &initialCgolCell)
 	game.SetNextUnitGenerator(conwaysGameOfLifeNextUnitGenerator)
-	game.IterateField(func(coord *ggol.Coordinate, _ *CgolCell) {
+	game.IterateUnits(func(coord *ggol.Coordinate, _ *CgolCell) {
 		game.SetUnit(coord, &CgolCell{Alive: rand.Intn(2) == 0})
 	})
 
-	gameFieldGenerationTicker = time.NewTicker(time.Millisecond * 1000)
+	gameUnitsGenerationTicker = time.NewTicker(time.Millisecond * 1000)
 	go func() {
-		for range gameFieldGenerationTicker.C {
-			game.GenerateNextField()
+		for range gameUnitsGenerationTicker.C {
+			game.GenerateNextUnits()
 		}
 	}()
 }
 
-func GetGameField() *ggol.Field[CgolCell] {
+func GetCells() *ggol.Units[CgolCell] {
 	if game == nil {
 		return nil
 	}
-	return game.GetField()
+	area := ggol.Area{
+		From: ggol.Coordinate{X: 0, Y: 0},
+		To:   ggol.Coordinate{X: 50, Y: 50},
+	}
+	units, _ := game.GetUnitsInArea(&area)
+	return units
 }
