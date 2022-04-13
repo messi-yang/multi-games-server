@@ -3,18 +3,15 @@ package game
 import (
 	"math/rand"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/models/gameblockmodel"
 	"github.com/DumDumGeniuss/ggol"
 )
 
-type cgolCell struct {
-	Alive bool `json:"alive"`
-}
-
 func conwaysGameOfLifeNextUnitGenerator(
 	coord *ggol.Coordinate,
-	cell *cgolCell,
-	getAdjacentUnit ggol.AdjacentUnitGetter[cgolCell],
-) (nextUnit *cgolCell) {
+	cell *gameblockmodel.GameOfLifeUnit,
+	getAdjacentUnit ggol.AdjacentUnitGetter[gameblockmodel.GameOfLifeUnit],
+) (nextUnit *gameblockmodel.GameOfLifeUnit) {
 	nextCell := *cell
 
 	var aliveAdjacentCellsCount int = 0
@@ -47,18 +44,18 @@ func conwaysGameOfLifeNextUnitGenerator(
 	}
 }
 
-func newGame(scale int, blockSize int) ggol.Game[cgolCell] {
+func newGame(scale int, blockSize int) ggol.Game[gameblockmodel.GameOfLifeUnit] {
 	size := ggol.Size{
 		Width:  blockSize * scale,
 		Height: blockSize * scale,
 	}
-	initialcgolCell := cgolCell{
+	initialGameOfLifeUnit := gameblockmodel.GameOfLifeUnit{
 		Alive: false,
 	}
-	game, _ := ggol.NewGame(&size, &initialcgolCell)
+	game, _ := ggol.NewGame(&size, &initialGameOfLifeUnit)
 	game.SetNextUnitGenerator(conwaysGameOfLifeNextUnitGenerator)
-	game.IterateUnits(func(coord *ggol.Coordinate, _ *cgolCell) {
-		game.SetUnit(coord, &cgolCell{Alive: rand.Intn(2) == 0})
+	game.IterateUnits(func(coord *ggol.Coordinate, _ *gameblockmodel.GameOfLifeUnit) {
+		game.SetUnit(coord, &gameblockmodel.GameOfLifeUnit{Alive: rand.Intn(2) == 0})
 	})
 
 	return game

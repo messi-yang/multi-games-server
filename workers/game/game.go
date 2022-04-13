@@ -1,19 +1,19 @@
 package game
 
 import (
-	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
 
-	messages_game "github.com/DumDumGeniuss/game-of-liberty-computer/messages/game"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/models/gameblockmodel"
 )
 
 var gameUnitsGenerationTicker *time.Ticker
 
 func InitializeGameWorker() {
 	scale, _ := strconv.Atoi(os.Getenv("GAME_MAP_SCALE"))
-	blockSize := 30
+	blockSize, _ := strconv.Atoi(os.Getenv("GAME_BLOCK_SIZE"))
 	game := newGame(scale, blockSize)
 
 	gameUnitsGenerationTicker = time.NewTicker(time.Millisecond * 1000)
@@ -25,11 +25,23 @@ func InitializeGameWorker() {
 				for colIdx := 0; colIdx < scale; colIdx += 1 {
 					area := getBlockArea(rowIdx, colIdx, blockSize)
 					units, _ := game.GetUnitsInArea(&area)
-					bytes, _ := json.Marshal(*units)
+					go gameblockmodel.CreateOrUpdateGameBlocks(rowIdx, colIdx, units)
+					// bytes, _ := json.Marshal(*units)
 
-					go messages_game.WriteBlockUpdateMessage(rowIdx, colIdx, bytes)
+					// fmt.Print(bytes)
+					// messages_game.WriteBlockUpdateMessage(x, y, bytes)
 				}
 			}
+
+			fmt.Println("Done inserting")
 		}
 	}()
+	// go messages_game.WatchBlockUpdateMessages(0, 0)
+	// go messages_game.WatchBlockUpdateMessages(1, 1)
+	// go messages_game.WatchBlockUpdateMessages(2, 2)
+	// go messages_game.WatchBlockUpdateMessages(3, 3)
+	// go messages_game.WatchBlockUpdateMessages(9, 9)
+
+	gameblockmodel.GetGameBlock(0, 0)
+	// fmt.Print(*gameblock)
 }

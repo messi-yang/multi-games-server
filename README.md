@@ -10,8 +10,19 @@ A server that keeps computing the next generation of the game of liberty.
 make build
 ```
 
-### Start Service
+### Develop With Hot-Reload
 
 ```bash
-make run
+make dev
+```
+
+### Start Server
+
+```bash
+make start
+```
+
+### Start Local Kafka For Testing
+
+```bash
 ```
