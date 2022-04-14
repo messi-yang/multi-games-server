@@ -1,10 +1,6 @@
 BUILD_FOLDER=dist
 BINARY_NAME=game-of-liberty
 
-# .PHONY: kafka
-kafka:
-	docker-compose up
-
 # .PHONY: install-air
 install-air:
 	go install github.com/cosmtrek/air@latest
@@ -24,4 +20,3 @@ start: build
 # .PHONY: clean
 clean:
 	rm -rf ${BUILD_FOLDER}
-

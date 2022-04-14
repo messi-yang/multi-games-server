@@ -1,22 +1,45 @@
 package gameblockrouter
 
 import (
-	"fmt"
 	"strconv"
+	"strings"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/models/gameblockmodel"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/managers/gamemanager"
 	"github.com/gin-gonic/gin"
 )
 
-func SetRouters(router *gin.RouterGroup) {
+func SetRouter(router *gin.RouterGroup) {
 	router.GET("/", func(c *gin.Context) {
-		rowIdx, _ := strconv.Atoi((c.Query("rowIdx")))
-		colIdx, _ := strconv.Atoi((c.Query("colIdx")))
-		fmt.Println(rowIdx, colIdx)
-		gameBlock, err := gameblockmodel.GetGameBlock(rowIdx, colIdx)
+		fromXY := strings.Split(c.Query("from"), ",")
+		toXY := strings.Split(c.Query("to"), ",")
+		fromX, err := strconv.Atoi(fromXY[0])
 		if err != nil {
-			c.JSON(404, "Not found.")
+			c.JSON(400, err)
+			return
 		}
-		c.JSON(200, gameBlock)
+		fromY, err := strconv.Atoi(fromXY[1])
+		if err != nil {
+			c.JSON(400, err)
+			return
+		}
+		toX, err := strconv.Atoi(toXY[0])
+		if err != nil {
+			c.JSON(400, err)
+			return
+		}
+		toY, err := strconv.Atoi(toXY[1])
+		if err != nil {
+			c.JSON(400, err)
+			return
+		}
+		units, err := gamemanager.GetUnits(fromX, fromY, toX, toY)
+		if err != nil {
+			c.JSON(400, err.Error())
+			return
+		}
+		c.JSON(
+			200,
+			units,
+		)
 	})
 }

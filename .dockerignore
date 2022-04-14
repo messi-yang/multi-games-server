@@ -1,0 +1,12 @@
+# We let docker-compose to bypass env vars for us.
+.env
+
+# Go air will create this again in container.
+hotreload
+
+# Go will build this in container.
+dist
+
+# Docker files
+docker-compose.yml
+Dockerfile
