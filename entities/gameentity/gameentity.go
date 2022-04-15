@@ -1,4 +1,4 @@
-package gamemanager
+package gameentity
 
 import (
 	"math/rand"
@@ -72,7 +72,7 @@ func TickGame() {
 	gameManager.Game.GenerateNextUnits()
 }
 
-func InitializeGameManager() {
+func InitializeGame() {
 	size := ggol.Size{
 		Width:  config.Config.GAME_SIZE,
 		Height: config.Config.GAME_SIZE,
