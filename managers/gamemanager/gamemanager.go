@@ -8,7 +8,8 @@ import (
 )
 
 type GameUnit struct {
-	Alive bool
+	Alive bool `json:"alive"`
+	Age   int  `json:"age"`
 }
 
 func gameOfLifeNextUnitGenerator(
@@ -31,14 +32,18 @@ func gameOfLifeNextUnitGenerator(
 		if aliveAdjacentCellsCount != 2 && aliveAdjacentCellsCount != 3 {
 			nextCell := *cell
 			nextCell.Alive = false
+			nextCell.Age = 0
 			return &nextCell
 		} else {
-			return cell
+			nextCell := *cell
+			nextCell.Age += 1
+			return &nextCell
 		}
 	} else {
 		if aliveAdjacentCellsCount == 3 {
 			nextCell := *cell
 			nextCell.Alive = true
+			nextCell.Age = 0
 			return &nextCell
 		} else {
 			return cell
