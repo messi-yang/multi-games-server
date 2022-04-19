@@ -4,6 +4,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/entities/gameentity"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamerouter"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +21,7 @@ func main() {
 
 	// Setup routers
 	router := gin.Default()
-	gamerouter.SetRouter(router.Group("/game-block"))
+	gamerouter.SetRouter(router)
+	gamesocketrouter.SetRouter(router)
 	router.Run()
 }

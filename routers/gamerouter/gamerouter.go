@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetRouter(router *gin.RouterGroup) {
-	router.GET("/", gamecontroller.GetController)
+func SetRouter(engine *gin.Engine) {
+	router := engine.Group("/game")
+	router.GET("/units", gamecontroller.GetController)
 }
