@@ -1,21 +1,46 @@
 package gamesocketcontroller
 
+import "github.com/DumDumGeniuss/game-of-liberty-computer/entities/gameentity"
+
+type coordinate struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+type area struct {
+	From coordinate `json:"from"`
+	To   coordinate `json:"to"`
+}
+
+type actionType string
+
+const (
+	watchGameBlock actionType = "WATCH_GAME_BLOCK"
+)
+
+type action struct {
+	Type actionType `json:"type"`
+}
+
+type watchGameBlockAction struct {
+	Type    actionType `json:"type"`
+	Payload struct {
+		Area area `json:"area"`
+	} `json:"payload"`
+}
+
 type eventType string
 
 const (
-	watchGameBlock eventType = "WATCH_GAME_BLOCK"
+	gaemBlockUpdated eventType = "GAME_BLOCK_UPDATED"
 )
 
-type event struct {
-	Type eventType `json:"action"`
+type gameBlockUpdatedEventPayload struct {
+	Area  area                     `json:"area"`
+	Units [][]*gameentity.GameUnit `json:"units"`
 }
 
-type watchGameBlockEvent struct {
-	Type    eventType `json:"action"`
-	Payload struct {
-		FromX int `json:"fromX"`
-		FromY int `json:"fromY"`
-		ToX   int `json:"toX"`
-		ToY   int `json:"toY"`
-	} `json:"payload"`
+type gameBlockUpdatedEvent struct {
+	Type    eventType                    `json:"type"`
+	Payload gameBlockUpdatedEventPayload `json:"payload"`
 }

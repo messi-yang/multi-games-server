@@ -5,14 +5,14 @@ import (
 	"math/rand"
 )
 
-func getEventTypeFromMessage(msg []byte) (*eventType, error) {
-	var newEvent event
-	err := json.Unmarshal(msg, &newEvent)
+func getActionTypeFromMessage(msg []byte) (*actionType, error) {
+	var newAction action
+	err := json.Unmarshal(msg, &newAction)
 	if err != nil {
 		return nil, err
 	}
 
-	return &newEvent.Type, nil
+	return &newAction.Type, nil
 }
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

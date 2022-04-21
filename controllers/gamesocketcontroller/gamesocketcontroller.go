@@ -54,24 +54,31 @@ func Controller(c *gin.Context) {
 			if err != nil {
 				break
 			}
-			eventType, err := getEventTypeFromMessage(msg)
+			actionType, err := getActionTypeFromMessage(msg)
 			if err != nil {
 				break
 			}
 
-			if *eventType == watchGameBlock {
-				var watchGameBlockEvent watchGameBlockEvent
-				json.Unmarshal(msg, &watchGameBlockEvent)
+			if *actionType == watchGameBlock {
+				var watchGameBlockAction watchGameBlockAction
+				json.Unmarshal(msg, &watchGameBlockAction)
 				gameentity.SubscribeGameBlockChangeEvent(
 					sessionHash,
 					gameentity.GameBlockArea{
-						FromX: watchGameBlockEvent.Payload.FromX,
-						FromY: watchGameBlockEvent.Payload.FromY,
-						ToX:   watchGameBlockEvent.Payload.ToX,
-						ToY:   watchGameBlockEvent.Payload.ToY,
+						FromX: watchGameBlockAction.Payload.Area.From.X,
+						FromY: watchGameBlockAction.Payload.Area.From.Y,
+						ToX:   watchGameBlockAction.Payload.Area.To.X,
+						ToY:   watchGameBlockAction.Payload.Area.To.Y,
 					},
 					func(gameUnits [][]*gameentity.GameUnit) {
-						conn.WriteJSON(gameUnits)
+						event := gameBlockUpdatedEvent{
+							Type: gaemBlockUpdated,
+							Payload: gameBlockUpdatedEventPayload{
+								Area:  watchGameBlockAction.Payload.Area,
+								Units: gameUnits,
+							},
+						}
+						conn.WriteJSON(event)
 					},
 				)
 			}
