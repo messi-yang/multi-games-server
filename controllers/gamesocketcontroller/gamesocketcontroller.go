@@ -37,17 +37,18 @@ func Controller(c *gin.Context) {
 	closeConn := make(chan bool)
 	defer conn.Close()
 
+	sessionHash := generateRandomHash(12)
+
 	conn.SetCloseHandler(func(code int, text string) error {
 		closeConn <- true
 		return nil
 	})
 
-	var unsubscribeGameBlockChangeEventChannel chan bool = make(chan bool)
-	defer func() {
-		unsubscribeGameBlockChangeEventChannel <- true
-	}()
-
 	go func() {
+		defer func() {
+			gameentity.UnsubscribeGameBlockChangeEvent(sessionHash)
+		}()
+
 		for {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
@@ -59,20 +60,20 @@ func Controller(c *gin.Context) {
 			}
 
 			if *eventType == watchGameBlock {
-				unsubscribeGameBlockChangeEventChannel <- true
-
 				var watchGameBlockEvent watchGameBlockEvent
 				json.Unmarshal(msg, &watchGameBlockEvent)
-				unsubscribeGameBlockChangeEventChannel =
-					gameentity.SubscribeGameBlockChangeEvent(
-						watchGameBlockEvent.Payload.FromX,
-						watchGameBlockEvent.Payload.FromY,
-						watchGameBlockEvent.Payload.ToX,
-						watchGameBlockEvent.Payload.ToY,
-						func(gameUnits [][]*gameentity.GameUnit) {
-							conn.WriteJSON(gameUnits)
-						},
-					)
+				gameentity.SubscribeGameBlockChangeEvent(
+					sessionHash,
+					gameentity.GameBlockArea{
+						FromX: watchGameBlockEvent.Payload.FromX,
+						FromY: watchGameBlockEvent.Payload.FromY,
+						ToX:   watchGameBlockEvent.Payload.ToX,
+						ToY:   watchGameBlockEvent.Payload.ToY,
+					},
+					func(gameUnits [][]*gameentity.GameUnit) {
+						conn.WriteJSON(gameUnits)
+					},
+				)
 			}
 		}
 	}()

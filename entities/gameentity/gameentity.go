@@ -11,9 +11,12 @@ import (
 
 var game ggol.Game[GameUnit]
 var gameTickerTimeout chan bool
-var gameBlockChangeEventListners []gameBlockChangeEventListner
+var gameBlockChangeEventSubscribers []gameBlockChangeEventSubscriber
 
 func Initialize() {
+	if game != nil {
+		return
+	}
 	size := ggol.Size{
 		Width:  config.Config.GAME_SIZE,
 		Height: config.Config.GAME_SIZE,
@@ -30,7 +33,7 @@ func Initialize() {
 		newGame.SetUnit(coord, &GameUnit{Alive: rand.Intn(2) == 0})
 	})
 	game = newGame
-	gameBlockChangeEventListners = []gameBlockChangeEventListner{}
+	gameBlockChangeEventSubscribers = []gameBlockChangeEventSubscriber{}
 }
 
 func Start() {
@@ -51,68 +54,59 @@ func Start() {
 }
 
 func SubscribeGameBlockChangeEvent(
-	fromX int,
-	fromY int,
-	toX int,
-	toY int,
+	key string,
+	gameBlockArea GameBlockArea,
 	callback gameBlockChangeEventCallback,
-) chan bool {
-	stopChannel := make(chan bool)
-	newListener := gameBlockChangeEventListner{
-		fromX:            fromX,
-		fromY:            fromY,
-		toX:              toX,
-		toY:              toY,
-		gameUnitsChannel: make(chan gameUnits),
-		stopChannel:      stopChannel,
-	}
-	gameBlockChangeEventListners = append(
-		gameBlockChangeEventListners,
-		newListener,
-	)
+) {
+	UnsubscribeGameBlockChangeEvent(key)
 
-	unsubscribe := func() {
-		for listenerIdx, listener := range gameBlockChangeEventListners {
-			if listener == newListener {
-				gameBlockChangeEventListners =
-					append(
-						gameBlockChangeEventListners[:listenerIdx],
-						gameBlockChangeEventListners[listenerIdx+1:]...,
-					)
-			}
-		}
+	newSubscriber := gameBlockChangeEventSubscriber{
+		key:              key,
+		gameBlockArea:    gameBlockArea,
+		gameUnitsChannel: make(chan gameUnits),
 	}
+	gameBlockChangeEventSubscribers = append(
+		gameBlockChangeEventSubscribers,
+		newSubscriber,
+	)
 
 	go func() {
 		for {
 			select {
-			case gameUnits := <-newListener.gameUnitsChannel:
+			case gameUnits := <-newSubscriber.gameUnitsChannel:
 				callback(gameUnits)
-			case <-newListener.stopChannel:
-				unsubscribe()
-				return
 			}
 		}
 	}()
+}
 
-	return stopChannel
+func UnsubscribeGameBlockChangeEvent(key string) {
+	for listenerIdx, listener := range gameBlockChangeEventSubscribers {
+		if listener.key == key {
+			gameBlockChangeEventSubscribers =
+				append(
+					gameBlockChangeEventSubscribers[:listenerIdx],
+					gameBlockChangeEventSubscribers[listenerIdx+1:]...,
+				)
+		}
+	}
+}
+
+func publishGameBlockChangeEvent() {
+	for _, subscriber := range gameBlockChangeEventSubscribers {
+		gameUnits, err := game.GetUnitsInArea(&ggol.Area{
+			From: ggol.Coordinate{X: subscriber.gameBlockArea.FromX, Y: subscriber.gameBlockArea.FromY},
+			To:   ggol.Coordinate{X: subscriber.gameBlockArea.ToX, Y: subscriber.gameBlockArea.ToY},
+		})
+		if err != nil {
+			fmt.Println(err.Error())
+			UnsubscribeGameBlockChangeEvent(subscriber.key)
+			return
+		}
+		subscriber.gameUnitsChannel <- gameUnits
+	}
 }
 
 func Stop() {
 	gameTickerTimeout <- true
-}
-
-func publishGameBlockChangeEvent() {
-	for _, listner := range gameBlockChangeEventListners {
-		gameUnits, err := game.GetUnitsInArea(&ggol.Area{
-			From: ggol.Coordinate{X: listner.fromX, Y: listner.fromY},
-			To:   ggol.Coordinate{X: listner.toX, Y: listner.toY},
-		})
-		if err != nil {
-			fmt.Println(err.Error())
-			listner.stopChannel <- true
-			return
-		}
-		listner.gameUnitsChannel <- gameUnits
-	}
 }

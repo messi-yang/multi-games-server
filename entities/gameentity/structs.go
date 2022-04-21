@@ -9,11 +9,15 @@ type gameUnits [][]*GameUnit
 
 type gameBlockChangeEventCallback func([][]*GameUnit)
 
-type gameBlockChangeEventListner struct {
-	fromX            int
-	fromY            int
-	toX              int
-	toY              int
+type GameBlockArea struct {
+	FromX int
+	FromY int
+	ToX   int
+	ToY   int
+}
+
+type gameBlockChangeEventSubscriber struct {
+	key              string
+	gameBlockArea    GameBlockArea
 	gameUnitsChannel chan gameUnits
-	stopChannel      chan bool
 }
