@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/stores/gamestore"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,8 @@ func main() {
 	// Initialize our game and start it
 	gameworker.Initialize()
 	gameworker.Start()
+
+	gamestore.Store.StartGame()
 
 	// Setup routers
 	router := gin.Default()

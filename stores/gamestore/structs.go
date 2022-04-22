@@ -1,13 +1,13 @@
-package gamedao
+package gamestore
 
-type GameField [][]GameFieldUnit
+type GameUnits [][]GameUnit
 
-type GameFieldUnit struct {
+type GameUnit struct {
 	Alive bool `json:"alive"`
 	Age   int  `json:"age"`
 }
 
-type GameFieldSize struct {
+type GameSize struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }

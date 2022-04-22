@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
 	"github.com/DumDumGeniuss/ggol"
 )
 
@@ -19,10 +18,10 @@ func Initialize() {
 		return
 	}
 
-	gameField, err := gamedao.DAO.GetGameField()
-	gameFieldSize, err := gamedao.DAO.GetGameFieldSize()
-	fmt.Println(gameField)
-	fmt.Println(gameFieldSize)
+	// gameField, err := gamedao.DAO.GetGameField()
+	// gameFieldSize, err := gamedao.DAO.GetGameFieldSize()
+	// fmt.Println(gameField)
+	// fmt.Println(gameFieldSize)
 
 	size := ggol.Size{
 		Width:  config.Config.GAME_SIZE,
