@@ -19,9 +19,8 @@ func Initialize() {
 		return
 	}
 
-	gameDao := gamedao.GetDao()
-	gameField, err := gameDao.GetGameField()
-	gameFieldSize, err := gameDao.GetGameFieldSize()
+	gameField, err := gamedao.DAO.GetGameField()
+	gameFieldSize, err := gamedao.DAO.GetGameFieldSize()
 	fmt.Println(gameField)
 	fmt.Println(gameFieldSize)
 
