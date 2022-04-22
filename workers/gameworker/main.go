@@ -1,4 +1,4 @@
-package gameentity
+package gameworker
 
 import (
 	"fmt"
@@ -17,6 +17,11 @@ func Initialize() {
 	if game != nil {
 		return
 	}
+
+	// gameDao := gamedao.GetGameDao()
+	// gameField, err := gameDao.GetGameField()
+	// gameFieldSize, err := gameDao.GetGameFieldSize()
+
 	size := ggol.Size{
 		Width:  config.Config.GAME_SIZE,
 		Height: config.Config.GAME_SIZE,

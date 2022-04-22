@@ -1,4 +1,4 @@
-package gameentity
+package gameworker
 
 import "github.com/DumDumGeniuss/ggol"
 

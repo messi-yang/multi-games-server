@@ -1,6 +1,6 @@
 package gamesocketcontroller
 
-import "github.com/DumDumGeniuss/game-of-liberty-computer/entities/gameentity"
+import "github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
 
 type coordinate struct {
 	X int `json:"x"`
@@ -37,7 +37,7 @@ const (
 
 type gameBlockUpdatedEventPayload struct {
 	Area  area                     `json:"area"`
-	Units [][]*gameentity.GameUnit `json:"units"`
+	Units [][]*gameworker.GameUnit `json:"units"`
 }
 
 type gameBlockUpdatedEvent struct {
