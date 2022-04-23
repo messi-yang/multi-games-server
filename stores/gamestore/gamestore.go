@@ -1,6 +1,8 @@
 package gamestore
 
 import (
+	"time"
+
 	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
 	"github.com/DumDumGeniuss/ggol"
 )
@@ -13,21 +15,26 @@ type GameStore interface {
 }
 
 type gameStoreImplement struct {
-	gameOfLife ggol.Game[GameUnit]
+	gameOfLife     ggol.Game[GameUnit]
+	gameDao        gamedao.GameDAO
+	gameTicker     *time.Ticker
+	gameTickerStop chan bool
 }
 
-var Store GameStore = &gameStoreImplement{}
+var Store GameStore = &gameStoreImplement{
+	gameOfLife:     nil,
+	gameDao:        gamedao.DAO,
+	gameTicker:     nil,
+	gameTickerStop: nil,
+}
 
 func (gsi *gameStoreImplement) initializeGame() {
-	gameField, _ := gamedao.DAO.GetGameField()
-	gameFieldSize, _ := gamedao.DAO.GetGameFieldSize()
-
 	initialUnit := GameUnit{
 		Alive: false,
 		Age:   0,
 	}
-	gameUnits := convertGameFieldToGameUnits(gameField)
-	ggolSize := convertGameGameFieldSizeToGgolSize(gameFieldSize)
+	gameUnits := gsi.getGameUnitsFromGameDao()
+	ggolSize := gsi.getGgolSizeFromGameDao()
 
 	gsi.gameOfLife, _ = ggol.NewGame(
 		ggolSize,
@@ -43,16 +50,49 @@ func (gsi *gameStoreImplement) initializeGame() {
 	}
 }
 
+func (gsi *gameStoreImplement) getGameUnitsFromGameDao() *GameUnits {
+	gameField, _ := gsi.gameDao.GetGameField()
+	gameUnits := convertGameFieldToGameUnits(gameField)
+
+	return gameUnits
+}
+
+func (gsi *gameStoreImplement) getGgolSizeFromGameDao() *ggol.Size {
+	gameFieldSize, _ := gsi.gameDao.GetGameFieldSize()
+	ggolSize := convertGameGameFieldSizeToGgolSize(gameFieldSize)
+
+	return ggolSize
+}
+
 func (gsi *gameStoreImplement) StartGame() {
 	if gsi.gameOfLife == nil {
 		gsi.initializeGame()
 	}
 
-	// fmt.Println(gsi.gameOfLife.GetUnits())
+	go func() {
+		gsi.gameTicker = time.NewTicker(time.Millisecond * 1000)
+		defer gsi.gameTicker.Stop()
+		gsi.gameTickerStop = make(chan bool)
+
+		for {
+			select {
+			case <-gsi.gameTicker.C:
+				gsi.gameOfLife.GenerateNextUnits()
+			case <-gsi.gameTickerStop:
+				gsi.gameTicker.Stop()
+				gsi.gameTicker = nil
+				return
+			}
+		}
+	}()
 }
 
 func (gsi *gameStoreImplement) StopGame() {
-
+	if gsi.gameTicker == nil {
+		return
+	}
+	gsi.gameTickerStop <- true
+	close(gsi.gameTickerStop)
 }
 
 func (gsi *gameStoreImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error) {

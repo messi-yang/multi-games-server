@@ -25,8 +25,8 @@ func main() {
 			Y: 0,
 		},
 		To: gamestore.GameCoordinate{
-			X: 0,
-			Y: 0,
+			X: 2,
+			Y: 2,
 		},
 	}))
 	fmt.Println(gamestore.Store.GetGameFieldSize())
