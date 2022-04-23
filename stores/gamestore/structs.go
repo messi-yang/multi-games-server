@@ -11,3 +11,13 @@ type GameSize struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
+
+type GameCoordinate struct {
+	X int
+	Y int
+}
+
+type GameArea struct {
+	From GameCoordinate
+	To   GameCoordinate
+}

@@ -2,6 +2,7 @@ package gamestore
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
+	"github.com/DumDumGeniuss/ggol"
 )
 
 func convertGameFieldToGameUnits(gameField *gamedao.GameField) *GameUnits {
@@ -22,9 +23,23 @@ func convertGameFieldToGameUnits(gameField *gamedao.GameField) *GameUnits {
 	return &gameUnits
 }
 
-func convertGameFieldSizeToGameSize(gameFieldSize *gamedao.GameFieldSize) *GameSize {
+func convertGgolSizeToGameSize(ggolSize *ggol.Size) *GameSize {
 	return &GameSize{
+		Width:  ggolSize.Width,
+		Height: ggolSize.Height,
+	}
+}
+
+func convertGameGameFieldSizeToGgolSize(gameFieldSize *gamedao.GameFieldSize) *ggol.Size {
+	return &ggol.Size{
 		Width:  gameFieldSize.Width,
 		Height: gameFieldSize.Height,
+	}
+}
+
+func convertGameAreaToGgolArea(gameArea *GameArea) *ggol.Area {
+	return &ggol.Area{
+		From: ggol.Coordinate(gameArea.From),
+		To:   ggol.Coordinate(gameArea.To),
 	}
 }

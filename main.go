@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/stores/gamestore"
@@ -17,6 +19,17 @@ func main() {
 	gameworker.Start()
 
 	gamestore.Store.StartGame()
+	fmt.Println(gamestore.Store.GetGameUnitsInArea(&gamestore.GameArea{
+		From: gamestore.GameCoordinate{
+			X: 0,
+			Y: 0,
+		},
+		To: gamestore.GameCoordinate{
+			X: 0,
+			Y: 0,
+		},
+	}))
+	fmt.Println(gamestore.Store.GetGameFieldSize())
 
 	// Setup routers
 	router := gin.Default()

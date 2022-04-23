@@ -1,8 +1,6 @@
 package gamestore
 
 import (
-	"fmt"
-
 	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
 	"github.com/DumDumGeniuss/ggol"
 )
@@ -10,8 +8,8 @@ import (
 type GameStore interface {
 	StartGame()
 	StopGame()
-	GetGameUnitsInArea()
-	GetGameFieldSize()
+	GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error)
+	GetGameFieldSize() *GameSize
 }
 
 type gameStoreImplement struct {
@@ -29,16 +27,18 @@ func (gsi *gameStoreImplement) initializeGame() {
 		Age:   0,
 	}
 	gameUnits := convertGameFieldToGameUnits(gameField)
-	gameSize := convertGameFieldSizeToGameSize(gameFieldSize)
+	ggolSize := convertGameGameFieldSizeToGgolSize(gameFieldSize)
 
 	gsi.gameOfLife, _ = ggol.NewGame(
-		&ggol.Size{Width: gameSize.Width, Height: gameSize.Height},
+		ggolSize,
 		&initialUnit,
 	)
 
-	for i := 0; i < gameSize.Width; i += 1 {
-		for j := 0; j < gameSize.Height; j += 1 {
-			gsi.gameOfLife.SetUnit(&ggol.Coordinate{X: i, Y: j}, &(*gameUnits)[i][j])
+	for x := 0; x < ggolSize.Width; x += 1 {
+		for y := 0; y < ggolSize.Height; y += 1 {
+			gameFieldUnit := &(*gameUnits)[x][y]
+			coord := &ggol.Coordinate{X: x, Y: y}
+			gsi.gameOfLife.SetUnit(coord, gameFieldUnit)
 		}
 	}
 }
@@ -48,17 +48,22 @@ func (gsi *gameStoreImplement) StartGame() {
 		gsi.initializeGame()
 	}
 
-	fmt.Println(gsi.gameOfLife.GetUnits())
+	// fmt.Println(gsi.gameOfLife.GetUnits())
 }
 
 func (gsi *gameStoreImplement) StopGame() {
 
 }
 
-func (gsi *gameStoreImplement) GetGameUnitsInArea() {
-
+func (gsi *gameStoreImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error) {
+	ggolArea := convertGameAreaToGgolArea(area)
+	units, err := gsi.gameOfLife.GetUnitsInArea(ggolArea)
+	if err != nil {
+		return nil, err
+	}
+	return &units, nil
 }
 
-func (gsi *gameStoreImplement) GetGameFieldSize() {
-
+func (gsi *gameStoreImplement) GetGameFieldSize() *GameSize {
+	return convertGgolSizeToGameSize(gsi.gameOfLife.GetSize())
 }
