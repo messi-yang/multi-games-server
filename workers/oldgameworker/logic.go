@@ -1,4 +1,4 @@
-package gameworker
+package oldgameworker
 
 import "github.com/DumDumGeniuss/ggol"
 

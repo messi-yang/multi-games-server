@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/oldgameworker"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -46,7 +46,7 @@ func Controller(c *gin.Context) {
 
 	go func() {
 		defer func() {
-			gameworker.UnsubscribeGameBlockChangeEvent(sessionHash)
+			oldgameworker.UnsubscribeGameBlockChangeEvent(sessionHash)
 		}()
 
 		for {
@@ -62,15 +62,15 @@ func Controller(c *gin.Context) {
 			if *actionType == watchGameBlock {
 				var watchGameBlockAction watchGameBlockAction
 				json.Unmarshal(msg, &watchGameBlockAction)
-				gameworker.SubscribeGameBlockChangeEvent(
+				oldgameworker.SubscribeGameBlockChangeEvent(
 					sessionHash,
-					gameworker.GameBlockArea{
+					oldgameworker.GameBlockArea{
 						FromX: watchGameBlockAction.Payload.Area.From.X,
 						FromY: watchGameBlockAction.Payload.Area.From.Y,
 						ToX:   watchGameBlockAction.Payload.Area.To.X,
 						ToY:   watchGameBlockAction.Payload.Area.To.Y,
 					},
-					func(gameUnits [][]*gameworker.GameUnit) {
+					func(gameUnits [][]*oldgameworker.GameUnit) {
 						event := gameBlockUpdatedEvent{
 							Type: gaemBlockUpdated,
 							Payload: gameBlockUpdatedEventPayload{

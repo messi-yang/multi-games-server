@@ -1,4 +1,4 @@
-package gameworker
+package oldgameworker
 
 type GameUnit struct {
 	Alive bool `json:"alive"`

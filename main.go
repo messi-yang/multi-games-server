@@ -7,6 +7,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/stores/gamestore"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/oldgameworker"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,10 +16,10 @@ func main() {
 	config.SetupConfig()
 
 	// Initialize our game and start it
-	gameworker.Initialize()
-	gameworker.Start()
+	oldgameworker.Initialize()
+	oldgameworker.Start()
 
-	gamestore.Store.StartGame()
+	gamestore.Store.InitializeGame()
 	fmt.Println(gamestore.Store.GetGameUnitsInArea(&gamestore.GameArea{
 		From: gamestore.GameCoordinate{
 			X: 0,
@@ -30,6 +31,11 @@ func main() {
 		},
 	}))
 	fmt.Println(gamestore.Store.GetGameFieldSize())
+	gameworker.Worker.SetGameStore(gamestore.Store)
+	err := gameworker.Worker.Start()
+	if err != nil {
+		panic(err.Error())
+	}
 
 	// Setup routers
 	router := gin.Default()
