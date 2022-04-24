@@ -1,13 +1,13 @@
 package gamemodel
 
-type GameFieldEntity [][]GameFieldUnitEntity
+type GameUnitsModel [][]GameUnitModel
 
-type GameFieldUnitEntity struct {
+type GameUnitModel struct {
 	Alive bool `json:"alive"`
 	Age   int  `json:"age"`
 }
 
-type GameFieldSizeEntity struct {
+type GameSizeModel struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }

@@ -7,16 +7,34 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var Config struct {
-	GAME_SIZE int
+type Config interface {
+	GetGameSize() int
 }
 
-func SetupConfig() {
-	godotenv.Load(".env")
+type configImpl struct {
+	hasSetConfig bool
+	GAME_SIZE    int
+}
 
-	if os.Getenv("GAME_SIZE") == "" {
-		panic("You must set the 'GAME_SIZE'")
+var config Config = nil
+
+func GetConfig() Config {
+	if config == nil {
+		newConfig := &configImpl{}
+		godotenv.Load(".env")
+
+		if os.Getenv("GAME_SIZE") == "" {
+			panic("You must set the 'GAME_SIZE'")
+		} else {
+			newConfig.GAME_SIZE, _ = strconv.Atoi(os.Getenv("GAME_SIZE"))
+		}
+
+		return newConfig
 	} else {
-		Config.GAME_SIZE, _ = strconv.Atoi(os.Getenv("GAME_SIZE"))
+		return config
 	}
+}
+
+func (ci *configImpl) GetGameSize() int {
+	return ci.GAME_SIZE
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/stores/gamestore"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
@@ -12,9 +11,6 @@ import (
 )
 
 func main() {
-	// Setup config
-	config.SetupConfig()
-
 	// Initialize our game and start it
 	oldgameworker.Initialize()
 	oldgameworker.Start()

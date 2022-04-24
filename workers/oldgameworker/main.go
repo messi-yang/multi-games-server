@@ -24,8 +24,8 @@ func Initialize() {
 	// fmt.Println(gameFieldSize)
 
 	size := ggol.Size{
-		Width:  config.Config.GAME_SIZE,
-		Height: config.Config.GAME_SIZE,
+		Width:  config.GetConfig().GetGameSize(),
+		Height: config.GetConfig().GetGameSize(),
 	}
 	initialGameUnit := GameUnit{
 		Alive: false,
