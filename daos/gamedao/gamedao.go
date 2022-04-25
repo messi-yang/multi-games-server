@@ -5,6 +5,7 @@ import (
 )
 
 type GameDAO interface {
+	InjectGameModel(gamemodel.GameModel)
 	GetGameUnits() (*GameUnits, error)
 	GetGameSize() (*GameSize, error)
 }
@@ -15,15 +16,16 @@ type gamDAOImplement struct {
 
 var gameDAO GameDAO
 
-func GetGameDAO(gameModel gamemodel.GameModel) GameDAO {
+func GetGameDAO() GameDAO {
 	if gameDAO == nil {
-		gameDAO = &gamDAOImplement{
-			gameModel: gameModel,
-		}
-		return gameDAO
-	} else {
-		return gameDAO
+		gameDAO = &gamDAOImplement{}
 	}
+
+	return gameDAO
+}
+
+func (gdi *gamDAOImplement) InjectGameModel(gameModel gamemodel.GameModel) {
+	gdi.gameModel = gameModel
 }
 
 func (gdi *gamDAOImplement) GetGameUnits() (*GameUnits, error) {

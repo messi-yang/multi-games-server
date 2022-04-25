@@ -5,6 +5,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/models/gamemodel"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/oldgameworker"
 	"github.com/gin-gonic/gin"
@@ -16,17 +17,23 @@ func main() {
 	oldgameworker.Start()
 
 	gameModel := gamemodel.GetGameModel()
-	gameDAO := gamedao.GetGameDAO(gameModel)
-	gameService, err := gameservice.CreateGameService(gameDAO)
-	if err != nil {
-		panic(err.Error())
+
+	gameDAO := gamedao.GetGameDAO()
+	gameDAO.InjectGameModel(gameModel)
+
+	gameService := gameservice.GetGameService()
+	gameService.InjectGameDAO(gameDAO)
+	if err := gameService.InitializeGame(); err != nil {
+		panic(err)
 	}
 
-	gameworker, err := gameworker.CreateGameWorker(gameService)
-	if err != nil {
-		panic(err.Error())
+	messageService := messageservice.GetMessageService()
+	gameWorker := gameworker.GetGameWorker()
+	gameWorker.InjectGameService(gameService)
+	gameWorker.InjectMessageService(messageService)
+	if err := gameWorker.StartGame(); err != nil {
+		panic(err)
 	}
-	gameworker.StartGame()
 
 	// Setup routers
 	router := gin.Default()

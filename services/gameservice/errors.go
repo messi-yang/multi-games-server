@@ -1,8 +1,15 @@
 package gameservice
 
-type errGameServiceHasBeenCreated struct {
+type errMissingGameDAODependency struct {
 }
 
-func (e *errGameServiceHasBeenCreated) Error() string {
-	return "Game service has been created."
+func (e *errMissingGameDAODependency) Error() string {
+	return "The dependency gamedao.GameDAO is missing in \"gameservice\"."
+}
+
+type errGameIsNotInitialized struct {
+}
+
+func (e *errGameIsNotInitialized) Error() string {
+	return "Game is not initialized."
 }
