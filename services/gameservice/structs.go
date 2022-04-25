@@ -13,11 +13,11 @@ type GameSize struct {
 }
 
 type GameCoordinate struct {
-	X int
-	Y int
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type GameArea struct {
-	From GameCoordinate
-	To   GameCoordinate
+	From GameCoordinate `json:"from"`
+	To   GameCoordinate `json:"to"`
 }

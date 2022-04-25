@@ -26,21 +26,24 @@ func Controller(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	closeConn := make(chan bool)
+	session := session{
+		watchArea: &gameservice.GameArea{
+			From: gameservice.GameCoordinate{X: 0, Y: 0},
+			To:   gameservice.GameCoordinate{X: 0, Y: 0},
+		},
+	}
+	fmt.Println(session)
 
-	conn.SetCloseHandler(func(code int, text string) error {
-		return nil
-	})
+	closeConnFlag := make(chan bool)
 
 	messageService := messageservice.GetMessageService()
 	gameService := gameservice.GetGameService()
-	messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
-		fmt.Println("HHHHHIIII")
+	unitsUpdatedSubscriptionToken := messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
+		if session.watchArea == nil {
+			return
+		}
 		gameUnits, err := gameService.GetGameUnitsInArea(
-			&gameservice.GameArea{
-				From: gameservice.GameCoordinate{X: 0, Y: 0},
-				To:   gameservice.GameCoordinate{X: 0, Y: 0},
-			},
+			session.watchArea,
 		)
 		if err != nil {
 			conn.WriteJSON(err.Error())
@@ -48,10 +51,11 @@ func Controller(c *gin.Context) {
 		}
 		conn.WriteJSON(gameUnits)
 	})
+	defer messageService.Unsubscribe("UNITS_UPDATED", unitsUpdatedSubscriptionToken)
 
 	go func() {
 		defer func() {
-			closeConn <- true
+			closeConnFlag <- true
 		}()
 
 		for {
@@ -64,7 +68,7 @@ func Controller(c *gin.Context) {
 
 	for {
 		select {
-		case <-closeConn:
+		case <-closeConnFlag:
 			fmt.Println("Connection closed.")
 			return
 		}

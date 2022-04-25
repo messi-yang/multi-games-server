@@ -1,5 +1,7 @@
 package messageservice
 
+import "fmt"
+
 type subscribeCallback func(bytes []byte)
 type subscriber struct {
 	callback subscribeCallback
@@ -8,11 +10,12 @@ type subscriber struct {
 
 type MessageService interface {
 	Publish(topic string, message []byte)
-	Subscribe(topic string, callback subscribeCallback)
+	Subscribe(topic string, callback subscribeCallback) (subsriptionToken string)
+	Unsubscribe(topic string, subsriptionToken string)
 }
 
 type messageServiceImpl struct {
-	subscriberCallbacks map[string][]subscribeCallback
+	subscribers map[string][]subscriber
 }
 
 var messageService MessageService
@@ -20,7 +23,7 @@ var messageService MessageService
 func GetMessageService() MessageService {
 	if messageService == nil {
 		messageService = &messageServiceImpl{
-			subscriberCallbacks: make(map[string][]subscribeCallback),
+			subscribers: make(map[string][]subscriber),
 		}
 		return messageService
 	} else {
@@ -29,19 +32,47 @@ func GetMessageService() MessageService {
 }
 
 func (msi *messageServiceImpl) Publish(topic string, bytes []byte) {
-	if msi.subscriberCallbacks[topic] == nil {
+	if msi.subscribers[topic] == nil {
 		return
 	}
 
-	for _, callback := range msi.subscriberCallbacks[topic] {
-		callback(bytes)
+	for _, subscriber := range msi.subscribers[topic] {
+		subscriber.callback(bytes)
 	}
 }
 
-func (msi *messageServiceImpl) Subscribe(topic string, callback subscribeCallback) {
-	if msi.subscriberCallbacks[topic] == nil {
-		msi.subscriberCallbacks[topic] = []subscribeCallback{}
+func (msi *messageServiceImpl) Subscribe(topic string, callback subscribeCallback) (subsriptionToken string) {
+	if msi.subscribers[topic] == nil {
+		msi.subscribers[topic] = []subscriber{}
 	}
 
-	msi.subscriberCallbacks[topic] = append(msi.subscriberCallbacks[topic], callback)
+	newSubsriptionToken := generateRandomHash(10)
+	msi.subscribers[topic] = append(msi.subscribers[topic], subscriber{
+		callback: callback,
+		token:    newSubsriptionToken,
+	})
+
+	return newSubsriptionToken
+}
+
+func (msi *messageServiceImpl) Unsubscribe(topic string, subsriptionToken string) {
+	if msi.subscribers[topic] == nil {
+		return
+	}
+
+	var subscriberWithGivenTokenIndex int = -1
+	for subscriberIdx, subscriber := range msi.subscribers[topic] {
+		if subscriber.token == subsriptionToken {
+			fmt.Println("Found it")
+			fmt.Println(subscriber.token)
+			subscriberWithGivenTokenIndex = subscriberIdx
+		}
+	}
+
+	if subscriberWithGivenTokenIndex > -1 {
+		msi.subscribers[topic] = append(
+			msi.subscribers[topic][:subscriberWithGivenTokenIndex],
+			msi.subscribers[topic][subscriberWithGivenTokenIndex+1:]...,
+		)
+	}
 }
