@@ -1,26 +1,26 @@
-package gameprovider
+package gameservice
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
 	"github.com/DumDumGeniuss/ggol"
 )
 
-type GameProvider interface {
+type GameService interface {
 	GenerateNextUnits()
 	GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error)
 	GetGameSize() *GameSize
 }
 
-type gameProviderImplement struct {
+type gameServiceImplement struct {
 	gameOfLiberty ggol.Game[GameUnit]
 	gameDAO       gamedao.GameDAO
 }
 
-var gameProvider GameProvider = nil
+var gameService GameService = nil
 
-func CreateGameProvider(gameDAO gamedao.GameDAO) (GameProvider, error) {
-	if gameProvider != nil {
-		return nil, &errGameProviderHasBeenCreated{}
+func CreateGameService(gameDAO gamedao.GameDAO) (GameService, error) {
+	if gameService != nil {
+		return nil, &errGameServiceHasBeenCreated{}
 	}
 	initialUnit := GameUnit{
 		Alive: false,
@@ -46,19 +46,19 @@ func CreateGameProvider(gameDAO gamedao.GameDAO) (GameProvider, error) {
 		}
 	}
 
-	newGameProvider := &gameProviderImplement{
+	newGameService := &gameServiceImplement{
 		gameOfLiberty: newGameOfLiberty,
 		gameDAO:       gameDAO,
 	}
-	gameProvider = newGameProvider
-	return gameProvider, nil
+	gameService = newGameService
+	return gameService, nil
 }
 
-func (gsi *gameProviderImplement) GenerateNextUnits() {
+func (gsi *gameServiceImplement) GenerateNextUnits() {
 	gsi.gameOfLiberty.GenerateNextUnits()
 }
 
-func (gsi *gameProviderImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error) {
+func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error) {
 	ggolArea := convertGameAreaToGgolArea(area)
 	units, err := gsi.gameOfLiberty.GetUnitsInArea(ggolArea)
 	if err != nil {
@@ -67,6 +67,6 @@ func (gsi *gameProviderImplement) GetGameUnitsInArea(area *GameArea) (*[][]*Game
 	return &units, nil
 }
 
-func (gsi *gameProviderImplement) GetGameSize() *GameSize {
+func (gsi *gameServiceImplement) GetGameSize() *GameSize {
 	return convertGgolSizeToGameSize(gsi.gameOfLiberty.GetSize())
 }

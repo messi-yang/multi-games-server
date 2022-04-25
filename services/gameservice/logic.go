@@ -1,4 +1,4 @@
-package gameprovider
+package gameservice
 
 import "github.com/DumDumGeniuss/ggol"
 

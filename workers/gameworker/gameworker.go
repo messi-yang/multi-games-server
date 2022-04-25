@@ -3,7 +3,7 @@ package gameworker
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/providers/gameprovider"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 )
 
 type GameWorker interface {
@@ -12,20 +12,20 @@ type GameWorker interface {
 }
 
 type gameWorkerImpl struct {
-	gameProvider   gameprovider.GameProvider
+	gameService    gameservice.GameService
 	gameTicker     *time.Ticker
 	gameTickerStop chan bool
 }
 
 var gameWorker GameWorker
 
-func CreateGameWorker(gameProvider gameprovider.GameProvider) (GameWorker, error) {
+func CreateGameWorker(gameService gameservice.GameService) (GameWorker, error) {
 	if gameWorker != nil {
 		return nil, &errGameWorkHasBeenCreated{}
 	}
 
 	return &gameWorkerImpl{
-		gameProvider: gameProvider,
+		gameService: gameService,
 	}, nil
 }
 
@@ -38,13 +38,13 @@ func (gwi *gameWorkerImpl) StartGame() {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				gwi.gameProvider.GenerateNextUnits()
+				gwi.gameService.GenerateNextUnits()
 
-				// gameArea := gameprovider.GameArea{
-				// 	From: gameprovider.GameCoordinate{X: 0, Y: 0},
-				// 	To:   gameprovider.GameCoordinate{X: 3, Y: 3},
+				// gameArea := gameservice.GameArea{
+				// 	From: gameservice.GameCoordinate{X: 0, Y: 0},
+				// 	To:   gameservice.GameCoordinate{X: 3, Y: 3},
 				// }
-				// gameUnits, err := gwi.gameProvider.GetGameUnitsInArea(&gameArea)
+				// gameUnits, err := gwi.gameService.GetGameUnitsInArea(&gameArea)
 				// if err != nil {
 				// 	fmt.Println(err.Error())
 				// }
