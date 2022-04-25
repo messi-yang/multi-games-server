@@ -1,8 +1,8 @@
 package gameworker
 
-type errGameStoreIsNotSet struct {
+type errGameWorkHasBeenCreated struct {
 }
 
-func (e *errGameStoreIsNotSet) Error() string {
-	return "Game store is not set."
+func (e *errGameWorkHasBeenCreated) Error() string {
+	return "Game worker has been created."
 }

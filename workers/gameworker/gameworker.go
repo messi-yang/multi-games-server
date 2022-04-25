@@ -1,38 +1,35 @@
 package gameworker
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/providers/gameprovider"
 )
 
 type GameWorker interface {
-	SetGameStore(gameprovider.GameStore)
-	Start() error
-	Stop() error
+	StartGame()
+	StopGame()
 }
 
 type gameWorkerImpl struct {
-	gameStore      gameprovider.GameStore
+	gameProvider   gameprovider.GameProvider
 	gameTicker     *time.Ticker
 	gameTickerStop chan bool
 }
 
-var Worker GameWorker = &gameWorkerImpl{
-	gameStore:      nil,
-	gameTicker:     nil,
-	gameTickerStop: nil,
-}
+var gameWorker GameWorker
 
-func (gwi *gameWorkerImpl) SetGameStore(gameStore gameprovider.GameStore) {
-	gwi.gameStore = gameStore
-}
-
-func (gwi *gameWorkerImpl) Start() error {
-	if gwi.gameStore == nil {
-		return &errGameStoreIsNotSet{}
+func CreateGameWorker(gameProvider gameprovider.GameProvider) (GameWorker, error) {
+	if gameWorker != nil {
+		return nil, &errGameWorkHasBeenCreated{}
 	}
+
+	return &gameWorkerImpl{
+		gameProvider: gameProvider,
+	}, nil
+}
+
+func (gwi *gameWorkerImpl) StartGame() {
 	go func() {
 		gwi.gameTicker = time.NewTicker(time.Millisecond * 1000)
 		defer gwi.gameTicker.Stop()
@@ -41,7 +38,7 @@ func (gwi *gameWorkerImpl) Start() error {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				fmt.Println("hi")
+				gwi.gameProvider.GenerateNextUnits()
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil
@@ -49,19 +46,12 @@ func (gwi *gameWorkerImpl) Start() error {
 			}
 		}
 	}()
-
-	return nil
 }
 
-func (gwi *gameWorkerImpl) Stop() error {
-	if gwi.gameStore == nil {
-		return &errGameStoreIsNotSet{}
-	}
+func (gwi *gameWorkerImpl) StopGame() {
 	if gwi.gameTicker == nil {
-		return nil
+		return
 	}
 	gwi.gameTickerStop <- true
 	close(gwi.gameTickerStop)
-
-	return nil
 }
