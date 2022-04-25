@@ -16,18 +16,18 @@ type gameProviderImplement struct {
 	gameDAO       gamedao.GameDAO
 }
 
-var gameStore GameProvider = nil
+var gameProvider GameProvider = nil
 
 func CreateGameProvider(gameDAO gamedao.GameDAO) (GameProvider, error) {
-	if gameStore != nil {
+	if gameProvider != nil {
 		return nil, &errGameProviderHasBeenCreated{}
 	}
 	initialUnit := GameUnit{
 		Alive: false,
 		Age:   0,
 	}
-	gameFieldSize, _ := gameDAO.GetGameSize()
-	ggolSize := convertGameSizeToGgolSize(gameFieldSize)
+	gameSize, _ := gameDAO.GetGameSize()
+	ggolSize := convertGameSizeToGgolSize(gameSize)
 	newGameOfLiberty, _ := ggol.NewGame(
 		ggolSize,
 		&initialUnit,
@@ -35,8 +35,8 @@ func CreateGameProvider(gameDAO gamedao.GameDAO) (GameProvider, error) {
 
 	newGameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
-	gameField, _ := gameDAO.GetGameField()
-	gameUnits := convertGameFieldToGameUnits(gameField)
+	gameUnitsFromDAO, _ := gameDAO.GetGameUnits()
+	gameUnits := convertGameUnitsFromGameDAOToGameUnits(gameUnitsFromDAO)
 
 	for x := 0; x < ggolSize.Width; x += 1 {
 		for y := 0; y < ggolSize.Height; y += 1 {
@@ -50,8 +50,8 @@ func CreateGameProvider(gameDAO gamedao.GameDAO) (GameProvider, error) {
 		gameOfLiberty: newGameOfLiberty,
 		gameDAO:       gameDAO,
 	}
-	gameStore = newGameProvider
-	return gameStore, nil
+	gameProvider = newGameProvider
+	return gameProvider, nil
 }
 
 func (gsi *gameProviderImplement) GenerateNextUnits() {

@@ -39,6 +39,16 @@ func (gwi *gameWorkerImpl) StartGame() {
 			select {
 			case <-gwi.gameTicker.C:
 				gwi.gameProvider.GenerateNextUnits()
+
+				// gameArea := gameprovider.GameArea{
+				// 	From: gameprovider.GameCoordinate{X: 0, Y: 0},
+				// 	To:   gameprovider.GameCoordinate{X: 3, Y: 3},
+				// }
+				// gameUnits, err := gwi.gameProvider.GetGameUnitsInArea(&gameArea)
+				// if err != nil {
+				// 	fmt.Println(err.Error())
+				// }
+				// fmt.Println(gameUnits)
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil

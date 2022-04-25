@@ -1,6 +1,6 @@
 package gamedao
 
-type GameField [][]GameUnit
+type GameUnits [][]GameUnit
 
 type GameUnit struct {
 	Alive bool `json:"alive"`

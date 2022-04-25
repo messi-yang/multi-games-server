@@ -5,17 +5,17 @@ import (
 	"github.com/DumDumGeniuss/ggol"
 )
 
-func convertGameFieldToGameUnits(gameField *gamedao.GameField) *GameUnits {
-	width := len(*gameField)
+func convertGameUnitsFromGameDAOToGameUnits(gameUnitsFromGameDAO *gamedao.GameUnits) *GameUnits {
+	width := len(*gameUnitsFromGameDAO)
 	gameUnits := make(GameUnits, width)
 	for i := 0; i < width; i += 1 {
-		height := len((*gameField)[i])
+		height := len((*gameUnitsFromGameDAO)[i])
 		gameUnits[i] = make([]GameUnit, height)
 		for j := 0; j < height; j += 1 {
 
 			gameUnits[i][j] = GameUnit{
-				Alive: (*gameField)[i][j].Alive,
-				Age:   (*gameField)[i][j].Age,
+				Alive: (*gameUnitsFromGameDAO)[i][j].Alive,
+				Age:   (*gameUnitsFromGameDAO)[i][j].Age,
 			}
 		}
 	}
@@ -30,10 +30,10 @@ func convertGgolSizeToGameSize(ggolSize *ggol.Size) *GameSize {
 	}
 }
 
-func convertGameSizeToGgolSize(gameFieldSize *gamedao.GameSize) *ggol.Size {
+func convertGameSizeToGgolSize(gameSize *gamedao.GameSize) *ggol.Size {
 	return &ggol.Size{
-		Width:  gameFieldSize.Width,
-		Height: gameFieldSize.Height,
+		Width:  gameSize.Width,
+		Height: gameSize.Height,
 	}
 }
 

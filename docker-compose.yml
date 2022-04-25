@@ -10,3 +10,13 @@ services:
     working_dir:
       /app
     command: make start
+  dev:
+    env_file: .env
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+    working_dir:
+      /app
+    command: make dev

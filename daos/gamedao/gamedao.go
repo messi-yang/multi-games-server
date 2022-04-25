@@ -5,7 +5,7 @@ import (
 )
 
 type GameDAO interface {
-	GetGameField() (*GameField, error)
+	GetGameUnits() (*GameUnits, error)
 	GetGameSize() (*GameSize, error)
 }
 
@@ -26,16 +26,16 @@ func GetGameDAO(gameModel gamemodel.GameModel) GameDAO {
 	}
 }
 
-func (gdi *gamDAOImplement) GetGameField() (*GameField, error) {
+func (gdi *gamDAOImplement) GetGameUnits() (*GameUnits, error) {
 	gameUnitsEntity := gdi.gameModel.GetGameUnitsModel()
-	gameField := convertGameUnitsModelToGameField(gameUnitsEntity)
+	gameField := convertGameUnitsModelToGameUnits(gameUnitsEntity)
 
 	return gameField, nil
 }
 
 func (gdi *gamDAOImplement) GetGameSize() (*GameSize, error) {
 	gameSizeModel := gdi.gameModel.GetGameSizeModel()
-	gameFieldSize := convertGameSizeModelToGameFieldSize(gameSizeModel)
+	gameFieldSize := convertGameSizeModelToGameSize(gameSizeModel)
 
 	return gameFieldSize, nil
 }

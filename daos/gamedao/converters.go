@@ -4,16 +4,16 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/models/gamemodel"
 )
 
-func convertGameSizeModelToGameFieldSize(gameSizeModel *gamemodel.GameSizeModel) *GameSize {
+func convertGameSizeModelToGameSize(gameSizeModel *gamemodel.GameSizeModel) *GameSize {
 	return &GameSize{
 		Width:  gameSizeModel.Width,
 		Height: gameSizeModel.Height,
 	}
 }
 
-func convertGameUnitsModelToGameField(gameUnitsEntity *gamemodel.GameUnitsModel) *GameField {
+func convertGameUnitsModelToGameUnits(gameUnitsEntity *gamemodel.GameUnitsModel) *GameUnits {
 	width := len(*gameUnitsEntity)
-	gameField := make(GameField, width)
+	gameField := make(GameUnits, width)
 	for i := 0; i < width; i += 1 {
 		height := len((*gameUnitsEntity)[i])
 		gameField[i] = make([]GameUnit, height)
