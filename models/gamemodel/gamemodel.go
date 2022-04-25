@@ -13,10 +13,20 @@ type GameModel interface {
 }
 
 type gameModelImpl struct {
-	config config.Config
 }
 
-func CreateGameUnitsModel() {
+var gameModel GameModel
+
+func GetGameModel() GameModel {
+	if gameModel == nil {
+		gameModel = &gameModelImpl{}
+		return gameModel
+	} else {
+		return gameModel
+	}
+}
+
+func (gmi *gameModelImpl) CreateGameUnitsModel() {
 	size := config.GetConfig().GetGameSize()
 
 	gameUnitsEntity := make(GameUnitsModel, size)
@@ -33,7 +43,7 @@ func CreateGameUnitsModel() {
 	// TODO - Insert into whatever storage we use.
 }
 
-func GetGameUnitsModel() *GameUnitsModel {
+func (gmi *gameModelImpl) GetGameUnitsModel() *GameUnitsModel {
 	size := config.GetConfig().GetGameSize()
 
 	gameUnitsEntity := make(GameUnitsModel, size)
@@ -50,7 +60,7 @@ func GetGameUnitsModel() *GameUnitsModel {
 	return &gameUnitsEntity
 }
 
-func GetGameSizeModel() *GameSizeModel {
+func (gmi *gameModelImpl) GetGameSizeModel() *GameSizeModel {
 	size := config.GetConfig().GetGameSize()
 
 	return &GameSizeModel{Width: size, Height: size}

@@ -30,7 +30,7 @@ func convertGgolSizeToGameSize(ggolSize *ggol.Size) *GameSize {
 	}
 }
 
-func convertGameGameFieldSizeToGgolSize(gameFieldSize *gamedao.GameFieldSize) *ggol.Size {
+func convertGameSizeToGgolSize(gameFieldSize *gamedao.GameSize) *ggol.Size {
 	return &ggol.Size{
 		Width:  gameFieldSize.Width,
 		Height: gameFieldSize.Height,

@@ -18,11 +18,6 @@ func Initialize() {
 		return
 	}
 
-	// gameField, err := gamedao.DAO.GetGameField()
-	// gameFieldSize, err := gamedao.DAO.GetGameFieldSize()
-	// fmt.Println(gameField)
-	// fmt.Println(gameFieldSize)
-
 	size := ggol.Size{
 		Width:  config.GetConfig().GetGameSize(),
 		Height: config.GetConfig().GetGameSize(),

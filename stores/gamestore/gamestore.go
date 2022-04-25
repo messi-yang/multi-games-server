@@ -7,43 +7,50 @@ import (
 
 type GameStore interface {
 	GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error)
-	GetGameFieldSize() *GameSize
-	InitializeGame()
+	GetGameSize() *GameSize
 }
 
 type gameStoreImplement struct {
 	gameOfLiberty ggol.Game[GameUnit]
-	gameDao       gamedao.GameDAO
+	gameDAO       gamedao.GameDAO
 }
 
-var Store GameStore = &gameStoreImplement{
-	gameOfLiberty: nil,
-	gameDao:       gamedao.DAO,
-}
+var gameStore GameStore = nil
 
-func (gsi *gameStoreImplement) InitializeGame() {
-	initialUnit := GameUnit{
-		Alive: false,
-		Age:   0,
-	}
-	gameFieldSize, _ := gsi.gameDao.GetGameFieldSize()
-	ggolSize := convertGameGameFieldSizeToGgolSize(gameFieldSize)
-	gsi.gameOfLiberty, _ = ggol.NewGame(
-		ggolSize,
-		&initialUnit,
-	)
-
-	gsi.gameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
-
-	gameField, _ := gsi.gameDao.GetGameField()
-	gameUnits := convertGameFieldToGameUnits(gameField)
-
-	for x := 0; x < ggolSize.Width; x += 1 {
-		for y := 0; y < ggolSize.Height; y += 1 {
-			gameFieldUnit := &(*gameUnits)[x][y]
-			coord := &ggol.Coordinate{X: x, Y: y}
-			gsi.gameOfLiberty.SetUnit(coord, gameFieldUnit)
+func GetGameStore(gameDAO gamedao.GameDAO) GameStore {
+	if gameStore == nil {
+		initialUnit := GameUnit{
+			Alive: false,
+			Age:   0,
 		}
+		gameFieldSize, _ := gameDAO.GetGameSize()
+		ggolSize := convertGameSizeToGgolSize(gameFieldSize)
+		newGameOfLiberty, _ := ggol.NewGame(
+			ggolSize,
+			&initialUnit,
+		)
+
+		newGameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
+
+		gameField, _ := gameDAO.GetGameField()
+		gameUnits := convertGameFieldToGameUnits(gameField)
+
+		for x := 0; x < ggolSize.Width; x += 1 {
+			for y := 0; y < ggolSize.Height; y += 1 {
+				gameFieldUnit := &(*gameUnits)[x][y]
+				coord := &ggol.Coordinate{X: x, Y: y}
+				newGameOfLiberty.SetUnit(coord, gameFieldUnit)
+			}
+		}
+
+		newGameStore := &gameStoreImplement{
+			gameOfLiberty: newGameOfLiberty,
+			gameDAO:       gameDAO,
+		}
+		gameStore = newGameStore
+		return gameStore
+	} else {
+		return gameStore
 	}
 }
 
@@ -56,6 +63,6 @@ func (gsi *gameStoreImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameUni
 	return &units, nil
 }
 
-func (gsi *gameStoreImplement) GetGameFieldSize() *GameSize {
+func (gsi *gameStoreImplement) GetGameSize() *GameSize {
 	return convertGgolSizeToGameSize(gsi.gameOfLiberty.GetSize())
 }

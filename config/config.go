@@ -12,8 +12,7 @@ type Config interface {
 }
 
 type configImpl struct {
-	hasSetConfig bool
-	GAME_SIZE    int
+	GAME_SIZE int
 }
 
 var config Config = nil
@@ -29,6 +28,7 @@ func GetConfig() Config {
 			newConfig.GAME_SIZE, _ = strconv.Atoi(os.Getenv("GAME_SIZE"))
 		}
 
+		config = newConfig
 		return newConfig
 	} else {
 		return config
