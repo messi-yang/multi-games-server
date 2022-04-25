@@ -1,4 +1,4 @@
-package gamestore
+package gameprovider
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"

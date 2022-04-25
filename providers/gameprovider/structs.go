@@ -1,4 +1,4 @@
-package gamestore
+package gameprovider
 
 type GameUnits [][]GameUnit
 

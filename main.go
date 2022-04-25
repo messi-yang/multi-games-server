@@ -5,8 +5,8 @@ import (
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/models/gamemodel"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/providers/gameprovider"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/stores/gamestore"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/oldgameworker"
 	"github.com/gin-gonic/gin"
@@ -19,14 +19,14 @@ func main() {
 
 	gameModel := gamemodel.GetGameModel()
 	gameDAO := gamedao.GetGameDAO(gameModel)
-	gameStore := gamestore.GetGameStore(gameDAO)
+	gameStore := gameprovider.GetGameStore(gameDAO)
 
-	fmt.Println(gameStore.GetGameUnitsInArea(&gamestore.GameArea{
-		From: gamestore.GameCoordinate{
+	fmt.Println(gameStore.GetGameUnitsInArea(&gameprovider.GameArea{
+		From: gameprovider.GameCoordinate{
 			X: 0,
 			Y: 0,
 		},
-		To: gamestore.GameCoordinate{
+		To: gameprovider.GameCoordinate{
 			X: 2,
 			Y: 2,
 		},

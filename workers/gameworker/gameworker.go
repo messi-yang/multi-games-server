@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/stores/gamestore"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/providers/gameprovider"
 )
 
 type GameWorker interface {
-	SetGameStore(gamestore.GameStore)
+	SetGameStore(gameprovider.GameStore)
 	Start() error
 	Stop() error
 }
 
 type gameWorkerImpl struct {
-	gameStore      gamestore.GameStore
+	gameStore      gameprovider.GameStore
 	gameTicker     *time.Ticker
 	gameTickerStop chan bool
 }
@@ -25,7 +25,7 @@ var Worker GameWorker = &gameWorkerImpl{
 	gameTickerStop: nil,
 }
 
-func (gwi *gameWorkerImpl) SetGameStore(gameStore gamestore.GameStore) {
+func (gwi *gameWorkerImpl) SetGameStore(gameStore gameprovider.GameStore) {
 	gwi.gameStore = gameStore
 }
 
