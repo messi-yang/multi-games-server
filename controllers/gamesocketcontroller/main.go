@@ -1,11 +1,11 @@
 package gamesocketcontroller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/oldgameworker"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -18,69 +18,46 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-func authenticate(token string) error {
-	return nil
-}
-
 func Controller(c *gin.Context) {
-	err := authenticate("hi")
-	if err != nil {
-		fmt.Println("Authentication failed")
-		return
-	}
-
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	closeConn := make(chan bool)
 	defer conn.Close()
 
-	sessionHash := generateRandomHash(12)
+	closeConn := make(chan bool)
 
 	conn.SetCloseHandler(func(code int, text string) error {
-		closeConn <- true
 		return nil
+	})
+
+	messageService := messageservice.GetMessageService()
+	gameService := gameservice.GetGameService()
+	messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
+		fmt.Println("HHHHHIIII")
+		gameUnits, err := gameService.GetGameUnitsInArea(
+			&gameservice.GameArea{
+				From: gameservice.GameCoordinate{X: 0, Y: 0},
+				To:   gameservice.GameCoordinate{X: 0, Y: 0},
+			},
+		)
+		if err != nil {
+			conn.WriteJSON(err.Error())
+			return
+		}
+		conn.WriteJSON(gameUnits)
 	})
 
 	go func() {
 		defer func() {
-			oldgameworker.UnsubscribeGameBlockChangeEvent(sessionHash)
+			closeConn <- true
 		}()
 
 		for {
-			_, msg, err := conn.ReadMessage()
+			_, _, err := conn.ReadMessage()
 			if err != nil {
 				break
-			}
-			actionType, err := getActionTypeFromMessage(msg)
-			if err != nil {
-				break
-			}
-
-			if *actionType == watchGameBlock {
-				var watchGameBlockAction watchGameBlockAction
-				json.Unmarshal(msg, &watchGameBlockAction)
-				oldgameworker.SubscribeGameBlockChangeEvent(
-					sessionHash,
-					oldgameworker.GameBlockArea{
-						FromX: watchGameBlockAction.Payload.Area.From.X,
-						FromY: watchGameBlockAction.Payload.Area.From.Y,
-						ToX:   watchGameBlockAction.Payload.Area.To.X,
-						ToY:   watchGameBlockAction.Payload.Area.To.Y,
-					},
-					func(gameUnits [][]*oldgameworker.GameUnit) {
-						event := gameBlockUpdatedEvent{
-							Type: gaemBlockUpdated,
-							Payload: gameBlockUpdatedEventPayload{
-								Area:  watchGameBlockAction.Payload.Area,
-								Units: gameUnits,
-							},
-						}
-						conn.WriteJSON(event)
-					},
-				)
 			}
 		}
 	}()
