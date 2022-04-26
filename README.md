@@ -40,6 +40,12 @@ make dev
 make build
 ```
 
+### Develop with hot reload with Docker
+
+```bash
+docker-compose up dev
+```
+
 ### Start production server with Docker
 
 ```bash

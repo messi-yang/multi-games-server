@@ -7,15 +7,10 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/oldgameworker"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Initialize our game and start it
-	oldgameworker.Initialize()
-	oldgameworker.Start()
-
 	gameModel := gamemodel.GetGameModel()
 
 	gameDAO := gamedao.GetGameDAO()

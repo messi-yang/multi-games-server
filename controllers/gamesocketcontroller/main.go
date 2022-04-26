@@ -1,7 +1,6 @@
 package gamesocketcontroller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
@@ -21,32 +20,32 @@ var wsupgrader = websocket.Upgrader{
 func Controller(c *gin.Context) {
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println(err.Error())
+		c.Error(err)
 		return
 	}
 	defer conn.Close()
 
 	session := session{
-		watchArea: &gameservice.GameArea{
+		gameAreaToWatch: &gameservice.GameArea{
 			From: gameservice.GameCoordinate{X: 0, Y: 0},
-			To:   gameservice.GameCoordinate{X: 0, Y: 0},
+			To:   gameservice.GameCoordinate{X: 3, Y: 3},
 		},
 	}
-	fmt.Println(session)
 
 	closeConnFlag := make(chan bool)
 
 	messageService := messageservice.GetMessageService()
 	gameService := gameservice.GetGameService()
 	unitsUpdatedSubscriptionToken := messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
-		if session.watchArea == nil {
+		if session.gameAreaToWatch == nil {
 			return
 		}
 		gameUnits, err := gameService.GetGameUnitsInArea(
-			session.watchArea,
+			session.gameAreaToWatch,
 		)
 		if err != nil {
-			conn.WriteJSON(err.Error())
+			errorEvent := constructErrorHappenedEvent(err.Error())
+			conn.WriteJSON(errorEvent)
 			return
 		}
 		conn.WriteJSON(gameUnits)
@@ -69,7 +68,6 @@ func Controller(c *gin.Context) {
 	for {
 		select {
 		case <-closeConnFlag:
-			fmt.Println("Connection closed.")
 			return
 		}
 	}

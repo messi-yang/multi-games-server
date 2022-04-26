@@ -1,7 +1,5 @@
 package messageservice
 
-import "fmt"
-
 type subscribeCallback func(bytes []byte)
 type subscriber struct {
 	callback subscribeCallback
@@ -63,8 +61,6 @@ func (msi *messageServiceImpl) Unsubscribe(topic string, subsriptionToken string
 	var subscriberWithGivenTokenIndex int = -1
 	for subscriberIdx, subscriber := range msi.subscribers[topic] {
 		if subscriber.token == subsriptionToken {
-			fmt.Println("Found it")
-			fmt.Println(subscriber.token)
 			subscriberWithGivenTokenIndex = subscriberIdx
 		}
 	}
