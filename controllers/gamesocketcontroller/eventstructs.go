@@ -7,21 +7,23 @@ import (
 type eventType string
 
 const (
-	errorHappenedEventType    eventType = "ERROR"
-	gaemUnitsUpdatedEventType           = "GAME_UNITS_UPDATED"
+	errorHappenedEventType eventType = "ERROR"
+	unitsUpdatedEventType            = "UNITS_UPDATED"
 )
 
+type errorHappenedEventPayload struct {
+	ClientMessage string `json:"clientMessage"`
+}
 type errorHappenedEvent struct {
-	Type    eventType `json:"type"`
-	Payload struct {
-		ClientMessage string `json:"clientMessage"`
-	} `json:"payload"`
+	Type    eventType                 `json:"type"`
+	Payload errorHappenedEventPayload `json:"payload"`
 }
 
-type gameUnitsUpdatedEvent struct {
-	Type    eventType `json:"type"`
-	Payload struct {
-		Area  gameservice.GameArea      `json:"area"`
-		Units [][]*gameservice.GameUnit `json:"units"`
-	} `json:"payload"`
+type unitsUpdatedEventPayload struct {
+	Area  gameservice.GameArea      `json:"area"`
+	Units [][]*gameservice.GameUnit `json:"units"`
+}
+type unitsUpdatedEvent struct {
+	Type    eventType                `json:"type"`
+	Payload unitsUpdatedEventPayload `json:"payload"`
 }

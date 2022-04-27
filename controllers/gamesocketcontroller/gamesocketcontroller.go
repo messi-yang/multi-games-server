@@ -25,6 +25,8 @@ func Controller(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	closeConnFlag := make(chan bool)
+
 	session := session{
 		gameAreaToWatch: &gameservice.GameArea{
 			From: gameservice.GameCoordinate{X: 0, Y: 0},
@@ -32,10 +34,9 @@ func Controller(c *gin.Context) {
 		},
 	}
 
-	closeConnFlag := make(chan bool)
-
 	messageService := messageservice.GetMessageService()
 	gameService := gameservice.GetGameService()
+
 	unitsUpdatedSubscriptionToken := messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
 		if session.gameAreaToWatch == nil {
 			return
@@ -48,7 +49,9 @@ func Controller(c *gin.Context) {
 			conn.WriteJSON(errorEvent)
 			return
 		}
-		conn.WriteJSON(gameUnits)
+
+		unitsUpdatedEvent := constructUnitsUpdatedEvent(session.gameAreaToWatch, gameUnits)
+		conn.WriteJSON(unitsUpdatedEvent)
 	})
 	defer messageService.Unsubscribe("UNITS_UPDATED", unitsUpdatedSubscriptionToken)
 
@@ -58,8 +61,28 @@ func Controller(c *gin.Context) {
 		}()
 
 		for {
-			_, _, err := conn.ReadMessage()
+			_, message, err := conn.ReadMessage()
 			if err != nil {
+				errorEvent := constructErrorHappenedEvent(err.Error())
+				conn.WriteJSON(errorEvent)
+			}
+
+			actionType, err := getActionTypeFromMessage(message)
+			if err != nil {
+				errorEvent := constructErrorHappenedEvent(err.Error())
+				conn.WriteJSON(errorEvent)
+			}
+
+			switch *actionType {
+			case watchUnitsActionType:
+				watchUnitsAction, err := extractWatchUnitsActionFromMessage(message)
+				if err != nil {
+					errorEvent := constructErrorHappenedEvent(err.Error())
+					conn.WriteJSON(errorEvent)
+				}
+				session.gameAreaToWatch = &watchUnitsAction.Payload.Area
+				break
+			default:
 				break
 			}
 		}
