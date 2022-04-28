@@ -1,6 +1,7 @@
 package gamesocketcontroller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
@@ -17,6 +18,8 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
+var playersCount int = 0
+
 func Controller(c *gin.Context) {
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -24,9 +27,12 @@ func Controller(c *gin.Context) {
 		return
 	}
 	defer conn.Close()
-
 	closeConnFlag := make(chan bool)
 
+	messageService := messageservice.GetMessageService()
+	gameService := gameservice.GetGameService()
+
+	playersCount += 1
 	session := session{
 		gameAreaToWatch: &gameservice.GameArea{
 			From: gameservice.GameCoordinate{X: 0, Y: 0},
@@ -34,8 +40,11 @@ func Controller(c *gin.Context) {
 		},
 	}
 
-	messageService := messageservice.GetMessageService()
-	gameService := gameservice.GetGameService()
+	gameSize, _ := gameService.GetGameSize()
+	gameInfoUpdatedEvent := constructGameInfoUpdatedEvent(gameSize, playersCount)
+	conn.WriteJSON(gameInfoUpdatedEvent)
+
+	messageService.Publish("PLAYER_JOINED", nil)
 
 	unitsUpdatedSubscriptionToken := messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
 		if session.gameAreaToWatch == nil {
@@ -55,6 +64,24 @@ func Controller(c *gin.Context) {
 	})
 	defer messageService.Unsubscribe("UNITS_UPDATED", unitsUpdatedSubscriptionToken)
 
+	playerJoinedSubscriptionToken := messageService.Subscribe("PLAYER_JOINED", func(_ []byte) {
+		playerJoinedEvent := constructPlayerJoinedEvent()
+		conn.WriteJSON(playerJoinedEvent)
+	})
+	defer messageService.Unsubscribe("PLAYER_JOINED", playerJoinedSubscriptionToken)
+
+	playerLeftSubscriptionToken := messageService.Subscribe("PLAYER_LEFT", func(_ []byte) {
+		playerLeftEvent := constructPlayerLeftEvent()
+		conn.WriteJSON(playerLeftEvent)
+	})
+	defer messageService.Unsubscribe("PLAYER_LEFT", playerLeftSubscriptionToken)
+
+	conn.SetCloseHandler(func(code int, text string) error {
+		playersCount -= 1
+		messageService.Publish("PLAYER_LEFT", nil)
+		return nil
+	})
+
 	go func() {
 		defer func() {
 			closeConnFlag <- true
@@ -65,6 +92,7 @@ func Controller(c *gin.Context) {
 			if err != nil {
 				errorEvent := constructErrorHappenedEvent(err.Error())
 				conn.WriteJSON(errorEvent)
+				break
 			}
 
 			actionType, err := getActionTypeFromMessage(message)
@@ -91,6 +119,7 @@ func Controller(c *gin.Context) {
 	for {
 		select {
 		case <-closeConnFlag:
+			fmt.Println("Player left")
 			return
 		}
 	}

@@ -11,6 +11,16 @@ func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {
 	}
 }
 
+func constructGameInfoUpdatedEvent(mapSize *gameservice.GameSize, playersCount int) *gameInfoUpdatedEvent {
+	return &gameInfoUpdatedEvent{
+		Type: gameInfoUpdatedEventType,
+		Payload: gameInfoUpdatedEventPayload{
+			MapSize:      *mapSize,
+			PlayersCount: playersCount,
+		},
+	}
+}
+
 func constructUnitsUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]*gameservice.GameUnit) *unitsUpdatedEvent {
 	return &unitsUpdatedEvent{
 		Type: unitsUpdatedEventType,
@@ -18,5 +28,19 @@ func constructUnitsUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]*
 			Area:  *gameArea,
 			Units: *gameUnits,
 		},
+	}
+}
+
+func constructPlayerJoinedEvent() *playerJoinedEvent {
+	return &playerJoinedEvent{
+		Type:    playerJoinedEventType,
+		Payload: nil,
+	}
+}
+
+func constructPlayerLeftEvent() *playerLeftEvent {
+	return &playerLeftEvent{
+		Type:    playerLeftEventType,
+		Payload: nil,
 	}
 }
