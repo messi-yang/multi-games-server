@@ -33,46 +33,28 @@ func Controller(c *gin.Context) {
 	gameService := gameservice.GetGameService()
 
 	playersCount += 1
-	session := session{
+	session := &session{
 		gameAreaToWatch: &gameservice.GameArea{
 			From: gameservice.GameCoordinate{X: 0, Y: 0},
 			To:   gameservice.GameCoordinate{X: 3, Y: 3},
 		},
 	}
 
-	gameSize, _ := gameService.GetGameSize()
-	gameInfoUpdatedEvent := constructGameInfoUpdatedEvent(gameSize, playersCount)
-	conn.WriteJSON(gameInfoUpdatedEvent)
-
+	emitGameInfoUpdatedEvent(conn, gameService)
 	messageService.Publish("PLAYER_JOINED", nil)
 
 	unitsUpdatedSubscriptionToken := messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
-		if session.gameAreaToWatch == nil {
-			return
-		}
-		gameUnits, err := gameService.GetGameUnitsInArea(
-			session.gameAreaToWatch,
-		)
-		if err != nil {
-			errorEvent := constructErrorHappenedEvent(err.Error())
-			conn.WriteJSON(errorEvent)
-			return
-		}
-
-		unitsUpdatedEvent := constructUnitsUpdatedEvent(session.gameAreaToWatch, gameUnits)
-		conn.WriteJSON(unitsUpdatedEvent)
+		emitUnitsUpdatedEvent(conn, session, gameService)
 	})
 	defer messageService.Unsubscribe("UNITS_UPDATED", unitsUpdatedSubscriptionToken)
 
 	playerJoinedSubscriptionToken := messageService.Subscribe("PLAYER_JOINED", func(_ []byte) {
-		playerJoinedEvent := constructPlayerJoinedEvent()
-		conn.WriteJSON(playerJoinedEvent)
+		emitPlayerJoinedEvent(conn)
 	})
 	defer messageService.Unsubscribe("PLAYER_JOINED", playerJoinedSubscriptionToken)
 
 	playerLeftSubscriptionToken := messageService.Subscribe("PLAYER_LEFT", func(_ []byte) {
-		playerLeftEvent := constructPlayerLeftEvent()
-		conn.WriteJSON(playerLeftEvent)
+		emitPlayerLeftEvent(conn)
 	})
 	defer messageService.Unsubscribe("PLAYER_LEFT", playerLeftSubscriptionToken)
 
@@ -90,23 +72,20 @@ func Controller(c *gin.Context) {
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
-				errorEvent := constructErrorHappenedEvent(err.Error())
-				conn.WriteJSON(errorEvent)
+				emitErrorEvent(conn, err)
 				break
 			}
 
 			actionType, err := getActionTypeFromMessage(message)
 			if err != nil {
-				errorEvent := constructErrorHappenedEvent(err.Error())
-				conn.WriteJSON(errorEvent)
+				emitErrorEvent(conn, err)
 			}
 
 			switch *actionType {
 			case watchUnitsActionType:
 				watchUnitsAction, err := extractWatchUnitsActionFromMessage(message)
 				if err != nil {
-					errorEvent := constructErrorHappenedEvent(err.Error())
-					conn.WriteJSON(errorEvent)
+					emitErrorEvent(conn, err)
 				}
 				session.gameAreaToWatch = &watchUnitsAction.Payload.Area
 				break
@@ -123,4 +102,41 @@ func Controller(c *gin.Context) {
 			return
 		}
 	}
+}
+
+func emitErrorEvent(conn *websocket.Conn, err error) {
+	errorEvent := constructErrorHappenedEvent(err.Error())
+	conn.WriteJSON(errorEvent)
+}
+
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, gameService gameservice.GameService) {
+	gameSize, _ := gameService.GetGameSize()
+	gameInfoUpdatedEvent := constructGameInfoUpdatedEvent(gameSize, playersCount)
+	conn.WriteJSON(gameInfoUpdatedEvent)
+}
+
+func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
+	if session.gameAreaToWatch == nil {
+		return
+	}
+	gameUnits, err := gameService.GetGameUnitsInArea(
+		session.gameAreaToWatch,
+	)
+	if err != nil {
+		emitErrorEvent(conn, err)
+		return
+	}
+
+	unitsUpdatedEvent := constructUnitsUpdatedEvent(session.gameAreaToWatch, gameUnits)
+	conn.WriteJSON(unitsUpdatedEvent)
+}
+
+func emitPlayerJoinedEvent(conn *websocket.Conn) {
+	playerJoinedEvent := constructPlayerJoinedEvent()
+	conn.WriteJSON(playerJoinedEvent)
+}
+
+func emitPlayerLeftEvent(conn *websocket.Conn) {
+	playerLeftEvent := constructPlayerLeftEvent()
+	conn.WriteJSON(playerLeftEvent)
 }
