@@ -41,26 +41,26 @@ func Controller(c *gin.Context) {
 	}
 
 	emitGameInfoUpdatedEvent(conn, gameService)
-	messageService.Publish("PLAYER_JOINED", nil)
+	messageService.Publish(messageservice.GamePlayerJoined, nil)
 
-	unitsUpdatedSubscriptionToken := messageService.Subscribe("UNITS_UPDATED", func(_ []byte) {
+	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameUnitsUpdated, func(_ []byte) {
 		emitUnitsUpdatedEvent(conn, session, gameService)
 	})
-	defer messageService.Unsubscribe("UNITS_UPDATED", unitsUpdatedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservice.GameUnitsUpdated, unitsUpdatedSubscriptionToken)
 
-	playerJoinedSubscriptionToken := messageService.Subscribe("PLAYER_JOINED", func(_ []byte) {
+	playerJoinedSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerJoined, func(_ []byte) {
 		emitPlayerJoinedEvent(conn)
 	})
-	defer messageService.Unsubscribe("PLAYER_JOINED", playerJoinedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservice.GamePlayerJoined, playerJoinedSubscriptionToken)
 
-	playerLeftSubscriptionToken := messageService.Subscribe("PLAYER_LEFT", func(_ []byte) {
+	playerLeftSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerLeft, func(_ []byte) {
 		emitPlayerLeftEvent(conn)
 	})
-	defer messageService.Unsubscribe("PLAYER_LEFT", playerLeftSubscriptionToken)
+	defer messageService.Unsubscribe(messageservice.GamePlayerLeft, playerLeftSubscriptionToken)
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		playersCount -= 1
-		messageService.Publish("PLAYER_LEFT", nil)
+		messageService.Publish(messageservice.GamePlayerLeft, nil)
 		return nil
 	})
 
