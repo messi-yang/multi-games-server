@@ -3,6 +3,7 @@ package gamesocketcontroller
 import (
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
@@ -38,9 +39,10 @@ func Controller(c *gin.Context) {
 			From: gameservice.GameCoordinate{X: 0, Y: 0},
 			To:   gameservice.GameCoordinate{X: 3, Y: 3},
 		},
+		socketLocker: sync.RWMutex{},
 	}
 
-	emitGameInfoUpdatedEvent(conn, gameService)
+	emitGameInfoUpdatedEvent(conn, session, gameService)
 	messageService.Publish(messageservice.GamePlayerJoined, nil)
 
 	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameUnitsUpdated, func(_ []byte) {
@@ -49,12 +51,12 @@ func Controller(c *gin.Context) {
 	defer messageService.Unsubscribe(messageservice.GameUnitsUpdated, unitsUpdatedSubscriptionToken)
 
 	playerJoinedSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerJoined, func(_ []byte) {
-		emitPlayerJoinedEvent(conn)
+		emitPlayerJoinedEvent(conn, session)
 	})
 	defer messageService.Unsubscribe(messageservice.GamePlayerJoined, playerJoinedSubscriptionToken)
 
 	playerLeftSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerLeft, func(_ []byte) {
-		emitPlayerLeftEvent(conn)
+		emitPlayerLeftEvent(conn, session)
 	})
 	defer messageService.Unsubscribe(messageservice.GamePlayerLeft, playerLeftSubscriptionToken)
 
@@ -72,20 +74,20 @@ func Controller(c *gin.Context) {
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
-				emitErrorEvent(conn, err)
+				emitErrorEvent(conn, session, err)
 				break
 			}
 
 			actionType, err := getActionTypeFromMessage(message)
 			if err != nil {
-				emitErrorEvent(conn, err)
+				emitErrorEvent(conn, session, err)
 			}
 
 			switch *actionType {
 			case watchUnitsActionType:
 				watchUnitsAction, err := extractWatchUnitsActionFromMessage(message)
 				if err != nil {
-					emitErrorEvent(conn, err)
+					emitErrorEvent(conn, session, err)
 				}
 				session.gameAreaToWatch = &watchUnitsAction.Payload.Area
 				break
@@ -104,15 +106,24 @@ func Controller(c *gin.Context) {
 	}
 }
 
-func emitErrorEvent(conn *websocket.Conn, err error) {
-	errorEvent := constructErrorHappenedEvent(err.Error())
-	conn.WriteJSON(errorEvent)
+func sendJSONMessageToClient(conn *websocket.Conn, session *session, message any) {
+	session.socketLocker.Lock()
+	defer session.socketLocker.Unlock()
+
+	conn.WriteJSON(message)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, gameService gameservice.GameService) {
+func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
+	errorEvent := constructErrorHappenedEvent(err.Error())
+
+	sendJSONMessageToClient(conn, session, errorEvent)
+}
+
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
 	gameSize, _ := gameService.GetGameSize()
 	gameInfoUpdatedEvent := constructGameInfoUpdatedEvent(gameSize, playersCount)
-	conn.WriteJSON(gameInfoUpdatedEvent)
+
+	sendJSONMessageToClient(conn, session, gameInfoUpdatedEvent)
 }
 
 func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
@@ -123,20 +134,25 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameService g
 		session.gameAreaToWatch,
 	)
 	if err != nil {
-		emitErrorEvent(conn, err)
+		emitErrorEvent(conn, session, err)
 		return
 	}
 
 	unitsUpdatedEvent := constructUnitsUpdatedEvent(session.gameAreaToWatch, gameUnits)
-	conn.WriteJSON(unitsUpdatedEvent)
+
+	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }
 
-func emitPlayerJoinedEvent(conn *websocket.Conn) {
+func emitPlayerJoinedEvent(conn *websocket.Conn, session *session) {
 	playerJoinedEvent := constructPlayerJoinedEvent()
 	conn.WriteJSON(playerJoinedEvent)
+
+	sendJSONMessageToClient(conn, session, playerJoinedEvent)
 }
 
-func emitPlayerLeftEvent(conn *websocket.Conn) {
+func emitPlayerLeftEvent(conn *websocket.Conn, session *session) {
 	playerLeftEvent := constructPlayerLeftEvent()
 	conn.WriteJSON(playerLeftEvent)
+
+	sendJSONMessageToClient(conn, session, playerLeftEvent)
 }
