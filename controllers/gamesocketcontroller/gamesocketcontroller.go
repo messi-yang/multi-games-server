@@ -121,15 +121,16 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 
 func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
 	gameSize, _ := gameService.GetGameSize()
-	gameInfoUpdatedEvent := constructGameInfoUpdatedEvent(gameSize, playersCount)
+	informationUpdatedEvent := constructInformationUpdatedEvent(gameSize, playersCount)
 
-	sendJSONMessageToClient(conn, session, gameInfoUpdatedEvent)
+	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
 func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
+
 	gameUnits, err := gameService.GetGameUnitsInArea(
 		session.gameAreaToWatch,
 	)
@@ -145,14 +146,12 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameService g
 
 func emitPlayerJoinedEvent(conn *websocket.Conn, session *session) {
 	playerJoinedEvent := constructPlayerJoinedEvent()
-	conn.WriteJSON(playerJoinedEvent)
 
 	sendJSONMessageToClient(conn, session, playerJoinedEvent)
 }
 
 func emitPlayerLeftEvent(conn *websocket.Conn, session *session) {
 	playerLeftEvent := constructPlayerLeftEvent()
-	conn.WriteJSON(playerLeftEvent)
 
 	sendJSONMessageToClient(conn, session, playerLeftEvent)
 }
