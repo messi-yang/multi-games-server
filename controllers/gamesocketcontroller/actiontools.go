@@ -23,3 +23,13 @@ func extractWatchUnitsActionFromMessage(msg []byte) (*watchUnitsAction, error) {
 
 	return &action, nil
 }
+
+func extractReviveUnitsActionFromMessage(msg []byte) (*reviveUnitsAction, error) {
+	var action reviveUnitsAction
+	err := json.Unmarshal(msg, &action)
+	if err != nil {
+		return nil, err
+	}
+
+	return &action, nil
+}

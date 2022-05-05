@@ -1,6 +1,8 @@
 package gameservice
 
 import (
+	"sync"
+
 	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
 	"github.com/DumDumGeniuss/ggol"
 )
@@ -9,6 +11,7 @@ type GameService interface {
 	InjectGameDAO(gameDAO gamedao.GameDAO)
 	InitializeGame() error
 	GenerateNextUnits() error
+	ReviveGameUnit(coord *GameCoordinate) error
 	GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error)
 	GetGameSize() (*GameSize, error)
 }
@@ -16,13 +19,16 @@ type GameService interface {
 type gameServiceImplement struct {
 	gameOfLiberty ggol.Game[GameUnit]
 	gameDAO       gamedao.GameDAO
+	locker        sync.RWMutex
 }
 
 var gameService GameService = nil
 
 func GetGameService() GameService {
 	if gameService == nil {
-		gameService = &gameServiceImplement{}
+		gameService = &gameServiceImplement{
+			locker: sync.RWMutex{},
+		}
 	}
 	return gameService
 }
@@ -46,6 +52,9 @@ func (gsi *gameServiceImplement) InjectGameDAO(gameDAO gamedao.GameDAO) {
 }
 
 func (gsi *gameServiceImplement) InitializeGame() error {
+	gsi.locker.Lock()
+	defer gsi.locker.Unlock()
+
 	if err := gsi.checkGameDAODependency(); err != nil {
 		return err
 	}
@@ -80,6 +89,9 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 }
 
 func (gsi *gameServiceImplement) GenerateNextUnits() error {
+	gsi.locker.Lock()
+	defer gsi.locker.Unlock()
+
 	if err := gsi.checkIsGameInitialized(); err != nil {
 		return err
 	}
@@ -89,7 +101,32 @@ func (gsi *gameServiceImplement) GenerateNextUnits() error {
 	return nil
 }
 
+func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *GameCoordinate) error {
+	gsi.locker.Lock()
+	defer gsi.locker.Unlock()
+
+	if err := gsi.checkIsGameInitialized(); err != nil {
+		return err
+	}
+
+	coord := convertGameCoordinateToGgolCoordinate(gameCoordinate)
+	unit, err := gsi.gameOfLiberty.GetUnit(coord)
+	if err != nil {
+		return err
+	}
+
+	nextUnit := *unit
+	nextUnit.Alive = true
+
+	gsi.gameOfLiberty.SetUnit(coord, &nextUnit)
+
+	return nil
+}
+
 func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error) {
+	gsi.locker.RLock()
+	defer gsi.locker.RUnlock()
+
 	if err := gsi.checkIsGameInitialized(); err != nil {
 		return nil, err
 	}
@@ -103,6 +140,9 @@ func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameU
 }
 
 func (gsi *gameServiceImplement) GetGameSize() (*GameSize, error) {
+	gsi.locker.RLock()
+	defer gsi.locker.RUnlock()
+
 	if err := gsi.checkIsGameInitialized(); err != nil {
 		return nil, err
 	}

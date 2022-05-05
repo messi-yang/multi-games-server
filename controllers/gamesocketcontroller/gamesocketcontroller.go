@@ -91,6 +91,16 @@ func Controller(c *gin.Context) {
 				}
 				session.gameAreaToWatch = &watchUnitsAction.Payload.Area
 				break
+			case reviveUnitsActionType:
+				reviveUnitsAction, err := extractReviveUnitsActionFromMessage(message)
+				if err != nil {
+					emitErrorEvent(conn, session, err)
+				}
+
+				for _, coord := range reviveUnitsAction.Payload.Coordinates {
+					gameService.ReviveGameUnit(&coord)
+				}
+				break
 			default:
 				break
 			}
