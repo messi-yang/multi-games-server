@@ -71,7 +71,7 @@ func (gwi *gameWorkerImpl) StartGame() error {
 			case <-gwi.gameTicker.C:
 				gwi.gameService.GenerateNextUnits()
 
-				gwi.messageService.Publish(messageservice.GameUnitsUpdated, nil)
+				gwi.messageService.Publish(messageservice.GameAreaUpdated, nil)
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil

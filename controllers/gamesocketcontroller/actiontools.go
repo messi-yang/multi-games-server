@@ -14,8 +14,8 @@ func getActionTypeFromMessage(msg []byte) (*actionType, error) {
 	return &action.Type, nil
 }
 
-func extractWatchUnitsActionFromMessage(msg []byte) (*watchUnitsAction, error) {
-	var action watchUnitsAction
+func extractWatchAreaActionFromMessage(msg []byte) (*watchAreaAction, error) {
+	var action watchAreaAction
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return nil, err

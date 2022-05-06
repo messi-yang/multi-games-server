@@ -45,10 +45,10 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameService)
 	messageService.Publish(messageservice.GamePlayerJoined, nil)
 
-	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameUnitsUpdated, func(_ []byte) {
-		emitUnitsUpdatedEvent(conn, session, gameService)
+	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameAreaUpdated, func(_ []byte) {
+		emitAreaUpdatedEvent(conn, session, gameService)
 	})
-	defer messageService.Unsubscribe(messageservice.GameUnitsUpdated, unitsUpdatedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservice.GameAreaUpdated, areaUpdatedSubscriptionToken)
 
 	playerJoinedSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerJoined, func(_ []byte) {
 		emitPlayerJoinedEvent(conn, session)
@@ -84,12 +84,12 @@ func Controller(c *gin.Context) {
 			}
 
 			switch *actionType {
-			case watchUnitsActionType:
-				watchUnitsAction, err := extractWatchUnitsActionFromMessage(message)
+			case watchAreaActionType:
+				watchAreaAction, err := extractWatchAreaActionFromMessage(message)
 				if err != nil {
 					emitErrorEvent(conn, session, err)
 				}
-				session.gameAreaToWatch = &watchUnitsAction.Payload.Area
+				session.gameAreaToWatch = &watchAreaAction.Payload.Area
 				break
 			case reviveUnitsActionType:
 				reviveUnitsAction, err := extractReviveUnitsActionFromMessage(message)
@@ -136,7 +136,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameServic
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
+func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -149,9 +149,9 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameService g
 		return
 	}
 
-	unitsUpdatedEvent := constructUnitsUpdatedEvent(session.gameAreaToWatch, gameUnits)
+	areaUpdatedEvent := constructAreaUpdatedEvent(session.gameAreaToWatch, gameUnits)
 
-	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
+	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
 }
 
 func emitPlayerJoinedEvent(conn *websocket.Conn, session *session) {

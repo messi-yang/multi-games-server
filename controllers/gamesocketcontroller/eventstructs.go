@@ -9,7 +9,7 @@ type eventType string
 const (
 	errorHappenedEventType      eventType = "ERROR"
 	informationUpdatedEventType           = "INFORMATION_UPDATED"
-	unitsUpdatedEventType                 = "UNITS_UPDATED"
+	areaUpdatedEventType                  = "AREA_UPDATED"
 	playerJoinedEventType                 = "PLAYER_JOINED"
 	playerLeftEventType                   = "PLAYER_LEFT"
 )
@@ -31,13 +31,13 @@ type informationUpdatedEvent struct {
 	Payload informationUpdatedEventPayload `json:"payload"`
 }
 
-type unitsUpdatedEventPayload struct {
+type areaUpdatedEventPayload struct {
 	Area  gameservice.GameArea      `json:"area"`
 	Units [][]*gameservice.GameUnit `json:"units"`
 }
-type unitsUpdatedEvent struct {
-	Type    eventType                `json:"type"`
-	Payload unitsUpdatedEventPayload `json:"payload"`
+type areaUpdatedEvent struct {
+	Type    eventType               `json:"type"`
+	Payload areaUpdatedEventPayload `json:"payload"`
 }
 
 type playerJoinedEventPayload any
