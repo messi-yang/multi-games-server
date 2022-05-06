@@ -37,11 +37,8 @@ func Controller(c *gin.Context) {
 
 	playersCount += 1
 	session := &session{
-		gameAreaToWatch: &gameservice.GameArea{
-			From: gameservice.GameCoordinate{X: 0, Y: 0},
-			To:   gameservice.GameCoordinate{X: 3, Y: 3},
-		},
-		socketLocker: sync.RWMutex{},
+		gameAreaToWatch: nil,
+		socketLocker:    sync.RWMutex{},
 	}
 
 	emitGameInfoUpdatedEvent(conn, session, gameService)
