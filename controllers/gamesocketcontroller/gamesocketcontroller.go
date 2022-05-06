@@ -122,7 +122,7 @@ func Controller(c *gin.Context) {
 					gameService.ReviveGameUnit(&coord)
 					newGameUnit, _ := gameService.GetGameUnit(&coord)
 					payloadUnit := messageservicetopic.GameUnitsUpdatedMessageTopicPayloadUnit{
-						Coordinate: gameservice.GameCoordinate{},
+						Coordinate: coord,
 						Unit:       *newGameUnit,
 					}
 

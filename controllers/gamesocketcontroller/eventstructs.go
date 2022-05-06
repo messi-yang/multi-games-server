@@ -33,8 +33,8 @@ type informationUpdatedEvent struct {
 }
 
 type unitsUpdatedEventPayloadItem struct {
-	Coordinate gameservice.GameCoordinate
-	Unit       gameservice.GameUnit
+	Coordinate gameservice.GameCoordinate `json:"coordinate"`
+	Unit       gameservice.GameUnit       `json:"unit"`
 }
 
 type unitsUpdatedEventPayload struct {
