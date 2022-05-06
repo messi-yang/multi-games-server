@@ -1,12 +1,14 @@
 package gamesocketcontroller
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -43,31 +45,44 @@ func Controller(c *gin.Context) {
 	}
 
 	emitGameInfoUpdatedEvent(conn, session, gameService)
-	messageService.Publish(messageservice.GamePlayerJoined, nil)
+	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
-	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameWorkerTicked, func(_ []byte) {
+	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameWorkerTickedMessageTopic, func(_ []byte) {
 		emitAreaUpdatedEvent(conn, session, gameService)
 	})
-	defer messageService.Unsubscribe(messageservice.GameWorkerTicked, areaUpdatedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservicetopic.GameWorkerTickedMessageTopic, areaUpdatedSubscriptionToken)
 
-	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameUnitsUpdated, func(_ []byte) {
-		emitUnitsUpdatedEvent(conn, session)
+	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, func(message []byte) {
+		var messagePayload messageservicetopic.GameUnitsUpdatedMessageTopicPayload
+		json.Unmarshal(message, &messagePayload)
+
+		unitsUpdatedEventPayloadItems := []unitsUpdatedEventPayloadItem{}
+		for _, messagePayloadUnit := range messagePayload {
+			unitsUpdatedEventPayloadItems = append(
+				unitsUpdatedEventPayloadItems,
+				unitsUpdatedEventPayloadItem{
+					Coordinate: messagePayloadUnit.Coordinate,
+					Unit:       messagePayloadUnit.Unit,
+				},
+			)
+		}
+		emitUnitsUpdatedEvent(conn, session, &unitsUpdatedEventPayloadItems)
 	})
-	defer messageService.Unsubscribe(messageservice.GameUnitsUpdated, unitsUpdatedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, unitsUpdatedSubscriptionToken)
 
-	playerJoinedSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerJoined, func(_ []byte) {
+	playerJoinedSubscriptionToken := messageService.Subscribe(messageservicetopic.GamePlayerJoinedMessageTopic, func(_ []byte) {
 		emitPlayerJoinedEvent(conn, session)
 	})
-	defer messageService.Unsubscribe(messageservice.GamePlayerJoined, playerJoinedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservicetopic.GamePlayerJoinedMessageTopic, playerJoinedSubscriptionToken)
 
-	playerLeftSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerLeft, func(_ []byte) {
+	playerLeftSubscriptionToken := messageService.Subscribe(messageservicetopic.GamePlayerLeftMessageTopic, func(_ []byte) {
 		emitPlayerLeftEvent(conn, session)
 	})
-	defer messageService.Unsubscribe(messageservice.GamePlayerLeft, playerLeftSubscriptionToken)
+	defer messageService.Unsubscribe(messageservicetopic.GamePlayerLeftMessageTopic, playerLeftSubscriptionToken)
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		playersCount -= 1
-		messageService.Publish(messageservice.GamePlayerLeft, nil)
+		messageService.Publish(messageservicetopic.GamePlayerLeftMessageTopic, nil)
 		return nil
 	})
 
@@ -102,10 +117,19 @@ func Controller(c *gin.Context) {
 					emitErrorEvent(conn, session, err)
 				}
 
+				payload := messageservicetopic.GameUnitsUpdatedMessageTopicPayload{}
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					gameService.ReviveGameUnit(&coord)
+					newGameUnit, _ := gameService.GetGameUnit(&coord)
+					payloadUnit := messageservicetopic.GameUnitsUpdatedMessageTopicPayloadUnit{
+						Coordinate: gameservice.GameCoordinate{},
+						Unit:       *newGameUnit,
+					}
+
+					payload = append(payload, payloadUnit)
 				}
-				messageService.Publish(messageservice.GameUnitsUpdated, nil)
+				message, err := json.Marshal(payload)
+				messageService.Publish(messageservicetopic.GameUnitsUpdatedMessageTopic, message)
 				break
 			default:
 				break
@@ -142,8 +166,8 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameServic
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session) {
-	unitsUpdatedEvent := constructUnitsUpdatedEvent()
+func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, updateUnitItems *[]unitsUpdatedEventPayloadItem) {
+	unitsUpdatedEvent := constructUnitsUpdatedEvent(updateUnitItems)
 
 	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }

@@ -21,10 +21,12 @@ func constructInformationUpdatedEvent(mapSize *gameservice.GameSize, playersCoun
 	}
 }
 
-func constructUnitsUpdatedEvent() *unitsUpdatedEvent {
+func constructUnitsUpdatedEvent(items *[]unitsUpdatedEventPayloadItem) *unitsUpdatedEvent {
 	return &unitsUpdatedEvent{
-		Type:    unitsUpdatedEventType,
-		Payload: nil,
+		Type: unitsUpdatedEventType,
+		Payload: unitsUpdatedEventPayload{
+			Items: *items,
+		},
 	}
 }
 

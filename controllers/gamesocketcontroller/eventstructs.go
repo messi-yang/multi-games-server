@@ -32,7 +32,14 @@ type informationUpdatedEvent struct {
 	Payload informationUpdatedEventPayload `json:"payload"`
 }
 
-type unitsUpdatedEventPayload any
+type unitsUpdatedEventPayloadItem struct {
+	Coordinate gameservice.GameCoordinate
+	Unit       gameservice.GameUnit
+}
+
+type unitsUpdatedEventPayload struct {
+	Items []unitsUpdatedEventPayloadItem `json:"items"`
+}
 type unitsUpdatedEvent struct {
 	Type    eventType                `json:"type"`
 	Payload unitsUpdatedEventPayload `json:"payload"`

@@ -14,6 +14,7 @@ type GameService interface {
 	ReviveGameUnit(coord *GameCoordinate) error
 	GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error)
 	GetGameSize() (*GameSize, error)
+	GetGameUnit(coord *GameCoordinate) (*GameUnit, error)
 }
 
 type gameServiceImplement struct {
@@ -148,4 +149,21 @@ func (gsi *gameServiceImplement) GetGameSize() (*GameSize, error) {
 	}
 
 	return convertGgolSizeToGameSize(gsi.gameOfLiberty.GetSize()), nil
+}
+
+func (gsi *gameServiceImplement) GetGameUnit(coord *GameCoordinate) (*GameUnit, error) {
+	gsi.locker.RLock()
+	defer gsi.locker.RUnlock()
+
+	if err := gsi.checkIsGameInitialized(); err != nil {
+		return nil, err
+	}
+
+	ggolCoord := convertGameCoordinateToGgolCoordinate(coord)
+	gameUnit, err := gsi.gameOfLiberty.GetUnit(ggolCoord)
+	if err != nil {
+		return nil, err
+	}
+
+	return gameUnit, nil
 }

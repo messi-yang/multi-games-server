@@ -5,6 +5,7 @@ import (
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 )
 
 type GameWorker interface {
@@ -71,7 +72,7 @@ func (gwi *gameWorkerImpl) StartGame() error {
 			case <-gwi.gameTicker.C:
 				gwi.gameService.GenerateNextUnits()
 
-				gwi.messageService.Publish(messageservice.GameWorkerTicked, nil)
+				gwi.messageService.Publish(messageservicetopic.GameWorkerTickedMessageTopic, nil)
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil
