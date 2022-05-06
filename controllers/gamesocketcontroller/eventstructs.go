@@ -10,6 +10,7 @@ const (
 	errorHappenedEventType      eventType = "ERROR"
 	informationUpdatedEventType           = "INFORMATION_UPDATED"
 	areaUpdatedEventType                  = "AREA_UPDATED"
+	unitsUpdatedEventType                 = "UNITS_UPDATED"
 	playerJoinedEventType                 = "PLAYER_JOINED"
 	playerLeftEventType                   = "PLAYER_LEFT"
 )
@@ -29,6 +30,12 @@ type informationUpdatedEventPayload struct {
 type informationUpdatedEvent struct {
 	Type    eventType                      `json:"type"`
 	Payload informationUpdatedEventPayload `json:"payload"`
+}
+
+type unitsUpdatedEventPayload any
+type unitsUpdatedEvent struct {
+	Type    eventType                `json:"type"`
+	Payload unitsUpdatedEventPayload `json:"payload"`
 }
 
 type areaUpdatedEventPayload struct {

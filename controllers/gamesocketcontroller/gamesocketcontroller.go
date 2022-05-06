@@ -45,10 +45,15 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameService)
 	messageService.Publish(messageservice.GamePlayerJoined, nil)
 
-	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameAreaUpdated, func(_ []byte) {
+	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameWorkerTicked, func(_ []byte) {
 		emitAreaUpdatedEvent(conn, session, gameService)
 	})
-	defer messageService.Unsubscribe(messageservice.GameAreaUpdated, areaUpdatedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservice.GameWorkerTicked, areaUpdatedSubscriptionToken)
+
+	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservice.GameUnitsUpdated, func(_ []byte) {
+		emitUnitsUpdatedEvent(conn, session)
+	})
+	defer messageService.Unsubscribe(messageservice.GameUnitsUpdated, unitsUpdatedSubscriptionToken)
 
 	playerJoinedSubscriptionToken := messageService.Subscribe(messageservice.GamePlayerJoined, func(_ []byte) {
 		emitPlayerJoinedEvent(conn, session)
@@ -100,6 +105,7 @@ func Controller(c *gin.Context) {
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					gameService.ReviveGameUnit(&coord)
 				}
+				messageService.Publish(messageservice.GameUnitsUpdated, nil)
 				break
 			default:
 				break
@@ -134,6 +140,12 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameServic
 	informationUpdatedEvent := constructInformationUpdatedEvent(gameSize, playersCount)
 
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
+}
+
+func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session) {
+	unitsUpdatedEvent := constructUnitsUpdatedEvent()
+
+	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }
 
 func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {

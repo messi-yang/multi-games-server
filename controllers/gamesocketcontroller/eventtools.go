@@ -21,6 +21,13 @@ func constructInformationUpdatedEvent(mapSize *gameservice.GameSize, playersCoun
 	}
 }
 
+func constructUnitsUpdatedEvent() *unitsUpdatedEvent {
+	return &unitsUpdatedEvent{
+		Type:    unitsUpdatedEventType,
+		Payload: nil,
+	}
+}
+
 func constructAreaUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]*gameservice.GameUnit) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,

@@ -1,13 +1,9 @@
 package messageservice
 
-const GameAreaUpdated = "GAME_AREA_UPDATED"
+const GameWorkerTicked = "GAME_WORKER_TICKED"
 
-type GameAreaUpdatedPayload struct{}
+const GameUnitsUpdated = "GAME_UNITS_UPDATED"
 
 const GamePlayerJoined = "GAME_PLAYER_JOINED"
 
-type GamePlayerJoinedPayload struct{}
-
 const GamePlayerLeft = "GAME_PLAYER_LEFT"
-
-type GamePlayerLeftPayload struct{}
