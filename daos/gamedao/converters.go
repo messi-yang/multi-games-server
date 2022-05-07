@@ -1,17 +1,17 @@
 package gamedao
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/models/gamemodel"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 )
 
-func convertGameSizeModelToGameSize(gameSizeModel *gamemodel.GameSizeModel) *GameSize {
+func convertGameSizeToGameSize(gameSizeModel *valueobject.GameSize) *GameSize {
 	return &GameSize{
 		Width:  gameSizeModel.Width,
 		Height: gameSizeModel.Height,
 	}
 }
 
-func convertGameUnitsModelToGameUnits(gameUnitsEntity *gamemodel.GameUnitsModel) *GameUnits {
+func convertGameUnitMatrixToGameUnits(gameUnitsEntity *valueobject.GameUnitMatrix) *GameUnits {
 	width := len(*gameUnitsEntity)
 	gameField := make(GameUnits, width)
 	for i := 0; i < width; i += 1 {
