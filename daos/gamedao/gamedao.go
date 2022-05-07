@@ -2,12 +2,13 @@ package gamedao
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 )
 
 type GameDAO interface {
 	InjectGameRepository(repository.GameRepository)
-	GetGameUnits() (*GameUnits, error)
-	GetGameSize() (*GameSize, error)
+	GetGameUnits() (*valueobject.GameUnitMatrix, error)
+	GetGameSize() (*valueobject.GameSize, error)
 }
 
 type gamDAOImplement struct {
@@ -28,16 +29,14 @@ func (gdi *gamDAOImplement) InjectGameRepository(gameModel repository.GameReposi
 	gdi.gameModel = gameModel
 }
 
-func (gdi *gamDAOImplement) GetGameUnits() (*GameUnits, error) {
+func (gdi *gamDAOImplement) GetGameUnits() (*valueobject.GameUnitMatrix, error) {
 	gameUnitsEntity := gdi.gameModel.GetGameUnitMatrix()
-	gameField := convertGameUnitMatrixToGameUnits(gameUnitsEntity)
 
-	return gameField, nil
+	return gameUnitsEntity, nil
 }
 
-func (gdi *gamDAOImplement) GetGameSize() (*GameSize, error) {
+func (gdi *gamDAOImplement) GetGameSize() (*valueobject.GameSize, error) {
 	gameSizeModel := gdi.gameModel.GetGameSize()
-	gameFieldSize := convertGameSizeToGameSize(gameSizeModel)
 
-	return gameFieldSize, nil
+	return gameSizeModel, nil
 }

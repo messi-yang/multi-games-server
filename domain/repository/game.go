@@ -13,21 +13,21 @@ type GameRepository interface {
 	GetGameSize() *valueobject.GameSize
 }
 
-type gameModelImpl struct {
+type gameRepositoryImpl struct {
 }
 
-var gameModel GameRepository
+var gameRepository GameRepository
 
 func GetGameRepository() GameRepository {
-	if gameModel == nil {
-		gameModel = &gameModelImpl{}
-		return gameModel
+	if gameRepository == nil {
+		gameRepository = &gameRepositoryImpl{}
+		return gameRepository
 	} else {
-		return gameModel
+		return gameRepository
 	}
 }
 
-func (gmi *gameModelImpl) CreateGameUnitMatrix() {
+func (gmi *gameRepositoryImpl) CreateGameUnitMatrix() {
 	size := config.GetConfig().GetGameSize()
 
 	gameUnitsEntity := make(valueobject.GameUnitMatrix, size)
@@ -44,7 +44,7 @@ func (gmi *gameModelImpl) CreateGameUnitMatrix() {
 	// TODO - Insert into whatever storage we use.
 }
 
-func (gmi *gameModelImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
+func (gmi *gameRepositoryImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
 	size := config.GetConfig().GetGameSize()
 
 	gameUnitsEntity := make(valueobject.GameUnitMatrix, size)
@@ -61,7 +61,7 @@ func (gmi *gameModelImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
 	return &gameUnitsEntity
 }
 
-func (gmi *gameModelImpl) GetGameSize() *valueobject.GameSize {
+func (gmi *gameRepositoryImpl) GetGameSize() *valueobject.GameSize {
 	size := config.GetConfig().GetGameSize()
 
 	return &valueobject.GameSize{Width: size, Height: size}

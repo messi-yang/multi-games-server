@@ -1,11 +1,11 @@
 package gameservice
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/ggol"
 )
 
-func convertGameUnitsFromGameDAOToGameUnits(gameUnitsFromGameDAO *gamedao.GameUnits) *GameUnits {
+func convertGameUnitsFromGameDAOToGameUnits(gameUnitsFromGameDAO *valueobject.GameUnitMatrix) *GameUnits {
 	width := len(*gameUnitsFromGameDAO)
 	gameUnits := make(GameUnits, width)
 	for i := 0; i < width; i += 1 {
@@ -30,7 +30,7 @@ func convertGgolSizeToGameSize(ggolSize *ggol.Size) *GameSize {
 	}
 }
 
-func convertGameSizeToGgolSize(gameSize *gamedao.GameSize) *ggol.Size {
+func convertGameSizeToGgolSize(gameSize *valueobject.GameSize) *ggol.Size {
 	return &ggol.Size{
 		Width:  gameSize.Width,
 		Height: gameSize.Height,
