@@ -1,10 +1,10 @@
 package gameservice
 
-type errMissingGameDAODependency struct {
+type errMissingGameRepositoryDependency struct {
 }
 
-func (e *errMissingGameDAODependency) Error() string {
-	return "The dependency gamedao.GameDAO is missing in \"gameservice\"."
+func (e *errMissingGameRepositoryDependency) Error() string {
+	return "The dependency repository.GameRepository is missing in \"gameservice\"."
 }
 
 type errGameIsNotInitialized struct {

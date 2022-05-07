@@ -3,24 +3,25 @@ package gameservice
 import (
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/ggol"
 )
 
 type GameService interface {
-	InjectGameDAO(gameDAO gamedao.GameDAO)
+	InjectGameRepository(repository.GameRepository)
 	InitializeGame() error
 	GenerateNextUnits() error
 	ReviveGameUnit(coord *GameCoordinate) error
-	GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error)
-	GetGameSize() (*GameSize, error)
-	GetGameUnit(coord *GameCoordinate) (*GameUnit, error)
+	GetGameUnitsInArea(area *GameArea) (*[][]*valueobject.GameUnit, error)
+	GetGameSize() (*valueobject.GameSize, error)
+	GetGameUnit(coord *GameCoordinate) (*valueobject.GameUnit, error)
 }
 
 type gameServiceImplement struct {
-	gameOfLiberty ggol.Game[GameUnit]
-	gameDAO       gamedao.GameDAO
-	locker        sync.RWMutex
+	gameOfLiberty  ggol.Game[valueobject.GameUnit]
+	gameRepository repository.GameRepository
+	locker         sync.RWMutex
 }
 
 var gameService GameService = nil
@@ -34,9 +35,9 @@ func GetGameService() GameService {
 	return gameService
 }
 
-func (gsi *gameServiceImplement) checkGameDAODependency() error {
-	if gsi.gameDAO == nil {
-		return &errMissingGameDAODependency{}
+func (gsi *gameServiceImplement) checkGameRepositoryDependency() error {
+	if gsi.gameRepository == nil {
+		return &errMissingGameRepositoryDependency{}
 	}
 	return nil
 }
@@ -48,23 +49,23 @@ func (gsi *gameServiceImplement) checkIsGameInitialized() error {
 	return nil
 }
 
-func (gsi *gameServiceImplement) InjectGameDAO(gameDAO gamedao.GameDAO) {
-	gsi.gameDAO = gameDAO
+func (gsi *gameServiceImplement) InjectGameRepository(gameRepository repository.GameRepository) {
+	gsi.gameRepository = gameRepository
 }
 
 func (gsi *gameServiceImplement) InitializeGame() error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	if err := gsi.checkGameDAODependency(); err != nil {
+	if err := gsi.checkGameRepositoryDependency(); err != nil {
 		return err
 	}
 
-	initialUnit := GameUnit{
+	initialUnit := valueobject.GameUnit{
 		Alive: false,
 		Age:   0,
 	}
-	gameSize, _ := gsi.gameDAO.GetGameSize()
+	gameSize := gsi.gameRepository.GetGameSize()
 	ggolSize := convertGameSizeToGgolSize(gameSize)
 	newGameOfLiberty, _ := ggol.NewGame(
 		ggolSize,
@@ -73,12 +74,11 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 
 	newGameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
-	gameUnitsFromDAO, _ := gsi.gameDAO.GetGameUnits()
-	gameUnits := convertGameUnitsFromGameDAOToGameUnits(gameUnitsFromDAO)
+	gameUnitMatrix := gsi.gameRepository.GetGameUnitMatrix()
 
 	for x := 0; x < ggolSize.Width; x += 1 {
 		for y := 0; y < ggolSize.Height; y += 1 {
-			gameFieldUnit := &(*gameUnits)[x][y]
+			gameFieldUnit := &(*gameUnitMatrix)[x][y]
 			coord := &ggol.Coordinate{X: x, Y: y}
 			newGameOfLiberty.SetUnit(coord, gameFieldUnit)
 		}
@@ -124,7 +124,7 @@ func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *GameCoordinate) 
 	return nil
 }
 
-func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameUnit, error) {
+func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*valueobject.GameUnit, error) {
 	gsi.locker.RLock()
 	defer gsi.locker.RUnlock()
 
@@ -140,7 +140,7 @@ func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*GameU
 	return &units, nil
 }
 
-func (gsi *gameServiceImplement) GetGameSize() (*GameSize, error) {
+func (gsi *gameServiceImplement) GetGameSize() (*valueobject.GameSize, error) {
 	gsi.locker.RLock()
 	defer gsi.locker.RUnlock()
 
@@ -151,7 +151,7 @@ func (gsi *gameServiceImplement) GetGameSize() (*GameSize, error) {
 	return convertGgolSizeToGameSize(gsi.gameOfLiberty.GetSize()), nil
 }
 
-func (gsi *gameServiceImplement) GetGameUnit(coord *GameCoordinate) (*GameUnit, error) {
+func (gsi *gameServiceImplement) GetGameUnit(coord *GameCoordinate) (*valueobject.GameUnit, error) {
 	gsi.locker.RLock()
 	defer gsi.locker.RUnlock()
 

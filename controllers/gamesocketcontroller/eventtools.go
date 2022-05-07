@@ -1,6 +1,9 @@
 package gamesocketcontroller
 
-import "github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+)
 
 func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {
 	return &errorHappenedEvent{
@@ -11,7 +14,7 @@ func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {
 	}
 }
 
-func constructInformationUpdatedEvent(mapSize *gameservice.GameSize, playersCount int) *informationUpdatedEvent {
+func constructInformationUpdatedEvent(mapSize *valueobject.GameSize, playersCount int) *informationUpdatedEvent {
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
@@ -30,7 +33,7 @@ func constructUnitsUpdatedEvent(items *[]unitsUpdatedEventPayloadItem) *unitsUpd
 	}
 }
 
-func constructAreaUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]*gameservice.GameUnit) *areaUpdatedEvent {
+func constructAreaUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]*valueobject.GameUnit) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{

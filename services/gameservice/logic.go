@@ -1,12 +1,15 @@
 package gameservice
 
-import "github.com/DumDumGeniuss/ggol"
+import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/ggol"
+)
 
 func gameNextUnitGenerator(
 	coord *ggol.Coordinate,
-	cell *GameUnit,
-	getAdjacentUnit ggol.AdjacentUnitGetter[GameUnit],
-) (nextUnit *GameUnit) {
+	cell *valueobject.GameUnit,
+	getAdjacentUnit ggol.AdjacentUnitGetter[valueobject.GameUnit],
+) (nextUnit *valueobject.GameUnit) {
 	var aliveAdjacentCellsCount int = 0
 	for i := -1; i < 2; i += 1 {
 		for j := -1; j < 2; j += 1 {

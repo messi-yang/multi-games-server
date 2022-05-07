@@ -5,26 +5,8 @@ import (
 	"github.com/DumDumGeniuss/ggol"
 )
 
-func convertGameUnitsFromGameDAOToGameUnits(gameUnitsFromGameDAO *valueobject.GameUnitMatrix) *GameUnits {
-	width := len(*gameUnitsFromGameDAO)
-	gameUnits := make(GameUnits, width)
-	for i := 0; i < width; i += 1 {
-		height := len((*gameUnitsFromGameDAO)[i])
-		gameUnits[i] = make([]GameUnit, height)
-		for j := 0; j < height; j += 1 {
-
-			gameUnits[i][j] = GameUnit{
-				Alive: (*gameUnitsFromGameDAO)[i][j].Alive,
-				Age:   (*gameUnitsFromGameDAO)[i][j].Age,
-			}
-		}
-	}
-
-	return &gameUnits
-}
-
-func convertGgolSizeToGameSize(ggolSize *ggol.Size) *GameSize {
-	return &GameSize{
+func convertGgolSizeToGameSize(ggolSize *ggol.Size) *valueobject.GameSize {
+	return &valueobject.GameSize{
 		Width:  ggolSize.Width,
 		Height: ggolSize.Height,
 	}

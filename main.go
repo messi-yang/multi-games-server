@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/daos/gamedao"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
@@ -13,11 +12,8 @@ import (
 func main() {
 	gameRepository := repository.GetGameRepository()
 
-	gameDAO := gamedao.GetGameDAO()
-	gameDAO.InjectGameRepository(gameRepository)
-
 	gameService := gameservice.GetGameService()
-	gameService.InjectGameDAO(gameDAO)
+	gameService.InjectGameRepository(gameRepository)
 	if err := gameService.InitializeGame(); err != nil {
 		panic(err)
 	}
