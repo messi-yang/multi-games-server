@@ -11,13 +11,3 @@ func NewGameUnit(alive bool, age int) GameUnit {
 		Age:   age,
 	}
 }
-
-func (gu GameUnit) SetAlive(alive bool) GameUnit {
-	gu.Alive = alive
-	return gu
-}
-
-func (gu GameUnit) SetAge(age int) GameUnit {
-	gu.Age = age
-	return gu
-}

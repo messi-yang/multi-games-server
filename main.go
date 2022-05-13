@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
@@ -37,13 +36,10 @@ func main() {
 	game.SetUnitMatrix(gameUnitMatrix)
 
 	gameRoom := aggregate.NewGameRoom(game)
-
 	gameRoomMemoryRepository.Add(gameRoom)
 
-	gr, _ := gameRoomMemoryRepository.Get(gameRoom.Game.GetId())
-	fmt.Println(gr.Game.Id)
-
-	gameService := gameservice.GetGameService()
+	gameService := gameservice.NewGameService()
+	gameService.SetGameId(gameRoom.Game.GetId())
 	gameService.InjectGameRoomMemoryRepository(gameRoomMemoryRepository)
 	if err := gameService.InitializeGame(); err != nil {
 		panic(err)

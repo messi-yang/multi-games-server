@@ -5,13 +5,6 @@ import (
 	"github.com/DumDumGeniuss/ggol"
 )
 
-func convertGgolSizeToMapSize(ggolSize *ggol.Size) *valueobject.MapSize {
-	return &valueobject.MapSize{
-		Width:  ggolSize.Width,
-		Height: ggolSize.Height,
-	}
-}
-
 func convertMapSizeToGgolSize(gameSize *valueobject.MapSize) *ggol.Size {
 	return &ggol.Size{
 		Width:  gameSize.Width,

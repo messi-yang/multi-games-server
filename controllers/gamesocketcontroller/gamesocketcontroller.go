@@ -33,7 +33,7 @@ func Controller(c *gin.Context) {
 	closeConnFlag := make(chan bool)
 
 	messageService := messageservice.GetMessageService()
-	gameService := gameservice.GetGameService()
+	gameService := gameservice.NewGameService()
 
 	playersCount += 1
 	session := &session{
