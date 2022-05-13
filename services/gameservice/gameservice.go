@@ -3,13 +3,13 @@ package gameservice
 import (
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
 	"github.com/DumDumGeniuss/ggol"
 )
 
 type GameService interface {
-	InjectGameRepository(repository.GameRepository)
+	InjectGameRoomMemoryRepository(memory.GameRoomMemoryRepository)
 	InitializeGame() error
 	GenerateNextUnits() error
 	ReviveGameUnit(coord *GameCoordinate) error
@@ -19,9 +19,9 @@ type GameService interface {
 }
 
 type gameServiceImplement struct {
-	gameOfLiberty  ggol.Game[valueobject.GameUnit]
-	gameRepository repository.GameRepository
-	locker         sync.RWMutex
+	gameOfLiberty            ggol.Game[valueobject.GameUnit]
+	gameRoomMemoryRepository memory.GameRoomMemoryRepository
+	locker                   sync.RWMutex
 }
 
 var gameService GameService = nil
@@ -35,9 +35,9 @@ func GetGameService() GameService {
 	return gameService
 }
 
-func (gsi *gameServiceImplement) checkGameRepositoryDependency() error {
-	if gsi.gameRepository == nil {
-		return &errMissingGameRepositoryDependency{}
+func (gsi *gameServiceImplement) checkGameRoomMemoryRepositoryDependency() error {
+	if gsi.gameRoomMemoryRepository == nil {
+		return &errMissingGameRoomMemoryRepositoryDependency{}
 	}
 	return nil
 }
@@ -49,15 +49,15 @@ func (gsi *gameServiceImplement) checkIsGameInitialized() error {
 	return nil
 }
 
-func (gsi *gameServiceImplement) InjectGameRepository(gameRepository repository.GameRepository) {
-	gsi.gameRepository = gameRepository
+func (gsi *gameServiceImplement) InjectGameRoomMemoryRepository(gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
+	gsi.gameRoomMemoryRepository = gameRoomMemoryRepository
 }
 
 func (gsi *gameServiceImplement) InitializeGame() error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	if err := gsi.checkGameRepositoryDependency(); err != nil {
+	if err := gsi.checkGameRoomMemoryRepositoryDependency(); err != nil {
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 		Alive: false,
 		Age:   0,
 	}
-	gameSize := gsi.gameRepository.GetMapSize()
+	gameSize := gsi.gameRoomMemoryRepository.GetMapSize()
 	ggolSize := convertMapSizeToGgolSize(gameSize)
 	newGameOfLiberty, _ := ggol.NewGame(
 		ggolSize,
@@ -74,7 +74,7 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 
 	newGameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
-	gameUnitMatrix := gsi.gameRepository.GetGameUnitMatrix()
+	gameUnitMatrix := gsi.gameRoomMemoryRepository.GetGameUnitMatrix()
 
 	for x := 0; x < ggolSize.Width; x += 1 {
 		for y := 0; y < ggolSize.Height; y += 1 {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
@@ -10,10 +10,10 @@ import (
 )
 
 func main() {
-	gameRepository := repository.GetGameRepository()
+	gameRoomMemoryRepository := memory.NewGameRoomMemoryRepository()
 
 	gameService := gameservice.GetGameService()
-	gameService.InjectGameRepository(gameRepository)
+	gameService.InjectGameRoomMemoryRepository(gameRoomMemoryRepository)
 	if err := gameService.InitializeGame(); err != nil {
 		panic(err)
 	}

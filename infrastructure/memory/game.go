@@ -1,4 +1,4 @@
-package repository
+package memory
 
 import (
 	"math/rand"
@@ -7,26 +7,21 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 )
 
-type GameRepository interface {
+type GameRoomMemoryRepository interface {
 	GetGameUnitMatrix() *valueobject.GameUnitMatrix
 	GetMapSize() *valueobject.MapSize
 }
 
-type gameRepositoryImpl struct {
+type gameRoomMemoryRepositoryImpl struct {
 }
 
-var gameRepository GameRepository
+var gameRoomMemoryRepository GameRoomMemoryRepository
 
-func GetGameRepository() GameRepository {
-	if gameRepository == nil {
-		gameRepository = &gameRepositoryImpl{}
-		return gameRepository
-	} else {
-		return gameRepository
-	}
+func NewGameRoomMemoryRepository() GameRoomMemoryRepository {
+	return &gameRoomMemoryRepositoryImpl{}
 }
 
-func (gmi *gameRepositoryImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
+func (gmi *gameRoomMemoryRepositoryImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
 	size := config.GetConfig().GetMapSize()
 
 	gameUnitsEntity := make(valueobject.GameUnitMatrix, size)
@@ -43,7 +38,7 @@ func (gmi *gameRepositoryImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
 	return &gameUnitsEntity
 }
 
-func (gmi *gameRepositoryImpl) GetMapSize() *valueobject.MapSize {
+func (gmi *gameRoomMemoryRepositoryImpl) GetMapSize() *valueobject.MapSize {
 	size := config.GetConfig().GetMapSize()
 
 	mapSize := valueobject.NewMapSize(size, size)
