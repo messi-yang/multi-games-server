@@ -14,7 +14,7 @@ type GameService interface {
 	GenerateNextUnits() error
 	ReviveGameUnit(coord *GameCoordinate) error
 	GetGameUnitsInArea(area *GameArea) (*[][]*valueobject.GameUnit, error)
-	GetGameSize() (*valueobject.GameSize, error)
+	GetMapSize() (*valueobject.MapSize, error)
 	GetGameUnit(coord *GameCoordinate) (*valueobject.GameUnit, error)
 }
 
@@ -65,8 +65,8 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 		Alive: false,
 		Age:   0,
 	}
-	gameSize := gsi.gameRepository.GetGameSize()
-	ggolSize := convertGameSizeToGgolSize(gameSize)
+	gameSize := gsi.gameRepository.GetMapSize()
+	ggolSize := convertMapSizeToGgolSize(gameSize)
 	newGameOfLiberty, _ := ggol.NewGame(
 		ggolSize,
 		&initialUnit,
@@ -140,7 +140,7 @@ func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*value
 	return &units, nil
 }
 
-func (gsi *gameServiceImplement) GetGameSize() (*valueobject.GameSize, error) {
+func (gsi *gameServiceImplement) GetMapSize() (*valueobject.MapSize, error) {
 	gsi.locker.RLock()
 	defer gsi.locker.RUnlock()
 
@@ -148,7 +148,7 @@ func (gsi *gameServiceImplement) GetGameSize() (*valueobject.GameSize, error) {
 		return nil, err
 	}
 
-	return convertGgolSizeToGameSize(gsi.gameOfLiberty.GetSize()), nil
+	return convertGgolSizeToMapSize(gsi.gameOfLiberty.GetSize()), nil
 }
 
 func (gsi *gameServiceImplement) GetGameUnit(coord *GameCoordinate) (*valueobject.GameUnit, error) {

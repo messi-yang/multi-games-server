@@ -157,7 +157,7 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 }
 
 func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
-	gameSize, _ := gameService.GetGameSize()
+	gameSize, _ := gameService.GetMapSize()
 	informationUpdatedEvent := constructInformationUpdatedEvent(gameSize, playersCount)
 
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)

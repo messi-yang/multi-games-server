@@ -25,8 +25,8 @@ type errorHappenedEvent struct {
 }
 
 type informationUpdatedEventPayload struct {
-	MapSize      valueobject.GameSize `json:"mapSize"`
-	PlayersCount int                  `json:"playersCount"`
+	MapSize      valueobject.MapSize `json:"mapSize"`
+	PlayersCount int                 `json:"playersCount"`
 }
 type informationUpdatedEvent struct {
 	Type    eventType                      `json:"type"`

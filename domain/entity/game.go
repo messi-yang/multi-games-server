@@ -6,7 +6,7 @@ import (
 )
 
 type Game struct {
-	Id    uuid.UUID
-	Units [][]valueobject.GameUnit
-	Size  valueobject.GameSize
+	Id         uuid.UUID
+	UnitMatrix [][]valueobject.GameUnit
+	MapSize    valueobject.MapSize
 }

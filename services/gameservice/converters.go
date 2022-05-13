@@ -5,14 +5,14 @@ import (
 	"github.com/DumDumGeniuss/ggol"
 )
 
-func convertGgolSizeToGameSize(ggolSize *ggol.Size) *valueobject.GameSize {
-	return &valueobject.GameSize{
+func convertGgolSizeToMapSize(ggolSize *ggol.Size) *valueobject.MapSize {
+	return &valueobject.MapSize{
 		Width:  ggolSize.Width,
 		Height: ggolSize.Height,
 	}
 }
 
-func convertGameSizeToGgolSize(gameSize *valueobject.GameSize) *ggol.Size {
+func convertMapSizeToGgolSize(gameSize *valueobject.MapSize) *ggol.Size {
 	return &ggol.Size{
 		Width:  gameSize.Width,
 		Height: gameSize.Height,

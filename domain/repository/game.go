@@ -8,9 +8,8 @@ import (
 )
 
 type GameRepository interface {
-	CreateGameUnitMatrix()
 	GetGameUnitMatrix() *valueobject.GameUnitMatrix
-	GetGameSize() *valueobject.GameSize
+	GetMapSize() *valueobject.MapSize
 }
 
 type gameRepositoryImpl struct {
@@ -27,25 +26,8 @@ func GetGameRepository() GameRepository {
 	}
 }
 
-func (gmi *gameRepositoryImpl) CreateGameUnitMatrix() {
-	size := config.GetConfig().GetGameSize()
-
-	gameUnitsEntity := make(valueobject.GameUnitMatrix, size)
-	for i := 0; i < size; i += 1 {
-		gameUnitsEntity[i] = make([]valueobject.GameUnit, size)
-		for j := 0; j < size; j += 1 {
-			gameUnitsEntity[i][j] = valueobject.GameUnit{
-				Alive: rand.Intn(2) == 0,
-				Age:   0,
-			}
-		}
-	}
-
-	// TODO - Insert into whatever storage we use.
-}
-
 func (gmi *gameRepositoryImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
-	size := config.GetConfig().GetGameSize()
+	size := config.GetConfig().GetMapSize()
 
 	gameUnitsEntity := make(valueobject.GameUnitMatrix, size)
 	for i := 0; i < size; i += 1 {
@@ -61,8 +43,9 @@ func (gmi *gameRepositoryImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
 	return &gameUnitsEntity
 }
 
-func (gmi *gameRepositoryImpl) GetGameSize() *valueobject.GameSize {
-	size := config.GetConfig().GetGameSize()
+func (gmi *gameRepositoryImpl) GetMapSize() *valueobject.MapSize {
+	size := config.GetConfig().GetMapSize()
 
-	return &valueobject.GameSize{Width: size, Height: size}
+	mapSize := valueobject.NewMapSize(size, size)
+	return &mapSize
 }

@@ -14,7 +14,7 @@ func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {
 	}
 }
 
-func constructInformationUpdatedEvent(mapSize *valueobject.GameSize, playersCount int) *informationUpdatedEvent {
+func constructInformationUpdatedEvent(mapSize *valueobject.MapSize, playersCount int) *informationUpdatedEvent {
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
