@@ -12,6 +12,8 @@ import (
 type GameRoomMemoryRepository interface {
 	GetGameUnitMatrix() *valueobject.GameUnitMatrix
 	GetMapSize() *valueobject.MapSize
+	Get(uuid.UUID) (aggregate.GameRoom, error)
+	Add(aggregate.GameRoom) error
 }
 
 type gameRoomMemoryRepositoryImpl struct {
@@ -21,10 +23,16 @@ type gameRoomMemoryRepositoryImpl struct {
 var gameRoomMemoryRepository GameRoomMemoryRepository
 
 func NewGameRoomMemoryRepository() GameRoomMemoryRepository {
-	return &gameRoomMemoryRepositoryImpl{}
+	if gameRoomMemoryRepository == nil {
+		return &gameRoomMemoryRepositoryImpl{
+			gameRoomMap: make(map[uuid.UUID]aggregate.GameRoom),
+		}
+	} else {
+		return gameRoomMemoryRepository
+	}
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) GetById(id uuid.UUID) (aggregate.GameRoom, error) {
+func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 	return gmi.gameRoomMap[id], nil
 }
 

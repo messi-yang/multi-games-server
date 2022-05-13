@@ -6,6 +6,6 @@ import (
 )
 
 type GameRoomRepository interface {
-	GetById(uuid.UUID) (aggregate.GameRoom, error)
+	Get(uuid.UUID) (aggregate.GameRoom, error)
 	Add(aggregate.GameRoom) error
 }

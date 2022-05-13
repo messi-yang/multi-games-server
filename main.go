@@ -1,6 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
+
+	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/entity"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
@@ -10,7 +17,31 @@ import (
 )
 
 func main() {
+	size := config.GetConfig().GetMapSize()
+
 	gameRoomMemoryRepository := memory.NewGameRoomMemoryRepository()
+
+	mapSize := valueobject.NewMapSize(size, size)
+	gameUnitMatrix := make([][]valueobject.GameUnit, size)
+	for i := 0; i < size; i += 1 {
+		gameUnitMatrix[i] = make([]valueobject.GameUnit, size)
+		for j := 0; j < size; j += 1 {
+			gameUnitMatrix[i][j] = valueobject.GameUnit{
+				Alive: rand.Intn(2) == 0,
+				Age:   0,
+			}
+		}
+	}
+	game := entity.NewGame()
+	game.SetMapSize(mapSize)
+	game.SetUnitMatrix(gameUnitMatrix)
+
+	gameRoom := aggregate.NewGameRoom(game)
+
+	gameRoomMemoryRepository.Add(gameRoom)
+
+	gr, _ := gameRoomMemoryRepository.Get(gameRoom.Game.GetId())
+	fmt.Println(gr.Game.Id)
 
 	gameService := gameservice.GetGameService()
 	gameService.InjectGameRoomMemoryRepository(gameRoomMemoryRepository)
