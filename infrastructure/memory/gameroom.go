@@ -4,7 +4,9 @@ import (
 	"math/rand"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/google/uuid"
 )
 
 type GameRoomMemoryRepository interface {
@@ -13,12 +15,23 @@ type GameRoomMemoryRepository interface {
 }
 
 type gameRoomMemoryRepositoryImpl struct {
+	gameRoomMap map[uuid.UUID]aggregate.GameRoom
 }
 
 var gameRoomMemoryRepository GameRoomMemoryRepository
 
 func NewGameRoomMemoryRepository() GameRoomMemoryRepository {
 	return &gameRoomMemoryRepositoryImpl{}
+}
+
+func (gmi *gameRoomMemoryRepositoryImpl) GetById(id uuid.UUID) (aggregate.GameRoom, error) {
+	return gmi.gameRoomMap[id], nil
+}
+
+func (gmi *gameRoomMemoryRepositoryImpl) Add(gameRoom aggregate.GameRoom) error {
+	gmi.gameRoomMap[gameRoom.Game.Id] = gameRoom
+
+	return nil
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) GetGameUnitMatrix() *valueobject.GameUnitMatrix {
