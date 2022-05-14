@@ -1,6 +1,7 @@
 package gamesocketcontroller
 
 import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 )
 
@@ -17,7 +18,7 @@ func constructInformationUpdatedEvent(mapSize *valueobject.MapSize, playersCount
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
-			MapSize: MapSizeDTO{
+			MapSize: dto.MapSizeDTO{
 				Width:  mapSize.GetWidth(),
 				Height: mapSize.GetHeight(),
 			},
@@ -35,16 +36,16 @@ func constructUnitsUpdatedEvent(items *[]unitsUpdatedEventPayloadItem) *unitsUpd
 	}
 }
 
-func constructAreaUpdatedEvent(gameArea *valueobject.Area, gameUnits *[][]GameUnitDTO) *areaUpdatedEvent {
+func constructAreaUpdatedEvent(gameArea *valueobject.Area, gameUnits *[][]dto.GameUnitDTO) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{
-			Area: AreaDTO{
-				From: CoordinateDTO{
+			Area: dto.AreaDTO{
+				From: dto.CoordinateDTO{
 					X: gameArea.GetFrom().GetX(),
 					Y: gameArea.GetFrom().GetY(),
 				},
-				To: CoordinateDTO{
+				To: dto.CoordinateDTO{
 					X: gameArea.GetTo().GetX(),
 					Y: gameArea.GetTo().GetY(),
 				},

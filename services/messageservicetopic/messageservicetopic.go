@@ -1,7 +1,7 @@
 package messageservicetopic
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
 )
 
 const GameWorkerTickedMessageTopic = "GAME_WORKER_TICKED"
@@ -9,8 +9,8 @@ const GameWorkerTickedMessageTopic = "GAME_WORKER_TICKED"
 const GameUnitsUpdatedMessageTopic = "GAME_UNITS_UPDATED"
 
 type GameUnitsUpdatedMessageTopicPayloadUnit struct {
-	Coordinate valueobject.Coordinate
-	Unit       valueobject.GameUnit
+	Coordinate dto.CoordinateDTO
+	Unit       dto.GameUnitDTO
 }
 type GameUnitsUpdatedMessageTopicPayload []GameUnitsUpdatedMessageTopicPayloadUnit
 

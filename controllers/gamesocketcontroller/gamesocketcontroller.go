@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
@@ -60,14 +61,8 @@ func Controller(c *gin.Context) {
 			unitsUpdatedEventPayloadItems = append(
 				unitsUpdatedEventPayloadItems,
 				unitsUpdatedEventPayloadItem{
-					Coordinate: CoordinateDTO{
-						X: messagePayloadUnit.Coordinate.GetX(),
-						Y: messagePayloadUnit.Coordinate.GetY(),
-					},
-					Unit: GameUnitDTO{
-						Alive: messagePayloadUnit.Unit.GetAlive(),
-						Age:   messagePayloadUnit.Unit.GetAge(),
-					},
+					Coordinate: messagePayloadUnit.Coordinate,
+					Unit:       messagePayloadUnit.Unit,
 				},
 			)
 		}
@@ -138,8 +133,11 @@ func Controller(c *gin.Context) {
 					gameService.ReviveGameUnit(&coordinate)
 					newGameUnit, _ := gameService.GetGameUnit(&coordinate)
 					payloadUnit := messageservicetopic.GameUnitsUpdatedMessageTopicPayloadUnit{
-						Coordinate: coordinate,
-						Unit:       *newGameUnit,
+						Coordinate: coord,
+						Unit: dto.GameUnitDTO{
+							Alive: newGameUnit.GetAlive(),
+							Age:   newGameUnit.GetAge(),
+						},
 					}
 
 					payload = append(payload, payloadUnit)
@@ -202,12 +200,12 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameService ga
 		return
 	}
 
-	gameUnitsDTO := make([][]GameUnitDTO, 0)
+	gameUnitsDTO := make([][]dto.GameUnitDTO, 0)
 
 	for i := 0; i < len(*gameUnits); i += 1 {
-		gameUnitsDTO = append(gameUnitsDTO, make([]GameUnitDTO, 0))
+		gameUnitsDTO = append(gameUnitsDTO, make([]dto.GameUnitDTO, 0))
 		for j := 0; j < len((*gameUnits)[i]); j += 1 {
-			gameUnitsDTO[i] = append(gameUnitsDTO[i], GameUnitDTO{
+			gameUnitsDTO[i] = append(gameUnitsDTO[i], dto.GameUnitDTO{
 				Alive: (*gameUnits)[i][j].GetAlive(),
 				Age:   (*gameUnits)[i][j].GetAge(),
 			})
