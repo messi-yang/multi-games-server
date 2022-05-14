@@ -14,10 +14,10 @@ type GameService interface {
 	InitializeGame() error
 	SetGameId(gameId uuid.UUID)
 	GenerateNextUnits() error
-	ReviveGameUnit(coord *GameCoordinate) error
-	GetGameUnitsInArea(area *GameArea) (*[][]*valueobject.GameUnit, error)
+	ReviveGameUnit(coord *valueobject.Coordinate) error
+	GetGameUnitsInArea(area *valueobject.Area) (*[][]*valueobject.GameUnit, error)
 	GetMapSize() (*valueobject.MapSize, error)
-	GetGameUnit(coord *GameCoordinate) (*valueobject.GameUnit, error)
+	GetGameUnit(coord *valueobject.Coordinate) (*valueobject.GameUnit, error)
 }
 
 type gameServiceImplement struct {
@@ -108,7 +108,7 @@ func (gsi *gameServiceImplement) GenerateNextUnits() error {
 	return nil
 }
 
-func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *GameCoordinate) error {
+func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *valueobject.Coordinate) error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
@@ -125,7 +125,7 @@ func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *GameCoordinate) 
 	return nil
 }
 
-func (gsi *gameServiceImplement) GetGameUnitsInArea(area *GameArea) (*[][]*valueobject.GameUnit, error) {
+func (gsi *gameServiceImplement) GetGameUnitsInArea(area *valueobject.Area) (*[][]*valueobject.GameUnit, error) {
 	gsi.locker.RLock()
 	defer gsi.locker.RUnlock()
 
@@ -154,7 +154,7 @@ func (gsi *gameServiceImplement) GetMapSize() (*valueobject.MapSize, error) {
 	return &mapSize, nil
 }
 
-func (gsi *gameServiceImplement) GetGameUnit(coord *GameCoordinate) (*valueobject.GameUnit, error) {
+func (gsi *gameServiceImplement) GetGameUnit(coord *valueobject.Coordinate) (*valueobject.GameUnit, error) {
 	gsi.locker.RLock()
 	defer gsi.locker.RUnlock()
 

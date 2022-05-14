@@ -1,9 +1,5 @@
 package gamesocketcontroller
 
-import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
-)
-
 type eventType string
 
 const (
@@ -33,8 +29,8 @@ type informationUpdatedEvent struct {
 }
 
 type unitsUpdatedEventPayloadItem struct {
-	Coordinate gameservice.GameCoordinate `json:"coordinate"`
-	Unit       GameUnitDTO                `json:"unit"`
+	Coordinate CoordinateDTO `json:"coordinate"`
+	Unit       GameUnitDTO   `json:"unit"`
 }
 
 type unitsUpdatedEventPayload struct {
@@ -46,8 +42,8 @@ type unitsUpdatedEvent struct {
 }
 
 type areaUpdatedEventPayload struct {
-	Area  gameservice.GameArea `json:"area"`
-	Units [][]GameUnitDTO      `json:"units"`
+	Area  AreaDTO         `json:"area"`
+	Units [][]GameUnitDTO `json:"units"`
 }
 type areaUpdatedEvent struct {
 	Type    eventType               `json:"type"`
@@ -64,6 +60,16 @@ type playerLeftEventPayload any
 type playerLeftEvent struct {
 	Type    eventType              `json:"type"`
 	Payload playerLeftEventPayload `json:"payload"`
+}
+
+type CoordinateDTO struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+type AreaDTO struct {
+	From CoordinateDTO `json:"from"`
+	To   CoordinateDTO `json:"to"`
 }
 
 type MapSizeDTO struct {

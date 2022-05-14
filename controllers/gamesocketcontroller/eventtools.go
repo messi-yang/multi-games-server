@@ -1,7 +1,6 @@
 package gamesocketcontroller
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 )
 
@@ -36,11 +35,20 @@ func constructUnitsUpdatedEvent(items *[]unitsUpdatedEventPayloadItem) *unitsUpd
 	}
 }
 
-func constructAreaUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]GameUnitDTO) *areaUpdatedEvent {
+func constructAreaUpdatedEvent(gameArea *valueobject.Area, gameUnits *[][]GameUnitDTO) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{
-			Area:  *gameArea,
+			Area: AreaDTO{
+				From: CoordinateDTO{
+					X: gameArea.GetFrom().GetX(),
+					Y: gameArea.GetFrom().GetY(),
+				},
+				To: CoordinateDTO{
+					X: gameArea.GetTo().GetX(),
+					Y: gameArea.GetTo().GetY(),
+				},
+			},
 			Units: *gameUnits,
 		},
 	}

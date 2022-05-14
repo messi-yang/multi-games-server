@@ -12,16 +12,16 @@ func convertMapSizeToGgolSize(gameSize *valueobject.MapSize) *ggol.Size {
 	}
 }
 
-func convertGameCoordinateToGgolCoordinate(gameCoordinate *GameCoordinate) *ggol.Coordinate {
+func convertGameCoordinateToGgolCoordinate(gameCoordinate *valueobject.Coordinate) *ggol.Coordinate {
 	return &ggol.Coordinate{
-		X: gameCoordinate.X,
-		Y: gameCoordinate.Y,
+		X: gameCoordinate.GetX(),
+		Y: gameCoordinate.GetY(),
 	}
 }
 
-func convertGameAreaToGgolArea(gameArea *GameArea) *ggol.Area {
+func convertGameAreaToGgolArea(gameArea *valueobject.Area) *ggol.Area {
 	return &ggol.Area{
-		From: ggol.Coordinate(gameArea.From),
-		To:   ggol.Coordinate(gameArea.To),
+		From: ggol.Coordinate{X: gameArea.GetFrom().GetX(), Y: gameArea.GetFrom().GetY()},
+		To:   ggol.Coordinate{X: gameArea.GetTo().GetX(), Y: gameArea.GetTo().GetY()},
 	}
 }

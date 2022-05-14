@@ -3,10 +3,10 @@ package gamesocketcontroller
 import (
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 )
 
 type session struct {
-	gameAreaToWatch *gameservice.GameArea
+	gameAreaToWatch *valueobject.Area
 	socketLocker    sync.RWMutex
 }

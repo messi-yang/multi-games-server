@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 	"github.com/gin-gonic/gin"
@@ -55,10 +56,14 @@ func Controller(c *gin.Context) {
 
 		unitsUpdatedEventPayloadItems := []unitsUpdatedEventPayloadItem{}
 		for _, messagePayloadUnit := range messagePayload {
+
 			unitsUpdatedEventPayloadItems = append(
 				unitsUpdatedEventPayloadItems,
 				unitsUpdatedEventPayloadItem{
-					Coordinate: messagePayloadUnit.Coordinate,
+					Coordinate: CoordinateDTO{
+						X: messagePayloadUnit.Coordinate.GetX(),
+						Y: messagePayloadUnit.Coordinate.GetY(),
+					},
 					Unit: GameUnitDTO{
 						Alive: messagePayloadUnit.Unit.GetAlive(),
 						Age:   messagePayloadUnit.Unit.GetAge(),
@@ -109,7 +114,17 @@ func Controller(c *gin.Context) {
 				if err != nil {
 					emitErrorEvent(conn, session, err)
 				}
-				session.gameAreaToWatch = &watchAreaAction.Payload.Area
+				area := valueobject.NewArea(
+					valueobject.NewCoordinate(
+						watchAreaAction.Payload.Area.From.X,
+						watchAreaAction.Payload.Area.From.Y,
+					),
+					valueobject.NewCoordinate(
+						watchAreaAction.Payload.Area.To.X,
+						watchAreaAction.Payload.Area.To.Y,
+					),
+				)
+				session.gameAreaToWatch = &area
 				break
 			case reviveUnitsActionType:
 				reviveUnitsAction, err := extractReviveUnitsActionFromMessage(message)
@@ -119,15 +134,17 @@ func Controller(c *gin.Context) {
 
 				payload := messageservicetopic.GameUnitsUpdatedMessageTopicPayload{}
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
-					gameService.ReviveGameUnit(&coord)
-					newGameUnit, _ := gameService.GetGameUnit(&coord)
+					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
+					gameService.ReviveGameUnit(&coordinate)
+					newGameUnit, _ := gameService.GetGameUnit(&coordinate)
 					payloadUnit := messageservicetopic.GameUnitsUpdatedMessageTopicPayloadUnit{
-						Coordinate: coord,
+						Coordinate: coordinate,
 						Unit:       *newGameUnit,
 					}
 
 					payload = append(payload, payloadUnit)
 				}
+
 				message, err := json.Marshal(payload)
 				messageService.Publish(messageservicetopic.GameUnitsUpdatedMessageTopic, message)
 				break
