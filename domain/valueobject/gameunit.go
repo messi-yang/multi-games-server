@@ -1,13 +1,21 @@
 package valueobject
 
 type GameUnit struct {
-	Alive bool `json:"alive"`
-	Age   int  `json:"age"`
+	alive bool
+	age   int
 }
 
 func NewGameUnit(alive bool, age int) GameUnit {
 	return GameUnit{
-		Alive: alive,
-		Age:   age,
+		alive: alive,
+		age:   age,
 	}
+}
+
+func (gu GameUnit) GetAlive() bool {
+	return gu.alive
+}
+
+func (gu GameUnit) GetAge() int {
+	return gu.age
 }

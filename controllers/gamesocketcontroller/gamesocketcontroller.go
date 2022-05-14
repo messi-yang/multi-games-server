@@ -59,7 +59,10 @@ func Controller(c *gin.Context) {
 				unitsUpdatedEventPayloadItems,
 				unitsUpdatedEventPayloadItem{
 					Coordinate: messagePayloadUnit.Coordinate,
-					Unit:       messagePayloadUnit.Unit,
+					Unit: GameUnitDTO{
+						Alive: messagePayloadUnit.Unit.GetAlive(),
+						Age:   messagePayloadUnit.Unit.GetAge(),
+					},
 				},
 			)
 		}
@@ -182,7 +185,19 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameService ga
 		return
 	}
 
-	areaUpdatedEvent := constructAreaUpdatedEvent(session.gameAreaToWatch, gameUnits)
+	gameUnitsDTO := make([][]GameUnitDTO, 0)
+
+	for i := 0; i < len(*gameUnits); i += 1 {
+		gameUnitsDTO = append(gameUnitsDTO, make([]GameUnitDTO, 0))
+		for j := 0; j < len((*gameUnits)[i]); j += 1 {
+			gameUnitsDTO[i] = append(gameUnitsDTO[i], GameUnitDTO{
+				Alive: (*gameUnits)[i][j].GetAlive(),
+				Age:   (*gameUnits)[i][j].GetAge(),
+			})
+		}
+	}
+
+	areaUpdatedEvent := constructAreaUpdatedEvent(session.gameAreaToWatch, &gameUnitsDTO)
 
 	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
 }

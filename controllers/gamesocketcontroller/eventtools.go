@@ -36,7 +36,7 @@ func constructUnitsUpdatedEvent(items *[]unitsUpdatedEventPayloadItem) *unitsUpd
 	}
 }
 
-func constructAreaUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]*valueobject.GameUnit) *areaUpdatedEvent {
+func constructAreaUpdatedEvent(gameArea *gameservice.GameArea, gameUnits *[][]GameUnitDTO) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{

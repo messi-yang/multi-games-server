@@ -25,10 +25,7 @@ func main() {
 	for i := 0; i < size; i += 1 {
 		gameUnitMatrix[i] = make([]valueobject.GameUnit, size)
 		for j := 0; j < size; j += 1 {
-			gameUnitMatrix[i][j] = valueobject.GameUnit{
-				Alive: rand.Intn(2) == 0,
-				Age:   0,
-			}
+			gameUnitMatrix[i][j] = valueobject.NewGameUnit(rand.Intn(2) == 0, 0)
 		}
 	}
 	game := entity.NewGame()

@@ -72,10 +72,7 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 	gameRoom, _ := gsi.gameRoomMemoryRepository.Get(gsi.gameId)
 	fmt.Println(gameRoom.Game.Id)
 
-	initialUnit := valueobject.GameUnit{
-		Alive: false,
-		Age:   0,
-	}
+	initialUnit := valueobject.NewGameUnit(false, 0)
 	gameSize := gameRoom.Game.MapSize
 	ggolSize := convertMapSizeToGgolSize(&gameSize)
 	newGameOfLiberty, _ := ggol.NewGame(
@@ -122,13 +119,8 @@ func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *GameCoordinate) 
 	}
 
 	coord := convertGameCoordinateToGgolCoordinate(gameCoordinate)
-	unit, err := gsi.gameOfLiberty.GetUnit(coord)
-	if err != nil {
-		return err
-	}
 
-	nextUnit := *unit
-	nextUnit.Alive = true
+	nextUnit := valueobject.NewGameUnit(true, 0)
 
 	gsi.gameOfLiberty.SetUnit(coord, &nextUnit)
 

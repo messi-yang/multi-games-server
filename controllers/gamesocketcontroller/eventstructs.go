@@ -1,7 +1,6 @@
 package gamesocketcontroller
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 )
 
@@ -24,11 +23,6 @@ type errorHappenedEvent struct {
 	Payload errorHappenedEventPayload `json:"payload"`
 }
 
-type MapSizeDTO struct {
-	Width  int `json:"width"`
-	Height int `json:"height"`
-}
-
 type informationUpdatedEventPayload struct {
 	MapSize      MapSizeDTO `json:"mapSize"`
 	PlayersCount int        `json:"playersCount"`
@@ -40,7 +34,7 @@ type informationUpdatedEvent struct {
 
 type unitsUpdatedEventPayloadItem struct {
 	Coordinate gameservice.GameCoordinate `json:"coordinate"`
-	Unit       valueobject.GameUnit       `json:"unit"`
+	Unit       GameUnitDTO                `json:"unit"`
 }
 
 type unitsUpdatedEventPayload struct {
@@ -52,8 +46,8 @@ type unitsUpdatedEvent struct {
 }
 
 type areaUpdatedEventPayload struct {
-	Area  gameservice.GameArea      `json:"area"`
-	Units [][]*valueobject.GameUnit `json:"units"`
+	Area  gameservice.GameArea `json:"area"`
+	Units [][]GameUnitDTO      `json:"units"`
 }
 type areaUpdatedEvent struct {
 	Type    eventType               `json:"type"`
@@ -70,4 +64,14 @@ type playerLeftEventPayload any
 type playerLeftEvent struct {
 	Type    eventType              `json:"type"`
 	Payload playerLeftEventPayload `json:"payload"`
+}
+
+type MapSizeDTO struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+type GameUnitDTO struct {
+	Alive bool `json:"alive"`
+	Age   int  `json:"age"`
 }
