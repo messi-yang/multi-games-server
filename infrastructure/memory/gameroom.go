@@ -31,7 +31,7 @@ func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, 
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) Add(gameRoom aggregate.GameRoom) error {
-	gmi.gameRoomMap[gameRoom.Game.Id] = gameRoom
+	gmi.gameRoomMap[gameRoom.GetGameId()] = gameRoom
 
 	return nil
 }

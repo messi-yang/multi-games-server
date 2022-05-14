@@ -1,8 +1,8 @@
 package messageservicetopic
 
 import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 )
 
 const GameWorkerTickedMessageTopic = "GAME_WORKER_TICKED"

@@ -1,7 +1,6 @@
 package gameservice
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
@@ -70,10 +69,9 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 	}
 
 	gameRoom, _ := gsi.gameRoomMemoryRepository.Get(gsi.gameId)
-	fmt.Println(gameRoom.Game.Id)
 
 	initialUnit := valueobject.NewGameUnit(false, 0)
-	gameSize := gameRoom.Game.MapSize
+	gameSize := gameRoom.GetGameMapSize()
 	ggolSize := convertMapSizeToGgolSize(&gameSize)
 	newGameOfLiberty, _ := ggol.NewGame(
 		ggolSize,
@@ -82,7 +80,7 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 
 	newGameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
-	gameUnitMatrix := gameRoom.Game.UnitMatrix
+	gameUnitMatrix := gameRoom.GetGameUnitMatrix()
 
 	for x := 0; x < ggolSize.Width; x += 1 {
 		for y := 0; y < ggolSize.Height; y += 1 {
@@ -152,7 +150,8 @@ func (gsi *gameServiceImplement) GetMapSize() (*valueobject.MapSize, error) {
 	}
 
 	gameRoom, _ := gsi.gameRoomMemoryRepository.Get(gsi.gameId)
-	return &gameRoom.Game.MapSize, nil
+	mapSize := gameRoom.GetGameMapSize()
+	return &mapSize, nil
 }
 
 func (gsi *gameServiceImplement) GetGameUnit(coord *GameCoordinate) (*valueobject.GameUnit, error) {

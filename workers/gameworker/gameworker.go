@@ -3,7 +3,7 @@ package gameworker
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 )

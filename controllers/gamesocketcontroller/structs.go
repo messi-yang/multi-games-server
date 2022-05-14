@@ -3,7 +3,7 @@ package gamesocketcontroller
 import (
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 )
 
 type session struct {

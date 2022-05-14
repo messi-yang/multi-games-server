@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 	"github.com/gin-gonic/gin"

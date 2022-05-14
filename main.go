@@ -6,10 +6,10 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/entity"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/routers/gamesocketrouter"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/workers/gameworker"
 	"github.com/gin-gonic/gin"
@@ -36,7 +36,7 @@ func main() {
 	gameRoomMemoryRepository.Add(gameRoom)
 
 	gameService := gameservice.NewGameService()
-	gameService.SetGameId(gameRoom.Game.GetId())
+	gameService.SetGameId(game.GetId())
 	gameService.InjectGameRoomMemoryRepository(gameRoomMemoryRepository)
 	if err := gameService.InitializeGame(); err != nil {
 		panic(err)

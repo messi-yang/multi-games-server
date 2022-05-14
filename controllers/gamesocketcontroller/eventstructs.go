@@ -1,7 +1,7 @@
 package gamesocketcontroller
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 )
 
 type eventType string

@@ -6,40 +6,40 @@ import (
 )
 
 type Game struct {
-	Id         uuid.UUID
-	UnitMatrix [][]valueobject.GameUnit
-	MapSize    valueobject.MapSize
+	id         uuid.UUID
+	unitMatrix [][]valueobject.GameUnit
+	mapSize    valueobject.MapSize
 }
 
 func NewGame() Game {
 	id, _ := uuid.NewUUID()
 	return Game{
-		Id:         id,
-		UnitMatrix: make([][]valueobject.GameUnit, 0),
-		MapSize:    valueobject.NewMapSize(0, 0),
+		id:         id,
+		unitMatrix: make([][]valueobject.GameUnit, 0),
+		mapSize:    valueobject.NewMapSize(0, 0),
 	}
 }
 
 func (g *Game) GetId() uuid.UUID {
-	return g.Id
+	return g.id
 }
 
 func (g *Game) SetUnitMatrix(unitMatrix [][]valueobject.GameUnit) error {
-	g.UnitMatrix = unitMatrix
+	g.unitMatrix = unitMatrix
 
 	return nil
 }
 
 func (g *Game) GetUnitMatrix() [][]valueobject.GameUnit {
-	return g.UnitMatrix
+	return g.unitMatrix
 }
 
 func (g *Game) SetMapSize(mapSize valueobject.MapSize) error {
-	g.MapSize = mapSize
+	g.mapSize = mapSize
 
 	return nil
 }
 
 func (g *Game) GetMapSize() valueobject.MapSize {
-	return g.MapSize
+	return g.mapSize
 }
