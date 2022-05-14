@@ -24,9 +24,14 @@ type errorHappenedEvent struct {
 	Payload errorHappenedEventPayload `json:"payload"`
 }
 
+type MapSizeDTO struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
 type informationUpdatedEventPayload struct {
-	MapSize      valueobject.MapSize `json:"mapSize"`
-	PlayersCount int                 `json:"playersCount"`
+	MapSize      MapSizeDTO `json:"mapSize"`
+	PlayersCount int        `json:"playersCount"`
 }
 type informationUpdatedEvent struct {
 	Type    eventType                      `json:"type"`

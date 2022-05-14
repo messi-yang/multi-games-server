@@ -7,8 +7,8 @@ import (
 
 func convertMapSizeToGgolSize(gameSize *valueobject.MapSize) *ggol.Size {
 	return &ggol.Size{
-		Width:  gameSize.Width,
-		Height: gameSize.Height,
+		Width:  gameSize.GetWidth(),
+		Height: gameSize.GetHeight(),
 	}
 }
 

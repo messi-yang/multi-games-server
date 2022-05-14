@@ -1,25 +1,21 @@
 package valueobject
 
 type MapSize struct {
-	Width  int `json:"width"`
-	Height int `json:"height"`
+	width  int
+	height int
 }
 
 func NewMapSize(width int, height int) MapSize {
 	return MapSize{
-		Width:  width,
-		Height: height,
+		width:  width,
+		height: height,
 	}
 }
 
-func (ms MapSize) SetWidth(width int) MapSize {
-	ms.Width = width
-
-	return ms
+func (ms MapSize) GetWidth() int {
+	return ms.width
 }
 
-func (ms MapSize) SetHeight(height int) MapSize {
-	ms.Height = height
-
-	return ms
+func (ms MapSize) GetHeight() int {
+	return ms.height
 }

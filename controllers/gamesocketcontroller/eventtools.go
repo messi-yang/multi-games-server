@@ -18,7 +18,10 @@ func constructInformationUpdatedEvent(mapSize *valueobject.MapSize, playersCount
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
-			MapSize:      *mapSize,
+			MapSize: MapSizeDTO{
+				Width:  mapSize.GetWidth(),
+				Height: mapSize.GetHeight(),
+			},
 			PlayersCount: playersCount,
 		},
 	}
