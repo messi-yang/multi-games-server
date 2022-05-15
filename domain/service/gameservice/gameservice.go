@@ -3,46 +3,36 @@ package gameservice
 import (
 	"sync"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
 	"github.com/DumDumGeniuss/ggol"
-	"github.com/google/uuid"
 )
 
 type GameService interface {
-	InjectGameRoomMemoryRepository(memory.GameRoomMemoryRepository)
 	InitializeGame() error
-	SetGameId(gameId uuid.UUID)
 	GenerateNextUnits() error
 	ReviveGameUnit(coord *valueobject.Coordinate) error
 	GetGameUnitsInArea(area *valueobject.Area) (*[][]*valueobject.GameUnit, error)
-	GetMapSize() (*valueobject.MapSize, error)
 	GetGameUnit(coord *valueobject.Coordinate) (*valueobject.GameUnit, error)
 }
 
 type gameServiceImplement struct {
-	gameId                   uuid.UUID
-	gameOfLiberty            ggol.Game[valueobject.GameUnit]
-	gameRoomMemoryRepository memory.GameRoomMemoryRepository
-	locker                   sync.RWMutex
+	gameOfLiberty      ggol.Game[valueobject.GameUnit]
+	gameRoomRepository repository.GameRoomRepository
+	locker             sync.RWMutex
 }
 
 var gameService GameService = nil
 
-func NewGameService() GameService {
+func NewGameService(gameRoomRepository repository.GameRoomRepository) GameService {
 	if gameService == nil {
 		gameService = &gameServiceImplement{
-			locker: sync.RWMutex{},
+			gameRoomRepository: gameRoomRepository,
+			locker:             sync.RWMutex{},
 		}
 	}
 	return gameService
-}
-
-func (gsi *gameServiceImplement) checkGameRoomMemoryRepositoryDependency() error {
-	if gsi.gameRoomMemoryRepository == nil {
-		return &errMissingGameRoomMemoryRepositoryDependency{}
-	}
-	return nil
 }
 
 func (gsi *gameServiceImplement) checkIsGameInitialized() error {
@@ -52,23 +42,16 @@ func (gsi *gameServiceImplement) checkIsGameInitialized() error {
 	return nil
 }
 
-func (gsi *gameServiceImplement) InjectGameRoomMemoryRepository(gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
-	gsi.gameRoomMemoryRepository = gameRoomMemoryRepository
-}
-
-func (gsi *gameServiceImplement) SetGameId(gameId uuid.UUID) {
-	gsi.gameId = gameId
+func (gsi *gameServiceImplement) InjectGameRoomMemoryRepository(gameRoomRepository repository.GameRoomRepository) {
+	gsi.gameRoomRepository = gameRoomRepository
 }
 
 func (gsi *gameServiceImplement) InitializeGame() error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	if err := gsi.checkGameRoomMemoryRepositoryDependency(); err != nil {
-		return err
-	}
-
-	gameRoom, _ := gsi.gameRoomMemoryRepository.Get(gsi.gameId)
+	gameId := config.GetConfig().GetGameId()
+	gameRoom, _ := gsi.gameRoomRepository.Get(gameId)
 
 	initialUnit := valueobject.NewGameUnit(false, 0)
 	gameSize := gameRoom.GetGameMapSize()
@@ -139,19 +122,6 @@ func (gsi *gameServiceImplement) GetGameUnitsInArea(area *valueobject.Area) (*[]
 		return nil, err
 	}
 	return &units, nil
-}
-
-func (gsi *gameServiceImplement) GetMapSize() (*valueobject.MapSize, error) {
-	gsi.locker.RLock()
-	defer gsi.locker.RUnlock()
-
-	if err := gsi.checkIsGameInitialized(); err != nil {
-		return nil, err
-	}
-
-	gameRoom, _ := gsi.gameRoomMemoryRepository.Get(gsi.gameId)
-	mapSize := gameRoom.GetGameMapSize()
-	return &mapSize, nil
 }
 
 func (gsi *gameServiceImplement) GetGameUnit(coord *valueobject.Coordinate) (*valueobject.GameUnit, error) {

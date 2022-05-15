@@ -1,12 +1,5 @@
 package gameservice
 
-type errMissingGameRoomMemoryRepositoryDependency struct {
-}
-
-func (e *errMissingGameRoomMemoryRepositoryDependency) Error() string {
-	return "The dependency repository.GameRoomMemoryRepository is missing in \"gameservice\"."
-}
-
 type errGameIsNotInitialized struct {
 }
 

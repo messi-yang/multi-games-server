@@ -5,7 +5,6 @@ import (
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/entity"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
@@ -16,7 +15,7 @@ import (
 )
 
 func main() {
-	size := config.GetConfig().GetMapSize()
+	size := config.GetConfig().GetGameMapSize()
 
 	gameRoomMemoryRepository := memory.NewGameRoomMemoryRepository()
 
@@ -28,16 +27,15 @@ func main() {
 			gameUnitMatrix[i][j] = valueobject.NewGameUnit(rand.Intn(2) == 0, 0)
 		}
 	}
-	game := entity.NewGame()
-	game.SetMapSize(mapSize)
-	game.SetUnitMatrix(gameUnitMatrix)
 
-	gameRoom := aggregate.NewGameRoom(game)
+	gameRoom := aggregate.NewGameRoom()
+	gameRoom.UpdateGameMapSize(mapSize)
+	gameRoom.UpdateGameUnitMatrix(gameUnitMatrix)
 	gameRoomMemoryRepository.Add(gameRoom)
 
-	gameService := gameservice.NewGameService()
-	gameService.SetGameId(game.GetId())
-	gameService.InjectGameRoomMemoryRepository(gameRoomMemoryRepository)
+	config.GetConfig().SetGameId(gameRoom.GetGameId())
+
+	gameService := gameservice.NewGameService(gameRoomMemoryRepository)
 	if err := gameService.InitializeGame(); err != nil {
 		panic(err)
 	}

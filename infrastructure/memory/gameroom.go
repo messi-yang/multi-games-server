@@ -1,6 +1,8 @@
 package memory
 
 import (
+	"fmt"
+
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
 	"github.com/google/uuid"
 )
@@ -18,15 +20,17 @@ var gameRoomMemoryRepository GameRoomMemoryRepository
 
 func NewGameRoomMemoryRepository() GameRoomMemoryRepository {
 	if gameRoomMemoryRepository == nil {
-		return &gameRoomMemoryRepositoryImpl{
+		gameRoomMemoryRepository = &gameRoomMemoryRepositoryImpl{
 			gameRoomMap: make(map[uuid.UUID]aggregate.GameRoom),
 		}
+		return gameRoomMemoryRepository
 	} else {
 		return gameRoomMemoryRepository
 	}
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, error) {
+	fmt.Println(gmi.gameRoomMap)
 	return gmi.gameRoomMap[id], nil
 }
 

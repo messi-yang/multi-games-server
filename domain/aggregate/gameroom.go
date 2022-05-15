@@ -7,30 +7,37 @@ import (
 )
 
 type GameRoom struct {
-	game entity.Game
+	game *entity.Game
 }
 
-func NewGameRoom(game entity.Game) GameRoom {
+func NewGameRoom() GameRoom {
+	newGame := entity.NewGame()
 	return GameRoom{
-		game: game,
+		game: &newGame,
 	}
-}
-
-func (gr *GameRoom) GetGame() entity.Game {
-	return gr.game
 }
 
 func (gr *GameRoom) GetGameId() uuid.UUID {
 	game := gr.game
-	return game.GetId()
+	return game.Id
 }
 
 func (gr *GameRoom) GetGameMapSize() valueobject.MapSize {
 	game := gr.game
-	return game.GetMapSize()
+	return game.MapSize
+}
+
+func (gr *GameRoom) UpdateGameMapSize(mapSize valueobject.MapSize) error {
+	gr.game.MapSize = mapSize
+	return nil
 }
 
 func (gr *GameRoom) GetGameUnitMatrix() [][]valueobject.GameUnit {
 	game := gr.game
-	return game.GetUnitMatrix()
+	return game.UnitMatrix
+}
+
+func (gr *GameRoom) UpdateGameUnitMatrix(unitMatrix [][]valueobject.GameUnit) error {
+	gr.game.UnitMatrix = unitMatrix
+	return nil
 }

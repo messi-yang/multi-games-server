@@ -7,8 +7,10 @@ import (
 	"sync"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 	"github.com/gin-gonic/gin"
@@ -35,7 +37,8 @@ func Controller(c *gin.Context) {
 	closeConnFlag := make(chan bool)
 
 	messageService := messageservice.GetMessageService()
-	gameService := gameservice.NewGameService()
+	gameRoomMemoryRepository := memory.NewGameRoomMemoryRepository()
+	gameService := gameservice.NewGameService(gameRoomMemoryRepository)
 
 	playersCount += 1
 	session := &session{
@@ -43,7 +46,7 @@ func Controller(c *gin.Context) {
 		socketLocker:    sync.RWMutex{},
 	}
 
-	emitGameInfoUpdatedEvent(conn, session, gameService)
+	emitGameInfoUpdatedEvent(conn, session, gameRoomMemoryRepository)
 	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
 	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameWorkerTickedMessageTopic, func(_ []byte) {
@@ -174,9 +177,11 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
-	gameSize, _ := gameService.GetMapSize()
-	informationUpdatedEvent := constructInformationUpdatedEvent(gameSize, playersCount)
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
+	gameId := config.GetConfig().GetGameId()
+	gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
+	gameMapSize := gameRoom.GetGameMapSize()
+	informationUpdatedEvent := constructInformationUpdatedEvent(&gameMapSize, playersCount)
 
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }

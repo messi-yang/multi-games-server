@@ -4,15 +4,19 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 )
 
 type Config interface {
-	GetMapSize() int
+	GetGameMapSize() int
+	GetGameId() uuid.UUID
+	SetGameId(uuid.UUID)
 }
 
 type configImpl struct {
-	GAME_SIZE int
+	GAME_MAP_SIZE int
+	GAME_ID       uuid.UUID
 }
 
 var config Config = nil
@@ -22,10 +26,10 @@ func GetConfig() Config {
 		newConfig := &configImpl{}
 		godotenv.Load(".env")
 
-		if os.Getenv("GAME_SIZE") == "" {
-			panic("You must set the 'GAME_SIZE'")
+		if os.Getenv("GAME_MAP_SIZE") == "" {
+			panic("You must set the 'GAME_MAP_SIZE'")
 		} else {
-			newConfig.GAME_SIZE, _ = strconv.Atoi(os.Getenv("GAME_SIZE"))
+			newConfig.GAME_MAP_SIZE, _ = strconv.Atoi(os.Getenv("GAME_MAP_SIZE"))
 		}
 
 		config = newConfig
@@ -35,6 +39,14 @@ func GetConfig() Config {
 	}
 }
 
-func (ci *configImpl) GetMapSize() int {
-	return ci.GAME_SIZE
+func (ci *configImpl) GetGameMapSize() int {
+	return ci.GAME_MAP_SIZE
+}
+
+func (ci *configImpl) GetGameId() uuid.UUID {
+	return ci.GAME_ID
+}
+
+func (ci *configImpl) SetGameId(id uuid.UUID) {
+	ci.GAME_ID = id
 }
