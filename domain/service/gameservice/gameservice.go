@@ -7,14 +7,13 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/ggol"
+	"github.com/google/uuid"
 )
 
 type GameService interface {
 	InitializeGame() error
-	GenerateNextUnits() error
-	ReviveGameUnit(coord *valueobject.Coordinate) error
-	GetGameUnitsInArea(area *valueobject.Area) (*[][]*valueobject.GameUnit, error)
-	GetGameUnit(coord *valueobject.Coordinate) (*valueobject.GameUnit, error)
+	GenerateNextUnits(gameId uuid.UUID) error
+	ReviveGameUnit(gameId uuid.UUID, coord *valueobject.Coordinate) error
 }
 
 type gameServiceImplement struct {
@@ -40,10 +39,6 @@ func (gsi *gameServiceImplement) checkIsGameInitialized() error {
 		return &errGameIsNotInitialized{}
 	}
 	return nil
-}
-
-func (gsi *gameServiceImplement) InjectGameRoomMemoryRepository(gameRoomRepository repository.GameRoomRepository) {
-	gsi.gameRoomRepository = gameRoomRepository
 }
 
 func (gsi *gameServiceImplement) InitializeGame() error {
@@ -78,7 +73,7 @@ func (gsi *gameServiceImplement) InitializeGame() error {
 	return nil
 }
 
-func (gsi *gameServiceImplement) GenerateNextUnits() error {
+func (gsi *gameServiceImplement) GenerateNextUnits(gameId uuid.UUID) error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
@@ -88,10 +83,22 @@ func (gsi *gameServiceImplement) GenerateNextUnits() error {
 
 	gsi.gameOfLiberty.GenerateNextUnits()
 
+	gameUnitPointerMatrix := gsi.gameOfLiberty.GetUnits()
+
+	gameUnitMatrix := make([][]valueobject.GameUnit, 0)
+	for x := 0; x < len(gameUnitPointerMatrix); x += 1 {
+		gameUnitMatrix = append(gameUnitMatrix, make([]valueobject.GameUnit, 0))
+		for y := 0; y < len(gameUnitPointerMatrix[x]); y += 1 {
+			gameUnitMatrix[x] = append(gameUnitMatrix[x], *gameUnitPointerMatrix[x][y])
+		}
+	}
+
+	gsi.gameRoomRepository.UpdateGameUnitMatrix(gameId, gameUnitMatrix)
+
 	return nil
 }
 
-func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *valueobject.Coordinate) error {
+func (gsi *gameServiceImplement) ReviveGameUnit(gameId uuid.UUID, gameCoordinate *valueobject.Coordinate) error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
@@ -102,41 +109,9 @@ func (gsi *gameServiceImplement) ReviveGameUnit(gameCoordinate *valueobject.Coor
 	coord := convertGameCoordinateToGgolCoordinate(gameCoordinate)
 
 	nextUnit := valueobject.NewGameUnit(true, 0)
-
 	gsi.gameOfLiberty.SetUnit(coord, &nextUnit)
 
+	gsi.gameRoomRepository.UpdateGameUnit(gameId, *gameCoordinate, nextUnit)
+
 	return nil
-}
-
-func (gsi *gameServiceImplement) GetGameUnitsInArea(area *valueobject.Area) (*[][]*valueobject.GameUnit, error) {
-	gsi.locker.RLock()
-	defer gsi.locker.RUnlock()
-
-	if err := gsi.checkIsGameInitialized(); err != nil {
-		return nil, err
-	}
-
-	ggolArea := convertGameAreaToGgolArea(area)
-	units, err := gsi.gameOfLiberty.GetUnitsInArea(ggolArea)
-	if err != nil {
-		return nil, err
-	}
-	return &units, nil
-}
-
-func (gsi *gameServiceImplement) GetGameUnit(coord *valueobject.Coordinate) (*valueobject.GameUnit, error) {
-	gsi.locker.RLock()
-	defer gsi.locker.RUnlock()
-
-	if err := gsi.checkIsGameInitialized(); err != nil {
-		return nil, err
-	}
-
-	ggolCoord := convertGameCoordinateToGgolCoordinate(coord)
-	gameUnit, err := gsi.gameOfLiberty.GetUnit(ggolCoord)
-	if err != nil {
-		return nil, err
-	}
-
-	return gameUnit, nil
 }

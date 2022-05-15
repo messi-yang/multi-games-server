@@ -18,13 +18,11 @@ func NewGameRoom() GameRoom {
 }
 
 func (gr *GameRoom) GetGameId() uuid.UUID {
-	game := gr.game
-	return game.Id
+	return gr.game.Id
 }
 
 func (gr *GameRoom) GetGameMapSize() valueobject.MapSize {
-	game := gr.game
-	return game.MapSize
+	return gr.game.MapSize
 }
 
 func (gr *GameRoom) UpdateGameMapSize(mapSize valueobject.MapSize) error {
@@ -33,11 +31,34 @@ func (gr *GameRoom) UpdateGameMapSize(mapSize valueobject.MapSize) error {
 }
 
 func (gr *GameRoom) GetGameUnitMatrix() [][]valueobject.GameUnit {
-	game := gr.game
-	return game.UnitMatrix
+	return gr.game.UnitMatrix
 }
 
 func (gr *GameRoom) UpdateGameUnitMatrix(unitMatrix [][]valueobject.GameUnit) error {
 	gr.game.UnitMatrix = unitMatrix
+	return nil
+}
+
+func (gr *GameRoom) GetGameUnitMatrixWithArea(area valueobject.Area) ([][]valueobject.GameUnit, error) {
+	width := area.GetTo().GetX() - area.GetFrom().GetX() + 1
+	height := area.GetTo().GetY() - area.GetFrom().GetY() + 1
+	gameMatrix := make([][]valueobject.GameUnit, width)
+	for x := 0; x < width; x += 1 {
+		gameMatrix[x] = make([]valueobject.GameUnit, height)
+		for y := 0; y < height; y += 1 {
+			gameMatrix[x][y] = gr.game.UnitMatrix[x][y]
+		}
+	}
+
+	return gameMatrix, nil
+}
+
+func (gr *GameRoom) GetGameUnit(coordinate valueobject.Coordinate) valueobject.GameUnit {
+	return gr.game.UnitMatrix[coordinate.GetX()][coordinate.GetY()]
+}
+
+func (gr *GameRoom) UpdateGameUnit(coordinate valueobject.Coordinate, gameUnit valueobject.GameUnit) error {
+	gr.game.UnitMatrix[coordinate.GetX()][coordinate.GetY()] = gameUnit
+
 	return nil
 }

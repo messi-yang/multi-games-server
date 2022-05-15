@@ -14,6 +14,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -36,6 +37,7 @@ func Controller(c *gin.Context) {
 	defer conn.Close()
 	closeConnFlag := make(chan bool)
 
+	gameId := config.GetConfig().GetGameId()
 	messageService := messageservice.GetMessageService()
 	gameRoomMemoryRepository := memory.NewGameRoomMemoryRepository()
 	gameService := gameservice.NewGameService(gameRoomMemoryRepository)
@@ -46,11 +48,11 @@ func Controller(c *gin.Context) {
 		socketLocker:    sync.RWMutex{},
 	}
 
-	emitGameInfoUpdatedEvent(conn, session, gameRoomMemoryRepository)
+	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomMemoryRepository)
 	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
 	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameWorkerTickedMessageTopic, func(_ []byte) {
-		emitAreaUpdatedEvent(conn, session, gameService)
+		emitAreaUpdatedEvent(conn, session, gameId, gameRoomMemoryRepository)
 	})
 	defer messageService.Unsubscribe(messageservicetopic.GameWorkerTickedMessageTopic, areaUpdatedSubscriptionToken)
 
@@ -130,11 +132,16 @@ func Controller(c *gin.Context) {
 					emitErrorEvent(conn, session, err)
 				}
 
+				for _, coord := range reviveUnitsAction.Payload.Coordinates {
+					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
+					gameService.ReviveGameUnit(gameId, &coordinate)
+				}
+
+				gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
 				payload := messageservicetopic.GameUnitsUpdatedMessageTopicPayload{}
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
-					gameService.ReviveGameUnit(&coordinate)
-					newGameUnit, _ := gameService.GetGameUnit(&coordinate)
+					newGameUnit := gameRoom.GetGameUnit(coordinate)
 					payloadUnit := messageservicetopic.GameUnitsUpdatedMessageTopicPayloadUnit{
 						Coordinate: coord,
 						Unit: dto.GameUnitDTO{
@@ -177,8 +184,7 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
-	gameId := config.GetConfig().GetGameId()
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
 	gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
 	gameMapSize := gameRoom.GetGameMapSize()
 	informationUpdatedEvent := constructInformationUpdatedEvent(&gameMapSize, playersCount)
@@ -192,14 +198,14 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, updateUnitIte
 	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }
 
-func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameService gameservice.GameService) {
+func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
 
-	gameUnits, err := gameService.GetGameUnitsInArea(
-		session.gameAreaToWatch,
-	)
+	gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
+
+	gameUnits, err := gameRoom.GetGameUnitMatrixWithArea(*session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 		return
@@ -207,12 +213,12 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameService ga
 
 	gameUnitsDTO := make([][]dto.GameUnitDTO, 0)
 
-	for i := 0; i < len(*gameUnits); i += 1 {
+	for i := 0; i < len(gameUnits); i += 1 {
 		gameUnitsDTO = append(gameUnitsDTO, make([]dto.GameUnitDTO, 0))
-		for j := 0; j < len((*gameUnits)[i]); j += 1 {
+		for j := 0; j < len(gameUnits[i]); j += 1 {
 			gameUnitsDTO[i] = append(gameUnitsDTO[i], dto.GameUnitDTO{
-				Alive: (*gameUnits)[i][j].GetAlive(),
-				Age:   (*gameUnits)[i][j].GetAge(),
+				Alive: gameUnits[i][j].GetAlive(),
+				Age:   gameUnits[i][j].GetAge(),
 			})
 		}
 	}

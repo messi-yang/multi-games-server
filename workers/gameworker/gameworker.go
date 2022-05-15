@@ -3,6 +3,7 @@ package gameworker
 import (
 	"time"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
@@ -62,6 +63,8 @@ func (gwi *gameWorkerImpl) StartGame() error {
 		return err
 	}
 
+	gameId := config.GetConfig().GetGameId()
+
 	go func() {
 		gwi.gameTicker = time.NewTicker(time.Millisecond * 1000)
 		defer gwi.gameTicker.Stop()
@@ -70,7 +73,7 @@ func (gwi *gameWorkerImpl) StartGame() error {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				gwi.gameService.GenerateNextUnits()
+				gwi.gameService.GenerateNextUnits(gameId)
 
 				gwi.messageService.Publish(messageservicetopic.GameWorkerTickedMessageTopic, nil)
 			case <-gwi.gameTickerStop:

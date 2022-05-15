@@ -1,15 +1,16 @@
 package memory
 
 import (
-	"fmt"
-
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/google/uuid"
 )
 
 type GameRoomMemoryRepository interface {
-	Get(uuid.UUID) (aggregate.GameRoom, error)
 	Add(aggregate.GameRoom) error
+	UpdateGameUnit(uuid.UUID, valueobject.Coordinate, valueobject.GameUnit) error
+	UpdateGameUnitMatrix(uuid.UUID, [][]valueobject.GameUnit) error
+	Get(uuid.UUID) (aggregate.GameRoom, error)
 }
 
 type gameRoomMemoryRepositoryImpl struct {
@@ -30,8 +31,21 @@ func NewGameRoomMemoryRepository() GameRoomMemoryRepository {
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, error) {
-	fmt.Println(gmi.gameRoomMap)
 	return gmi.gameRoomMap[id], nil
+}
+
+func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnit(gameId uuid.UUID, coordinate valueobject.Coordinate, gameUnit valueobject.GameUnit) error {
+	gameRoom := gmi.gameRoomMap[gameId]
+	gameRoom.UpdateGameUnit(coordinate, gameUnit)
+
+	return nil
+}
+
+func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnitMatrix(gameId uuid.UUID, gameUnitMatrix [][]valueobject.GameUnit) error {
+	gameRoom := gmi.gameRoomMap[gameId]
+	gameRoom.UpdateGameUnitMatrix(gameUnitMatrix)
+
+	return nil
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) Add(gameRoom aggregate.GameRoom) error {
