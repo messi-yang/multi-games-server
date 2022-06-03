@@ -17,4 +17,5 @@ type GameRoomRepository interface {
 	UpdateGameUnit(uuid.UUID, valueobject.Coordinate, valueobject.GameUnit) error
 	UpdateGameUnitMatrix(uuid.UUID, [][]valueobject.GameUnit) error
 	Get(uuid.UUID) (aggregate.GameRoom, error)
+	GetAll() []aggregate.GameRoom
 }

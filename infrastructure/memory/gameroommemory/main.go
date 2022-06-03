@@ -12,6 +12,7 @@ type GameRoomMemoryRepository interface {
 	UpdateGameUnit(uuid.UUID, valueobject.Coordinate, valueobject.GameUnit) error
 	UpdateGameUnitMatrix(uuid.UUID, [][]valueobject.GameUnit) error
 	Get(uuid.UUID) (aggregate.GameRoom, error)
+	GetAll() []aggregate.GameRoom
 }
 
 type gameRoomMemoryRepositoryImpl struct {
@@ -37,6 +38,14 @@ func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, 
 		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
 	}
 	return gameRoom, nil
+}
+
+func (gmi *gameRoomMemoryRepositoryImpl) GetAll() []aggregate.GameRoom {
+	gameRooms := make([]aggregate.GameRoom, 0)
+	for _, gameRoom := range gmi.gameRoomMap {
+		gameRooms = append(gameRooms, gameRoom)
+	}
+	return gameRooms
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnit(gameId uuid.UUID, coordinate valueobject.Coordinate, gameUnit valueobject.GameUnit) error {
