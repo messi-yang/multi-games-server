@@ -51,10 +51,10 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
 	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
-	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameWorkerTickedMessageTopic, func(_ []byte) {
+	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameRoomJobTickedMessageTopic, func(_ []byte) {
 		emitAreaUpdatedEvent(conn, session, gameId, gameRoomService)
 	})
-	defer messageService.Unsubscribe(messageservicetopic.GameWorkerTickedMessageTopic, areaUpdatedSubscriptionToken)
+	defer messageService.Unsubscribe(messageservicetopic.GameRoomJobTickedMessageTopic, areaUpdatedSubscriptionToken)
 
 	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, func(message []byte) {
 		var messagePayload messageservicetopic.GameUnitsUpdatedMessageTopicPayload

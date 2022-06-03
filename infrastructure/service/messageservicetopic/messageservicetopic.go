@@ -4,7 +4,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 )
 
-const GameWorkerTickedMessageTopic = "GAME_WORKER_TICKED"
+const GameRoomJobTickedMessageTopic = "GAME_WORKER_TICKED"
 
 const GameUnitsUpdatedMessageTopic = "GAME_UNITS_UPDATED"
 

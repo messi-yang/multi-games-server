@@ -1,4 +1,4 @@
-package gameworker
+package gameroomjob
 
 import (
 	"time"
@@ -9,33 +9,33 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameWorker interface {
+type GameRoomJob interface {
 	StartGame(gameId uuid.UUID) error
 	StopGame(gameId uuid.UUID) error
 }
 
-type gameWorkerImpl struct {
+type gameRoomJobImpl struct {
 	gameRoomService gameroomservice.GameRoomService
 	messageService  messageservice.MessageService
 	gameTicker      map[uuid.UUID]*time.Ticker
 	gameTickerStop  map[uuid.UUID]chan bool
 }
 
-var gameWorker GameWorker
+var gameRoomJob GameRoomJob
 
-func GetGameWorker(gameRoomService gameroomservice.GameRoomService, messageService messageservice.MessageService) GameWorker {
-	if gameWorker == nil {
-		gameWorker = &gameWorkerImpl{
+func NewGameRoomJob(gameRoomService gameroomservice.GameRoomService, messageService messageservice.MessageService) GameRoomJob {
+	if gameRoomJob == nil {
+		gameRoomJob = &gameRoomJobImpl{
 			gameRoomService: gameRoomService,
 			messageService:  messageService,
 			gameTicker:      make(map[uuid.UUID]*time.Ticker),
 			gameTickerStop:  make(map[uuid.UUID]chan bool),
 		}
 	}
-	return gameWorker
+	return gameRoomJob
 }
 
-func (gwi *gameWorkerImpl) StartGame(gameId uuid.UUID) error {
+func (gwi *gameRoomJobImpl) StartGame(gameId uuid.UUID) error {
 	go func() {
 		gwi.gameTicker[gameId] = time.NewTicker(time.Millisecond * 1000)
 		defer gwi.gameTicker[gameId].Stop()
@@ -46,7 +46,7 @@ func (gwi *gameWorkerImpl) StartGame(gameId uuid.UUID) error {
 			case <-gwi.gameTicker[gameId].C:
 				gwi.gameRoomService.GenerateNextGameUnitMatrix(gameId)
 
-				gwi.messageService.Publish(messageservicetopic.GameWorkerTickedMessageTopic, nil)
+				gwi.messageService.Publish(messageservicetopic.GameRoomJobTickedMessageTopic, nil)
 			case <-gwi.gameTickerStop[gameId]:
 				gwi.gameTicker[gameId].Stop()
 				gwi.gameTicker = nil
@@ -58,7 +58,7 @@ func (gwi *gameWorkerImpl) StartGame(gameId uuid.UUID) error {
 	return nil
 }
 
-func (gwi *gameWorkerImpl) StopGame(gameId uuid.UUID) error {
+func (gwi *gameRoomJobImpl) StopGame(gameId uuid.UUID) error {
 	if gwi.gameTicker[gameId] == nil {
 		return nil
 	}
