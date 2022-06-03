@@ -3,9 +3,9 @@ package gameworker
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservicetopic"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservicetopic"
 	"github.com/google/uuid"
 )
 

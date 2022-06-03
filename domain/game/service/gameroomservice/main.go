@@ -4,15 +4,16 @@ import (
 	"math/rand"
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository/gameroomrepository"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/ggol"
 	"github.com/google/uuid"
 )
 
 type GameRoomService interface {
 	CreateGameRoom(mapSize valueobject.MapSize) *aggregate.GameRoom
+	GetGameRoom(gameId uuid.UUID) (*aggregate.GameRoom, error)
 	GenerateNextGameUnitMatrix(gameId uuid.UUID) error
 	ReviveGameUnit(gameId uuid.UUID, coord valueobject.Coordinate) error
 }
@@ -51,6 +52,18 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	gsi.gameRoomRepository.Create(gameRoom)
 
 	return &gameRoom
+}
+
+func (gsi *gameRoomServiceImplement) GetGameRoom(gameId uuid.UUID) (*aggregate.GameRoom, error) {
+	gsi.locker.Lock()
+	defer gsi.locker.Unlock()
+
+	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gameRoom, nil
 }
 
 func (gsi *gameRoomServiceImplement) GenerateNextGameUnitMatrix(gameId uuid.UUID) error {

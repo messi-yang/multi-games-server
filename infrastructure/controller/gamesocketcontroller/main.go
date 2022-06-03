@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservicetopic"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservicetopic"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -40,7 +40,7 @@ func Controller(c *gin.Context) {
 	gameId := config.GetConfig().GetGameId()
 	messageService := messageservice.GetMessageService()
 	gameRoomMemoryRepository := gameroommemory.NewGameRoomMemoryRepository()
-	gameService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
+	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
 
 	playersCount += 1
 	session := &session{
@@ -48,11 +48,11 @@ func Controller(c *gin.Context) {
 		socketLocker:    sync.RWMutex{},
 	}
 
-	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomMemoryRepository)
+	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
 	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
 	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameWorkerTickedMessageTopic, func(_ []byte) {
-		emitAreaUpdatedEvent(conn, session, gameId, gameRoomMemoryRepository)
+		emitAreaUpdatedEvent(conn, session, gameId, gameRoomService)
 	})
 	defer messageService.Unsubscribe(messageservicetopic.GameWorkerTickedMessageTopic, areaUpdatedSubscriptionToken)
 
@@ -134,10 +134,10 @@ func Controller(c *gin.Context) {
 
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
-					gameService.ReviveGameUnit(gameId, coordinate)
+					gameRoomService.ReviveGameUnit(gameId, coordinate)
 				}
 
-				gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
+				gameRoom, _ := gameRoomService.GetGameRoom(gameId)
 				payload := messageservicetopic.GameUnitsUpdatedMessageTopicPayload{}
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
@@ -184,8 +184,8 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository gameroommemory.GameRoomMemoryRepository) {
-	gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomService gameroomservice.GameRoomService) {
+	gameRoom, _ := gameRoomService.GetGameRoom(gameId)
 	gameMapSize := gameRoom.GetGameMapSize()
 	informationUpdatedEvent := constructInformationUpdatedEvent(&gameMapSize, playersCount)
 
@@ -198,12 +198,12 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, updateUnitIte
 	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }
 
-func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository gameroommemory.GameRoomMemoryRepository) {
+func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomService gameroomservice.GameRoomService) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
 
-	gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
+	gameRoom, _ := gameRoomService.GetGameRoom(gameId)
 
 	gameUnits, err := gameRoom.GetGameUnitMatrixWithArea(*session.gameAreaToWatch)
 	if err != nil {

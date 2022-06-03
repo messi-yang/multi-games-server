@@ -1,9 +1,15 @@
 package gameroomrepository
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"errors"
+
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrGameRoomNotFound = errors.New("The game room with given id not found.")
 )
 
 type GameRoomRepository interface {

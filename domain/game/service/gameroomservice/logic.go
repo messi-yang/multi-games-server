@@ -1,7 +1,7 @@
 package gameroomservice
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/ggol"
 )
 

@@ -1,8 +1,9 @@
 package gameroommemory
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -31,7 +32,11 @@ func NewGameRoomMemoryRepository() GameRoomMemoryRepository {
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, error) {
-	return gmi.gameRoomMap[id], nil
+	gameRoom, exists := gmi.gameRoomMap[id]
+	if !exists {
+		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
+	}
+	return gameRoom, nil
 }
 
 func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnit(gameId uuid.UUID, coordinate valueobject.Coordinate, gameUnit valueobject.GameUnit) error {

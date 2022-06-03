@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/worker/gameworker"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/router"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/worker/gameworker"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,8 +1,8 @@
 package aggregate
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/entity"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/entity"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 
