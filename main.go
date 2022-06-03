@@ -22,7 +22,7 @@ func main() {
 
 	messageService := messageservice.GetMessageService()
 	gameWorker := gameworker.GetGameWorker(gameService, messageService)
-	if err := gameWorker.StartGame(); err != nil {
+	if err := gameWorker.StartGame(gameRoom.GetGameId()); err != nil {
 		panic(err)
 	}
 

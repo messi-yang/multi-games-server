@@ -6,19 +6,19 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservicetopic"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
+	"github.com/google/uuid"
 )
 
 type GameWorker interface {
-	StartGame() error
-	StopGame() error
+	StartGame(gameId uuid.UUID) error
+	StopGame(gameId uuid.UUID) error
 }
 
 type gameWorkerImpl struct {
 	gameRoomService gameroomservice.GameRoomService
 	messageService  messageservice.MessageService
-	gameTicker      *time.Ticker
-	gameTickerStop  chan bool
+	gameTicker      map[uuid.UUID]*time.Ticker
+	gameTickerStop  map[uuid.UUID]chan bool
 }
 
 var gameWorker GameWorker
@@ -28,27 +28,27 @@ func GetGameWorker(gameRoomService gameroomservice.GameRoomService, messageServi
 		gameWorker = &gameWorkerImpl{
 			gameRoomService: gameRoomService,
 			messageService:  messageService,
+			gameTicker:      make(map[uuid.UUID]*time.Ticker),
+			gameTickerStop:  make(map[uuid.UUID]chan bool),
 		}
 	}
 	return gameWorker
 }
 
-func (gwi *gameWorkerImpl) StartGame() error {
-	gameId := config.GetConfig().GetGameId()
-
+func (gwi *gameWorkerImpl) StartGame(gameId uuid.UUID) error {
 	go func() {
-		gwi.gameTicker = time.NewTicker(time.Millisecond * 1000)
-		defer gwi.gameTicker.Stop()
-		gwi.gameTickerStop = make(chan bool)
+		gwi.gameTicker[gameId] = time.NewTicker(time.Millisecond * 1000)
+		defer gwi.gameTicker[gameId].Stop()
+		gwi.gameTickerStop[gameId] = make(chan bool)
 
 		for {
 			select {
-			case <-gwi.gameTicker.C:
+			case <-gwi.gameTicker[gameId].C:
 				gwi.gameRoomService.GenerateNextGameUnitMatrix(gameId)
 
 				gwi.messageService.Publish(messageservicetopic.GameWorkerTickedMessageTopic, nil)
-			case <-gwi.gameTickerStop:
-				gwi.gameTicker.Stop()
+			case <-gwi.gameTickerStop[gameId]:
+				gwi.gameTicker[gameId].Stop()
 				gwi.gameTicker = nil
 				return
 			}
@@ -58,13 +58,13 @@ func (gwi *gameWorkerImpl) StartGame() error {
 	return nil
 }
 
-func (gwi *gameWorkerImpl) StopGame() error {
-	if gwi.gameTicker == nil {
+func (gwi *gameWorkerImpl) StopGame(gameId uuid.UUID) error {
+	if gwi.gameTicker[gameId] == nil {
 		return nil
 	}
 
-	gwi.gameTickerStop <- true
-	close(gwi.gameTickerStop)
+	gwi.gameTickerStop[gameId] <- true
+	close(gwi.gameTickerStop[gameId])
 
 	return nil
 }
