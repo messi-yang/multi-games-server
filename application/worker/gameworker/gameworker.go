@@ -3,15 +3,13 @@ package gameworker
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservicetopic"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservicetopic"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 )
 
 type GameWorker interface {
-	InjectGameRoomService(gameRoomService gameroomservice.GameRoomService)
-	InjectMessageService(messageService messageservice.MessageService)
 	StartGame() error
 	StopGame() error
 }
@@ -25,44 +23,17 @@ type gameWorkerImpl struct {
 
 var gameWorker GameWorker
 
-func GetGameWorker() GameWorker {
+func GetGameWorker(gameRoomService gameroomservice.GameRoomService, messageService messageservice.MessageService) GameWorker {
 	if gameWorker == nil {
-		gameWorker = &gameWorkerImpl{}
+		gameWorker = &gameWorkerImpl{
+			gameRoomService: gameRoomService,
+			messageService:  messageService,
+		}
 	}
 	return gameWorker
 }
 
-func (gwi *gameWorkerImpl) InjectGameRoomService(gameRoomService gameroomservice.GameRoomService) {
-	gwi.gameRoomService = gameRoomService
-}
-func (gwi *gameWorkerImpl) InjectMessageService(messageService messageservice.MessageService) {
-	gwi.messageService = messageService
-}
-
-func (gwi *gameWorkerImpl) checkGameServiceDependency() error {
-	if gwi.gameRoomService == nil {
-		return &errMissingGameServiceDependency{}
-	}
-
-	return nil
-}
-
-func (gwi *gameWorkerImpl) checkMessageServiceDependency() error {
-	if gwi.messageService == nil {
-		return &errMissingMessageServiceDependency{}
-	}
-
-	return nil
-}
-
 func (gwi *gameWorkerImpl) StartGame() error {
-	if err := gwi.checkGameServiceDependency(); err != nil {
-		return err
-	}
-	if err := gwi.checkMessageServiceDependency(); err != nil {
-		return err
-	}
-
 	gameId := config.GetConfig().GetGameId()
 
 	go func() {

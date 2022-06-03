@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservicetopic"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/service/messageservicetopic"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -39,7 +39,7 @@ func Controller(c *gin.Context) {
 
 	gameId := config.GetConfig().GetGameId()
 	messageService := messageservice.GetMessageService()
-	gameRoomMemoryRepository := memory.NewGameRoomMemoryRepository()
+	gameRoomMemoryRepository := gameroommemory.NewGameRoomMemoryRepository()
 	gameService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
 
 	playersCount += 1
@@ -184,7 +184,7 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository gameroommemory.GameRoomMemoryRepository) {
 	gameRoom, _ := gameRoomMemoryRepository.Get(gameId)
 	gameMapSize := gameRoom.GetGameMapSize()
 	informationUpdatedEvent := constructInformationUpdatedEvent(&gameMapSize, playersCount)
@@ -198,7 +198,7 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, updateUnitIte
 	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }
 
-func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository memory.GameRoomMemoryRepository) {
+func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomMemoryRepository gameroommemory.GameRoomMemoryRepository) {
 	if session.gameAreaToWatch == nil {
 		return
 	}

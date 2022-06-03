@@ -1,4 +1,4 @@
-package memory
+package gameroommemory
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
@@ -7,7 +7,7 @@ import (
 )
 
 type GameRoomMemoryRepository interface {
-	Add(aggregate.GameRoom) error
+	Create(aggregate.GameRoom) error
 	UpdateGameUnit(uuid.UUID, valueobject.Coordinate, valueobject.GameUnit) error
 	UpdateGameUnitMatrix(uuid.UUID, [][]valueobject.GameUnit) error
 	Get(uuid.UUID) (aggregate.GameRoom, error)
@@ -48,7 +48,7 @@ func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnitMatrix(gameId uuid.UUID, 
 	return nil
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) Add(gameRoom aggregate.GameRoom) error {
+func (gmi *gameRoomMemoryRepositoryImpl) Create(gameRoom aggregate.GameRoom) error {
 	gmi.gameRoomMap[gameRoom.GetGameId()] = gameRoom
 
 	return nil

@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
 	"github.com/DumDumGeniuss/ggol"
 	"github.com/google/uuid"
@@ -18,13 +18,13 @@ type GameRoomService interface {
 }
 
 type gameRoomServiceImplement struct {
-	gameRoomRepository repository.GameRoomRepository
+	gameRoomRepository gameroomrepository.GameRoomRepository
 	locker             sync.RWMutex
 }
 
 var gameRoomService GameRoomService = nil
 
-func NewGameRoomService(gameRoomRepository repository.GameRoomRepository) GameRoomService {
+func NewGameRoomService(gameRoomRepository gameroomrepository.GameRoomRepository) GameRoomService {
 	if gameRoomService == nil {
 		gameRoomService = &gameRoomServiceImplement{
 			gameRoomRepository: gameRoomRepository,
@@ -48,7 +48,7 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	gameRoom := aggregate.NewGameRoom()
 	gameRoom.UpdateGameMapSize(mapSize)
 	gameRoom.UpdateGameUnitMatrix(gameUnitMatrix)
-	gsi.gameRoomRepository.Add(gameRoom)
+	gsi.gameRoomRepository.Create(gameRoom)
 
 	return &gameRoom
 }
