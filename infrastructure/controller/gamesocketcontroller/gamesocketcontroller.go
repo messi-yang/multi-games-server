@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservicetopic"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -40,7 +40,7 @@ func Controller(c *gin.Context) {
 	gameId := config.GetConfig().GetGameId()
 	messageService := messageservice.GetMessageService()
 	gameRoomMemoryRepository := memory.NewGameRoomMemoryRepository()
-	gameService := gameservice.NewGameService(gameRoomMemoryRepository)
+	gameService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
 
 	playersCount += 1
 	session := &session{
@@ -134,7 +134,7 @@ func Controller(c *gin.Context) {
 
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
-					gameService.ReviveGameUnit(gameId, &coordinate)
+					gameService.ReviveGameUnit(gameId, coordinate)
 				}
 
 				gameRoom, _ := gameRoomMemoryRepository.Get(gameId)

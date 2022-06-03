@@ -1,5 +1,7 @@
 github.com/DumDumGeniuss/ggol v0.2.4 h1:lkvQDbomsF5nn/rIAopJxsxV+1m/ZM06JTw7YXsLsSE=
 github.com/DumDumGeniuss/ggol v0.2.4/go.mod h1:6/APTyNDeSCeEzyKuJkhdbqMVTZ5Gsg++3llmVut5x8=
+github.com/DumDumGeniuss/ggol v0.2.5 h1:Ls48xWnynuEB1iHNXYowQAx5eGlXYMBAGpaM4e+1dsM=
+github.com/DumDumGeniuss/ggol v0.2.5/go.mod h1:6/APTyNDeSCeEzyKuJkhdbqMVTZ5Gsg++3llmVut5x8=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

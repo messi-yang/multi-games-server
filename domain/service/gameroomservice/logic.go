@@ -1,4 +1,4 @@
-package gameservice
+package gameroomservice
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"

@@ -1,8 +1,8 @@
 package gamesocketcontroller
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 )
 
 func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {

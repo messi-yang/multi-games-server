@@ -3,24 +3,24 @@ package gameworker
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/config"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/services/messageservicetopic"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/services/messageservicetopic"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/service/gameroomservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 )
 
 type GameWorker interface {
-	InjectGameService(gameService gameservice.GameService)
+	InjectGameRoomService(gameRoomService gameroomservice.GameRoomService)
 	InjectMessageService(messageService messageservice.MessageService)
 	StartGame() error
 	StopGame() error
 }
 
 type gameWorkerImpl struct {
-	gameService    gameservice.GameService
-	messageService messageservice.MessageService
-	gameTicker     *time.Ticker
-	gameTickerStop chan bool
+	gameRoomService gameroomservice.GameRoomService
+	messageService  messageservice.MessageService
+	gameTicker      *time.Ticker
+	gameTickerStop  chan bool
 }
 
 var gameWorker GameWorker
@@ -32,15 +32,15 @@ func GetGameWorker() GameWorker {
 	return gameWorker
 }
 
-func (gwi *gameWorkerImpl) InjectGameService(gameService gameservice.GameService) {
-	gwi.gameService = gameService
+func (gwi *gameWorkerImpl) InjectGameRoomService(gameRoomService gameroomservice.GameRoomService) {
+	gwi.gameRoomService = gameRoomService
 }
 func (gwi *gameWorkerImpl) InjectMessageService(messageService messageservice.MessageService) {
 	gwi.messageService = messageService
 }
 
 func (gwi *gameWorkerImpl) checkGameServiceDependency() error {
-	if gwi.gameService == nil {
+	if gwi.gameRoomService == nil {
 		return &errMissingGameServiceDependency{}
 	}
 
@@ -73,7 +73,7 @@ func (gwi *gameWorkerImpl) StartGame() error {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				gwi.gameService.GenerateNextUnits(gameId)
+				gwi.gameRoomService.GenerateNextGameUnitMatrix(gameId)
 
 				gwi.messageService.Publish(messageservicetopic.GameWorkerTickedMessageTopic, nil)
 			case <-gwi.gameTickerStop:

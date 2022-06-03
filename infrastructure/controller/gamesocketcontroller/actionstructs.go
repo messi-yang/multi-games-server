@@ -1,6 +1,6 @@
 package gamesocketcontroller
 
-import "github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
+import "github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 
 type actionType string
 

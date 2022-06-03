@@ -1,7 +1,7 @@
 package messageservicetopic
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 )
 
 const GameWorkerTickedMessageTopic = "GAME_WORKER_TICKED"

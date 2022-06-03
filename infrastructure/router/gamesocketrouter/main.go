@@ -1,7 +1,7 @@
 package gamesocketrouter
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/controllers/gamesocketcontroller"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/controller/gamesocketcontroller"
 	"github.com/gin-gonic/gin"
 )
 
