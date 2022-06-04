@@ -8,7 +8,7 @@ import (
 )
 
 type GameRoomMemoryRepository interface {
-	Create(aggregate.GameRoom) error
+	Add(aggregate.GameRoom) error
 	UpdateGameUnit(uuid.UUID, valueobject.Coordinate, valueobject.GameUnit) error
 	UpdateGameUnitMatrix(uuid.UUID, [][]valueobject.GameUnit) error
 	Get(uuid.UUID) (aggregate.GameRoom, error)
@@ -62,7 +62,7 @@ func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnitMatrix(gameId uuid.UUID, 
 	return nil
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) Create(gameRoom aggregate.GameRoom) error {
+func (gmi *gameRoomMemoryRepositoryImpl) Add(gameRoom aggregate.GameRoom) error {
 	gmi.gameRoomMap[gameRoom.GetGameId()] = gameRoom
 
 	return nil

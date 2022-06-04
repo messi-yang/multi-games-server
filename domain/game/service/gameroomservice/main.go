@@ -50,7 +50,7 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	gameRoom := aggregate.NewGameRoom()
 	gameRoom.UpdateGameMapSize(mapSize)
 	gameRoom.UpdateGameUnitMatrix(gameUnitMatrix)
-	gsi.gameRoomRepository.Create(gameRoom)
+	gsi.gameRoomRepository.Add(gameRoom)
 
 	return &gameRoom
 }

@@ -13,7 +13,7 @@ var (
 )
 
 type GameRoomRepository interface {
-	Create(aggregate.GameRoom) error
+	Add(aggregate.GameRoom) error
 	UpdateGameUnit(uuid.UUID, valueobject.Coordinate, valueobject.GameUnit) error
 	UpdateGameUnitMatrix(uuid.UUID, [][]valueobject.GameUnit) error
 	Get(uuid.UUID) (aggregate.GameRoom, error)
