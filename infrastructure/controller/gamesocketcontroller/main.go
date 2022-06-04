@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gameupdateevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
@@ -51,10 +52,12 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
 	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
-	areaUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameRoomJobTickedMessageTopic, func(_ []byte) {
+	gameUpdateEventBus := gameupdateevent.GetGameUpdateEventBus()
+	handleGameUpdate := func() {
 		emitAreaUpdatedEvent(conn, session, gameId, gameRoomService)
-	})
-	defer messageService.Unsubscribe(messageservicetopic.GameRoomJobTickedMessageTopic, areaUpdatedSubscriptionToken)
+	}
+	gameUpdateEventBus.Subscribe(gameId, handleGameUpdate)
+	defer gameUpdateEventBus.Unsubscribe(gameId, handleGameUpdate)
 
 	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, func(message []byte) {
 		var messagePayload messageservicetopic.GameUnitsUpdatedMessageTopicPayload

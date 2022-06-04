@@ -1,38 +1,39 @@
-package gameroomjob
+package gameupdatejob
 
 import (
 	"time"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gameupdateevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservicetopic"
 )
 
-type GameRoomJob interface {
+type GameUpdateJob interface {
 	Start() error
 	Stop() error
 }
 
-type gameRoomJobImpl struct {
+type gameUpdateJobImpl struct {
 	gameRoomService gameroomservice.GameRoomService
 	messageService  messageservice.MessageService
 	gameTicker      *time.Ticker
 	gameTickerStop  chan bool
 }
 
-var gameRoomJob GameRoomJob
+var gameUpdateJob GameUpdateJob
 
-func NewGameRoomJob(gameRoomService gameroomservice.GameRoomService, messageService messageservice.MessageService) GameRoomJob {
-	if gameRoomJob == nil {
-		gameRoomJob = &gameRoomJobImpl{
+func NewGameUpdateJob(gameRoomService gameroomservice.GameRoomService, messageService messageservice.MessageService) GameUpdateJob {
+	if gameUpdateJob == nil {
+		gameUpdateJob = &gameUpdateJobImpl{
 			gameRoomService: gameRoomService,
 			messageService:  messageService,
 		}
 	}
-	return gameRoomJob
+	return gameUpdateJob
 }
 
-func (gwi *gameRoomJobImpl) Start() error {
+func (gwi *gameUpdateJobImpl) Start() error {
+	eventBus := gameupdateevent.GetGameUpdateEventBus()
 	go func() {
 		gwi.gameTicker = time.NewTicker(time.Millisecond * 1000)
 		defer gwi.gameTicker.Stop()
@@ -44,9 +45,8 @@ func (gwi *gameRoomJobImpl) Start() error {
 				gameRooms := gwi.gameRoomService.GetAllGameRooms()
 				for _, gameRoom := range gameRooms {
 					gwi.gameRoomService.GenerateNextGameUnitMatrix(gameRoom.GetGameId())
+					eventBus.Publish(gameRoom.GetGameId())
 				}
-
-				gwi.messageService.Publish(messageservicetopic.GameRoomJobTickedMessageTopic, nil)
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil
@@ -58,7 +58,7 @@ func (gwi *gameRoomJobImpl) Start() error {
 	return nil
 }
 
-func (gwi *gameRoomJobImpl) Stop() error {
+func (gwi *gameUpdateJobImpl) Stop() error {
 	if gwi.gameTicker == nil {
 		return nil
 	}

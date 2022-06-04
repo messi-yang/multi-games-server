@@ -4,7 +4,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/job/gameroomjob"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/job/gameupdatejob"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/router"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
@@ -21,7 +21,7 @@ func main() {
 	config.GetConfig().SetGameId(gameRoom.GetGameId())
 
 	messageService := messageservice.GetMessageService()
-	gameRoomJob := gameroomjob.NewGameRoomJob(gameService, messageService)
+	gameRoomJob := gameupdatejob.NewGameUpdateJob(gameService, messageService)
 	if err := gameRoomJob.Start(); err != nil {
 		panic(err)
 	}
