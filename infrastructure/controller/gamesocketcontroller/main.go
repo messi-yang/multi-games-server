@@ -40,7 +40,7 @@ func Controller(c *gin.Context) {
 
 	gameId := config.GetConfig().GetGameId()
 	messageService := messageservice.GetMessageService()
-	gameRoomMemoryRepository := gameroommemory.NewGameRoomMemoryRepository()
+	gameRoomMemoryRepository := gameroommemory.GetGameRoomMemoryRepository()
 	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
 
 	playersCount += 1

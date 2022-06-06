@@ -21,7 +21,7 @@ type gameRoomMemoryRepositoryImpl struct {
 
 var gameRoomMemoryRepository GameRoomMemoryRepository
 
-func NewGameRoomMemoryRepository() GameRoomMemoryRepository {
+func GetGameRoomMemoryRepository() GameRoomMemoryRepository {
 	if gameRoomMemoryRepository == nil {
 		gameRoomMemoryRepository = &gameRoomMemoryRepositoryImpl{
 			gameRoomMap: make(map[uuid.UUID]aggregate.GameRoom),

@@ -5,7 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetRouters(router *gin.Engine) {
+func SetRouters() {
+	router := gin.Default()
+
 	gamesocketrouter.SetRouter(router)
 	router.Run()
 }

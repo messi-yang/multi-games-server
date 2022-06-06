@@ -4,36 +4,43 @@ import (
 	"time"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gameupdateevent"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/updateallgamesusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 )
 
 type GameUpdateJob interface {
-	Start() error
+	Start()
 	Stop() error
 }
 
 type gameUpdateJobImpl struct {
 	gameRoomService gameroomservice.GameRoomService
-	messageService  messageservice.MessageService
+	eventBus        *gameupdateevent.GameUpdateEvent
 	gameTicker      *time.Ticker
 	gameTickerStop  chan bool
 }
 
-var gameUpdateJob GameUpdateJob
+var gameUpdateJob *gameUpdateJobImpl
 
-func NewGameUpdateJob(gameRoomService gameroomservice.GameRoomService, messageService messageservice.MessageService) GameUpdateJob {
+func GetGameUpdateJob() GameUpdateJob {
 	if gameUpdateJob == nil {
+		gameRoomMemoryRepository := gameroommemory.GetGameRoomMemoryRepository()
+		gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
+		eventBus := gameupdateevent.GetGameUpdateEventBus()
+
 		gameUpdateJob = &gameUpdateJobImpl{
 			gameRoomService: gameRoomService,
-			messageService:  messageService,
+			eventBus:        eventBus,
 		}
+
+		return gameUpdateJob
 	}
+
 	return gameUpdateJob
 }
 
-func (gwi *gameUpdateJobImpl) Start() error {
-	eventBus := gameupdateevent.GetGameUpdateEventBus()
+func (gwi *gameUpdateJobImpl) Start() {
 	go func() {
 		gwi.gameTicker = time.NewTicker(time.Millisecond * 1000)
 		defer gwi.gameTicker.Stop()
@@ -42,20 +49,14 @@ func (gwi *gameUpdateJobImpl) Start() error {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				gameRooms := gwi.gameRoomService.GetAllGameRooms()
-				for _, gameRoom := range gameRooms {
-					gwi.gameRoomService.GenerateNextGameUnitMatrix(gameRoom.GetGameId())
-					eventBus.Publish(gameRoom.GetGameId())
-				}
+				updateAllGamesUseCase := updateallgamesusecase.NewUseCase(gwi.gameRoomService, gwi.eventBus)
+				updateAllGamesUseCase.Execute()
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil
-				return
 			}
 		}
 	}()
-
-	return nil
 }
 
 func (gwi *gameUpdateJobImpl) Stop() error {
