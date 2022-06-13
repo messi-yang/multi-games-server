@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gameupdateevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputeeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservicetopic"
@@ -40,8 +40,8 @@ func Controller(c *gin.Context) {
 
 	gameId := config.GetConfig().GetGameId()
 	messageService := messageservice.GetMessageService()
-	gameRoomMemoryRepository := gameroommemory.GetGameRoomMemoryRepository()
-	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
+	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
 
 	playersCount += 1
 	session := &session{
@@ -52,12 +52,12 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
 	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
-	gameUpdateEventBus := gameupdateevent.GetGameUpdateEventBus()
+	gameComputeEventBus := gamecomputeeventbus.GetGameComputeEventBus()
 	handleGameUpdate := func() {
 		emitAreaUpdatedEvent(conn, session, gameId, gameRoomService)
 	}
-	gameUpdateEventBus.Subscribe(gameId, handleGameUpdate)
-	defer gameUpdateEventBus.Unsubscribe(gameId, handleGameUpdate)
+	gameComputeEventBus.Subscribe(gameId, handleGameUpdate)
+	defer gameComputeEventBus.Unsubscribe(gameId, handleGameUpdate)
 
 	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, func(message []byte) {
 		var messagePayload messageservicetopic.GameUnitsUpdatedMessageTopicPayload

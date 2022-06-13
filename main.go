@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	gameRoomMemoryRepository := gameroommemory.GetGameRoomMemoryRepository()
-	gameService := gameroomservice.NewGameRoomService(gameRoomMemoryRepository)
+	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameService := gameroomservice.NewGameRoomService(gameRoomMemory)
 
 	size := config.GetConfig().GetGameMapSize()
 	mapSize := valueobject.NewMapSize(size, size)

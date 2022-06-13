@@ -7,32 +7,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameRoomMemoryRepository interface {
-	Add(aggregate.GameRoom) error
-	UpdateGameUnit(uuid.UUID, valueobject.Coordinate, valueobject.GameUnit) error
-	UpdateGameUnitMatrix(uuid.UUID, [][]valueobject.GameUnit) error
-	Get(uuid.UUID) (aggregate.GameRoom, error)
-	GetAll() []aggregate.GameRoom
-}
-
-type gameRoomMemoryRepositoryImpl struct {
+type gameRoomMemory struct {
 	gameRoomMap map[uuid.UUID]aggregate.GameRoom
 }
 
-var gameRoomMemoryRepository GameRoomMemoryRepository
+var gameRoomMemoryInstance *gameRoomMemory
 
-func GetGameRoomMemoryRepository() GameRoomMemoryRepository {
-	if gameRoomMemoryRepository == nil {
-		gameRoomMemoryRepository = &gameRoomMemoryRepositoryImpl{
+func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
+	if gameRoomMemoryInstance == nil {
+		gameRoomMemoryInstance = &gameRoomMemory{
 			gameRoomMap: make(map[uuid.UUID]aggregate.GameRoom),
 		}
-		return gameRoomMemoryRepository
+		return gameRoomMemoryInstance
 	} else {
-		return gameRoomMemoryRepository
+		return gameRoomMemoryInstance
 	}
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, error) {
+func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 	gameRoom, exists := gmi.gameRoomMap[id]
 	if !exists {
 		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
@@ -40,7 +32,7 @@ func (gmi *gameRoomMemoryRepositoryImpl) Get(id uuid.UUID) (aggregate.GameRoom, 
 	return gameRoom, nil
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) GetAll() []aggregate.GameRoom {
+func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
 	gameRooms := make([]aggregate.GameRoom, 0)
 	for _, gameRoom := range gmi.gameRoomMap {
 		gameRooms = append(gameRooms, gameRoom)
@@ -48,21 +40,21 @@ func (gmi *gameRoomMemoryRepositoryImpl) GetAll() []aggregate.GameRoom {
 	return gameRooms
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnit(gameId uuid.UUID, coordinate valueobject.Coordinate, gameUnit valueobject.GameUnit) error {
+func (gmi *gameRoomMemory) UpdateGameUnit(gameId uuid.UUID, coordinate valueobject.Coordinate, gameUnit valueobject.GameUnit) error {
 	gameRoom := gmi.gameRoomMap[gameId]
 	gameRoom.UpdateGameUnit(coordinate, gameUnit)
 
 	return nil
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) UpdateGameUnitMatrix(gameId uuid.UUID, gameUnitMatrix [][]valueobject.GameUnit) error {
+func (gmi *gameRoomMemory) UpdateGameUnitMatrix(gameId uuid.UUID, gameUnitMatrix [][]valueobject.GameUnit) error {
 	gameRoom := gmi.gameRoomMap[gameId]
 	gameRoom.UpdateGameUnitMatrix(gameUnitMatrix)
 
 	return nil
 }
 
-func (gmi *gameRoomMemoryRepositoryImpl) Add(gameRoom aggregate.GameRoom) error {
+func (gmi *gameRoomMemory) Add(gameRoom aggregate.GameRoom) error {
 	gmi.gameRoomMap[gameRoom.GetGameId()] = gameRoom
 
 	return nil
