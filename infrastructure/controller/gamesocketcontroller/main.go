@@ -1,7 +1,6 @@
 package gamesocketcontroller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
@@ -11,9 +10,8 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gameunitsupdatedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservicetopic"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -39,7 +37,6 @@ func Controller(c *gin.Context) {
 	closeConnFlag := make(chan bool)
 
 	gameId := config.GetConfig().GetGameId()
-	messageService := messageservice.GetMessageService()
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
 
@@ -52,30 +49,31 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
 
 	gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
-	handleGameUpdate := func() {
+	handleGameComputedEvent := func() {
 		emitAreaUpdatedEvent(conn, session, gameId, gameRoomService)
 	}
-	gameComputeEventBus.Subscribe(gameId, handleGameUpdate)
-	defer gameComputeEventBus.Unsubscribe(gameId, handleGameUpdate)
+	gameComputeEventBus.Subscribe(gameId, handleGameComputedEvent)
+	defer gameComputeEventBus.Unsubscribe(gameId, handleGameComputedEvent)
 
-	unitsUpdatedSubscriptionToken := messageService.Subscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, func(message []byte) {
-		var messagePayload messageservicetopic.GameUnitsUpdatedMessageTopicPayload
-		json.Unmarshal(message, &messagePayload)
-
+	gameUnitsUpdatedEvent := gameunitsupdatedeventbus.GetGameUnitsUpdatedEventBus()
+	handleGameUnitsUpdatedEvent := func(coordinates []valueobject.Coordinate) {
+		gameRoom, _ := gameRoomService.GetGameRoom(gameId)
 		unitsUpdatedEventPayloadItems := []unitsUpdatedEventPayloadItem{}
-		for _, messagePayloadUnit := range messagePayload {
+		for _, coord := range coordinates {
+			unit := gameRoom.GetGameUnit(coord)
 
 			unitsUpdatedEventPayloadItems = append(
 				unitsUpdatedEventPayloadItems,
 				unitsUpdatedEventPayloadItem{
-					Coordinate: messagePayloadUnit.Coordinate,
-					Unit:       messagePayloadUnit.Unit,
+					Coordinate: dto.CoordinateDTO{X: coord.GetX(), Y: coord.GetY()},
+					Unit:       dto.GameUnitDTO{Alive: unit.GetAlive(), Age: unit.GetAge()},
 				},
 			)
 		}
 		emitUnitsUpdatedEvent(conn, session, &unitsUpdatedEventPayloadItems)
-	})
-	defer messageService.Unsubscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, unitsUpdatedSubscriptionToken)
+	}
+	gameUnitsUpdatedEvent.Subscribe(gameId, handleGameUnitsUpdatedEvent)
+	defer gameUnitsUpdatedEvent.Unsubscribe(gameId, handleGameUnitsUpdatedEvent)
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		playersCount -= 1
@@ -116,39 +114,22 @@ func Controller(c *gin.Context) {
 					),
 				)
 				session.gameAreaToWatch = &area
-				break
 			case reviveUnitsActionType:
 				reviveUnitsAction, err := extractReviveUnitsActionFromMessage(message)
 				if err != nil {
 					emitErrorEvent(conn, session, err)
 				}
 
+				coordinates := make([]valueobject.Coordinate, 0)
+
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
+					coordinates = append(coordinates, coordinate)
 					gameRoomService.ReviveGameUnit(gameId, coordinate)
 				}
 
-				gameRoom, _ := gameRoomService.GetGameRoom(gameId)
-				payload := messageservicetopic.GameUnitsUpdatedMessageTopicPayload{}
-				for _, coord := range reviveUnitsAction.Payload.Coordinates {
-					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
-					newGameUnit := gameRoom.GetGameUnit(coordinate)
-					payloadUnit := messageservicetopic.GameUnitsUpdatedMessageTopicPayloadUnit{
-						Coordinate: coord,
-						Unit: dto.GameUnitDTO{
-							Alive: newGameUnit.GetAlive(),
-							Age:   newGameUnit.GetAge(),
-						},
-					}
-
-					payload = append(payload, payloadUnit)
-				}
-
-				message, err := json.Marshal(payload)
-				messageService.Publish(messageservicetopic.GameUnitsUpdatedMessageTopic, message)
-				break
+				gameUnitsUpdatedEvent.Publish(gameId, coordinates)
 			default:
-				break
 			}
 		}
 	}()
