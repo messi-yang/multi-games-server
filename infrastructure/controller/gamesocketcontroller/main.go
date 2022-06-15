@@ -10,7 +10,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputeeventbus"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/service/messageservicetopic"
@@ -52,7 +52,7 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
 	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
-	gameComputeEventBus := gamecomputeeventbus.GetGameComputeEventBus()
+	gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
 	handleGameUpdate := func() {
 		emitAreaUpdatedEvent(conn, session, gameId, gameRoomService)
 	}

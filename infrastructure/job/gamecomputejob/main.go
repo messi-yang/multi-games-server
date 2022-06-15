@@ -3,10 +3,10 @@ package gamecomputejob
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gamecomputeevent"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/computeallgamesusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputeeventbus"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 )
 
@@ -17,7 +17,7 @@ type GameComputeJob interface {
 
 type gameComputeJobImpl struct {
 	gameRoomService     gameroomservice.GameRoomService
-	gameComputeEventBus gamecomputeevent.GameComputeEvent
+	gameComputeEventBus gamecomputedevent.GameComputedEvent
 	gameTicker          *time.Ticker
 	gameTickerStop      chan bool
 }
@@ -28,7 +28,7 @@ func GetGameComputeJob() GameComputeJob {
 	if gameComputeJob == nil {
 		gameRoomMemory := gameroommemory.GetGameRoomMemory()
 		gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
-		gameComputeEventBus := gamecomputeeventbus.GetGameComputeEventBus()
+		gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
 
 		gameComputeJob = &gameComputeJobImpl{
 			gameRoomService:     gameRoomService,

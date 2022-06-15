@@ -1,9 +1,9 @@
-package gamecomputeeventbus
+package gamecomputedeventbus
 
 import (
 	"fmt"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gamecomputeevent"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/asaskevich/EventBus"
 	"github.com/google/uuid"
 )
@@ -17,7 +17,7 @@ type gameComputeEventCallback = func()
 
 var gameComputeEventInstance *gameComputeEventBus
 
-func GetGameComputeEventBus() gamecomputeevent.GameComputeEvent {
+func GetGameComputedEventBus() gamecomputedevent.GameComputedEvent {
 	if gameComputeEventInstance == nil {
 		gameComputeEventInstance = &gameComputeEventBus{
 			eventBus:   EventBus.New(),
