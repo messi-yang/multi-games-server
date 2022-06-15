@@ -11,7 +11,3 @@ type GameUnitsUpdatedMessageTopicPayloadUnit struct {
 	Unit       dto.GameUnitDTO
 }
 type GameUnitsUpdatedMessageTopicPayload []GameUnitsUpdatedMessageTopicPayloadUnit
-
-const GamePlayerJoinedMessageTopic = "GAME_PLAYER_JOINED"
-
-const GamePlayerLeftMessageTopic = "GAME_PLAYER_LEFT"

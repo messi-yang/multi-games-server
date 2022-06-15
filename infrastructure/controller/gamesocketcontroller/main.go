@@ -50,7 +50,6 @@ func Controller(c *gin.Context) {
 	}
 
 	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
-	messageService.Publish(messageservicetopic.GamePlayerJoinedMessageTopic, nil)
 
 	gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
 	handleGameUpdate := func() {
@@ -78,19 +77,8 @@ func Controller(c *gin.Context) {
 	})
 	defer messageService.Unsubscribe(messageservicetopic.GameUnitsUpdatedMessageTopic, unitsUpdatedSubscriptionToken)
 
-	playerJoinedSubscriptionToken := messageService.Subscribe(messageservicetopic.GamePlayerJoinedMessageTopic, func(_ []byte) {
-		emitPlayerJoinedEvent(conn, session)
-	})
-	defer messageService.Unsubscribe(messageservicetopic.GamePlayerJoinedMessageTopic, playerJoinedSubscriptionToken)
-
-	playerLeftSubscriptionToken := messageService.Subscribe(messageservicetopic.GamePlayerLeftMessageTopic, func(_ []byte) {
-		emitPlayerLeftEvent(conn, session)
-	})
-	defer messageService.Unsubscribe(messageservicetopic.GamePlayerLeftMessageTopic, playerLeftSubscriptionToken)
-
 	conn.SetCloseHandler(func(code int, text string) error {
 		playersCount -= 1
-		messageService.Publish(messageservicetopic.GamePlayerLeftMessageTopic, nil)
 		return nil
 	})
 
@@ -229,16 +217,4 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UU
 	areaUpdatedEvent := constructAreaUpdatedEvent(session.gameAreaToWatch, &gameUnitsDTO)
 
 	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
-}
-
-func emitPlayerJoinedEvent(conn *websocket.Conn, session *session) {
-	playerJoinedEvent := constructPlayerJoinedEvent()
-
-	sendJSONMessageToClient(conn, session, playerJoinedEvent)
-}
-
-func emitPlayerLeftEvent(conn *websocket.Conn, session *session) {
-	playerLeftEvent := constructPlayerLeftEvent()
-
-	sendJSONMessageToClient(conn, session, playerLeftEvent)
 }

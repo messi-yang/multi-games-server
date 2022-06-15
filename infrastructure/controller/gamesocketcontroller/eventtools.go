@@ -54,17 +54,3 @@ func constructAreaUpdatedEvent(gameArea *valueobject.Area, gameUnits *[][]dto.Ga
 		},
 	}
 }
-
-func constructPlayerJoinedEvent() *playerJoinedEvent {
-	return &playerJoinedEvent{
-		Type:    playerJoinedEventType,
-		Payload: nil,
-	}
-}
-
-func constructPlayerLeftEvent() *playerLeftEvent {
-	return &playerLeftEvent{
-		Type:    playerLeftEventType,
-		Payload: nil,
-	}
-}
