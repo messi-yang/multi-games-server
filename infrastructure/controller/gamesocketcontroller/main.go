@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getgameroomusecase"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
@@ -46,18 +48,18 @@ func Controller(c *gin.Context) {
 		socketLocker:    sync.RWMutex{},
 	}
 
-	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomService)
+	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomMemory)
 
 	gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
 	handleGameComputedEvent := func() {
-		emitAreaUpdatedEvent(conn, session, gameId, gameRoomService)
+		emitAreaUpdatedEvent(conn, session, gameId, gameRoomMemory)
 	}
 	gameComputeEventBus.Subscribe(gameId, handleGameComputedEvent)
 	defer gameComputeEventBus.Unsubscribe(gameId, handleGameComputedEvent)
 
 	gameUnitsUpdatedEvent := gameunitsupdatedeventbus.GetGameUnitsUpdatedEventBus()
 	handleGameUnitsUpdatedEvent := func(coordinates []valueobject.Coordinate) {
-		gameRoom, _ := gameRoomService.GetGameRoom(gameId)
+		gameRoom, _ := getgameroomusecase.NewUseCase(gameRoomMemory).Execute(gameId)
 		unitsUpdatedEventPayloadItems := []unitsUpdatedEventPayloadItem{}
 		for _, coord := range coordinates {
 			unit := gameRoom.GetGameUnit(coord)
@@ -156,8 +158,8 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomService gameroomservice.GameRoomService) {
-	gameRoom, _ := gameRoomService.GetGameRoom(gameId)
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomRepository gameroomrepository.GameRoomRepository) {
+	gameRoom, _ := getgameroomusecase.NewUseCase(gameRoomRepository).Execute(gameId)
 	gameMapSize := gameRoom.GetGameMapSize()
 	informationUpdatedEvent := constructInformationUpdatedEvent(&gameMapSize, playersCount)
 
@@ -170,13 +172,12 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, updateUnitIte
 	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }
 
-func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomService gameroomservice.GameRoomService) {
+func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomRepository gameroomrepository.GameRoomRepository) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
 
-	gameRoom, _ := gameRoomService.GetGameRoom(gameId)
-
+	gameRoom, _ := getgameroomusecase.NewUseCase(gameRoomRepository).Execute(gameId)
 	gameUnits, err := gameRoom.GetGameUnitMatrixWithArea(*session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
