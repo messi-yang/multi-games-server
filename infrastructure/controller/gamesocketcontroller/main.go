@@ -6,8 +6,8 @@ import (
 	"sync"
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getgameroomusecase"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/revivegameunitsusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
@@ -40,7 +40,6 @@ func Controller(c *gin.Context) {
 
 	gameId := config.GetConfig().GetGameId()
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
 
 	playersCount += 1
 	session := &session{
@@ -127,10 +126,9 @@ func Controller(c *gin.Context) {
 				for _, coord := range reviveUnitsAction.Payload.Coordinates {
 					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
 					coordinates = append(coordinates, coordinate)
-					gameRoomService.ReviveGameUnit(gameId, coordinate)
 				}
 
-				gameUnitsUpdatedEvent.Publish(gameId, coordinates)
+				revivegameunitsusecase.NewUseCase(gameRoomMemory, gameUnitsUpdatedEvent).Execute(gameId, coordinates)
 			default:
 			}
 		}
