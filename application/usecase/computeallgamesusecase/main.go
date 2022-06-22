@@ -20,7 +20,7 @@ func NewUseCase(gameRoomRepository gameroomrepository.GameRoomRepository, gameCo
 
 func (uc *useCase) Execute() {
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
-	gameRooms := gameRoomService.GetAllGameRooms()
+	gameRooms := uc.gameRoomRepository.GetAll()
 	for _, gameRoom := range gameRooms {
 		gameRoomService.GenerateNextGameUnitMatrix(gameRoom.GetGameId())
 		uc.gameComputeEvent.Publish(gameRoom.GetGameId())
