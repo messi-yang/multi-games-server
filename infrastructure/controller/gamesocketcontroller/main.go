@@ -5,12 +5,13 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/gameunitdto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getgameroomusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/revivegameunitsusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gameunitsupdatedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
@@ -66,8 +67,8 @@ func Controller(c *gin.Context) {
 			unitsUpdatedEventPayloadItems = append(
 				unitsUpdatedEventPayloadItems,
 				unitsUpdatedEventPayloadItem{
-					Coordinate: dto.CoordinateDTO{X: coord.GetX(), Y: coord.GetY()},
-					Unit:       dto.GameUnitDTO{Alive: unit.GetAlive(), Age: unit.GetAge()},
+					Coordinate: coordinatedto.CoordinateDTO{X: coord.GetX(), Y: coord.GetY()},
+					Unit:       gameunitdto.GameUnitDTO{Alive: unit.GetAlive(), Age: unit.GetAge()},
 				},
 			)
 		}
@@ -121,14 +122,7 @@ func Controller(c *gin.Context) {
 					emitErrorEvent(conn, session, err)
 				}
 
-				coordinates := make([]valueobject.Coordinate, 0)
-
-				for _, coord := range reviveUnitsAction.Payload.Coordinates {
-					coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
-					coordinates = append(coordinates, coordinate)
-				}
-
-				revivegameunitsusecase.NewUseCase(gameRoomMemory, gameUnitsUpdatedEvent).Execute(gameId, coordinates)
+				revivegameunitsusecase.NewUseCase(gameRoomMemory, gameUnitsUpdatedEvent).Execute(gameId, reviveUnitsAction.Payload.Coordinates)
 			default:
 			}
 		}
@@ -182,12 +176,12 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UU
 		return
 	}
 
-	gameUnitsDTO := make([][]dto.GameUnitDTO, 0)
+	gameUnitsDTO := make([][]gameunitdto.GameUnitDTO, 0)
 
 	for i := 0; i < len(gameUnits); i += 1 {
-		gameUnitsDTO = append(gameUnitsDTO, make([]dto.GameUnitDTO, 0))
+		gameUnitsDTO = append(gameUnitsDTO, make([]gameunitdto.GameUnitDTO, 0))
 		for j := 0; j < len(gameUnits[i]); j += 1 {
-			gameUnitsDTO[i] = append(gameUnitsDTO[i], dto.GameUnitDTO{
+			gameUnitsDTO[i] = append(gameUnitsDTO[i], gameunitdto.GameUnitDTO{
 				Alive: gameUnits[i][j].GetAlive(),
 				Age:   gameUnits[i][j].GetAge(),
 			})

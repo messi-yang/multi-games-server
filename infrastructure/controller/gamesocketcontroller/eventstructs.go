@@ -1,6 +1,11 @@
 package gamesocketcontroller
 
-import "github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
+import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/gameunitdto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/mapsizedto"
+)
 
 type eventType string
 
@@ -20,8 +25,8 @@ type errorHappenedEvent struct {
 }
 
 type informationUpdatedEventPayload struct {
-	MapSize      dto.MapSizeDTO `json:"mapSize"`
-	PlayersCount int            `json:"playersCount"`
+	MapSize      mapsizedto.MapSizeDTO `json:"mapSize"`
+	PlayersCount int                   `json:"playersCount"`
 }
 type informationUpdatedEvent struct {
 	Type    eventType                      `json:"type"`
@@ -29,8 +34,8 @@ type informationUpdatedEvent struct {
 }
 
 type unitsUpdatedEventPayloadItem struct {
-	Coordinate dto.CoordinateDTO `json:"coordinate"`
-	Unit       dto.GameUnitDTO   `json:"unit"`
+	Coordinate coordinatedto.CoordinateDTO `json:"coordinate"`
+	Unit       gameunitdto.GameUnitDTO     `json:"unit"`
 }
 
 type unitsUpdatedEventPayload struct {
@@ -42,8 +47,8 @@ type unitsUpdatedEvent struct {
 }
 
 type areaUpdatedEventPayload struct {
-	Area  dto.AreaDTO         `json:"area"`
-	Units [][]dto.GameUnitDTO `json:"units"`
+	Area  areadto.AreaDTO             `json:"area"`
+	Units [][]gameunitdto.GameUnitDTO `json:"units"`
 }
 type areaUpdatedEvent struct {
 	Type    eventType               `json:"type"`

@@ -1,4 +1,4 @@
-package dto
+package gameunitdto
 
 type GameUnitDTO struct {
 	Alive bool `json:"alive"`

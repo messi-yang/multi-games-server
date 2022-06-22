@@ -1,8 +1,11 @@
 package gamesocketcontroller
 
 import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/gameunitdto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/mapsizedto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
 )
 
 func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {
@@ -18,7 +21,7 @@ func constructInformationUpdatedEvent(mapSize *valueobject.MapSize, playersCount
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
-			MapSize: dto.MapSizeDTO{
+			MapSize: mapsizedto.MapSizeDTO{
 				Width:  mapSize.GetWidth(),
 				Height: mapSize.GetHeight(),
 			},
@@ -36,16 +39,16 @@ func constructUnitsUpdatedEvent(items *[]unitsUpdatedEventPayloadItem) *unitsUpd
 	}
 }
 
-func constructAreaUpdatedEvent(gameArea *valueobject.Area, gameUnits *[][]dto.GameUnitDTO) *areaUpdatedEvent {
+func constructAreaUpdatedEvent(gameArea *valueobject.Area, gameUnits *[][]gameunitdto.GameUnitDTO) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{
-			Area: dto.AreaDTO{
-				From: dto.CoordinateDTO{
+			Area: areadto.AreaDTO{
+				From: coordinatedto.CoordinateDTO{
 					X: gameArea.GetFrom().GetX(),
 					Y: gameArea.GetFrom().GetY(),
 				},
-				To: dto.CoordinateDTO{
+				To: coordinatedto.CoordinateDTO{
 					X: gameArea.GetTo().GetX(),
 					Y: gameArea.GetTo().GetY(),
 				},

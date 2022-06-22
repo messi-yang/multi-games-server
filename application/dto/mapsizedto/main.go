@@ -1,4 +1,4 @@
-package dto
+package mapsizedto
 
 type MapSizeDTO struct {
 	Width  int `json:"width"`

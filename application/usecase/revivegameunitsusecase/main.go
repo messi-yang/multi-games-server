@@ -1,10 +1,10 @@
 package revivegameunitsusecase
 
 import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gameunitsupdatedevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -20,8 +20,9 @@ func NewUseCase(gameRoomRepository gameroomrepository.GameRoomRepository, gameUn
 	}
 }
 
-func (uc *useCase) Execute(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
+func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error {
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
+	coordinates := coordinatedto.FromDTOs(coordinateDTOs)
 
 	for _, coord := range coordinates {
 		gameRoomService.ReviveGameUnit(gameId, coord)

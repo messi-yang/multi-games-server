@@ -1,6 +1,9 @@
 package gamesocketcontroller
 
-import "github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/dto"
+import (
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
+)
 
 type actionType string
 
@@ -14,7 +17,7 @@ type action struct {
 }
 
 type watchAreaActionPayload struct {
-	Area dto.AreaDTO `json:"area"`
+	Area areadto.AreaDTO `json:"area"`
 }
 type watchAreaAction struct {
 	Type    actionType             `json:"type"`
@@ -22,7 +25,7 @@ type watchAreaAction struct {
 }
 
 type reviveUnitsActionPayload struct {
-	Coordinates []dto.CoordinateDTO `json:"coordinates"`
+	Coordinates []coordinatedto.CoordinateDTO `json:"coordinates"`
 }
 type reviveUnitsAction struct {
 	Type    actionType               `json:"type"`
