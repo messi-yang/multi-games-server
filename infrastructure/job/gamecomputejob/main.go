@@ -5,7 +5,7 @@ import (
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/computeallgamesusecase"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 )
@@ -16,7 +16,7 @@ type GameComputeJob interface {
 }
 
 type gameComputeJobImpl struct {
-	gameRoomService     gameroomservice.GameRoomService
+	gameRoomRepository  gameroomrepository.GameRoomRepository
 	gameComputeEventBus gamecomputedevent.GameComputedEvent
 	gameTicker          *time.Ticker
 	gameTickerStop      chan bool
@@ -27,11 +27,10 @@ var gameComputeJob *gameComputeJobImpl
 func GetGameComputeJob() GameComputeJob {
 	if gameComputeJob == nil {
 		gameRoomMemory := gameroommemory.GetGameRoomMemory()
-		gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
 		gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
 
 		gameComputeJob = &gameComputeJobImpl{
-			gameRoomService:     gameRoomService,
+			gameRoomRepository:  gameRoomMemory,
 			gameComputeEventBus: gameComputeEventBus,
 		}
 
@@ -50,7 +49,7 @@ func (gwi *gameComputeJobImpl) Start() {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				computeAllGamesUseCase := computeallgamesusecase.NewUseCase(gwi.gameRoomService, gwi.gameComputeEventBus)
+				computeAllGamesUseCase := computeallgamesusecase.NewUseCase(gwi.gameRoomRepository, gwi.gameComputeEventBus)
 				computeAllGamesUseCase.Execute()
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()
