@@ -13,8 +13,8 @@ import (
 
 type GameRoomService interface {
 	CreateGameRoom(mapSize valueobject.MapSize) *aggregate.GameRoom
-	GenerateNextGameUnitMatrix(gameId uuid.UUID) error
-	ReviveGameUnit(gameId uuid.UUID, coord valueobject.Coordinate) error
+	GenerateNextUnitMatrix(gameId uuid.UUID) error
+	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) error
 }
 
 type gameRoomServiceImplement struct {
@@ -38,22 +38,22 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	gameUnitMatrix := make([][]valueobject.GameUnit, mapSize.GetWidth())
+	unitMatrix := make([][]valueobject.Unit, mapSize.GetWidth())
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
-		gameUnitMatrix[i] = make([]valueobject.GameUnit, mapSize.GetHeight())
+		unitMatrix[i] = make([]valueobject.Unit, mapSize.GetHeight())
 		for j := 0; j < mapSize.GetHeight(); j += 1 {
-			gameUnitMatrix[i][j] = valueobject.NewGameUnit(rand.Intn(2) == 0, 0)
+			unitMatrix[i][j] = valueobject.NewUnit(rand.Intn(2) == 0, 0)
 		}
 	}
 	gameRoom := aggregate.NewGameRoom()
 	gameRoom.UpdateGameMapSize(mapSize)
-	gameRoom.UpdateGameUnitMatrix(gameUnitMatrix)
+	gameRoom.UpdateUnitMatrix(unitMatrix)
 	gsi.gameRoomRepository.Add(gameRoom)
 
 	return &gameRoom
 }
 
-func (gsi *gameRoomServiceImplement) GenerateNextGameUnitMatrix(gameId uuid.UUID) error {
+func (gsi *gameRoomServiceImplement) GenerateNextUnitMatrix(gameId uuid.UUID) error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
@@ -62,25 +62,27 @@ func (gsi *gameRoomServiceImplement) GenerateNextGameUnitMatrix(gameId uuid.UUID
 		return err
 	}
 
-	gameUnitMatrix := gameRoom.GetGameUnitMatrix()
-	gameOfLiberty, err := ggol.NewGame(&gameUnitMatrix)
+	unitMatrix := gameRoom.GetUnitMatrix()
+	gameOfLiberty, err := ggol.NewGame(&unitMatrix)
 	if err != nil {
 		return err
 	}
 	gameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
-	nextGameUnitMatrix := gameOfLiberty.GenerateNextUnits()
-	gsi.gameRoomRepository.UpdateGameUnitMatrix(gameId, *nextGameUnitMatrix)
+	nextUnitMatrix := gameOfLiberty.GenerateNextUnits()
+	gsi.gameRoomRepository.UpdateUnitMatrix(gameId, *nextUnitMatrix)
 
 	return nil
 }
 
-func (gsi *gameRoomServiceImplement) ReviveGameUnit(gameId uuid.UUID, gameCoordinate valueobject.Coordinate) error {
+func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	nextUnit := valueobject.NewGameUnit(true, 0)
-	gsi.gameRoomRepository.UpdateGameUnit(gameId, gameCoordinate, nextUnit)
+	for _, coord := range coordinates {
+		nextUnit := valueobject.NewUnit(true, 0)
+		gsi.gameRoomRepository.UpdateUnit(gameId, coord, nextUnit)
+	}
 
 	return nil
 }

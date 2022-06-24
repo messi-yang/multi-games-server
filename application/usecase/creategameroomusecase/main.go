@@ -12,7 +12,7 @@ type useCase struct {
 	gameRoomRepository gameroomrepository.GameRoomRepository
 }
 
-func NewUseCase(gameRoomRepository gameroomrepository.GameRoomRepository) *useCase {
+func New(gameRoomRepository gameroomrepository.GameRoomRepository) *useCase {
 	return &useCase{
 		gameRoomRepository: gameRoomRepository,
 	}

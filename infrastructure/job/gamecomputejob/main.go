@@ -49,7 +49,7 @@ func (gwi *gameComputeJobImpl) Start() {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				computeAllGamesUseCase := computeallgamesusecase.NewUseCase(gwi.gameRoomRepository, gwi.gameComputeEventBus)
+				computeAllGamesUseCase := computeallgamesusecase.New(gwi.gameRoomRepository, gwi.gameComputeEventBus)
 				computeAllGamesUseCase.Execute()
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()

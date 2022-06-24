@@ -40,16 +40,16 @@ func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
 	return gameRooms
 }
 
-func (gmi *gameRoomMemory) UpdateGameUnit(gameId uuid.UUID, coordinate valueobject.Coordinate, gameUnit valueobject.GameUnit) error {
+func (gmi *gameRoomMemory) UpdateUnit(gameId uuid.UUID, coordinate valueobject.Coordinate, unit valueobject.Unit) error {
 	gameRoom := gmi.gameRoomMap[gameId]
-	gameRoom.UpdateGameUnit(coordinate, gameUnit)
+	gameRoom.UpdateUnit(coordinate, unit)
 
 	return nil
 }
 
-func (gmi *gameRoomMemory) UpdateGameUnitMatrix(gameId uuid.UUID, gameUnitMatrix [][]valueobject.GameUnit) error {
+func (gmi *gameRoomMemory) UpdateUnitMatrix(gameId uuid.UUID, unitMatrix [][]valueobject.Unit) error {
 	gameRoom := gmi.gameRoomMap[gameId]
-	gameRoom.UpdateGameUnitMatrix(gameUnitMatrix)
+	gameRoom.UpdateUnitMatrix(unitMatrix)
 
 	return nil
 }

@@ -32,12 +32,11 @@ func (gue *gameComputeEventBus) Publish(gameId uuid.UUID) {
 	gue.eventBus.Publish(topic)
 }
 
-func (gue *gameComputeEventBus) Subscribe(gameId uuid.UUID, callback gameComputeEventCallback) {
+func (gue *gameComputeEventBus) Subscribe(gameId uuid.UUID, callback gameComputeEventCallback) (unsubscriber func()) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
 	gue.eventBus.Subscribe(topic, callback)
-}
 
-func (gue *gameComputeEventBus) Unsubscribe(gameId uuid.UUID, callback gameComputeEventCallback) {
-	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
-	gue.eventBus.Unsubscribe(topic, callback)
+	return func() {
+		gue.eventBus.Unsubscribe(topic, callback)
+	}
 }

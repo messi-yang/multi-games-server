@@ -5,20 +5,25 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/gameunitdto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getgameroomusecase"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/revivegameunitsusecase"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getunitmatrixusecase"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getunitsusecase"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/reviveunitsusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gameunitsupdatedeventbus"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/unitsupdatedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
+
+type session struct {
+	gameAreaToWatch *areadto.AreaDTO
+	socketLocker    sync.RWMutex
+}
 
 var wsupgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -40,7 +45,6 @@ func Controller(c *gin.Context) {
 	closeConnFlag := make(chan bool)
 
 	gameId := config.GetConfig().GetGameId()
-	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 
 	playersCount += 1
 	session := &session{
@@ -48,39 +52,24 @@ func Controller(c *gin.Context) {
 		socketLocker:    sync.RWMutex{},
 	}
 
-	emitGameInfoUpdatedEvent(conn, session, gameId, gameRoomMemory)
+	emitGameInfoUpdatedEvent(conn, session, gameId)
 
 	gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
-	handleGameComputedEvent := func() {
-		emitAreaUpdatedEvent(conn, session, gameId, gameRoomMemory)
-	}
-	gameComputeEventBus.Subscribe(gameId, handleGameComputedEvent)
-	defer gameComputeEventBus.Unsubscribe(gameId, handleGameComputedEvent)
-
-	gameUnitsUpdatedEvent := gameunitsupdatedeventbus.GetGameUnitsUpdatedEventBus()
-	handleGameUnitsUpdatedEvent := func(coordinates []valueobject.Coordinate) {
-		gameRoom, _ := getgameroomusecase.NewUseCase(gameRoomMemory).Execute(gameId)
-		unitsUpdatedEventPayloadItems := []unitsUpdatedEventPayloadItem{}
-		for _, coord := range coordinates {
-			unit := gameRoom.GetGameUnit(coord)
-
-			unitsUpdatedEventPayloadItems = append(
-				unitsUpdatedEventPayloadItems,
-				unitsUpdatedEventPayloadItem{
-					Coordinate: coordinatedto.CoordinateDTO{X: coord.GetX(), Y: coord.GetY()},
-					Unit:       gameunitdto.GameUnitDTO{Alive: unit.GetAlive(), Age: unit.GetAge()},
-				},
-			)
-		}
-		emitUnitsUpdatedEvent(conn, session, &unitsUpdatedEventPayloadItems)
-	}
-	gameUnitsUpdatedEvent.Subscribe(gameId, handleGameUnitsUpdatedEvent)
-	defer gameUnitsUpdatedEvent.Unsubscribe(gameId, handleGameUnitsUpdatedEvent)
-
-	conn.SetCloseHandler(func(code int, text string) error {
-		playersCount -= 1
-		return nil
+	gameComputedEventUnsubscriber := gameComputeEventBus.Subscribe(gameId, func() {
+		emitAreaUpdatedEvent(conn, session, gameId)
 	})
+	defer gameComputedEventUnsubscriber()
+
+	unitsUpdatedEventBus := unitsupdatedeventbus.GetUnitsUpdatedEventBus()
+	unitsUpdatedEventUnsubscriber := unitsUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO) {
+		emitUnitsUpdatedEvent(conn, session, gameId, coordinateDTOs)
+	})
+	defer unitsUpdatedEventUnsubscriber()
+
+	// conn.SetCloseHandler(func(code int, text string) error {
+	// 	playersCount -= 1
+	// 	return nil
+	// })
 
 	go func() {
 		defer func() {
@@ -97,43 +86,23 @@ func Controller(c *gin.Context) {
 			actionType, err := getActionTypeFromMessage(message)
 			if err != nil {
 				emitErrorEvent(conn, session, err)
+				break
 			}
 
 			switch *actionType {
 			case watchAreaActionType:
-				watchAreaAction, err := extractWatchAreaActionFromMessage(message)
-				if err != nil {
-					emitErrorEvent(conn, session, err)
-				}
-				area := valueobject.NewArea(
-					valueobject.NewCoordinate(
-						watchAreaAction.Payload.Area.From.X,
-						watchAreaAction.Payload.Area.From.Y,
-					),
-					valueobject.NewCoordinate(
-						watchAreaAction.Payload.Area.To.X,
-						watchAreaAction.Payload.Area.To.Y,
-					),
-				)
-				session.gameAreaToWatch = &area
+				handleWatchAreaAction(conn, session, message)
 			case reviveUnitsActionType:
-				reviveUnitsAction, err := extractReviveUnitsActionFromMessage(message)
-				if err != nil {
-					emitErrorEvent(conn, session, err)
-				}
-
-				revivegameunitsusecase.NewUseCase(gameRoomMemory, gameUnitsUpdatedEvent).Execute(gameId, reviveUnitsAction.Payload.Coordinates)
+				handleReviveUnitsAction(conn, session, message, gameId)
 			default:
 			}
 		}
 	}()
 
 	for {
-		select {
-		case <-closeConnFlag:
-			fmt.Println("Player left")
-			return
-		}
+		<-closeConnFlag
+		fmt.Println("Player left")
+		return
 	}
 }
 
@@ -150,45 +119,52 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomRepository gameroomrepository.GameRoomRepository) {
-	gameRoom, _ := getgameroomusecase.NewUseCase(gameRoomRepository).Execute(gameId)
-	gameMapSize := gameRoom.GetGameMapSize()
-	informationUpdatedEvent := constructInformationUpdatedEvent(&gameMapSize, playersCount)
+func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
+	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomDTO, _ := getgameroomusecase.New(gameRoomMemory).Execute(gameId)
+	informationUpdatedEvent := constructInformationUpdatedEvent(gameRoomDTO.Game.MapSize, playersCount)
 
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, updateUnitItems *[]unitsUpdatedEventPayloadItem) {
-	unitsUpdatedEvent := constructUnitsUpdatedEvent(updateUnitItems)
-
+func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
+	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	unitDTOs, _ := getunitsusecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs)
+	unitsUpdatedEvent := constructUnitsUpdatedEvent(coordinateDTOs, unitDTOs)
 	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
 }
 
-func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, gameRoomRepository gameroomrepository.GameRoomRepository) {
+func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
 
-	gameRoom, _ := getgameroomusecase.NewUseCase(gameRoomRepository).Execute(gameId)
-	gameUnits, err := gameRoom.GetGameUnitMatrixWithArea(*session.gameAreaToWatch)
+	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	unitDTOMatrix, err := getunitmatrixusecase.New(gameRoomMemory).Execute(gameId, *session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 		return
 	}
 
-	gameUnitsDTO := make([][]gameunitdto.GameUnitDTO, 0)
+	areaUpdatedEvent := constructAreaUpdatedEvent(*session.gameAreaToWatch, unitDTOMatrix)
+	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
+}
 
-	for i := 0; i < len(gameUnits); i += 1 {
-		gameUnitsDTO = append(gameUnitsDTO, make([]gameunitdto.GameUnitDTO, 0))
-		for j := 0; j < len(gameUnits[i]); j += 1 {
-			gameUnitsDTO[i] = append(gameUnitsDTO[i], gameunitdto.GameUnitDTO{
-				Alive: gameUnits[i][j].GetAlive(),
-				Age:   gameUnits[i][j].GetAge(),
-			})
-		}
+func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byte) {
+	watchAreaAction, err := extractWatchAreaActionFromMessage(message)
+	if err != nil {
+		emitErrorEvent(conn, session, err)
+	}
+	session.gameAreaToWatch = &watchAreaAction.Payload.Area
+}
+
+func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
+	reviveUnitsAction, err := extractReviveUnitsActionFromMessage(message)
+	if err != nil {
+		emitErrorEvent(conn, session, err)
 	}
 
-	areaUpdatedEvent := constructAreaUpdatedEvent(session.gameAreaToWatch, &gameUnitsDTO)
-
-	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
+	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	unitsUpdatedEventBus := unitsupdatedeventbus.GetUnitsUpdatedEventBus()
+	reviveunitsusecase.New(gameRoomMemory, unitsUpdatedEventBus).Execute(gameId, reviveUnitsAction.Payload.Coordinates)
 }

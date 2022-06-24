@@ -11,7 +11,7 @@ type useCase struct {
 	gameComputeEvent   gamecomputedevent.GameComputedEvent
 }
 
-func NewUseCase(gameRoomRepository gameroomrepository.GameRoomRepository, gameComputeEvent gamecomputedevent.GameComputedEvent) *useCase {
+func New(gameRoomRepository gameroomrepository.GameRoomRepository, gameComputeEvent gamecomputedevent.GameComputedEvent) *useCase {
 	return &useCase{
 		gameRoomRepository: gameRoomRepository,
 		gameComputeEvent:   gameComputeEvent,
@@ -22,7 +22,7 @@ func (uc *useCase) Execute() {
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
 	gameRooms := uc.gameRoomRepository.GetAll()
 	for _, gameRoom := range gameRooms {
-		gameRoomService.GenerateNextGameUnitMatrix(gameRoom.GetGameId())
+		gameRoomService.GenerateNextUnitMatrix(gameRoom.GetGameId())
 		uc.gameComputeEvent.Publish(gameRoom.GetGameId())
 	}
 }

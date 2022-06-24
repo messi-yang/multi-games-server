@@ -7,7 +7,7 @@ import (
 
 type Game struct {
 	Id         uuid.UUID
-	UnitMatrix [][]valueobject.GameUnit
+	UnitMatrix [][]valueobject.Unit
 	MapSize    valueobject.MapSize
 }
 
@@ -15,7 +15,7 @@ func NewGame() Game {
 	id, _ := uuid.NewUUID()
 	return Game{
 		Id:         id,
-		UnitMatrix: make([][]valueobject.GameUnit, 0),
+		UnitMatrix: make([][]valueobject.Unit, 0),
 		MapSize:    valueobject.NewMapSize(0, 0),
 	}
 }

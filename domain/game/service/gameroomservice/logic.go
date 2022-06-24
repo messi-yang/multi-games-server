@@ -7,9 +7,9 @@ import (
 
 func gameNextUnitGenerator(
 	coord *ggol.Coordinate,
-	cell *valueobject.GameUnit,
-	getAdjacentUnit ggol.AdjacentUnitGetter[valueobject.GameUnit],
-) (nextUnit *valueobject.GameUnit) {
+	cell *valueobject.Unit,
+	getAdjacentUnit ggol.AdjacentUnitGetter[valueobject.Unit],
+) (nextUnit *valueobject.Unit) {
 	var aliveAdjacentCellsCount int = 0
 	for i := -1; i < 2; i += 1 {
 		for j := -1; j < 2; j += 1 {
@@ -25,15 +25,15 @@ func gameNextUnitGenerator(
 	age := cell.GetAge()
 	if alive {
 		if aliveAdjacentCellsCount != 2 && aliveAdjacentCellsCount != 3 {
-			nextCell := valueobject.NewGameUnit(false, 0)
+			nextCell := valueobject.NewUnit(false, 0)
 			return &nextCell
 		} else {
-			nextCell := valueobject.NewGameUnit(alive, age+1)
+			nextCell := valueobject.NewUnit(alive, age+1)
 			return &nextCell
 		}
 	} else {
 		if aliveAdjacentCellsCount == 3 {
-			nextCell := valueobject.NewGameUnit(true, 0)
+			nextCell := valueobject.NewUnit(true, 0)
 			return &nextCell
 		} else {
 			return cell
