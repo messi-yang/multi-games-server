@@ -22,7 +22,7 @@ func (uc *useCase) Execute() {
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
 	gameRooms := uc.gameRoomRepository.GetAll()
 	for _, gameRoom := range gameRooms {
-		gameRoomService.GenerateNextUnitMatrix(gameRoom.GetGameId())
+		gameRoomService.GenerateNextUnitMap(gameRoom.GetGameId())
 		uc.gameComputeEvent.Publish(gameRoom.GetGameId())
 	}
 }

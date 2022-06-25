@@ -47,9 +47,9 @@ func (gmi *gameRoomMemory) UpdateUnit(gameId uuid.UUID, coordinate valueobject.C
 	return nil
 }
 
-func (gmi *gameRoomMemory) UpdateUnitMatrix(gameId uuid.UUID, unitMatrix [][]valueobject.Unit) error {
+func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap [][]valueobject.Unit) error {
 	gameRoom := gmi.gameRoomMap[gameId]
-	gameRoom.UpdateUnitMatrix(unitMatrix)
+	gameRoom.UpdateUnitMap(unitMap)
 
 	return nil
 }

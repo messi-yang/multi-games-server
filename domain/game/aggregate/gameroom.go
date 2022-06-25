@@ -34,33 +34,33 @@ func (gr *GameRoom) UpdateGameMapSize(mapSize valueobject.MapSize) error {
 	return nil
 }
 
-func (gr *GameRoom) GetUnitMatrix() [][]valueobject.Unit {
-	return gr.game.UnitMatrix
+func (gr *GameRoom) GetUnitMap() [][]valueobject.Unit {
+	return gr.game.UnitMap
 }
 
-func (gr *GameRoom) UpdateUnitMatrix(unitMatrix [][]valueobject.Unit) error {
-	gr.game.UnitMatrix = unitMatrix
+func (gr *GameRoom) UpdateUnitMap(unitMap [][]valueobject.Unit) error {
+	gr.game.UnitMap = unitMap
 	return nil
 }
 
-func (gr *GameRoom) GetUnitMatrixWithArea(area valueobject.Area) ([][]valueobject.Unit, error) {
+func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) ([][]valueobject.Unit, error) {
 	width := area.GetTo().GetX() - area.GetFrom().GetX() + 1
 	height := area.GetTo().GetY() - area.GetFrom().GetY() + 1
-	gameMatrix := make([][]valueobject.Unit, width)
+	gameMap := make([][]valueobject.Unit, width)
 	for x := 0; x < width; x += 1 {
-		gameMatrix[x] = make([]valueobject.Unit, height)
+		gameMap[x] = make([]valueobject.Unit, height)
 		for y := 0; y < height; y += 1 {
-			gameMatrix[x][y] = gr.game.UnitMatrix[x][y]
+			gameMap[x][y] = gr.game.UnitMap[x][y]
 		}
 	}
 
-	return gameMatrix, nil
+	return gameMap, nil
 }
 
 func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate) ([]valueobject.Unit, error) {
 	units := make([]valueobject.Unit, 0)
 	for _, coord := range coordinates {
-		unit := gr.game.UnitMatrix[coord.GetX()][coord.GetY()]
+		unit := gr.game.UnitMap[coord.GetX()][coord.GetY()]
 		units = append(units, unit)
 	}
 
@@ -68,11 +68,11 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 }
 
 func (gr *GameRoom) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit {
-	return gr.game.UnitMatrix[coordinate.GetX()][coordinate.GetY()]
+	return gr.game.UnitMap[coordinate.GetX()][coordinate.GetY()]
 }
 
 func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) error {
-	gr.game.UnitMatrix[coordinate.GetX()][coordinate.GetY()] = unit
+	gr.game.UnitMap[coordinate.GetX()][coordinate.GetY()] = unit
 
 	return nil
 }

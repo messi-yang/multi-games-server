@@ -28,31 +28,31 @@ func ToDTOList(units []valueobject.Unit) []UnitDTO {
 	return unitDTOs
 }
 
-func FromDTOMatrix(unitDTOMatrix [][]UnitDTO) [][]valueobject.Unit {
-	unitMatrix := make([][]valueobject.Unit, 0)
+func FromDTOMap(unitDTOMap [][]UnitDTO) [][]valueobject.Unit {
+	unitMap := make([][]valueobject.Unit, 0)
 
-	for i := 0; i < len(unitDTOMatrix); i += 1 {
-		unitMatrix = append(unitMatrix, make([]valueobject.Unit, 0))
-		for j := 0; j < len(unitDTOMatrix[i]); j += 1 {
-			unitMatrix[i] = append(unitMatrix[i], FromDTO(unitDTOMatrix[i][j]))
+	for i := 0; i < len(unitDTOMap); i += 1 {
+		unitMap = append(unitMap, make([]valueobject.Unit, 0))
+		for j := 0; j < len(unitDTOMap[i]); j += 1 {
+			unitMap[i] = append(unitMap[i], FromDTO(unitDTOMap[i][j]))
 		}
 	}
 
-	return unitMatrix
+	return unitMap
 }
 
-func ToDTOMatrix(units [][]valueobject.Unit) [][]UnitDTO {
-	unitDTOMatrix := make([][]UnitDTO, 0)
+func ToDTOMap(units [][]valueobject.Unit) [][]UnitDTO {
+	unitDTOMap := make([][]UnitDTO, 0)
 
 	for i := 0; i < len(units); i += 1 {
-		unitDTOMatrix = append(unitDTOMatrix, make([]UnitDTO, 0))
+		unitDTOMap = append(unitDTOMap, make([]UnitDTO, 0))
 		for j := 0; j < len(units[i]); j += 1 {
-			unitDTOMatrix[i] = append(unitDTOMatrix[i], UnitDTO{
+			unitDTOMap[i] = append(unitDTOMap[i], UnitDTO{
 				Alive: units[i][j].GetAlive(),
 				Age:   units[i][j].GetAge(),
 			})
 		}
 	}
 
-	return unitDTOMatrix
+	return unitDTOMap
 }

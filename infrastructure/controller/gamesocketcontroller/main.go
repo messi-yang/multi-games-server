@@ -8,7 +8,7 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getgameroomusecase"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getunitmatrixusecase"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getunitmapusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getunitsusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/reviveunitsusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
@@ -140,13 +140,13 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UU
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	unitDTOMatrix, err := getunitmatrixusecase.New(gameRoomMemory).Execute(gameId, *session.gameAreaToWatch)
+	unitDTOMap, err := getunitmapusecase.New(gameRoomMemory).Execute(gameId, *session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 		return
 	}
 
-	areaUpdatedEvent := constructAreaUpdatedEvent(*session.gameAreaToWatch, unitDTOMatrix)
+	areaUpdatedEvent := constructAreaUpdatedEvent(*session.gameAreaToWatch, unitDTOMap)
 	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
 }
 

@@ -1,4 +1,4 @@
-package getunitmatrixusecase
+package getunitmapusecase
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
@@ -24,10 +24,10 @@ func (uc *useCase) Execute(gameId uuid.UUID, areaDTO areadto.AreaDTO) ([][]unitd
 	}
 
 	area := areadto.FromDTO(areaDTO)
-	unitMatrix, err := gameRoom.GetUnitMatrixWithArea(area)
+	unitMap, err := gameRoom.GetUnitMapWithArea(area)
 	if err != nil {
 		return make([][]unitdto.UnitDTO, 0), err
 	}
 
-	return unitdto.ToDTOMatrix(unitMatrix), nil
+	return unitdto.ToDTOMap(unitMap), nil
 }
