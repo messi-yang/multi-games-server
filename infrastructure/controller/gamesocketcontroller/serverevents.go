@@ -52,13 +52,9 @@ func constructInformationUpdatedEvent(mapSizeDTO mapsizedto.MapSizeDTO, playersC
 	}
 }
 
-type unitsUpdatedEventPayloadItem struct {
-	Coordinate coordinatedto.CoordinateDTO `json:"coordinate"`
-	Unit       unitdto.UnitDTO             `json:"unit"`
-}
-
 type unitsUpdatedEventPayload struct {
-	Items []unitsUpdatedEventPayloadItem `json:"items"`
+	Coordinates []coordinatedto.CoordinateDTO `json:"coordinates"`
+	Units       []unitdto.UnitDTO             `json:"units"`
 }
 type unitsUpdatedEvent struct {
 	Type    eventType                `json:"type"`
@@ -66,20 +62,11 @@ type unitsUpdatedEvent struct {
 }
 
 func constructUnitsUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, unitDTOs []unitdto.UnitDTO) *unitsUpdatedEvent {
-	unitsUpdatedEventPayloadItems := []unitsUpdatedEventPayloadItem{}
-	for i := 0; i < len(unitDTOs); i += 1 {
-		unitsUpdatedEventPayloadItems = append(
-			unitsUpdatedEventPayloadItems,
-			unitsUpdatedEventPayloadItem{
-				Coordinate: coordinateDTOs[i],
-				Unit:       unitDTOs[i],
-			},
-		)
-	}
 	return &unitsUpdatedEvent{
 		Type: unitsUpdatedEventType,
 		Payload: unitsUpdatedEventPayload{
-			Items: unitsUpdatedEventPayloadItems,
+			Coordinates: coordinateDTOs,
+			Units:       unitDTOs,
 		},
 	}
 }
