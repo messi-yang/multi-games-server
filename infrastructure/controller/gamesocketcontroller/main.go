@@ -33,8 +33,6 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-var playersCount int = 0
-
 func Controller(c *gin.Context) {
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -46,7 +44,6 @@ func Controller(c *gin.Context) {
 
 	gameId := config.GetConfig().GetGameId()
 
-	playersCount += 1
 	session := &session{
 		gameAreaToWatch: nil,
 		socketLocker:    sync.RWMutex{},
@@ -67,7 +64,6 @@ func Controller(c *gin.Context) {
 	defer unitsUpdatedEventUnsubscriber()
 
 	// conn.SetCloseHandler(func(code int, text string) error {
-	// 	playersCount -= 1
 	// 	return nil
 	// })
 
@@ -122,7 +118,7 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	gameRoomDTO, _ := getgameroomusecase.New(gameRoomMemory).Execute(gameId)
-	informationUpdatedEvent := constructInformationUpdatedEvent(gameRoomDTO.Game.MapSize, playersCount)
+	informationUpdatedEvent := constructInformationUpdatedEvent(gameRoomDTO.Game.MapSize)
 
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }

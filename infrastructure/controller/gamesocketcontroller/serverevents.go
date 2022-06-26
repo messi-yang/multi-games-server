@@ -34,20 +34,18 @@ func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {
 }
 
 type informationUpdatedEventPayload struct {
-	MapSize      mapsizedto.MapSizeDTO `json:"mapSize"`
-	PlayersCount int                   `json:"playersCount"`
+	MapSize mapsizedto.MapSizeDTO `json:"mapSize"`
 }
 type informationUpdatedEvent struct {
 	Type    eventType                      `json:"type"`
 	Payload informationUpdatedEventPayload `json:"payload"`
 }
 
-func constructInformationUpdatedEvent(mapSizeDTO mapsizedto.MapSizeDTO, playersCount int) *informationUpdatedEvent {
+func constructInformationUpdatedEvent(mapSizeDTO mapsizedto.MapSizeDTO) *informationUpdatedEvent {
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
-			MapSize:      mapSizeDTO,
-			PlayersCount: playersCount,
+			MapSize: mapSizeDTO,
 		},
 	}
 }
