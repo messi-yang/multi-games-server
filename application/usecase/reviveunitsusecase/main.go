@@ -2,21 +2,21 @@ package reviveunitsusecase
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/unitsupdatedevent"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/coordinatesupdatedevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/google/uuid"
 )
 
 type useCase struct {
-	gameRoomRepository gameroomrepository.GameRoomRepository
-	unitsUpdatedEvent  unitsupdatedevent.UnitsUpdatedEvent
+	gameRoomRepository      gameroomrepository.GameRoomRepository
+	coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
 }
 
-func New(gameRoomRepository gameroomrepository.GameRoomRepository, unitsUpdatedEvent unitsupdatedevent.UnitsUpdatedEvent) *useCase {
+func New(gameRoomRepository gameroomrepository.GameRoomRepository, coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent) *useCase {
 	return &useCase{
-		gameRoomRepository: gameRoomRepository,
-		unitsUpdatedEvent:  unitsUpdatedEvent,
+		gameRoomRepository:      gameRoomRepository,
+		coordinatesUpdatedEvent: coordinatesUpdatedEvent,
 	}
 }
 
@@ -26,7 +26,7 @@ func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.Coor
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
 	gameRoomService.ReviveUnits(gameId, coordinates)
 
-	uc.unitsUpdatedEvent.Publish(gameId, coordinateDTOs)
+	uc.coordinatesUpdatedEvent.Publish(gameId, coordinateDTOs)
 
 	return nil
 }

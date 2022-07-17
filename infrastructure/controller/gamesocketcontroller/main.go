@@ -12,8 +12,8 @@ import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/getunitsusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/reviveunitsusecase"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/coordinatesupdatedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/unitsupdatedeventbus"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -57,11 +57,11 @@ func Controller(c *gin.Context) {
 	})
 	defer gameComputedEventUnsubscriber()
 
-	unitsUpdatedEventBus := unitsupdatedeventbus.GetUnitsUpdatedEventBus()
-	unitsUpdatedEventUnsubscriber := unitsUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO) {
-		emitUnitsUpdatedEvent(conn, session, gameId, coordinateDTOs)
+	coordinatesUpdatedEventBus := coordinatesupdatedeventbus.GetCoordinatesUpdatedEventBus()
+	coordinatesUpdatedEventUnsubscriber := coordinatesUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO) {
+		emitCoordinatesUpdatedEvent(conn, session, gameId, coordinateDTOs)
 	})
-	defer unitsUpdatedEventUnsubscriber()
+	defer coordinatesUpdatedEventUnsubscriber()
 
 	// conn.SetCloseHandler(func(code int, text string) error {
 	// 	return nil
@@ -123,11 +123,11 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
+func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	unitDTOs, _ := getunitsusecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs)
-	unitsUpdatedEvent := constructUnitsUpdatedEvent(coordinateDTOs, unitDTOs)
-	sendJSONMessageToClient(conn, session, unitsUpdatedEvent)
+	coordinatesUpdatedEvent := constructCoordinatesUpdatedEvent(coordinateDTOs, unitDTOs)
+	sendJSONMessageToClient(conn, session, coordinatesUpdatedEvent)
 }
 
 func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
@@ -161,6 +161,6 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	unitsUpdatedEventBus := unitsupdatedeventbus.GetUnitsUpdatedEventBus()
-	reviveunitsusecase.New(gameRoomMemory, unitsUpdatedEventBus).Execute(gameId, reviveUnitsAction.Payload.Coordinates)
+	coordinatesUpdatedEventBus := coordinatesupdatedeventbus.GetCoordinatesUpdatedEventBus()
+	reviveunitsusecase.New(gameRoomMemory, coordinatesUpdatedEventBus).Execute(gameId, reviveUnitsAction.Payload.Coordinates)
 }
