@@ -1,3 +1,3 @@
-package patterndto
+package unitspatterndto
 
-type PatternDTO [][]bool
+type UnitsPatternDTO [][]bool

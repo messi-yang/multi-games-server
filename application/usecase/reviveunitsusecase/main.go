@@ -2,7 +2,7 @@ package reviveunitsusecase
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/patterndto"
+	unitspatterndto "github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/patterndto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/coordinatesupdatedevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
@@ -22,7 +22,7 @@ func New(gameRoomRepository gameroomrepository.GameRoomRepository, coordinatesUp
 	}
 }
 
-func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTO coordinatedto.CoordinateDTO, patternDTO patterndto.PatternDTO) error {
+func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTO coordinatedto.CoordinateDTO, patternDTO unitspatterndto.UnitsPatternDTO) error {
 	coordinates := make([]valueobject.Coordinate, 0)
 	for relativeX, rowsInPattern := range patternDTO {
 		for relativeY, isTruthy := range rowsInPattern {
