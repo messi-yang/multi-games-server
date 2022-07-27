@@ -17,6 +17,20 @@ func NewGameRoom() GameRoom {
 	}
 }
 
+func (gr *GameRoom) AreCoordinatesValid(coordinates []valueobject.Coordinate) bool {
+	for _, coord := range coordinates {
+		x := coord.GetX()
+		y := coord.GetY()
+		if x < 0 || x >= gr.game.MapSize.GetWidth() {
+			return false
+		}
+		if y < 0 || y >= gr.game.MapSize.GetHeight() {
+			return false
+		}
+	}
+	return true
+}
+
 func (gr *GameRoom) GetGame() entity.Game {
 	return *gr.game
 }

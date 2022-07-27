@@ -5,7 +5,7 @@ import (
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	unitspatterndto "github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/patterndto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/unitspatterndto"
 )
 
 type actionType string

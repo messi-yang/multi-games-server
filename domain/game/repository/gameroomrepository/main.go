@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrGameRoomNotFound = errors.New("The game room with given id not found.")
+	ErrGameRoomNotFound = errors.New("the game room with given id not found")
 )
 
 type GameRoomRepository interface {

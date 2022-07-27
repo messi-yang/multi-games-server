@@ -2,7 +2,7 @@ package reviveunitsusecase
 
 import (
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	unitspatterndto "github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/patterndto"
+	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/unitspatterndto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/coordinatesupdatedevent"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
@@ -39,7 +39,10 @@ func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTO coordinatedto.Coordin
 	}
 
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
-	gameRoomService.ReviveUnits(gameId, coordinates)
+	err := gameRoomService.ReviveUnits(gameId, coordinates)
+	if err != nil {
+		return err
+	}
 
 	coordinateDTOs := coordinatedto.ToDTOList(coordinates)
 	uc.coordinatesUpdatedEvent.Publish(gameId, coordinateDTOs)
