@@ -5,7 +5,6 @@ import (
 
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
 	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/unitspatterndto"
 )
 
 type actionType string
@@ -48,8 +47,7 @@ func extractWatchAreaActionFromMessage(msg []byte) (*watchAreaAction, error) {
 }
 
 type reviveUnitsActionPayload struct {
-	Coordinate coordinatedto.CoordinateDTO     `json:"coordinate"`
-	Pattern    unitspatterndto.UnitsPatternDTO `json:"pattern"`
+	Coordinates []coordinatedto.CoordinateDTO `json:"coordinates"`
 }
 type reviveUnitsAction struct {
 	Type    actionType               `json:"type"`

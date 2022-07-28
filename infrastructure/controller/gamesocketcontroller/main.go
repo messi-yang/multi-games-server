@@ -162,7 +162,7 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	coordinatesUpdatedEventBus := coordinatesupdatedeventbus.GetCoordinatesUpdatedEventBus()
-	err = reviveunitsusecase.New(gameRoomMemory, coordinatesUpdatedEventBus).Execute(gameId, reviveUnitsAction.Payload.Coordinate, reviveUnitsAction.Payload.Pattern)
+	err = reviveunitsusecase.New(gameRoomMemory, coordinatesUpdatedEventBus).Execute(gameId, reviveUnitsAction.Payload.Coordinates)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 	}
