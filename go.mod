@@ -1,4 +1,4 @@
-module github.com/DumDumGeniuss/game-of-liberty-computer
+module github.com/dum-dum-genius/game-of-liberty-computer
 
 go 1.18
 

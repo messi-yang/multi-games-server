@@ -5,10 +5,10 @@ import (
 	"math/rand"
 	"sync"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/DumDumGeniuss/ggol"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 

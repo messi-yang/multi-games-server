@@ -3,11 +3,11 @@ package gamecomputejob
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gamecomputedevent"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/usecase/computeallgamesusecase"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/memory/gameroommemory"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/computeallgamesusecase"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 )
 
 type GameComputeJob interface {

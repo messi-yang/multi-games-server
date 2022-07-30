@@ -1,11 +1,11 @@
 package creategameroomusecase
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/infrastructure/config"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/service/gameroomservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
 )
 
 type useCase struct {

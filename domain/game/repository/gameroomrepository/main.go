@@ -3,8 +3,8 @@ package gameroomrepository
 import (
 	"errors"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/aggregate"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 

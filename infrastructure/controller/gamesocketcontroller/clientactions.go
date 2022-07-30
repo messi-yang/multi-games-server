@@ -3,8 +3,8 @@ package gamesocketcontroller
 import (
 	"encoding/json"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 )
 
 type actionType string

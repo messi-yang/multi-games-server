@@ -1,10 +1,10 @@
 package gamesocketcontroller
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/areadto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/mapsizedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/unitdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 )
 
 type eventType string

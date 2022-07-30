@@ -1,8 +1,8 @@
 package gameroomdto
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/gamedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/gamedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
 )
 
 type GameRoomDTO struct {

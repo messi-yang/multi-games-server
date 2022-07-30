@@ -1,6 +1,6 @@
 package unitdto
 
-import "github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
+import "github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 
 type UnitDTO struct {
 	Alive bool `json:"alive"`

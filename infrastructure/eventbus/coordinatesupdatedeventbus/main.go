@@ -3,9 +3,9 @@ package coordinatesupdatedeventbus
 import (
 	"fmt"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/coordinatesupdatedevent"
 	"github.com/asaskevich/EventBus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/coordinatesupdatedevent"
 	"github.com/google/uuid"
 )
 

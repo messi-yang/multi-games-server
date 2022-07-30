@@ -1,8 +1,8 @@
 package getgameroomusecase
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/gameroomdto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/gameroomdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/google/uuid"
 )
 

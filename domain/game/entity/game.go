@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 

@@ -3,8 +3,8 @@ package gamecomputedeventbus
 import (
 	"fmt"
 
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/asaskevich/EventBus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/google/uuid"
 )
 

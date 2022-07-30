@@ -1,10 +1,10 @@
 package reviveunitsusecase
 
 import (
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/application/event/coordinatesupdatedevent"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/DumDumGeniuss/game-of-liberty-computer/domain/game/service/gameroomservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/coordinatesupdatedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/google/uuid"
 )
 
