@@ -3,7 +3,7 @@ module github.com/DumDumGeniuss/game-of-liberty-computer
 go 1.18
 
 require (
-	github.com/DumDumGeniuss/ggol v0.2.5
+	github.com/DumDumGeniuss/ggol v0.3.0
 	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef
 	github.com/gin-gonic/gin v1.7.7
 	github.com/google/uuid v1.3.0
