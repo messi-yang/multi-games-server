@@ -58,13 +58,15 @@ func (gr *GameRoom) UpdateUnitMap(unitMap [][]valueobject.Unit) error {
 }
 
 func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) ([][]valueobject.Unit, error) {
+	offsetX := area.GetFrom().GetX()
+	offsetY := area.GetFrom().GetY()
 	width := area.GetTo().GetX() - area.GetFrom().GetX() + 1
 	height := area.GetTo().GetY() - area.GetFrom().GetY() + 1
 	gameMap := make([][]valueobject.Unit, width)
 	for x := 0; x < width; x += 1 {
 		gameMap[x] = make([]valueobject.Unit, height)
 		for y := 0; y < height; y += 1 {
-			gameMap[x][y] = gr.game.UnitMap[x][y]
+			gameMap[x][y] = gr.game.UnitMap[x+offsetX][y+offsetY]
 		}
 	}
 
