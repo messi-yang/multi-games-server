@@ -49,5 +49,5 @@ docker-compose up dev
 ### Start production server with Docker
 
 ```bash
-docker-compose up
+docker-compose up app
 ```

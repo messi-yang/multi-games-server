@@ -14,7 +14,7 @@ dev: install-air
 	air
 
 # .PHONY: start
-start: build
+start:
 	./${BUILD_FOLDER}/${BINARY_NAME}
 
 # .PHONY: clean
