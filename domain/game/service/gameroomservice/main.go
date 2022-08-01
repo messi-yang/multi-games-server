@@ -1,7 +1,6 @@
 package gameroomservice
 
 import (
-	"errors"
 	"math/rand"
 	"sync"
 
@@ -10,10 +9,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
-)
-
-var (
-	ErrCoordinatesAreInvalid = errors.New("coordinates are not valid")
 )
 
 type GameRoomService interface {
@@ -83,16 +78,6 @@ func (gsi *gameRoomServiceImplement) GenerateNextUnitMap(gameId uuid.UUID) error
 func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
-
-	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
-	if err != nil {
-		return err
-	}
-
-	areCoordinatesValid := gameRoom.AreCoordinatesValid(coordinates)
-	if !areCoordinatesValid {
-		return ErrCoordinatesAreInvalid
-	}
 
 	for _, coord := range coordinates {
 		nextUnit := valueobject.NewUnit(true, 0)
