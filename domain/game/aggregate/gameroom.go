@@ -82,6 +82,29 @@ func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobje
 	return nil
 }
 
+func (gr *GameRoom) GetCoordinatesInArea(coordinates []valueobject.Coordinate, area valueobject.Area) []valueobject.Coordinate {
+	coordinatesInArea := make([]valueobject.Coordinate, 0)
+	for _, coordinate := range coordinates {
+		if gr.isCoordinateInArea(coordinate, area) {
+			coordinatesInArea = append(coordinatesInArea, coordinate)
+		}
+	}
+
+	return coordinatesInArea
+}
+
+func (gr *GameRoom) isCoordinateInArea(coordinate valueobject.Coordinate, area valueobject.Area) bool {
+	x := coordinate.GetX()
+	y := coordinate.GetY()
+	if x < area.GetFrom().GetX() || x > area.GetTo().GetX() {
+		return false
+	}
+	if y < area.GetFrom().GetY() || y > area.GetTo().GetY() {
+		return false
+	}
+	return true
+}
+
 func (gr *GameRoom) adjustCoordinate(coordinate valueobject.Coordinate) valueobject.Coordinate {
 	adjustedX := coordinate.GetX()
 	adjustedY := coordinate.GetY()

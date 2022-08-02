@@ -7,6 +7,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getcoordinatesinareausecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getgameroomusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitmapusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitsusecase"
@@ -125,8 +126,9 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 
 func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	unitDTOs, _ := getunitsusecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs)
-	coordinatesUpdatedEvent := constructCoordinatesUpdatedEvent(coordinateDTOs, unitDTOs)
+	coordinateDTOsInAreaDTO, _ := getcoordinatesinareausecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs, *session.gameAreaToWatch)
+	unitDTOs, _ := getunitsusecase.New(gameRoomMemory).Execute(gameId, coordinateDTOsInAreaDTO)
+	coordinatesUpdatedEvent := constructCoordinatesUpdatedEvent(coordinateDTOsInAreaDTO, unitDTOs)
 	sendJSONMessageToClient(conn, session, coordinatesUpdatedEvent)
 }
 
