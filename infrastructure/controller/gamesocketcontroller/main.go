@@ -125,6 +125,10 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 }
 
 func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
+	if session.gameAreaToWatch == nil {
+		return
+	}
+
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	coordinateDTOsInAreaDTO, _ := getcoordinatesinareausecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs, *session.gameAreaToWatch)
 	unitDTOs, _ := getunitsusecase.New(gameRoomMemory).Execute(gameId, coordinateDTOsInAreaDTO)
