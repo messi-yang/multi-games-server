@@ -91,7 +91,7 @@ func Controller(c *gin.Context) {
 
 			switch *actionType {
 			case watchAreaActionType:
-				handleWatchAreaAction(conn, session, message)
+				handleWatchAreaAction(conn, session, message, gameId)
 			case reviveUnitsActionType:
 				handleReviveUnitsAction(conn, session, message, gameId)
 			default:
@@ -167,12 +167,14 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UU
 	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
 }
 
-func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byte) {
+func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
 	watchAreaAction, err := extractWatchAreaActionFromMessage(message)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 	}
 	session.gameAreaToWatch = &watchAreaAction.Payload.Area
+
+	emitAreaUpdatedEvent(conn, session, gameId)
 }
 
 func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
