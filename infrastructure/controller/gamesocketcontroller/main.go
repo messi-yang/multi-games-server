@@ -1,6 +1,9 @@
 package gamesocketcontroller
 
 import (
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
@@ -103,11 +106,23 @@ func Controller(c *gin.Context) {
 	}
 }
 
+func gzipData(data []byte) (compressedData []byte) {
+	var b bytes.Buffer
+	gz := gzip.NewWriter(&b)
+	gz.Write(data)
+	gz.Flush()
+	gz.Close()
+
+	return b.Bytes()
+}
+
 func sendJSONMessageToClient(conn *websocket.Conn, session *session, message any) {
 	session.socketLocker.Lock()
 	defer session.socketLocker.Unlock()
 
-	conn.WriteJSON(message)
+	messageJsonInBytes, _ := json.Marshal(message)
+
+	conn.WriteMessage(2, gzipData(messageJsonInBytes))
 }
 
 func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
