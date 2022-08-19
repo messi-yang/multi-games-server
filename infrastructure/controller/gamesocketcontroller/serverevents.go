@@ -70,20 +70,20 @@ func constructCoordinatesUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateD
 }
 
 type areaUpdatedEventPayload struct {
-	Area  areadto.AreaDTO     `json:"area"`
-	Units [][]unitdto.UnitDTO `json:"units"`
+	Area    areadto.AreaDTO     `json:"area"`
+	UnitMap [][]unitdto.UnitDTO `json:"unitMap"`
 }
 type areaUpdatedEvent struct {
 	Type    eventType               `json:"type"`
 	Payload areaUpdatedEventPayload `json:"payload"`
 }
 
-func constructAreaUpdatedEvent(gameAreaDTO areadto.AreaDTO, units [][]unitdto.UnitDTO) *areaUpdatedEvent {
+func constructAreaUpdatedEvent(gameAreaDTO areadto.AreaDTO, unitMap [][]unitdto.UnitDTO) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{
-			Area:  gameAreaDTO,
-			Units: units,
+			Area:    gameAreaDTO,
+			UnitMap: unitMap,
 		},
 	}
 }
