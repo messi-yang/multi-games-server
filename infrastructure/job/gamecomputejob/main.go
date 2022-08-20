@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/computeallgamesusecase"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/tickallunitmapssusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
@@ -49,7 +49,7 @@ func (gwi *gameComputeJobImpl) Start() {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				computeAllGamesUseCase := computeallgamesusecase.New(gwi.gameRoomRepository, gwi.gameComputeEventBus)
+				computeAllGamesUseCase := tickallunitmapssusecase.New(gwi.gameRoomRepository, gwi.gameComputeEventBus)
 				computeAllGamesUseCase.Execute()
 			case <-gwi.gameTickerStop:
 				gwi.gameTicker.Stop()

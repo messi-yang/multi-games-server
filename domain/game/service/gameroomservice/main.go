@@ -13,7 +13,7 @@ import (
 
 type GameRoomService interface {
 	CreateGameRoom(mapSize valueobject.MapSize) (*aggregate.GameRoom, error)
-	GenerateNextUnitMap(gameId uuid.UUID) error
+	TickUnitMap(gameId uuid.UUID) error
 	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) error
 }
 
@@ -52,7 +52,7 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	return &gameRoom, nil
 }
 
-func (gsi *gameRoomServiceImplement) GenerateNextUnitMap(gameId uuid.UUID) error {
+func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) error {
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 

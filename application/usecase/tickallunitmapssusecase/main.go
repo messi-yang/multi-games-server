@@ -1,4 +1,4 @@
-package computeallgamesusecase
+package tickallunitmapssusecase
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
@@ -22,7 +22,7 @@ func (uc *useCase) Execute() {
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
 	gameRooms := uc.gameRoomRepository.GetAll()
 	for _, gameRoom := range gameRooms {
-		gameRoomService.GenerateNextUnitMap(gameRoom.GetGameId())
+		gameRoomService.TickUnitMap(gameRoom.GetGameId())
 		uc.gameComputeEvent.Publish(gameRoom.GetGameId())
 	}
 }
