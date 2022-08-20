@@ -8,7 +8,6 @@ import (
 type Game struct {
 	id      uuid.UUID
 	unitMap [][]valueobject.Unit
-	mapSize valueobject.MapSize
 }
 
 func NewGame() Game {
@@ -16,7 +15,6 @@ func NewGame() Game {
 	return Game{
 		id:      id,
 		unitMap: make([][]valueobject.Unit, 0),
-		mapSize: valueobject.NewMapSize(0, 0),
 	}
 }
 
@@ -32,10 +30,6 @@ func (g *Game) SetUnitMap(newUnitMap [][]valueobject.Unit) {
 	g.unitMap = newUnitMap
 }
 
-func (g *Game) GetMapSize() valueobject.MapSize {
-	return g.mapSize
-}
-
-func (g *Game) SetMapSize(newMapSize valueobject.MapSize) {
-	g.mapSize = newMapSize
+func (g *Game) GetUnitMapSize() valueobject.MapSize {
+	return valueobject.NewMapSize(len(g.unitMap), len(g.unitMap[0]))
 }

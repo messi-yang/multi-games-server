@@ -46,10 +46,6 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 		}
 	}
 	gameRoom := aggregate.NewGameRoom()
-	err := gameRoom.UpdateGameMapSize(mapSize)
-	if err != nil {
-		return nil, err
-	}
 	gameRoom.UpdateUnitMap(unitMap)
 	gsi.gameRoomRepository.Add(gameRoom)
 

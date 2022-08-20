@@ -32,16 +32,8 @@ func (gr *GameRoom) GetGameId() uuid.UUID {
 	return gr.game.GetId()
 }
 
-func (gr *GameRoom) GetGameMapSize() valueobject.MapSize {
-	return gr.game.GetMapSize()
-}
-
-func (gr *GameRoom) UpdateGameMapSize(mapSize valueobject.MapSize) error {
-	if !gr.isMapSizeValid(mapSize) {
-		return ErrInvalidMapSize
-	}
-	gr.game.SetMapSize(mapSize)
-	return nil
+func (gr *GameRoom) GetUnitMapSize() valueobject.MapSize {
+	return gr.game.GetUnitMapSize()
 }
 
 func (gr *GameRoom) GetUnitMap() [][]valueobject.Unit {
@@ -106,18 +98,11 @@ func (gr *GameRoom) FilterCoordinatesWithArea(coordinates []valueobject.Coordina
 	return coordinatesInArea, nil
 }
 
-func (gr *GameRoom) isMapSizeValid(mapSize valueobject.MapSize) bool {
-	if mapSize.GetHeight() <= 0 || mapSize.GetWidth() <= 0 {
-		return false
-	}
-	return true
-}
-
 func (gr *GameRoom) isCoordinateValid(coord valueobject.Coordinate) bool {
-	if coord.GetX() < 0 || coord.GetX() >= gr.GetGameMapSize().GetWidth() {
+	if coord.GetX() < 0 || coord.GetX() >= gr.GetUnitMapSize().GetWidth() {
 		return false
 	}
-	if coord.GetY() < 0 || coord.GetY() >= gr.GetGameMapSize().GetHeight() {
+	if coord.GetY() < 0 || coord.GetY() >= gr.GetUnitMapSize().GetHeight() {
 		return false
 	}
 	return true
@@ -140,7 +125,7 @@ func (gr *GameRoom) isAreaValid(area valueobject.Area) bool {
 	areaWidth := area.GetTo().GetX() - area.GetFrom().GetX()
 	areaHeght := area.GetTo().GetY() - area.GetFrom().GetY()
 
-	if areaWidth > gr.GetGameMapSize().GetWidth() || areaHeght > gr.GetGameMapSize().GetHeight() {
+	if areaWidth > gr.GetUnitMapSize().GetWidth() || areaHeght > gr.GetUnitMapSize().GetHeight() {
 		return false
 	}
 	return true
@@ -161,8 +146,8 @@ func (gr *GameRoom) isCoordinateInArea(coordinate valueobject.Coordinate, area v
 func (gr *GameRoom) adjustCoordinate(coordinate valueobject.Coordinate) valueobject.Coordinate {
 	adjustedX := coordinate.GetX()
 	adjustedY := coordinate.GetY()
-	mapWidth := gr.GetGameMapSize().GetWidth()
-	mapHeight := gr.GetGameMapSize().GetHeight()
+	mapWidth := gr.GetUnitMapSize().GetWidth()
+	mapHeight := gr.GetUnitMapSize().GetHeight()
 
 	for adjustedX < 0 {
 		adjustedX += mapWidth

@@ -17,6 +17,6 @@ func ToDTO(game entity.Game) GameDTO {
 	return GameDTO{
 		Id:      game.GetId(),
 		UnitMap: unitdto.ToDTOMap(game.GetUnitMap()),
-		MapSize: mapsizedto.ToDTO(game.GetMapSize()),
+		MapSize: mapsizedto.ToDTO(game.GetUnitMapSize()),
 	}
 }
