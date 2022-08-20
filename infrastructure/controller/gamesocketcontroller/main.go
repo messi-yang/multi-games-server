@@ -154,7 +154,11 @@ func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId 
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	coordinateDTOsInAreaDTO, _ := getcoordinatesinareausecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs, *session.gameAreaToWatch)
+	coordinateDTOsInAreaDTO, err := getcoordinatesinareausecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs, *session.gameAreaToWatch)
+	if err != nil {
+		emitErrorEvent(conn, session, err)
+		return
+	}
 	unitDTOs, _ := getunitsusecase.New(gameRoomMemory).Execute(gameId, coordinateDTOsInAreaDTO)
 	coordinatesUpdatedEvent := constructCoordinatesUpdatedEvent(coordinateDTOsInAreaDTO, unitDTOs)
 	sendJSONMessageToClient(conn, session, coordinatesUpdatedEvent)

@@ -10,7 +10,10 @@ import (
 
 func main() {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameRoom := creategameroomusecase.New(gameRoomMemory).Execute()
+	gameRoom, err := creategameroomusecase.New(gameRoomMemory).Execute()
+	if err != nil {
+		panic(err.Error())
+	}
 
 	config.GetConfig().SetGameId(gameRoom.GetGameId())
 

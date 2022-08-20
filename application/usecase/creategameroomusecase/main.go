@@ -18,10 +18,13 @@ func New(gameRoomRepository gameroomrepository.GameRoomRepository) *useCase {
 	}
 }
 
-func (uc *useCase) Execute() aggregate.GameRoom {
+func (uc *useCase) Execute() (aggregate.GameRoom, error) {
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
 	size := config.GetConfig().GetGameMapSize()
 	mapSize := valueobject.NewMapSize(size, size)
-	gameRoom := gameRoomService.CreateGameRoom(mapSize)
-	return *gameRoom
+	gameRoom, err := gameRoomService.CreateGameRoom(mapSize)
+	if err != nil {
+		return aggregate.GameRoom{}, err
+	}
+	return *gameRoom, nil
 }

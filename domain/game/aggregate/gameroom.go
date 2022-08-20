@@ -1,9 +1,16 @@
 package aggregate
 
 import (
+	"errors"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrInvalidMapSize = errors.New("width or height of map size cannot be smaller than 1")
+	ErrInvalidArea    = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
 )
 
 type GameRoom struct {
@@ -30,6 +37,9 @@ func (gr *GameRoom) GetGameMapSize() valueobject.MapSize {
 }
 
 func (gr *GameRoom) UpdateGameMapSize(mapSize valueobject.MapSize) error {
+	if !gr.isMapSizeValid(mapSize) {
+		return ErrInvalidMapSize
+	}
 	gr.game.MapSize = mapSize
 	return nil
 }
@@ -38,12 +48,14 @@ func (gr *GameRoom) GetUnitMap() [][]valueobject.Unit {
 	return gr.game.UnitMap
 }
 
-func (gr *GameRoom) UpdateUnitMap(unitMap [][]valueobject.Unit) error {
+func (gr *GameRoom) UpdateUnitMap(unitMap [][]valueobject.Unit) {
 	gr.game.UnitMap = unitMap
-	return nil
 }
 
 func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) ([][]valueobject.Unit, error) {
+	if !gr.isAreaValid(area) {
+		return nil, ErrInvalidArea
+	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
 	width := area.GetTo().GetX() - area.GetFrom().GetX() + 1
@@ -75,14 +87,15 @@ func (gr *GameRoom) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit 
 	return gr.game.UnitMap[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()]
 }
 
-func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) error {
+func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
 	adjustedCoordinate := gr.adjustCoordinate(coordinate)
 	gr.game.UnitMap[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()] = unit
-
-	return nil
 }
 
-func (gr *GameRoom) GetCoordinatesInArea(coordinates []valueobject.Coordinate, area valueobject.Area) []valueobject.Coordinate {
+func (gr *GameRoom) FilterCoordinatesWithArea(coordinates []valueobject.Coordinate, area valueobject.Area) ([]valueobject.Coordinate, error) {
+	if !gr.isAreaValid(area) {
+		return nil, ErrInvalidArea
+	}
 	coordinatesInArea := make([]valueobject.Coordinate, 0)
 	for _, coordinate := range coordinates {
 		if gr.isCoordinateInArea(coordinate, area) {
@@ -90,7 +103,47 @@ func (gr *GameRoom) GetCoordinatesInArea(coordinates []valueobject.Coordinate, a
 		}
 	}
 
-	return coordinatesInArea
+	return coordinatesInArea, nil
+}
+
+func (gr *GameRoom) isMapSizeValid(mapSize valueobject.MapSize) bool {
+	if mapSize.GetHeight() <= 0 || mapSize.GetWidth() <= 0 {
+		return false
+	}
+	return true
+}
+
+func (gr *GameRoom) isCoordinateValid(coord valueobject.Coordinate) bool {
+	if coord.GetX() < 0 || coord.GetX() >= gr.GetGameMapSize().GetWidth() {
+		return false
+	}
+	if coord.GetY() < 0 || coord.GetY() >= gr.GetGameMapSize().GetHeight() {
+		return false
+	}
+	return true
+}
+
+func (gr *GameRoom) isAreaValid(area valueobject.Area) bool {
+	if !gr.isCoordinateValid(area.GetFrom()) {
+		return false
+	}
+	if !gr.isCoordinateValid(area.GetTo()) {
+		return false
+	}
+	if area.GetFrom().GetX() > area.GetTo().GetX() {
+		return false
+	}
+	if area.GetFrom().GetY() > area.GetTo().GetY() {
+		return false
+	}
+
+	areaWidth := area.GetTo().GetX() - area.GetFrom().GetX()
+	areaHeght := area.GetTo().GetY() - area.GetFrom().GetY()
+
+	if areaWidth > gr.GetGameMapSize().GetWidth() || areaHeght > gr.GetGameMapSize().GetHeight() {
+		return false
+	}
+	return true
 }
 
 func (gr *GameRoom) isCoordinateInArea(coordinate valueobject.Coordinate, area valueobject.Area) bool {
