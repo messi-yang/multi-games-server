@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"sync"
 
@@ -23,6 +24,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
+
+func ungzipData(compressedData []byte) (data []byte) {
+	gunzip, _ := gzip.NewReader(bytes.NewBuffer(compressedData))
+	defer gunzip.Close()
+	data, _ = ioutil.ReadAll(gunzip)
+	return data
+}
+
+func gzipData(data []byte) (compressedData []byte) {
+	var b bytes.Buffer
+	gz := gzip.NewWriter(&b)
+	gz.Write(data)
+	gz.Flush()
+	gz.Close()
+
+	return b.Bytes()
+}
 
 type session struct {
 	gameAreaToWatch *areadto.AreaDTO
@@ -77,12 +95,13 @@ func Controller(c *gin.Context) {
 		}()
 
 		for {
-			_, message, err := conn.ReadMessage()
+			_, compressedMessage, err := conn.ReadMessage()
 			if err != nil {
 				emitErrorEvent(conn, session, err)
 				break
 			}
 
+			message := ungzipData(compressedMessage)
 			actionType, err := getActionTypeFromMessage(message)
 			if err != nil {
 				emitErrorEvent(conn, session, err)
@@ -104,16 +123,6 @@ func Controller(c *gin.Context) {
 		fmt.Println("Player left")
 		return
 	}
-}
-
-func gzipData(data []byte) (compressedData []byte) {
-	var b bytes.Buffer
-	gz := gzip.NewWriter(&b)
-	gz.Write(data)
-	gz.Flush()
-	gz.Close()
-
-	return b.Bytes()
 }
 
 func sendJSONMessageToClient(conn *websocket.Conn, session *session, message any) {
