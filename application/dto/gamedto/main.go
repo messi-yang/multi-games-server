@@ -15,8 +15,8 @@ type GameDTO struct {
 
 func ToDTO(game entity.Game) GameDTO {
 	return GameDTO{
-		Id:      game.Id,
-		UnitMap: unitdto.ToDTOMap(game.UnitMap),
-		MapSize: mapsizedto.ToDTO(game.MapSize),
+		Id:      game.GetId(),
+		UnitMap: unitdto.ToDTOMap(game.GetUnitMap()),
+		MapSize: mapsizedto.ToDTO(game.GetMapSize()),
 	}
 }

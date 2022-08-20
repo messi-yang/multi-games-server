@@ -29,27 +29,27 @@ func (gr *GameRoom) GetGame() entity.Game {
 }
 
 func (gr *GameRoom) GetGameId() uuid.UUID {
-	return gr.game.Id
+	return gr.game.GetId()
 }
 
 func (gr *GameRoom) GetGameMapSize() valueobject.MapSize {
-	return gr.game.MapSize
+	return gr.game.GetMapSize()
 }
 
 func (gr *GameRoom) UpdateGameMapSize(mapSize valueobject.MapSize) error {
 	if !gr.isMapSizeValid(mapSize) {
 		return ErrInvalidMapSize
 	}
-	gr.game.MapSize = mapSize
+	gr.game.SetMapSize(mapSize)
 	return nil
 }
 
 func (gr *GameRoom) GetUnitMap() [][]valueobject.Unit {
-	return gr.game.UnitMap
+	return gr.game.GetUnitMap()
 }
 
 func (gr *GameRoom) UpdateUnitMap(unitMap [][]valueobject.Unit) {
-	gr.game.UnitMap = unitMap
+	gr.game.SetUnitMap(unitMap)
 }
 
 func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) ([][]valueobject.Unit, error) {
@@ -64,7 +64,7 @@ func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) ([][]valueobject.U
 	for x := 0; x < width; x += 1 {
 		gameMap[x] = make([]valueobject.Unit, height)
 		for y := 0; y < height; y += 1 {
-			gameMap[x][y] = gr.game.UnitMap[x+offsetX][y+offsetY]
+			gameMap[x][y] = gr.game.GetUnitMap()[x+offsetX][y+offsetY]
 		}
 	}
 
@@ -75,7 +75,7 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 	units := make([]valueobject.Unit, 0)
 	for _, coord := range coordinates {
 		adjustedCoordinate := gr.adjustCoordinate(coord)
-		unit := gr.game.UnitMap[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()]
+		unit := gr.game.GetUnitMap()[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()]
 		units = append(units, unit)
 	}
 
@@ -84,12 +84,12 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 
 func (gr *GameRoom) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit {
 	adjustedCoordinate := gr.adjustCoordinate(coordinate)
-	return gr.game.UnitMap[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()]
+	return gr.game.GetUnitMap()[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()]
 }
 
 func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
 	adjustedCoordinate := gr.adjustCoordinate(coordinate)
-	gr.game.UnitMap[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()] = unit
+	gr.game.GetUnitMap()[adjustedCoordinate.GetX()][adjustedCoordinate.GetY()] = unit
 }
 
 func (gr *GameRoom) FilterCoordinatesWithArea(coordinates []valueobject.Coordinate, area valueobject.Area) ([]valueobject.Coordinate, error) {
