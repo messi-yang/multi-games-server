@@ -38,3 +38,14 @@ func (a Area) GetTo() Coordinate {
 func (a Area) IncludesCoordinate(coordinate Coordinate) bool {
 	return coordinate.x >= a.from.x && coordinate.x <= a.to.x && coordinate.y >= a.from.y && coordinate.y <= a.to.y
 }
+
+func (a Area) FilterCoordinates(coordinates []Coordinate) []Coordinate {
+	coordinatesInArea := make([]Coordinate, 0)
+	for _, coordinate := range coordinates {
+		if a.IncludesCoordinate(coordinate) {
+			coordinatesInArea = append(coordinatesInArea, coordinate)
+		}
+	}
+
+	return coordinatesInArea
+}

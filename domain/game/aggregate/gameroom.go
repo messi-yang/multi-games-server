@@ -74,20 +74,6 @@ func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobje
 	gr.game.SetUnit(adjustedCoordinate, unit)
 }
 
-func (gr *GameRoom) FilterCoordinatesWithArea(coordinates []valueobject.Coordinate, area valueobject.Area) ([]valueobject.Coordinate, error) {
-	if !gr.GetUnitMapSize().CoversArea(area) {
-		return nil, ErrAreaExceedsUnitMap
-	}
-	coordinatesInArea := make([]valueobject.Coordinate, 0)
-	for _, coordinate := range coordinates {
-		if area.IncludesCoordinate(coordinate) {
-			coordinatesInArea = append(coordinatesInArea, coordinate)
-		}
-	}
-
-	return coordinatesInArea, nil
-}
-
 func (gr *GameRoom) adjustCoordinate(coordinate valueobject.Coordinate) valueobject.Coordinate {
 	adjustedX := coordinate.GetX()
 	adjustedY := coordinate.GetY()

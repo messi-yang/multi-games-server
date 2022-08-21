@@ -30,11 +30,7 @@ func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.Coor
 		return nil, nil, err
 	}
 
-	coordinatesInArea, err := gameRoom.FilterCoordinatesWithArea(coordinates, area)
-	if err != nil {
-		return nil, nil, err
-	}
-
+	coordinatesInArea := area.FilterCoordinates(coordinates)
 	units, err := gameRoom.GetUnitsWithCoordinates(coordinatesInArea)
 	if err != nil {
 		return nil, nil, err
