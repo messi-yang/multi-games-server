@@ -1,4 +1,4 @@
-package gamecomputejob
+package tickunitmapjob
 
 import (
 	"time"
@@ -10,48 +10,48 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 )
 
-type GameComputeJob interface {
+type TickUnitMapJob interface {
 	Start()
 	Stop() error
 }
 
-type gameComputeJobImpl struct {
+type tickUnitMapJobImpl struct {
 	gameRoomRepository  gameroomrepository.GameRoomRepository
 	gameComputeEventBus gamecomputedevent.GameComputedEvent
 	gameTicker          *time.Ticker
-	gameTickerStop      chan bool
+	unitMapTickerStop   chan bool
 }
 
-var gameComputeJob *gameComputeJobImpl
+var tickUnitMapJob *tickUnitMapJobImpl
 
-func GetGameComputeJob() GameComputeJob {
-	if gameComputeJob == nil {
+func GetTickUnitMapJob() TickUnitMapJob {
+	if tickUnitMapJob == nil {
 		gameRoomMemory := gameroommemory.GetGameRoomMemory()
 		gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
 
-		gameComputeJob = &gameComputeJobImpl{
+		tickUnitMapJob = &tickUnitMapJobImpl{
 			gameRoomRepository:  gameRoomMemory,
 			gameComputeEventBus: gameComputeEventBus,
 		}
 
-		return gameComputeJob
+		return tickUnitMapJob
 	}
 
-	return gameComputeJob
+	return tickUnitMapJob
 }
 
-func (gwi *gameComputeJobImpl) Start() {
+func (gwi *tickUnitMapJobImpl) Start() {
 	go func() {
 		gwi.gameTicker = time.NewTicker(time.Millisecond * 1000)
 		defer gwi.gameTicker.Stop()
-		gwi.gameTickerStop = make(chan bool)
+		gwi.unitMapTickerStop = make(chan bool)
 
 		for {
 			select {
 			case <-gwi.gameTicker.C:
 				computeAllGamesUseCase := tickallunitmapssusecase.New(gwi.gameRoomRepository, gwi.gameComputeEventBus)
 				computeAllGamesUseCase.Execute()
-			case <-gwi.gameTickerStop:
+			case <-gwi.unitMapTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil
 			}
@@ -59,13 +59,13 @@ func (gwi *gameComputeJobImpl) Start() {
 	}()
 }
 
-func (gwi *gameComputeJobImpl) Stop() error {
+func (gwi *tickUnitMapJobImpl) Stop() error {
 	if gwi.gameTicker == nil {
 		return nil
 	}
 
-	gwi.gameTickerStop <- true
-	close(gwi.gameTickerStop)
+	gwi.unitMapTickerStop <- true
+	close(gwi.unitMapTickerStop)
 
 	return nil
 }
