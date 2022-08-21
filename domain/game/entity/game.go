@@ -5,18 +5,18 @@ import (
 	"github.com/google/uuid"
 )
 
-func getUnitMapSize(unitMap [][]valueobject.Unit) valueobject.MapSize {
+func getUnitMapSize(unitMap valueobject.UnitMap) valueobject.MapSize {
 	gameMapSize, _ := valueobject.NewMapSize(len(unitMap), len(unitMap[0]))
 	return gameMapSize
 }
 
 type Game struct {
 	id          uuid.UUID
-	unitMap     [][]valueobject.Unit
+	unitMap     valueobject.UnitMap
 	unitMapSize valueobject.MapSize
 }
 
-func NewGame(unitMap [][]valueobject.Unit) Game {
+func NewGame(unitMap valueobject.UnitMap) Game {
 	id, _ := uuid.NewUUID()
 	unitMapSize := getUnitMapSize(unitMap)
 	return Game{
@@ -30,11 +30,11 @@ func (g *Game) GetId() uuid.UUID {
 	return g.id
 }
 
-func (g *Game) GetUnitMap() [][]valueobject.Unit {
+func (g *Game) GetUnitMap() valueobject.UnitMap {
 	return g.unitMap
 }
 
-func (g *Game) SetUnitMap(newUnitMap [][]valueobject.Unit) {
+func (g *Game) SetUnitMap(newUnitMap valueobject.UnitMap) {
 	g.unitMap = newUnitMap
 	g.unitMapSize = getUnitMapSize(newUnitMap)
 }

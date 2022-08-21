@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
 )
 
 type eventType string
@@ -70,15 +71,15 @@ func constructCoordinatesUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateD
 }
 
 type areaUpdatedEventPayload struct {
-	Area    areadto.AreaDTO     `json:"area"`
-	UnitMap [][]unitdto.UnitDTO `json:"unitMap"`
+	Area    areadto.AreaDTO       `json:"area"`
+	UnitMap unitmapdto.UnitMapDTO `json:"unitMap"`
 }
 type areaUpdatedEvent struct {
 	Type    eventType               `json:"type"`
 	Payload areaUpdatedEventPayload `json:"payload"`
 }
 
-func constructAreaUpdatedEvent(gameAreaDTO areadto.AreaDTO, unitMap [][]unitdto.UnitDTO) *areaUpdatedEvent {
+func constructAreaUpdatedEvent(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.UnitMapDTO) *areaUpdatedEvent {
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{

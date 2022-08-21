@@ -57,7 +57,8 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) error {
 	}
 
 	unitMap := gameRoom.GetUnitMap()
-	gameOfLiberty, err := ggol.NewGame(&unitMap)
+	var unitMapForGgol [][]valueobject.Unit = unitMap
+	gameOfLiberty, err := ggol.NewGame(&unitMapForGgol)
 	if err != nil {
 		return err
 	}

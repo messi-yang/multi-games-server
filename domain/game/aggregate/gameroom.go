@@ -31,15 +31,15 @@ func (gr *GameRoom) GetUnitMapSize() valueobject.MapSize {
 	return gr.game.GetUnitMapSize()
 }
 
-func (gr *GameRoom) GetUnitMap() [][]valueobject.Unit {
+func (gr *GameRoom) GetUnitMap() valueobject.UnitMap {
 	return gr.game.GetUnitMap()
 }
 
-func (gr *GameRoom) UpdateUnitMap(unitMap [][]valueobject.Unit) {
+func (gr *GameRoom) UpdateUnitMap(unitMap valueobject.UnitMap) {
 	gr.game.SetUnitMap(unitMap)
 }
 
-func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) ([][]valueobject.Unit, error) {
+func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitMap, error) {
 	if !gr.isAreaValid(area) {
 		return nil, ErrInvalidArea
 	}
@@ -47,7 +47,7 @@ func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) ([][]valueobject.U
 	offsetY := area.GetFrom().GetY()
 	width := area.GetTo().GetX() - area.GetFrom().GetX() + 1
 	height := area.GetTo().GetY() - area.GetFrom().GetY() + 1
-	gameMap := make([][]valueobject.Unit, width)
+	gameMap := make(valueobject.UnitMap, width)
 	for x := 0; x < width; x += 1 {
 		gameMap[x] = make([]valueobject.Unit, height)
 		for y := 0; y < height; y += 1 {

@@ -27,32 +27,3 @@ func ToDTOList(units []valueobject.Unit) []UnitDTO {
 
 	return unitDTOs
 }
-
-func FromDTOMap(unitDTOMap [][]UnitDTO) [][]valueobject.Unit {
-	unitMap := make([][]valueobject.Unit, 0)
-
-	for i := 0; i < len(unitDTOMap); i += 1 {
-		unitMap = append(unitMap, make([]valueobject.Unit, 0))
-		for j := 0; j < len(unitDTOMap[i]); j += 1 {
-			unitMap[i] = append(unitMap[i], FromDTO(unitDTOMap[i][j]))
-		}
-	}
-
-	return unitMap
-}
-
-func ToDTOMap(units [][]valueobject.Unit) [][]UnitDTO {
-	unitDTOMap := make([][]UnitDTO, 0)
-
-	for i := 0; i < len(units); i += 1 {
-		unitDTOMap = append(unitDTOMap, make([]UnitDTO, 0))
-		for j := 0; j < len(units[i]); j += 1 {
-			unitDTOMap[i] = append(unitDTOMap[i], UnitDTO{
-				Alive: units[i][j].GetAlive(),
-				Age:   units[i][j].GetAge(),
-			})
-		}
-	}
-
-	return unitDTOMap
-}
