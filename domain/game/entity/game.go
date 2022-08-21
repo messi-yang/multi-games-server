@@ -31,5 +31,6 @@ func (g *Game) SetUnitMap(newUnitMap [][]valueobject.Unit) {
 }
 
 func (g *Game) GetUnitMapSize() valueobject.MapSize {
-	return valueobject.NewMapSize(len(g.unitMap), len(g.unitMap[0]))
+	gameMapSize, _ := valueobject.NewMapSize(len(g.unitMap), len(g.unitMap[0]))
+	return gameMapSize
 }

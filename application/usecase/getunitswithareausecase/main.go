@@ -25,7 +25,10 @@ func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.Coor
 	}
 
 	coordinates := coordinatedto.FromDTOList(coordinateDTOs)
-	area := areadto.FromDTO(areaDTO)
+	area, err := areadto.FromDTO(areaDTO)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	coordinatesInArea, err := gameRoom.FilterCoordinatesWithArea(coordinates, area)
 	if err != nil {

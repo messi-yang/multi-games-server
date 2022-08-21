@@ -23,7 +23,10 @@ func (uc *useCase) Execute(gameId uuid.UUID, areaDTO areadto.AreaDTO) ([][]unitd
 		return make([][]unitdto.UnitDTO, 0), err
 	}
 
-	area := areadto.FromDTO(areaDTO)
+	area, err := areadto.FromDTO(areaDTO)
+	if err != nil {
+		return nil, err
+	}
 	unitMap, err := gameRoom.GetUnitMapWithArea(area)
 	if err != nil {
 		return make([][]unitdto.UnitDTO, 0), err

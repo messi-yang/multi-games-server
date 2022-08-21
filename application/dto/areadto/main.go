@@ -10,9 +10,14 @@ type AreaDTO struct {
 	To   coordinatedto.CoordinateDTO `json:"to"`
 }
 
-func FromDTO(areaDTO AreaDTO) valueobject.Area {
-	return valueobject.NewArea(
+func FromDTO(areaDTO AreaDTO) (valueobject.Area, error) {
+	area, err := valueobject.NewArea(
 		coordinatedto.FromDTO(areaDTO.From),
 		coordinatedto.FromDTO(areaDTO.To),
 	)
+	if err != nil {
+		return valueobject.Area{}, err
+	}
+
+	return area, nil
 }

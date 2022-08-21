@@ -21,7 +21,11 @@ func New(gameRoomRepository gameroomrepository.GameRoomRepository) *useCase {
 func (uc *useCase) Execute() (gameId uuid.UUID, err error) {
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
 	size := config.GetConfig().GetGameMapSize()
-	mapSize := valueobject.NewMapSize(size, size)
+	mapSize, err := valueobject.NewMapSize(size, size)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
 	gameRoom, err := gameRoomService.CreateGameRoom(mapSize)
 	if err != nil {
 		return uuid.UUID{}, err
