@@ -69,11 +69,6 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 	return units, nil
 }
 
-func (gr *GameRoom) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit {
-	adjustedCoordinate := gr.adjustCoordinate(coordinate)
-	return gr.game.GetUnit(adjustedCoordinate)
-}
-
 func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
 	adjustedCoordinate := gr.adjustCoordinate(coordinate)
 	gr.game.SetUnit(adjustedCoordinate, unit)
