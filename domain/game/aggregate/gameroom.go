@@ -9,8 +9,7 @@ import (
 )
 
 var (
-	ErrInvalidMapSize = errors.New("width or height of map size cannot be smaller than 1")
-	ErrInvalidArea    = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
+	ErrAreaExceedsUnitMap = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
 )
 
 type GameRoom struct {
@@ -40,8 +39,8 @@ func (gr *GameRoom) UpdateUnitMap(unitMap valueobject.UnitMap) {
 }
 
 func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitMap, error) {
-	if !gr.isAreaValid(area) {
-		return nil, ErrInvalidArea
+	if !gr.GetUnitMapSize().CoversArea(area) {
+		return nil, ErrAreaExceedsUnitMap
 	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
@@ -81,8 +80,8 @@ func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobje
 }
 
 func (gr *GameRoom) FilterCoordinatesWithArea(coordinates []valueobject.Coordinate, area valueobject.Area) ([]valueobject.Coordinate, error) {
-	if !gr.isAreaValid(area) {
-		return nil, ErrInvalidArea
+	if !gr.GetUnitMapSize().CoversArea(area) {
+		return nil, ErrAreaExceedsUnitMap
 	}
 	coordinatesInArea := make([]valueobject.Coordinate, 0)
 	for _, coordinate := range coordinates {
@@ -92,39 +91,6 @@ func (gr *GameRoom) FilterCoordinatesWithArea(coordinates []valueobject.Coordina
 	}
 
 	return coordinatesInArea, nil
-}
-
-func (gr *GameRoom) isCoordinateValid(coord valueobject.Coordinate) bool {
-	if coord.GetX() < 0 || coord.GetX() >= gr.GetUnitMapSize().GetWidth() {
-		return false
-	}
-	if coord.GetY() < 0 || coord.GetY() >= gr.GetUnitMapSize().GetHeight() {
-		return false
-	}
-	return true
-}
-
-func (gr *GameRoom) isAreaValid(area valueobject.Area) bool {
-	if !gr.isCoordinateValid(area.GetFrom()) {
-		return false
-	}
-	if !gr.isCoordinateValid(area.GetTo()) {
-		return false
-	}
-	if area.GetFrom().GetX() > area.GetTo().GetX() {
-		return false
-	}
-	if area.GetFrom().GetY() > area.GetTo().GetY() {
-		return false
-	}
-
-	areaWidth := area.GetTo().GetX() - area.GetFrom().GetX()
-	areaHeght := area.GetTo().GetY() - area.GetFrom().GetY()
-
-	if areaWidth > gr.GetUnitMapSize().GetWidth() || areaHeght > gr.GetUnitMapSize().GetHeight() {
-		return false
-	}
-	return true
 }
 
 func (gr *GameRoom) adjustCoordinate(coordinate valueobject.Coordinate) valueobject.Coordinate {
