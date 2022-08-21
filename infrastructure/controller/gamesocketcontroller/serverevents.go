@@ -1,6 +1,8 @@
 package gamesocketcontroller
 
 import (
+	"time"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
@@ -54,6 +56,7 @@ func constructInformationUpdatedEvent(mapSizeDTO mapsizedto.MapSizeDTO) *informa
 type coordinatesUpdatedEventPayload struct {
 	Coordinates []coordinatedto.CoordinateDTO `json:"coordinates"`
 	Units       []unitdto.UnitDTO             `json:"units"`
+	UpdatedAt   time.Time                     `json:"updateAt"`
 }
 type coordinatesUpdatedEvent struct {
 	Type    eventType                      `json:"type"`
@@ -66,13 +69,15 @@ func constructCoordinatesUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateD
 		Payload: coordinatesUpdatedEventPayload{
 			Coordinates: coordinateDTOs,
 			Units:       unitDTOs,
+			UpdatedAt:   time.Now(),
 		},
 	}
 }
 
 type areaUpdatedEventPayload struct {
-	Area    areadto.AreaDTO       `json:"area"`
-	UnitMap unitmapdto.UnitMapDTO `json:"unitMap"`
+	Area      areadto.AreaDTO       `json:"area"`
+	UnitMap   unitmapdto.UnitMapDTO `json:"unitMap"`
+	UpdatedAt time.Time             `json:"updateAt"`
 }
 type areaUpdatedEvent struct {
 	Type    eventType               `json:"type"`
@@ -83,8 +88,9 @@ func constructAreaUpdatedEvent(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.U
 	return &areaUpdatedEvent{
 		Type: areaUpdatedEventType,
 		Payload: areaUpdatedEventPayload{
-			Area:    gameAreaDTO,
-			UnitMap: unitMap,
+			Area:      gameAreaDTO,
+			UnitMap:   unitMap,
+			UpdatedAt: time.Now(),
 		},
 	}
 }
