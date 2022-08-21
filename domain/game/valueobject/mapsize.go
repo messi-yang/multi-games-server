@@ -37,7 +37,7 @@ func (ms MapSize) GetHeight() int {
 	return ms.height
 }
 
-func (ms MapSize) CoversArea(area Area) bool {
+func (ms MapSize) IncludesArea(area Area) bool {
 	if area.from.x < 0 || area.from.x >= ms.width {
 		return false
 	}

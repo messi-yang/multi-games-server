@@ -39,7 +39,7 @@ func (gr *GameRoom) UpdateUnitMap(unitMap valueobject.UnitMap) {
 }
 
 func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitMap, error) {
-	if !gr.GetUnitMapSize().CoversArea(area) {
+	if !gr.GetUnitMapSize().IncludesArea(area) {
 		return nil, ErrAreaExceedsUnitMap
 	}
 	offsetX := area.GetFrom().GetX()
