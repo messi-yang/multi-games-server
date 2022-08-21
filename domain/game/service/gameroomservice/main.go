@@ -38,7 +38,7 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	unitMap := valueobject.NewUnitMapWithMapSize(mapSize)
+	unitMap := valueobject.NewUnitMap(mapSize)
 	game := entity.NewGame(unitMap)
 	gameRoom := aggregate.NewGameRoom(game)
 	gameRoom.UpdateUnitMap(unitMap)
