@@ -35,6 +35,14 @@ func (a Area) GetTo() Coordinate {
 	return a.to
 }
 
+func (a Area) GetWidth() int {
+	return a.to.x - a.from.x + 1
+}
+
+func (a Area) GetHeight() int {
+	return a.to.y - a.from.y + 1
+}
+
 func (a Area) IncludesCoordinate(coordinate Coordinate) bool {
 	return coordinate.x >= a.from.x && coordinate.x <= a.to.x && coordinate.y >= a.from.y && coordinate.y <= a.to.y
 }

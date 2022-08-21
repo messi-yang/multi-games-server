@@ -44,12 +44,12 @@ func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitM
 	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
-	width := area.GetTo().GetX() - area.GetFrom().GetX() + 1
-	height := area.GetTo().GetY() - area.GetFrom().GetY() + 1
-	gameMap := make(valueobject.UnitMap, width)
-	for x := 0; x < width; x += 1 {
-		gameMap[x] = make([]valueobject.Unit, height)
-		for y := 0; y < height; y += 1 {
+	areaWidth := area.GetWidth()
+	areaHeight := area.GetHeight()
+	gameMap := make(valueobject.UnitMap, areaWidth)
+	for x := 0; x < areaWidth; x += 1 {
+		gameMap[x] = make([]valueobject.Unit, areaHeight)
+		for y := 0; y < areaHeight; y += 1 {
 			coordinate := valueobject.NewCoordinate(x+offsetX, y+offsetY)
 			gameMap[x][y] = gr.game.GetUnit(coordinate)
 		}
