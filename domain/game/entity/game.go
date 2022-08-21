@@ -34,6 +34,14 @@ func (g *Game) GetUnitMap() valueobject.UnitMap {
 	return g.unitMap
 }
 
+func (g *Game) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit {
+	return g.unitMap[coordinate.GetX()][coordinate.GetY()]
+}
+
+func (g *Game) SetUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
+	g.unitMap[coordinate.GetX()][coordinate.GetY()] = unit
+}
+
 func (g *Game) SetUnitMap(newUnitMap valueobject.UnitMap) {
 	g.unitMap = newUnitMap
 	g.unitMapSize = getUnitMapSize(newUnitMap)
