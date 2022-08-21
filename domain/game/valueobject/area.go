@@ -34,3 +34,7 @@ func (a Area) GetFrom() Coordinate {
 func (a Area) GetTo() Coordinate {
 	return a.to
 }
+
+func (a Area) IncludesCoordinate(coordinate Coordinate) bool {
+	return coordinate.x >= a.from.x && coordinate.x <= a.to.x && coordinate.y >= a.from.y && coordinate.y <= a.to.y
+}

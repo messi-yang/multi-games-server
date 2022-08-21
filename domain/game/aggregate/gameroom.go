@@ -86,7 +86,7 @@ func (gr *GameRoom) FilterCoordinatesWithArea(coordinates []valueobject.Coordina
 	}
 	coordinatesInArea := make([]valueobject.Coordinate, 0)
 	for _, coordinate := range coordinates {
-		if gr.isCoordinateInArea(coordinate, area) {
+		if area.IncludesCoordinate(coordinate) {
 			coordinatesInArea = append(coordinatesInArea, coordinate)
 		}
 	}
@@ -122,18 +122,6 @@ func (gr *GameRoom) isAreaValid(area valueobject.Area) bool {
 	areaHeght := area.GetTo().GetY() - area.GetFrom().GetY()
 
 	if areaWidth > gr.GetUnitMapSize().GetWidth() || areaHeght > gr.GetUnitMapSize().GetHeight() {
-		return false
-	}
-	return true
-}
-
-func (gr *GameRoom) isCoordinateInArea(coordinate valueobject.Coordinate, area valueobject.Area) bool {
-	x := coordinate.GetX()
-	y := coordinate.GetY()
-	if x < area.GetFrom().GetX() || x > area.GetTo().GetX() {
-		return false
-	}
-	if y < area.GetFrom().GetY() || y > area.GetTo().GetY() {
 		return false
 	}
 	return true
