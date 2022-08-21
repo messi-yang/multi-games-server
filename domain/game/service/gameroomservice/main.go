@@ -6,6 +6,7 @@ import (
 
 	"github.com/DumDumGeniuss/ggol"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
@@ -45,7 +46,8 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 			unitMap[i][j] = valueobject.NewUnit(rand.Intn(2) == 0, 0)
 		}
 	}
-	gameRoom := aggregate.NewGameRoom()
+	game := entity.NewGame(unitMap)
+	gameRoom := aggregate.NewGameRoom(game)
 	gameRoom.UpdateUnitMap(unitMap)
 	gsi.gameRoomRepository.Add(gameRoom)
 

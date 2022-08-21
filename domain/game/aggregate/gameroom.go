@@ -17,15 +17,10 @@ type GameRoom struct {
 	game *entity.Game
 }
 
-func NewGameRoom() GameRoom {
-	newGame := entity.NewGame()
+func NewGameRoom(game entity.Game) GameRoom {
 	return GameRoom{
-		game: &newGame,
+		game: &game,
 	}
-}
-
-func (gr *GameRoom) GetGame() entity.Game {
-	return *gr.game
 }
 
 func (gr *GameRoom) GetGameId() uuid.UUID {

@@ -10,11 +10,11 @@ type Game struct {
 	unitMap [][]valueobject.Unit
 }
 
-func NewGame() Game {
+func NewGame(unitMap [][]valueobject.Unit) Game {
 	id, _ := uuid.NewUUID()
 	return Game{
 		id:      id,
-		unitMap: make([][]valueobject.Unit, 0),
+		unitMap: unitMap,
 	}
 }
 
