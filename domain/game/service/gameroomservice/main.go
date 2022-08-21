@@ -1,7 +1,6 @@
 package gameroomservice
 
 import (
-	"math/rand"
 	"sync"
 
 	"github.com/DumDumGeniuss/ggol"
@@ -39,13 +38,7 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	unitMap := make([][]valueobject.Unit, mapSize.GetWidth())
-	for i := 0; i < mapSize.GetWidth(); i += 1 {
-		unitMap[i] = make([]valueobject.Unit, mapSize.GetHeight())
-		for j := 0; j < mapSize.GetHeight(); j += 1 {
-			unitMap[i][j] = valueobject.NewUnit(rand.Intn(2) == 0, 0)
-		}
-	}
+	unitMap := valueobject.NewUnitMapWithMapSize(mapSize)
 	game := entity.NewGame(unitMap)
 	gameRoom := aggregate.NewGameRoom(game)
 	gameRoom.UpdateUnitMap(unitMap)
