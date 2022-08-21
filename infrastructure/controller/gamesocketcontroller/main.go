@@ -11,10 +11,9 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getcoordinatesinareausecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitmapsizeusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitmapusecase"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitsusecase"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitswithareausecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/reviveunitsusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/coordinatesupdatedeventbus"
@@ -154,13 +153,8 @@ func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId 
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	coordinateDTOsInAreaDTO, err := getcoordinatesinareausecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs, *session.gameAreaToWatch)
-	if err != nil {
-		emitErrorEvent(conn, session, err)
-		return
-	}
-	unitDTOs, _ := getunitsusecase.New(gameRoomMemory).Execute(gameId, coordinateDTOsInAreaDTO)
-	coordinatesUpdatedEvent := constructCoordinatesUpdatedEvent(coordinateDTOsInAreaDTO, unitDTOs)
+	coordinateDTOsOfUnits, unitDTOs, _ := getunitswithareausecase.New(gameRoomMemory).Execute(gameId, coordinateDTOs, *session.gameAreaToWatch)
+	coordinatesUpdatedEvent := constructCoordinatesUpdatedEvent(coordinateDTOsOfUnits, unitDTOs)
 	sendJSONMessageToClient(conn, session, coordinatesUpdatedEvent)
 }
 

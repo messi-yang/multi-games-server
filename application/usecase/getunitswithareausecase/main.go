@@ -1,8 +1,9 @@
-package getcoordinatesinareausecase
+package getunitswithareausecase
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/google/uuid"
 )
@@ -17,10 +18,10 @@ func New(gameRoomRepository gameroomrepository.GameRoomRepository) *useCase {
 	}
 }
 
-func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, areaDTO areadto.AreaDTO) ([]coordinatedto.CoordinateDTO, error) {
+func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, areaDTO areadto.AreaDTO) ([]coordinatedto.CoordinateDTO, []unitdto.UnitDTO, error) {
 	gameRoom, err := uc.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return make([]coordinatedto.CoordinateDTO, 0), err
+		return nil, nil, err
 	}
 
 	coordinates := coordinatedto.FromDTOList(coordinateDTOs)
@@ -28,9 +29,13 @@ func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.Coor
 
 	coordinatesInArea, err := gameRoom.FilterCoordinatesWithArea(coordinates, area)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	coordinateDTOsInArea := coordinatedto.ToDTOList(coordinatesInArea)
 
-	return coordinateDTOsInArea, nil
+	units, err := gameRoom.GetUnitsWithCoordinates(coordinatesInArea)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return coordinatedto.ToDTOList(coordinatesInArea), unitdto.ToDTOList(units), nil
 }
