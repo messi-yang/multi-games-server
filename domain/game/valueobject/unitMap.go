@@ -38,6 +38,7 @@ func (um UnitMap) GetUnit(coord Coordinate) Unit {
 	return um.unitMatrix[coord.x][coord.y]
 }
 
+// TODO - Ideally we shouldn't mutate the valueobject, but the array can be super huge!
 func (um UnitMap) SetUnit(coord Coordinate, unit Unit) {
 	um.unitMatrix[coord.x][coord.y] = unit
 }
