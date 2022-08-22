@@ -24,7 +24,11 @@ func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.Coor
 		return nil, nil, err
 	}
 
-	coordinates := coordinatedto.FromDTOList(coordinateDTOs)
+	coordinates, err := coordinatedto.FromDTOList(coordinateDTOs)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	area, err := areadto.FromDTO(areaDTO)
 	if err != nil {
 		return nil, nil, err

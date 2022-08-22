@@ -13,7 +13,7 @@ func ToDTO(unitMap valueobject.UnitMap) UnitMapDTO {
 	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
 		unitMapDTO = append(unitMapDTO, make([]unitdto.UnitDTO, 0))
 		for j := 0; j < unitMap.GetMapSize().GetHeight(); j += 1 {
-			coord := valueobject.NewCoordinate(i, j)
+			coord, _ := valueobject.NewCoordinate(i, j)
 			unit := unitMap.GetUnit(coord)
 			unitMapDTO[i] = append(unitMapDTO[i], unitdto.UnitDTO{
 				Alive: unit.GetAlive(),

@@ -21,10 +21,13 @@ func New(gameRoomRepository gameroomrepository.GameRoomRepository, coordinatesUp
 }
 
 func (uc *useCase) Execute(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error {
-	coordinates := coordinatedto.FromDTOList(coordinateDTOs)
+	coordinates, err := coordinatedto.FromDTOList(coordinateDTOs)
+	if err != nil {
+		return err
+	}
 
 	gameRoomService := gameroomservice.NewGameRoomService(uc.gameRoomRepository)
-	err := gameRoomService.ReviveUnits(gameId, coordinates)
+	err = gameRoomService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		return err
 	}

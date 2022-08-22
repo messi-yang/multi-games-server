@@ -11,9 +11,19 @@ type AreaDTO struct {
 }
 
 func FromDTO(areaDTO AreaDTO) (valueobject.Area, error) {
+	fromCoordinate, err := coordinatedto.FromDTO(areaDTO.From)
+	if err != nil {
+		return valueobject.Area{}, err
+	}
+
+	toCoordinate, err := coordinatedto.FromDTO(areaDTO.To)
+	if err != nil {
+		return valueobject.Area{}, err
+	}
+
 	area, err := valueobject.NewArea(
-		coordinatedto.FromDTO(areaDTO.From),
-		coordinatedto.FromDTO(areaDTO.To),
+		fromCoordinate,
+		toCoordinate,
 	)
 	if err != nil {
 		return valueobject.Area{}, err

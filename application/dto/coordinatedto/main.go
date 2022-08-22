@@ -7,19 +7,22 @@ type CoordinateDTO struct {
 	Y int `json:"y"`
 }
 
-func FromDTO(coordinateDTO CoordinateDTO) valueobject.Coordinate {
+func FromDTO(coordinateDTO CoordinateDTO) (valueobject.Coordinate, error) {
 	return valueobject.NewCoordinate(coordinateDTO.X, coordinateDTO.Y)
 }
 
-func FromDTOList(coordDTOs []CoordinateDTO) []valueobject.Coordinate {
+func FromDTOList(coordDTOs []CoordinateDTO) ([]valueobject.Coordinate, error) {
 	coordinates := make([]valueobject.Coordinate, 0)
 
 	for _, coord := range coordDTOs {
-		coordinate := valueobject.NewCoordinate(coord.X, coord.Y)
+		coordinate, err := valueobject.NewCoordinate(coord.X, coord.Y)
+		if err != nil {
+			return nil, err
+		}
 		coordinates = append(coordinates, coordinate)
 	}
 
-	return coordinates
+	return coordinates, nil
 }
 
 func ToDTOList(coordinates []valueobject.Coordinate) []CoordinateDTO {

@@ -50,7 +50,7 @@ func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitM
 	for x := 0; x < areaWidth; x += 1 {
 		unitMatrix[x] = make([]valueobject.Unit, areaHeight)
 		for y := 0; y < areaHeight; y += 1 {
-			coordinate := valueobject.NewCoordinate(x+offsetX, y+offsetY)
+			coordinate, _ := valueobject.NewCoordinate(x+offsetX, y+offsetY)
 			unitMatrix[x][y] = gr.game.GetUnit(coordinate)
 		}
 	}
@@ -104,7 +104,7 @@ func (gr *GameRoom) adjustCoordinate(coordinate valueobject.Coordinate) valueobj
 		adjustedY += mapHeight
 	}
 
-	adjustedCoordinate := valueobject.NewCoordinate(adjustedX%mapWidth, adjustedY%mapHeight)
+	adjustedCoordinate, _ := valueobject.NewCoordinate(adjustedX%mapWidth, adjustedY%mapHeight)
 
 	return adjustedCoordinate
 }
