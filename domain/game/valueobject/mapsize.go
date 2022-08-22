@@ -52,3 +52,14 @@ func (ms MapSize) IncludesArea(area Area) bool {
 	}
 	return true
 }
+
+func (ms MapSize) IncludesAllCoordinates(coordinates []Coordinate) bool {
+	includesAll := true
+	for _, coordinate := range coordinates {
+		if coordinate.x >= ms.width || coordinate.y >= ms.height {
+			includesAll = false
+		}
+	}
+
+	return includesAll
+}

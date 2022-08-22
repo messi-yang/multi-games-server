@@ -80,7 +80,10 @@ func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates [
 		return err
 	}
 
-	resCoords, resUnits := gameRoom.ReviveUnits(coordinates)
+	resCoords, resUnits, err := gameRoom.ReviveUnits(coordinates)
+	if err != nil {
+		return err
+	}
 	gsi.gameRoomRepository.UpdateUnits(gameId, resCoords, resUnits)
 
 	return nil

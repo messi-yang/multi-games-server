@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	ErrAreaExceedsUnitMap = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
+	ErrAreaExceedsUnitMap              = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
+	ErrSomeCoordinatesNotIncludedInMap = errors.New("some coordinates are not included in the unit map")
 )
 
 type GameRoom struct {
@@ -62,8 +63,7 @@ func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitM
 func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate) ([]valueobject.Unit, error) {
 	units := make([]valueobject.Unit, 0)
 	for _, coord := range coordinates {
-		adjustedCoordinate := gr.adjustCoordinate(coord)
-		unit := gr.game.GetUnit(adjustedCoordinate)
+		unit := gr.game.GetUnit(coord)
 		units = append(units, unit)
 	}
 
@@ -71,40 +71,19 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 }
 
 func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
-	adjustedCoordinate := gr.adjustCoordinate(coordinate)
-	gr.game.SetUnit(adjustedCoordinate, unit)
+	gr.game.SetUnit(coordinate, unit)
 }
 
-func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueobject.Coordinate, []valueobject.Unit) {
-	var adjustedCoordinates []valueobject.Coordinate
+func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueobject.Coordinate, []valueobject.Unit, error) {
+	if !gr.GetUnitMapSize().IncludesAllCoordinates(coordinates) {
+		return nil, nil, ErrSomeCoordinatesNotIncludedInMap
+	}
+	updatedUnits := make([]valueobject.Unit, 0)
 	for _, coordinate := range coordinates {
-		adjustedCoordinate := gr.adjustCoordinate(coordinate)
-		adjustedCoordinates = append(adjustedCoordinates, adjustedCoordinate)
-
-		unit := gr.game.GetUnit(adjustedCoordinate)
+		unit := gr.game.GetUnit(coordinate)
 		newUnit := unit.SetAlive(true)
-		gr.game.SetUnit(adjustedCoordinate, newUnit)
+		gr.game.SetUnit(coordinate, newUnit)
+		updatedUnits = append(updatedUnits, newUnit)
 	}
-
-	updatedUnits, _ := gr.GetUnitsWithCoordinates(adjustedCoordinates)
-	return adjustedCoordinates, updatedUnits
-}
-
-func (gr *GameRoom) adjustCoordinate(coordinate valueobject.Coordinate) valueobject.Coordinate {
-	adjustedX := coordinate.GetX()
-	adjustedY := coordinate.GetY()
-	mapWidth := gr.GetUnitMapSize().GetWidth()
-	mapHeight := gr.GetUnitMapSize().GetHeight()
-
-	for adjustedX < 0 {
-		adjustedX += mapWidth
-	}
-
-	for adjustedY < 0 {
-		adjustedY += mapHeight
-	}
-
-	adjustedCoordinate, _ := valueobject.NewCoordinate(adjustedX%mapWidth, adjustedY%mapHeight)
-
-	return adjustedCoordinate
+	return coordinates, updatedUnits, nil
 }
