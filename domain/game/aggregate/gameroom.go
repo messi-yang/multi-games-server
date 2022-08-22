@@ -75,6 +75,21 @@ func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobje
 	gr.game.SetUnit(adjustedCoordinate, unit)
 }
 
+func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueobject.Coordinate, []valueobject.Unit) {
+	var adjustedCoordinates []valueobject.Coordinate
+	for _, coordinate := range coordinates {
+		adjustedCoordinate := gr.adjustCoordinate(coordinate)
+		adjustedCoordinates = append(adjustedCoordinates, adjustedCoordinate)
+
+		unit := gr.game.GetUnit(adjustedCoordinate)
+		newUnit := unit.SetAlive(true)
+		gr.game.SetUnit(adjustedCoordinate, newUnit)
+	}
+
+	updatedUnits, _ := gr.GetUnitsWithCoordinates(adjustedCoordinates)
+	return adjustedCoordinates, updatedUnits
+}
+
 func (gr *GameRoom) adjustCoordinate(coordinate valueobject.Coordinate) valueobject.Coordinate {
 	adjustedX := coordinate.GetX()
 	adjustedY := coordinate.GetY()

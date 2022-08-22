@@ -75,10 +75,13 @@ func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates [
 	gsi.locker.Lock()
 	defer gsi.locker.Unlock()
 
-	for _, coord := range coordinates {
-		nextUnit := valueobject.NewUnit(true, 0)
-		gsi.gameRoomRepository.UpdateUnit(gameId, coord, nextUnit)
+	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
+	if err != nil {
+		return err
 	}
+
+	resCoords, resUnits := gameRoom.ReviveUnits(coordinates)
+	gsi.gameRoomRepository.UpdateUnits(gameId, resCoords, resUnits)
 
 	return nil
 }

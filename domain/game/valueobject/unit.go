@@ -19,3 +19,8 @@ func (gu Unit) GetAlive() bool {
 func (gu Unit) GetAge() int {
 	return gu.age
 }
+
+func (gu Unit) SetAlive(alive bool) Unit {
+	gu.alive = alive
+	return gu
+}
