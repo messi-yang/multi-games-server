@@ -10,12 +10,14 @@ type UnitMapDTO [][]unitdto.UnitDTO
 func ToDTO(unitMap valueobject.UnitMap) UnitMapDTO {
 	unitMapDTO := make(UnitMapDTO, 0)
 
-	for i := 0; i < len(unitMap); i += 1 {
+	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
 		unitMapDTO = append(unitMapDTO, make([]unitdto.UnitDTO, 0))
-		for j := 0; j < len(unitMap[i]); j += 1 {
+		for j := 0; j < unitMap.GetMapSize().GetHeight(); j += 1 {
+			coord := valueobject.NewCoordinate(i, j)
+			unit := unitMap.GetUnit(coord)
 			unitMapDTO[i] = append(unitMapDTO[i], unitdto.UnitDTO{
-				Alive: unitMap[i][j].GetAlive(),
-				Age:   unitMap[i][j].GetAge(),
+				Alive: unit.GetAlive(),
+				Age:   unit.GetAge(),
 			})
 		}
 	}

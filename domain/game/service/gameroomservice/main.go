@@ -57,15 +57,16 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) error {
 	}
 
 	unitMap := gameRoom.GetUnitMap()
-	var unitMapForGgol [][]valueobject.Unit = unitMap
-	gameOfLiberty, err := ggol.NewGame(&unitMapForGgol)
+	var unitMatrix [][]valueobject.Unit = unitMap.ToUnitMatrix()
+	gameOfLiberty, err := ggol.NewGame(&unitMatrix)
 	if err != nil {
 		return err
 	}
 	gameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
-	nextUnitMap := gameOfLiberty.GenerateNextUnits()
-	gsi.gameRoomRepository.UpdateUnitMap(gameId, *nextUnitMap)
+	nextUnitMatrix := gameOfLiberty.GenerateNextUnits()
+	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(*nextUnitMatrix)
+	gsi.gameRoomRepository.UpdateUnitMap(gameId, newUnitMap)
 
 	return nil
 }

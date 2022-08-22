@@ -6,23 +6,19 @@ import (
 )
 
 func getUnitMapSize(unitMap valueobject.UnitMap) valueobject.MapSize {
-	gameMapSize, _ := valueobject.NewMapSize(len(unitMap), len(unitMap[0]))
-	return gameMapSize
+	return unitMap.GetMapSize()
 }
 
 type Game struct {
-	id          uuid.UUID
-	unitMap     valueobject.UnitMap
-	unitMapSize valueobject.MapSize
+	id      uuid.UUID
+	unitMap valueobject.UnitMap
 }
 
 func NewGame(unitMap valueobject.UnitMap) Game {
 	id, _ := uuid.NewUUID()
-	unitMapSize := getUnitMapSize(unitMap)
 	return Game{
-		id:          id,
-		unitMap:     unitMap,
-		unitMapSize: unitMapSize,
+		id:      id,
+		unitMap: unitMap,
 	}
 }
 
@@ -35,18 +31,17 @@ func (g *Game) GetUnitMap() valueobject.UnitMap {
 }
 
 func (g *Game) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit {
-	return g.unitMap[coordinate.GetX()][coordinate.GetY()]
+	return g.unitMap.GetUnit(coordinate)
 }
 
 func (g *Game) SetUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
-	g.unitMap[coordinate.GetX()][coordinate.GetY()] = unit
+	g.unitMap.SetUnit(coordinate, unit)
 }
 
 func (g *Game) SetUnitMap(newUnitMap valueobject.UnitMap) {
 	g.unitMap = newUnitMap
-	g.unitMapSize = getUnitMapSize(newUnitMap)
 }
 
 func (g *Game) GetUnitMapSize() valueobject.MapSize {
-	return g.unitMapSize
+	return g.unitMap.GetMapSize()
 }

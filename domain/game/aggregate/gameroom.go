@@ -40,22 +40,23 @@ func (gr *GameRoom) UpdateUnitMap(unitMap valueobject.UnitMap) {
 
 func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitMap, error) {
 	if !gr.GetUnitMapSize().IncludesArea(area) {
-		return nil, ErrAreaExceedsUnitMap
+		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
 	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
 	areaWidth := area.GetWidth()
 	areaHeight := area.GetHeight()
-	gameMap := make(valueobject.UnitMap, areaWidth)
+	unitMatrix := make([][]valueobject.Unit, areaWidth)
 	for x := 0; x < areaWidth; x += 1 {
-		gameMap[x] = make([]valueobject.Unit, areaHeight)
+		unitMatrix[x] = make([]valueobject.Unit, areaHeight)
 		for y := 0; y < areaHeight; y += 1 {
 			coordinate := valueobject.NewCoordinate(x+offsetX, y+offsetY)
-			gameMap[x][y] = gr.game.GetUnit(coordinate)
+			unitMatrix[x][y] = gr.game.GetUnit(coordinate)
 		}
 	}
+	unitMap := valueobject.NewUnitMapFromUnitMatrix(unitMatrix)
 
-	return gameMap, nil
+	return unitMap, nil
 }
 
 func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate) ([]valueobject.Unit, error) {

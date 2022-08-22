@@ -2,15 +2,42 @@ package valueobject
 
 import "math/rand"
 
-type UnitMap [][]Unit
+type UnitMap struct {
+	unitMatrix [][]Unit
+}
 
 func NewUnitMap(mapSize MapSize) UnitMap {
-	unitMap := make(UnitMap, mapSize.GetWidth())
+	unitMap := make([][]Unit, mapSize.GetWidth())
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
 		unitMap[i] = make([]Unit, mapSize.GetHeight())
 		for j := 0; j < mapSize.GetHeight(); j += 1 {
 			unitMap[i][j] = NewUnit(rand.Intn(2) == 0, 0)
 		}
 	}
-	return unitMap
+	return UnitMap{
+		unitMatrix: unitMap,
+	}
+}
+
+func NewUnitMapFromUnitMatrix(unitMatrix [][]Unit) UnitMap {
+	return UnitMap{
+		unitMatrix: unitMatrix,
+	}
+}
+
+func (um UnitMap) ToUnitMatrix() [][]Unit {
+	return um.unitMatrix
+}
+
+func (um UnitMap) GetMapSize() MapSize {
+	gameMapSize, _ := NewMapSize(len(um.unitMatrix), len(um.unitMatrix[0]))
+	return gameMapSize
+}
+
+func (um UnitMap) GetUnit(coord Coordinate) Unit {
+	return um.unitMatrix[coord.x][coord.y]
+}
+
+func (um UnitMap) SetUnit(coord Coordinate, unit Unit) {
+	um.unitMatrix[coord.x][coord.y] = unit
 }
