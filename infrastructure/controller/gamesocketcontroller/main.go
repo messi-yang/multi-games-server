@@ -12,7 +12,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/reviveunitsusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/coordinatesupdatedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
@@ -199,7 +198,8 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	coordinatesUpdatedEventBus := coordinatesupdatedeventbus.GetCoordinatesUpdatedEventBus()
-	err = reviveunitsusecase.New(gameRoomMemory, coordinatesUpdatedEventBus).Execute(gameId, reviveUnitsAction.Payload.Coordinates)
+	gameRoomService := gameroomservice.NewGameRoomServiceWithCoordinatesUpdatedEvent(gameRoomMemory, coordinatesUpdatedEventBus)
+	err = gameRoomService.ReviveUnits(gameId, reviveUnitsAction.Payload.Coordinates)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 	}

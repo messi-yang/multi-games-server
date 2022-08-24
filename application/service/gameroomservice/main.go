@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/coordinatesupdatedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/service/gameroomservice"
@@ -19,14 +20,16 @@ type GameRoomService interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
 	GetUnitMapWithArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error)
 	TcikAllUnitMaps()
+	ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error
 	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error)
 	GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, areaDTO areadto.AreaDTO) ([]coordinatedto.CoordinateDTO, []unitdto.UnitDTO, error)
 }
 
 type gameRoomServiceImplement struct {
-	gameRoomDomainService gameroomservice.GameRoomService
-	gameComputeEvent      gamecomputedevent.GameComputedEvent
-	locker                sync.RWMutex
+	gameRoomDomainService   gameroomservice.GameRoomService
+	gameComputeEvent        gamecomputedevent.GameComputedEvent
+	coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
+	locker                  sync.RWMutex
 }
 
 func NewGameRoomService(gameRoomRepository gameroomrepository.GameRoomRepository) GameRoomService {
@@ -41,6 +44,14 @@ func NewGameRoomServiceWithGameComputedEvent(gameRoomRepository gameroomreposito
 		gameRoomDomainService: gameroomservice.NewGameRoomService(gameRoomRepository),
 		gameComputeEvent:      gameComputeEvent,
 		locker:                sync.RWMutex{},
+	}
+}
+
+func NewGameRoomServiceWithCoordinatesUpdatedEvent(gameRoomRepository gameroomrepository.GameRoomRepository, coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent) GameRoomService {
+	return &gameRoomServiceImplement{
+		gameRoomDomainService:   gameroomservice.NewGameRoomService(gameRoomRepository),
+		coordinatesUpdatedEvent: coordinatesUpdatedEvent,
+		locker:                  sync.RWMutex{},
 	}
 }
 
@@ -111,4 +122,20 @@ func (grs *gameRoomServiceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUI
 	}
 
 	return coordinatedto.ToDTOList(coordinatesInArea), unitdto.ToDTOList(units), nil
+}
+
+func (grs *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error {
+	coordinates, err := coordinatedto.FromDTOList(coordinateDTOs)
+	if err != nil {
+		return err
+	}
+
+	err = grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
+	if err != nil {
+		return err
+	}
+
+	grs.coordinatesUpdatedEvent.Publish(gameId, coordinateDTOs)
+
+	return nil
 }
