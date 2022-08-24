@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
@@ -16,6 +17,7 @@ type GameRoomService interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
 	GetUnitMapWithArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error)
 	TcikAllUnitMaps()
+	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error)
 }
 
 type gameRoomServiceImplement struct {
@@ -73,4 +75,12 @@ func (grs *gameRoomServiceImplement) TcikAllUnitMaps() {
 		grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
 		grs.gameComputeEvent.Publish(gameRoom.GetGameId())
 	}
+}
+
+func (grs *gameRoomServiceImplement) GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error) {
+	gameRoom, err := grs.gameRoomDomainService.GetRoom(gameId)
+	if err != nil {
+		return mapsizedto.MapSizeDTO{}, err
+	}
+	return mapsizedto.ToDTO(gameRoom.GetUnitMapSize()), nil
 }

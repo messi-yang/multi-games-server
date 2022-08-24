@@ -12,7 +12,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitmapsizeusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitswithareausecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/reviveunitsusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
@@ -141,7 +140,12 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 
 func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	unitMapSize, _ := getunitmapsizeusecase.New(gameRoomMemory).Execute(gameId)
+	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
+	unitMapSize, err := gameRoomService.GetUnitMapSize(gameId)
+	if err != nil {
+		emitErrorEvent(conn, session, err)
+		return
+	}
 	informationUpdatedEvent := constructInformationUpdatedEvent(unitMapSize)
 
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
