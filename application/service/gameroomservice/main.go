@@ -4,7 +4,9 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
@@ -18,6 +20,7 @@ type GameRoomService interface {
 	GetUnitMapWithArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error)
 	TcikAllUnitMaps()
 	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error)
+	GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, areaDTO areadto.AreaDTO) ([]coordinatedto.CoordinateDTO, []unitdto.UnitDTO, error)
 }
 
 type gameRoomServiceImplement struct {
@@ -83,4 +86,29 @@ func (grs *gameRoomServiceImplement) GetUnitMapSize(gameId uuid.UUID) (mapsizedt
 		return mapsizedto.MapSizeDTO{}, err
 	}
 	return mapsizedto.ToDTO(gameRoom.GetUnitMapSize()), nil
+}
+
+func (grs *gameRoomServiceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, areaDTO areadto.AreaDTO) ([]coordinatedto.CoordinateDTO, []unitdto.UnitDTO, error) {
+	gameRoom, err := grs.gameRoomDomainService.GetRoom(gameId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	coordinates, err := coordinatedto.FromDTOList(coordinateDTOs)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	area, err := areadto.FromDTO(areaDTO)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	coordinatesInArea := area.FilterCoordinates(coordinates)
+	units, err := gameRoom.GetUnitsWithCoordinates(coordinatesInArea)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return coordinatedto.ToDTOList(coordinatesInArea), unitdto.ToDTOList(units), nil
 }
