@@ -13,6 +13,7 @@ import (
 
 type GameRoomService interface {
 	CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error)
+	GetUnitMapWithArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error)
 	TickUnitMap(gameId uuid.UUID) error
 	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) error
 }
@@ -45,6 +46,22 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	gsi.gameRoomRepository.Add(gameRoom)
 
 	return gameRoom, nil
+}
+func (gsi *gameRoomServiceImplement) GetUnitMapWithArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error) {
+	gsi.locker.Lock()
+	defer gsi.locker.Unlock()
+
+	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
+	if err != nil {
+		return valueobject.UnitMap{}, err
+	}
+
+	unitMap, err := gameRoom.GetUnitMapWithArea(area)
+	if err != nil {
+		return valueobject.UnitMap{}, err
+	}
+
+	return unitMap, nil
 }
 
 func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) error {

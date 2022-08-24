@@ -11,8 +11,8 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitmapsizeusecase"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitmapusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/getunitswithareausecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/reviveunitsusecase"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
@@ -164,7 +164,8 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UU
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	unitDTOMap, err := getunitmapusecase.New(gameRoomMemory).Execute(gameId, *session.gameAreaToWatch)
+	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
+	unitDTOMap, err := gameRoomService.GetUnitMapWithArea(gameId, *session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 		return
@@ -178,6 +179,7 @@ func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byt
 	watchAreaAction, err := extractWatchAreaActionFromMessage(message)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
+		return
 	}
 	session.gameAreaToWatch = &watchAreaAction.Payload.Area
 
@@ -188,6 +190,7 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 	reviveUnitsAction, err := extractReviveUnitsActionFromMessage(message)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
+		return
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
