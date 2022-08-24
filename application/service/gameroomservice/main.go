@@ -18,7 +18,7 @@ import (
 
 type GameRoomService interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
-	GetUnitMapWithArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error)
+	GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error)
 	TcikAllUnitMaps()
 	ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error
 	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error)
@@ -68,12 +68,12 @@ func (grs *gameRoomServiceImplement) CreateRoom(width int, height int) (gameId u
 	return gameRoom.GetGameId(), nil
 }
 
-func (grs *gameRoomServiceImplement) GetUnitMapWithArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error) {
+func (grs *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error) {
 	area, err := areadto.FromDTO(areaDTO)
 	if err != nil {
 		return unitmapdto.UnitMapDTO{}, err
 	}
-	unitMap, err := grs.gameRoomDomainService.GetUnitMapWithArea(gameId, area)
+	unitMap, err := grs.gameRoomDomainService.GetUnitMapByArea(gameId, area)
 	if err != nil {
 		return unitmapdto.UnitMapDTO{}, err
 	}

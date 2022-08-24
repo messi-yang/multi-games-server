@@ -39,7 +39,7 @@ func (gr *GameRoom) UpdateUnitMap(unitMap valueobject.UnitMap) {
 	gr.game.SetUnitMap(unitMap)
 }
 
-func (gr *GameRoom) GetUnitMapWithArea(area valueobject.Area) (valueobject.UnitMap, error) {
+func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
 	if !gr.GetUnitMapSize().IncludesArea(area) {
 		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
 	}

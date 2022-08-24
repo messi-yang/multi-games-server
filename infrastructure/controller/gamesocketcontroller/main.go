@@ -168,7 +168,7 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UU
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
-	unitDTOMap, err := gameRoomService.GetUnitMapWithArea(gameId, *session.gameAreaToWatch)
+	unitDTOMap, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 		return
