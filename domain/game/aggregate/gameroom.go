@@ -35,10 +35,6 @@ func (gr *GameRoom) GetUnitMap() valueobject.UnitMap {
 	return gr.game.GetUnitMap()
 }
 
-func (gr *GameRoom) UpdateUnitMap(unitMap valueobject.UnitMap) {
-	gr.game.SetUnitMap(unitMap)
-}
-
 func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
 	if !gr.GetUnitMapSize().IncludesArea(area) {
 		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
@@ -68,10 +64,6 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 	}
 
 	return units, nil
-}
-
-func (gr *GameRoom) UpdateUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
-	gr.game.SetUnit(coordinate, unit)
 }
 
 func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueobject.Coordinate, []valueobject.Unit, error) {

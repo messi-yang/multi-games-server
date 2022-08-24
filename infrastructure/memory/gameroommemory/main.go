@@ -2,13 +2,18 @@ package gameroommemory
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 
+type gameRoomRecord struct {
+	unitMap valueobject.UnitMap
+}
+
 type gameRoomMemory struct {
-	gameRoomMap map[uuid.UUID]aggregate.GameRoom
+	gameRoomRecords map[uuid.UUID]gameRoomRecord
 }
 
 var gameRoomMemoryInstance *gameRoomMemory
@@ -16,7 +21,7 @@ var gameRoomMemoryInstance *gameRoomMemory
 func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 	if gameRoomMemoryInstance == nil {
 		gameRoomMemoryInstance = &gameRoomMemory{
-			gameRoomMap: make(map[uuid.UUID]aggregate.GameRoom),
+			gameRoomRecords: make(map[uuid.UUID]gameRoomRecord),
 		}
 		return gameRoomMemoryInstance
 	} else {
@@ -25,39 +30,47 @@ func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 }
 
 func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
-	gameRoom, exists := gmi.gameRoomMap[id]
+	gameRoomRecord, exists := gmi.gameRoomRecords[id]
 	if !exists {
 		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
 	}
+
+	game := entity.NewGameFromExistingEntity(id, gameRoomRecord.unitMap)
+	gameRoom := aggregate.NewGameRoom(game)
 	return gameRoom, nil
 }
 
 func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
-	gameRooms := make([]aggregate.GameRoom, 0)
-	for _, gameRoom := range gmi.gameRoomMap {
-		gameRooms = append(gameRooms, gameRoom)
+	gameRoom := make([]aggregate.GameRoom, 0)
+	for gameId, gameRoomRecord := range gmi.gameRoomRecords {
+		game := entity.NewGameFromExistingEntity(gameId, gameRoomRecord.unitMap)
+		newGameRoom := aggregate.NewGameRoom(game)
+		gameRoom = append(gameRoom, newGameRoom)
 	}
-	return gameRooms
+	return gameRoom
 }
 
 func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
-	gameRoom := gmi.gameRoomMap[gameId]
+	gameRoomRecord := gmi.gameRoomRecords[gameId]
 	for coordIdx, coord := range coordinates {
-		gameRoom.UpdateUnit(coord, units[coordIdx])
+		gameRoomRecord.unitMap.SetUnit(coord, units[coordIdx])
 	}
 
 	return nil
 }
 
 func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
-	gameRoom := gmi.gameRoomMap[gameId]
-	gameRoom.UpdateUnitMap(unitMap)
+	gameRoomRecord := gmi.gameRoomRecords[gameId]
+	gameRoomRecord.unitMap = unitMap
 
 	return nil
 }
 
 func (gmi *gameRoomMemory) Add(gameRoom aggregate.GameRoom) error {
-	gmi.gameRoomMap[gameRoom.GetGameId()] = gameRoom
+	gameUnitMap := gameRoom.GetUnitMap()
+	gmi.gameRoomRecords[gameRoom.GetGameId()] = gameRoomRecord{
+		unitMap: gameUnitMap,
+	}
 
 	return nil
 }

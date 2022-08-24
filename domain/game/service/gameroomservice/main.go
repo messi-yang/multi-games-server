@@ -44,7 +44,6 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	unitMap := valueobject.NewUnitMap(mapSize)
 	game := entity.NewGame(unitMap)
 	gameRoom := aggregate.NewGameRoom(game)
-	gameRoom.UpdateUnitMap(unitMap)
 	gsi.gameRoomRepository.Add(gameRoom)
 
 	return gameRoom, nil

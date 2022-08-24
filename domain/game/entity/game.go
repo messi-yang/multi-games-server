@@ -22,6 +22,13 @@ func NewGame(unitMap valueobject.UnitMap) Game {
 	}
 }
 
+func NewGameFromExistingEntity(id uuid.UUID, unitMap valueobject.UnitMap) Game {
+	return Game{
+		id:      id,
+		unitMap: unitMap,
+	}
+}
+
 func (g *Game) GetId() uuid.UUID {
 	return g.id
 }
