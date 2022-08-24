@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/usecase/creategameusecase"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/job"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
@@ -10,12 +10,14 @@ import (
 
 func main() {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameId, err := creategameusecase.New(gameRoomMemory).Execute()
+	size := config.GetConfig().GetGameMapSize()
+	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
+	newGameRoomId, err := gameRoomService.CreateRoom(size, size)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	config.GetConfig().SetGameId(gameId)
+	config.GetConfig().SetGameId(newGameRoomId)
 
 	job.StartJobs()
 	router.SetRouters()
