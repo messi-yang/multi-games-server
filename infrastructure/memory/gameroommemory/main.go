@@ -15,8 +15,8 @@ type gameRoomRecord struct {
 }
 
 type gameRoomMemory struct {
-	gameRoomRecords map[uuid.UUID]gameRoomRecord
-	locker          sync.RWMutex
+	gameRoomRecords       map[uuid.UUID]gameRoomRecord
+	gameRoomRecordLockers map[uuid.UUID]*sync.RWMutex
 }
 
 var gameRoomMemoryInstance *gameRoomMemory
@@ -24,8 +24,8 @@ var gameRoomMemoryInstance *gameRoomMemory
 func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 	if gameRoomMemoryInstance == nil {
 		gameRoomMemoryInstance = &gameRoomMemory{
-			gameRoomRecords: make(map[uuid.UUID]gameRoomRecord),
-			locker:          sync.RWMutex{},
+			gameRoomRecords:       make(map[uuid.UUID]gameRoomRecord),
+			gameRoomRecordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
 		return gameRoomMemoryInstance
 	} else {
@@ -34,9 +34,6 @@ func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 }
 
 func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
-	gmi.locker.RLock()
-	defer gmi.locker.RUnlock()
-
 	gameRoomRecord, exists := gmi.gameRoomRecords[id]
 	if !exists {
 		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
@@ -48,9 +45,6 @@ func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 }
 
 func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
-	gmi.locker.RLock()
-	defer gmi.locker.RUnlock()
-
 	gameRoom := make([]aggregate.GameRoom, 0)
 	for gameId, gameRoomRecord := range gmi.gameRoomRecords {
 		game := entity.NewGameFromExistingEntity(gameId, gameRoomRecord.unitMap)
@@ -61,9 +55,6 @@ func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
 }
 
 func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
-	gmi.locker.Lock()
-	defer gmi.locker.Unlock()
-
 	gameRoomRecord, exists := gmi.gameRoomRecords[gameId]
 	if !exists {
 		return gameroomrepository.ErrGameRoomNotFound
@@ -77,9 +68,6 @@ func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobje
 }
 
 func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
-	gmi.locker.Lock()
-	defer gmi.locker.Unlock()
-
 	gameRoomRecord, exists := gmi.gameRoomRecords[gameId]
 	if !exists {
 		return gameroomrepository.ErrGameRoomNotFound
@@ -95,6 +83,27 @@ func (gmi *gameRoomMemory) Add(gameRoom aggregate.GameRoom) error {
 	gmi.gameRoomRecords[gameRoom.GetGameId()] = gameRoomRecord{
 		unitMap: gameUnitMap,
 	}
+	gmi.gameRoomRecordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
 
 	return nil
+}
+
+func (gmi *gameRoomMemory) ReadLockAccess(gameId uuid.UUID) (func(), error) {
+	gameRoomRecordLocker, exists := gmi.gameRoomRecordLockers[gameId]
+	if !exists {
+		return nil, gameroomrepository.ErrGameRoomLockerNotFound
+	}
+
+	gameRoomRecordLocker.RLock()
+	return gameRoomRecordLocker.RUnlock, nil
+}
+
+func (gmi *gameRoomMemory) LockAccess(gameId uuid.UUID) (func(), error) {
+	gameRoomRecordLocker, exists := gmi.gameRoomRecordLockers[gameId]
+	if !exists {
+		return nil, gameroomrepository.ErrGameRoomLockerNotFound
+	}
+
+	gameRoomRecordLocker.Lock()
+	return gameRoomRecordLocker.Unlock, nil
 }

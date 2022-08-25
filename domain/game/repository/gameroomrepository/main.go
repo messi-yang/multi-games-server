@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	ErrGameRoomNotFound = errors.New("the game room with given id not found")
+	ErrGameRoomNotFound       = errors.New("the game room with the id was not found")
+	ErrGameRoomLockerNotFound = errors.New("the game room locker for with the id was not found")
 )
 
 type GameRoomRepository interface {
@@ -18,4 +19,6 @@ type GameRoomRepository interface {
 	UpdateUnitMap(uuid.UUID, valueobject.UnitMap) error
 	Get(uuid.UUID) (aggregate.GameRoom, error)
 	GetAll() []aggregate.GameRoom
+	ReadLockAccess(uuid.UUID) (rUnlocker func(), err error)
+	LockAccess(uuid.UUID) (unlocker func(), err error)
 }
