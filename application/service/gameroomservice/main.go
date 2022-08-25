@@ -1,8 +1,6 @@
 package gameroomservice
 
 import (
-	"sync"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
@@ -29,13 +27,11 @@ type gameRoomServiceImplement struct {
 	gameRoomDomainService   gameroomservice.GameRoomService
 	gameComputeEvent        gamecomputedevent.GameComputedEvent
 	coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
-	locker                  sync.RWMutex
 }
 
 func NewGameRoomService(gameRoomRepository gameroomrepository.GameRoomRepository) GameRoomService {
 	return &gameRoomServiceImplement{
 		gameRoomDomainService: gameroomservice.NewGameRoomService(gameRoomRepository),
-		locker:                sync.RWMutex{},
 	}
 }
 
@@ -43,7 +39,6 @@ func NewGameRoomServiceWithGameComputedEvent(gameRoomRepository gameroomreposito
 	return &gameRoomServiceImplement{
 		gameRoomDomainService: gameroomservice.NewGameRoomService(gameRoomRepository),
 		gameComputeEvent:      gameComputeEvent,
-		locker:                sync.RWMutex{},
 	}
 }
 
@@ -51,7 +46,6 @@ func NewGameRoomServiceWithCoordinatesUpdatedEvent(gameRoomRepository gameroomre
 	return &gameRoomServiceImplement{
 		gameRoomDomainService:   gameroomservice.NewGameRoomService(gameRoomRepository),
 		coordinatesUpdatedEvent: coordinatesUpdatedEvent,
-		locker:                  sync.RWMutex{},
 	}
 }
 

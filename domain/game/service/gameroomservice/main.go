@@ -1,8 +1,6 @@
 package gameroomservice
 
 import (
-	"sync"
-
 	"github.com/DumDumGeniuss/ggol"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
@@ -22,7 +20,6 @@ type GameRoomService interface {
 
 type gameRoomServiceImplement struct {
 	gameRoomRepository gameroomrepository.GameRoomRepository
-	locker             sync.RWMutex
 }
 
 var gameRoomService GameRoomService = nil
@@ -31,16 +28,12 @@ func NewGameRoomService(gameRoomRepository gameroomrepository.GameRoomRepository
 	if gameRoomService == nil {
 		gameRoomService = &gameRoomServiceImplement{
 			gameRoomRepository: gameRoomRepository,
-			locker:             sync.RWMutex{},
 		}
 	}
 	return gameRoomService
 }
 
 func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
-	gsi.locker.Lock()
-	defer gsi.locker.Unlock()
-
 	unitMap := valueobject.NewUnitMap(mapSize)
 	game := entity.NewGame(unitMap)
 	gameRoom := aggregate.NewGameRoom(game)
@@ -62,9 +55,6 @@ func (gsi *gameRoomServiceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRo
 }
 
 func (gsi *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error) {
-	gsi.locker.Lock()
-	defer gsi.locker.Unlock()
-
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
 		return valueobject.UnitMap{}, err
@@ -79,9 +69,6 @@ func (gsi *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, area val
 }
 
 func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) error {
-	gsi.locker.Lock()
-	defer gsi.locker.Unlock()
-
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
 		return err
@@ -103,9 +90,6 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) error {
 }
 
 func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
-	gsi.locker.Lock()
-	defer gsi.locker.Unlock()
-
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
 		return err

@@ -1,6 +1,8 @@
 package gameroommemory
 
 import (
+	"sync"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
@@ -14,6 +16,7 @@ type gameRoomRecord struct {
 
 type gameRoomMemory struct {
 	gameRoomRecords map[uuid.UUID]gameRoomRecord
+	locker          sync.RWMutex
 }
 
 var gameRoomMemoryInstance *gameRoomMemory
@@ -22,6 +25,7 @@ func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 	if gameRoomMemoryInstance == nil {
 		gameRoomMemoryInstance = &gameRoomMemory{
 			gameRoomRecords: make(map[uuid.UUID]gameRoomRecord),
+			locker:          sync.RWMutex{},
 		}
 		return gameRoomMemoryInstance
 	} else {
@@ -30,6 +34,9 @@ func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 }
 
 func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
+	gmi.locker.RLock()
+	defer gmi.locker.RUnlock()
+
 	gameRoomRecord, exists := gmi.gameRoomRecords[id]
 	if !exists {
 		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
@@ -41,6 +48,9 @@ func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 }
 
 func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
+	gmi.locker.RLock()
+	defer gmi.locker.RUnlock()
+
 	gameRoom := make([]aggregate.GameRoom, 0)
 	for gameId, gameRoomRecord := range gmi.gameRoomRecords {
 		game := entity.NewGameFromExistingEntity(gameId, gameRoomRecord.unitMap)
@@ -51,7 +61,14 @@ func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
 }
 
 func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
-	gameRoomRecord := gmi.gameRoomRecords[gameId]
+	gmi.locker.Lock()
+	defer gmi.locker.Unlock()
+
+	gameRoomRecord, exists := gmi.gameRoomRecords[gameId]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
 	for coordIdx, coord := range coordinates {
 		gameRoomRecord.unitMap.SetUnit(coord, units[coordIdx])
 	}
@@ -60,7 +77,14 @@ func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobje
 }
 
 func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
-	gameRoomRecord := gmi.gameRoomRecords[gameId]
+	gmi.locker.Lock()
+	defer gmi.locker.Unlock()
+
+	gameRoomRecord, exists := gmi.gameRoomRecords[gameId]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
 	gameRoomRecord.unitMap = unitMap
 
 	return nil
