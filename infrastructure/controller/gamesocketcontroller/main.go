@@ -1,16 +1,14 @@
 package gamesocketcontroller
 
 import (
-	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/compressionservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/coordinatesupdatedeventbus"
@@ -20,23 +18,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
-
-func ungzipData(compressedData []byte) (data []byte) {
-	gunzip, _ := gzip.NewReader(bytes.NewBuffer(compressedData))
-	defer gunzip.Close()
-	data, _ = ioutil.ReadAll(gunzip)
-	return data
-}
-
-func gzipData(data []byte) (compressedData []byte) {
-	var b bytes.Buffer
-	gz := gzip.NewWriter(&b)
-	gz.Write(data)
-	gz.Flush()
-	gz.Close()
-
-	return b.Bytes()
-}
 
 type session struct {
 	gameAreaToWatch *areadto.AreaDTO
@@ -97,7 +78,13 @@ func Controller(c *gin.Context) {
 				break
 			}
 
-			message := ungzipData(compressedMessage)
+			compressionService := compressionservice.NewCompressionService()
+			message, err := compressionService.Ungzip(compressedMessage)
+			if err != nil {
+				emitErrorEvent(conn, session, err)
+				break
+			}
+
 			actionType, err := getActionTypeFromMessage(message)
 			if err != nil {
 				emitErrorEvent(conn, session, err)
@@ -127,11 +114,19 @@ func sendJSONMessageToClient(conn *websocket.Conn, session *session, message any
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	conn.WriteMessage(2, gzipData(messageJsonInBytes))
+	compressionService := compressionservice.NewCompressionService()
+	compressedMessage, err := compressionService.Gzip(messageJsonInBytes)
+	if err != nil {
+		emitErrorEvent(conn, session, err)
+		return
+	}
+
+	conn.WriteMessage(2, compressedMessage)
 }
 
 func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	errorEvent := constructErrorHappenedEvent(err.Error())
+	fmt.Println(err.Error())
 
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
