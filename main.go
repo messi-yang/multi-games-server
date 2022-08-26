@@ -11,7 +11,9 @@ import (
 func main() {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	size := config.GetConfig().GetGameMapSize()
-	gameRoomService := gameroomservice.NewGameRoomService(gameRoomMemory)
+	gameRoomService := gameroomservice.NewGameRoomService(
+		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
+	)
 	newGameRoomId, err := gameRoomService.CreateRoom(size, size)
 	if err != nil {
 		panic(err.Error())

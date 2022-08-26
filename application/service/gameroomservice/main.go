@@ -1,6 +1,8 @@
 package gameroomservice
 
 import (
+	"errors"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
@@ -14,10 +16,14 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	ErrEventNotFound = errors.New("event was not found")
+)
+
 type GameRoomService interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
 	GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error)
-	TcikAllUnitMaps()
+	TcikAllUnitMaps() error
 	ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error
 	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error)
 	GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, areaDTO areadto.AreaDTO) ([]coordinatedto.CoordinateDTO, []unitdto.UnitDTO, error)
@@ -29,23 +35,17 @@ type gameRoomServiceImplement struct {
 	coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
 }
 
-func NewGameRoomService(gameRoomRepository gameroomrepository.GameRoomRepository) GameRoomService {
-	return &gameRoomServiceImplement{
-		gameRoomDomainService: gameroomservice.NewGameRoomService(gameRoomRepository),
-	}
+type Configuration struct {
+	GameRoomRepository      gameroomrepository.GameRoomRepository
+	GameComputeEvent        gamecomputedevent.GameComputedEvent
+	CoordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
 }
 
-func NewGameRoomServiceWithGameComputedEvent(gameRoomRepository gameroomrepository.GameRoomRepository, gameComputeEvent gamecomputedevent.GameComputedEvent) GameRoomService {
+func NewGameRoomService(config Configuration) GameRoomService {
 	return &gameRoomServiceImplement{
-		gameRoomDomainService: gameroomservice.NewGameRoomService(gameRoomRepository),
-		gameComputeEvent:      gameComputeEvent,
-	}
-}
-
-func NewGameRoomServiceWithCoordinatesUpdatedEvent(gameRoomRepository gameroomrepository.GameRoomRepository, coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent) GameRoomService {
-	return &gameRoomServiceImplement{
-		gameRoomDomainService:   gameroomservice.NewGameRoomService(gameRoomRepository),
-		coordinatesUpdatedEvent: coordinatesUpdatedEvent,
+		gameRoomDomainService:   gameroomservice.NewGameRoomService(config.GameRoomRepository),
+		gameComputeEvent:        config.GameComputeEvent,
+		coordinatesUpdatedEvent: config.CoordinatesUpdatedEvent,
 	}
 }
 
@@ -77,12 +77,18 @@ func (grs *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDTO 
 	return unitMapDTO, nil
 }
 
-func (grs *gameRoomServiceImplement) TcikAllUnitMaps() {
+func (grs *gameRoomServiceImplement) TcikAllUnitMaps() error {
+	if grs.gameComputeEvent == nil {
+		return ErrEventNotFound
+	}
+
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
 		grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
 		grs.gameComputeEvent.Publish(gameRoom.GetGameId())
 	}
+
+	return nil
 }
 
 func (grs *gameRoomServiceImplement) GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error) {
@@ -119,6 +125,10 @@ func (grs *gameRoomServiceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUI
 }
 
 func (grs *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error {
+	if grs.coordinatesUpdatedEvent == nil {
+		return ErrEventNotFound
+	}
+
 	coordinates, err := coordinatedto.FromDTOList(coordinateDTOs)
 	if err != nil {
 		return err
