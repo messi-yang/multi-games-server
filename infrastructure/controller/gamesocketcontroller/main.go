@@ -17,6 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/ztrue/tracerr"
 )
 
 type session struct {
@@ -126,7 +127,8 @@ func sendJSONMessageToClient(conn *websocket.Conn, session *session, message any
 
 func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 	errorEvent := constructErrorHappenedEvent(err.Error())
-	fmt.Println(err.Error())
+
+	tracerr.Print(tracerr.Wrap(err))
 
 	sendJSONMessageToClient(conn, session, errorEvent)
 }
