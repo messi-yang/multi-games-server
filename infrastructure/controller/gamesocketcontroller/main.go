@@ -57,9 +57,9 @@ func Controller(c *gin.Context) {
 	})
 	defer gameUnitMapUpdateddEventUnsubscriber()
 
-	gameUnitsUpdatedEventBus := gameunitsupdatedeventbus.GetCoordinatesUpdatedEventBus()
+	gameUnitsUpdatedEventBus := gameunitsupdatedeventbus.GetUnitsUpdatedEventBus()
 	gameUnitsUpdatedEventUnsubscriber := gameUnitsUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO) {
-		emitCoordinatesUpdatedEvent(conn, session, gameId, coordinateDTOs)
+		emitUnitsUpdatedEvent(conn, session, gameId, coordinateDTOs)
 	})
 	defer gameUnitsUpdatedEventUnsubscriber()
 
@@ -148,7 +148,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
+func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -158,7 +158,7 @@ func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId 
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
 	coordinateDTOsOfUnits, unitDTOs, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDTOs, *session.gameAreaToWatch)
-	gameUnitsUpdatedEvent := constructCoordinatesUpdatedEvent(coordinateDTOsOfUnits, unitDTOs)
+	gameUnitsUpdatedEvent := constructUnitsUpdatedEvent(coordinateDTOsOfUnits, unitDTOs)
 	sendJSONMessageToClient(conn, session, gameUnitsUpdatedEvent)
 }
 
@@ -200,9 +200,9 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameUnitsUpdatedEventBus := gameunitsupdatedeventbus.GetCoordinatesUpdatedEventBus()
+	gameUnitsUpdatedEventBus := gameunitsupdatedeventbus.GetUnitsUpdatedEventBus()
 	gameRoomService := gameroomservice.NewGameRoomService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory, CoordinatesUpdatedEvent: gameUnitsUpdatedEventBus},
+		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory, UnitsUpdatedEvent: gameUnitsUpdatedEventBus},
 	)
 	err = gameRoomService.ReviveUnits(gameId, reviveUnitsAction.Payload.Coordinates)
 	if err != nil {

@@ -32,20 +32,20 @@ type GameRoomService interface {
 type gameRoomServiceImplement struct {
 	gameRoomDomainService   gameroomservice.GameRoomService
 	gameUnitMapUpdatedEvent gameunitmapupdatedevent.GameUnitMapUpdatedEvent
-	gameUnitsUpdatedEvent   gameunitsupdatedevent.CoordinatesUpdatedEvent
+	gameUnitsUpdatedEvent   gameunitsupdatedevent.UnitsUpdatedEvent
 }
 
 type Configuration struct {
-	GameRoomRepository      gameroomrepository.GameRoomRepository
-	GameComputeEvent        gameunitmapupdatedevent.GameUnitMapUpdatedEvent
-	CoordinatesUpdatedEvent gameunitsupdatedevent.CoordinatesUpdatedEvent
+	GameRoomRepository gameroomrepository.GameRoomRepository
+	GameComputeEvent   gameunitmapupdatedevent.GameUnitMapUpdatedEvent
+	UnitsUpdatedEvent  gameunitsupdatedevent.UnitsUpdatedEvent
 }
 
 func NewGameRoomService(config Configuration) GameRoomService {
 	return &gameRoomServiceImplement{
 		gameRoomDomainService:   gameroomservice.NewGameRoomService(config.GameRoomRepository),
 		gameUnitMapUpdatedEvent: config.GameComputeEvent,
-		gameUnitsUpdatedEvent:   config.CoordinatesUpdatedEvent,
+		gameUnitsUpdatedEvent:   config.UnitsUpdatedEvent,
 	}
 }
 

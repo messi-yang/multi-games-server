@@ -18,11 +18,11 @@ type gameUnitsUpdatedEventCallback = func(coordinateDTOs []coordinatedto.Coordin
 
 var gameUnitsUpdatedEventInstance *gameUnitsUpdatedEventBus
 
-func GetCoordinatesUpdatedEventBus() gameunitsupdatedevent.CoordinatesUpdatedEvent {
+func GetUnitsUpdatedEventBus() gameunitsupdatedevent.UnitsUpdatedEvent {
 	if gameUnitsUpdatedEventInstance == nil {
 		gameUnitsUpdatedEventInstance = &gameUnitsUpdatedEventBus{
 			eventBus:   EventBus.New(),
-			eventTopic: "COORDINATES_UPDATED",
+			eventTopic: "GAME_UNITS_UPDATED",
 		}
 	}
 	return gameUnitsUpdatedEventInstance
