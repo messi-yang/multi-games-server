@@ -53,7 +53,7 @@ func Controller(c *gin.Context) {
 
 	gameUnitMapUpdatedEventBus := gameunitmapupdatedeventbus.GetGameUnitMapUpdatedEventBus()
 	gameUnitMapUpdateddEventUnsubscriber := gameUnitMapUpdatedEventBus.Subscribe(gameId, func() {
-		emitAreaUpdatedEvent(conn, session, gameId)
+		emitUnitMapFetched(conn, session, gameId)
 	})
 	defer gameUnitMapUpdateddEventUnsubscriber()
 
@@ -162,7 +162,7 @@ func emitCoordinatesUpdatedEvent(conn *websocket.Conn, session *session, gameId 
 	sendJSONMessageToClient(conn, session, gameUnitsUpdatedEvent)
 }
 
-func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
+func emitUnitMapFetched(conn *websocket.Conn, session *session, gameId uuid.UUID) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -177,8 +177,8 @@ func emitAreaUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UU
 		return
 	}
 
-	areaUpdatedEvent := constructAreaUpdatedEvent(*session.gameAreaToWatch, unitDTOMap)
-	sendJSONMessageToClient(conn, session, areaUpdatedEvent)
+	unitMapFetchedEvent := constructUnitMapFetched(*session.gameAreaToWatch, unitDTOMap)
+	sendJSONMessageToClient(conn, session, unitMapFetchedEvent)
 }
 
 func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
@@ -189,7 +189,7 @@ func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byt
 	}
 	session.gameAreaToWatch = &watchAreaAction.Payload.Area
 
-	emitAreaUpdatedEvent(conn, session, gameId)
+	emitUnitMapFetched(conn, session, gameId)
 }
 
 func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
