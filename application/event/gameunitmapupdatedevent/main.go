@@ -1,8 +1,8 @@
-package gamecomputedevent
+package gameunitmapupdatedevent
 
 import "github.com/google/uuid"
 
-type GameComputedEvent interface {
+type GameUnitMapUpdatedEvent interface {
 	Publish(gameId uuid.UUID)
 	Subscribe(gameId uuid.UUID, callback func()) (unsubscriber func())
 }

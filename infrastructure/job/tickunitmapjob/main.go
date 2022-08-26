@@ -3,10 +3,10 @@ package tickunitmapjob
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmapupdatedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmapupdatedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 )
 
@@ -16,10 +16,10 @@ type TickUnitMapJob interface {
 }
 
 type tickUnitMapJobImpl struct {
-	gameRoomRepository  gameroomrepository.GameRoomRepository
-	gameComputeEventBus gamecomputedevent.GameComputedEvent
-	gameTicker          *time.Ticker
-	unitMapTickerStop   chan bool
+	gameRoomRepository         gameroomrepository.GameRoomRepository
+	gameUnitMapUpdatedEventBus gameunitmapupdatedevent.GameUnitMapUpdatedEvent
+	gameTicker                 *time.Ticker
+	unitMapTickerStop          chan bool
 }
 
 var tickUnitMapJob *tickUnitMapJobImpl
@@ -27,11 +27,11 @@ var tickUnitMapJob *tickUnitMapJobImpl
 func GetTickUnitMapJob() TickUnitMapJob {
 	if tickUnitMapJob == nil {
 		gameRoomMemory := gameroommemory.GetGameRoomMemory()
-		gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
+		gameUnitMapUpdatedEventBus := gameunitmapupdatedeventbus.GetGameUnitMapUpdatedEventBus()
 
 		tickUnitMapJob = &tickUnitMapJobImpl{
-			gameRoomRepository:  gameRoomMemory,
-			gameComputeEventBus: gameComputeEventBus,
+			gameRoomRepository:         gameRoomMemory,
+			gameUnitMapUpdatedEventBus: gameUnitMapUpdatedEventBus,
 		}
 
 		return tickUnitMapJob
@@ -52,7 +52,7 @@ func (gwi *tickUnitMapJobImpl) Start() {
 				gameRoomService := gameroomservice.NewGameRoomService(
 					gameroomservice.Configuration{
 						GameRoomRepository: gwi.gameRoomRepository,
-						GameComputeEvent:   gwi.gameComputeEventBus,
+						GameComputeEvent:   gwi.gameUnitMapUpdatedEventBus,
 					},
 				)
 				gameRoomService.TcikAllUnitMaps()

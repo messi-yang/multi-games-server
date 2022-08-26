@@ -9,7 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/coordinatesupdatedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gamecomputedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmapupdatedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
@@ -31,20 +31,20 @@ type GameRoomService interface {
 
 type gameRoomServiceImplement struct {
 	gameRoomDomainService   gameroomservice.GameRoomService
-	gameComputeEvent        gamecomputedevent.GameComputedEvent
+	gameUnitMapUpdatedEvent gameunitmapupdatedevent.GameUnitMapUpdatedEvent
 	coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
 }
 
 type Configuration struct {
 	GameRoomRepository      gameroomrepository.GameRoomRepository
-	GameComputeEvent        gamecomputedevent.GameComputedEvent
+	GameComputeEvent        gameunitmapupdatedevent.GameUnitMapUpdatedEvent
 	CoordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
 }
 
 func NewGameRoomService(config Configuration) GameRoomService {
 	return &gameRoomServiceImplement{
 		gameRoomDomainService:   gameroomservice.NewGameRoomService(config.GameRoomRepository),
-		gameComputeEvent:        config.GameComputeEvent,
+		gameUnitMapUpdatedEvent: config.GameComputeEvent,
 		coordinatesUpdatedEvent: config.CoordinatesUpdatedEvent,
 	}
 }
@@ -78,14 +78,14 @@ func (grs *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDTO 
 }
 
 func (grs *gameRoomServiceImplement) TcikAllUnitMaps() error {
-	if grs.gameComputeEvent == nil {
+	if grs.gameUnitMapUpdatedEvent == nil {
 		return ErrEventNotFound
 	}
 
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
 		grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
-		grs.gameComputeEvent.Publish(gameRoom.GetGameId())
+		grs.gameUnitMapUpdatedEvent.Publish(gameRoom.GetGameId())
 	}
 
 	return nil

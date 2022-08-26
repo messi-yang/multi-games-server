@@ -12,7 +12,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/coordinatesupdatedeventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gamecomputedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmapupdatedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -51,11 +51,11 @@ func Controller(c *gin.Context) {
 
 	emitGameInfoUpdatedEvent(conn, session, gameId)
 
-	gameComputeEventBus := gamecomputedeventbus.GetGameComputedEventBus()
-	gameComputedEventUnsubscriber := gameComputeEventBus.Subscribe(gameId, func() {
+	gameUnitMapUpdatedEventBus := gameunitmapupdatedeventbus.GetGameUnitMapUpdatedEventBus()
+	gameUnitMapUpdateddEventUnsubscriber := gameUnitMapUpdatedEventBus.Subscribe(gameId, func() {
 		emitAreaUpdatedEvent(conn, session, gameId)
 	})
-	defer gameComputedEventUnsubscriber()
+	defer gameUnitMapUpdateddEventUnsubscriber()
 
 	coordinatesUpdatedEventBus := coordinatesupdatedeventbus.GetCoordinatesUpdatedEventBus()
 	coordinatesUpdatedEventUnsubscriber := coordinatesUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO) {
