@@ -16,7 +16,7 @@ const (
 	errorHappenedEventType      eventType = "ERROR"
 	informationUpdatedEventType eventType = "INFORMATION_UPDATED"
 	areaUpdatedEventType        eventType = "AREA_UPDATED"
-	coordinatesUpdatedEventType eventType = "COORDINATES_UPDATED"
+	gameUnitsUpdatedEventType   eventType = "COORDINATES_UPDATED"
 )
 
 type errorHappenedEventPayload struct {
@@ -53,20 +53,20 @@ func constructInformationUpdatedEvent(mapSizeDTO mapsizedto.MapSizeDTO) *informa
 	}
 }
 
-type coordinatesUpdatedEventPayload struct {
+type gameUnitsUpdatedEventPayload struct {
 	Coordinates []coordinatedto.CoordinateDTO `json:"coordinates"`
 	Units       []unitdto.UnitDTO             `json:"units"`
 	UpdatedAt   time.Time                     `json:"updateAt"`
 }
-type coordinatesUpdatedEvent struct {
-	Type    eventType                      `json:"type"`
-	Payload coordinatesUpdatedEventPayload `json:"payload"`
+type gameUnitsUpdatedEvent struct {
+	Type    eventType                    `json:"type"`
+	Payload gameUnitsUpdatedEventPayload `json:"payload"`
 }
 
-func constructCoordinatesUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, unitDTOs []unitdto.UnitDTO) *coordinatesUpdatedEvent {
-	return &coordinatesUpdatedEvent{
-		Type: coordinatesUpdatedEventType,
-		Payload: coordinatesUpdatedEventPayload{
+func constructCoordinatesUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, unitDTOs []unitdto.UnitDTO) *gameUnitsUpdatedEvent {
+	return &gameUnitsUpdatedEvent{
+		Type: gameUnitsUpdatedEventType,
+		Payload: gameUnitsUpdatedEventPayload{
 			Coordinates: coordinateDTOs,
 			Units:       unitDTOs,
 			UpdatedAt:   time.Now(),

@@ -1,4 +1,4 @@
-package coordinatesupdatedevent
+package gameunitsupdatedevent
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"

@@ -8,8 +8,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/coordinatesupdatedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmapupdatedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitsupdatedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
@@ -32,20 +32,20 @@ type GameRoomService interface {
 type gameRoomServiceImplement struct {
 	gameRoomDomainService   gameroomservice.GameRoomService
 	gameUnitMapUpdatedEvent gameunitmapupdatedevent.GameUnitMapUpdatedEvent
-	coordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
+	gameUnitsUpdatedEvent   gameunitsupdatedevent.CoordinatesUpdatedEvent
 }
 
 type Configuration struct {
 	GameRoomRepository      gameroomrepository.GameRoomRepository
 	GameComputeEvent        gameunitmapupdatedevent.GameUnitMapUpdatedEvent
-	CoordinatesUpdatedEvent coordinatesupdatedevent.CoordinatesUpdatedEvent
+	CoordinatesUpdatedEvent gameunitsupdatedevent.CoordinatesUpdatedEvent
 }
 
 func NewGameRoomService(config Configuration) GameRoomService {
 	return &gameRoomServiceImplement{
 		gameRoomDomainService:   gameroomservice.NewGameRoomService(config.GameRoomRepository),
 		gameUnitMapUpdatedEvent: config.GameComputeEvent,
-		coordinatesUpdatedEvent: config.CoordinatesUpdatedEvent,
+		gameUnitsUpdatedEvent:   config.CoordinatesUpdatedEvent,
 	}
 }
 
@@ -125,7 +125,7 @@ func (grs *gameRoomServiceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUI
 }
 
 func (grs *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error {
-	if grs.coordinatesUpdatedEvent == nil {
+	if grs.gameUnitsUpdatedEvent == nil {
 		return ErrEventNotFound
 	}
 
@@ -139,7 +139,7 @@ func (grs *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinateDTO
 		return err
 	}
 
-	grs.coordinatesUpdatedEvent.Publish(gameId, coordinateDTOs)
+	grs.gameUnitsUpdatedEvent.Publish(gameId, coordinateDTOs)
 
 	return nil
 }
