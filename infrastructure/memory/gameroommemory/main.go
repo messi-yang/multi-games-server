@@ -68,15 +68,15 @@ func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobje
 	return time.Now(), nil
 }
 
-func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) (time.Time, error) {
+func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
 	gameRoomRecord, exists := gmi.gameRoomRecords[gameId]
 	if !exists {
-		return time.Time{}, gameroomrepository.ErrGameRoomNotFound
+		return gameroomrepository.ErrGameRoomNotFound
 	}
 
 	gameRoomRecord.unitMap = unitMap
 
-	return time.Now(), nil
+	return nil
 }
 
 func (gmi *gameRoomMemory) Add(gameRoom aggregate.GameRoom) error {

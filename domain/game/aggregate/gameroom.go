@@ -2,6 +2,7 @@ package aggregate
 
 import (
 	"errors"
+	"time"
 
 	"github.com/DumDumGeniuss/ggol"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
@@ -51,12 +52,21 @@ func ggolNextUnitGenerator(
 }
 
 type GameRoom struct {
-	game *entity.Game
+	game         *entity.Game
+	lastTickedAt time.Time
 }
 
 func NewGameRoom(game entity.Game) GameRoom {
 	return GameRoom{
-		game: &game,
+		game:         &game,
+		lastTickedAt: time.Time{},
+	}
+}
+
+func NewGameRoomWithLastTickedAt(game entity.Game, lastTickedAt time.Time) GameRoom {
+	return GameRoom{
+		game:         &game,
+		lastTickedAt: lastTickedAt,
 	}
 }
 
@@ -117,13 +127,13 @@ func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueob
 	return coordinates, updatedUnits, nil
 }
 
-func (gr *GameRoom) TickUnitMap() (valueobject.UnitMap, error) {
+func (gr *GameRoom) TickUnitMap() (valueobject.UnitMap, time.Time, error) {
 	unitMap := gr.game.GetUnitMap()
 
 	var unitMatrix [][]valueobject.Unit = unitMap.ToUnitMatrix()
 	gameOfLiberty, err := ggol.NewGame(&unitMatrix)
 	if err != nil {
-		return valueobject.UnitMap{}, err
+		return valueobject.UnitMap{}, time.Time{}, err
 	}
 	gameOfLiberty.SetNextUnitGenerator(ggolNextUnitGenerator)
 	nextUnitMatrix := gameOfLiberty.GenerateNextUnits()
@@ -131,5 +141,7 @@ func (gr *GameRoom) TickUnitMap() (valueobject.UnitMap, error) {
 	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(*nextUnitMatrix)
 	gr.game.SetUnitMap(newUnitMap)
 
-	return newUnitMap, nil
+	gr.lastTickedAt = time.Now()
+
+	return newUnitMap, gr.lastTickedAt, nil
 }
