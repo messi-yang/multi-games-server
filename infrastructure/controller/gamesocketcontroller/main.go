@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
@@ -52,8 +53,8 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, session, gameId)
 
 	gameUnitMapUpdatedEventBus := gameunitmapupdatedeventbus.GetGameUnitMapUpdatedEventBus()
-	gameUnitMapUpdateddEventUnsubscriber := gameUnitMapUpdatedEventBus.Subscribe(gameId, func() {
-		emitUnitMapUpdatedEvent(conn, session, gameId)
+	gameUnitMapUpdateddEventUnsubscriber := gameUnitMapUpdatedEventBus.Subscribe(gameId, func(updatedAt time.Time) {
+		emitUnitMapUpdatedEvent(conn, session, gameId, updatedAt)
 	})
 	defer gameUnitMapUpdateddEventUnsubscriber()
 
@@ -181,7 +182,7 @@ func emitUnitMapFetchedEvent(conn *websocket.Conn, session *session, gameId uuid
 	sendJSONMessageToClient(conn, session, unitMapFetchedEvent)
 }
 
-func emitUnitMapUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
+func emitUnitMapUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, updatedAt time.Time) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -196,7 +197,7 @@ func emitUnitMapUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid
 		return
 	}
 
-	unitMapFetchedEvent := constructUnitMapUpdated(*session.gameAreaToWatch, unitDTOMap)
+	unitMapFetchedEvent := constructUnitMapUpdated(*session.gameAreaToWatch, unitDTOMap, updatedAt)
 	sendJSONMessageToClient(conn, session, unitMapFetchedEvent)
 }
 

@@ -2,6 +2,7 @@ package gameroomservice
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
@@ -85,7 +86,7 @@ func (grs *gameRoomServiceImplement) TcikAllUnitMaps() error {
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
 		grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
-		grs.gameUnitMapUpdatedEvent.Publish(gameRoom.GetGameId())
+		grs.gameUnitMapUpdatedEvent.Publish(gameRoom.GetGameId(), time.Now())
 	}
 
 	return nil

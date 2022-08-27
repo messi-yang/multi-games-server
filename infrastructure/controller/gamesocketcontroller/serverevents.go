@@ -85,13 +85,13 @@ type unitMapUpdatedEvent struct {
 	Payload unitMapUpdatedEventPayload `json:"payload"`
 }
 
-func constructUnitMapUpdated(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.UnitMapDTO) *unitMapUpdatedEvent {
+func constructUnitMapUpdated(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.UnitMapDTO, updatedAt time.Time) *unitMapUpdatedEvent {
 	return &unitMapUpdatedEvent{
 		Type: unitMapUpdatedEventType,
 		Payload: unitMapUpdatedEventPayload{
 			Area:      gameAreaDTO,
 			UnitMap:   unitMap,
-			UpdatedAt: time.Now(),
+			UpdatedAt: updatedAt,
 		},
 	}
 }
