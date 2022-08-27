@@ -2,6 +2,7 @@ package gameroomrepository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
@@ -16,7 +17,7 @@ var (
 type GameRoomRepository interface {
 	Add(aggregate.GameRoom) error
 	UpdateUnits(uuid.UUID, []valueobject.Coordinate, []valueobject.Unit) error
-	UpdateUnitMap(uuid.UUID, valueobject.UnitMap) error
+	UpdateUnitMap(uuid.UUID, valueobject.UnitMap) (updatedAt time.Time, err error)
 	Get(uuid.UUID) (aggregate.GameRoom, error)
 	GetAll() []aggregate.GameRoom
 	ReadLockAccess(uuid.UUID) (rUnlocker func(), err error)

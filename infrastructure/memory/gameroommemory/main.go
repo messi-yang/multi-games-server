@@ -2,6 +2,7 @@ package gameroommemory
 
 import (
 	"sync"
+	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
@@ -67,15 +68,15 @@ func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobje
 	return nil
 }
 
-func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
+func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) (time.Time, error) {
 	gameRoomRecord, exists := gmi.gameRoomRecords[gameId]
 	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
+		return time.Time{}, gameroomrepository.ErrGameRoomNotFound
 	}
 
 	gameRoomRecord.unitMap = unitMap
 
-	return nil
+	return time.Now(), nil
 }
 
 func (gmi *gameRoomMemory) Add(gameRoom aggregate.GameRoom) error {

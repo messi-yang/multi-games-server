@@ -1,6 +1,8 @@
 package gameroomservice
 
 import (
+	"time"
+
 	"github.com/DumDumGeniuss/ggol"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
@@ -14,7 +16,7 @@ type GameRoomService interface {
 	GetAllRooms() []aggregate.GameRoom
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error)
-	TickUnitMap(gameId uuid.UUID) error
+	TickUnitMap(gameId uuid.UUID) (updatedAt time.Time, err error)
 	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) error
 }
 
@@ -80,31 +82,34 @@ func (gsi *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, area val
 	return unitMap, nil
 }
 
-func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) error {
+func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
-		return err
+		return time.Time{}, err
 	}
 	defer unlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return err
+		return time.Time{}, err
 	}
 
 	unitMap := gameRoom.GetUnitMap()
 	var unitMatrix [][]valueobject.Unit = unitMap.ToUnitMatrix()
 	gameOfLiberty, err := ggol.NewGame(&unitMatrix)
 	if err != nil {
-		return err
+		return time.Time{}, err
 	}
 	gameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
 	nextUnitMatrix := gameOfLiberty.GenerateNextUnits()
 	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(*nextUnitMatrix)
-	gsi.gameRoomRepository.UpdateUnitMap(gameId, newUnitMap)
+	updatedAt, err := gsi.gameRoomRepository.UpdateUnitMap(gameId, newUnitMap)
+	if err != nil {
+		return time.Time{}, err
+	}
 
-	return nil
+	return updatedAt, nil
 }
 
 func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
