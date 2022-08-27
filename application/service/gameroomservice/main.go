@@ -2,6 +2,7 @@ package gameroomservice
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
@@ -22,7 +23,7 @@ var (
 
 type GameRoomService interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
-	GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error)
+	GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitMapDTO unitmapdto.UnitMapDTO, receivedAt time.Time, err error)
 	TcikAllUnitMaps() error
 	ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) error
 	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.MapSizeDTO, error)
@@ -62,19 +63,19 @@ func (grs *gameRoomServiceImplement) CreateRoom(width int, height int) (gameId u
 	return gameRoom.GetGameId(), nil
 }
 
-func (grs *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, error) {
+func (grs *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.AreaDTO) (unitmapdto.UnitMapDTO, time.Time, error) {
 	area, err := areadto.FromDTO(areaDTO)
 	if err != nil {
-		return unitmapdto.UnitMapDTO{}, err
+		return unitmapdto.UnitMapDTO{}, time.Time{}, err
 	}
-	unitMap, err := grs.gameRoomDomainService.GetUnitMapByArea(gameId, area)
+	unitMap, receivedAt, err := grs.gameRoomDomainService.GetUnitMapByArea(gameId, area)
 	if err != nil {
-		return unitmapdto.UnitMapDTO{}, err
+		return unitmapdto.UnitMapDTO{}, time.Time{}, err
 	}
 
 	unitMapDTO := unitmapdto.ToDTO(unitMap)
 
-	return unitMapDTO, nil
+	return unitMapDTO, receivedAt, nil
 }
 
 func (grs *gameRoomServiceImplement) TcikAllUnitMaps() error {

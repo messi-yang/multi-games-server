@@ -97,22 +97,22 @@ func constructUnitMapUpdated(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.Uni
 }
 
 type unitMapFetchedEventPayload struct {
-	Area      areadto.AreaDTO       `json:"area"`
-	UnitMap   unitmapdto.UnitMapDTO `json:"unitMap"`
-	FetchedAt time.Time             `json:"updateAt"`
+	Area       areadto.AreaDTO       `json:"area"`
+	UnitMap    unitmapdto.UnitMapDTO `json:"unitMap"`
+	ReceivedAt time.Time             `json:"receivedAt"`
 }
 type unitMapFetchedEvent struct {
 	Type    eventType                  `json:"type"`
 	Payload unitMapFetchedEventPayload `json:"payload"`
 }
 
-func constructUnitMapFetched(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.UnitMapDTO) *unitMapFetchedEvent {
+func constructUnitMapFetched(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.UnitMapDTO, receivedAt time.Time) *unitMapFetchedEvent {
 	return &unitMapFetchedEvent{
 		Type: unitMapFetchedEventType,
 		Payload: unitMapFetchedEventPayload{
-			Area:      gameAreaDTO,
-			UnitMap:   unitMap,
-			FetchedAt: time.Now(),
+			Area:       gameAreaDTO,
+			UnitMap:    unitMap,
+			ReceivedAt: receivedAt,
 		},
 	}
 }

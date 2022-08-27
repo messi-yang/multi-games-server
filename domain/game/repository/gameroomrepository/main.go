@@ -18,7 +18,7 @@ type GameRoomRepository interface {
 	Add(aggregate.GameRoom) error
 	UpdateUnits(uuid.UUID, []valueobject.Coordinate, []valueobject.Unit) error
 	UpdateUnitMap(uuid.UUID, valueobject.UnitMap) (updatedAt time.Time, err error)
-	Get(uuid.UUID) (aggregate.GameRoom, error)
+	Get(uuid.UUID) (gameRoom aggregate.GameRoom, receivedAt time.Time, err error)
 	GetAll() []aggregate.GameRoom
 	ReadLockAccess(uuid.UUID) (rUnlocker func(), err error)
 	LockAccess(uuid.UUID) (unlocker func(), err error)

@@ -34,15 +34,15 @@ func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 	}
 }
 
-func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
+func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, time.Time, error) {
 	gameRoomRecord, exists := gmi.gameRoomRecords[id]
 	if !exists {
-		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
+		return aggregate.GameRoom{}, time.Time{}, gameroomrepository.ErrGameRoomNotFound
 	}
 
 	game := entity.NewGameFromExistingEntity(id, gameRoomRecord.unitMap)
 	gameRoom := aggregate.NewGameRoom(game)
-	return gameRoom, nil
+	return gameRoom, time.Now(), nil
 }
 
 func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
