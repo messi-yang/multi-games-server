@@ -207,6 +207,7 @@ func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byt
 		emitErrorEvent(conn, session, err)
 		return
 	}
+
 	session.gameAreaToWatch = &watchAreaAction.Payload.Area
 
 	emitUnitMapReceivedEvent(conn, session, gameId)
