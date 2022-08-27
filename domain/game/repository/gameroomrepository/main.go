@@ -16,7 +16,7 @@ var (
 
 type GameRoomRepository interface {
 	Add(aggregate.GameRoom) error
-	UpdateUnits(uuid.UUID, []valueobject.Coordinate, []valueobject.Unit) (updatedAt time.Time, err error)
+	UpdateUnits(uuid.UUID, []valueobject.Coordinate, []valueobject.Unit) (err error)
 	UpdateUnitMap(uuid.UUID, valueobject.UnitMap) (err error)
 	Get(uuid.UUID) (gameRoom aggregate.GameRoom, receivedAt time.Time, err error)
 	GetAll() []aggregate.GameRoom

@@ -113,9 +113,9 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 	return units, nil
 }
 
-func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueobject.Coordinate, []valueobject.Unit, error) {
+func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueobject.Coordinate, []valueobject.Unit, time.Time, error) {
 	if !gr.GetUnitMapSize().IncludesAllCoordinates(coordinates) {
-		return nil, nil, ErrSomeCoordinatesNotIncludedInMap
+		return nil, nil, time.Time{}, ErrSomeCoordinatesNotIncludedInMap
 	}
 	updatedUnits := make([]valueobject.Unit, 0)
 	for _, coordinate := range coordinates {
@@ -124,7 +124,8 @@ func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueob
 		gr.game.SetUnit(coordinate, newUnit)
 		updatedUnits = append(updatedUnits, newUnit)
 	}
-	return coordinates, updatedUnits, nil
+	revivedAt := time.Now()
+	return coordinates, updatedUnits, revivedAt, nil
 }
 
 func (gr *GameRoom) TickUnitMap() (valueobject.UnitMap, time.Time, error) {

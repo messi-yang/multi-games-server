@@ -118,14 +118,14 @@ func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates [
 		return time.Time{}, err
 	}
 
-	resCoords, resUnits, err := gameRoom.ReviveUnits(coordinates)
+	resCoords, resUnits, revivedAt, err := gameRoom.ReviveUnits(coordinates)
 	if err != nil {
 		return time.Time{}, err
 	}
-	updatedAt, err := gsi.gameRoomRepository.UpdateUnits(gameId, resCoords, resUnits)
+	err = gsi.gameRoomRepository.UpdateUnits(gameId, resCoords, resUnits)
 	if err != nil {
 		return time.Time{}, err
 	}
 
-	return updatedAt, nil
+	return revivedAt, nil
 }
