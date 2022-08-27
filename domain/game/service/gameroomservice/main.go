@@ -3,7 +3,6 @@ package gameroomservice
 import (
 	"time"
 
-	"github.com/DumDumGeniuss/ggol"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
@@ -94,16 +93,11 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, e
 		return time.Time{}, err
 	}
 
-	unitMap := gameRoom.GetUnitMap()
-	var unitMatrix [][]valueobject.Unit = unitMap.ToUnitMatrix()
-	gameOfLiberty, err := ggol.NewGame(&unitMatrix)
+	newUnitMap, err := gameRoom.TickUnitMap()
 	if err != nil {
 		return time.Time{}, err
 	}
-	gameOfLiberty.SetNextUnitGenerator(gameNextUnitGenerator)
 
-	nextUnitMatrix := gameOfLiberty.GenerateNextUnits()
-	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(*nextUnitMatrix)
 	updatedAt, err := gsi.gameRoomRepository.UpdateUnitMap(gameId, newUnitMap)
 	if err != nil {
 		return time.Time{}, err
