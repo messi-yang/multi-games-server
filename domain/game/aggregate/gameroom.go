@@ -103,6 +103,10 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap
 	return unitMap, nil
 }
 
+func (gr *GameRoom) GetLastTickedAt() time.Time {
+	return gr.lastTickedAt
+}
+
 func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate) ([]valueobject.Unit, error) {
 	units := make([]valueobject.Unit, 0)
 	for _, coord := range coordinates {

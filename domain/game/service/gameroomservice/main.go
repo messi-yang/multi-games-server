@@ -69,6 +69,7 @@ func (gsi *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, area val
 	defer rUnlocker()
 
 	gameRoom, receivedAt, err := gsi.gameRoomRepository.Get(gameId)
+
 	if err != nil {
 		return valueobject.UnitMap{}, time.Time{}, err
 	}
@@ -93,7 +94,7 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, e
 		return time.Time{}, err
 	}
 
-	newUnitMap, lastTickedAt, err := gameRoom.TickUnitMap()
+	newUnitMap, tickedAt, err := gameRoom.TickUnitMap()
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -103,7 +104,12 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, e
 		return time.Time{}, err
 	}
 
-	return lastTickedAt, nil
+	err = gsi.gameRoomRepository.UpdateTickedAt(gameId, tickedAt)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return tickedAt, nil
 }
 
 func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) (time.Time, error) {

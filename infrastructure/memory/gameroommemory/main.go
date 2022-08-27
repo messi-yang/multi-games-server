@@ -12,11 +12,12 @@ import (
 )
 
 type gameRoomRecord struct {
-	unitMap valueobject.UnitMap
+	unitMap  valueobject.UnitMap
+	tickedAt time.Time
 }
 
 type gameRoomMemory struct {
-	gameRoomRecords       map[uuid.UUID]gameRoomRecord
+	gameRoomRecords       map[uuid.UUID]*gameRoomRecord
 	gameRoomRecordLockers map[uuid.UUID]*sync.RWMutex
 }
 
@@ -25,7 +26,7 @@ var gameRoomMemoryInstance *gameRoomMemory
 func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
 	if gameRoomMemoryInstance == nil {
 		gameRoomMemoryInstance = &gameRoomMemory{
-			gameRoomRecords:       make(map[uuid.UUID]gameRoomRecord),
+			gameRoomRecords:       make(map[uuid.UUID]*gameRoomRecord),
 			gameRoomRecordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
 		return gameRoomMemoryInstance
@@ -41,7 +42,7 @@ func (gmi *gameRoomMemory) Get(id uuid.UUID) (aggregate.GameRoom, time.Time, err
 	}
 
 	game := entity.NewGameFromExistingEntity(id, gameRoomRecord.unitMap)
-	gameRoom := aggregate.NewGameRoom(game)
+	gameRoom := aggregate.NewGameRoomWithLastTickedAt(game, gameRoomRecord.tickedAt)
 	return gameRoom, time.Now(), nil
 }
 
@@ -49,10 +50,19 @@ func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
 	gameRoom := make([]aggregate.GameRoom, 0)
 	for gameId, gameRoomRecord := range gmi.gameRoomRecords {
 		game := entity.NewGameFromExistingEntity(gameId, gameRoomRecord.unitMap)
-		newGameRoom := aggregate.NewGameRoom(game)
+		newGameRoom := aggregate.NewGameRoomWithLastTickedAt(game, gameRoomRecord.tickedAt)
 		gameRoom = append(gameRoom, newGameRoom)
 	}
 	return gameRoom
+}
+
+func (gmi *gameRoomMemory) GetLastTickedAt(id uuid.UUID) (time.Time, error) {
+	gameRoomRecord, exists := gmi.gameRoomRecords[id]
+	if !exists {
+		return time.Time{}, gameroomrepository.ErrGameRoomNotFound
+	}
+
+	return gameRoomRecord.tickedAt, nil
 }
 
 func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
@@ -79,9 +89,20 @@ func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.U
 	return nil
 }
 
+func (gmi *gameRoomMemory) UpdateTickedAt(id uuid.UUID, tickedAt time.Time) error {
+	gameRoomRecord, exists := gmi.gameRoomRecords[id]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
+	gameRoomRecord.tickedAt = tickedAt
+
+	return nil
+}
+
 func (gmi *gameRoomMemory) Add(gameRoom aggregate.GameRoom) error {
 	gameUnitMap := gameRoom.GetUnitMap()
-	gmi.gameRoomRecords[gameRoom.GetGameId()] = gameRoomRecord{
+	gmi.gameRoomRecords[gameRoom.GetGameId()] = &gameRoomRecord{
 		unitMap: gameUnitMap,
 	}
 	gmi.gameRoomRecordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
