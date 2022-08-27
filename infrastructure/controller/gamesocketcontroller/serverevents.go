@@ -64,13 +64,13 @@ type unitsUpdatedEvent struct {
 	Payload unitsUpdatedEventPayload `json:"payload"`
 }
 
-func constructUnitsUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, unitDTOs []unitdto.UnitDTO) *unitsUpdatedEvent {
+func constructUnitsUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, unitDTOs []unitdto.UnitDTO, updatedAt time.Time) *unitsUpdatedEvent {
 	return &unitsUpdatedEvent{
 		Type: unitsUpdatedEventType,
 		Payload: unitsUpdatedEventPayload{
 			Coordinates: coordinateDTOs,
 			Units:       unitDTOs,
-			UpdatedAt:   time.Now(),
+			UpdatedAt:   updatedAt,
 		},
 	}
 }

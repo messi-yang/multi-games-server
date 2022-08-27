@@ -55,17 +55,17 @@ func (gmi *gameRoomMemory) GetAll() []aggregate.GameRoom {
 	return gameRoom
 }
 
-func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
+func (gmi *gameRoomMemory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) (time.Time, error) {
 	gameRoomRecord, exists := gmi.gameRoomRecords[gameId]
 	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
+		return time.Time{}, gameroomrepository.ErrGameRoomNotFound
 	}
 
 	for coordIdx, coord := range coordinates {
 		gameRoomRecord.unitMap.SetUnit(coord, units[coordIdx])
 	}
 
-	return nil
+	return time.Now(), nil
 }
 
 func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) (time.Time, error) {

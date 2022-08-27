@@ -59,8 +59,8 @@ func Controller(c *gin.Context) {
 	defer gameUnitMapUpdateddEventUnsubscriber()
 
 	gameUnitsUpdatedEventBus := gameunitsupdatedeventbus.GetUnitsUpdatedEventBus()
-	gameUnitsUpdatedEventUnsubscriber := gameUnitsUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO) {
-		emitUnitsUpdatedEvent(conn, session, gameId, coordinateDTOs)
+	gameUnitsUpdatedEventUnsubscriber := gameUnitsUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
+		emitUnitsUpdatedEvent(conn, session, gameId, coordinateDTOs, updatedAt)
 	})
 	defer gameUnitsUpdatedEventUnsubscriber()
 
@@ -149,7 +149,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO) {
+func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -159,7 +159,7 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.U
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
 	coordinateDTOsOfUnits, unitDTOs, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDTOs, *session.gameAreaToWatch)
-	gameUnitsUpdatedEvent := constructUnitsUpdatedEvent(coordinateDTOsOfUnits, unitDTOs)
+	gameUnitsUpdatedEvent := constructUnitsUpdatedEvent(coordinateDTOsOfUnits, unitDTOs, updatedAt)
 	sendJSONMessageToClient(conn, session, gameUnitsUpdatedEvent)
 }
 

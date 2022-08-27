@@ -138,12 +138,12 @@ func (grs *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinateDTO
 		return err
 	}
 
-	err = grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
+	updatedAt, err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		return err
 	}
 
-	grs.gameUnitsUpdatedEvent.Publish(gameId, coordinateDTOs)
+	grs.gameUnitsUpdatedEvent.Publish(gameId, coordinateDTOs, updatedAt)
 
 	return nil
 }
