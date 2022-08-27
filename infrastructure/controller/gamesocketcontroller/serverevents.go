@@ -16,6 +16,7 @@ const (
 	errorHappenedEventType      eventType = "ERROR"
 	informationUpdatedEventType eventType = "INFORMATION_UPDATED"
 	unitMapFetchedEventType     eventType = "UNIT_MAP_FETCHED"
+	unitMapUpdatedEventType     eventType = "UNIT_MAP_UPDATED"
 	unitsUpdatedEventType       eventType = "UNITS_UPDATED"
 )
 
@@ -74,10 +75,31 @@ func constructUnitsUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, un
 	}
 }
 
-type unitMapFetchedEventPayload struct {
+type unitMapUpdatedEventPayload struct {
 	Area      areadto.AreaDTO       `json:"area"`
 	UnitMap   unitmapdto.UnitMapDTO `json:"unitMap"`
 	UpdatedAt time.Time             `json:"updateAt"`
+}
+type unitMapUpdatedEvent struct {
+	Type    eventType                  `json:"type"`
+	Payload unitMapUpdatedEventPayload `json:"payload"`
+}
+
+func constructUnitMapUpdated(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.UnitMapDTO) *unitMapUpdatedEvent {
+	return &unitMapUpdatedEvent{
+		Type: unitMapUpdatedEventType,
+		Payload: unitMapUpdatedEventPayload{
+			Area:      gameAreaDTO,
+			UnitMap:   unitMap,
+			UpdatedAt: time.Now(),
+		},
+	}
+}
+
+type unitMapFetchedEventPayload struct {
+	Area      areadto.AreaDTO       `json:"area"`
+	UnitMap   unitmapdto.UnitMapDTO `json:"unitMap"`
+	FetchedAt time.Time             `json:"updateAt"`
 }
 type unitMapFetchedEvent struct {
 	Type    eventType                  `json:"type"`
@@ -90,7 +112,7 @@ func constructUnitMapFetched(gameAreaDTO areadto.AreaDTO, unitMap unitmapdto.Uni
 		Payload: unitMapFetchedEventPayload{
 			Area:      gameAreaDTO,
 			UnitMap:   unitMap,
-			UpdatedAt: time.Now(),
+			FetchedAt: time.Now(),
 		},
 	}
 }

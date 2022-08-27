@@ -53,7 +53,7 @@ func Controller(c *gin.Context) {
 
 	gameUnitMapUpdatedEventBus := gameunitmapupdatedeventbus.GetGameUnitMapUpdatedEventBus()
 	gameUnitMapUpdateddEventUnsubscriber := gameUnitMapUpdatedEventBus.Subscribe(gameId, func() {
-		emitUnitMapFetched(conn, session, gameId)
+		emitUnitMapUpdatedEvent(conn, session, gameId)
 	})
 	defer gameUnitMapUpdateddEventUnsubscriber()
 
@@ -162,7 +162,7 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.U
 	sendJSONMessageToClient(conn, session, gameUnitsUpdatedEvent)
 }
 
-func emitUnitMapFetched(conn *websocket.Conn, session *session, gameId uuid.UUID) {
+func emitUnitMapFetchedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -181,6 +181,25 @@ func emitUnitMapFetched(conn *websocket.Conn, session *session, gameId uuid.UUID
 	sendJSONMessageToClient(conn, session, unitMapFetchedEvent)
 }
 
+func emitUnitMapUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
+	if session.gameAreaToWatch == nil {
+		return
+	}
+
+	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomService := gameroomservice.NewGameRoomService(
+		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
+	)
+	unitDTOMap, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
+	if err != nil {
+		emitErrorEvent(conn, session, err)
+		return
+	}
+
+	unitMapFetchedEvent := constructUnitMapUpdated(*session.gameAreaToWatch, unitDTOMap)
+	sendJSONMessageToClient(conn, session, unitMapFetchedEvent)
+}
+
 func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
 	watchAreaAction, err := extractWatchAreaActionFromMessage(message)
 	if err != nil {
@@ -189,7 +208,7 @@ func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byt
 	}
 	session.gameAreaToWatch = &watchAreaAction.Payload.Area
 
-	emitUnitMapFetched(conn, session, gameId)
+	emitUnitMapFetchedEvent(conn, session, gameId)
 }
 
 func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
