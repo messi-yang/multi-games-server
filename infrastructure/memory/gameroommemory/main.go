@@ -89,7 +89,7 @@ func (gmi *gameRoomMemory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.U
 	return nil
 }
 
-func (gmi *gameRoomMemory) UpdateTickedAt(id uuid.UUID, tickedAt time.Time) error {
+func (gmi *gameRoomMemory) UpdateLastTickedAt(id uuid.UUID, tickedAt time.Time) error {
 	gameRoomRecord, exists := gmi.gameRoomRecords[id]
 	if !exists {
 		return gameroomrepository.ErrGameRoomNotFound

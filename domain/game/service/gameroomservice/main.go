@@ -104,7 +104,7 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, e
 		return time.Time{}, err
 	}
 
-	err = gsi.gameRoomRepository.UpdateTickedAt(gameId, tickedAt)
+	err = gsi.gameRoomRepository.UpdateLastTickedAt(gameId, tickedAt)
 	if err != nil {
 		return time.Time{}, err
 	}
