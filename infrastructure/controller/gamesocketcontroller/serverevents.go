@@ -17,7 +17,7 @@ const (
 	informationUpdatedEventType eventType = "INFORMATION_UPDATED"
 	unitMapReceivedEventType    eventType = "UNIT_MAP_RECEIVED"
 	unitMapUpdatedEventType     eventType = "UNIT_MAP_UPDATED"
-	unitsRevivedEventType       eventType = "UNITS_UPDATED"
+	unitsRevivedEventType       eventType = "UNITS_REVIVED"
 )
 
 type errorHappenedEventPayload struct {
