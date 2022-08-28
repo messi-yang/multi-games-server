@@ -1,4 +1,4 @@
-package gameunitsupdatedevent
+package gameunitsrevivedevent
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type UnitsUpdatedEvent interface {
+type UnitsRevivedEvent interface {
 	Publish(gameId uuid.UUID, coordinates []coordinatedto.CoordinateDTO, updatedAt time.Time)
 	Subscribe(gameId uuid.UUID, callback func(coordinates []coordinatedto.CoordinateDTO, updatedAt time.Time)) (unsubscriber func())
 }

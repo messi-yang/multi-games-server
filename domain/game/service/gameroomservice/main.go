@@ -16,7 +16,7 @@ type GameRoomService interface {
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, time.Time, error)
 	TickUnitMap(gameId uuid.UUID) (time.Time, error)
-	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) (updatedAt time.Time, err error)
+	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) (time.Time, error)
 }
 
 type gameRoomServiceImplement struct {

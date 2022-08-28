@@ -13,7 +13,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmapupdatedeventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitsupdatedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitsrevivedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -58,11 +58,11 @@ func Controller(c *gin.Context) {
 	})
 	defer gameUnitMapUpdateddEventUnsubscriber()
 
-	gameUnitsUpdatedEventBus := gameunitsupdatedeventbus.GetUnitsUpdatedEventBus()
-	gameUnitsUpdatedEventUnsubscriber := gameUnitsUpdatedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
-		emitUnitsUpdatedEvent(conn, session, gameId, coordinateDTOs, updatedAt)
+	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
+	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
+		emitUnitsRevivedEvent(conn, session, gameId, coordinateDTOs, updatedAt)
 	})
-	defer gameUnitsUpdatedEventUnsubscriber()
+	defer gameUnitsRevivedEventUnsubscriber()
 
 	// conn.SetCloseHandler(func(code int, text string) error {
 	// 	return nil
@@ -149,7 +149,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
+func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -159,8 +159,8 @@ func emitUnitsUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.U
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
 	coordinateDTOsOfUnits, unitDTOs, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDTOs, *session.gameAreaToWatch)
-	gameUnitsUpdatedEvent := constructUnitsUpdatedEvent(coordinateDTOsOfUnits, unitDTOs, updatedAt)
-	sendJSONMessageToClient(conn, session, gameUnitsUpdatedEvent)
+	gameUnitsRevivedEvent := constructUnitsRevivedEvent(coordinateDTOsOfUnits, unitDTOs, updatedAt)
+	sendJSONMessageToClient(conn, session, gameUnitsRevivedEvent)
 }
 
 func emitUnitMapReceivedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
@@ -221,9 +221,9 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameUnitsUpdatedEventBus := gameunitsupdatedeventbus.GetUnitsUpdatedEventBus()
+	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
 	gameRoomService := gameroomservice.NewGameRoomService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory, UnitsUpdatedEvent: gameUnitsUpdatedEventBus},
+		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory, UnitsRevivedEvent: gameUnitsRevivedEventBus},
 	)
 	err = gameRoomService.ReviveUnits(gameId, reviveUnitsAction.Payload.Coordinates)
 	if err != nil {

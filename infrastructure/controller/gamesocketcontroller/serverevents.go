@@ -17,7 +17,7 @@ const (
 	informationUpdatedEventType eventType = "INFORMATION_UPDATED"
 	unitMapReceivedEventType    eventType = "UNIT_MAP_RECEIVED"
 	unitMapUpdatedEventType     eventType = "UNIT_MAP_UPDATED"
-	unitsUpdatedEventType       eventType = "UNITS_UPDATED"
+	unitsRevivedEventType       eventType = "UNITS_UPDATED"
 )
 
 type errorHappenedEventPayload struct {
@@ -54,20 +54,20 @@ func constructInformationUpdatedEvent(mapSizeDTO mapsizedto.MapSizeDTO) *informa
 	}
 }
 
-type unitsUpdatedEventPayload struct {
+type unitsRevivedEventPayload struct {
 	Coordinates []coordinatedto.CoordinateDTO `json:"coordinates"`
 	Units       []unitdto.UnitDTO             `json:"units"`
 	UpdatedAt   time.Time                     `json:"updateAt"`
 }
-type unitsUpdatedEvent struct {
+type unitsRevivedEvent struct {
 	Type    eventType                `json:"type"`
-	Payload unitsUpdatedEventPayload `json:"payload"`
+	Payload unitsRevivedEventPayload `json:"payload"`
 }
 
-func constructUnitsUpdatedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, unitDTOs []unitdto.UnitDTO, updatedAt time.Time) *unitsUpdatedEvent {
-	return &unitsUpdatedEvent{
-		Type: unitsUpdatedEventType,
-		Payload: unitsUpdatedEventPayload{
+func constructUnitsRevivedEvent(coordinateDTOs []coordinatedto.CoordinateDTO, unitDTOs []unitdto.UnitDTO, updatedAt time.Time) *unitsRevivedEvent {
+	return &unitsRevivedEvent{
+		Type: unitsRevivedEventType,
+		Payload: unitsRevivedEventPayload{
 			Coordinates: coordinateDTOs,
 			Units:       unitDTOs,
 			UpdatedAt:   updatedAt,
