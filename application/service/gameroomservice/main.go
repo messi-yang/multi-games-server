@@ -9,7 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmapupdatedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitsrevivedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/service/gameroomservice"
@@ -31,22 +31,22 @@ type GameRoomService interface {
 }
 
 type gameRoomServiceImplement struct {
-	gameRoomDomainService   gameroomservice.GameRoomService
-	gameUnitMapUpdatedEvent gameunitmapupdatedevent.GameUnitMapUpdatedEvent
-	gameUnitsRevivedEvent   gameunitsrevivedevent.UnitsRevivedEvent
+	gameRoomDomainService  gameroomservice.GameRoomService
+	gameUnitMapTickedEvent gameunitmaptickedevent.GameUnitMapTickedEvent
+	gameUnitsRevivedEvent  gameunitsrevivedevent.UnitsRevivedEvent
 }
 
 type Configuration struct {
-	GameRoomRepository gameroomrepository.GameRoomRepository
-	GameComputeEvent   gameunitmapupdatedevent.GameUnitMapUpdatedEvent
-	UnitsRevivedEvent  gameunitsrevivedevent.UnitsRevivedEvent
+	GameRoomRepository     gameroomrepository.GameRoomRepository
+	GameUnitMapTickedEvent gameunitmaptickedevent.GameUnitMapTickedEvent
+	UnitsRevivedEvent      gameunitsrevivedevent.UnitsRevivedEvent
 }
 
 func NewGameRoomService(config Configuration) GameRoomService {
 	return &gameRoomServiceImplement{
-		gameRoomDomainService:   gameroomservice.NewGameRoomService(config.GameRoomRepository),
-		gameUnitMapUpdatedEvent: config.GameComputeEvent,
-		gameUnitsRevivedEvent:   config.UnitsRevivedEvent,
+		gameRoomDomainService:  gameroomservice.NewGameRoomService(config.GameRoomRepository),
+		gameUnitMapTickedEvent: config.GameUnitMapTickedEvent,
+		gameUnitsRevivedEvent:  config.UnitsRevivedEvent,
 	}
 }
 
@@ -79,7 +79,7 @@ func (grs *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDTO 
 }
 
 func (grs *gameRoomServiceImplement) TcikAllUnitMaps() error {
-	if grs.gameUnitMapUpdatedEvent == nil {
+	if grs.gameUnitMapTickedEvent == nil {
 		return ErrEventNotFound
 	}
 
@@ -89,7 +89,7 @@ func (grs *gameRoomServiceImplement) TcikAllUnitMaps() error {
 		if err != nil {
 			continue
 		}
-		grs.gameUnitMapUpdatedEvent.Publish(gameRoom.GetGameId(), updatedAt)
+		grs.gameUnitMapTickedEvent.Publish(gameRoom.GetGameId(), updatedAt)
 	}
 
 	return nil

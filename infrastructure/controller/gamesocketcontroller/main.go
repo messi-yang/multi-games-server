@@ -12,7 +12,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/compressionservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmapupdatedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmaptickedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitsrevivedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 	"github.com/gin-gonic/gin"
@@ -52,11 +52,11 @@ func Controller(c *gin.Context) {
 
 	emitGameInfoUpdatedEvent(conn, session, gameId)
 
-	gameUnitMapUpdatedEventBus := gameunitmapupdatedeventbus.GetGameUnitMapUpdatedEventBus()
-	gameUnitMapUpdateddEventUnsubscriber := gameUnitMapUpdatedEventBus.Subscribe(gameId, func(updatedAt time.Time) {
-		emitUnitMapUpdatedEvent(conn, session, gameId, updatedAt)
+	gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetGameUnitMapTickedEventBus()
+	gameUnitMapTickeddEventUnsubscriber := gameUnitMapTickedEventBus.Subscribe(gameId, func(updatedAt time.Time) {
+		emitUnitMapTickedEvent(conn, session, gameId, updatedAt)
 	})
-	defer gameUnitMapUpdateddEventUnsubscriber()
+	defer gameUnitMapTickeddEventUnsubscriber()
 
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
 	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
@@ -182,7 +182,7 @@ func emitUnitMapReceivedEvent(conn *websocket.Conn, session *session, gameId uui
 	sendJSONMessageToClient(conn, session, unitMapReceivedEvent)
 }
 
-func emitUnitMapUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, updatedAt time.Time) {
+func emitUnitMapTickedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, updatedAt time.Time) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -197,8 +197,8 @@ func emitUnitMapUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid
 		return
 	}
 
-	unitMapUpdatedEvent := constructUnitMapUpdated(*session.gameAreaToWatch, unitDTOMap, updatedAt)
-	sendJSONMessageToClient(conn, session, unitMapUpdatedEvent)
+	unitMapTickedEvent := constructUnitMapTicked(*session.gameAreaToWatch, unitDTOMap, updatedAt)
+	sendJSONMessageToClient(conn, session, unitMapTickedEvent)
 }
 
 func handleWatchAreaAction(conn *websocket.Conn, session *session, message []byte, gameId uuid.UUID) {
