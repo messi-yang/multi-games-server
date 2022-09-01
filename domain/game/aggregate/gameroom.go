@@ -117,28 +117,28 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 	return units, nil
 }
 
-func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) ([]valueobject.Coordinate, []valueobject.Unit, time.Time, error) {
+func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) (time.Time, error) {
 	if !gr.GetUnitMapSize().IncludesAllCoordinates(coordinates) {
-		return nil, nil, time.Time{}, ErrSomeCoordinatesNotIncludedInMap
+		return time.Time{}, ErrSomeCoordinatesNotIncludedInMap
 	}
-	updatedUnits := make([]valueobject.Unit, 0)
+
 	for _, coordinate := range coordinates {
 		unit := gr.game.GetUnit(coordinate)
 		newUnit := unit.SetAlive(true)
 		gr.game.SetUnit(coordinate, newUnit)
-		updatedUnits = append(updatedUnits, newUnit)
 	}
+
 	revivedAt := time.Now()
-	return coordinates, updatedUnits, revivedAt, nil
+	return revivedAt, nil
 }
 
-func (gr *GameRoom) TickUnitMap() (valueobject.UnitMap, time.Time, error) {
+func (gr *GameRoom) TickUnitMap() (time.Time, error) {
 	unitMap := gr.game.GetUnitMap()
 
 	var unitMatrix [][]valueobject.Unit = unitMap.ToUnitMatrix()
 	gameOfLiberty, err := ggol.NewGame(&unitMatrix)
 	if err != nil {
-		return valueobject.UnitMap{}, time.Time{}, err
+		return time.Time{}, err
 	}
 	gameOfLiberty.SetNextUnitGenerator(ggolNextUnitGenerator)
 	nextUnitMatrix := gameOfLiberty.GenerateNextUnits()
@@ -148,5 +148,5 @@ func (gr *GameRoom) TickUnitMap() (valueobject.UnitMap, time.Time, error) {
 
 	gr.lastTickedAt = time.Now()
 
-	return newUnitMap, gr.lastTickedAt, nil
+	return gr.lastTickedAt, nil
 }

@@ -94,12 +94,14 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, e
 		return time.Time{}, err
 	}
 
-	newUnitMap, tickedAt, err := gameRoom.TickUnitMap()
+	tickedAt, err := gameRoom.TickUnitMap()
 	if err != nil {
 		return time.Time{}, err
 	}
 
-	err = gsi.gameRoomRepository.UpdateUnitMap(gameId, newUnitMap)
+	updatedUnitMap := gameRoom.GetUnitMap()
+
+	err = gsi.gameRoomRepository.UpdateUnitMap(gameId, updatedUnitMap)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -124,11 +126,17 @@ func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates [
 		return time.Time{}, err
 	}
 
-	resCoords, resUnits, revivedAt, err := gameRoom.ReviveUnits(coordinates)
+	revivedAt, err := gameRoom.ReviveUnits(coordinates)
 	if err != nil {
 		return time.Time{}, err
 	}
-	err = gsi.gameRoomRepository.UpdateUnits(gameId, resCoords, resUnits)
+
+	updatedUnits, err := gameRoom.GetUnitsWithCoordinates(coordinates)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	err = gsi.gameRoomRepository.UpdateUnits(gameId, coordinates, updatedUnits)
 	if err != nil {
 		return time.Time{}, err
 	}
