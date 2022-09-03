@@ -14,7 +14,7 @@ var (
 	ErrGameRoomLockerNotFound = errors.New("the game room locker for with the id was not found")
 )
 
-type GameRoomRepository interface {
+type Repository interface {
 	Add(aggregate.GameRoom) error
 	UpdateUnits(uuid.UUID, []valueobject.Coordinate, []valueobject.Unit) (err error)
 	UpdateUnitMap(uuid.UUID, valueobject.UnitMap) (err error)

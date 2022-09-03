@@ -37,7 +37,7 @@ type serviceImplement struct {
 }
 
 type Configuration struct {
-	GameRoomRepository     gameroomrepository.GameRoomRepository
+	GameRoomRepository     gameroomrepository.Repository
 	GameUnitMapTickedEvent gameunitmaptickedevent.Event
 	UnitsRevivedEvent      gameunitsrevivedevent.Event
 }

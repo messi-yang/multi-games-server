@@ -23,7 +23,7 @@ type gameRoomMemory struct {
 
 var gameRoomMemoryInstance *gameRoomMemory
 
-func GetGameRoomMemory() gameroomrepository.GameRoomRepository {
+func GetGameRoomMemory() gameroomrepository.Repository {
 	if gameRoomMemoryInstance == nil {
 		gameRoomMemoryInstance = &gameRoomMemory{
 			gameRoomRecords:       make(map[uuid.UUID]*gameRoomRecord),

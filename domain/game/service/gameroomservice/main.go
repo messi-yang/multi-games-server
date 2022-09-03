@@ -21,12 +21,12 @@ type GameRoomService interface {
 }
 
 type gameRoomServiceImplement struct {
-	gameRoomRepository gameroomrepository.GameRoomRepository
+	gameRoomRepository gameroomrepository.Repository
 }
 
 var gameRoomService GameRoomService = nil
 
-func NewGameRoomService(gameRoomRepository gameroomrepository.GameRoomRepository) GameRoomService {
+func NewGameRoomService(gameRoomRepository gameroomrepository.Repository) GameRoomService {
 	if gameRoomService == nil {
 		gameRoomService = &gameRoomServiceImplement{
 			gameRoomRepository: gameRoomRepository,
