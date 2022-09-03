@@ -19,7 +19,7 @@ type gameUnitsRevivedEventCallback = func(coordinateDTOs []coordinatedto.Coordin
 
 var gameUnitsRevivedEventInstance *gameUnitsRevivedEventBus
 
-func GetUnitsRevivedEventBus() gameunitsrevivedevent.UnitsRevivedEvent {
+func GetUnitsRevivedEventBus() gameunitsrevivedevent.Event {
 	if gameUnitsRevivedEventInstance == nil {
 		gameUnitsRevivedEventInstance = &gameUnitsRevivedEventBus{
 			eventBus:   EventBus.New(),

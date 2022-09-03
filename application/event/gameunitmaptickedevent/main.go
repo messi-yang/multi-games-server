@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameUnitMapTickedEvent interface {
+type Event interface {
 	Publish(gameId uuid.UUID, updatedAt time.Time)
 	Subscribe(gameId uuid.UUID, callback func(updatedAt time.Time)) (unsubscriber func())
 }

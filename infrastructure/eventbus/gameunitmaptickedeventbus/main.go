@@ -18,7 +18,7 @@ type gameUnitMapTickedEventCallback = func(updatedAt time.Time)
 
 var gameUnitMapTickedEventInstance *gameUnitMapTickedEventBus
 
-func GetGameUnitMapTickedEventBus() gameunitmaptickedevent.GameUnitMapTickedEvent {
+func GetGameUnitMapTickedEventBus() gameunitmaptickedevent.Event {
 	if gameUnitMapTickedEventInstance == nil {
 		gameUnitMapTickedEventInstance = &gameUnitMapTickedEventBus{
 			eventBus:   EventBus.New(),

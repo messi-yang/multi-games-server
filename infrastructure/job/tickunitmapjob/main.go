@@ -17,7 +17,7 @@ type TickUnitMapJob interface {
 
 type tickUnitMapJobImpl struct {
 	gameRoomRepository        gameroomrepository.GameRoomRepository
-	gameUnitMapTickedEventBus gameunitmaptickedevent.GameUnitMapTickedEvent
+	gameUnitMapTickedEventBus gameunitmaptickedevent.Event
 	gameTicker                *time.Ticker
 	unitMapTickerStop         chan bool
 }
