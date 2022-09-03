@@ -80,7 +80,7 @@ func Controller(c *gin.Context) {
 				break
 			}
 
-			compressionService := compressionservice.NewCompressionService()
+			compressionService := compressionservice.NewService()
 			message, err := compressionService.Ungzip(compressedMessage)
 			if err != nil {
 				emitErrorEvent(conn, session, err)
@@ -116,7 +116,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, session *session, message any
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	compressionService := compressionservice.NewCompressionService()
+	compressionService := compressionservice.NewService()
 	compressedMessage, err := compressionService.Gzip(messageJsonInBytes)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
@@ -136,7 +136,7 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 
 func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameRoomService := gameroomservice.NewGameRoomService(
+	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
 	unitMapSize, err := gameRoomService.GetUnitMapSize(gameId)
@@ -155,7 +155,7 @@ func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.U
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameRoomService := gameroomservice.NewGameRoomService(
+	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
 	coordinateDTOsOfUnits, unitDTOs, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDTOs, *session.gameAreaToWatch)
@@ -169,7 +169,7 @@ func emitUnitMapReceivedEvent(conn *websocket.Conn, session *session, gameId uui
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameRoomService := gameroomservice.NewGameRoomService(
+	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
 	unitDTOMap, receivedAt, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
@@ -188,7 +188,7 @@ func emitUnitMapTickedEvent(conn *websocket.Conn, session *session, gameId uuid.
 	}
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
-	gameRoomService := gameroomservice.NewGameRoomService(
+	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
 	unitDTOMap, _, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
@@ -222,7 +222,7 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 
 	gameRoomMemory := gameroommemory.GetGameRoomMemory()
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
-	gameRoomService := gameroomservice.NewGameRoomService(
+	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory, UnitsRevivedEvent: gameUnitsRevivedEventBus},
 	)
 	err = gameRoomService.ReviveUnits(gameId, reviveUnitsAction.Payload.Coordinates)

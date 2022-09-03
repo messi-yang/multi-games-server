@@ -49,7 +49,7 @@ func (gwi *tickUnitMapJobImpl) Start() {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				gameRoomService := gameroomservice.NewGameRoomService(
+				gameRoomService := gameroomservice.NewService(
 					gameroomservice.Configuration{
 						GameRoomRepository:     gwi.gameRoomRepository,
 						GameUnitMapTickedEvent: gwi.gameUnitMapTickedEventBus,
