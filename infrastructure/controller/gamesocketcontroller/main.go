@@ -22,7 +22,7 @@ import (
 )
 
 type session struct {
-	gameAreaToWatch *areadto.DTO
+	gameAreaToWatch *areadto.Dto
 	socketLocker    sync.RWMutex
 }
 
@@ -59,8 +59,8 @@ func Controller(c *gin.Context) {
 	defer gameUnitMapTickeddEventUnsubscriber()
 
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
-	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.DTO, updatedAt time.Time) {
-		emitUnitsRevivedEvent(conn, session, gameId, coordinateDTOs, updatedAt)
+	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
+		emitUnitsRevivedEvent(conn, session, gameId, coordinateDtos, updatedAt)
 	})
 	defer gameUnitsRevivedEventUnsubscriber()
 
@@ -149,7 +149,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.DTO, updatedAt time.Time) {
+func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
 	if session.gameAreaToWatch == nil {
 		return
 	}
@@ -158,8 +158,8 @@ func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.U
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
-	coordinateDTOsOfUnits, unitDTOs, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDTOs, *session.gameAreaToWatch)
-	gameUnitsRevivedEvent := constructUnitsRevivedEvent(coordinateDTOsOfUnits, unitDTOs, updatedAt)
+	coordinateDtosOfUnits, unitDtos, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDtos, *session.gameAreaToWatch)
+	gameUnitsRevivedEvent := constructUnitsRevivedEvent(coordinateDtosOfUnits, unitDtos, updatedAt)
 	sendJSONMessageToClient(conn, session, gameUnitsRevivedEvent)
 }
 
@@ -172,13 +172,13 @@ func emitUnitMapReceivedEvent(conn *websocket.Conn, session *session, gameId uui
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
-	unitDTOMap, receivedAt, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
+	unitDtoMap, receivedAt, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 		return
 	}
 
-	unitMapReceivedEvent := constructUnitMapReceived(*session.gameAreaToWatch, unitDTOMap, receivedAt)
+	unitMapReceivedEvent := constructUnitMapReceived(*session.gameAreaToWatch, unitDtoMap, receivedAt)
 	sendJSONMessageToClient(conn, session, unitMapReceivedEvent)
 }
 
@@ -191,13 +191,13 @@ func emitUnitMapTickedEvent(conn *websocket.Conn, session *session, gameId uuid.
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
 	)
-	unitDTOMap, _, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
+	unitDtoMap, _, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
 	if err != nil {
 		emitErrorEvent(conn, session, err)
 		return
 	}
 
-	unitMapTickedEvent := constructUnitMapTicked(*session.gameAreaToWatch, unitDTOMap, updatedAt)
+	unitMapTickedEvent := constructUnitMapTicked(*session.gameAreaToWatch, unitDtoMap, updatedAt)
 	sendJSONMessageToClient(conn, session, unitMapTickedEvent)
 }
 

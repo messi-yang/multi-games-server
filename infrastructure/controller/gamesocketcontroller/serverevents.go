@@ -38,25 +38,25 @@ func constructErrorHappenedEvent(clientMessage string) *errorHappenedEvent {
 }
 
 type informationUpdatedEventPayload struct {
-	MapSize mapsizedto.DTO `json:"mapSize"`
+	MapSize mapsizedto.Dto `json:"mapSize"`
 }
 type informationUpdatedEvent struct {
 	Type    eventType                      `json:"type"`
 	Payload informationUpdatedEventPayload `json:"payload"`
 }
 
-func constructInformationUpdatedEvent(mapSizeDTO mapsizedto.DTO) *informationUpdatedEvent {
+func constructInformationUpdatedEvent(mapSizeDto mapsizedto.Dto) *informationUpdatedEvent {
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
-			MapSize: mapSizeDTO,
+			MapSize: mapSizeDto,
 		},
 	}
 }
 
 type unitsRevivedEventPayload struct {
-	Coordinates []coordinatedto.DTO `json:"coordinates"`
-	Units       []unitdto.DTO       `json:"units"`
+	Coordinates []coordinatedto.Dto `json:"coordinates"`
+	Units       []unitdto.Dto       `json:"units"`
 	UpdatedAt   time.Time           `json:"updateAt"`
 }
 type unitsRevivedEvent struct {
@@ -64,20 +64,20 @@ type unitsRevivedEvent struct {
 	Payload unitsRevivedEventPayload `json:"payload"`
 }
 
-func constructUnitsRevivedEvent(coordinateDTOs []coordinatedto.DTO, unitDTOs []unitdto.DTO, updatedAt time.Time) *unitsRevivedEvent {
+func constructUnitsRevivedEvent(coordinateDtos []coordinatedto.Dto, unitDtos []unitdto.Dto, updatedAt time.Time) *unitsRevivedEvent {
 	return &unitsRevivedEvent{
 		Type: unitsRevivedEventType,
 		Payload: unitsRevivedEventPayload{
-			Coordinates: coordinateDTOs,
-			Units:       unitDTOs,
+			Coordinates: coordinateDtos,
+			Units:       unitDtos,
 			UpdatedAt:   updatedAt,
 		},
 	}
 }
 
 type unitMapTickedEventPayload struct {
-	Area      areadto.DTO    `json:"area"`
-	UnitMap   unitmapdto.DTO `json:"unitMap"`
+	Area      areadto.Dto    `json:"area"`
+	UnitMap   unitmapdto.Dto `json:"unitMap"`
 	UpdatedAt time.Time      `json:"updateAt"`
 }
 type unitMapTickedEvent struct {
@@ -85,11 +85,11 @@ type unitMapTickedEvent struct {
 	Payload unitMapTickedEventPayload `json:"payload"`
 }
 
-func constructUnitMapTicked(gameDTO areadto.DTO, unitMap unitmapdto.DTO, updatedAt time.Time) *unitMapTickedEvent {
+func constructUnitMapTicked(gameDto areadto.Dto, unitMap unitmapdto.Dto, updatedAt time.Time) *unitMapTickedEvent {
 	return &unitMapTickedEvent{
 		Type: unitMapTickedEventType,
 		Payload: unitMapTickedEventPayload{
-			Area:      gameDTO,
+			Area:      gameDto,
 			UnitMap:   unitMap,
 			UpdatedAt: updatedAt,
 		},
@@ -97,8 +97,8 @@ func constructUnitMapTicked(gameDTO areadto.DTO, unitMap unitmapdto.DTO, updated
 }
 
 type unitMapReceivedEventPayload struct {
-	Area       areadto.DTO    `json:"area"`
-	UnitMap    unitmapdto.DTO `json:"unitMap"`
+	Area       areadto.Dto    `json:"area"`
+	UnitMap    unitmapdto.Dto `json:"unitMap"`
 	ReceivedAt time.Time      `json:"receivedAt"`
 }
 type unitMapReceivedEvent struct {
@@ -106,11 +106,11 @@ type unitMapReceivedEvent struct {
 	Payload unitMapReceivedEventPayload `json:"payload"`
 }
 
-func constructUnitMapReceived(gameDTO areadto.DTO, unitMap unitmapdto.DTO, receivedAt time.Time) *unitMapReceivedEvent {
+func constructUnitMapReceived(gameDto areadto.Dto, unitMap unitmapdto.Dto, receivedAt time.Time) *unitMapReceivedEvent {
 	return &unitMapReceivedEvent{
 		Type: unitMapReceivedEventType,
 		Payload: unitMapReceivedEventPayload{
-			Area:       gameDTO,
+			Area:       gameDto,
 			UnitMap:    unitMap,
 			ReceivedAt: receivedAt,
 		},

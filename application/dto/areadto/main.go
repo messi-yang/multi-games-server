@@ -5,18 +5,18 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 )
 
-type DTO struct {
-	From coordinatedto.DTO `json:"from"`
-	To   coordinatedto.DTO `json:"to"`
+type Dto struct {
+	From coordinatedto.Dto `json:"from"`
+	To   coordinatedto.Dto `json:"to"`
 }
 
-func FromDTO(areaDTO DTO) (valueobject.Area, error) {
-	fromCoordinate, err := coordinatedto.FromDTO(areaDTO.From)
+func FromDto(areaDto Dto) (valueobject.Area, error) {
+	fromCoordinate, err := coordinatedto.FromDto(areaDto.From)
 	if err != nil {
 		return valueobject.Area{}, err
 	}
 
-	toCoordinate, err := coordinatedto.FromDTO(areaDTO.To)
+	toCoordinate, err := coordinatedto.FromDto(areaDto.To)
 	if err != nil {
 		return valueobject.Area{}, err
 	}

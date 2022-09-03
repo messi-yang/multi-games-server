@@ -23,11 +23,11 @@ var (
 
 type Service interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
-	GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.DTO) (unitMapDTO unitmapdto.DTO, receivedAt time.Time, err error)
+	GetUnitMapByArea(gameId uuid.UUID, areaDto areadto.Dto) (unitMapDto unitmapdto.Dto, receivedAt time.Time, err error)
 	TcikAllUnitMaps() error
-	ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.DTO) error
-	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.DTO, error)
-	GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDTOs []coordinatedto.DTO, areaDTO areadto.DTO) ([]coordinatedto.DTO, []unitdto.DTO, error)
+	ReviveUnits(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) error
+	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.Dto, error)
+	GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, areaDto areadto.Dto) ([]coordinatedto.Dto, []unitdto.Dto, error)
 }
 
 type serviceImplement struct {
@@ -63,19 +63,19 @@ func (grs *serviceImplement) CreateRoom(width int, height int) (gameId uuid.UUID
 	return gameRoom.GetGameId(), nil
 }
 
-func (grs *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDTO areadto.DTO) (unitmapdto.DTO, time.Time, error) {
-	area, err := areadto.FromDTO(areaDTO)
+func (grs *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDto areadto.Dto) (unitmapdto.Dto, time.Time, error) {
+	area, err := areadto.FromDto(areaDto)
 	if err != nil {
-		return unitmapdto.DTO{}, time.Time{}, err
+		return unitmapdto.Dto{}, time.Time{}, err
 	}
 	unitMap, receivedAt, err := grs.gameRoomDomainService.GetUnitMapByArea(gameId, area)
 	if err != nil {
-		return unitmapdto.DTO{}, time.Time{}, err
+		return unitmapdto.Dto{}, time.Time{}, err
 	}
 
-	unitMapDTO := unitmapdto.ToDTO(unitMap)
+	unitMapDto := unitmapdto.ToDto(unitMap)
 
-	return unitMapDTO, receivedAt, nil
+	return unitMapDto, receivedAt, nil
 }
 
 func (grs *serviceImplement) TcikAllUnitMaps() error {
@@ -95,26 +95,26 @@ func (grs *serviceImplement) TcikAllUnitMaps() error {
 	return nil
 }
 
-func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (mapsizedto.DTO, error) {
+func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (mapsizedto.Dto, error) {
 	gameRoom, err := grs.gameRoomDomainService.GetRoom(gameId)
 	if err != nil {
-		return mapsizedto.DTO{}, err
+		return mapsizedto.Dto{}, err
 	}
-	return mapsizedto.ToDTO(gameRoom.GetUnitMapSize()), nil
+	return mapsizedto.ToDto(gameRoom.GetUnitMapSize()), nil
 }
 
-func (grs *serviceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDTOs []coordinatedto.DTO, areaDTO areadto.DTO) ([]coordinatedto.DTO, []unitdto.DTO, error) {
+func (grs *serviceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, areaDto areadto.Dto) ([]coordinatedto.Dto, []unitdto.Dto, error) {
 	gameRoom, err := grs.gameRoomDomainService.GetRoom(gameId)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	coordinates, err := coordinatedto.FromDTOList(coordinateDTOs)
+	coordinates, err := coordinatedto.FromDtoList(coordinateDtos)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	area, err := areadto.FromDTO(areaDTO)
+	area, err := areadto.FromDto(areaDto)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -125,15 +125,15 @@ func (grs *serviceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUID, coord
 		return nil, nil, err
 	}
 
-	return coordinatedto.ToDTOList(coordinatesInArea), unitdto.ToDTOList(units), nil
+	return coordinatedto.ToDtoList(coordinatesInArea), unitdto.ToDtoList(units), nil
 }
 
-func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinateDTOs []coordinatedto.DTO) error {
+func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) error {
 	if grs.gameUnitsRevivedEvent == nil {
 		return ErrEventNotFound
 	}
 
-	coordinates, err := coordinatedto.FromDTOList(coordinateDTOs)
+	coordinates, err := coordinatedto.FromDtoList(coordinateDtos)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinateDTOs []coor
 		return err
 	}
 
-	grs.gameUnitsRevivedEvent.Publish(gameId, coordinateDTOs, revivedAt)
+	grs.gameUnitsRevivedEvent.Publish(gameId, coordinateDtos, revivedAt)
 
 	return nil
 }

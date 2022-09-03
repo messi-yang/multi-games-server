@@ -5,21 +5,21 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 )
 
-type DTO [][]unitdto.DTO
+type Dto [][]unitdto.Dto
 
-func ToDTO(unitMap valueobject.UnitMap) DTO {
-	unitMapDTO := make(DTO, 0)
+func ToDto(unitMap valueobject.UnitMap) Dto {
+	unitMapDto := make(Dto, 0)
 
 	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
-		unitMapDTO = append(unitMapDTO, make([]unitdto.DTO, 0))
+		unitMapDto = append(unitMapDto, make([]unitdto.Dto, 0))
 		for j := 0; j < unitMap.GetMapSize().GetHeight(); j += 1 {
 			coord, _ := valueobject.NewCoordinate(i, j)
 			unit := unitMap.GetUnit(coord)
-			unitMapDTO[i] = append(unitMapDTO[i], unitdto.DTO{
+			unitMapDto[i] = append(unitMapDto[i], unitdto.Dto{
 				Alive: unit.GetAlive(),
 				Age:   unit.GetAge(),
 			})
 		}
 	}
-	return unitMapDTO
+	return unitMapDto
 }

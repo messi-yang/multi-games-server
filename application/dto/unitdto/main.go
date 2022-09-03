@@ -2,28 +2,28 @@ package unitdto
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 
-type DTO struct {
+type Dto struct {
 	Alive bool `json:"alive"`
 	Age   int  `json:"age"`
 }
 
-func FromDTO(unitDTO DTO) valueobject.Unit {
-	return valueobject.NewUnit(unitDTO.Alive, unitDTO.Age)
+func FromDto(unitDto Dto) valueobject.Unit {
+	return valueobject.NewUnit(unitDto.Alive, unitDto.Age)
 }
 
-func ToDTO(unit valueobject.Unit) DTO {
-	return DTO{
+func ToDto(unit valueobject.Unit) Dto {
+	return Dto{
 		Alive: unit.GetAlive(),
 		Age:   unit.GetAge(),
 	}
 }
 
-func ToDTOList(units []valueobject.Unit) []DTO {
-	unitDTOs := make([]DTO, 0)
+func ToDtoList(units []valueobject.Unit) []Dto {
+	unitDtos := make([]Dto, 0)
 
 	for i := 0; i < len(units); i += 1 {
-		unitDTOs = append(unitDTOs, ToDTO(units[i]))
+		unitDtos = append(unitDtos, ToDto(units[i]))
 	}
 
-	return unitDTOs
+	return unitDtos
 }

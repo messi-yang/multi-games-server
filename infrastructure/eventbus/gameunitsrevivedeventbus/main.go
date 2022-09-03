@@ -15,7 +15,7 @@ type gameUnitsRevivedEventBus struct {
 	eventTopic string
 }
 
-type gameUnitsRevivedEventCallback = func(coordinateDTOs []coordinatedto.DTO, updatedAt time.Time)
+type gameUnitsRevivedEventCallback = func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time)
 
 var gameUnitsRevivedEventInstance *gameUnitsRevivedEventBus
 
@@ -29,9 +29,9 @@ func GetUnitsRevivedEventBus() gameunitsrevivedevent.Event {
 	return gameUnitsRevivedEventInstance
 }
 
-func (gue *gameUnitsRevivedEventBus) Publish(gameId uuid.UUID, coordinateDTOs []coordinatedto.DTO, updatedAt time.Time) {
+func (gue *gameUnitsRevivedEventBus) Publish(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
-	gue.eventBus.Publish(topic, coordinateDTOs, updatedAt)
+	gue.eventBus.Publish(topic, coordinateDtos, updatedAt)
 }
 
 func (gue *gameUnitsRevivedEventBus) Subscribe(gameId uuid.UUID, callback gameUnitsRevivedEventCallback) (unsubscriber func()) {

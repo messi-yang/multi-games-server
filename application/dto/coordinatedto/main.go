@@ -2,19 +2,19 @@ package coordinatedto
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 
-type DTO struct {
+type Dto struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-func FromDTO(coordinateDTO DTO) (valueobject.Coordinate, error) {
-	return valueobject.NewCoordinate(coordinateDTO.X, coordinateDTO.Y)
+func FromDto(coordinateDto Dto) (valueobject.Coordinate, error) {
+	return valueobject.NewCoordinate(coordinateDto.X, coordinateDto.Y)
 }
 
-func FromDTOList(coordDTOs []DTO) ([]valueobject.Coordinate, error) {
+func FromDtoList(coordDtos []Dto) ([]valueobject.Coordinate, error) {
 	coordinates := make([]valueobject.Coordinate, 0)
 
-	for _, coord := range coordDTOs {
+	for _, coord := range coordDtos {
 		coordinate, err := valueobject.NewCoordinate(coord.X, coord.Y)
 		if err != nil {
 			return nil, err
@@ -25,16 +25,16 @@ func FromDTOList(coordDTOs []DTO) ([]valueobject.Coordinate, error) {
 	return coordinates, nil
 }
 
-func ToDTOList(coordinates []valueobject.Coordinate) []DTO {
-	coordinateDTOs := make([]DTO, 0)
+func ToDtoList(coordinates []valueobject.Coordinate) []Dto {
+	coordinateDtos := make([]Dto, 0)
 
 	for _, coord := range coordinates {
-		coordinate := DTO{
+		coordinate := Dto{
 			X: coord.GetX(),
 			Y: coord.GetY(),
 		}
-		coordinateDTOs = append(coordinateDTOs, coordinate)
+		coordinateDtos = append(coordinateDtos, coordinate)
 	}
 
-	return coordinateDTOs
+	return coordinateDtos
 }
