@@ -14,6 +14,7 @@ type GameRoomService interface {
 	CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error)
 	GetAllRooms() []aggregate.GameRoom
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
+	GetUnitMap(gameId uuid.UUID) (valueobject.UnitMap, time.Time, error)
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, time.Time, error)
 	TickUnitMap(gameId uuid.UUID) (time.Time, error)
 	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) (time.Time, error)
@@ -59,6 +60,26 @@ func (gsi *gameRoomServiceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRo
 		return aggregate.GameRoom{}, err
 	}
 	return gameRoom, nil
+}
+
+func (gsi *gameRoomServiceImplement) GetUnitMap(gameId uuid.UUID) (valueobject.UnitMap, time.Time, error) {
+	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
+	if err != nil {
+		return valueobject.UnitMap{}, time.Time{}, err
+	}
+	defer rUnlocker()
+
+	gameRoom, receivedAt, err := gsi.gameRoomRepository.Get(gameId)
+	if err != nil {
+		return valueobject.UnitMap{}, time.Time{}, err
+	}
+
+	unitMap := gameRoom.GetUnitMap()
+	if err != nil {
+		return valueobject.UnitMap{}, time.Time{}, err
+	}
+
+	return unitMap, receivedAt, nil
 }
 
 func (gsi *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, time.Time, error) {
