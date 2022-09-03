@@ -27,7 +27,7 @@ var job *jobImplement
 func GetJob() Job {
 	if job == nil {
 		gameRoomRepository := gameroommemory.GetRepository()
-		gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetGameUnitMapTickedEventBus()
+		gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetEventBus()
 
 		job = &jobImplement{
 			gameRoomRepository:        gameRoomRepository,

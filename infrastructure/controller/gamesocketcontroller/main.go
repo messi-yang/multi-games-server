@@ -52,13 +52,13 @@ func Controller(c *gin.Context) {
 
 	emitGameInfoUpdatedEvent(conn, session, gameId)
 
-	gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetGameUnitMapTickedEventBus()
+	gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetEventBus()
 	gameUnitMapTickeddEventUnsubscriber := gameUnitMapTickedEventBus.Subscribe(gameId, func(updatedAt time.Time) {
 		emitUnitMapTickedEvent(conn, session, gameId, updatedAt)
 	})
 	defer gameUnitMapTickeddEventUnsubscriber()
 
-	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
+	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetEventBus()
 	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
 		emitUnitsRevivedEvent(conn, session, gameId, coordinateDtos, updatedAt)
 	})
@@ -221,7 +221,7 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 	}
 
 	gameRoomRepository := gameroommemory.GetRepository()
-	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
+	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetEventBus()
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository, UnitsRevivedEvent: gameUnitsRevivedEventBus},
 	)

@@ -9,31 +9,31 @@ import (
 	"github.com/google/uuid"
 )
 
-type gameUnitMapTickedEventBus struct {
+type eventBus struct {
 	eventBus   EventBus.Bus
 	eventTopic string
 }
 
-type gameUnitMapTickedEventCallback = func(updatedAt time.Time)
+type eventBusCallback = func(updatedAt time.Time)
 
-var gameUnitMapTickedEventInstance *gameUnitMapTickedEventBus
+var eventBusInstance *eventBus
 
-func GetGameUnitMapTickedEventBus() gameunitmaptickedevent.Event {
-	if gameUnitMapTickedEventInstance == nil {
-		gameUnitMapTickedEventInstance = &gameUnitMapTickedEventBus{
+func GetEventBus() gameunitmaptickedevent.Event {
+	if eventBusInstance == nil {
+		eventBusInstance = &eventBus{
 			eventBus:   EventBus.New(),
 			eventTopic: "GAME_COMPUTED",
 		}
 	}
-	return gameUnitMapTickedEventInstance
+	return eventBusInstance
 }
 
-func (gue *gameUnitMapTickedEventBus) Publish(gameId uuid.UUID, updatedAt time.Time) {
+func (gue *eventBus) Publish(gameId uuid.UUID, updatedAt time.Time) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
 	gue.eventBus.Publish(topic, updatedAt)
 }
 
-func (gue *gameUnitMapTickedEventBus) Subscribe(gameId uuid.UUID, callback gameUnitMapTickedEventCallback) (unsubscriber func()) {
+func (gue *eventBus) Subscribe(gameId uuid.UUID, callback eventBusCallback) (unsubscriber func()) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
 	gue.eventBus.Subscribe(topic, callback)
 

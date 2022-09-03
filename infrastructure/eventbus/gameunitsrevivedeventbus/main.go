@@ -10,31 +10,31 @@ import (
 	"github.com/google/uuid"
 )
 
-type gameUnitsRevivedEventBus struct {
+type eventBus struct {
 	eventBus   EventBus.Bus
 	eventTopic string
 }
 
-type gameUnitsRevivedEventCallback = func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time)
+type eventBusCallback = func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time)
 
-var gameUnitsRevivedEventInstance *gameUnitsRevivedEventBus
+var eventBusInstance *eventBus
 
-func GetUnitsRevivedEventBus() gameunitsrevivedevent.Event {
-	if gameUnitsRevivedEventInstance == nil {
-		gameUnitsRevivedEventInstance = &gameUnitsRevivedEventBus{
+func GetEventBus() gameunitsrevivedevent.Event {
+	if eventBusInstance == nil {
+		eventBusInstance = &eventBus{
 			eventBus:   EventBus.New(),
 			eventTopic: "GAME_UNITS_UPDATED",
 		}
 	}
-	return gameUnitsRevivedEventInstance
+	return eventBusInstance
 }
 
-func (gue *gameUnitsRevivedEventBus) Publish(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
+func (gue *eventBus) Publish(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
 	gue.eventBus.Publish(topic, coordinateDtos, updatedAt)
 }
 
-func (gue *gameUnitsRevivedEventBus) Subscribe(gameId uuid.UUID, callback gameUnitsRevivedEventCallback) (unsubscriber func()) {
+func (gue *eventBus) Subscribe(gameId uuid.UUID, callback eventBusCallback) (unsubscriber func()) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
 	gue.eventBus.Subscribe(topic, callback)
 
