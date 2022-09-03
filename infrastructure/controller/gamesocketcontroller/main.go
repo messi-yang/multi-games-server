@@ -135,9 +135,9 @@ func emitErrorEvent(conn *websocket.Conn, session *session, err error) {
 }
 
 func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID) {
-	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomRepository := gameroommemory.GetRepository()
 	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
+		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
 	unitMapSize, err := gameRoomService.GetUnitMapSize(gameId)
 	if err != nil {
@@ -154,9 +154,9 @@ func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.U
 		return
 	}
 
-	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomRepository := gameroommemory.GetRepository()
 	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
+		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
 	coordinateDtosOfUnits, unitDtos, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDtos, *session.gameAreaToWatch)
 	gameUnitsRevivedEvent := constructUnitsRevivedEvent(coordinateDtosOfUnits, unitDtos, updatedAt)
@@ -168,9 +168,9 @@ func emitUnitMapReceivedEvent(conn *websocket.Conn, session *session, gameId uui
 		return
 	}
 
-	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomRepository := gameroommemory.GetRepository()
 	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
+		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
 	unitDtoMap, receivedAt, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
 	if err != nil {
@@ -187,9 +187,9 @@ func emitUnitMapTickedEvent(conn *websocket.Conn, session *session, gameId uuid.
 		return
 	}
 
-	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomRepository := gameroommemory.GetRepository()
 	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
+		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
 	unitDtoMap, _, err := gameRoomService.GetUnitMapByArea(gameId, *session.gameAreaToWatch)
 	if err != nil {
@@ -220,10 +220,10 @@ func handleReviveUnitsAction(conn *websocket.Conn, session *session, message []b
 		return
 	}
 
-	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomRepository := gameroommemory.GetRepository()
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
 	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory, UnitsRevivedEvent: gameUnitsRevivedEventBus},
+		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository, UnitsRevivedEvent: gameUnitsRevivedEventBus},
 	)
 	err = gameRoomService.ReviveUnits(gameId, reviveUnitsAction.Payload.Coordinates)
 	if err != nil {

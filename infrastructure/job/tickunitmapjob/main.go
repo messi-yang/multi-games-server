@@ -26,11 +26,11 @@ var tickUnitMapJob *tickUnitMapJobImpl
 
 func GetTickUnitMapJob() TickUnitMapJob {
 	if tickUnitMapJob == nil {
-		gameRoomMemory := gameroommemory.GetGameRoomMemory()
+		gameRoomRepository := gameroommemory.GetRepository()
 		gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetGameUnitMapTickedEventBus()
 
 		tickUnitMapJob = &tickUnitMapJobImpl{
-			gameRoomRepository:        gameRoomMemory,
+			gameRoomRepository:        gameRoomRepository,
 			gameUnitMapTickedEventBus: gameUnitMapTickedEventBus,
 		}
 
