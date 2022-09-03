@@ -10,37 +10,37 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
 )
 
-type TickUnitMapJob interface {
+type Job interface {
 	Start()
 	Stop() error
 }
 
-type tickUnitMapJobImpl struct {
+type jobImplement struct {
 	gameRoomRepository        gameroomrepository.Repository
 	gameUnitMapTickedEventBus gameunitmaptickedevent.Event
 	gameTicker                *time.Ticker
 	unitMapTickerStop         chan bool
 }
 
-var tickUnitMapJob *tickUnitMapJobImpl
+var job *jobImplement
 
-func GetTickUnitMapJob() TickUnitMapJob {
-	if tickUnitMapJob == nil {
+func GetJob() Job {
+	if job == nil {
 		gameRoomRepository := gameroommemory.GetRepository()
 		gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetGameUnitMapTickedEventBus()
 
-		tickUnitMapJob = &tickUnitMapJobImpl{
+		job = &jobImplement{
 			gameRoomRepository:        gameRoomRepository,
 			gameUnitMapTickedEventBus: gameUnitMapTickedEventBus,
 		}
 
-		return tickUnitMapJob
+		return job
 	}
 
-	return tickUnitMapJob
+	return job
 }
 
-func (gwi *tickUnitMapJobImpl) Start() {
+func (gwi *jobImplement) Start() {
 	go func() {
 		gwi.gameTicker = time.NewTicker(time.Millisecond * 1000)
 		defer gwi.gameTicker.Stop()
@@ -64,7 +64,7 @@ func (gwi *tickUnitMapJobImpl) Start() {
 	}()
 }
 
-func (gwi *tickUnitMapJobImpl) Stop() error {
+func (gwi *jobImplement) Stop() error {
 	if gwi.gameTicker == nil {
 		return nil
 	}
