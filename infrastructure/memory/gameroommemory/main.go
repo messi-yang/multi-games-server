@@ -16,27 +16,27 @@ type record struct {
 	tickedAt time.Time
 }
 
-type recordCollection struct {
+type memory struct {
 	records       map[uuid.UUID]*record
 	recordLockers map[uuid.UUID]*sync.RWMutex
 }
 
-var recordCollectionInstance *recordCollection
+var memoryInstance *memory
 
 func GetRepository() gameroomrepository.Repository {
-	if recordCollectionInstance == nil {
-		recordCollectionInstance = &recordCollection{
+	if memoryInstance == nil {
+		memoryInstance = &memory{
 			records:       make(map[uuid.UUID]*record),
 			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
-		return recordCollectionInstance
+		return memoryInstance
 	} else {
-		return recordCollectionInstance
+		return memoryInstance
 	}
 }
 
-func (gmi *recordCollection) Get(id uuid.UUID) (aggregate.GameRoom, time.Time, error) {
-	record, exists := gmi.records[id]
+func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, time.Time, error) {
+	record, exists := m.records[id]
 	if !exists {
 		return aggregate.GameRoom{}, time.Time{}, gameroomrepository.ErrGameRoomNotFound
 	}
@@ -46,9 +46,9 @@ func (gmi *recordCollection) Get(id uuid.UUID) (aggregate.GameRoom, time.Time, e
 	return gameRoom, time.Now(), nil
 }
 
-func (gmi *recordCollection) GetAll() []aggregate.GameRoom {
+func (m *memory) GetAll() []aggregate.GameRoom {
 	gameRoom := make([]aggregate.GameRoom, 0)
-	for gameId, record := range gmi.records {
+	for gameId, record := range m.records {
 		game := entity.NewGameFromExistingEntity(gameId, record.unitMap)
 		newGameRoom := aggregate.NewGameRoomWithLastTickedAt(game, record.tickedAt)
 		gameRoom = append(gameRoom, newGameRoom)
@@ -56,8 +56,8 @@ func (gmi *recordCollection) GetAll() []aggregate.GameRoom {
 	return gameRoom
 }
 
-func (gmi *recordCollection) GetLastTickedAt(id uuid.UUID) (time.Time, error) {
-	record, exists := gmi.records[id]
+func (m *memory) GetLastTickedAt(id uuid.UUID) (time.Time, error) {
+	record, exists := m.records[id]
 	if !exists {
 		return time.Time{}, gameroomrepository.ErrGameRoomNotFound
 	}
@@ -65,8 +65,8 @@ func (gmi *recordCollection) GetLastTickedAt(id uuid.UUID) (time.Time, error) {
 	return record.tickedAt, nil
 }
 
-func (gmi *recordCollection) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
-	record, exists := gmi.records[gameId]
+func (m *memory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
+	record, exists := m.records[gameId]
 	if !exists {
 		return gameroomrepository.ErrGameRoomNotFound
 	}
@@ -78,8 +78,8 @@ func (gmi *recordCollection) UpdateUnits(gameId uuid.UUID, coordinates []valueob
 	return nil
 }
 
-func (gmi *recordCollection) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
-	record, exists := gmi.records[gameId]
+func (m *memory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
+	record, exists := m.records[gameId]
 	if !exists {
 		return gameroomrepository.ErrGameRoomNotFound
 	}
@@ -89,8 +89,8 @@ func (gmi *recordCollection) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject
 	return nil
 }
 
-func (gmi *recordCollection) UpdateLastTickedAt(id uuid.UUID, tickedAt time.Time) error {
-	record, exists := gmi.records[id]
+func (m *memory) UpdateLastTickedAt(id uuid.UUID, tickedAt time.Time) error {
+	record, exists := m.records[id]
 	if !exists {
 		return gameroomrepository.ErrGameRoomNotFound
 	}
@@ -100,18 +100,18 @@ func (gmi *recordCollection) UpdateLastTickedAt(id uuid.UUID, tickedAt time.Time
 	return nil
 }
 
-func (gmi *recordCollection) Add(gameRoom aggregate.GameRoom) error {
+func (m *memory) Add(gameRoom aggregate.GameRoom) error {
 	gameUnitMap := gameRoom.GetUnitMap()
-	gmi.records[gameRoom.GetGameId()] = &record{
+	m.records[gameRoom.GetGameId()] = &record{
 		unitMap: gameUnitMap,
 	}
-	gmi.recordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
+	m.recordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
 
 	return nil
 }
 
-func (gmi *recordCollection) ReadLockAccess(gameId uuid.UUID) (func(), error) {
-	recordLocker, exists := gmi.recordLockers[gameId]
+func (m *memory) ReadLockAccess(gameId uuid.UUID) (func(), error) {
+	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
 		return nil, gameroomrepository.ErrGameRoomLockerNotFound
 	}
@@ -120,8 +120,8 @@ func (gmi *recordCollection) ReadLockAccess(gameId uuid.UUID) (func(), error) {
 	return recordLocker.RUnlock, nil
 }
 
-func (gmi *recordCollection) LockAccess(gameId uuid.UUID) (func(), error) {
-	recordLocker, exists := gmi.recordLockers[gameId]
+func (m *memory) LockAccess(gameId uuid.UUID) (func(), error) {
+	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
 		return nil, gameroomrepository.ErrGameRoomLockerNotFound
 	}
