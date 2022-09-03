@@ -31,7 +31,7 @@ type Service interface {
 }
 
 type serviceImplement struct {
-	gameRoomDomainService  gameroomservice.GameRoomService
+	gameRoomDomainService  gameroomservice.Service
 	gameUnitMapTickedEvent gameunitmaptickedevent.Event
 	gameUnitsRevivedEvent  gameunitsrevivedevent.Event
 }
@@ -44,7 +44,7 @@ type Configuration struct {
 
 func NewService(config Configuration) Service {
 	return &serviceImplement{
-		gameRoomDomainService:  gameroomservice.NewGameRoomService(config.GameRoomRepository),
+		gameRoomDomainService:  gameroomservice.NewService(config.GameRoomRepository),
 		gameUnitMapTickedEvent: config.GameUnitMapTickedEvent,
 		gameUnitsRevivedEvent:  config.UnitsRevivedEvent,
 	}

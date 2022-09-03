@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameRoomService interface {
+type Service interface {
 	CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error)
 	GetAllRooms() []aggregate.GameRoom
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
@@ -20,22 +20,22 @@ type GameRoomService interface {
 	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) (time.Time, error)
 }
 
-type gameRoomServiceImplement struct {
+type serviceImplement struct {
 	gameRoomRepository gameroomrepository.Repository
 }
 
-var gameRoomService GameRoomService = nil
+var serviceInstance Service = nil
 
-func NewGameRoomService(gameRoomRepository gameroomrepository.Repository) GameRoomService {
-	if gameRoomService == nil {
-		gameRoomService = &gameRoomServiceImplement{
+func NewService(gameRoomRepository gameroomrepository.Repository) Service {
+	if serviceInstance == nil {
+		serviceInstance = &serviceImplement{
 			gameRoomRepository: gameRoomRepository,
 		}
 	}
-	return gameRoomService
+	return serviceInstance
 }
 
-func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
+func (gsi *serviceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
 	unitMap := valueobject.NewUnitMap(mapSize)
 	game := entity.NewGame(unitMap)
 	gameRoom := aggregate.NewGameRoom(game)
@@ -44,11 +44,11 @@ func (gsi *gameRoomServiceImplement) CreateGameRoom(mapSize valueobject.MapSize)
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomServiceImplement) GetAllRooms() []aggregate.GameRoom {
+func (gsi *serviceImplement) GetAllRooms() []aggregate.GameRoom {
 	return gsi.gameRoomRepository.GetAll()
 }
 
-func (gsi *gameRoomServiceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error) {
+func (gsi *serviceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error) {
 	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -62,7 +62,7 @@ func (gsi *gameRoomServiceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRo
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomServiceImplement) GetUnitMap(gameId uuid.UUID) (valueobject.UnitMap, time.Time, error) {
+func (gsi *serviceImplement) GetUnitMap(gameId uuid.UUID) (valueobject.UnitMap, time.Time, error) {
 	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
 	if err != nil {
 		return valueobject.UnitMap{}, time.Time{}, err
@@ -82,7 +82,7 @@ func (gsi *gameRoomServiceImplement) GetUnitMap(gameId uuid.UUID) (valueobject.U
 	return unitMap, receivedAt, nil
 }
 
-func (gsi *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, time.Time, error) {
+func (gsi *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, time.Time, error) {
 	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
 	if err != nil {
 		return valueobject.UnitMap{}, time.Time{}, err
@@ -103,7 +103,7 @@ func (gsi *gameRoomServiceImplement) GetUnitMapByArea(gameId uuid.UUID, area val
 	return unitMap, receivedAt, nil
 }
 
-func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, error) {
+func (gsi *serviceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return time.Time{}, err
@@ -135,7 +135,7 @@ func (gsi *gameRoomServiceImplement) TickUnitMap(gameId uuid.UUID) (time.Time, e
 	return tickedAt, nil
 }
 
-func (gsi *gameRoomServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) (time.Time, error) {
+func (gsi *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) (time.Time, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return time.Time{}, err
