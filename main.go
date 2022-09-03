@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	gameRoomMemory := gameroommemory.GetGameRoomMemory()
+	gameRoomMemory := gameroommemory.GetRepository()
 	size := config.GetConfig().GetGameMapSize()
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
