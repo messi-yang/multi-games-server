@@ -8,6 +8,6 @@ import (
 )
 
 type Event interface {
-	Publish(gameId uuid.UUID, coordinates []coordinatedto.CoordinateDTO, updatedAt time.Time)
-	Subscribe(gameId uuid.UUID, callback func(coordinates []coordinatedto.CoordinateDTO, updatedAt time.Time)) (unsubscriber func())
+	Publish(gameId uuid.UUID, coordinates []coordinatedto.DTO, updatedAt time.Time)
+	Subscribe(gameId uuid.UUID, callback func(coordinates []coordinatedto.DTO, updatedAt time.Time)) (unsubscriber func())
 }

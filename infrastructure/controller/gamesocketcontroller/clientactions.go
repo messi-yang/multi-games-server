@@ -30,8 +30,8 @@ func getActionTypeFromMessage(msg []byte) (*actionType, error) {
 }
 
 type watchAreaActionPayload struct {
-	Area       areadto.AreaDTO `json:"area"`
-	ActionedAt time.Time       `json:"actionedAt"`
+	Area       areadto.DTO `json:"area"`
+	ActionedAt time.Time   `json:"actionedAt"`
 }
 type watchAreaAction struct {
 	Type    actionType             `json:"type"`
@@ -49,8 +49,8 @@ func extractWatchAreaActionFromMessage(msg []byte) (*watchAreaAction, error) {
 }
 
 type reviveUnitsActionPayload struct {
-	Coordinates []coordinatedto.CoordinateDTO `json:"coordinates"`
-	ActionedAt  time.Time                     `json:"actionedAt"`
+	Coordinates []coordinatedto.DTO `json:"coordinates"`
+	ActionedAt  time.Time           `json:"actionedAt"`
 }
 type reviveUnitsAction struct {
 	Type    actionType               `json:"type"`

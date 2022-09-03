@@ -22,7 +22,7 @@ import (
 )
 
 type session struct {
-	gameAreaToWatch *areadto.AreaDTO
+	gameAreaToWatch *areadto.DTO
 	socketLocker    sync.RWMutex
 }
 
@@ -59,7 +59,7 @@ func Controller(c *gin.Context) {
 	defer gameUnitMapTickeddEventUnsubscriber()
 
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetUnitsRevivedEventBus()
-	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
+	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDTOs []coordinatedto.DTO, updatedAt time.Time) {
 		emitUnitsRevivedEvent(conn, session, gameId, coordinateDTOs, updatedAt)
 	})
 	defer gameUnitsRevivedEventUnsubscriber()
@@ -149,7 +149,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, session *session, gameId uui
 	sendJSONMessageToClient(conn, session, informationUpdatedEvent)
 }
 
-func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.CoordinateDTO, updatedAt time.Time) {
+func emitUnitsRevivedEvent(conn *websocket.Conn, session *session, gameId uuid.UUID, coordinateDTOs []coordinatedto.DTO, updatedAt time.Time) {
 	if session.gameAreaToWatch == nil {
 		return
 	}

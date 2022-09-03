@@ -2,16 +2,16 @@ package coordinatedto
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 
-type CoordinateDTO struct {
+type DTO struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-func FromDTO(coordinateDTO CoordinateDTO) (valueobject.Coordinate, error) {
+func FromDTO(coordinateDTO DTO) (valueobject.Coordinate, error) {
 	return valueobject.NewCoordinate(coordinateDTO.X, coordinateDTO.Y)
 }
 
-func FromDTOList(coordDTOs []CoordinateDTO) ([]valueobject.Coordinate, error) {
+func FromDTOList(coordDTOs []DTO) ([]valueobject.Coordinate, error) {
 	coordinates := make([]valueobject.Coordinate, 0)
 
 	for _, coord := range coordDTOs {
@@ -25,11 +25,11 @@ func FromDTOList(coordDTOs []CoordinateDTO) ([]valueobject.Coordinate, error) {
 	return coordinates, nil
 }
 
-func ToDTOList(coordinates []valueobject.Coordinate) []CoordinateDTO {
-	coordinateDTOs := make([]CoordinateDTO, 0)
+func ToDTOList(coordinates []valueobject.Coordinate) []DTO {
+	coordinateDTOs := make([]DTO, 0)
 
 	for _, coord := range coordinates {
-		coordinate := CoordinateDTO{
+		coordinate := DTO{
 			X: coord.GetX(),
 			Y: coord.GetY(),
 		}
