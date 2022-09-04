@@ -54,7 +54,7 @@ func constructInformationUpdatedEvent(mapSizeDto mapsizedto.Dto) *informationUpd
 type zoomedAreaUpdatedEventPayload struct {
 	Area      areadto.Dto    `json:"area"`
 	UnitMap   unitmapdto.Dto `json:"unitMap"`
-	UpdatedAt time.Time      `json:"updateAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
 }
 type zoomedAreaUpdatedEvent struct {
 	Type    eventType                     `json:"type"`
