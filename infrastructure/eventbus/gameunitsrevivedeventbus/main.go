@@ -2,7 +2,6 @@ package gameunitsrevivedeventbus
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/asaskevich/EventBus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
@@ -15,7 +14,7 @@ type eventBus struct {
 	eventTopic string
 }
 
-type eventBusCallback = func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time)
+type eventBusCallback = func(coordinateDtos []coordinatedto.Dto)
 
 var eventBusInstance *eventBus
 
@@ -29,9 +28,9 @@ func GetEventBus() gameunitsrevivedevent.Event {
 	return eventBusInstance
 }
 
-func (gue *eventBus) Publish(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
+func (gue *eventBus) Publish(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
-	gue.eventBus.Publish(topic, coordinateDtos, updatedAt)
+	gue.eventBus.Publish(topic, coordinateDtos)
 }
 
 func (gue *eventBus) Subscribe(gameId uuid.UUID, callback eventBusCallback) (unsubscriber func()) {

@@ -83,11 +83,11 @@ func (grs *serviceImplement) TcikAllUnitMaps() error {
 
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
-		updatedAt, err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
+		err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
 		if err != nil {
 			continue
 		}
-		grs.gameUnitMapTickedEvent.Publish(gameRoom.GetGameId(), updatedAt)
+		grs.gameUnitMapTickedEvent.Publish(gameRoom.GetGameId())
 	}
 
 	return nil
@@ -127,12 +127,12 @@ func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinateDtos []coor
 		return err
 	}
 
-	revivedAt, err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
+	err = grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		return err
 	}
 
-	grs.gameUnitsRevivedEvent.Publish(gameId, coordinateDtos, revivedAt)
+	grs.gameUnitsRevivedEvent.Publish(gameId, coordinateDtos)
 
 	return nil
 }

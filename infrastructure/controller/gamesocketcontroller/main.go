@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
@@ -53,14 +52,14 @@ func Controller(c *gin.Context) {
 	emitGameInfoUpdatedEvent(conn, clientSession, gameId)
 
 	gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetEventBus()
-	gameUnitMapTickeddEventUnsubscriber := gameUnitMapTickedEventBus.Subscribe(gameId, func(updatedAt time.Time) {
-		emitZoomedAreaUpdatedEvent(conn, clientSession, gameId, updatedAt)
+	gameUnitMapTickeddEventUnsubscriber := gameUnitMapTickedEventBus.Subscribe(gameId, func() {
+		emitZoomedAreaUpdatedEvent(conn, clientSession, gameId)
 	})
 	defer gameUnitMapTickeddEventUnsubscriber()
 
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetEventBus()
-	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
-		handleUnitsRevivedEvent(conn, clientSession, gameId, coordinateDtos, updatedAt)
+	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDtos []coordinatedto.Dto) {
+		handleUnitsRevivedEvent(conn, clientSession, gameId, coordinateDtos)
 	})
 	defer gameUnitsRevivedEventUnsubscriber()
 
@@ -149,7 +148,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession
 	sendJSONMessageToClient(conn, clientSession, informationUpdatedEvent)
 }
 
-func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
+func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) {
 	if clientSession.watchedArea == nil {
 		return
 	}
@@ -173,7 +172,7 @@ func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession,
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
-	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap, updatedAt)
+	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap)
 	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 
@@ -196,7 +195,7 @@ func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gam
 	sendJSONMessageToClient(conn, clientSession, areaZoomedEvent)
 }
 
-func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, updatedAt time.Time) {
+func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID) {
 	if clientSession.watchedArea == nil {
 		return
 	}
@@ -211,7 +210,7 @@ func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSessi
 		return
 	}
 
-	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap, updatedAt)
+	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap)
 	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 

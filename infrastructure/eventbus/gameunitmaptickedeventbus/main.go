@@ -2,7 +2,6 @@ package gameunitmaptickedeventbus
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/asaskevich/EventBus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmaptickedevent"
@@ -14,7 +13,7 @@ type eventBus struct {
 	eventTopic string
 }
 
-type eventBusCallback = func(updatedAt time.Time)
+type eventBusCallback = func()
 
 var eventBusInstance *eventBus
 
@@ -28,9 +27,9 @@ func GetEventBus() gameunitmaptickedevent.Event {
 	return eventBusInstance
 }
 
-func (gue *eventBus) Publish(gameId uuid.UUID, updatedAt time.Time) {
+func (gue *eventBus) Publish(gameId uuid.UUID) {
 	topic := fmt.Sprintf("%s-%s", gue.eventTopic, gameId)
-	gue.eventBus.Publish(topic, updatedAt)
+	gue.eventBus.Publish(topic)
 }
 
 func (gue *eventBus) Subscribe(gameId uuid.UUID, callback eventBusCallback) (unsubscriber func()) {
