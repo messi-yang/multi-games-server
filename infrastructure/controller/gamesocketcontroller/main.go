@@ -94,8 +94,8 @@ func Controller(c *gin.Context) {
 			}
 
 			switch *actionType {
-			case watchAreaActionType:
-				handleWatchAreaAction(conn, clientSession, message, gameId)
+			case zoomAreaActionType:
+				handleZoomAreaAction(conn, clientSession, message, gameId)
 			case reviveUnitsActionType:
 				handleReviveUnitsAction(conn, clientSession, message, gameId)
 			default:
@@ -163,7 +163,7 @@ func emitUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession, g
 	sendJSONMessageToClient(conn, clientSession, gameUnitsRevivedEvent)
 }
 
-func emitUnitMapReceivedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID) {
+func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID) {
 	if clientSession.watchedArea == nil {
 		return
 	}
@@ -172,14 +172,14 @@ func emitUnitMapReceivedEvent(conn *websocket.Conn, clientSession *clientSession
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
-	unitDtoMap, receivedAt, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
+	unitDtoMap, _, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
 
-	unitMapReceivedEvent := constructUnitMapReceived(*clientSession.watchedArea, unitDtoMap, receivedAt)
-	sendJSONMessageToClient(conn, clientSession, unitMapReceivedEvent)
+	areaZoomedEvent := constructAreaZoomedEvent(*clientSession.watchedArea, unitDtoMap)
+	sendJSONMessageToClient(conn, clientSession, areaZoomedEvent)
 }
 
 func emitUnitMapTickedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, updatedAt time.Time) {
@@ -201,16 +201,16 @@ func emitUnitMapTickedEvent(conn *websocket.Conn, clientSession *clientSession, 
 	sendJSONMessageToClient(conn, clientSession, unitMapTickedEvent)
 }
 
-func handleWatchAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID) {
-	watchAreaAction, err := extractWatchAreaActionFromMessage(message)
+func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID) {
+	zoomAreaAction, err := extractZoomAreaActionFromMessage(message)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
 
-	clientSession.watchedArea = &watchAreaAction.Payload.Area
+	clientSession.watchedArea = &zoomAreaAction.Payload.Area
 
-	emitUnitMapReceivedEvent(conn, clientSession, gameId)
+	emitAreaZoomedEvent(conn, clientSession, gameId)
 }
 
 func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID) {

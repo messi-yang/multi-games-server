@@ -11,7 +11,7 @@ import (
 type actionType string
 
 const (
-	watchAreaActionType   actionType = "WATCH_AREA"
+	zoomAreaActionType    actionType = "ZOOM_AREA"
 	reviveUnitsActionType actionType = "REVIVE_UNITS"
 )
 
@@ -29,17 +29,17 @@ func getActionTypeFromMessage(msg []byte) (*actionType, error) {
 	return &action.Type, nil
 }
 
-type watchAreaActionPayload struct {
+type zoomAreaActionPayload struct {
 	Area       areadto.Dto `json:"area"`
 	ActionedAt time.Time   `json:"actionedAt"`
 }
-type watchAreaAction struct {
-	Type    actionType             `json:"type"`
-	Payload watchAreaActionPayload `json:"payload"`
+type zoomAreaAction struct {
+	Type    actionType            `json:"type"`
+	Payload zoomAreaActionPayload `json:"payload"`
 }
 
-func extractWatchAreaActionFromMessage(msg []byte) (*watchAreaAction, error) {
-	var action watchAreaAction
+func extractZoomAreaActionFromMessage(msg []byte) (*zoomAreaAction, error) {
+	var action zoomAreaAction
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return nil, err
