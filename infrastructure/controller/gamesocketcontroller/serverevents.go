@@ -16,7 +16,7 @@ const (
 	errorHappenedEventType      eventType = "ERROR"
 	informationUpdatedEventType eventType = "INFORMATION_UPDATED"
 	areaZoomedEventType         eventType = "AREA_ZOOMED"
-	unitMapTickedEventType      eventType = "UNIT_MAP_TICKED"
+	zoomedAreaUpdatedEventType  eventType = "ZOOMED_AREA_UPDATED"
 	unitsRevivedEventType       eventType = "UNITS_REVIVED"
 )
 
@@ -75,20 +75,20 @@ func constructUnitsRevivedEvent(coordinateDtos []coordinatedto.Dto, unitDtos []u
 	}
 }
 
-type unitMapTickedEventPayload struct {
+type zoomedAreaUpdatedEventPayload struct {
 	Area      areadto.Dto    `json:"area"`
 	UnitMap   unitmapdto.Dto `json:"unitMap"`
 	UpdatedAt time.Time      `json:"updateAt"`
 }
-type unitMapTickedEvent struct {
-	Type    eventType                 `json:"type"`
-	Payload unitMapTickedEventPayload `json:"payload"`
+type zoomedAreaUpdatedEvent struct {
+	Type    eventType                     `json:"type"`
+	Payload zoomedAreaUpdatedEventPayload `json:"payload"`
 }
 
-func constructUnitMapTicked(gameDto areadto.Dto, unitMap unitmapdto.Dto, updatedAt time.Time) *unitMapTickedEvent {
-	return &unitMapTickedEvent{
-		Type: unitMapTickedEventType,
-		Payload: unitMapTickedEventPayload{
+func constructZoomedAreaUpdatedEvent(gameDto areadto.Dto, unitMap unitmapdto.Dto, updatedAt time.Time) *zoomedAreaUpdatedEvent {
+	return &zoomedAreaUpdatedEvent{
+		Type: zoomedAreaUpdatedEventType,
+		Payload: zoomedAreaUpdatedEventPayload{
 			Area:      gameDto,
 			UnitMap:   unitMap,
 			UpdatedAt: updatedAt,

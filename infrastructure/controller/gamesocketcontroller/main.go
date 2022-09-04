@@ -54,7 +54,7 @@ func Controller(c *gin.Context) {
 
 	gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetEventBus()
 	gameUnitMapTickeddEventUnsubscriber := gameUnitMapTickedEventBus.Subscribe(gameId, func(updatedAt time.Time) {
-		emitUnitMapTickedEvent(conn, clientSession, gameId, updatedAt)
+		emitZoomedAreaUpdatedEvent(conn, clientSession, gameId, updatedAt)
 	})
 	defer gameUnitMapTickeddEventUnsubscriber()
 
@@ -182,7 +182,7 @@ func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gam
 	sendJSONMessageToClient(conn, clientSession, areaZoomedEvent)
 }
 
-func emitUnitMapTickedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, updatedAt time.Time) {
+func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, updatedAt time.Time) {
 	if clientSession.watchedArea == nil {
 		return
 	}
@@ -197,8 +197,8 @@ func emitUnitMapTickedEvent(conn *websocket.Conn, clientSession *clientSession, 
 		return
 	}
 
-	unitMapTickedEvent := constructUnitMapTicked(*clientSession.watchedArea, unitDtoMap, updatedAt)
-	sendJSONMessageToClient(conn, clientSession, unitMapTickedEvent)
+	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap, updatedAt)
+	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 
 func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID) {
