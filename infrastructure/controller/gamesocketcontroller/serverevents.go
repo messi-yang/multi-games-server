@@ -4,9 +4,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
 )
 
@@ -17,7 +15,6 @@ const (
 	informationUpdatedEventType eventType = "INFORMATION_UPDATED"
 	areaZoomedEventType         eventType = "AREA_ZOOMED"
 	zoomedAreaUpdatedEventType  eventType = "ZOOMED_AREA_UPDATED"
-	unitsRevivedEventType       eventType = "UNITS_REVIVED"
 )
 
 type errorHappenedEventPayload struct {
@@ -50,27 +47,6 @@ func constructInformationUpdatedEvent(mapSizeDto mapsizedto.Dto) *informationUpd
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
 			MapSize: mapSizeDto,
-		},
-	}
-}
-
-type unitsRevivedEventPayload struct {
-	Coordinates []coordinatedto.Dto `json:"coordinates"`
-	Units       []unitdto.Dto       `json:"units"`
-	UpdatedAt   time.Time           `json:"updateAt"`
-}
-type unitsRevivedEvent struct {
-	Type    eventType                `json:"type"`
-	Payload unitsRevivedEventPayload `json:"payload"`
-}
-
-func constructUnitsRevivedEvent(coordinateDtos []coordinatedto.Dto, unitDtos []unitdto.Dto, updatedAt time.Time) *unitsRevivedEvent {
-	return &unitsRevivedEvent{
-		Type: unitsRevivedEventType,
-		Payload: unitsRevivedEventPayload{
-			Coordinates: coordinateDtos,
-			Units:       unitDtos,
-			UpdatedAt:   updatedAt,
 		},
 	}
 }

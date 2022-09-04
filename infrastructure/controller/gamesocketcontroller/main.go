@@ -60,7 +60,7 @@ func Controller(c *gin.Context) {
 
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetEventBus()
 	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
-		emitUnitsRevivedEvent(conn, clientSession, gameId, coordinateDtos, updatedAt)
+		handleUnitsRevivedEvent(conn, clientSession, gameId, coordinateDtos, updatedAt)
 	})
 	defer gameUnitsRevivedEventUnsubscriber()
 
@@ -149,7 +149,7 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession
 	sendJSONMessageToClient(conn, clientSession, informationUpdatedEvent)
 }
 
-func emitUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
+func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, updatedAt time.Time) {
 	if clientSession.watchedArea == nil {
 		return
 	}
@@ -158,9 +158,23 @@ func emitUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession, g
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
-	coordinateDtosOfUnits, unitDtos, _ := gameRoomService.GetUnitsByCoordinatesInArea(gameId, coordinateDtos, *clientSession.watchedArea)
-	gameUnitsRevivedEvent := constructUnitsRevivedEvent(coordinateDtosOfUnits, unitDtos, updatedAt)
-	sendJSONMessageToClient(conn, clientSession, gameUnitsRevivedEvent)
+	includes, err := gameRoomService.AreaIncludesAnyCoordinates(*clientSession.watchedArea, coordinateDtos)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+		return
+	}
+
+	if !includes {
+		return
+	}
+
+	unitDtoMap, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+		return
+	}
+	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap, updatedAt)
+	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 
 func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID) {

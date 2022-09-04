@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitsrevivedevent"
@@ -26,7 +25,7 @@ type Service interface {
 	TcikAllUnitMaps() error
 	ReviveUnits(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) error
 	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.Dto, error)
-	GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, areaDto areadto.Dto) ([]coordinatedto.Dto, []unitdto.Dto, error)
+	AreaIncludesAnyCoordinates(areaDto areadto.Dto, coordinateDtos []coordinatedto.Dto) (bool, error)
 }
 
 type serviceImplement struct {
@@ -102,29 +101,20 @@ func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (mapsizedto.Dto, e
 	return mapsizedto.ToDto(gameRoom.GetUnitMapSize()), nil
 }
 
-func (grs *serviceImplement) GetUnitsByCoordinatesInArea(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto, areaDto areadto.Dto) ([]coordinatedto.Dto, []unitdto.Dto, error) {
-	gameRoom, err := grs.gameRoomDomainService.GetRoom(gameId)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func (grs *serviceImplement) AreaIncludesAnyCoordinates(areaDto areadto.Dto, coordinateDtos []coordinatedto.Dto) (bool, error) {
 	coordinates, err := coordinatedto.FromDtoList(coordinateDtos)
 	if err != nil {
-		return nil, nil, err
+		return false, err
 	}
 
 	area, err := areadto.FromDto(areaDto)
 	if err != nil {
-		return nil, nil, err
+		return false, err
 	}
 
 	coordinatesInArea := area.FilterCoordinates(coordinates)
-	units, err := gameRoom.GetUnitsWithCoordinates(coordinatesInArea)
-	if err != nil {
-		return nil, nil, err
-	}
 
-	return coordinatedto.ToDtoList(coordinatesInArea), unitdto.ToDtoList(units), nil
+	return len(coordinatesInArea) > 0, nil
 }
 
 func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) error {
