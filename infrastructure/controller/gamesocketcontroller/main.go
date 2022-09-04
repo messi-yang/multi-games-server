@@ -172,7 +172,7 @@ func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gam
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
-	unitDtoMap, _, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
+	unitDtoMap, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
@@ -191,7 +191,7 @@ func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSessi
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
-	unitDtoMap, _, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
+	unitDtoMap, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return

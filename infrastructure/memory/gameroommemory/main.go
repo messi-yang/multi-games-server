@@ -35,15 +35,15 @@ func GetRepository() gameroomrepository.Repository {
 	}
 }
 
-func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, time.Time, error) {
+func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 	record, exists := m.records[id]
 	if !exists {
-		return aggregate.GameRoom{}, time.Time{}, gameroomrepository.ErrGameRoomNotFound
+		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
 	}
 
 	game := entity.NewGameFromExistingEntity(id, record.unitMap)
 	gameRoom := aggregate.NewGameRoomWithLastTickedAt(game, record.tickedAt)
-	return gameRoom, time.Now(), nil
+	return gameRoom, nil
 }
 
 func (m *memory) GetAll() []aggregate.GameRoom {
