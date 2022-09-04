@@ -61,11 +61,11 @@ type zoomedAreaUpdatedEvent struct {
 	Payload zoomedAreaUpdatedEventPayload `json:"payload"`
 }
 
-func constructZoomedAreaUpdatedEvent(gameDto areadto.Dto, unitMap unitmapdto.Dto, updatedAt time.Time) *zoomedAreaUpdatedEvent {
+func constructZoomedAreaUpdatedEvent(area areadto.Dto, unitMap unitmapdto.Dto, updatedAt time.Time) *zoomedAreaUpdatedEvent {
 	return &zoomedAreaUpdatedEvent{
 		Type: zoomedAreaUpdatedEventType,
 		Payload: zoomedAreaUpdatedEventPayload{
-			Area:      gameDto,
+			Area:      area,
 			UnitMap:   unitMap,
 			UpdatedAt: updatedAt,
 		},
@@ -81,11 +81,11 @@ type areaZoomedEvent struct {
 	Payload areaZoomedEventPayload `json:"payload"`
 }
 
-func constructAreaZoomedEvent(gameDto areadto.Dto, unitMap unitmapdto.Dto) *areaZoomedEvent {
+func constructAreaZoomedEvent(area areadto.Dto, unitMap unitmapdto.Dto) *areaZoomedEvent {
 	return &areaZoomedEvent{
 		Type: areaZoomedEventType,
 		Payload: areaZoomedEventPayload{
-			Area:    gameDto,
+			Area:    area,
 			UnitMap: unitMap,
 		},
 	}
