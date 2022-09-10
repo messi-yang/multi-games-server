@@ -12,8 +12,8 @@ type Service interface {
 	CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error)
 	GetAllRooms() []aggregate.GameRoom
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
-	GetUnitMap(gameId uuid.UUID) (valueobject.UnitMap, error)
-	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error)
+	GetUnitMap(gameId uuid.UUID) (*valueobject.UnitMap, error)
+	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (*valueobject.UnitMap, error)
 	TickUnitMap(gameId uuid.UUID) error
 	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) error
 }
@@ -60,42 +60,42 @@ func (gsi *serviceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRoom, erro
 	return gameRoom, nil
 }
 
-func (gsi *serviceImplement) GetUnitMap(gameId uuid.UUID) (valueobject.UnitMap, error) {
+func (gsi *serviceImplement) GetUnitMap(gameId uuid.UUID) (*valueobject.UnitMap, error) {
 	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
 	if err != nil {
-		return valueobject.UnitMap{}, err
+		return &valueobject.UnitMap{}, err
 	}
 	defer rUnlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return valueobject.UnitMap{}, err
+		return &valueobject.UnitMap{}, err
 	}
 
 	unitMap := gameRoom.GetUnitMap()
 	if err != nil {
-		return valueobject.UnitMap{}, err
+		return &valueobject.UnitMap{}, err
 	}
 
 	return unitMap, nil
 }
 
-func (gsi *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error) {
+func (gsi *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (*valueobject.UnitMap, error) {
 	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
 	if err != nil {
-		return valueobject.UnitMap{}, err
+		return &valueobject.UnitMap{}, err
 	}
 	defer rUnlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 
 	if err != nil {
-		return valueobject.UnitMap{}, err
+		return &valueobject.UnitMap{}, err
 	}
 
 	unitMap, err := gameRoom.GetUnitMapByArea(area)
 	if err != nil {
-		return valueobject.UnitMap{}, err
+		return &valueobject.UnitMap{}, err
 	}
 
 	return unitMap, nil

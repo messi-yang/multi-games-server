@@ -12,7 +12,7 @@ import (
 )
 
 type record struct {
-	unitMap  valueobject.UnitMap
+	unitMap  *valueobject.UnitMap
 	tickedAt time.Time
 }
 
@@ -78,7 +78,7 @@ func (m *memory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordin
 	return nil
 }
 
-func (m *memory) UpdateUnitMap(gameId uuid.UUID, unitMap valueobject.UnitMap) error {
+func (m *memory) UpdateUnitMap(gameId uuid.UUID, unitMap *valueobject.UnitMap) error {
 	record, exists := m.records[gameId]
 	if !exists {
 		return gameroomrepository.ErrGameRoomNotFound

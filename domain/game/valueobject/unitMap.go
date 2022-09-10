@@ -3,10 +3,10 @@ package valueobject
 import "math/rand"
 
 type UnitMap struct {
-	unitMatrix [][]Unit
+	unitMatrix *[][]Unit
 }
 
-func NewUnitMap(mapSize MapSize) UnitMap {
+func NewUnitMap(mapSize MapSize) *UnitMap {
 	unitMap := make([][]Unit, mapSize.GetWidth())
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
 		unitMap[i] = make([]Unit, mapSize.GetHeight())
@@ -14,31 +14,31 @@ func NewUnitMap(mapSize MapSize) UnitMap {
 			unitMap[i][j] = NewUnit(rand.Intn(2) == 0, 0)
 		}
 	}
-	return UnitMap{
-		unitMatrix: unitMap,
+	return &UnitMap{
+		unitMatrix: &unitMap,
 	}
 }
 
-func NewUnitMapFromUnitMatrix(unitMatrix [][]Unit) UnitMap {
-	return UnitMap{
+func NewUnitMapFromUnitMatrix(unitMatrix *[][]Unit) *UnitMap {
+	return &UnitMap{
 		unitMatrix: unitMatrix,
 	}
 }
 
-func (um UnitMap) ToUnitMatrix() [][]Unit {
+func (um UnitMap) ToUnitMatrix() *[][]Unit {
 	return um.unitMatrix
 }
 
 func (um UnitMap) GetMapSize() MapSize {
-	gameMapSize, _ := NewMapSize(len(um.unitMatrix), len(um.unitMatrix[0]))
+	gameMapSize, _ := NewMapSize(len(*um.unitMatrix), len((*um.unitMatrix)[0]))
 	return gameMapSize
 }
 
 func (um UnitMap) GetUnit(coord Coordinate) Unit {
-	return um.unitMatrix[coord.x][coord.y]
+	return (*um.unitMatrix)[coord.x][coord.y]
 }
 
 // TODO - Ideally we shouldn't mutate the valueobject, but the array can be super huge!
 func (um UnitMap) SetUnit(coord Coordinate, unit Unit) {
-	um.unitMatrix[coord.x][coord.y] = unit
+	(*um.unitMatrix)[coord.x][coord.y] = unit
 }

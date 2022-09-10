@@ -7,7 +7,7 @@ import (
 
 type Dto [][]unitdto.Dto
 
-func ToDto(unitMap valueobject.UnitMap) Dto {
+func ToDto(unitMap *valueobject.UnitMap) Dto {
 	unitMapDto := make(Dto, 0)
 
 	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {

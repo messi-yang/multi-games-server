@@ -78,13 +78,13 @@ func (gr *GameRoom) GetUnitMapSize() valueobject.MapSize {
 	return gr.game.GetUnitMapSize()
 }
 
-func (gr *GameRoom) GetUnitMap() valueobject.UnitMap {
+func (gr *GameRoom) GetUnitMap() *valueobject.UnitMap {
 	return gr.game.GetUnitMap()
 }
 
-func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
+func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*valueobject.UnitMap, error) {
 	if !gr.GetUnitMapSize().IncludesArea(area) {
-		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
+		return &valueobject.UnitMap{}, ErrAreaExceedsUnitMap
 	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
@@ -98,7 +98,7 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap
 			unitMatrix[x][y] = gr.game.GetUnit(coordinate)
 		}
 	}
-	unitMap := valueobject.NewUnitMapFromUnitMatrix(unitMatrix)
+	unitMap := valueobject.NewUnitMapFromUnitMatrix(&unitMatrix)
 
 	return unitMap, nil
 }
@@ -134,15 +134,15 @@ func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) error {
 func (gr *GameRoom) TickUnitMap() error {
 	unitMap := gr.game.GetUnitMap()
 
-	var unitMatrix [][]valueobject.Unit = unitMap.ToUnitMatrix()
-	gameOfLiberty, err := ggol.NewGame(&unitMatrix)
+	var unitMatrix *[][]valueobject.Unit = unitMap.ToUnitMatrix()
+	gameOfLiberty, err := ggol.NewGame(unitMatrix)
 	if err != nil {
 		return err
 	}
 	gameOfLiberty.SetNextUnitGenerator(ggolNextUnitGenerator)
 	nextUnitMatrix := gameOfLiberty.GenerateNextUnits()
 
-	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(*nextUnitMatrix)
+	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(nextUnitMatrix)
 	gr.game.SetUnitMap(newUnitMap)
 
 	gr.lastTickedAt = time.Now()
