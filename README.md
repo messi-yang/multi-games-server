@@ -1,6 +1,6 @@
 # Game of Liberty Computer
 
-A server that keeps computing the next generation of the game of liberty.
+A server that keeps computing the next generation of the Game of Liberty.
 
 ## Design Principles
 
@@ -8,11 +8,7 @@ We follow [Clean Code](https://gist.github.com/wojteklu/73c6914cc446146b8b533c09
 
 **Refactoring is always part of the development**, so whenever you come up with a better solution or more elegant code, do not hesitate to change it.
 
-We follow [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-
-![Clean Architecture](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
-
-Think about how we deal with the dependencies with seriously, good architecture can help make us make progress faster and make life much much much much easier.
+We follow [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design)
 
 ## Development
 
