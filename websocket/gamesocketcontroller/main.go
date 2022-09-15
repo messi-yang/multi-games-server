@@ -10,7 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/compressionservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
+	"github.com/dum-dum-genius/game-of-liberty-computer/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmaptickedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitsrevivedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"

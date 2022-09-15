@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/config"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/job"
+	"github.com/dum-dum-genius/game-of-liberty-computer/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/router"
+	"github.com/dum-dum-genius/game-of-liberty-computer/job"
+	"github.com/dum-dum-genius/game-of-liberty-computer/websocket"
 )
 
 func main() {
@@ -22,5 +22,5 @@ func main() {
 	config.GetConfig().SetGameId(newGameRoomId)
 
 	job.StartJobs()
-	router.SetRouters()
+	websocket.SetWebsocketRouters()
 }
