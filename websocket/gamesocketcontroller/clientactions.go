@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/coordinatedto"
 )
 
 type actionType string

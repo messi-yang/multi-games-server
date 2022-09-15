@@ -3,9 +3,9 @@ package gamesocketcontroller
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/mapsizedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/unitmapdto"
 )
 
 type eventType string

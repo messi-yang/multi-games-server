@@ -6,11 +6,14 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/compressionservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/config"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/mapsizedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/dto/unitmapdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmaptickedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitsrevivedeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
@@ -58,8 +61,9 @@ func Controller(c *gin.Context) {
 	defer gameUnitMapTickeddEventUnsubscriber()
 
 	gameUnitsRevivedEventBus := gameunitsrevivedeventbus.GetEventBus()
-	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinateDtos []coordinatedto.Dto) {
-		handleUnitsRevivedEvent(conn, clientSession, gameId, coordinateDtos)
+	gameUnitsRevivedEventUnsubscriber := gameUnitsRevivedEventBus.Subscribe(gameId, func(coordinates []valueobject.Coordinate) {
+		coordinateDTOs := coordinatedto.ToDtoList(coordinates)
+		handleUnitsRevivedEvent(conn, clientSession, gameId, coordinateDTOs)
 	})
 	defer gameUnitsRevivedEventUnsubscriber()
 
@@ -143,7 +147,8 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
-	informationUpdatedEvent := constructInformationUpdatedEvent(unitMapSize)
+	unitMapSizeDTO := mapsizedto.ToDto(unitMapSize)
+	informationUpdatedEvent := constructInformationUpdatedEvent(unitMapSizeDTO)
 
 	sendJSONMessageToClient(conn, clientSession, informationUpdatedEvent)
 }
@@ -157,7 +162,18 @@ func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession,
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
-	includes, err := gameRoomService.AreaIncludesAnyCoordinates(*clientSession.watchedArea, coordinateDtos)
+	coordinates, err := coordinatedto.FromDtoList(coordinateDtos)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+		return
+	}
+
+	area, err := areadto.FromDto(*clientSession.watchedArea)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+		return
+	}
+	includes, err := gameRoomService.AreaIncludesAnyCoordinates(area, coordinates)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
@@ -167,12 +183,13 @@ func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession,
 		return
 	}
 
-	unitDtoMap, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
+	unitMap, err := gameRoomService.GetUnitMapByArea(gameId, area)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
-	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap)
+	unitMapDTO := unitmapdto.ToDto(&unitMap)
+	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitMapDTO)
 	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 
@@ -185,13 +202,19 @@ func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gam
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
-	unitDtoMap, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
+	area, err := areadto.FromDto(*clientSession.watchedArea)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+		return
+	}
+	unitMap, err := gameRoomService.GetUnitMapByArea(gameId, area)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
 
-	areaZoomedEvent := constructAreaZoomedEvent(*clientSession.watchedArea, unitDtoMap)
+	unitMapDTO := unitmapdto.ToDto(&unitMap)
+	areaZoomedEvent := constructAreaZoomedEvent(*clientSession.watchedArea, unitMapDTO)
 	sendJSONMessageToClient(conn, clientSession, areaZoomedEvent)
 }
 
@@ -204,13 +227,20 @@ func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSessi
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
 	)
-	unitDtoMap, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
+
+	area, err := areadto.FromDto(*clientSession.watchedArea)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+		return
+	}
+	unitMap, err := gameRoomService.GetUnitMapByArea(gameId, area)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
 
-	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitDtoMap)
+	unitMapDTO := unitmapdto.ToDto(&unitMap)
+	zoomedAreaUpdatedEvent := constructZoomedAreaUpdatedEvent(*clientSession.watchedArea, unitMapDTO)
 	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 
@@ -238,7 +268,11 @@ func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession,
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository, UnitsRevivedEvent: gameUnitsRevivedEventBus},
 	)
-	err = gameRoomService.ReviveUnits(gameId, reviveUnitsAction.Payload.Coordinates)
+	coordinates, err := coordinatedto.FromDtoList(reviveUnitsAction.Payload.Coordinates)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+	}
+	err = gameRoomService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 	}

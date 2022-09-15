@@ -3,10 +3,6 @@ package gameroomservice
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/coordinatedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/mapsizedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/dto/unitmapdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitsrevivedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
@@ -21,11 +17,11 @@ var (
 
 type Service interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
-	GetUnitMapByArea(gameId uuid.UUID, areaDto areadto.Dto) (unitMapDto unitmapdto.Dto, err error)
+	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (unitMap valueobject.UnitMap, err error)
 	TcikAllUnitMaps() error
-	ReviveUnits(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) error
-	GetUnitMapSize(gameId uuid.UUID) (mapsizedto.Dto, error)
-	AreaIncludesAnyCoordinates(areaDto areadto.Dto, coordinateDtos []coordinatedto.Dto) (bool, error)
+	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
+	GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error)
+	AreaIncludesAnyCoordinates(area valueobject.Area, coordinates []valueobject.Coordinate) (bool, error)
 }
 
 type serviceImplement struct {
@@ -61,19 +57,13 @@ func (grs *serviceImplement) CreateRoom(width int, height int) (gameId uuid.UUID
 	return gameRoom.GetGameId(), nil
 }
 
-func (grs *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, areaDto areadto.Dto) (unitmapdto.Dto, error) {
-	area, err := areadto.FromDto(areaDto)
-	if err != nil {
-		return unitmapdto.Dto{}, err
-	}
+func (grs *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error) {
 	unitMap, err := grs.gameRoomDomainService.GetUnitMapByArea(gameId, area)
 	if err != nil {
-		return unitmapdto.Dto{}, err
+		return valueobject.UnitMap{}, err
 	}
 
-	unitMapDto := unitmapdto.ToDto(unitMap)
-
-	return unitMapDto, nil
+	return *unitMap, nil
 }
 
 func (grs *serviceImplement) TcikAllUnitMaps() error {
@@ -93,46 +83,31 @@ func (grs *serviceImplement) TcikAllUnitMaps() error {
 	return nil
 }
 
-func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (mapsizedto.Dto, error) {
+func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error) {
 	gameRoom, err := grs.gameRoomDomainService.GetRoom(gameId)
 	if err != nil {
-		return mapsizedto.Dto{}, err
+		return valueobject.MapSize{}, err
 	}
-	return mapsizedto.ToDto(gameRoom.GetUnitMapSize()), nil
+	return gameRoom.GetUnitMapSize(), nil
 }
 
-func (grs *serviceImplement) AreaIncludesAnyCoordinates(areaDto areadto.Dto, coordinateDtos []coordinatedto.Dto) (bool, error) {
-	coordinates, err := coordinatedto.FromDtoList(coordinateDtos)
-	if err != nil {
-		return false, err
-	}
-
-	area, err := areadto.FromDto(areaDto)
-	if err != nil {
-		return false, err
-	}
-
+func (grs *serviceImplement) AreaIncludesAnyCoordinates(area valueobject.Area, coordinates []valueobject.Coordinate) (bool, error) {
 	coordinatesInArea := area.FilterCoordinates(coordinates)
 
 	return len(coordinatesInArea) > 0, nil
 }
 
-func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinateDtos []coordinatedto.Dto) error {
+func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
 	if grs.gameUnitsRevivedEvent == nil {
 		return ErrEventNotFound
 	}
 
-	coordinates, err := coordinatedto.FromDtoList(coordinateDtos)
+	err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		return err
 	}
 
-	err = grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
-	if err != nil {
-		return err
-	}
-
-	grs.gameUnitsRevivedEvent.Publish(gameId, coordinateDtos)
+	grs.gameUnitsRevivedEvent.Publish(gameId, coordinates)
 
 	return nil
 }
