@@ -7,6 +7,13 @@ type Dto struct {
 	Y int `json:"y"`
 }
 
+func ToDto(coordinate valueobject.Coordinate) Dto {
+	return Dto{
+		X: coordinate.GetX(),
+		Y: coordinate.GetY(),
+	}
+}
+
 func FromDto(coordinateDto Dto) (valueobject.Coordinate, error) {
 	return valueobject.NewCoordinate(coordinateDto.X, coordinateDto.Y)
 }

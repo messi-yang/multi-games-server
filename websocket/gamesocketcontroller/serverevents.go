@@ -3,6 +3,7 @@ package gamesocketcontroller
 import (
 	"time"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/dto/mapsizedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/dto/unitmapdto"
@@ -42,7 +43,8 @@ type informationUpdatedEvent struct {
 	Payload informationUpdatedEventPayload `json:"payload"`
 }
 
-func constructInformationUpdatedEvent(mapSizeDto mapsizedto.Dto) *informationUpdatedEvent {
+func constructInformationUpdatedEvent(mapSize valueobject.MapSize) *informationUpdatedEvent {
+	mapSizeDto := mapsizedto.ToDto(mapSize)
 	return &informationUpdatedEvent{
 		Type: informationUpdatedEventType,
 		Payload: informationUpdatedEventPayload{
@@ -61,12 +63,14 @@ type zoomedAreaUpdatedEvent struct {
 	Payload zoomedAreaUpdatedEventPayload `json:"payload"`
 }
 
-func constructZoomedAreaUpdatedEvent(area areadto.Dto, unitMap unitmapdto.Dto) *zoomedAreaUpdatedEvent {
+func constructZoomedAreaUpdatedEvent(area valueobject.Area, unitMap valueobject.UnitMap) *zoomedAreaUpdatedEvent {
+	areaDTO := areadto.ToDTO(area)
+	unitMapDTO := unitmapdto.ToDto(&unitMap)
 	return &zoomedAreaUpdatedEvent{
 		Type: zoomedAreaUpdatedEventType,
 		Payload: zoomedAreaUpdatedEventPayload{
-			Area:      area,
-			UnitMap:   unitMap,
+			Area:      areaDTO,
+			UnitMap:   unitMapDTO,
 			UpdatedAt: time.Now(),
 		},
 	}
@@ -81,12 +85,14 @@ type areaZoomedEvent struct {
 	Payload areaZoomedEventPayload `json:"payload"`
 }
 
-func constructAreaZoomedEvent(area areadto.Dto, unitMap unitmapdto.Dto) *areaZoomedEvent {
+func constructAreaZoomedEvent(area valueobject.Area, unitMap valueobject.UnitMap) *areaZoomedEvent {
+	areaDTO := areadto.ToDTO(area)
+	unitMapDTO := unitmapdto.ToDto(&unitMap)
 	return &areaZoomedEvent{
 		Type: areaZoomedEventType,
 		Payload: areaZoomedEventPayload{
-			Area:    area,
-			UnitMap: unitMap,
+			Area:    areaDTO,
+			UnitMap: unitMapDTO,
 		},
 	}
 }

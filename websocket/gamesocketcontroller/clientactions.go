@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/dto/coordinatedto"
 )
@@ -38,14 +39,19 @@ type zoomAreaAction struct {
 	Payload zoomAreaActionPayload `json:"payload"`
 }
 
-func extractZoomAreaActionFromMessage(msg []byte) (*zoomAreaAction, error) {
+func extractInformationFromZoomAreaAction(msg []byte) (valueobject.Area, error) {
 	var action zoomAreaAction
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
-		return nil, err
+		return valueobject.Area{}, err
 	}
 
-	return &action, nil
+	area, err := areadto.FromDto(action.Payload.Area)
+	if err != nil {
+		return valueobject.Area{}, err
+	}
+
+	return area, nil
 }
 
 type reviveUnitsActionPayload struct {
@@ -57,12 +63,17 @@ type reviveUnitsAction struct {
 	Payload reviveUnitsActionPayload `json:"payload"`
 }
 
-func extractReviveUnitsActionFromMessage(msg []byte) (*reviveUnitsAction, error) {
+func extractInformationFromReviveUnitsAction(msg []byte) ([]valueobject.Coordinate, error) {
 	var action reviveUnitsAction
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return nil, err
 	}
 
-	return &action, nil
+	coordinates, err := coordinatedto.FromDtoList(action.Payload.Coordinates)
+	if err != nil {
+		return nil, err
+	}
+
+	return coordinates, nil
 }

@@ -10,6 +10,16 @@ type Dto struct {
 	To   coordinatedto.Dto `json:"to"`
 }
 
+func ToDTO(area valueobject.Area) Dto {
+	fromCoordinateDto := coordinatedto.ToDto(area.GetFrom())
+	toCoordinateDto := coordinatedto.ToDto(area.GetTo())
+
+	return Dto{
+		From: fromCoordinateDto,
+		To:   toCoordinateDto,
+	}
+}
+
 func FromDto(areaDto Dto) (valueobject.Area, error) {
 	fromCoordinate, err := coordinatedto.FromDto(areaDto.From)
 	if err != nil {
