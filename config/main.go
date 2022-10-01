@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 )
 
 type Config interface {
@@ -24,7 +23,6 @@ var config Config = nil
 func GetConfig() Config {
 	if config == nil {
 		newConfig := &configImpl{}
-		godotenv.Load(".env")
 
 		if os.Getenv("GAME_MAP_SIZE") == "" {
 			panic("You must set the 'GAME_MAP_SIZE'")
