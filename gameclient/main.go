@@ -1,7 +1,7 @@
 package gameclient
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/gamesocketcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/socketcontrollers/gamesocketcontroller"
 	"github.com/gin-gonic/gin"
 )
 
