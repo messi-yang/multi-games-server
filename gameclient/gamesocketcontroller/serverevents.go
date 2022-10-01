@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/dto/mapsizedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/dto/unitmapdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/dto/mapsizedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/dto/unitmapdto"
 )
 
 type eventType string

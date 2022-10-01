@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/dto/coordinatedto"
 )
 
 type actionType string

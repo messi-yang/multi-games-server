@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/config"
-	"github.com/dum-dum-genius/game-of-liberty-computer/http"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/memory/gameroommemory"
-	"github.com/dum-dum-genius/game-of-liberty-computer/job"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 )
 
 func main() {
@@ -21,6 +21,6 @@ func main() {
 
 	config.GetConfig().SetGameId(newGameRoomId)
 
-	job.StartJobs()
-	http.SetWebsocketRouters()
+	gamecomputer.StartJobs()
+	gameclient.SetWebsocketRouters()
 }

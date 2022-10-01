@@ -1,7 +1,7 @@
-package http
+package gameclient
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/http/gamesocketcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/gamesocketcontroller"
 	"github.com/gin-gonic/gin"
 )
 
