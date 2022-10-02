@@ -2,7 +2,7 @@ package gamecomputer
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/jobs/tickunitmapjob"
 
-func StartJobs() {
+func Start() {
 	gameRoomJob := tickunitmapjob.GetJob()
 	gameRoomJob.Start()
 }

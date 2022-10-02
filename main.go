@@ -21,6 +21,6 @@ func main() {
 
 	config.GetConfig().SetGameId(newGameRoomId)
 
-	gamecomputer.StartJobs()
-	gameclient.SetWebsocketRouters()
+	gamecomputer.Start()
+	gameclient.Start()
 }

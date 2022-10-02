@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetWebsocketRouters() {
+func Start() {
 	router := gin.Default()
 
 	gameSocketRouter := router.Group("/ws/game")
