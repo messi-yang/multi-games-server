@@ -11,9 +11,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbus/gameunitmaptickedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -51,13 +51,12 @@ func Handler(c *gin.Context) {
 	}
 
 	emitGameInfoUpdatedEvent(conn, clientSession, gameId)
-	eventBus := eventbus.GetEventBus()
+	eventBus := memoryeventbus.GetEventBus()
 
-	gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetEventBus()
-	gameUnitMapTickeddEventUnsubscriber := gameUnitMapTickedEventBus.Subscribe(gameId, func() {
+	unitMapTickeddEventUnsubscriber := eventBus.Subscribe(unitmaptickedevent.NewEventTopic(gameId), func(event []byte) {
 		emitZoomedAreaUpdatedEvent(conn, clientSession, gameId)
 	})
-	defer gameUnitMapTickeddEventUnsubscriber()
+	defer unitMapTickeddEventUnsubscriber()
 
 	unitsRevivedEventInsubscriber := eventBus.Subscribe(unitsrevivedevent.NewEventTopic(gameId), func(event []byte) {
 		handleUnitsRevivedEvent(conn, clientSession, gameId, event)
@@ -246,7 +245,7 @@ func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession,
 		return
 	}
 
-	eventBus := eventbus.GetEventBus()
+	eventBus := memoryeventbus.GetEventBus()
 	eventBus.Publish(
 		reviveunitsrequestedevent.NewEventTopic(),
 		reviveunitsrequestedevent.NewEvent(gameId, coordinates),

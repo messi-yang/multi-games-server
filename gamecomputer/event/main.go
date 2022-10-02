@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
 )
 
@@ -15,7 +15,7 @@ func Controller() {
 	gameId := config.GetConfig().GetGameId()
 
 	gameRoomRepository := gameroommemory.GetRepository()
-	eventBus := eventbus.GetEventBus()
+	eventBus := memoryeventbus.GetEventBus()
 	gameRoomService := gameroomservice.NewService(
 		gameroomservice.Configuration{
 			GameRoomRepository: gameRoomRepository,

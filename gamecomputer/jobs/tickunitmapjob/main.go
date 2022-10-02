@@ -5,9 +5,9 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitmaptickedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbus/gameunitmaptickedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 )
 
 type Job interface {
@@ -16,10 +16,10 @@ type Job interface {
 }
 
 type jobImplement struct {
-	gameRoomRepository        gameroomrepository.Repository
-	gameUnitMapTickedEventBus gameunitmaptickedevent.Event
-	gameTicker                *time.Ticker
-	unitMapTickerStop         chan bool
+	gameRoomRepository gameroomrepository.Repository
+	eventBus           eventbus.EventBus
+	gameTicker         *time.Ticker
+	unitMapTickerStop  chan bool
 }
 
 var job *jobImplement
@@ -27,11 +27,11 @@ var job *jobImplement
 func GetJob() Job {
 	if job == nil {
 		gameRoomRepository := gameroommemory.GetRepository()
-		gameUnitMapTickedEventBus := gameunitmaptickedeventbus.GetEventBus()
+		memoryEventBus := memoryeventbus.GetEventBus()
 
 		job = &jobImplement{
-			gameRoomRepository:        gameRoomRepository,
-			gameUnitMapTickedEventBus: gameUnitMapTickedEventBus,
+			gameRoomRepository: gameRoomRepository,
+			eventBus:           memoryEventBus,
 		}
 
 		return job
@@ -51,8 +51,8 @@ func (gwi *jobImplement) Start() {
 			case <-gwi.gameTicker.C:
 				gameRoomService := gameroomservice.NewService(
 					gameroomservice.Configuration{
-						GameRoomRepository:     gwi.gameRoomRepository,
-						GameUnitMapTickedEvent: gwi.gameUnitMapTickedEventBus,
+						GameRoomRepository: gwi.gameRoomRepository,
+						EventBus:           gwi.eventBus,
 					},
 				)
 				gameRoomService.TcikAllUnitMaps()

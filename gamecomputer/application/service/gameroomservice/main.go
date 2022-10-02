@@ -3,11 +3,11 @@ package gameroomservice
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
 	"github.com/google/uuid"
 )
@@ -19,29 +19,26 @@ var (
 type Service interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (unitMap valueobject.UnitMap, err error)
-	TcikAllUnitMaps() error
+	TcikAllUnitMaps()
 	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate)
 	GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error)
 	AreaIncludesAnyCoordinates(area valueobject.Area, coordinates []valueobject.Coordinate) (bool, error)
 }
 
 type serviceImplement struct {
-	gameRoomDomainService  gameroomservice.Service
-	eventBus               eventbus.EventBus
-	gameUnitMapTickedEvent gameunitmaptickedevent.Event
+	gameRoomDomainService gameroomservice.Service
+	eventBus              eventbus.EventBus
 }
 
 type Configuration struct {
-	GameRoomRepository     gameroomrepository.Repository
-	EventBus               eventbus.EventBus
-	GameUnitMapTickedEvent gameunitmaptickedevent.Event
+	GameRoomRepository gameroomrepository.Repository
+	EventBus           eventbus.EventBus
 }
 
 func NewService(config Configuration) Service {
 	return &serviceImplement{
-		gameRoomDomainService:  gameroomservice.NewService(config.GameRoomRepository),
-		eventBus:               config.EventBus,
-		gameUnitMapTickedEvent: config.GameUnitMapTickedEvent,
+		gameRoomDomainService: gameroomservice.NewService(config.GameRoomRepository),
+		eventBus:              config.EventBus,
 	}
 }
 
@@ -67,21 +64,18 @@ func (grs *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject
 	return *unitMap, nil
 }
 
-func (grs *serviceImplement) TcikAllUnitMaps() error {
-	if grs.gameUnitMapTickedEvent == nil {
-		return ErrEventNotFound
-	}
-
+func (grs *serviceImplement) TcikAllUnitMaps() {
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
 		err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
 		if err != nil {
 			continue
 		}
-		grs.gameUnitMapTickedEvent.Publish(gameRoom.GetGameId())
+		grs.eventBus.Publish(
+			unitmaptickedevent.NewEventTopic(gameRoom.GetGameId()),
+			unitmaptickedevent.NewEvent(),
+		)
 	}
-
-	return nil
 }
 
 func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error) {

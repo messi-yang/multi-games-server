@@ -1,33 +1,32 @@
-package eventbus
+package memoryeventbus
 
 import (
 	"github.com/asaskevich/EventBus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 )
 
-type eventBus struct {
+type MemoryEventBus struct {
 	eventBus EventBus.Bus
 }
 
 type eventBusCallback = func(event []byte)
 
-var eventBusInstance *eventBus
+var eventBusInstance *MemoryEventBus
 
-func GetEventBus() eventbus.EventBus {
+func GetEventBus() *MemoryEventBus {
 	if eventBusInstance == nil {
-		eventBusInstance = &eventBus{
+		eventBusInstance = &MemoryEventBus{
 			eventBus: EventBus.New(),
 		}
 	}
 	return eventBusInstance
 }
 
-func (gue *eventBus) Publish(topic string, event []byte) {
+func (gue *MemoryEventBus) Publish(topic string, event []byte) {
 	// I don't what the heck is going on, without this "go" we can't let the method finish
 	go gue.eventBus.Publish(topic, event)
 }
 
-func (gue *eventBus) Subscribe(topic string, callback eventBusCallback) (unsubscriber func()) {
+func (gue *MemoryEventBus) Subscribe(topic string, callback eventBusCallback) (unsubscriber func()) {
 	gue.eventBus.Subscribe(topic, callback)
 
 	return func() {
