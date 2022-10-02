@@ -1,7 +1,7 @@
-package gameclient
+package gameclientcommunicator
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/http/gameroomsockethandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/http/gameroomsockethandler"
 	"github.com/gin-gonic/gin"
 )
 
