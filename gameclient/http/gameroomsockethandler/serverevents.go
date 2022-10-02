@@ -1,4 +1,4 @@
-package gamesocketcontroller
+package gameroomsockethandler
 
 import (
 	"time"

@@ -1,4 +1,4 @@
-package gamesocketcontroller
+package gameroomsockethandler
 
 import (
 	"encoding/json"
@@ -32,7 +32,7 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-func Controller(c *gin.Context) {
+func Handler(c *gin.Context) {
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		c.Error(err)
