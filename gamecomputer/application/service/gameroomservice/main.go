@@ -4,9 +4,11 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitmaptickedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
 	"github.com/google/uuid"
 )
 
@@ -18,24 +20,27 @@ type Service interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (unitMap valueobject.UnitMap, err error)
 	TcikAllUnitMaps() error
-	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
+	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate)
 	GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error)
 	AreaIncludesAnyCoordinates(area valueobject.Area, coordinates []valueobject.Coordinate) (bool, error)
 }
 
 type serviceImplement struct {
 	gameRoomDomainService  gameroomservice.Service
+	eventBus               eventbus.EventBus
 	gameUnitMapTickedEvent gameunitmaptickedevent.Event
 }
 
 type Configuration struct {
 	GameRoomRepository     gameroomrepository.Repository
+	EventBus               eventbus.EventBus
 	GameUnitMapTickedEvent gameunitmaptickedevent.Event
 }
 
 func NewService(config Configuration) Service {
 	return &serviceImplement{
 		gameRoomDomainService:  gameroomservice.NewService(config.GameRoomRepository),
+		eventBus:               config.EventBus,
 		gameUnitMapTickedEvent: config.GameUnitMapTickedEvent,
 	}
 }
@@ -93,11 +98,11 @@ func (grs *serviceImplement) AreaIncludesAnyCoordinates(area valueobject.Area, c
 	return len(coordinatesInArea) > 0, nil
 }
 
-func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
+func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) {
 	err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
-		return err
+		return
 	}
 
-	return nil
+	grs.eventBus.Publish(unitsrevivedevent.NewEventTopic(gameId), unitsrevivedevent.NewEvent(coordinates))
 }

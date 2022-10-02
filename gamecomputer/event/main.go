@@ -9,18 +9,20 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
 )
 
 func Controller() {
 	gameId := config.GetConfig().GetGameId()
 
 	gameRoomRepository := gameroommemory.GetRepository()
+	eventBus := eventbus.GetEventBus()
 	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
+		gameroomservice.Configuration{
+			GameRoomRepository: gameRoomRepository,
+			EventBus:           eventBus,
+		},
 	)
 
-	eventBus := eventbus.GetEventBus()
 	reviveUnitsRequestedEventUnsubscriber := eventBus.Subscribe(
 		reviveunitsrequestedevent.NewEventTopic(),
 		func(event []byte) {
@@ -33,12 +35,7 @@ func Controller() {
 				coordinates = append(coordinates, coordinate)
 			}
 
-			err := gameRoomService.ReviveUnits(gameId, coordinates)
-			if err != nil {
-				return
-			}
-
-			eventBus.Publish(unitsrevivedevent.NewEventTopic(gameId), unitsrevivedevent.NewEvent(coordinates))
+			gameRoomService.ReviveUnits(gameId, coordinates)
 		},
 	)
 	defer reviveUnitsRequestedEventUnsubscriber()
