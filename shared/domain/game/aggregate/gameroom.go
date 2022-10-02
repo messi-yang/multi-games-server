@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/DumDumGeniuss/ggol"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 

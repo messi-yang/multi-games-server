@@ -3,11 +3,11 @@ package tickunitmapjob
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmaptickedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
-	"github.com/dum-dum-genius/game-of-liberty-computer/infrastructure/eventbus/gameunitmaptickedeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitmaptickedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbus/gameunitmaptickedeventbus"
 )
 
 type Job interface {

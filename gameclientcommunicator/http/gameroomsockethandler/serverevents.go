@@ -3,10 +3,10 @@ package gameroomsockethandler
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/presenter/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/presenter/dto/mapsizedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/presenter/dto/unitmapdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 )
 
 type eventType string

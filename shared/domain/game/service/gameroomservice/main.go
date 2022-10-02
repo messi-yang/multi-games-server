@@ -1,10 +1,10 @@
 package gameroomservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 

@@ -1,8 +1,8 @@
 package areadto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/presenter/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 )
 
 type Dto struct {

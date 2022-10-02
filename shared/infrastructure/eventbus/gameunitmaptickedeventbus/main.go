@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/EventBus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmaptickedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitmaptickedevent"
 	"github.com/google/uuid"
 )
 

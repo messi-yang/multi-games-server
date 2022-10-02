@@ -3,11 +3,11 @@ package gameroomservice
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitmaptickedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitsrevivedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/repository/gameroomrepository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/service/gameroomservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitmaptickedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitsrevivedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 

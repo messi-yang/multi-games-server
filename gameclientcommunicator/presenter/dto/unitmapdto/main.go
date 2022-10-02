@@ -1,8 +1,8 @@
 package unitmapdto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/presenter/dto/unitdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 )
 
 type Dto [][]unitdto.Dto

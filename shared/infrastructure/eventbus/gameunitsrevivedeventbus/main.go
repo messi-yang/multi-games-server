@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/EventBus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/application/event/gameunitsrevivedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitsrevivedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 
