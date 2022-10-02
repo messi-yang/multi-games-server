@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 )
 
 func main() {
