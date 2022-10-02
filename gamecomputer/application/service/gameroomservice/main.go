@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitmaptickedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/event/gameunitsrevivedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
@@ -27,20 +26,17 @@ type Service interface {
 type serviceImplement struct {
 	gameRoomDomainService  gameroomservice.Service
 	gameUnitMapTickedEvent gameunitmaptickedevent.Event
-	gameUnitsRevivedEvent  gameunitsrevivedevent.Event
 }
 
 type Configuration struct {
 	GameRoomRepository     gameroomrepository.Repository
 	GameUnitMapTickedEvent gameunitmaptickedevent.Event
-	UnitsRevivedEvent      gameunitsrevivedevent.Event
 }
 
 func NewService(config Configuration) Service {
 	return &serviceImplement{
 		gameRoomDomainService:  gameroomservice.NewService(config.GameRoomRepository),
 		gameUnitMapTickedEvent: config.GameUnitMapTickedEvent,
-		gameUnitsRevivedEvent:  config.UnitsRevivedEvent,
 	}
 }
 
@@ -98,16 +94,10 @@ func (grs *serviceImplement) AreaIncludesAnyCoordinates(area valueobject.Area, c
 }
 
 func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
-	if grs.gameUnitsRevivedEvent == nil {
-		return ErrEventNotFound
-	}
-
 	err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		return err
 	}
-
-	grs.gameUnitsRevivedEvent.Publish(gameId, coordinates)
 
 	return nil
 }

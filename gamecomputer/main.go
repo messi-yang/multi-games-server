@@ -1,8 +1,13 @@
 package gamecomputer
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/jobs/tickunitmapjob"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/event"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/jobs/tickunitmapjob"
+)
 
 func Start() {
 	gameRoomJob := tickunitmapjob.GetJob()
 	gameRoomJob.Start()
+
+	go event.Controller()
 }
