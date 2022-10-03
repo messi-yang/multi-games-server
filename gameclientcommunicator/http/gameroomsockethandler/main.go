@@ -6,14 +6,13 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/application/service/compressionservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/addplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/gameinfoupdatedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/removeplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomarearequestedevent"
@@ -62,7 +61,13 @@ func Handler(c *gin.Context) {
 		socketSendMessageLock: sync.RWMutex{},
 	}
 
-	emitGameInfoUpdatedEvent(conn, clientSession, gameId)
+	gameInfoUpdatedEventSubscriber := eventBus.Subscribe(
+		gameinfoupdatedevent.NewEventTopic(gameId, player.GetId()),
+		func(event []byte) {
+			handleGameInfoUpdatedEvent(conn, clientSession, gameId, player.GetId(), event)
+		},
+	)
+	defer gameInfoUpdatedEventSubscriber()
 
 	areaZoomedEventUnsubscriber := eventBus.Subscribe(areazoomedevent.NewEventTopic(gameId, player.GetId()), func(event []byte) {
 		handleAreaZoomedEvent(conn, clientSession, gameId, player.GetId(), event)
@@ -145,18 +150,11 @@ func emitErrorEvent(conn *websocket.Conn, clientSession *clientSession, err erro
 	sendJSONMessageToClient(conn, clientSession, errorEvent)
 }
 
-func emitGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID) {
-	gameRoomRepository := gameroommemory.GetRepository()
-	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
-	)
-	unitMapSize, err := gameRoomService.GetUnitMapSize(gameId)
-	if err != nil {
-		emitErrorEvent(conn, clientSession, err)
-		return
-	}
-	informationUpdatedEvent := constructInformationUpdatedEvent(unitMapSize)
+func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, playerId uuid.UUID, event []byte) {
+	var gameInfoUpdatedEvent gameinfoupdatedevent.Event
+	json.Unmarshal(event, &gameInfoUpdatedEvent)
 
+	informationUpdatedEvent := constructInformationUpdatedEvent(gameInfoUpdatedEvent.Payload.MapSize)
 	sendJSONMessageToClient(conn, clientSession, informationUpdatedEvent)
 }
 

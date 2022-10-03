@@ -9,6 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/gameinfoupdatedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomedareaupdatedevent"
 	"github.com/google/uuid"
 )
@@ -135,6 +136,16 @@ func (grs *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) e
 	if err != nil {
 		return err
 	}
+
+	gameRoom, _ := grs.gameRoomDomainService.GetRoom(gameId)
+	if err != nil {
+		return err
+	}
+
+	grs.eventBus.Publish(
+		gameinfoupdatedevent.NewEventTopic(gameId, player.GetId()),
+		gameinfoupdatedevent.NewEvent(gameRoom.GetUnitMapSize()),
+	)
 
 	return nil
 }
