@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
@@ -26,11 +26,11 @@ var job *jobImplement
 
 func GetJob() Job {
 	if job == nil {
-		gameRoomRepository := gameroommemory.GetRepository()
+		gameRoomRepositoryMemory := memoryrepository.GetGameRoomRepositoryMemory()
 		memoryEventBus := memoryeventbus.GetEventBus()
 
 		job = &jobImplement{
-			gameRoomRepository: gameRoomRepository,
+			gameRoomRepository: gameRoomRepositoryMemory,
 			eventBus:           memoryEventBus,
 		}
 

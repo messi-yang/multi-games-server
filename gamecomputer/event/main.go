@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/areadto"
@@ -19,11 +19,11 @@ import (
 func Controller() {
 	gameId := config.GetConfig().GetGameId()
 
-	gameRoomRepository := gameroommemory.GetRepository()
+	gameRoomRepositoryMemory := memoryrepository.GetGameRoomRepositoryMemory()
 	eventBus := memoryeventbus.GetEventBus()
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{
-			GameRoomRepository: gameRoomRepository,
+			GameRoomRepository: gameRoomRepositoryMemory,
 			EventBus:           eventBus,
 		},
 	)
