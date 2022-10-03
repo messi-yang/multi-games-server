@@ -3,7 +3,7 @@ package tickunitmapjob
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
@@ -49,13 +49,13 @@ func (gwi *jobImplement) Start() {
 		for {
 			select {
 			case <-gwi.gameTicker.C:
-				gameRoomService := gameroomservice.NewService(
-					gameroomservice.Configuration{
+				gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
+					applicationservice.GameRoomApplicationServiceConfiguration{
 						GameRoomRepository: gwi.gameRoomRepository,
 						EventBus:           gwi.eventBus,
 					},
 				)
-				gameRoomService.TcikAllUnitMaps()
+				gameRoomApplicationService.TcikAllUnitMaps()
 			case <-gwi.unitMapTickerStop:
 				gwi.gameTicker.Stop()
 				gwi.gameTicker = nil

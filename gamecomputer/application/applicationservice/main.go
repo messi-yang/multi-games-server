@@ -1,4 +1,4 @@
-package gameroomservice
+package applicationservice
 
 import (
 	"errors"
@@ -18,7 +18,7 @@ var (
 	ErrEventNotFound = errors.New("event was not found")
 )
 
-type Service interface {
+type GameRoomApplicationService interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
 
 	AddPlayer(gameId uuid.UUID, player entity.Player) error
@@ -31,24 +31,24 @@ type Service interface {
 	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
 }
 
-type serviceImplement struct {
+type gameRoomApplicationServiceImplement struct {
 	gameRoomDomainService gameroomservice.Service
 	eventBus              eventbus.EventBus
 }
 
-type Configuration struct {
+type GameRoomApplicationServiceConfiguration struct {
 	GameRoomRepository gameroomrepository.Repository
 	EventBus           eventbus.EventBus
 }
 
-func NewService(config Configuration) Service {
-	return &serviceImplement{
+func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguration) GameRoomApplicationService {
+	return &gameRoomApplicationServiceImplement{
 		gameRoomDomainService: gameroomservice.NewService(config.GameRoomRepository),
 		eventBus:              config.EventBus,
 	}
 }
 
-func (grs *serviceImplement) CreateRoom(width int, height int) (gameId uuid.UUID, err error) {
+func (grs *gameRoomApplicationServiceImplement) CreateRoom(width int, height int) (gameId uuid.UUID, err error) {
 	mapSize, err := valueobject.NewMapSize(width, height)
 	if err != nil {
 		return uuid.UUID{}, err
@@ -61,7 +61,7 @@ func (grs *serviceImplement) CreateRoom(width int, height int) (gameId uuid.UUID
 	return gameRoom.GetGameId(), nil
 }
 
-func (grs *serviceImplement) TcikAllUnitMaps() {
+func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
 		err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
@@ -82,7 +82,7 @@ func (grs *serviceImplement) TcikAllUnitMaps() {
 	}
 }
 
-func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
+func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
 	err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		return err
@@ -110,7 +110,7 @@ func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueob
 	return nil
 }
 
-func (grs *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
+func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
 	err := grs.gameRoomDomainService.AddPlayer(gameId, player)
 	if err != nil {
 		return err
@@ -129,7 +129,7 @@ func (grs *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) e
 	return nil
 }
 
-func (grs *serviceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *gameRoomApplicationServiceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
 	err := grs.gameRoomDomainService.RemovePlayer(gameId, playerId)
 	if err != nil {
 		return err
@@ -138,7 +138,7 @@ func (grs *serviceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) 
 	return nil
 }
 
-func (grs *serviceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
+func (grs *gameRoomApplicationServiceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
 	err := grs.gameRoomDomainService.AddZoomedArea(gameId, playerId, area)
 	if err != nil {
 		return err
@@ -162,7 +162,7 @@ func (grs *serviceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID,
 	return nil
 }
 
-func (grs *serviceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *gameRoomApplicationServiceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
 	err := grs.gameRoomDomainService.RemoveZoomedArea(gameId, playerId)
 	if err != nil {
 		return err

@@ -3,7 +3,7 @@ package event
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
@@ -21,8 +21,8 @@ func Controller() {
 
 	gameRoomRepository := gameroommemory.GetRepository()
 	eventBus := memoryeventbus.GetEventBus()
-	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{
+	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
+		applicationservice.GameRoomApplicationServiceConfiguration{
 			GameRoomRepository: gameRoomRepository,
 			EventBus:           eventBus,
 		},
@@ -39,7 +39,7 @@ func Controller() {
 				return
 			}
 
-			gameRoomService.ReviveUnits(gameId, coordinates)
+			gameRoomApplicationService.ReviveUnits(gameId, coordinates)
 		},
 	)
 	defer reviveUnitsRequestedEventUnsubscriber()
@@ -51,7 +51,7 @@ func Controller() {
 			json.Unmarshal(event, &addPlayerRequestedEvent)
 
 			player := playerdto.FromDto(addPlayerRequestedEvent.Payload.Player)
-			gameRoomService.AddPlayer(gameId, player)
+			gameRoomApplicationService.AddPlayer(gameId, player)
 		},
 	)
 	defer addPlayerRequestedEventUnsubscriber()
@@ -62,8 +62,8 @@ func Controller() {
 			var removePlayerRequestedEvent removeplayerrequestedevent.Event
 			json.Unmarshal(event, &removePlayerRequestedEvent)
 
-			gameRoomService.RemovePlayer(gameId, removePlayerRequestedEvent.Payload.PlayerId)
-			gameRoomService.RemoveZoomedArea(gameId, removePlayerRequestedEvent.Payload.PlayerId)
+			gameRoomApplicationService.RemovePlayer(gameId, removePlayerRequestedEvent.Payload.PlayerId)
+			gameRoomApplicationService.RemoveZoomedArea(gameId, removePlayerRequestedEvent.Payload.PlayerId)
 		},
 	)
 	defer removePlayerRequestedEventUnsubscriber()
@@ -78,7 +78,7 @@ func Controller() {
 			if err != nil {
 				return
 			}
-			gameRoomService.AddZoomedArea(gameId, zoomAreaRequestedEvent.Payload.PlayerId, area)
+			gameRoomApplicationService.AddZoomedArea(gameId, zoomAreaRequestedEvent.Payload.PlayerId, area)
 		},
 	)
 	defer zoomAreaRequestedEventSubscriber()

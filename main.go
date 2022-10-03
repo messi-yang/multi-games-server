@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 )
@@ -11,10 +11,10 @@ import (
 func main() {
 	gameRoomMemory := gameroommemory.GetRepository()
 	size := config.GetConfig().GetGameMapSize()
-	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomMemory},
+	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
+		applicationservice.GameRoomApplicationServiceConfiguration{GameRoomRepository: gameRoomMemory},
 	)
-	newGameRoomId, err := gameRoomService.CreateRoom(size, size)
+	newGameRoomId, err := gameRoomApplicationService.CreateRoom(size, size)
 	if err != nil {
 		panic(err.Error())
 	}
