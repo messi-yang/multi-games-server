@@ -2,17 +2,18 @@ package event
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/playerdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/addplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/removeplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomarearequestedevent"
 )
 
 func Controller() {
@@ -51,8 +52,6 @@ func Controller() {
 
 			player := playerdto.FromDto(addPlayerRequestedEvent.Payload.Player)
 			gameRoomService.AddPlayer(gameId, player)
-
-			fmt.Println(gameRoomService.GetPlayers(gameId))
 		},
 	)
 	defer addPlayerRequestedEventUnsubscriber()
@@ -64,11 +63,25 @@ func Controller() {
 			json.Unmarshal(event, &removePlayerRequestedEvent)
 
 			gameRoomService.RemovePlayer(gameId, removePlayerRequestedEvent.Payload.PlayerId)
-
-			fmt.Println(gameRoomService.GetPlayers(gameId))
+			gameRoomService.RemoveZoomedArea(gameId, removePlayerRequestedEvent.Payload.PlayerId)
 		},
 	)
 	defer removePlayerRequestedEventUnsubscriber()
+
+	zoomAreaRequestedEventSubscriber := eventBus.Subscribe(
+		zoomarearequestedevent.NewEventTopic(gameId),
+		func(event []byte) {
+			var zoomAreaRequestedEvent zoomarearequestedevent.Event
+			json.Unmarshal(event, &zoomAreaRequestedEvent)
+
+			area, err := areadto.FromDto(zoomAreaRequestedEvent.Payload.Area)
+			if err != nil {
+				return
+			}
+			gameRoomService.AddZoomedArea(gameId, zoomAreaRequestedEvent.Payload.PlayerId, area)
+		},
+	)
+	defer zoomAreaRequestedEventSubscriber()
 
 	closeConnFlag := make(chan bool)
 	for {

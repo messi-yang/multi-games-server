@@ -12,9 +12,10 @@ import (
 )
 
 type record struct {
-	unitMap  *valueobject.UnitMap
-	tickedAt time.Time
-	players  map[uuid.UUID]entity.Player
+	unitMap     *valueobject.UnitMap
+	tickedAt    time.Time
+	players     map[uuid.UUID]entity.Player
+	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
 type memory struct {
@@ -47,7 +48,7 @@ func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 	for _, player := range record.players {
 		players = append(players, player)
 	}
-	gameRoom := aggregate.NewGameRoom(game, players)
+	gameRoom := aggregate.NewGameRoom(game, players, record.zoomedAreas)
 	return gameRoom, nil
 }
 
@@ -59,7 +60,7 @@ func (m *memory) GetAll() []aggregate.GameRoom {
 		for _, player := range record.players {
 			players = append(players, player)
 		}
-		newGameRoom := aggregate.NewGameRoom(game, players)
+		newGameRoom := aggregate.NewGameRoom(game, players, record.zoomedAreas)
 		gameRoom = append(gameRoom, newGameRoom)
 	}
 	return gameRoom
@@ -87,6 +88,28 @@ func (m *memory) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
 	}
 
 	delete(record.players, playerId)
+	return nil
+}
+
+func (m *memory) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
+	record, exists := m.records[gameId]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
+	record.zoomedAreas[playerId] = area
+
+	return nil
+}
+
+func (m *memory) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
+	record, exists := m.records[gameId]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
+	delete(record.zoomedAreas, playerId)
+
 	return nil
 }
 
@@ -142,9 +165,10 @@ func (m *memory) Add(gameRoom aggregate.GameRoom) error {
 	}
 
 	m.records[gameRoom.GetGameId()] = &record{
-		unitMap:  gameUnitMap,
-		tickedAt: gameRoom.GetLastTickedAt(),
-		players:  playerMap,
+		unitMap:     gameUnitMap,
+		tickedAt:    gameRoom.GetLastTickedAt(),
+		players:     playerMap,
+		zoomedAreas: gameRoom.GetZoomedAreas(),
 	}
 	m.recordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
 

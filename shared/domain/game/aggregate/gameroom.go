@@ -53,19 +53,21 @@ func ggolNextUnitGenerator(
 }
 
 type GameRoom struct {
-	game    *entity.Game
-	players map[uuid.UUID]entity.Player
+	game        *entity.Game
+	players     map[uuid.UUID]entity.Player
+	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
-func NewGameRoom(game entity.Game, players []entity.Player) GameRoom {
+func NewGameRoom(game entity.Game, players []entity.Player, zoomedAreas map[uuid.UUID]valueobject.Area) GameRoom {
 	playerMap := make(map[uuid.UUID]entity.Player)
 	for _, player := range players {
 		playerMap[player.GetId()] = player
 	}
 
 	return GameRoom{
-		game:    &game,
-		players: playerMap,
+		game:        &game,
+		players:     playerMap,
+		zoomedAreas: zoomedAreas,
 	}
 }
 
@@ -114,6 +116,18 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 	}
 
 	return units, nil
+}
+
+func (gr *GameRoom) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
+	return gr.zoomedAreas
+}
+
+func (gr *GameRoom) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) {
+	gr.zoomedAreas[playerId] = area
+}
+
+func (gr *GameRoom) RemoveZoomedArea(playerId uuid.UUID) {
+	delete(gr.zoomedAreas, playerId)
 }
 
 func (gr *GameRoom) GetPlayers() []entity.Player {

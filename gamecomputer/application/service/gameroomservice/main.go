@@ -19,13 +19,21 @@ var (
 
 type Service interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
+
 	AddPlayer(gameId uuid.UUID, player entity.Player) error
 	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
 	GetPlayers(gameId uuid.UUID) ([]entity.Player, error)
+
+	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
+	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
+
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (unitMap valueobject.UnitMap, err error)
+
+	GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error)
+
 	TcikAllUnitMaps()
 	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate)
-	GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error)
+
 	AreaIncludesAnyCoordinates(area valueobject.Area, coordinates []valueobject.Coordinate) (bool, error)
 }
 
@@ -129,4 +137,22 @@ func (grs *serviceImplement) GetPlayers(gameId uuid.UUID) ([]entity.Player, erro
 		return nil, err
 	}
 	return players, nil
+}
+
+func (grs *serviceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
+	err := grs.gameRoomDomainService.AddZoomedArea(gameId, playerId, area)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (grs *serviceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
+	err := grs.gameRoomDomainService.RemoveZoomedArea(gameId, playerId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

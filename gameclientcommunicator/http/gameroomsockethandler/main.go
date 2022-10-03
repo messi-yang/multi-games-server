@@ -18,6 +18,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomarearequestedevent"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -101,7 +102,7 @@ func Handler(c *gin.Context) {
 
 			switch *actionType {
 			case zoomAreaActionType:
-				handleZoomAreaAction(conn, clientSession, message, gameId)
+				handleZoomAreaAction(conn, clientSession, message, gameId, player.GetId())
 			case reviveUnitsActionType:
 				handleReviveUnitsAction(conn, clientSession, message, gameId)
 			default:
@@ -240,7 +241,7 @@ func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSessi
 	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 
-func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID) {
+func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID, playerId uuid.UUID) {
 	area, err := extractInformationFromZoomAreaAction(message)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
@@ -250,6 +251,12 @@ func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, me
 	clientSession.watchedArea = &area
 
 	emitAreaZoomedEvent(conn, clientSession, gameId)
+
+	eventBus := memoryeventbus.GetEventBus()
+	eventBus.Publish(
+		zoomarearequestedevent.NewEventTopic(gameId),
+		zoomarearequestedevent.NewEvent(playerId, *clientSession.watchedArea),
+	)
 }
 
 func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID) {

@@ -24,6 +24,9 @@ type Repository interface {
 	AddPlayer(gameId uuid.UUID, player entity.Player) error
 	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
 
+	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
+	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
+
 	UpdateUnits(uuid.UUID, []valueobject.Coordinate, []valueobject.Unit) (err error)
 	UpdateUnitMap(uuid.UUID, *valueobject.UnitMap) (err error)
 
