@@ -78,11 +78,7 @@ func (gsi *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) e
 	}
 
 	gameRoom.AddPlayer(player)
-
-	err = gsi.gameRoomRepository.AddPlayer(gameId, player)
-	if err != nil {
-		return err
-	}
+	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return nil
 }
@@ -100,11 +96,7 @@ func (gsi *serviceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) 
 	}
 
 	gameRoom.RemovePlayer(playerId)
-
-	err = gsi.gameRoomRepository.RemovePlayer(gameId, playerId)
-	if err != nil {
-		return err
-	}
+	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return nil
 }
@@ -122,11 +114,7 @@ func (gsi *serviceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID,
 	}
 
 	gameRoom.AddZoomedArea(playerId, area)
-
-	err = gsi.gameRoomRepository.AddZoomedArea(gameId, playerId, area)
-	if err != nil {
-		return err
-	}
+	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return nil
 }
@@ -144,11 +132,7 @@ func (gsi *serviceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UU
 	}
 
 	gameRoom.RemoveZoomedArea(playerId)
-
-	err = gsi.gameRoomRepository.RemoveZoomedArea(gameId, playerId)
-	if err != nil {
-		return err
-	}
+	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return nil
 }
@@ -170,17 +154,7 @@ func (gsi *serviceImplement) TickUnitMap(gameId uuid.UUID) error {
 		return err
 	}
 
-	updatedUnitMap := gameRoom.GetUnitMap()
-
-	err = gsi.gameRoomRepository.UpdateUnitMap(gameId, updatedUnitMap)
-	if err != nil {
-		return err
-	}
-
-	err = gsi.gameRoomRepository.UpdateLastTickedAt(gameId, gameRoom.GetLastTickedAt())
-	if err != nil {
-		return err
-	}
+	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return nil
 }
@@ -202,15 +176,7 @@ func (gsi *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueob
 		return err
 	}
 
-	updatedUnits, err := gameRoom.GetUnitsWithCoordinates(coordinates)
-	if err != nil {
-		return err
-	}
-
-	err = gsi.gameRoomRepository.UpdateUnits(gameId, coordinates, updatedUnits)
-	if err != nil {
-		return err
-	}
+	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return nil
 }

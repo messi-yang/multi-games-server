@@ -2,11 +2,8 @@ package gameroomrepository
 
 import (
 	"errors"
-	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -19,19 +16,8 @@ var (
 type Repository interface {
 	Add(aggregate.GameRoom) error
 	Get(gameId uuid.UUID) (gameRoom aggregate.GameRoom, err error)
+	Update(gameId uuid.UUID, gameRoom aggregate.GameRoom) error
 	GetAll() []aggregate.GameRoom
-
-	AddPlayer(gameId uuid.UUID, player entity.Player) error
-	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
-
-	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
-	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
-
-	UpdateUnits(uuid.UUID, []valueobject.Coordinate, []valueobject.Unit) (err error)
-	UpdateUnitMap(uuid.UUID, *valueobject.UnitMap) (err error)
-
-	GetLastTickedAt(gameId uuid.UUID) (time.Time, error)
-	UpdateLastTickedAt(uuid.UUID, time.Time) (err error)
 
 	ReadLockAccess(gameId uuid.UUID) (rUnlocker func(), err error)
 	LockAccess(gameId uuid.UUID) (unlocker func(), err error)

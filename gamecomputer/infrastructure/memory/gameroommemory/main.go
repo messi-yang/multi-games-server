@@ -2,24 +2,14 @@ package gameroommemory
 
 import (
 	"sync"
-	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/google/uuid"
 )
 
-type record struct {
-	unitMap     *valueobject.UnitMap
-	tickedAt    time.Time
-	players     map[uuid.UUID]entity.Player
-	zoomedAreas map[uuid.UUID]valueobject.Area
-}
-
 type memory struct {
-	records       map[uuid.UUID]*record
+	records       map[uuid.UUID]*aggregate.GameRoom
 	recordLockers map[uuid.UUID]*sync.RWMutex
 }
 
@@ -28,7 +18,7 @@ var memoryInstance *memory
 func GetRepository() gameroomrepository.Repository {
 	if memoryInstance == nil {
 		memoryInstance = &memory{
-			records:       make(map[uuid.UUID]*record),
+			records:       make(map[uuid.UUID]*aggregate.GameRoom),
 			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
 		return memoryInstance
@@ -43,114 +33,30 @@ func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
 	}
 
-	game := entity.NewGameFromExistingEntity(id, record.unitMap, record.tickedAt)
-	gameRoom := aggregate.NewGameRoom(game, record.players, record.zoomedAreas)
-	return gameRoom, nil
+	return *record, nil
+}
+
+func (m *memory) Update(id uuid.UUID, gameRoom aggregate.GameRoom) error {
+	_, exists := m.records[id]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
+	m.records[id] = &gameRoom
+
+	return nil
 }
 
 func (m *memory) GetAll() []aggregate.GameRoom {
-	gameRoom := make([]aggregate.GameRoom, 0)
-	for gameId, record := range m.records {
-		game := entity.NewGameFromExistingEntity(gameId, record.unitMap, record.tickedAt)
-		newGameRoom := aggregate.NewGameRoom(game, record.players, record.zoomedAreas)
-		gameRoom = append(gameRoom, newGameRoom)
+	gameRooms := make([]aggregate.GameRoom, 0)
+	for _, record := range m.records {
+		gameRooms = append(gameRooms, *record)
 	}
-	return gameRoom
-}
-
-func (m *memory) AddPlayer(gameId uuid.UUID, player entity.Player) error {
-	record, exists := m.records[gameId]
-	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
-	}
-
-	record.players[player.GetId()] = player
-	return nil
-}
-
-func (m *memory) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
-	record, exists := m.records[gameId]
-	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
-	}
-
-	delete(record.players, playerId)
-	return nil
-}
-
-func (m *memory) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
-	record, exists := m.records[gameId]
-	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
-	}
-
-	record.zoomedAreas[playerId] = area
-
-	return nil
-}
-
-func (m *memory) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
-	record, exists := m.records[gameId]
-	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
-	}
-
-	delete(record.zoomedAreas, playerId)
-
-	return nil
-}
-
-func (m *memory) GetLastTickedAt(id uuid.UUID) (time.Time, error) {
-	record, exists := m.records[id]
-	if !exists {
-		return time.Time{}, gameroomrepository.ErrGameRoomNotFound
-	}
-
-	return record.tickedAt, nil
-}
-
-func (m *memory) UpdateUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate, units []valueobject.Unit) error {
-	record, exists := m.records[gameId]
-	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
-	}
-
-	for coordIdx, coord := range coordinates {
-		record.unitMap.SetUnit(coord, units[coordIdx])
-	}
-
-	return nil
-}
-
-func (m *memory) UpdateUnitMap(gameId uuid.UUID, unitMap *valueobject.UnitMap) error {
-	record, exists := m.records[gameId]
-	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
-	}
-
-	record.unitMap = unitMap
-
-	return nil
-}
-
-func (m *memory) UpdateLastTickedAt(id uuid.UUID, tickedAt time.Time) error {
-	record, exists := m.records[id]
-	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
-	}
-
-	record.tickedAt = tickedAt
-
-	return nil
+	return gameRooms
 }
 
 func (m *memory) Add(gameRoom aggregate.GameRoom) error {
-	m.records[gameRoom.GetGameId()] = &record{
-		unitMap:     gameRoom.GetUnitMap(),
-		tickedAt:    gameRoom.GetLastTickedAt(),
-		players:     gameRoom.GetPlayers(),
-		zoomedAreas: gameRoom.GetZoomedAreas(),
-	}
+	m.records[gameRoom.GetGameId()] = &gameRoom
 	m.recordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
 
 	return nil
