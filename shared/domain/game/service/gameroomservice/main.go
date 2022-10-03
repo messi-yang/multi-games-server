@@ -13,9 +13,6 @@ type Service interface {
 	GetAllRooms() []aggregate.GameRoom
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
 
-	GetUnitMap(gameId uuid.UUID) (*valueobject.UnitMap, error)
-	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (*valueobject.UnitMap, error)
-
 	AddPlayer(gameId uuid.UUID, player entity.Player) error
 	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
 
@@ -66,47 +63,6 @@ func (gsi *serviceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRoom, erro
 		return aggregate.GameRoom{}, err
 	}
 	return gameRoom, nil
-}
-
-func (gsi *serviceImplement) GetUnitMap(gameId uuid.UUID) (*valueobject.UnitMap, error) {
-	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
-	if err != nil {
-		return &valueobject.UnitMap{}, err
-	}
-	defer rUnlocker()
-
-	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
-	if err != nil {
-		return &valueobject.UnitMap{}, err
-	}
-
-	unitMap := gameRoom.GetUnitMap()
-	if err != nil {
-		return &valueobject.UnitMap{}, err
-	}
-
-	return unitMap, nil
-}
-
-func (gsi *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (*valueobject.UnitMap, error) {
-	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
-	if err != nil {
-		return &valueobject.UnitMap{}, err
-	}
-	defer rUnlocker()
-
-	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
-
-	if err != nil {
-		return &valueobject.UnitMap{}, err
-	}
-
-	unitMap, err := gameRoom.GetUnitMapByArea(area)
-	if err != nil {
-		return &valueobject.UnitMap{}, err
-	}
-
-	return unitMap, nil
 }
 
 func (gsi *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {

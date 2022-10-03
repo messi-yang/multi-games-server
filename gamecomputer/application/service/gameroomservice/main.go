@@ -27,10 +27,6 @@ type Service interface {
 	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
 	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
 
-	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (unitMap valueobject.UnitMap, err error)
-
-	GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error)
-
 	TcikAllUnitMaps()
 	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
 }
@@ -65,15 +61,6 @@ func (grs *serviceImplement) CreateRoom(width int, height int) (gameId uuid.UUID
 	return gameRoom.GetGameId(), nil
 }
 
-func (grs *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (valueobject.UnitMap, error) {
-	unitMap, err := grs.gameRoomDomainService.GetUnitMapByArea(gameId, area)
-	if err != nil {
-		return valueobject.UnitMap{}, err
-	}
-
-	return *unitMap, nil
-}
-
 func (grs *serviceImplement) TcikAllUnitMaps() {
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
@@ -93,14 +80,6 @@ func (grs *serviceImplement) TcikAllUnitMaps() {
 			)
 		}
 	}
-}
-
-func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error) {
-	gameRoom, err := grs.gameRoomDomainService.GetRoom(gameId)
-	if err != nil {
-		return valueobject.MapSize{}, err
-	}
-	return gameRoom.GetUnitMapSize(), nil
 }
 
 func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
