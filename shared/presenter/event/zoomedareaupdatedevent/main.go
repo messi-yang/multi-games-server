@@ -22,7 +22,7 @@ type Event struct {
 }
 
 func NewEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-player-%s-area-zoomed", gameId, playerId)
+	return fmt.Sprintf("game-room-%s-player-%s-zoomed-area-updated", gameId, playerId)
 }
 
 func NewEvent(area valueobject.Area, unitMap valueobject.UnitMap) []byte {
