@@ -4,9 +4,9 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/gameinfoupdatedevent"
@@ -32,7 +32,7 @@ type GameRoomApplicationService interface {
 }
 
 type gameRoomApplicationServiceImplement struct {
-	gameRoomDomainService gameroomservice.Service
+	gameRoomDomainService domainservice.GameRoomDomainService
 	eventBus              eventbus.EventBus
 }
 
@@ -43,7 +43,7 @@ type GameRoomApplicationServiceConfiguration struct {
 
 func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguration) GameRoomApplicationService {
 	return &gameRoomApplicationServiceImplement{
-		gameRoomDomainService: gameroomservice.NewService(config.GameRoomRepository),
+		gameRoomDomainService: domainservice.NewGameRoomDomainService(config.GameRoomRepository),
 		eventBus:              config.EventBus,
 	}
 }
