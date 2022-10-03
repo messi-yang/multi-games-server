@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/application/service/compressionservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
@@ -91,7 +91,7 @@ func Handler(c *gin.Context) {
 				break
 			}
 
-			compressionService := compressionservice.NewService()
+			compressionService := applicationservice.NewCompressionApplicationService()
 			message, err := compressionService.Ungzip(compressedMessage)
 			if err != nil {
 				emitErrorEvent(conn, clientSession, err)
@@ -132,7 +132,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, clientSession *clientSession,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	compressionService := compressionservice.NewService()
+	compressionService := applicationservice.NewCompressionApplicationService()
 	compressedMessage, err := compressionService.Gzip(messageJsonInBytes)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
