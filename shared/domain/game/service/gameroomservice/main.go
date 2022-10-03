@@ -14,6 +14,9 @@ type Service interface {
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
 	GetUnitMap(gameId uuid.UUID) (*valueobject.UnitMap, error)
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (*valueobject.UnitMap, error)
+	AddPlayer(gameId uuid.UUID, player entity.Player) error
+	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
+	GetAllPlayers(gameId uuid.UUID) ([]entity.Player, error)
 	TickUnitMap(gameId uuid.UUID) error
 	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) error
 }
@@ -36,7 +39,7 @@ func NewService(gameRoomRepository gameroomrepository.Repository) Service {
 func (gsi *serviceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
 	unitMap := valueobject.NewUnitMap(mapSize)
 	game := entity.NewGame(unitMap)
-	gameRoom := aggregate.NewGameRoom(game)
+	gameRoom := aggregate.NewGameRoom(game, make([]entity.Player, 0))
 	gsi.gameRoomRepository.Add(gameRoom)
 
 	return gameRoom, nil
@@ -99,6 +102,67 @@ func (gsi *serviceImplement) GetUnitMapByArea(gameId uuid.UUID, area valueobject
 	}
 
 	return unitMap, nil
+}
+
+func (gsi *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
+	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
+	if err != nil {
+		return err
+	}
+	defer unlocker()
+
+	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
+	if err != nil {
+		return err
+	}
+
+	err = gameRoom.AddPlayer(player)
+	if err != nil {
+		return err
+	}
+
+	err = gsi.gameRoomRepository.AddPlayer(gameId, player)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (gsi *serviceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
+	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
+	if err != nil {
+		return err
+	}
+	defer unlocker()
+
+	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
+	if err != nil {
+		return err
+	}
+
+	gameRoom.RemovePlayer(playerId)
+
+	err = gsi.gameRoomRepository.RemovePlayer(gameId, playerId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func (gsi *serviceImplement) GetAllPlayers(gameId uuid.UUID) ([]entity.Player, error) {
+	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
+	if err != nil {
+		return nil, err
+	}
+	defer unlocker()
+
+	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	return gameRoom.GetPlayers(), nil
 }
 
 func (gsi *serviceImplement) TickUnitMap(gameId uuid.UUID) error {

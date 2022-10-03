@@ -13,6 +13,7 @@ import (
 var (
 	ErrAreaExceedsUnitMap              = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
 	ErrSomeCoordinatesNotIncludedInMap = errors.New("some coordinates are not included in the unit map")
+	ErrPlayerAlreadyExists             = errors.New("the play with the given id already exists")
 )
 
 func ggolNextUnitGenerator(
@@ -52,12 +53,19 @@ func ggolNextUnitGenerator(
 }
 
 type GameRoom struct {
-	game *entity.Game
+	game    *entity.Game
+	players map[uuid.UUID]entity.Player
 }
 
-func NewGameRoom(game entity.Game) GameRoom {
+func NewGameRoom(game entity.Game, players []entity.Player) GameRoom {
+	playerMap := make(map[uuid.UUID]entity.Player)
+	for _, player := range players {
+		playerMap[player.GetId()] = player
+	}
+
 	return GameRoom{
-		game: &game,
+		game:    &game,
+		players: playerMap,
 	}
 }
 
@@ -106,6 +114,30 @@ func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate
 	}
 
 	return units, nil
+}
+
+func (gr *GameRoom) GetPlayers() []entity.Player {
+	players := make([]entity.Player, 0)
+	for _, player := range gr.players {
+		players = append(players, player)
+	}
+
+	return players
+}
+
+func (gr *GameRoom) AddPlayer(newPlayer entity.Player) error {
+	player, exists := gr.players[newPlayer.GetId()]
+	if exists {
+		return ErrPlayerAlreadyExists
+	}
+
+	gr.players[newPlayer.GetId()] = player
+
+	return nil
+}
+
+func (gr *GameRoom) RemovePlayer(playerId uuid.UUID) {
+	delete(gr.players, playerId)
 }
 
 func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) error {

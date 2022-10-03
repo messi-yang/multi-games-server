@@ -14,6 +14,7 @@ import (
 type record struct {
 	unitMap  *valueobject.UnitMap
 	tickedAt time.Time
+	players  map[uuid.UUID]entity.Player
 }
 
 type memory struct {
@@ -42,7 +43,11 @@ func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 	}
 
 	game := entity.NewGameFromExistingEntity(id, record.unitMap, record.tickedAt)
-	gameRoom := aggregate.NewGameRoom(game)
+	players := make([]entity.Player, 0)
+	for _, player := range record.players {
+		players = append(players, player)
+	}
+	gameRoom := aggregate.NewGameRoom(game, players)
 	return gameRoom, nil
 }
 
@@ -50,10 +55,39 @@ func (m *memory) GetAll() []aggregate.GameRoom {
 	gameRoom := make([]aggregate.GameRoom, 0)
 	for gameId, record := range m.records {
 		game := entity.NewGameFromExistingEntity(gameId, record.unitMap, record.tickedAt)
-		newGameRoom := aggregate.NewGameRoom(game)
+		players := make([]entity.Player, 0)
+		for _, player := range record.players {
+			players = append(players, player)
+		}
+		newGameRoom := aggregate.NewGameRoom(game, players)
 		gameRoom = append(gameRoom, newGameRoom)
 	}
 	return gameRoom
+}
+
+func (m *memory) AddPlayer(gameId uuid.UUID, player entity.Player) error {
+	record, exists := m.records[gameId]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
+	_, exists = record.players[player.GetId()]
+	if exists {
+		return gameroomrepository.ErrPlayerAlreadyExists
+	}
+
+	record.players[player.GetId()] = player
+	return nil
+}
+
+func (m *memory) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
+	record, exists := m.records[gameId]
+	if !exists {
+		return gameroomrepository.ErrGameRoomNotFound
+	}
+
+	delete(record.players, playerId)
+	return nil
 }
 
 func (m *memory) GetLastTickedAt(id uuid.UUID) (time.Time, error) {
@@ -102,8 +136,15 @@ func (m *memory) UpdateLastTickedAt(id uuid.UUID, tickedAt time.Time) error {
 
 func (m *memory) Add(gameRoom aggregate.GameRoom) error {
 	gameUnitMap := gameRoom.GetUnitMap()
+	playerMap := make(map[uuid.UUID]entity.Player)
+	for _, player := range gameRoom.GetPlayers() {
+		playerMap[player.GetId()] = player
+	}
+
 	m.records[gameRoom.GetGameId()] = &record{
-		unitMap: gameUnitMap,
+		unitMap:  gameUnitMap,
+		tickedAt: gameRoom.GetLastTickedAt(),
+		players:  playerMap,
 	}
 	m.recordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
 

@@ -2,7 +2,6 @@ package gameroomsockethandler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -10,9 +9,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/addplayerrequestedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/removeplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
@@ -44,7 +46,16 @@ func Handler(c *gin.Context) {
 	defer conn.Close()
 	closeConnFlag := make(chan bool)
 
+	eventBus := memoryeventbus.GetEventBus()
+
 	gameId := config.GetConfig().GetGameId()
+
+	player := entity.NewPlayer()
+
+	eventBus.Publish(
+		addplayerrequestedevent.NewEventTopic(gameId),
+		addplayerrequestedevent.NewEvent(player),
+	)
 
 	clientSession := &clientSession{
 		watchedArea:           nil,
@@ -52,7 +63,6 @@ func Handler(c *gin.Context) {
 	}
 
 	emitGameInfoUpdatedEvent(conn, clientSession, gameId)
-	eventBus := memoryeventbus.GetEventBus()
 
 	unitMapTickeddEventUnsubscriber := eventBus.Subscribe(unitmaptickedevent.NewEventTopic(gameId), func(event []byte) {
 		emitZoomedAreaUpdatedEvent(conn, clientSession, gameId, event)
@@ -63,10 +73,6 @@ func Handler(c *gin.Context) {
 		handleUnitsRevivedEvent(conn, clientSession, gameId, event)
 	})
 	defer unitsRevivedEventInsubscriber()
-
-	// conn.SetCloseHandler(func(code int, text string) error {
-	// 	return nil
-	// })
 
 	go func() {
 		defer func() {
@@ -105,7 +111,12 @@ func Handler(c *gin.Context) {
 
 	for {
 		<-closeConnFlag
-		fmt.Println("Player left")
+
+		eventBus.Publish(
+			removeplayerrequestedevent.NewEventTopic(gameId),
+			removeplayerrequestedevent.NewEvent(player.GetId()),
+		)
+
 		return
 	}
 }

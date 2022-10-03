@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
@@ -18,6 +19,9 @@ var (
 
 type Service interface {
 	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
+	AddPlayer(gameId uuid.UUID, player entity.Player) error
+	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
+	GetPlayers(gameId uuid.UUID) ([]entity.Player, error)
 	GetUnitMapByArea(gameId uuid.UUID, area valueobject.Area) (unitMap valueobject.UnitMap, err error)
 	TcikAllUnitMaps()
 	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate)
@@ -99,4 +103,30 @@ func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueob
 	}
 
 	grs.eventBus.Publish(unitsrevivedevent.NewEventTopic(gameId), unitsrevivedevent.NewEvent(gameId, coordinates))
+}
+
+func (grs *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
+	err := grs.gameRoomDomainService.AddPlayer(gameId, player)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (grs *serviceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
+	err := grs.gameRoomDomainService.RemovePlayer(gameId, playerId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (grs *serviceImplement) GetPlayers(gameId uuid.UUID) ([]entity.Player, error) {
+	players, err := grs.gameRoomDomainService.GetAllPlayers(gameId)
+	if err != nil {
+		return nil, err
+	}
+	return players, nil
 }
