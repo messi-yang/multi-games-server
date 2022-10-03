@@ -45,7 +45,7 @@ func NewService(gameRoomRepository gameroomrepository.Repository) Service {
 func (gsi *serviceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
 	unitMap := valueobject.NewUnitMap(mapSize)
 	game := entity.NewGame(unitMap)
-	gameRoom := aggregate.NewGameRoom(game, make([]entity.Player, 0), make(map[uuid.UUID]valueobject.Area))
+	gameRoom := aggregate.NewGameRoom(game, make(map[uuid.UUID]entity.Player), make(map[uuid.UUID]valueobject.Area))
 	gsi.gameRoomRepository.Add(gameRoom)
 
 	return gameRoom, nil
