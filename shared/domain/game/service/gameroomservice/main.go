@@ -18,7 +18,6 @@ type Service interface {
 
 	AddPlayer(gameId uuid.UUID, player entity.Player) error
 	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
-	GetAllPlayers(gameId uuid.UUID) ([]entity.Player, error)
 
 	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
 	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
@@ -155,21 +154,6 @@ func (gsi *serviceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) 
 	}
 
 	return nil
-}
-
-func (gsi *serviceImplement) GetAllPlayers(gameId uuid.UUID) ([]entity.Player, error) {
-	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
-	if err != nil {
-		return nil, err
-	}
-	defer unlocker()
-
-	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
-	if err != nil {
-		return nil, err
-	}
-
-	return gameRoom.GetPlayers(), nil
 }
 
 func (gsi *serviceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {

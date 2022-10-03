@@ -150,16 +150,10 @@ func (m *memory) UpdateLastTickedAt(id uuid.UUID, tickedAt time.Time) error {
 }
 
 func (m *memory) Add(gameRoom aggregate.GameRoom) error {
-	gameUnitMap := gameRoom.GetUnitMap()
-	playerMap := make(map[uuid.UUID]entity.Player)
-	for _, player := range gameRoom.GetPlayers() {
-		playerMap[player.GetId()] = player
-	}
-
 	m.records[gameRoom.GetGameId()] = &record{
-		unitMap:     gameUnitMap,
+		unitMap:     gameRoom.GetUnitMap(),
 		tickedAt:    gameRoom.GetLastTickedAt(),
-		players:     playerMap,
+		players:     gameRoom.GetPlayers(),
 		zoomedAreas: gameRoom.GetZoomedAreas(),
 	}
 	m.recordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}

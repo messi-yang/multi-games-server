@@ -63,14 +63,12 @@ type zoomedAreaUpdatedEvent struct {
 	Payload zoomedAreaUpdatedEventPayload `json:"payload"`
 }
 
-func constructZoomedAreaUpdatedEvent(area valueobject.Area, unitMap valueobject.UnitMap) *zoomedAreaUpdatedEvent {
-	areaDTO := areadto.ToDTO(area)
-	unitMapDTO := unitmapdto.ToDto(&unitMap)
+func constructZoomedAreaUpdatedEvent(area areadto.Dto, unitMap unitmapdto.Dto) *zoomedAreaUpdatedEvent {
 	return &zoomedAreaUpdatedEvent{
 		Type: zoomedAreaUpdatedEventType,
 		Payload: zoomedAreaUpdatedEventPayload{
-			Area:      areaDTO,
-			UnitMap:   unitMapDTO,
+			Area:      area,
+			UnitMap:   unitMap,
 			UpdatedAt: time.Now(),
 		},
 	}

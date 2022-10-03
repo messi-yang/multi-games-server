@@ -125,13 +125,8 @@ func (gr *GameRoom) RemoveZoomedArea(playerId uuid.UUID) {
 	delete(gr.zoomedAreas, playerId)
 }
 
-func (gr *GameRoom) GetPlayers() []entity.Player {
-	players := make([]entity.Player, 0)
-	for _, player := range gr.players {
-		players = append(players, player)
-	}
-
-	return players
+func (gr *GameRoom) GetPlayers() map[uuid.UUID]entity.Player {
+	return gr.players
 }
 
 func (gr *GameRoom) AddPlayer(newPlayer entity.Player) error {

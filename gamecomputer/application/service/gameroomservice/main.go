@@ -2,7 +2,6 @@ package gameroomservice
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
@@ -10,8 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomedareaupdatedevent"
 	"github.com/google/uuid"
 )
 
@@ -24,7 +22,6 @@ type Service interface {
 
 	AddPlayer(gameId uuid.UUID, player entity.Player) error
 	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
-	GetPlayers(gameId uuid.UUID) ([]entity.Player, error)
 
 	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
 	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
@@ -34,9 +31,7 @@ type Service interface {
 	GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSize, error)
 
 	TcikAllUnitMaps()
-	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate)
-
-	AreaIncludesAnyCoordinates(area valueobject.Area, coordinates []valueobject.Coordinate) (bool, error)
+	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
 }
 
 type serviceImplement struct {
@@ -85,13 +80,16 @@ func (grs *serviceImplement) TcikAllUnitMaps() {
 		if err != nil {
 			continue
 		}
-		grs.eventBus.Publish(
-			unitmaptickedevent.NewEventTopic(gameRoom.GetGameId()),
-			unitmaptickedevent.NewEvent(),
-		)
 
-		for _, area := range gameRoom.GetZoomedAreas() {
-			fmt.Println(gameRoom.GetUnitMapByArea(area))
+		for playerId, area := range gameRoom.GetZoomedAreas() {
+			unitMap, err := gameRoom.GetUnitMapByArea(area)
+			if err != nil {
+				continue
+			}
+			grs.eventBus.Publish(
+				zoomedareaupdatedevent.NewEventTopic(gameRoom.GetGameId(), playerId),
+				zoomedareaupdatedevent.NewEvent(area, *unitMap),
+			)
 		}
 	}
 }
@@ -104,19 +102,32 @@ func (grs *serviceImplement) GetUnitMapSize(gameId uuid.UUID) (valueobject.MapSi
 	return gameRoom.GetUnitMapSize(), nil
 }
 
-func (grs *serviceImplement) AreaIncludesAnyCoordinates(area valueobject.Area, coordinates []valueobject.Coordinate) (bool, error) {
-	coordinatesInArea := area.FilterCoordinates(coordinates)
-
-	return len(coordinatesInArea) > 0, nil
-}
-
-func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) {
+func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
 	err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
-		return
+		return err
 	}
 
-	grs.eventBus.Publish(unitsrevivedevent.NewEventTopic(gameId), unitsrevivedevent.NewEvent(gameId, coordinates))
+	gameRoom, _ := grs.gameRoomDomainService.GetRoom(gameId)
+	if err != nil {
+		return err
+	}
+
+	for playerId, area := range gameRoom.GetZoomedAreas() {
+		coordinatesInArea := area.FilterCoordinates(coordinates)
+		if len(coordinatesInArea) == 0 {
+			continue
+		}
+		unitMap, err := gameRoom.GetUnitMapByArea(area)
+		if err != nil {
+			continue
+		}
+		grs.eventBus.Publish(
+			zoomedareaupdatedevent.NewEventTopic(gameRoom.GetGameId(), playerId),
+			zoomedareaupdatedevent.NewEvent(area, *unitMap),
+		)
+	}
+	return nil
 }
 
 func (grs *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
@@ -135,14 +146,6 @@ func (grs *serviceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) 
 	}
 
 	return nil
-}
-
-func (grs *serviceImplement) GetPlayers(gameId uuid.UUID) ([]entity.Player, error) {
-	players, err := grs.gameRoomDomainService.GetAllPlayers(gameId)
-	if err != nil {
-		return nil, err
-	}
-	return players, nil
 }
 
 func (grs *serviceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
