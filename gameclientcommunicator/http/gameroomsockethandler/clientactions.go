@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/presenter/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/presenter/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/areadto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
 )
 
 type actionType string

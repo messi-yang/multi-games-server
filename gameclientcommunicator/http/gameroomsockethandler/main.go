@@ -12,6 +12,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
@@ -156,11 +157,10 @@ func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession,
 	var unitsRevivedEvent unitsrevivedevent.Event
 	json.Unmarshal(event, &unitsRevivedEvent)
 
-	coordinates := make([]valueobject.Coordinate, 0)
-
-	for _, coordInPayload := range unitsRevivedEvent.Payload.Coordinates {
-		coordinate, _ := valueobject.NewCoordinate(coordInPayload.X, coordInPayload.Y)
-		coordinates = append(coordinates, coordinate)
+	coordinates, err := coordinatedto.FromDtoList(unitsRevivedEvent.Payload.Coordinates)
+	if err != nil {
+		emitErrorEvent(conn, clientSession, err)
+		return
 	}
 
 	gameRoomRepository := gameroommemory.GetRepository()

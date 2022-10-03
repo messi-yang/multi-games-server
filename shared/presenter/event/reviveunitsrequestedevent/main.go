@@ -5,17 +5,13 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
 	"github.com/google/uuid"
 )
 
-type localCoordinate struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-}
-
 type payload struct {
-	GameId      uuid.UUID         `json:"gameId"`
-	Coordinates []localCoordinate `json:"coordinates"`
+	GameId      uuid.UUID           `json:"gameId"`
+	Coordinates []coordinatedto.Dto `json:"coordinates"`
 }
 
 type Event struct {
@@ -28,16 +24,12 @@ func NewEventTopic() string {
 }
 
 func NewEvent(gameId uuid.UUID, coordinates []valueobject.Coordinate) []byte {
-	payloadCoordinates := make([]localCoordinate, 0)
-
-	for _, coordinate := range coordinates {
-		payloadCoordinates = append(payloadCoordinates, localCoordinate{X: coordinate.GetX(), Y: coordinate.GetY()})
-	}
+	coordinateDtos := coordinatedto.ToDtoList(coordinates)
 
 	event := Event{
 		Payload: payload{
 			GameId:      gameId,
-			Coordinates: payloadCoordinates,
+			Coordinates: coordinateDtos,
 		},
 		Timestamp: time.Now(),
 	}

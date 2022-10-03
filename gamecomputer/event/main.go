@@ -6,8 +6,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
 )
 
@@ -29,10 +29,9 @@ func Controller() {
 			var reviveUnitsRequestedEvent reviveunitsrequestedevent.Event
 			json.Unmarshal(event, &reviveUnitsRequestedEvent)
 
-			coordinates := make([]valueobject.Coordinate, 0)
-			for _, coordInPayload := range reviveUnitsRequestedEvent.Payload.Coordinates {
-				coordinate, _ := valueobject.NewCoordinate(coordInPayload.X, coordInPayload.Y)
-				coordinates = append(coordinates, coordinate)
+			coordinates, err := coordinatedto.FromDtoList(reviveUnitsRequestedEvent.Payload.Coordinates)
+			if err != nil {
+				return
 			}
 
 			gameRoomService.ReviveUnits(gameId, coordinates)
