@@ -24,7 +24,7 @@ func Controller() {
 	)
 
 	reviveUnitsRequestedEventUnsubscriber := eventBus.Subscribe(
-		reviveunitsrequestedevent.NewEventTopic(),
+		reviveunitsrequestedevent.NewEventTopic(gameId),
 		func(event []byte) {
 			var reviveUnitsRequestedEvent reviveunitsrequestedevent.Event
 			json.Unmarshal(event, &reviveUnitsRequestedEvent)

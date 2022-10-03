@@ -23,7 +23,7 @@ func NewEventTopic(gameId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-units-revived", gameId)
 }
 
-func NewEvent(coordinates []valueobject.Coordinate) []byte {
+func NewEvent(gameId uuid.UUID, coordinates []valueobject.Coordinate) []byte {
 	coordinateDtos := coordinatedto.ToDtoList(coordinates)
 
 	event := Event{

@@ -55,7 +55,7 @@ func Handler(c *gin.Context) {
 	eventBus := memoryeventbus.GetEventBus()
 
 	unitMapTickeddEventUnsubscriber := eventBus.Subscribe(unitmaptickedevent.NewEventTopic(gameId), func(event []byte) {
-		emitZoomedAreaUpdatedEvent(conn, clientSession, gameId)
+		emitZoomedAreaUpdatedEvent(conn, clientSession, gameId, event)
 	})
 	defer unitMapTickeddEventUnsubscriber()
 
@@ -206,10 +206,13 @@ func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gam
 	sendJSONMessageToClient(conn, clientSession, areaZoomedEvent)
 }
 
-func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID) {
+func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, event []byte) {
 	if clientSession.watchedArea == nil {
 		return
 	}
+
+	var unitMapTickedEvent unitmaptickedevent.Event
+	json.Unmarshal(event, &unitMapTickedEvent)
 
 	gameRoomRepository := gameroommemory.GetRepository()
 	gameRoomService := gameroomservice.NewService(
@@ -247,7 +250,7 @@ func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession,
 
 	eventBus := memoryeventbus.GetEventBus()
 	eventBus.Publish(
-		reviveunitsrequestedevent.NewEventTopic(),
-		reviveunitsrequestedevent.NewEvent(gameId, coordinates),
+		reviveunitsrequestedevent.NewEventTopic(gameId),
+		reviveunitsrequestedevent.NewEvent(coordinates),
 	)
 }

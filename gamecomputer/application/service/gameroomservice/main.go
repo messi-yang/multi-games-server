@@ -98,5 +98,5 @@ func (grs *serviceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueob
 		return
 	}
 
-	grs.eventBus.Publish(unitsrevivedevent.NewEventTopic(gameId), unitsrevivedevent.NewEvent(coordinates))
+	grs.eventBus.Publish(unitsrevivedevent.NewEventTopic(gameId), unitsrevivedevent.NewEvent(gameId, coordinates))
 }

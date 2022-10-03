@@ -8,7 +8,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type payload struct{}
+type payload struct {
+}
 
 type Event struct {
 	Payload   payload   `json:"payload"`
@@ -16,7 +17,7 @@ type Event struct {
 }
 
 func NewEventTopic(gameId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-unit-revived", gameId)
+	return fmt.Sprintf("game-room-%s-units-revived", gameId)
 }
 
 func NewEvent() []byte {

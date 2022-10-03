@@ -2,6 +2,7 @@ package reviveunitsrequestedevent
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
@@ -10,7 +11,6 @@ import (
 )
 
 type payload struct {
-	GameId      uuid.UUID           `json:"gameId"`
 	Coordinates []coordinatedto.Dto `json:"coordinates"`
 }
 
@@ -19,16 +19,15 @@ type Event struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-func NewEventTopic() string {
-	return "game-room-revive-units-requested"
+func NewEventTopic(gameId uuid.UUID) string {
+	return fmt.Sprintf("game-room-%s-revive-units-requested", gameId)
 }
 
-func NewEvent(gameId uuid.UUID, coordinates []valueobject.Coordinate) []byte {
+func NewEvent(coordinates []valueobject.Coordinate) []byte {
 	coordinateDtos := coordinatedto.ToDtoList(coordinates)
 
 	event := Event{
 		Payload: payload{
-			GameId:      gameId,
 			Coordinates: coordinateDtos,
 		},
 		Timestamp: time.Now(),
