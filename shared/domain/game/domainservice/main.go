@@ -3,7 +3,7 @@ package domainservice
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/google/uuid"
 )
@@ -24,10 +24,10 @@ type GameRoomDomainService interface {
 }
 
 type gameRoomDomainServiceImplement struct {
-	gameRoomRepository gameroomrepository.Repository
+	gameRoomRepository repository.GameRoomRepository
 }
 
-func NewGameRoomDomainService(gameRoomRepository gameroomrepository.Repository) GameRoomDomainService {
+func NewGameRoomDomainService(gameRoomRepository repository.GameRoomRepository) GameRoomDomainService {
 	return &gameRoomDomainServiceImplement{
 		gameRoomRepository: gameRoomRepository,
 	}

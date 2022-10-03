@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memory/gameroommemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 )
 
@@ -16,7 +16,7 @@ type Job interface {
 }
 
 type jobImplement struct {
-	gameRoomRepository gameroomrepository.Repository
+	gameRoomRepository repository.GameRoomRepository
 	eventBus           eventbus.EventBus
 	gameTicker         *time.Ticker
 	unitMapTickerStop  chan bool

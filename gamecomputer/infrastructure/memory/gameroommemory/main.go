@@ -1,11 +1,18 @@
 package gameroommemory
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrGameRoomNotFound       = errors.New("the game room with the id was not found")
+	ErrGameRoomLockerNotFound = errors.New("the game room locker for with the id was not found")
+	ErrPlayerAlreadyExists    = errors.New("the player with the given id alredy exists in the game room")
 )
 
 type memory struct {
@@ -15,7 +22,7 @@ type memory struct {
 
 var memoryInstance *memory
 
-func GetRepository() gameroomrepository.Repository {
+func GetRepository() repository.GameRoomRepository {
 	if memoryInstance == nil {
 		memoryInstance = &memory{
 			records:       make(map[uuid.UUID]*aggregate.GameRoom),
@@ -30,7 +37,7 @@ func GetRepository() gameroomrepository.Repository {
 func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 	record, exists := m.records[id]
 	if !exists {
-		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
+		return aggregate.GameRoom{}, ErrGameRoomNotFound
 	}
 
 	return *record, nil
@@ -39,7 +46,7 @@ func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 func (m *memory) Update(id uuid.UUID, gameRoom aggregate.GameRoom) error {
 	_, exists := m.records[id]
 	if !exists {
-		return gameroomrepository.ErrGameRoomNotFound
+		return ErrGameRoomNotFound
 	}
 
 	m.records[id] = &gameRoom
@@ -65,7 +72,7 @@ func (m *memory) Add(gameRoom aggregate.GameRoom) error {
 func (m *memory) ReadLockAccess(gameId uuid.UUID) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
-		return nil, gameroomrepository.ErrGameRoomLockerNotFound
+		return nil, ErrGameRoomLockerNotFound
 	}
 
 	recordLocker.RLock()
@@ -75,7 +82,7 @@ func (m *memory) ReadLockAccess(gameId uuid.UUID) (func(), error) {
 func (m *memory) LockAccess(gameId uuid.UUID) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
-		return nil, gameroomrepository.ErrGameRoomLockerNotFound
+		return nil, ErrGameRoomLockerNotFound
 	}
 
 	recordLocker.Lock()

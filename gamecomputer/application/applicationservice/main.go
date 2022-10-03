@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/gameinfoupdatedevent"
@@ -37,7 +37,7 @@ type gameRoomApplicationServiceImplement struct {
 }
 
 type GameRoomApplicationServiceConfiguration struct {
-	GameRoomRepository gameroomrepository.Repository
+	GameRoomRepository repository.GameRoomRepository
 	EventBus           eventbus.EventBus
 }
 
