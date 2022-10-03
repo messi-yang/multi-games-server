@@ -23,3 +23,15 @@ func ToDto(unitMap *valueobject.UnitMap) Dto {
 	}
 	return unitMapDto
 }
+
+func FromDto(unitMapDto Dto) *valueobject.UnitMap {
+	unitMatrix := make([][]valueobject.Unit, 0)
+
+	for i := 0; i < len(unitMapDto); i += 1 {
+		unitMatrix = append(unitMatrix, make([]valueobject.Unit, 0))
+		for j := 0; j < len(unitMapDto[0]); j += 1 {
+			unitMatrix[i] = append(unitMatrix[i], valueobject.NewUnit(unitMapDto[i][j].Alive, unitMapDto[i][j].Age))
+		}
+	}
+	return valueobject.NewUnitMapFromUnitMatrix(&unitMatrix)
+}

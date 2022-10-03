@@ -2,12 +2,14 @@ package gameroomservice
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository/gameroomrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/service/gameroomservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitsrevivedevent"
 	"github.com/google/uuid"
@@ -87,6 +89,10 @@ func (grs *serviceImplement) TcikAllUnitMaps() {
 			unitmaptickedevent.NewEventTopic(gameRoom.GetGameId()),
 			unitmaptickedevent.NewEvent(),
 		)
+
+		for _, area := range gameRoom.GetZoomedAreas() {
+			fmt.Println(gameRoom.GetUnitMapByArea(area))
+		}
 	}
 }
 
@@ -144,6 +150,21 @@ func (grs *serviceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID,
 	if err != nil {
 		return err
 	}
+
+	gameRoom, _ := grs.gameRoomDomainService.GetRoom(gameId)
+	if err != nil {
+		return err
+	}
+
+	unitMap, err := gameRoom.GetUnitMapByArea(area)
+	if err != nil {
+		return err
+	}
+
+	grs.eventBus.Publish(
+		areazoomedevent.NewEventTopic(gameId, playerId),
+		areazoomedevent.NewEvent(area, *unitMap),
+	)
 
 	return nil
 }

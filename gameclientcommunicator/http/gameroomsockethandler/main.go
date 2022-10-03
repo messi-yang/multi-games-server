@@ -14,6 +14,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/addplayerrequestedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/removeplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/unitmaptickedevent"
@@ -74,6 +75,10 @@ func Handler(c *gin.Context) {
 		handleUnitsRevivedEvent(conn, clientSession, gameId, event)
 	})
 	defer unitsRevivedEventInsubscriber()
+
+	eventBus.Subscribe(areazoomedevent.NewEventTopic(gameId, player.GetId()), func(event []byte) {
+		handleAreaZoomedEvent(conn, clientSession, gameId, player.GetId(), event)
+	})
 
 	go func() {
 		defer func() {
@@ -161,6 +166,17 @@ func emitGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession
 	sendJSONMessageToClient(conn, clientSession, informationUpdatedEvent)
 }
 
+func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, playerId uuid.UUID, event []byte) {
+	if clientSession.watchedArea == nil {
+		return
+	}
+
+	var areaZoomedEvent areazoomedevent.Event
+	json.Unmarshal(event, &areaZoomedEvent)
+
+	sendJSONMessageToClient(conn, clientSession, constructAreaZoomedEvent(areaZoomedEvent.Payload.Area, areaZoomedEvent.Payload.UnitMap))
+}
+
 func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, event []byte) {
 	if clientSession.watchedArea == nil {
 		return
@@ -199,25 +215,6 @@ func handleUnitsRevivedEvent(conn *websocket.Conn, clientSession *clientSession,
 	sendJSONMessageToClient(conn, clientSession, zoomedAreaUpdatedEvent)
 }
 
-func emitAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID) {
-	if clientSession.watchedArea == nil {
-		return
-	}
-
-	gameRoomRepository := gameroommemory.GetRepository()
-	gameRoomService := gameroomservice.NewService(
-		gameroomservice.Configuration{GameRoomRepository: gameRoomRepository},
-	)
-	unitMap, err := gameRoomService.GetUnitMapByArea(gameId, *clientSession.watchedArea)
-	if err != nil {
-		emitErrorEvent(conn, clientSession, err)
-		return
-	}
-
-	areaZoomedEvent := constructAreaZoomedEvent(*clientSession.watchedArea, unitMap)
-	sendJSONMessageToClient(conn, clientSession, areaZoomedEvent)
-}
-
 func emitZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, event []byte) {
 	if clientSession.watchedArea == nil {
 		return
@@ -250,7 +247,7 @@ func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, me
 
 	clientSession.watchedArea = &area
 
-	emitAreaZoomedEvent(conn, clientSession, gameId)
+	// emitAreaZoomedEvent(conn, clientSession, gameId)
 
 	eventBus := memoryeventbus.GetEventBus()
 	eventBus.Publish(
