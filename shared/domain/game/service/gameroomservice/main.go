@@ -121,10 +121,7 @@ func (gsi *serviceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) e
 		return err
 	}
 
-	err = gameRoom.AddPlayer(player)
-	if err != nil {
-		return err
-	}
+	gameRoom.AddPlayer(player)
 
 	err = gsi.gameRoomRepository.AddPlayer(gameId, player)
 	if err != nil {

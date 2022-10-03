@@ -130,12 +130,12 @@ func (gr *GameRoom) GetPlayers() map[uuid.UUID]entity.Player {
 }
 
 func (gr *GameRoom) AddPlayer(newPlayer entity.Player) error {
-	player, exists := gr.players[newPlayer.GetId()]
+	_, exists := gr.players[newPlayer.GetId()]
 	if exists {
 		return ErrPlayerAlreadyExists
 	}
 
-	gr.players[newPlayer.GetId()] = player
+	gr.players[newPlayer.GetId()] = newPlayer
 
 	return nil
 }

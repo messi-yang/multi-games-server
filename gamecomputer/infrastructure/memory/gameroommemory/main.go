@@ -64,11 +64,6 @@ func (m *memory) AddPlayer(gameId uuid.UUID, player entity.Player) error {
 		return gameroomrepository.ErrGameRoomNotFound
 	}
 
-	_, exists = record.players[player.GetId()]
-	if exists {
-		return gameroomrepository.ErrPlayerAlreadyExists
-	}
-
 	record.players[player.GetId()] = player
 	return nil
 }
