@@ -41,16 +41,16 @@ func (m *memory) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 		return aggregate.GameRoom{}, gameroomrepository.ErrGameRoomNotFound
 	}
 
-	game := entity.NewGameFromExistingEntity(id, record.unitMap)
-	gameRoom := aggregate.NewGameRoomWithLastTickedAt(game, record.tickedAt)
+	game := entity.NewGameFromExistingEntity(id, record.unitMap, record.tickedAt)
+	gameRoom := aggregate.NewGameRoom(game)
 	return gameRoom, nil
 }
 
 func (m *memory) GetAll() []aggregate.GameRoom {
 	gameRoom := make([]aggregate.GameRoom, 0)
 	for gameId, record := range m.records {
-		game := entity.NewGameFromExistingEntity(gameId, record.unitMap)
-		newGameRoom := aggregate.NewGameRoomWithLastTickedAt(game, record.tickedAt)
+		game := entity.NewGameFromExistingEntity(gameId, record.unitMap, record.tickedAt)
+		newGameRoom := aggregate.NewGameRoom(game)
 		gameRoom = append(gameRoom, newGameRoom)
 	}
 	return gameRoom

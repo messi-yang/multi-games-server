@@ -52,21 +52,12 @@ func ggolNextUnitGenerator(
 }
 
 type GameRoom struct {
-	game         *entity.Game
-	lastTickedAt time.Time
+	game *entity.Game
 }
 
 func NewGameRoom(game entity.Game) GameRoom {
 	return GameRoom{
-		game:         &game,
-		lastTickedAt: time.Time{},
-	}
-}
-
-func NewGameRoomWithLastTickedAt(game entity.Game, lastTickedAt time.Time) GameRoom {
-	return GameRoom{
-		game:         &game,
-		lastTickedAt: lastTickedAt,
+		game: &game,
 	}
 }
 
@@ -104,7 +95,7 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*valueobject.UnitMa
 }
 
 func (gr *GameRoom) GetLastTickedAt() time.Time {
-	return gr.lastTickedAt
+	return gr.game.GetLastTickedAt()
 }
 
 func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate) ([]valueobject.Unit, error) {
@@ -145,7 +136,7 @@ func (gr *GameRoom) TickUnitMap() error {
 	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(nextUnitMatrix)
 	gr.game.SetUnitMap(newUnitMap)
 
-	gr.lastTickedAt = time.Now()
+	gr.game.SetLastTickedAt(time.Now())
 
 	return nil
 }
