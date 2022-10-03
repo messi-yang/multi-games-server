@@ -91,8 +91,8 @@ func Handler(c *gin.Context) {
 				break
 			}
 
-			compressionService := applicationservice.NewCompressionApplicationService()
-			message, err := compressionService.Ungzip(compressedMessage)
+			compressionApplicationService := applicationservice.NewCompressionApplicationService()
+			message, err := compressionApplicationService.Ungzip(compressedMessage)
 			if err != nil {
 				emitErrorEvent(conn, clientSession, err)
 				break
@@ -132,8 +132,8 @@ func sendJSONMessageToClient(conn *websocket.Conn, clientSession *clientSession,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	compressionService := applicationservice.NewCompressionApplicationService()
-	compressedMessage, err := compressionService.Gzip(messageJsonInBytes)
+	compressionApplicationService := applicationservice.NewCompressionApplicationService()
+	compressedMessage, err := compressionApplicationService.Gzip(messageJsonInBytes)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
