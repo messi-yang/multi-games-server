@@ -6,14 +6,13 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/unitmapdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 	"github.com/google/uuid"
 )
 
 type payload struct {
-	Area    areadto.Dto    `json:"area"`
-	UnitMap unitmapdto.Dto `json:"unitMap"`
+	Area    dto.AreaDto    `json:"area"`
+	UnitMap dto.UnitMapDto `json:"unitMap"`
 }
 
 type Event struct {
@@ -26,8 +25,8 @@ func NewEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
 }
 
 func NewEvent(area valueobject.Area, unitMap valueobject.UnitMap) []byte {
-	areaDto := areadto.ToDTO(area)
-	unitMapDto := unitmapdto.ToDto(&unitMap)
+	areaDto := dto.NewAreaDto(area)
+	unitMapDto := dto.NewUnitMapDto(&unitMap)
 
 	event := Event{
 		Payload: payload{

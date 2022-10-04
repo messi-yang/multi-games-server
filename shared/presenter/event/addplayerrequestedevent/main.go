@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/playerdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 	"github.com/google/uuid"
 )
 
 type payload struct {
-	Player playerdto.Dto `json:"player"`
+	Player dto.PlayerDto `json:"player"`
 }
 
 type Event struct {
@@ -24,7 +24,7 @@ func NewEventTopic(gameId uuid.UUID) string {
 }
 
 func NewEvent(player entity.Player) []byte {
-	playerDto := playerdto.ToDto(player)
+	playerDto := dto.NewPlayerDto(player)
 
 	event := Event{
 		Payload: payload{

@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/mapsizedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 	"github.com/google/uuid"
 )
 
 type payload struct {
-	MapSize mapsizedto.Dto `json:"mapSize"`
+	MapSize dto.MapSizeDto `json:"mapSize"`
 }
 
 type Event struct {
@@ -24,7 +24,7 @@ func NewEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
 }
 
 func NewEvent(mapSize valueobject.MapSize) []byte {
-	mapSizeDto := mapsizedto.ToDto(mapSize)
+	mapSizeDto := dto.NewMapSizeDto(mapSize)
 
 	event := Event{
 		Payload: payload{

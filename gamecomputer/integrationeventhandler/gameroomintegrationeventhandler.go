@@ -7,9 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/repositorymemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/playerdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/addplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/removeplayerrequestedevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
@@ -34,7 +32,7 @@ func HandleGameRoomIntegrationEvent() {
 			var reviveUnitsRequestedEvent reviveunitsrequestedevent.Event
 			json.Unmarshal(event, &reviveUnitsRequestedEvent)
 
-			coordinates, err := coordinatedto.FromDtoList(reviveUnitsRequestedEvent.Payload.Coordinates)
+			coordinates, err := dto.ParseCoordinateDtos(reviveUnitsRequestedEvent.Payload.Coordinates)
 			if err != nil {
 				return
 			}
@@ -50,7 +48,7 @@ func HandleGameRoomIntegrationEvent() {
 			var addPlayerRequestedEvent addplayerrequestedevent.Event
 			json.Unmarshal(event, &addPlayerRequestedEvent)
 
-			player := playerdto.FromDto(addPlayerRequestedEvent.Payload.Player)
+			player := addPlayerRequestedEvent.Payload.Player.ToPlayer()
 			gameRoomApplicationService.AddPlayer(gameId, player)
 		},
 	)
@@ -74,7 +72,7 @@ func HandleGameRoomIntegrationEvent() {
 			var zoomAreaRequestedEvent zoomarearequestedevent.Event
 			json.Unmarshal(event, &zoomAreaRequestedEvent)
 
-			area, err := areadto.FromDto(zoomAreaRequestedEvent.Payload.Area)
+			area, err := zoomAreaRequestedEvent.Payload.Area.ToArea()
 			if err != nil {
 				return
 			}

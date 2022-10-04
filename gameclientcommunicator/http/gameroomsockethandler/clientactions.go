@@ -5,8 +5,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/areadto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 )
 
 type actionType string
@@ -31,7 +30,7 @@ func getActionTypeFromMessage(msg []byte) (*actionType, error) {
 }
 
 type zoomAreaActionPayload struct {
-	Area       areadto.Dto `json:"area"`
+	Area       dto.AreaDto `json:"area"`
 	ActionedAt time.Time   `json:"actionedAt"`
 }
 type zoomAreaAction struct {
@@ -46,7 +45,7 @@ func extractInformationFromZoomAreaAction(msg []byte) (valueobject.Area, error) 
 		return valueobject.Area{}, err
 	}
 
-	area, err := areadto.FromDto(action.Payload.Area)
+	area, err := action.Payload.Area.ToArea()
 	if err != nil {
 		return valueobject.Area{}, err
 	}
@@ -55,7 +54,7 @@ func extractInformationFromZoomAreaAction(msg []byte) (valueobject.Area, error) 
 }
 
 type reviveUnitsActionPayload struct {
-	Coordinates []coordinatedto.Dto `json:"coordinates"`
+	Coordinates []dto.CoordinateDto `json:"coordinates"`
 	ActionedAt  time.Time           `json:"actionedAt"`
 }
 type reviveUnitsAction struct {
@@ -70,7 +69,7 @@ func extractInformationFromReviveUnitsAction(msg []byte) ([]valueobject.Coordina
 		return nil, err
 	}
 
-	coordinates, err := coordinatedto.FromDtoList(action.Payload.Coordinates)
+	coordinates, err := dto.ParseCoordinateDtos(action.Payload.Coordinates)
 	if err != nil {
 		return nil, err
 	}
