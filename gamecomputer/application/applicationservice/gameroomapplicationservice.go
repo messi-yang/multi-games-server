@@ -33,18 +33,18 @@ type GameRoomApplicationService interface {
 
 type gameRoomApplicationServiceImplement struct {
 	gameRoomDomainService domainservice.GameRoomDomainService
-	eventBus              eventbus.EventBus
+	integrationEventBus   eventbus.IntegrationEventBus
 }
 
 type GameRoomApplicationServiceConfiguration struct {
-	GameRoomRepository repository.GameRoomRepository
-	EventBus           eventbus.EventBus
+	GameRoomRepository  repository.GameRoomRepository
+	IntegrationEventBus eventbus.IntegrationEventBus
 }
 
 func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguration) GameRoomApplicationService {
 	return &gameRoomApplicationServiceImplement{
 		gameRoomDomainService: domainservice.NewGameRoomDomainService(config.GameRoomRepository),
-		eventBus:              config.EventBus,
+		integrationEventBus:   config.IntegrationEventBus,
 	}
 }
 
@@ -74,7 +74,7 @@ func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 			if err != nil {
 				continue
 			}
-			grs.eventBus.Publish(
+			grs.integrationEventBus.Publish(
 				zoomedareaupdatedevent.NewEventTopic(gameRoom.GetGameId(), playerId),
 				zoomedareaupdatedevent.NewEvent(area, *unitMap),
 			)
@@ -102,7 +102,7 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, co
 		if err != nil {
 			continue
 		}
-		grs.eventBus.Publish(
+		grs.integrationEventBus.Publish(
 			zoomedareaupdatedevent.NewEventTopic(gameRoom.GetGameId(), playerId),
 			zoomedareaupdatedevent.NewEvent(area, *unitMap),
 		)
@@ -121,7 +121,7 @@ func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, play
 		return err
 	}
 
-	grs.eventBus.Publish(
+	grs.integrationEventBus.Publish(
 		gameinfoupdatedevent.NewEventTopic(gameId, player.GetId()),
 		gameinfoupdatedevent.NewEvent(gameRoom.GetUnitMapSize()),
 	)
@@ -154,7 +154,7 @@ func (grs *gameRoomApplicationServiceImplement) AddZoomedArea(gameId uuid.UUID, 
 		return err
 	}
 
-	grs.eventBus.Publish(
+	grs.integrationEventBus.Publish(
 		areazoomedevent.NewEventTopic(gameId, playerId),
 		areazoomedevent.NewEvent(area, *unitMap),
 	)

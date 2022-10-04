@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/areadto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/coordinatedto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto/playerdto"
@@ -20,15 +20,15 @@ func Controller() {
 	gameId := config.GetConfig().GetGameId()
 
 	gameRoomRepositoryMemory := memoryrepository.GetGameRoomRepositoryMemory()
-	eventBus := memoryeventbus.GetEventBus()
+	integrationEventBusRedis := eventbusredis.GetIntegrationEventBusRedis()
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{
-			GameRoomRepository: gameRoomRepositoryMemory,
-			EventBus:           eventBus,
+			GameRoomRepository:  gameRoomRepositoryMemory,
+			IntegrationEventBus: integrationEventBusRedis,
 		},
 	)
 
-	reviveUnitsRequestedEventUnsubscriber := eventBus.Subscribe(
+	reviveUnitsRequestedEventUnsubscriber := integrationEventBusRedis.Subscribe(
 		reviveunitsrequestedevent.NewEventTopic(gameId),
 		func(event []byte) {
 			var reviveUnitsRequestedEvent reviveunitsrequestedevent.Event
@@ -44,7 +44,7 @@ func Controller() {
 	)
 	defer reviveUnitsRequestedEventUnsubscriber()
 
-	addPlayerRequestedEventUnsubscriber := eventBus.Subscribe(
+	addPlayerRequestedEventUnsubscriber := integrationEventBusRedis.Subscribe(
 		addplayerrequestedevent.NewEventTopic(gameId),
 		func(event []byte) {
 			var addPlayerRequestedEvent addplayerrequestedevent.Event
@@ -56,7 +56,7 @@ func Controller() {
 	)
 	defer addPlayerRequestedEventUnsubscriber()
 
-	removePlayerRequestedEventUnsubscriber := eventBus.Subscribe(
+	removePlayerRequestedEventUnsubscriber := integrationEventBusRedis.Subscribe(
 		removeplayerrequestedevent.NewEventTopic(gameId),
 		func(event []byte) {
 			var removePlayerRequestedEvent removeplayerrequestedevent.Event
@@ -68,7 +68,7 @@ func Controller() {
 	)
 	defer removePlayerRequestedEventUnsubscriber()
 
-	zoomAreaRequestedEventSubscriber := eventBus.Subscribe(
+	zoomAreaRequestedEventSubscriber := integrationEventBusRedis.Subscribe(
 		zoomarearequestedevent.NewEventTopic(gameId),
 		func(event []byte) {
 			var zoomAreaRequestedEvent zoomarearequestedevent.Event

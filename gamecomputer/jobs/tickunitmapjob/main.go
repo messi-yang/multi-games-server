@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/memoryeventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 )
 
 type Job interface {
@@ -16,10 +16,10 @@ type Job interface {
 }
 
 type jobImplement struct {
-	gameRoomRepository repository.GameRoomRepository
-	eventBus           eventbus.EventBus
-	gameTicker         *time.Ticker
-	unitMapTickerStop  chan bool
+	gameRoomRepository  repository.GameRoomRepository
+	integrationEventBus eventbus.IntegrationEventBus
+	gameTicker          *time.Ticker
+	unitMapTickerStop   chan bool
 }
 
 var job *jobImplement
@@ -27,11 +27,11 @@ var job *jobImplement
 func GetJob() Job {
 	if job == nil {
 		gameRoomRepositoryMemory := memoryrepository.GetGameRoomRepositoryMemory()
-		memoryEventBus := memoryeventbus.GetEventBus()
+		integrationEventBusRedis := eventbusredis.GetIntegrationEventBusRedis()
 
 		job = &jobImplement{
-			gameRoomRepository: gameRoomRepositoryMemory,
-			eventBus:           memoryEventBus,
+			gameRoomRepository:  gameRoomRepositoryMemory,
+			integrationEventBus: integrationEventBusRedis,
 		}
 
 		return job
@@ -51,8 +51,8 @@ func (gwi *jobImplement) Start() {
 			case <-gwi.gameTicker.C:
 				gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 					applicationservice.GameRoomApplicationServiceConfiguration{
-						GameRoomRepository: gwi.gameRoomRepository,
-						EventBus:           gwi.eventBus,
+						GameRoomRepository:  gwi.gameRoomRepository,
+						IntegrationEventBus: gwi.integrationEventBus,
 					},
 				)
 				gameRoomApplicationService.TcikAllUnitMaps()
