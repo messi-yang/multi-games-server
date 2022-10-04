@@ -11,28 +11,28 @@ type AreaDto struct {
 
 func NewAreaDto(area valueobject.Area) AreaDto {
 	fromCoordinateDto := NewCoordinateDto(area.GetFrom())
-	toCoordinateDto := NewCoordinateDto(area.GetTo())
+	ToValueObjectDto := NewCoordinateDto(area.GetTo())
 
 	return AreaDto{
 		From: fromCoordinateDto,
-		To:   toCoordinateDto,
+		To:   ToValueObjectDto,
 	}
 }
 
-func (dto AreaDto) ToArea() (valueobject.Area, error) {
-	fromCoordinate, err := dto.From.ToCoordinate()
+func (dto AreaDto) ToValueObject() (valueobject.Area, error) {
+	fromCoordinate, err := dto.From.ToValueObject()
 	if err != nil {
 		return valueobject.Area{}, err
 	}
 
-	toCoordinate, err := dto.To.ToCoordinate()
+	ToValueObject, err := dto.To.ToValueObject()
 	if err != nil {
 		return valueobject.Area{}, err
 	}
 
 	area, err := valueobject.NewArea(
 		fromCoordinate,
-		toCoordinate,
+		ToValueObject,
 	)
 	if err != nil {
 		return valueobject.Area{}, err

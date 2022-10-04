@@ -20,13 +20,13 @@ func NewUnitMapDto(unitMap *valueobject.UnitMap) UnitMapDto {
 	return unitMapDto
 }
 
-func (dto UnitMapDto) ToUnitMap() *valueobject.UnitMap {
+func (dto UnitMapDto) ToValueObject() *valueobject.UnitMap {
 	unitMatrix := make([][]valueobject.Unit, 0)
 
 	for i := 0; i < len(dto); i += 1 {
 		unitMatrix = append(unitMatrix, make([]valueobject.Unit, 0))
 		for j := 0; j < len(dto[0]); j += 1 {
-			unitMatrix[i] = append(unitMatrix[i], dto[i][j].ToUnit())
+			unitMatrix[i] = append(unitMatrix[i], dto[i][j].ToValueObject())
 		}
 	}
 	return valueobject.NewUnitMapFromUnitMatrix(&unitMatrix)

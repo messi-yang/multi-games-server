@@ -18,10 +18,7 @@ func NewCoordinateDtos(coordinates []valueobject.Coordinate) []CoordinateDto {
 	coordinateDtos := make([]CoordinateDto, 0)
 
 	for _, coord := range coordinates {
-		coordinate := CoordinateDto{
-			X: coord.GetX(),
-			Y: coord.GetY(),
-		}
+		coordinate := NewCoordinateDto(coord)
 		coordinateDtos = append(coordinateDtos, coordinate)
 	}
 
@@ -32,7 +29,7 @@ func ParseCoordinateDtos(coordDtos []CoordinateDto) ([]valueobject.Coordinate, e
 	coordinates := make([]valueobject.Coordinate, 0)
 
 	for _, coord := range coordDtos {
-		coordinate, err := coord.ToCoordinate()
+		coordinate, err := coord.ToValueObject()
 		if err != nil {
 			return nil, err
 		}
@@ -42,6 +39,6 @@ func ParseCoordinateDtos(coordDtos []CoordinateDto) ([]valueobject.Coordinate, e
 	return coordinates, nil
 }
 
-func (dto CoordinateDto) ToCoordinate() (valueobject.Coordinate, error) {
+func (dto CoordinateDto) ToValueObject() (valueobject.Coordinate, error) {
 	return valueobject.NewCoordinate(dto.X, dto.Y)
 }

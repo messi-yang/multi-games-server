@@ -161,7 +161,7 @@ func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) error {
 func (gr *GameRoom) TickUnitMap() error {
 	unitMap := gr.game.GetUnitMap()
 
-	var unitMatrix *[][]valueobject.Unit = unitMap.ToUnitMatrix()
+	var unitMatrix *[][]valueobject.Unit = unitMap.ToValueObjectMatrix()
 	gameOfLiberty, err := ggol.NewGame(unitMatrix)
 	if err != nil {
 		return err

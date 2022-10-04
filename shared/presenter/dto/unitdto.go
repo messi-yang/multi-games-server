@@ -14,6 +14,6 @@ func NewUnitDto(unit valueobject.Unit) UnitDto {
 	}
 }
 
-func (dto UnitDto) ToUnit() valueobject.Unit {
+func (dto UnitDto) ToValueObject() valueobject.Unit {
 	return valueobject.NewUnit(dto.Alive, dto.Age)
 }

@@ -25,7 +25,7 @@ func NewUnitMapFromUnitMatrix(unitMatrix *[][]Unit) *UnitMap {
 	}
 }
 
-func (um UnitMap) ToUnitMatrix() *[][]Unit {
+func (um UnitMap) ToValueObjectMatrix() *[][]Unit {
 	return um.unitMatrix
 }
 

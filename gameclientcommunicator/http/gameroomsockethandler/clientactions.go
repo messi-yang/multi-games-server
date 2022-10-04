@@ -45,7 +45,7 @@ func extractInformationFromZoomAreaAction(msg []byte) (valueobject.Area, error) 
 		return valueobject.Area{}, err
 	}
 
-	area, err := action.Payload.Area.ToArea()
+	area, err := action.Payload.Area.ToValueObject()
 	if err != nil {
 		return valueobject.Area{}, err
 	}

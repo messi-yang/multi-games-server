@@ -48,7 +48,7 @@ func HandleGameRoomIntegrationEvent() {
 			var addPlayerRequestedEvent addplayerrequestedevent.Event
 			json.Unmarshal(event, &addPlayerRequestedEvent)
 
-			player := addPlayerRequestedEvent.Payload.Player.ToPlayer()
+			player := addPlayerRequestedEvent.Payload.Player.ToValueObject()
 			gameRoomApplicationService.AddPlayer(gameId, player)
 		},
 	)
@@ -72,7 +72,7 @@ func HandleGameRoomIntegrationEvent() {
 			var zoomAreaRequestedEvent zoomarearequestedevent.Event
 			json.Unmarshal(event, &zoomAreaRequestedEvent)
 
-			area, err := zoomAreaRequestedEvent.Payload.Area.ToArea()
+			area, err := zoomAreaRequestedEvent.Payload.Area.ToValueObject()
 			if err != nil {
 				return
 			}
