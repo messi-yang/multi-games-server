@@ -1,4 +1,4 @@
-package event
+package integrationeventhandler
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomarearequestedevent"
 )
 
-func Controller() {
+func HandleGameRoomIntegrationEvent() {
 	gameId := config.GetConfig().GetGameId()
 
 	gameRoomRepositoryMemory := repositorymemory.GetGameRoomRepositoryMemory()
