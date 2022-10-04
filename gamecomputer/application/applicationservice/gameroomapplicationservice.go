@@ -8,9 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/areazoomedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/gameinfoupdatedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomedareaupdatedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
 )
 
@@ -75,8 +73,8 @@ func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 				continue
 			}
 			grs.integrationEventBus.Publish(
-				zoomedareaupdatedevent.NewEventTopic(updatedGameRoom.GetGameId(), playerId),
-				zoomedareaupdatedevent.NewEvent(area, *unitMap),
+				integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetGameId(), playerId),
+				integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, *unitMap),
 			)
 		}
 	}
@@ -98,8 +96,8 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, co
 			continue
 		}
 		grs.integrationEventBus.Publish(
-			zoomedareaupdatedevent.NewEventTopic(updatedGameRoom.GetGameId(), playerId),
-			zoomedareaupdatedevent.NewEvent(area, *unitMap),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetGameId(), playerId),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, *unitMap),
 		)
 	}
 	return nil
@@ -112,8 +110,8 @@ func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, play
 	}
 
 	grs.integrationEventBus.Publish(
-		gameinfoupdatedevent.NewEventTopic(gameId, player.GetId()),
-		gameinfoupdatedevent.NewEvent(updatedGameRoom.GetUnitMapSize()),
+		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, player.GetId()),
+		integrationevent.NewGameInfoUpdatedIntegrationEvent(updatedGameRoom.GetUnitMapSize()),
 	)
 
 	return nil
@@ -140,8 +138,8 @@ func (grs *gameRoomApplicationServiceImplement) AddZoomedArea(gameId uuid.UUID, 
 	}
 
 	grs.integrationEventBus.Publish(
-		areazoomedevent.NewEventTopic(gameId, playerId),
-		areazoomedevent.NewEvent(area, *unitMap),
+		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, playerId),
+		integrationevent.NewAreaZoomedIntegrationEvent(area, *unitMap),
 	)
 
 	return nil

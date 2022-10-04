@@ -1,4 +1,4 @@
-package zoomedareaupdatedevent
+package integrationevent
 
 import (
 	"encoding/json"
@@ -10,26 +10,26 @@ import (
 	"github.com/google/uuid"
 )
 
-type payload struct {
+type zoomedAreaUpdatedIntegrationEventPayload struct {
 	Area    dto.AreaDto    `json:"area"`
 	UnitMap dto.UnitMapDto `json:"unitMap"`
 }
 
-type Event struct {
-	Payload   payload   `json:"payload"`
-	Timestamp time.Time `json:"timestamp"`
+type ZoomedAreaUpdatedIntegrationEvent struct {
+	Payload   zoomedAreaUpdatedIntegrationEventPayload `json:"payload"`
+	Timestamp time.Time                                `json:"timestamp"`
 }
 
-func NewEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
+func NewZoomedAreaUpdatedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-player-%s-zoomed-area-updated", gameId, playerId)
 }
 
-func NewEvent(area valueobject.Area, unitMap valueobject.UnitMap) []byte {
+func NewZoomedAreaUpdatedIntegrationEvent(area valueobject.Area, unitMap valueobject.UnitMap) []byte {
 	areaDto := dto.NewAreaDto(area)
 	unitMapDto := dto.NewUnitMapDto(&unitMap)
 
-	event := Event{
-		Payload: payload{
+	event := ZoomedAreaUpdatedIntegrationEvent{
+		Payload: zoomedAreaUpdatedIntegrationEventPayload{
 			Area:    areaDto,
 			UnitMap: unitMapDto,
 		},

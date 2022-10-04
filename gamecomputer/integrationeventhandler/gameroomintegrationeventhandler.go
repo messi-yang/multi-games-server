@@ -8,10 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/addplayerrequestedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/removeplayerrequestedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/reviveunitsrequestedevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/event/zoomarearequestedevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 )
 
 func HandleGameRoomIntegrationEvent() {
@@ -26,13 +23,13 @@ func HandleGameRoomIntegrationEvent() {
 		},
 	)
 
-	reviveUnitsRequestedEventUnsubscriber := integrationEventBusRedis.Subscribe(
-		reviveunitsrequestedevent.NewEventTopic(gameId),
+	reviveUnitsRequestedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(
+		integrationevent.NewReviveUnitsRequestedIntegrationEventTopic(gameId),
 		func(event []byte) {
-			var reviveUnitsRequestedEvent reviveunitsrequestedevent.Event
-			json.Unmarshal(event, &reviveUnitsRequestedEvent)
+			var reviveUnitsRequestedIntegrationEvent integrationevent.ReviveUnitsRequestedIntegrationEvent
+			json.Unmarshal(event, &reviveUnitsRequestedIntegrationEvent)
 
-			coordinates, err := dto.ParseCoordinateDtos(reviveUnitsRequestedEvent.Payload.Coordinates)
+			coordinates, err := dto.ParseCoordinateDtos(reviveUnitsRequestedIntegrationEvent.Payload.Coordinates)
 			if err != nil {
 				return
 			}
@@ -40,46 +37,46 @@ func HandleGameRoomIntegrationEvent() {
 			gameRoomApplicationService.ReviveUnits(gameId, coordinates)
 		},
 	)
-	defer reviveUnitsRequestedEventUnsubscriber()
+	defer reviveUnitsRequestedIntegrationEventUnsubscriber()
 
-	addPlayerRequestedEventUnsubscriber := integrationEventBusRedis.Subscribe(
-		addplayerrequestedevent.NewEventTopic(gameId),
+	addPlayerRequestedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(
+		integrationevent.NewAddPlayerRequestedIntegrationEventTopic(gameId),
 		func(event []byte) {
-			var addPlayerRequestedEvent addplayerrequestedevent.Event
-			json.Unmarshal(event, &addPlayerRequestedEvent)
+			var addPlayerRequestedIntegrationEvent integrationevent.AddPlayerRequestedIntegrationEvent
+			json.Unmarshal(event, &addPlayerRequestedIntegrationEvent)
 
-			player := addPlayerRequestedEvent.Payload.Player.ToEntity()
+			player := addPlayerRequestedIntegrationEvent.Payload.Player.ToEntity()
 			gameRoomApplicationService.AddPlayer(gameId, player)
 		},
 	)
-	defer addPlayerRequestedEventUnsubscriber()
+	defer addPlayerRequestedIntegrationEventUnsubscriber()
 
-	removePlayerRequestedEventUnsubscriber := integrationEventBusRedis.Subscribe(
-		removeplayerrequestedevent.NewEventTopic(gameId),
+	removePlayerRequestedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(
+		integrationevent.NewRemovePlayerRequestedIntegrationEventTopic(gameId),
 		func(event []byte) {
-			var removePlayerRequestedEvent removeplayerrequestedevent.Event
-			json.Unmarshal(event, &removePlayerRequestedEvent)
+			var removePlayerRequestedIntegrationEvent integrationevent.RemovePlayerRequestedIntegrationEvent
+			json.Unmarshal(event, &removePlayerRequestedIntegrationEvent)
 
-			gameRoomApplicationService.RemovePlayer(gameId, removePlayerRequestedEvent.Payload.PlayerId)
-			gameRoomApplicationService.RemoveZoomedArea(gameId, removePlayerRequestedEvent.Payload.PlayerId)
+			gameRoomApplicationService.RemovePlayer(gameId, removePlayerRequestedIntegrationEvent.Payload.PlayerId)
+			gameRoomApplicationService.RemoveZoomedArea(gameId, removePlayerRequestedIntegrationEvent.Payload.PlayerId)
 		},
 	)
-	defer removePlayerRequestedEventUnsubscriber()
+	defer removePlayerRequestedIntegrationEventUnsubscriber()
 
-	zoomAreaRequestedEventSubscriber := integrationEventBusRedis.Subscribe(
-		zoomarearequestedevent.NewEventTopic(gameId),
+	zoomAreaRequestedIntegrationEventSubscriber := integrationEventBusRedis.Subscribe(
+		integrationevent.NewZoomAreaRequestedIntegrationEventTopic(gameId),
 		func(event []byte) {
-			var zoomAreaRequestedEvent zoomarearequestedevent.Event
-			json.Unmarshal(event, &zoomAreaRequestedEvent)
+			var zoomAreaRequestedIntegrationEvent integrationevent.ZoomAreaRequestedIntegrationEvent
+			json.Unmarshal(event, &zoomAreaRequestedIntegrationEvent)
 
-			area, err := zoomAreaRequestedEvent.Payload.Area.ToValueObject()
+			area, err := zoomAreaRequestedIntegrationEvent.Payload.Area.ToValueObject()
 			if err != nil {
 				return
 			}
-			gameRoomApplicationService.AddZoomedArea(gameId, zoomAreaRequestedEvent.Payload.PlayerId, area)
+			gameRoomApplicationService.AddZoomedArea(gameId, zoomAreaRequestedIntegrationEvent.Payload.PlayerId, area)
 		},
 	)
-	defer zoomAreaRequestedEventSubscriber()
+	defer zoomAreaRequestedIntegrationEventSubscriber()
 
 	closeConnFlag := make(chan bool)
 	for {

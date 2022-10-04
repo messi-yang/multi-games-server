@@ -1,4 +1,4 @@
-package zoomarearequestedevent
+package integrationevent
 
 import (
 	"encoding/json"
@@ -10,25 +10,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type payload struct {
+type zoomAreaRequestedIntegrationEventPayload struct {
 	PlayerId uuid.UUID   `json:"playerId"`
 	Area     dto.AreaDto `json:"area"`
 }
 
-type Event struct {
-	Payload   payload   `json:"payload"`
-	Timestamp time.Time `json:"timestamp"`
+type ZoomAreaRequestedIntegrationEvent struct {
+	Payload   zoomAreaRequestedIntegrationEventPayload `json:"payload"`
+	Timestamp time.Time                                `json:"timestamp"`
 }
 
-func NewEventTopic(gameId uuid.UUID) string {
+func NewZoomAreaRequestedIntegrationEventTopic(gameId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-zoom-area-requested", gameId)
 }
 
-func NewEvent(playerId uuid.UUID, area valueobject.Area) []byte {
+func NewZoomAreaRequestedIntegrationEvent(playerId uuid.UUID, area valueobject.Area) []byte {
 	areaDto := dto.NewAreaDto(area)
 
-	event := Event{
-		Payload: payload{
+	event := ZoomAreaRequestedIntegrationEvent{
+		Payload: zoomAreaRequestedIntegrationEventPayload{
 			PlayerId: playerId,
 			Area:     areaDto,
 		},
