@@ -48,7 +48,7 @@ func HandleGameRoomIntegrationEvent() {
 			var addPlayerRequestedEvent addplayerrequestedevent.Event
 			json.Unmarshal(event, &addPlayerRequestedEvent)
 
-			player := addPlayerRequestedEvent.Payload.Player.ToValueObject()
+			player := addPlayerRequestedEvent.Payload.Player.ToEntity()
 			gameRoomApplicationService.AddPlayer(gameId, player)
 		},
 	)
