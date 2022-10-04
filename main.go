@@ -21,6 +21,6 @@ func main() {
 
 	config.GetConfig().SetGameId(newGameRoomId)
 
-	gamecomputer.Start()
+	go gamecomputer.Start()
 	gameclientcommunicator.Start()
 }

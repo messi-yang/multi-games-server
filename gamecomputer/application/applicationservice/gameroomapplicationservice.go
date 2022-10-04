@@ -54,28 +54,28 @@ func (grs *gameRoomApplicationServiceImplement) CreateRoom(width int, height int
 		return uuid.UUID{}, err
 	}
 
-	gameRoom, err := grs.gameRoomDomainService.CreateGameRoom(mapSize)
+	newGameRoom, err := grs.gameRoomDomainService.CreateGameRoom(mapSize)
 	if err != nil {
 		return uuid.UUID{}, err
 	}
-	return gameRoom.GetGameId(), nil
+	return newGameRoom.GetGameId(), nil
 }
 
 func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
-		err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
+		updatedGameRoom, err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
 		if err != nil {
 			continue
 		}
 
-		for playerId, area := range gameRoom.GetZoomedAreas() {
-			unitMap, err := gameRoom.GetUnitMapByArea(area)
+		for playerId, area := range updatedGameRoom.GetZoomedAreas() {
+			unitMap, err := updatedGameRoom.GetUnitMapByArea(area)
 			if err != nil {
 				continue
 			}
 			grs.integrationEventBus.Publish(
-				zoomedareaupdatedevent.NewEventTopic(gameRoom.GetGameId(), playerId),
+				zoomedareaupdatedevent.NewEventTopic(updatedGameRoom.GetGameId(), playerId),
 				zoomedareaupdatedevent.NewEvent(area, *unitMap),
 			)
 		}
@@ -83,27 +83,22 @@ func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 }
 
 func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
-	err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
+	updatedGameRoom, err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
 	if err != nil {
 		return err
 	}
 
-	gameRoom, _ := grs.gameRoomDomainService.GetRoom(gameId)
-	if err != nil {
-		return err
-	}
-
-	for playerId, area := range gameRoom.GetZoomedAreas() {
+	for playerId, area := range updatedGameRoom.GetZoomedAreas() {
 		coordinatesInArea := area.FilterCoordinates(coordinates)
 		if len(coordinatesInArea) == 0 {
 			continue
 		}
-		unitMap, err := gameRoom.GetUnitMapByArea(area)
+		unitMap, err := updatedGameRoom.GetUnitMapByArea(area)
 		if err != nil {
 			continue
 		}
 		grs.integrationEventBus.Publish(
-			zoomedareaupdatedevent.NewEventTopic(gameRoom.GetGameId(), playerId),
+			zoomedareaupdatedevent.NewEventTopic(updatedGameRoom.GetGameId(), playerId),
 			zoomedareaupdatedevent.NewEvent(area, *unitMap),
 		)
 	}
@@ -111,26 +106,21 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, co
 }
 
 func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
-	err := grs.gameRoomDomainService.AddPlayer(gameId, player)
-	if err != nil {
-		return err
-	}
-
-	gameRoom, _ := grs.gameRoomDomainService.GetRoom(gameId)
+	updatedGameRoom, err := grs.gameRoomDomainService.AddPlayer(gameId, player)
 	if err != nil {
 		return err
 	}
 
 	grs.integrationEventBus.Publish(
 		gameinfoupdatedevent.NewEventTopic(gameId, player.GetId()),
-		gameinfoupdatedevent.NewEvent(gameRoom.GetUnitMapSize()),
+		gameinfoupdatedevent.NewEvent(updatedGameRoom.GetUnitMapSize()),
 	)
 
 	return nil
 }
 
 func (grs *gameRoomApplicationServiceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
-	err := grs.gameRoomDomainService.RemovePlayer(gameId, playerId)
+	_, err := grs.gameRoomDomainService.RemovePlayer(gameId, playerId)
 	if err != nil {
 		return err
 	}
@@ -139,17 +129,12 @@ func (grs *gameRoomApplicationServiceImplement) RemovePlayer(gameId uuid.UUID, p
 }
 
 func (grs *gameRoomApplicationServiceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
-	err := grs.gameRoomDomainService.AddZoomedArea(gameId, playerId, area)
+	updatedGameRoom, err := grs.gameRoomDomainService.AddZoomedArea(gameId, playerId, area)
 	if err != nil {
 		return err
 	}
 
-	gameRoom, _ := grs.gameRoomDomainService.GetRoom(gameId)
-	if err != nil {
-		return err
-	}
-
-	unitMap, err := gameRoom.GetUnitMapByArea(area)
+	unitMap, err := updatedGameRoom.GetUnitMapByArea(area)
 	if err != nil {
 		return err
 	}
@@ -163,7 +148,7 @@ func (grs *gameRoomApplicationServiceImplement) AddZoomedArea(gameId uuid.UUID, 
 }
 
 func (grs *gameRoomApplicationServiceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
-	err := grs.gameRoomDomainService.RemoveZoomedArea(gameId, playerId)
+	_, err := grs.gameRoomDomainService.RemoveZoomedArea(gameId, playerId)
 	if err != nil {
 		return err
 	}

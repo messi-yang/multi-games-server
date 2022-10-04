@@ -13,14 +13,14 @@ type GameRoomDomainService interface {
 	GetAllRooms() []aggregate.GameRoom
 	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
 
-	AddPlayer(gameId uuid.UUID, player entity.Player) error
-	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
+	AddPlayer(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error)
+	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 
-	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
-	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
+	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error)
+	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 
-	TickUnitMap(gameId uuid.UUID) error
-	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) error
+	TickUnitMap(gameId uuid.UUID) (aggregate.GameRoom, error)
+	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) (aggregate.GameRoom, error)
 }
 
 type gameRoomDomainServiceImplement struct {
@@ -60,118 +60,118 @@ func (gsi *gameRoomDomainServiceImplement) GetRoom(gameId uuid.UUID) (aggregate.
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
+func (gsi *gameRoomDomainServiceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 	defer unlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	gameRoom.AddPlayer(player)
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
-	return nil
+	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
+func (gsi *gameRoomDomainServiceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 	defer unlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	gameRoom.RemovePlayer(playerId)
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
-	return nil
+	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
+func (gsi *gameRoomDomainServiceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 	defer unlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	gameRoom.AddZoomedArea(playerId, area)
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
-	return nil
+	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
+func (gsi *gameRoomDomainServiceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 	defer unlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	gameRoom.RemoveZoomedArea(playerId)
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
-	return nil
+	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) TickUnitMap(gameId uuid.UUID) error {
+func (gsi *gameRoomDomainServiceImplement) TickUnitMap(gameId uuid.UUID) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 	defer unlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	err = gameRoom.TickUnitMap()
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
-	return nil
+	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
+func (gsi *gameRoomDomainServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 	defer unlocker()
 
 	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	err = gameRoom.ReviveUnits(coordinates)
 	if err != nil {
-		return err
+		return aggregate.GameRoom{}, err
 	}
 
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
-	return nil
+	return gameRoom, nil
 }
