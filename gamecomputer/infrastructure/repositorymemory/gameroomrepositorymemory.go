@@ -1,4 +1,4 @@
-package memoryrepository
+package repositorymemory
 
 import (
 	"errors"

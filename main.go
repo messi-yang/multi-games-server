@@ -4,12 +4,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/repositorymemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 )
 
 func main() {
-	gameRoomRepositoryMemory := memoryrepository.GetGameRoomRepositoryMemory()
+	gameRoomRepositoryMemory := repositorymemory.GetGameRoomRepositoryMemory()
 	size := config.GetConfig().GetGameMapSize()
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{GameRoomRepository: gameRoomRepositoryMemory},
