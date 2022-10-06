@@ -7,7 +7,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
@@ -42,8 +41,20 @@ func Handler(c *gin.Context) {
 	defer conn.Close()
 	closeConnFlag := make(chan bool)
 
+	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
+	gameIdBytes, err := redisInfrastructureService.Get("game_id")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	gameId, err := uuid.Parse(string(gameIdBytes))
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
 	clientSession := &clientSession{
-		gameId: config.GetConfig().GetGameId(),
+		gameId: gameId,
 		player: entity.NewPlayer(),
 		integrationEventBus: eventbusredis.NewIntegrationEventBusRedis(
 			eventbusredis.IntegrationEventBusRedisCallbackConfiguration{

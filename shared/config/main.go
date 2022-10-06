@@ -9,8 +9,6 @@ import (
 
 type Config interface {
 	GetGameMapSize() int
-	GetGameId() uuid.UUID
-	SetGameId(uuid.UUID)
 }
 
 type configImpl struct {
@@ -39,12 +37,4 @@ func GetConfig() Config {
 
 func (ci *configImpl) GetGameMapSize() int {
 	return ci.GAME_MAP_SIZE
-}
-
-func (ci *configImpl) GetGameId() uuid.UUID {
-	return ci.GAME_ID
-}
-
-func (ci *configImpl) SetGameId(id uuid.UUID) {
-	ci.GAME_ID = id
 }

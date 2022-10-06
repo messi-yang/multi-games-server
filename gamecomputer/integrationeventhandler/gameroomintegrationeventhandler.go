@@ -5,15 +5,23 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/repositorymemory"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
+	"github.com/google/uuid"
 )
 
 func HandleGameRoomIntegrationEvent() {
-	gameId := config.GetConfig().GetGameId()
+	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
+	gameIdBytes, err := redisInfrastructureService.Get("game_id")
+	if err != nil {
+		return
+	}
+	gameId, err := uuid.Parse(string(gameIdBytes))
+	if err != nil {
+		return
+	}
 
 	gameRoomRepositoryMemory := repositorymemory.NewGameRoomRepositoryMemory()
 	integrationEventBusRedis := eventbusredis.NewIntegrationEventBusRedis(
