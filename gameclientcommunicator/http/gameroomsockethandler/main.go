@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/gin-gonic/gin"
@@ -18,7 +17,8 @@ import (
 )
 
 type clientSession struct {
-	watchedArea           *valueobject.Area
+	gameId                uuid.UUID
+	player                entity.Player
 	socketSendMessageLock sync.RWMutex
 }
 
@@ -41,42 +41,39 @@ func Handler(c *gin.Context) {
 
 	integrationEventBusRedis := eventbusredis.GetIntegrationEventBusRedis()
 
-	gameId := config.GetConfig().GetGameId()
-
-	player := entity.NewPlayer()
-
 	clientSession := &clientSession{
-		watchedArea:           nil,
+		gameId:                config.GetConfig().GetGameId(),
+		player:                entity.NewPlayer(),
 		socketSendMessageLock: sync.RWMutex{},
 	}
 
 	gameInfoUpdatedIntegrationEventSubscriber := integrationEventBusRedis.Subscribe(
-		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, player.GetId()),
+		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
 		func(event []byte) {
-			handleGameInfoUpdatedEvent(conn, clientSession, gameId, player.GetId(), event)
+			handleGameInfoUpdatedEvent(conn, clientSession, event)
 		},
 	)
 	defer gameInfoUpdatedIntegrationEventSubscriber()
 
 	areaZoomedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(
-		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, player.GetId()),
+		integrationevent.NewAreaZoomedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
 		func(event []byte) {
-			handleAreaZoomedEvent(conn, clientSession, gameId, player.GetId(), event)
+			handleAreaZoomedEvent(conn, clientSession, event)
 		},
 	)
 	defer areaZoomedIntegrationEventUnsubscriber()
 
 	zoomedAreaUpdatedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(
-		integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(gameId, player.GetId()),
+		integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
 		func(event []byte) {
-			handleZoomedAreaUpdatedEvent(conn, clientSession, gameId, player.GetId(), event)
+			handleZoomedAreaUpdatedEvent(conn, clientSession, event)
 		},
 	)
 	defer zoomedAreaUpdatedIntegrationEventUnsubscriber()
 
 	integrationEventBusRedis.Publish(
-		integrationevent.NewAddPlayerRequestedIntegrationEventTopic(gameId),
-		integrationevent.NewAddPlayerRequestedIntegrationEvent(player),
+		integrationevent.NewAddPlayerRequestedIntegrationEventTopic(clientSession.gameId),
+		integrationevent.NewAddPlayerRequestedIntegrationEvent(clientSession.player),
 	)
 
 	go func() {
@@ -106,9 +103,9 @@ func Handler(c *gin.Context) {
 
 			switch *actionType {
 			case zoomAreaActionType:
-				handleZoomAreaAction(conn, clientSession, message, gameId, player.GetId())
+				handleZoomAreaAction(conn, clientSession, message)
 			case reviveUnitsActionType:
-				handleReviveUnitsAction(conn, clientSession, message, gameId)
+				handleReviveUnitsAction(conn, clientSession, message)
 			default:
 			}
 		}
@@ -118,8 +115,8 @@ func Handler(c *gin.Context) {
 		<-closeConnFlag
 
 		integrationEventBusRedis.Publish(
-			integrationevent.NewRemovePlayerRequestedIntegrationEventTopic(gameId),
-			integrationevent.NewRemovePlayerRequestedIntegrationEvent(player.GetId()),
+			integrationevent.NewRemovePlayerRequestedIntegrationEventTopic(clientSession.gameId),
+			integrationevent.NewRemovePlayerRequestedIntegrationEvent(clientSession.player.GetId()),
 		)
 
 		return
@@ -150,7 +147,7 @@ func emitErrorEvent(conn *websocket.Conn, clientSession *clientSession, err erro
 	sendJSONMessageToClient(conn, clientSession, errorEvent)
 }
 
-func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, playerId uuid.UUID, event []byte) {
+func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
 	var gameInfoUpdatedIntegrationEvent integrationevent.GameInfoUpdatedIntegrationEvent
 	json.Unmarshal(event, &gameInfoUpdatedIntegrationEvent)
 
@@ -158,21 +155,21 @@ func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSessi
 	sendJSONMessageToClient(conn, clientSession, informationUpdatedEvent)
 }
 
-func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, playerId uuid.UUID, event []byte) {
+func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
 	var areaZoomedIntegrationEvent integrationevent.AreaZoomedIntegrationEvent
 	json.Unmarshal(event, &areaZoomedIntegrationEvent)
 
 	sendJSONMessageToClient(conn, clientSession, constructAreaZoomedEvent(areaZoomedIntegrationEvent.Payload.Area, areaZoomedIntegrationEvent.Payload.UnitMap))
 }
 
-func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, gameId uuid.UUID, playerId uuid.UUID, event []byte) {
+func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
 	var zoomedAreaUpdatedIntegrationEvent integrationevent.ZoomedAreaUpdatedIntegrationEvent
 	json.Unmarshal(event, &zoomedAreaUpdatedIntegrationEvent)
 
 	sendJSONMessageToClient(conn, clientSession, constructZoomedAreaUpdatedEvent(zoomedAreaUpdatedIntegrationEvent.Payload.Area, zoomedAreaUpdatedIntegrationEvent.Payload.UnitMap))
 }
 
-func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID, playerId uuid.UUID) {
+func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte) {
 	area, err := extractInformationFromZoomAreaAction(message)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
@@ -181,12 +178,12 @@ func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, me
 
 	integrationEventBusRedis := eventbusredis.GetIntegrationEventBusRedis()
 	integrationEventBusRedis.Publish(
-		integrationevent.NewZoomAreaRequestedIntegrationEventTopic(gameId),
-		integrationevent.NewZoomAreaRequestedIntegrationEvent(playerId, area),
+		integrationevent.NewZoomAreaRequestedIntegrationEventTopic(clientSession.gameId),
+		integrationevent.NewZoomAreaRequestedIntegrationEvent(clientSession.player.GetId(), area),
 	)
 }
 
-func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession, message []byte, gameId uuid.UUID) {
+func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession, message []byte) {
 	coordinates, err := extractInformationFromReviveUnitsAction(message)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
@@ -195,7 +192,7 @@ func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession,
 
 	integrationEventBusRedis := eventbusredis.GetIntegrationEventBusRedis()
 	integrationEventBusRedis.Publish(
-		integrationevent.NewReviveUnitsRequestedIntegrationEventTopic(gameId),
+		integrationevent.NewReviveUnitsRequestedIntegrationEventTopic(clientSession.gameId),
 		integrationevent.NewReviveUnitsRequestedIntegrationEvent(coordinates),
 	)
 }

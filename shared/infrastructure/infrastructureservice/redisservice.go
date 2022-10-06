@@ -16,20 +16,20 @@ type redisInfrastructureService struct {
 	redisClient *redis.Client
 }
 
-var redisClient *redis.Client
+var redisInfrastructureServiceInstance *redisInfrastructureService
 
 func NewRedisInfrastructureService() RedisInfrastructureService {
-	if redisClient == nil {
-		redisClient = redis.NewClient(&redis.Options{
-			Addr:        os.Getenv("REDIS_HOST"),
-			Password:    os.Getenv("REDIS_PASSWORD"),
-			DB:          0,
-			ReadTimeout: -1,
-		})
+	if redisInfrastructureServiceInstance == nil {
+		return &redisInfrastructureService{
+			redisClient: redis.NewClient(&redis.Options{
+				Addr:        os.Getenv("REDIS_HOST"),
+				Password:    os.Getenv("REDIS_PASSWORD"),
+				DB:          0,
+				ReadTimeout: -1,
+			}),
+		}
 	}
-	return &redisInfrastructureService{
-		redisClient: redisClient,
-	}
+	return redisInfrastructureServiceInstance
 }
 
 func (service *redisInfrastructureService) Subscribe(channel string, handler func(message []byte)) (unsubscriber func()) {
