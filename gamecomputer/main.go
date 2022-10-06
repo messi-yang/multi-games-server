@@ -2,10 +2,10 @@ package gamecomputer
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/repositorymemory"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/integrationeventhandler"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/jobs/tickunitmapjob"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/config"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/jobs/tickunitmapjob"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 )
 
