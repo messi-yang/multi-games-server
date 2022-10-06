@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 )
 
 type Job interface {
@@ -26,8 +27,12 @@ var job *jobImplement
 
 func GetJob() Job {
 	if job == nil {
-		gameRoomRepositoryMemory := repositorymemory.GetGameRoomRepositoryMemory()
-		integrationEventBusRedis := eventbusredis.GetIntegrationEventBusRedis()
+		gameRoomRepositoryMemory := repositorymemory.NewGameRoomRepositoryMemory()
+		integrationEventBusRedis := eventbusredis.NewIntegrationEventBusRedis(
+			eventbusredis.IntegrationEventBusRedisCallbackConfiguration{
+				RedisInfrastructureService: infrastructureservice.NewRedisInfrastructureService(),
+			},
+		)
 
 		job = &jobImplement{
 			gameRoomRepository:  gameRoomRepositoryMemory,

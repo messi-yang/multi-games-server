@@ -11,9 +11,13 @@ type integrationEventBusRedis struct {
 
 type integrationEventBusRedisCallback = func(event []byte)
 
+type IntegrationEventBusRedisCallbackConfiguration struct {
+	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
+}
+
 var integrationEventBusRedisInstance *integrationEventBusRedis
 
-func GetIntegrationEventBusRedis() eventbus.IntegrationEventBus {
+func NewIntegrationEventBusRedis(config IntegrationEventBusRedisCallbackConfiguration) eventbus.IntegrationEventBus {
 	if integrationEventBusRedisInstance == nil {
 		integrationEventBusRedisInstance = &integrationEventBusRedis{
 			redisInfrastructureService: infrastructureservice.NewRedisInfrastructureService(),
