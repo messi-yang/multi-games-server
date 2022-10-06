@@ -2,6 +2,7 @@ package applicationservice
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
@@ -106,6 +107,7 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, co
 func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
 	updatedGameRoom, err := grs.gameRoomDomainService.AddPlayer(gameId, player)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

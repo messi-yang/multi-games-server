@@ -45,11 +45,6 @@ func Handler(c *gin.Context) {
 
 	player := entity.NewPlayer()
 
-	integrationEventBusRedis.Publish(
-		integrationevent.NewAddPlayerRequestedIntegrationEventTopic(gameId),
-		integrationevent.NewAddPlayerRequestedIntegrationEvent(player),
-	)
-
 	clientSession := &clientSession{
 		watchedArea:           nil,
 		socketSendMessageLock: sync.RWMutex{},
@@ -63,15 +58,26 @@ func Handler(c *gin.Context) {
 	)
 	defer gameInfoUpdatedIntegrationEventSubscriber()
 
-	areaZoomedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, player.GetId()), func(event []byte) {
-		handleAreaZoomedEvent(conn, clientSession, gameId, player.GetId(), event)
-	})
+	areaZoomedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(
+		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, player.GetId()),
+		func(event []byte) {
+			handleAreaZoomedEvent(conn, clientSession, gameId, player.GetId(), event)
+		},
+	)
 	defer areaZoomedIntegrationEventUnsubscriber()
 
-	zoomedAreaUpdatedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(gameId, player.GetId()), func(event []byte) {
-		handleZoomedAreaUpdatedEvent(conn, clientSession, gameId, player.GetId(), event)
-	})
+	zoomedAreaUpdatedIntegrationEventUnsubscriber := integrationEventBusRedis.Subscribe(
+		integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(gameId, player.GetId()),
+		func(event []byte) {
+			handleZoomedAreaUpdatedEvent(conn, clientSession, gameId, player.GetId(), event)
+		},
+	)
 	defer zoomedAreaUpdatedIntegrationEventUnsubscriber()
+
+	integrationEventBusRedis.Publish(
+		integrationevent.NewAddPlayerRequestedIntegrationEventTopic(gameId),
+		integrationevent.NewAddPlayerRequestedIntegrationEvent(player),
+	)
 
 	go func() {
 		defer func() {

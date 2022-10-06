@@ -1,18 +1,31 @@
 version: "3.9"
+networks:
+  base:
+    driver: bridge
 services:
-  app:
-    build: .
-    environment:
-      - GAME_MAP_SIZE=${GAME_MAP_SIZE}
-    ports:
-      - 8080:8080
   dev:
     image: golang:1.18
-    env_file: .env
+    environment:
+      - GAME_MAP_SIZE=400
+      - REDIS_HOST=redis:6379
+      - REDIS_PASSWORD=password
     ports:
       - 8080:8080
+    depends_on:
+      - redis
+    networks:
+      - base
     volumes:
       - .:/app
     working_dir:
       /app
     command: make dev
+  redis:
+    image: 'bitnami/redis:latest'
+    ports:
+      - '6379:6379'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=password
+    networks:
+      - base

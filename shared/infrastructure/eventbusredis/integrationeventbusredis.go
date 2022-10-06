@@ -1,12 +1,12 @@
 package eventbusredis
 
 import (
-	"github.com/asaskevich/EventBus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 )
 
 type integrationEventBusRedis struct {
-	eventBus EventBus.Bus
+	redisInfrastructureService infrastructureservice.RedisInfrastructureService
 }
 
 type integrationEventBusRedisCallback = func(event []byte)
@@ -16,21 +16,20 @@ var integrationEventBusRedisInstance *integrationEventBusRedis
 func GetIntegrationEventBusRedis() eventbus.IntegrationEventBus {
 	if integrationEventBusRedisInstance == nil {
 		integrationEventBusRedisInstance = &integrationEventBusRedis{
-			eventBus: EventBus.New(),
+			redisInfrastructureService: infrastructureservice.NewRedisInfrastructureService(),
 		}
 	}
 	return integrationEventBusRedisInstance
 }
 
 func (gue *integrationEventBusRedis) Publish(topic string, event []byte) {
-	// I don't what the heck is going on, without this "go" we can't let the method finish
-	go gue.eventBus.Publish(topic, event)
+	gue.redisInfrastructureService.Publish(topic, event)
 }
 
 func (gue *integrationEventBusRedis) Subscribe(topic string, callback integrationEventBusRedisCallback) (unsubscriber func()) {
-	gue.eventBus.Subscribe(topic, callback)
+	redisUnsubscriber := gue.redisInfrastructureService.Subscribe(topic, callback)
 
 	return func() {
-		gue.eventBus.Unsubscribe(topic, callback)
+		redisUnsubscriber()
 	}
 }
