@@ -3,14 +3,30 @@ networks:
   base:
     driver: bridge
 services:
-  dev:
+  client:
     image: golang:1.18
     environment:
-      - GAME_MAP_SIZE=400
+      - APP=client
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
     ports:
       - 8080:8080
+    depends_on:
+      - redis
+    networks:
+      - base
+    volumes:
+      - .:/app
+    working_dir:
+      /app
+    command: make dev
+  computer:
+    image: golang:1.18
+    environment:
+      - APP=computer
+      - GAME_MAP_SIZE=400
+      - REDIS_HOST=redis:6379
+      - REDIS_PASSWORD=password
     depends_on:
       - redis
     networks:
