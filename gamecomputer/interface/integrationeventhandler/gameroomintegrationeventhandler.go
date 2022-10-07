@@ -5,7 +5,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
@@ -16,17 +15,10 @@ type GameRoomIntegrationEventHandlerConfiguration struct {
 	GameRoomApplicationService applicationservice.GameRoomApplicationService
 }
 
-func NewGameRoomIntegrationEventHandler(configuration GameRoomIntegrationEventHandlerConfiguration) {
-	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
-	gameIdBytes, err := redisInfrastructureService.Get("game_id")
-	if err != nil {
-		return
-	}
-	gameId, err := uuid.Parse(string(gameIdBytes))
-	if err != nil {
-		return
-	}
-
+func NewGameRoomIntegrationEventHandler(
+	configuration GameRoomIntegrationEventHandlerConfiguration,
+	gameId uuid.UUID,
+) {
 	reviveUnitsRequestedIntegrationEventUnsubscriber := configuration.IntegrationEventBus.Subscribe(
 		integrationevent.NewReviveUnitsRequestedIntegrationEventTopic(gameId),
 		func(event []byte) {

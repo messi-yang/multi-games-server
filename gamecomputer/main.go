@@ -33,8 +33,11 @@ func Start() {
 		GameRoomApplicationService: gameRoomApplicationService,
 	})
 
-	integrationeventhandler.NewGameRoomIntegrationEventHandler(integrationeventhandler.GameRoomIntegrationEventHandlerConfiguration{
-		GameRoomApplicationService: gameRoomApplicationService,
-		IntegrationEventBus:        integrationEventBusRedis,
-	})
+	integrationeventhandler.NewGameRoomIntegrationEventHandler(
+		integrationeventhandler.GameRoomIntegrationEventHandlerConfiguration{
+			GameRoomApplicationService: gameRoomApplicationService,
+			IntegrationEventBus:        integrationEventBusRedis,
+		},
+		newGameRoomId,
+	)
 }
