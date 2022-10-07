@@ -5,25 +5,36 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/repositorymemory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/jobs/tickunitmapjob"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/task"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 )
 
 func Start() {
-	gameRoomRepositoryMemory := repositorymemory.NewGameRoomRepositoryMemory()
-	size := config.GetConfig().GetGameMapSize()
+	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
+	integrationEventBusRedis := eventbusredis.NewIntegrationEventBusRedis(eventbusredis.IntegrationEventBusRedisCallbackConfiguration{
+		RedisInfrastructureService: redisInfrastructureService,
+	})
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
-		applicationservice.GameRoomApplicationServiceConfiguration{GameRoomRepository: gameRoomRepositoryMemory},
+		applicationservice.GameRoomApplicationServiceConfiguration{
+			GameRoomRepository:  repositorymemory.NewGameRoomRepositoryMemory(),
+			IntegrationEventBus: integrationEventBusRedis,
+		},
 	)
+
+	size := config.GetConfig().GetGameMapSize()
 	newGameRoomId, err := gameRoomApplicationService.CreateRoom(size, size)
 	if err != nil {
 		panic(err.Error())
 	}
-	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
 	redisInfrastructureService.Set("game_id", []byte(newGameRoomId.String()))
 
-	gameRoomJob := tickunitmapjob.GetJob()
-	gameRoomJob.Start()
+	task.NewTickUnitMapTask(task.TickUnitMapTaskConfiguration{
+		GameRoomApplicationService: gameRoomApplicationService,
+	})
 
-	integrationeventhandler.HandleGameRoomIntegrationEvent()
+	integrationeventhandler.NewGameRoomIntegrationEventHandler(integrationeventhandler.GameRoomIntegrationEventHandlerConfiguration{
+		GameRoomApplicationService: gameRoomApplicationService,
+		IntegrationEventBus:        integrationEventBusRedis,
+	})
 }

@@ -29,9 +29,8 @@ func NewGameRoomRepositoryMemory() repository.GameRoomRepository {
 			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
 		return gameRoomRepositoryMemoryInstance
-	} else {
-		return gameRoomRepositoryMemoryInstance
 	}
+	return gameRoomRepositoryMemoryInstance
 }
 
 func (m *gameRoomRepositoryMemory) Get(id uuid.UUID) (aggregate.GameRoom, error) {

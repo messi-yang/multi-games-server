@@ -3,23 +3,15 @@ networks:
   base:
     driver: bridge
 services:
-  client:
-    image: golang:1.18
-    environment:
-      - APP=client
-      - REDIS_HOST=redis:6379
-      - REDIS_PASSWORD=password
+  redis:
+    image: 'bitnami/redis:latest'
     ports:
-      - 8080:8080
-    depends_on:
-      - redis
+      - '6379:6379'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=password
     networks:
       - base
-    volumes:
-      - .:/app
-    working_dir:
-      /app
-    command: make dev
   computer:
     image: golang:1.18
     environment:
@@ -36,12 +28,20 @@ services:
     working_dir:
       /app
     command: make dev
-  redis:
-    image: 'bitnami/redis:latest'
-    ports:
-      - '6379:6379'
+  client:
+    image: golang:1.18
     environment:
-      - REDIS_REPLICATION_MODE=master
+      - APP=client
+      - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
+    ports:
+      - 8080:8080
+    depends_on:
+      - computer
     networks:
       - base
+    volumes:
+      - .:/app
+    working_dir:
+      /app
+    command: make dev

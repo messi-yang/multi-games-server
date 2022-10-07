@@ -1,4 +1,4 @@
-package gameroomsockethandler
+package gameroomhandler
 
 import (
 	"encoding/json"
@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/gin-gonic/gin"
@@ -32,111 +31,113 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-func Handler(c *gin.Context) {
-	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	defer conn.Close()
-	closeConnFlag := make(chan bool)
+type HandlerConfiguration struct {
+	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
+	IntegrationEventBus        eventbus.IntegrationEventBus
+}
 
-	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
-	gameIdBytes, err := redisInfrastructureService.Get("game_id")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	gameId, err := uuid.Parse(string(gameIdBytes))
-	if err != nil {
-		c.Error(err)
-		return
-	}
+func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			c.Error(err)
+			return
+		}
+		defer conn.Close()
+		closeConnFlag := make(chan bool)
 
-	clientSession := &clientSession{
-		gameId: gameId,
-		player: entity.NewPlayer(),
-		integrationEventBus: eventbusredis.NewIntegrationEventBusRedis(
-			eventbusredis.IntegrationEventBusRedisCallbackConfiguration{
-				RedisInfrastructureService: infrastructureservice.NewRedisInfrastructureService(),
+		gameIdBytes, err := configuration.RedisInfrastructureService.Get("game_id")
+		if err != nil {
+			c.Error(err)
+			return
+		}
+		gameId, err := uuid.Parse(string(gameIdBytes))
+		if err != nil {
+			c.Error(err)
+			return
+		}
+
+		clientSession := &clientSession{
+			gameId:                gameId,
+			player:                entity.NewPlayer(),
+			integrationEventBus:   configuration.IntegrationEventBus,
+			socketSendMessageLock: sync.RWMutex{},
+		}
+
+		gameInfoUpdatedIntegrationEventSubscriber := clientSession.integrationEventBus.Subscribe(
+			integrationevent.NewGameInfoUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
+			func(event []byte) {
+				handleGameInfoUpdatedEvent(conn, clientSession, event)
 			},
-		),
-		socketSendMessageLock: sync.RWMutex{},
-	}
+		)
+		defer gameInfoUpdatedIntegrationEventSubscriber()
 
-	gameInfoUpdatedIntegrationEventSubscriber := clientSession.integrationEventBus.Subscribe(
-		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
-		func(event []byte) {
-			handleGameInfoUpdatedEvent(conn, clientSession, event)
-		},
-	)
-	defer gameInfoUpdatedIntegrationEventSubscriber()
+		areaZoomedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
+			integrationevent.NewAreaZoomedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
+			func(event []byte) {
+				handleAreaZoomedEvent(conn, clientSession, event)
+			},
+		)
+		defer areaZoomedIntegrationEventUnsubscriber()
 
-	areaZoomedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
-		integrationevent.NewAreaZoomedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
-		func(event []byte) {
-			handleAreaZoomedEvent(conn, clientSession, event)
-		},
-	)
-	defer areaZoomedIntegrationEventUnsubscriber()
+		zoomedAreaUpdatedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
+			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
+			func(event []byte) {
+				handleZoomedAreaUpdatedEvent(conn, clientSession, event)
+			},
+		)
+		defer zoomedAreaUpdatedIntegrationEventUnsubscriber()
 
-	zoomedAreaUpdatedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
-		integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
-		func(event []byte) {
-			handleZoomedAreaUpdatedEvent(conn, clientSession, event)
-		},
-	)
-	defer zoomedAreaUpdatedIntegrationEventUnsubscriber()
+		clientSession.integrationEventBus.Publish(
+			integrationevent.NewAddPlayerRequestedIntegrationEventTopic(clientSession.gameId),
+			integrationevent.NewAddPlayerRequestedIntegrationEvent(clientSession.player),
+		)
 
-	clientSession.integrationEventBus.Publish(
-		integrationevent.NewAddPlayerRequestedIntegrationEventTopic(clientSession.gameId),
-		integrationevent.NewAddPlayerRequestedIntegrationEvent(clientSession.player),
-	)
+		go func() {
+			defer func() {
+				closeConnFlag <- true
+			}()
 
-	go func() {
-		defer func() {
-			closeConnFlag <- true
+			for {
+				_, compressedMessage, err := conn.ReadMessage()
+				if err != nil {
+					emitErrorEvent(conn, clientSession, err)
+					break
+				}
+
+				compressionApplicationService := applicationservice.NewCompressionApplicationService()
+				message, err := compressionApplicationService.Ungzip(compressedMessage)
+				if err != nil {
+					emitErrorEvent(conn, clientSession, err)
+					break
+				}
+
+				actionType, err := getActionTypeFromMessage(message)
+				if err != nil {
+					emitErrorEvent(conn, clientSession, err)
+					break
+				}
+
+				switch *actionType {
+				case zoomAreaActionType:
+					handleZoomAreaAction(conn, clientSession, message)
+				case reviveUnitsActionType:
+					handleReviveUnitsAction(conn, clientSession, message)
+				default:
+				}
+			}
 		}()
 
 		for {
-			_, compressedMessage, err := conn.ReadMessage()
-			if err != nil {
-				emitErrorEvent(conn, clientSession, err)
-				break
-			}
+			<-closeConnFlag
 
-			compressionApplicationService := applicationservice.NewCompressionApplicationService()
-			message, err := compressionApplicationService.Ungzip(compressedMessage)
-			if err != nil {
-				emitErrorEvent(conn, clientSession, err)
-				break
-			}
+			clientSession.integrationEventBus.Publish(
+				integrationevent.NewRemovePlayerRequestedIntegrationEventTopic(clientSession.gameId),
+				integrationevent.NewRemovePlayerRequestedIntegrationEvent(clientSession.player.GetId()),
+			)
 
-			actionType, err := getActionTypeFromMessage(message)
-			if err != nil {
-				emitErrorEvent(conn, clientSession, err)
-				break
-			}
-
-			switch *actionType {
-			case zoomAreaActionType:
-				handleZoomAreaAction(conn, clientSession, message)
-			case reviveUnitsActionType:
-				handleReviveUnitsAction(conn, clientSession, message)
-			default:
-			}
+			return
 		}
-	}()
-
-	for {
-		<-closeConnFlag
-
-		clientSession.integrationEventBus.Publish(
-			integrationevent.NewRemovePlayerRequestedIntegrationEventTopic(clientSession.gameId),
-			integrationevent.NewRemovePlayerRequestedIntegrationEvent(clientSession.player.GetId()),
-		)
-
-		return
 	}
 }
 
