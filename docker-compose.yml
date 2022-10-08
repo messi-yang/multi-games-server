@@ -13,7 +13,7 @@ services:
     networks:
       - base
   computer:
-    image: golang:1.18
+    build: .
     environment:
       - APP=computer
       - GAME_MAP_SIZE=400
@@ -29,7 +29,7 @@ services:
       /app
     command: make dev
   client:
-    image: golang:1.18
+    build: .
     environment:
       - APP=client
       - REDIS_HOST=redis:6379
