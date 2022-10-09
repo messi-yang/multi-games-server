@@ -11,22 +11,16 @@ type Game struct {
 	id           uuid.UUID
 	unitMap      *valueobject.UnitMap
 	lastTickedAt time.Time
+	tickPeriod   int64
 }
 
-func NewGame(unitMap *valueobject.UnitMap) Game {
+func NewGame(unitMap *valueobject.UnitMap, tickPeriod int64) Game {
 	id, _ := uuid.NewUUID()
 	return Game{
 		id:           id,
 		unitMap:      unitMap,
 		lastTickedAt: time.Now(),
-	}
-}
-
-func NewGameFromExistingEntity(id uuid.UUID, unitMap *valueobject.UnitMap, lastTickedAt time.Time) Game {
-	return Game{
-		id:           id,
-		unitMap:      unitMap,
-		lastTickedAt: lastTickedAt,
+		tickPeriod:   tickPeriod,
 	}
 }
 
@@ -54,7 +48,7 @@ func (g *Game) SetUnitMap(newUnitMap *valueobject.UnitMap) {
 	g.unitMap = newUnitMap
 }
 
-func (g *Game) GetUnitMapSize() valueobject.MapSize {
+func (g *Game) GetMapSize() valueobject.MapSize {
 	return g.unitMap.GetMapSize()
 }
 

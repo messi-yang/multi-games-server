@@ -57,13 +57,13 @@ func (grs *gameRoomApplicationServiceImplement) CreateRoom(width int, height int
 	if err != nil {
 		return uuid.UUID{}, err
 	}
-	return newGameRoom.GetGameId(), nil
+	return newGameRoom.GetId(), nil
 }
 
 func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 	gameRooms := grs.gameRoomDomainService.GetAllRooms()
 	for _, gameRoom := range gameRooms {
-		updatedGameRoom, err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetGameId())
+		updatedGameRoom, err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetId())
 		if err != nil {
 			continue
 		}
@@ -74,7 +74,7 @@ func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 				continue
 			}
 			grs.integrationEventBus.Publish(
-				integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetGameId(), playerId),
+				integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetId(), playerId),
 				integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, *unitMap),
 			)
 		}
@@ -97,7 +97,7 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, co
 			continue
 		}
 		grs.integrationEventBus.Publish(
-			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetGameId(), playerId),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetId(), playerId),
 			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, *unitMap),
 		)
 	}
@@ -113,7 +113,7 @@ func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, play
 
 	grs.integrationEventBus.Publish(
 		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, player.GetId()),
-		integrationevent.NewGameInfoUpdatedIntegrationEvent(updatedGameRoom.GetUnitMapSize()),
+		integrationevent.NewGameInfoUpdatedIntegrationEvent(updatedGameRoom.GetMapSize()),
 	)
 
 	return nil

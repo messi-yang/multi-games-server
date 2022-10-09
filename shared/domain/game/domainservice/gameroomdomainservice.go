@@ -1,6 +1,8 @@
 package domainservice
 
 import (
+	"time"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
@@ -35,7 +37,7 @@ func NewGameRoomDomainService(gameRoomRepository repository.GameRoomRepository) 
 
 func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
 	unitMap := valueobject.NewUnitMap(mapSize)
-	game := entity.NewGame(unitMap)
+	game := entity.NewGame(unitMap, time.Second.Microseconds())
 	gameRoom := aggregate.NewGameRoom(game, make(map[uuid.UUID]entity.Player), make(map[uuid.UUID]valueobject.Area))
 	gsi.gameRoomRepository.Add(gameRoom)
 

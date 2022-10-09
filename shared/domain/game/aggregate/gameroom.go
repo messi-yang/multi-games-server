@@ -67,12 +67,12 @@ func NewGameRoom(game entity.Game, players map[uuid.UUID]entity.Player, zoomedAr
 	}
 }
 
-func (gr *GameRoom) GetGameId() uuid.UUID {
+func (gr *GameRoom) GetId() uuid.UUID {
 	return gr.game.GetId()
 }
 
-func (gr *GameRoom) GetUnitMapSize() valueobject.MapSize {
-	return gr.game.GetUnitMapSize()
+func (gr *GameRoom) GetMapSize() valueobject.MapSize {
+	return gr.game.GetMapSize()
 }
 
 func (gr *GameRoom) GetUnitMap() *valueobject.UnitMap {
@@ -80,7 +80,7 @@ func (gr *GameRoom) GetUnitMap() *valueobject.UnitMap {
 }
 
 func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*valueobject.UnitMap, error) {
-	if !gr.GetUnitMapSize().IncludesArea(area) {
+	if !gr.GetMapSize().IncludesArea(area) {
 		return &valueobject.UnitMap{}, ErrAreaExceedsUnitMap
 	}
 	offsetX := area.GetFrom().GetX()
@@ -102,16 +102,6 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*valueobject.UnitMa
 
 func (gr *GameRoom) GetLastTickedAt() time.Time {
 	return gr.game.GetLastTickedAt()
-}
-
-func (gr *GameRoom) GetUnitsWithCoordinates(coordinates []valueobject.Coordinate) ([]valueobject.Unit, error) {
-	units := make([]valueobject.Unit, 0)
-	for _, coord := range coordinates {
-		unit := gr.game.GetUnit(coord)
-		units = append(units, unit)
-	}
-
-	return units, nil
 }
 
 func (gr *GameRoom) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
@@ -151,7 +141,7 @@ func (gr *GameRoom) RemovePlayer(playerId uuid.UUID) {
 }
 
 func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) error {
-	if !gr.GetUnitMapSize().IncludesAllCoordinates(coordinates) {
+	if !gr.GetMapSize().IncludesAllCoordinates(coordinates) {
 		return ErrSomeCoordinatesNotIncludedInMap
 	}
 

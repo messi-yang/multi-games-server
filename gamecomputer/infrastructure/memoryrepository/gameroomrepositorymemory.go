@@ -62,8 +62,8 @@ func (m *gameRoomMemoryRepository) GetAll() []aggregate.GameRoom {
 }
 
 func (m *gameRoomMemoryRepository) Add(gameRoom aggregate.GameRoom) error {
-	m.records[gameRoom.GetGameId()] = &gameRoom
-	m.recordLockers[gameRoom.GetGameId()] = &sync.RWMutex{}
+	m.records[gameRoom.GetId()] = &gameRoom
+	m.recordLockers[gameRoom.GetId()] = &sync.RWMutex{}
 
 	return nil
 }
