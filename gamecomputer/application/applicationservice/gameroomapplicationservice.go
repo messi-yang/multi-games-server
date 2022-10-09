@@ -18,6 +18,7 @@ var (
 
 type GameRoomApplicationService interface {
 	CreateGameRoom(width int, height int) (gameId uuid.UUID, err error)
+	LoadGameRoom(gameId uuid.UUID) (err error)
 
 	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
@@ -57,6 +58,15 @@ func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(width int, height
 		return uuid.UUID{}, err
 	}
 	return newGameRoom.GetId(), nil
+}
+
+func (grs *gameRoomApplicationServiceImplement) LoadGameRoom(gameId uuid.UUID) error {
+	err := grs.gameRoomDomainService.LoadGameRoom(gameId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (grs *gameRoomApplicationServiceImplement) TcikUnitMapInAllGames() {

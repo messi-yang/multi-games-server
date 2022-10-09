@@ -9,6 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/redisrepository"
 )
 
 func Start() {
@@ -18,6 +19,9 @@ func Start() {
 	})
 	gameRoomDomainService := domainservice.NewGameRoomDomainService(domainservice.GameRoomDomainServiceConfiguration{
 		GameRoomRealtimeRepository: memoryrepository.NewGameRoomRealtimeMemoryRepository(),
+		GameRoomPersistentRepository: redisrepository.NewGameRoomPersistentRedisRepository(redisrepository.GameRoomPersistentRedisRepositoryConfiguration{
+			RedisInfrastructureService: redisInfrastructureService,
+		}),
 	})
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{
@@ -31,6 +35,7 @@ func Start() {
 	if err != nil {
 		panic(err.Error())
 	}
+	gameRoomApplicationService.LoadGameRoom(newGameRoomId)
 	redisInfrastructureService.Set("game_id", []byte(newGameRoomId.String()))
 
 	task.NewTickUnitMapTask(task.TickUnitMapTaskConfiguration{

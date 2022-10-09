@@ -59,11 +59,11 @@ type GameRoom struct {
 	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
-func NewGameRoom(game entity.Game, players map[uuid.UUID]entity.Player, zoomedAreas map[uuid.UUID]valueobject.Area) GameRoom {
+func NewGameRoom(game entity.Game) GameRoom {
 	return GameRoom{
 		game:        &game,
-		players:     players,
-		zoomedAreas: zoomedAreas,
+		players:     make(map[uuid.UUID]entity.Player),
+		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
 	}
 }
 

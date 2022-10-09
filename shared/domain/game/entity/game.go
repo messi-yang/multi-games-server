@@ -26,6 +26,16 @@ func NewGame(unitMap *valueobject.UnitMap, tickPeriod int64) Game {
 	}
 }
 
+func LoadGame(id uuid.UUID, unitMap *valueobject.UnitMap, tickPeriod int64) Game {
+	return Game{
+		id:         id,
+		unitMap:    unitMap,
+		savedAt:    time.Now(),
+		tickedAt:   time.Now(),
+		tickPeriod: tickPeriod,
+	}
+}
+
 func (g *Game) GetId() uuid.UUID {
 	return g.id
 }

@@ -12,8 +12,8 @@ import (
 
 type GameRoomDomainService interface {
 	CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error)
+	LoadGameRoom(gameId uuid.UUID) error
 	GetAllGameRooms() []aggregate.GameRoom
-	GetGameRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
 
 	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error)
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
@@ -26,24 +26,27 @@ type GameRoomDomainService interface {
 }
 
 type gameRoomDomainServiceImplement struct {
-	gameRoomRealtimeRepository repository.GameRoomRealtimeRepository
+	gameRoomRealtimeRepository   repository.GameRoomRealtimeRepository
+	gameRoomPersistentRepository repository.GameRoomPersistentRepository
 }
 
 type GameRoomDomainServiceConfiguration struct {
-	GameRoomRealtimeRepository repository.GameRoomRealtimeRepository
+	GameRoomRealtimeRepository   repository.GameRoomRealtimeRepository
+	GameRoomPersistentRepository repository.GameRoomPersistentRepository
 }
 
 func NewGameRoomDomainService(coniguration GameRoomDomainServiceConfiguration) GameRoomDomainService {
 	return &gameRoomDomainServiceImplement{
-		gameRoomRealtimeRepository: coniguration.GameRoomRealtimeRepository,
+		gameRoomRealtimeRepository:   coniguration.GameRoomRealtimeRepository,
+		gameRoomPersistentRepository: coniguration.GameRoomPersistentRepository,
 	}
 }
 
 func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
 	unitMap := valueobject.NewUnitMap(mapSize)
 	game := entity.NewGame(unitMap, time.Second.Microseconds())
-	gameRoom := aggregate.NewGameRoom(game, make(map[uuid.UUID]entity.Player), make(map[uuid.UUID]valueobject.Area))
-	gsi.gameRoomRealtimeRepository.Add(gameRoom)
+	gameRoom := aggregate.NewGameRoom(game)
+	gsi.gameRoomPersistentRepository.Add(gameRoom)
 
 	return gameRoom, nil
 }
@@ -52,18 +55,13 @@ func (gsi *gameRoomDomainServiceImplement) GetAllGameRooms() []aggregate.GameRoo
 	return gsi.gameRoomRealtimeRepository.GetAll()
 }
 
-func (gsi *gameRoomDomainServiceImplement) GetGameRoom(gameId uuid.UUID) (aggregate.GameRoom, error) {
-	rUnlocker, err := gsi.gameRoomRealtimeRepository.ReadLockAccess(gameId)
+func (gsi *gameRoomDomainServiceImplement) LoadGameRoom(gameId uuid.UUID) error {
+	gameRoom, err := gsi.gameRoomPersistentRepository.Get(gameId)
 	if err != nil {
-		return aggregate.GameRoom{}, err
+		return err
 	}
-	defer rUnlocker()
-
-	gameRoom, err := gsi.gameRoomRealtimeRepository.Get(gameId)
-	if err != nil {
-		return aggregate.GameRoom{}, err
-	}
-	return gameRoom, nil
+	gsi.gameRoomRealtimeRepository.Add(gameRoom)
+	return nil
 }
 
 func (gsi *gameRoomDomainServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error) {
