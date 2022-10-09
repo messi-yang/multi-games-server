@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer"
 )
 
@@ -14,7 +14,7 @@ func main() {
 	}
 
 	if app == "client" {
-		gameclientcommunicator.Start()
+		gameclient.Start()
 	} else if app == "computer" {
 		gamecomputer.Start()
 	}

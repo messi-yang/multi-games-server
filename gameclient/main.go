@@ -1,7 +1,7 @@
-package gameclientcommunicator
+package gameclient
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclientcommunicator/interface/http/gameroomhandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/interface/http/gameroomhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/gin-gonic/gin"
