@@ -11,6 +11,7 @@ type Game struct {
 	id           uuid.UUID
 	unitMap      *valueobject.UnitMap
 	lastTickedAt time.Time
+	savedAt      time.Time
 	tickPeriod   int64
 }
 
@@ -19,6 +20,7 @@ func NewGame(unitMap *valueobject.UnitMap, tickPeriod int64) Game {
 	return Game{
 		id:           id,
 		unitMap:      unitMap,
+		savedAt:      time.Now(),
 		lastTickedAt: time.Now(),
 		tickPeriod:   tickPeriod,
 	}
@@ -34,6 +36,14 @@ func (g *Game) GetUnitMap() *valueobject.UnitMap {
 
 func (g *Game) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit {
 	return g.unitMap.GetUnit(coordinate)
+}
+
+func (g *Game) GetSavedAt() time.Time {
+	return g.savedAt
+}
+
+func (g *Game) SetSavedAt(savedAt time.Time) {
+	g.savedAt = savedAt
 }
 
 func (g *Game) GetLastTickedAt() time.Time {
