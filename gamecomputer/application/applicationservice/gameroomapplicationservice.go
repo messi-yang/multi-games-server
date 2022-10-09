@@ -18,16 +18,16 @@ var (
 )
 
 type GameRoomApplicationService interface {
-	CreateRoom(width int, height int) (gameId uuid.UUID, err error)
+	CreateGameRoom(width int, height int) (gameId uuid.UUID, err error)
 
-	AddPlayer(gameId uuid.UUID, player entity.Player) error
-	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error
+	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error
+	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
 
-	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
-	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error
+	AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
+	RemoveZoomedAreaFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
 
-	TcikAllUnitMaps()
-	ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
+	TcikUnitMapInAllGames()
+	ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
 }
 
 type gameRoomApplicationServiceImplement struct {
@@ -47,7 +47,7 @@ func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguratio
 	}
 }
 
-func (grs *gameRoomApplicationServiceImplement) CreateRoom(width int, height int) (gameId uuid.UUID, err error) {
+func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(width int, height int) (gameId uuid.UUID, err error) {
 	mapSize, err := valueobject.NewMapSize(width, height)
 	if err != nil {
 		return uuid.UUID{}, err
@@ -60,10 +60,10 @@ func (grs *gameRoomApplicationServiceImplement) CreateRoom(width int, height int
 	return newGameRoom.GetId(), nil
 }
 
-func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
-	gameRooms := grs.gameRoomDomainService.GetAllRooms()
+func (grs *gameRoomApplicationServiceImplement) TcikUnitMapInAllGames() {
+	gameRooms := grs.gameRoomDomainService.GetAllGameRooms()
 	for _, gameRoom := range gameRooms {
-		updatedGameRoom, err := grs.gameRoomDomainService.TickUnitMap(gameRoom.GetId())
+		updatedGameRoom, err := grs.gameRoomDomainService.TickUnitMapInGame(gameRoom.GetId())
 		if err != nil {
 			continue
 		}
@@ -81,8 +81,8 @@ func (grs *gameRoomApplicationServiceImplement) TcikAllUnitMaps() {
 	}
 }
 
-func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
-	updatedGameRoom, err := grs.gameRoomDomainService.ReviveUnits(gameId, coordinates)
+func (grs *gameRoomApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
+	updatedGameRoom, err := grs.gameRoomDomainService.ReviveUnitsInGame(gameId, coordinates)
 	if err != nil {
 		return err
 	}
@@ -104,8 +104,8 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnits(gameId uuid.UUID, co
 	return nil
 }
 
-func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) error {
-	updatedGameRoom, err := grs.gameRoomDomainService.AddPlayer(gameId, player)
+func (grs *gameRoomApplicationServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error {
+	updatedGameRoom, err := grs.gameRoomDomainService.AddPlayerToGameRoom(gameId, player)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -119,8 +119,8 @@ func (grs *gameRoomApplicationServiceImplement) AddPlayer(gameId uuid.UUID, play
 	return nil
 }
 
-func (grs *gameRoomApplicationServiceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) error {
-	_, err := grs.gameRoomDomainService.RemovePlayer(gameId, playerId)
+func (grs *gameRoomApplicationServiceImplement) RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error {
+	_, err := grs.gameRoomDomainService.RemovePlayerFromGameRoom(gameId, playerId)
 	if err != nil {
 		return err
 	}
@@ -128,8 +128,8 @@ func (grs *gameRoomApplicationServiceImplement) RemovePlayer(gameId uuid.UUID, p
 	return nil
 }
 
-func (grs *gameRoomApplicationServiceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
-	updatedGameRoom, err := grs.gameRoomDomainService.AddZoomedArea(gameId, playerId, area)
+func (grs *gameRoomApplicationServiceImplement) AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
+	updatedGameRoom, err := grs.gameRoomDomainService.AddZoomedAreaToGameRoom(gameId, playerId, area)
 	if err != nil {
 		return err
 	}
@@ -147,8 +147,8 @@ func (grs *gameRoomApplicationServiceImplement) AddZoomedArea(gameId uuid.UUID, 
 	return nil
 }
 
-func (grs *gameRoomApplicationServiceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) error {
-	_, err := grs.gameRoomDomainService.RemoveZoomedArea(gameId, playerId)
+func (grs *gameRoomApplicationServiceImplement) RemoveZoomedAreaFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error {
+	_, err := grs.gameRoomDomainService.RemoveZoomedAreaFromGameRoom(gameId, playerId)
 	if err != nil {
 		return err
 	}

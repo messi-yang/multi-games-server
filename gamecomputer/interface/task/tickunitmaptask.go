@@ -19,7 +19,7 @@ func NewTickUnitMapTask(configuration TickUnitMapTaskConfiguration) {
 		for {
 			select {
 			case <-gameTicker.C:
-				configuration.GameRoomApplicationService.TcikAllUnitMaps()
+				configuration.GameRoomApplicationService.TcikUnitMapInAllGames()
 			case <-unitMapTickerStop:
 				gameTicker.Stop()
 				gameTicker = nil

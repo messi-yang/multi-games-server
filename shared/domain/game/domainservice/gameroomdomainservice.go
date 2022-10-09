@@ -12,17 +12,17 @@ import (
 
 type GameRoomDomainService interface {
 	CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error)
-	GetAllRooms() []aggregate.GameRoom
-	GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
+	GetAllGameRooms() []aggregate.GameRoom
+	GetGameRoom(gameId uuid.UUID) (aggregate.GameRoom, error)
 
-	AddPlayer(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error)
-	RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
+	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error)
+	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 
-	AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error)
-	RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
+	AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error)
+	RemoveZoomedAreaFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 
-	TickUnitMap(gameId uuid.UUID) (aggregate.GameRoom, error)
-	ReviveUnits(gameId uuid.UUID, coords []valueobject.Coordinate) (aggregate.GameRoom, error)
+	TickUnitMapInGame(gameId uuid.UUID) (aggregate.GameRoom, error)
+	ReviveUnitsInGame(gameId uuid.UUID, coords []valueobject.Coordinate) (aggregate.GameRoom, error)
 }
 
 type gameRoomDomainServiceImplement struct {
@@ -44,11 +44,11 @@ func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(mapSize valueobject.Ma
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) GetAllRooms() []aggregate.GameRoom {
+func (gsi *gameRoomDomainServiceImplement) GetAllGameRooms() []aggregate.GameRoom {
 	return gsi.gameRoomRepository.GetAll()
 }
 
-func (gsi *gameRoomDomainServiceImplement) GetRoom(gameId uuid.UUID) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) GetGameRoom(gameId uuid.UUID) (aggregate.GameRoom, error) {
 	rUnlocker, err := gsi.gameRoomRepository.ReadLockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -62,7 +62,7 @@ func (gsi *gameRoomDomainServiceImplement) GetRoom(gameId uuid.UUID) (aggregate.
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) AddPlayer(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -80,7 +80,7 @@ func (gsi *gameRoomDomainServiceImplement) AddPlayer(gameId uuid.UUID, player en
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) RemovePlayer(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -98,7 +98,7 @@ func (gsi *gameRoomDomainServiceImplement) RemovePlayer(gameId uuid.UUID, player
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) AddZoomedArea(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -120,7 +120,7 @@ func (gsi *gameRoomDomainServiceImplement) AddZoomedArea(gameId uuid.UUID, playe
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) RemoveZoomedArea(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) RemoveZoomedAreaFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -138,7 +138,7 @@ func (gsi *gameRoomDomainServiceImplement) RemoveZoomedArea(gameId uuid.UUID, pl
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) TickUnitMap(gameId uuid.UUID) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) TickUnitMapInGame(gameId uuid.UUID) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -160,7 +160,7 @@ func (gsi *gameRoomDomainServiceImplement) TickUnitMap(gameId uuid.UUID) (aggreg
 	return gameRoom, nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) ReviveUnits(gameId uuid.UUID, coordinates []valueobject.Coordinate) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err

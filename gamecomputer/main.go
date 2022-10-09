@@ -23,7 +23,7 @@ func Start() {
 	)
 
 	size := config.GetConfig().GetGameMapSize()
-	newGameRoomId, err := gameRoomApplicationService.CreateRoom(size, size)
+	newGameRoomId, err := gameRoomApplicationService.CreateGameRoom(size, size)
 	if err != nil {
 		panic(err.Error())
 	}
