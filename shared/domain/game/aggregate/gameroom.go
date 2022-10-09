@@ -100,8 +100,8 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*valueobject.UnitMa
 	return unitMap, nil
 }
 
-func (gr *GameRoom) GetLastTickedAt() time.Time {
-	return gr.game.GetLastTickedAt()
+func (gr *GameRoom) GetTickedAt() time.Time {
+	return gr.game.GetTickedAt()
 }
 
 func (gr *GameRoom) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
@@ -168,7 +168,7 @@ func (gr *GameRoom) TickUnitMap() error {
 	newUnitMap := valueobject.NewUnitMapFromUnitMatrix(nextUnitMatrix)
 	gr.game.SetUnitMap(newUnitMap)
 
-	gr.game.SetLastTickedAt(time.Now())
+	gr.game.SetTickedAt(time.Now())
 
 	return nil
 }

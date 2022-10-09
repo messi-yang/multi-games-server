@@ -8,21 +8,21 @@ import (
 )
 
 type Game struct {
-	id           uuid.UUID
-	unitMap      *valueobject.UnitMap
-	lastTickedAt time.Time
-	savedAt      time.Time
-	tickPeriod   int64
+	id         uuid.UUID
+	unitMap    *valueobject.UnitMap
+	tickedAt   time.Time
+	savedAt    time.Time
+	tickPeriod int64
 }
 
 func NewGame(unitMap *valueobject.UnitMap, tickPeriod int64) Game {
 	id, _ := uuid.NewUUID()
 	return Game{
-		id:           id,
-		unitMap:      unitMap,
-		savedAt:      time.Now(),
-		lastTickedAt: time.Now(),
-		tickPeriod:   tickPeriod,
+		id:         id,
+		unitMap:    unitMap,
+		savedAt:    time.Now(),
+		tickedAt:   time.Now(),
+		tickPeriod: tickPeriod,
 	}
 }
 
@@ -46,8 +46,8 @@ func (g *Game) SetSavedAt(savedAt time.Time) {
 	g.savedAt = savedAt
 }
 
-func (g *Game) GetLastTickedAt() time.Time {
-	return g.lastTickedAt
+func (g *Game) GetTickedAt() time.Time {
+	return g.tickedAt
 }
 
 func (g *Game) SetUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
@@ -62,6 +62,6 @@ func (g *Game) GetMapSize() valueobject.MapSize {
 	return g.unitMap.GetMapSize()
 }
 
-func (g *Game) SetLastTickedAt(lastTickedAt time.Time) {
-	g.lastTickedAt = lastTickedAt
+func (g *Game) SetTickedAt(tickedAt time.Time) {
+	g.tickedAt = tickedAt
 }
