@@ -13,6 +13,7 @@ import (
 var (
 	ErrAreaExceedsUnitMap              = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
 	ErrSomeCoordinatesNotIncludedInMap = errors.New("some coordinates are not included in the unit map")
+	ErrPlayerNotFound                  = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists             = errors.New("the play with the given id already exists")
 )
 
@@ -117,8 +118,13 @@ func (gr *GameRoom) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
 	return gr.zoomedAreas
 }
 
-func (gr *GameRoom) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) {
+func (gr *GameRoom) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) error {
+	_, exists := gr.players[playerId]
+	if !exists {
+		return ErrPlayerNotFound
+	}
 	gr.zoomedAreas[playerId] = area
+	return nil
 }
 
 func (gr *GameRoom) RemoveZoomedArea(playerId uuid.UUID) {

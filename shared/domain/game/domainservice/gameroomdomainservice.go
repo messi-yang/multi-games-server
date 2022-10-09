@@ -108,7 +108,11 @@ func (gsi *gameRoomDomainServiceImplement) AddZoomedArea(gameId uuid.UUID, playe
 		return aggregate.GameRoom{}, err
 	}
 
-	gameRoom.AddZoomedArea(playerId, area)
+	err = gameRoom.AddZoomedArea(playerId, area)
+	if err != nil {
+		return aggregate.GameRoom{}, err
+	}
+
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return gameRoom, nil
