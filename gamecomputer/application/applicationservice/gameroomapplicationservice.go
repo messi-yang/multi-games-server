@@ -17,7 +17,7 @@ var (
 )
 
 type GameRoomApplicationService interface {
-	CreateGameRoom(width int, height int) (gameId uuid.UUID, err error)
+	CreateGameRoom(game entity.Game) (gameId uuid.UUID, err error)
 	LoadGameRoom(gameId uuid.UUID) (err error)
 
 	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error
@@ -47,13 +47,8 @@ func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguratio
 	}
 }
 
-func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(width int, height int) (gameId uuid.UUID, err error) {
-	mapSize, err := valueobject.NewMapSize(width, height)
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-
-	newGameRoom, err := grs.gameRoomDomainService.CreateGameRoom(mapSize)
+func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(game entity.Game) (gameId uuid.UUID, err error) {
+	newGameRoom, err := grs.gameRoomDomainService.CreateGameRoom(game)
 	if err != nil {
 		return uuid.UUID{}, err
 	}

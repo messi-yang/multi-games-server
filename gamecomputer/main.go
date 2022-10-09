@@ -1,12 +1,16 @@
 package gamecomputer
 
 import (
+	"time"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/task"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/redisrepository"
@@ -31,7 +35,9 @@ func Start() {
 	)
 
 	size := config.GetConfig().GetGameMapSize()
-	newGameRoomId, err := gameRoomApplicationService.CreateGameRoom(size, size)
+	mapSize, _ := valueobject.NewMapSize(size, size)
+	game := entity.NewGame(mapSize, time.Second.Microseconds())
+	newGameRoomId, err := gameRoomApplicationService.CreateGameRoom(game)
 	if err != nil {
 		panic(err.Error())
 	}

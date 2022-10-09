@@ -1,8 +1,6 @@
 package domainservice
 
 import (
-	"time"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
@@ -11,7 +9,7 @@ import (
 )
 
 type GameRoomDomainService interface {
-	CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error)
+	CreateGameRoom(game entity.Game) (aggregate.GameRoom, error)
 	LoadGameRoom(gameId uuid.UUID) error
 	GetAllGameRooms() []aggregate.GameRoom
 
@@ -42,8 +40,7 @@ func NewGameRoomDomainService(coniguration GameRoomDomainServiceConfiguration) G
 	}
 }
 
-func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
-	game := entity.NewGame(mapSize, time.Second.Microseconds())
+func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(game entity.Game) (aggregate.GameRoom, error) {
 	gameRoom := aggregate.NewGameRoom(game)
 	gsi.gameRoomPersistentRepository.Add(gameRoom)
 
