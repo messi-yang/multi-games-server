@@ -11,13 +11,13 @@ func Start() {
 	router := gin.Default()
 
 	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
-	integrationEventBusRedis := eventbusredis.NewIntegrationEventBusRedis(eventbusredis.IntegrationEventBusRedisCallbackConfiguration{
+	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
 		RedisInfrastructureService: redisInfrastructureService,
 	})
 
 	router.Group("/ws/game").GET("/", gameroomhandler.NewHandler(gameroomhandler.HandlerConfiguration{
 		RedisInfrastructureService: redisInfrastructureService,
-		IntegrationEventBus:        integrationEventBusRedis,
+		IntegrationEventBus:        redisIntegrationEventBus,
 	}))
 
 	router.Run()

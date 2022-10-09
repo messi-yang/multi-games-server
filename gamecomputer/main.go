@@ -12,13 +12,13 @@ import (
 
 func Start() {
 	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
-	integrationEventBusRedis := eventbusredis.NewIntegrationEventBusRedis(eventbusredis.IntegrationEventBusRedisCallbackConfiguration{
+	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
 		RedisInfrastructureService: redisInfrastructureService,
 	})
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{
 			GameRoomRepository:  repositorymemory.NewGameRoomRepositoryMemory(),
-			IntegrationEventBus: integrationEventBusRedis,
+			IntegrationEventBus: redisIntegrationEventBus,
 		},
 	)
 
@@ -36,7 +36,7 @@ func Start() {
 	integrationeventhandler.NewGameRoomIntegrationEventHandler(
 		integrationeventhandler.GameRoomIntegrationEventHandlerConfiguration{
 			GameRoomApplicationService: gameRoomApplicationService,
-			IntegrationEventBus:        integrationEventBusRedis,
+			IntegrationEventBus:        redisIntegrationEventBus,
 		},
 		newGameRoomId,
 	)
