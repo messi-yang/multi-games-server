@@ -15,25 +15,25 @@ var (
 	ErrPlayerAlreadyExists    = errors.New("the player with the given id alredy exists in the game room")
 )
 
-type gameRoomMemoryRepository struct {
+type gameRoomRealtimeMemoryRepository struct {
 	records       map[uuid.UUID]*aggregate.GameRoom
 	recordLockers map[uuid.UUID]*sync.RWMutex
 }
 
-var gameRoomMemoryRepositoryInstance *gameRoomMemoryRepository
+var gameRoomRealtimeMemoryRepositoryInstance *gameRoomRealtimeMemoryRepository
 
-func NewGameRoomMemoryRepository() repository.GameRoomRepository {
-	if gameRoomMemoryRepositoryInstance == nil {
-		gameRoomMemoryRepositoryInstance = &gameRoomMemoryRepository{
+func NewGameRoomRealtimeMemoryRepository() repository.GameRoomRealtimeRepository {
+	if gameRoomRealtimeMemoryRepositoryInstance == nil {
+		gameRoomRealtimeMemoryRepositoryInstance = &gameRoomRealtimeMemoryRepository{
 			records:       make(map[uuid.UUID]*aggregate.GameRoom),
 			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
-		return gameRoomMemoryRepositoryInstance
+		return gameRoomRealtimeMemoryRepositoryInstance
 	}
-	return gameRoomMemoryRepositoryInstance
+	return gameRoomRealtimeMemoryRepositoryInstance
 }
 
-func (m *gameRoomMemoryRepository) Get(id uuid.UUID) (aggregate.GameRoom, error) {
+func (m *gameRoomRealtimeMemoryRepository) Get(id uuid.UUID) (aggregate.GameRoom, error) {
 	record, exists := m.records[id]
 	if !exists {
 		return aggregate.GameRoom{}, ErrGameRoomNotFound
@@ -42,7 +42,7 @@ func (m *gameRoomMemoryRepository) Get(id uuid.UUID) (aggregate.GameRoom, error)
 	return *record, nil
 }
 
-func (m *gameRoomMemoryRepository) Update(id uuid.UUID, gameRoom aggregate.GameRoom) error {
+func (m *gameRoomRealtimeMemoryRepository) Update(id uuid.UUID, gameRoom aggregate.GameRoom) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameRoomNotFound
@@ -53,7 +53,7 @@ func (m *gameRoomMemoryRepository) Update(id uuid.UUID, gameRoom aggregate.GameR
 	return nil
 }
 
-func (m *gameRoomMemoryRepository) GetAll() []aggregate.GameRoom {
+func (m *gameRoomRealtimeMemoryRepository) GetAll() []aggregate.GameRoom {
 	gameRooms := make([]aggregate.GameRoom, 0)
 	for _, record := range m.records {
 		gameRooms = append(gameRooms, *record)
@@ -61,14 +61,14 @@ func (m *gameRoomMemoryRepository) GetAll() []aggregate.GameRoom {
 	return gameRooms
 }
 
-func (m *gameRoomMemoryRepository) Add(gameRoom aggregate.GameRoom) error {
+func (m *gameRoomRealtimeMemoryRepository) Add(gameRoom aggregate.GameRoom) error {
 	m.records[gameRoom.GetId()] = &gameRoom
 	m.recordLockers[gameRoom.GetId()] = &sync.RWMutex{}
 
 	return nil
 }
 
-func (m *gameRoomMemoryRepository) ReadLockAccess(gameId uuid.UUID) (func(), error) {
+func (m *gameRoomRealtimeMemoryRepository) ReadLockAccess(gameId uuid.UUID) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
 		return nil, ErrGameRoomLockerNotFound
@@ -78,7 +78,7 @@ func (m *gameRoomMemoryRepository) ReadLockAccess(gameId uuid.UUID) (func(), err
 	return recordLocker.RUnlock, nil
 }
 
-func (m *gameRoomMemoryRepository) LockAccess(gameId uuid.UUID) (func(), error) {
+func (m *gameRoomRealtimeMemoryRepository) LockAccess(gameId uuid.UUID) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
 		return nil, ErrGameRoomLockerNotFound

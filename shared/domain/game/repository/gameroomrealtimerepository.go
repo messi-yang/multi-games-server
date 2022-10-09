@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameRoomRepository interface {
+type GameRoomRealtimeRepository interface {
 	Add(aggregate.GameRoom) error
 	Get(gameId uuid.UUID) (gameRoom aggregate.GameRoom, err error)
 	Update(gameId uuid.UUID, gameRoom aggregate.GameRoom) error

@@ -17,7 +17,7 @@ func Start() {
 		RedisInfrastructureService: redisInfrastructureService,
 	})
 	gameRoomDomainService := domainservice.NewGameRoomDomainService(domainservice.GameRoomDomainServiceConfiguration{
-		GameRoomRepository: memoryrepository.NewGameRoomMemoryRepository(),
+		GameRoomRealtimeRepository: memoryrepository.NewGameRoomRealtimeMemoryRepository(),
 	})
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{
