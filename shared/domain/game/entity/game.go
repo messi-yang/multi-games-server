@@ -15,8 +15,9 @@ type Game struct {
 	tickPeriod int64
 }
 
-func NewGame(unitMap *valueobject.UnitMap, tickPeriod int64) Game {
+func NewGame(mapSize valueobject.MapSize, tickPeriod int64) Game {
 	id, _ := uuid.NewUUID()
+	unitMap := valueobject.NewUnitMap(mapSize)
 	return Game{
 		id:         id,
 		unitMap:    unitMap,

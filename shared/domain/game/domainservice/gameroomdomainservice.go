@@ -43,8 +43,7 @@ func NewGameRoomDomainService(coniguration GameRoomDomainServiceConfiguration) G
 }
 
 func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(mapSize valueobject.MapSize) (aggregate.GameRoom, error) {
-	unitMap := valueobject.NewUnitMap(mapSize)
-	game := entity.NewGame(unitMap, time.Second.Microseconds())
+	game := entity.NewGame(mapSize, time.Second.Microseconds())
 	gameRoom := aggregate.NewGameRoom(game)
 	gsi.gameRoomPersistentRepository.Add(gameRoom)
 
