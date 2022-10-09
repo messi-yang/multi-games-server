@@ -7,7 +7,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
@@ -36,16 +35,14 @@ type gameRoomApplicationServiceImplement struct {
 }
 
 type GameRoomApplicationServiceConfiguration struct {
-	GameRoomRepository  repository.GameRoomRepository
-	IntegrationEventBus eventbus.IntegrationEventBus
+	GameRoomDomainService domainservice.GameRoomDomainService
+	IntegrationEventBus   eventbus.IntegrationEventBus
 }
 
 func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguration) GameRoomApplicationService {
 	return &gameRoomApplicationServiceImplement{
-		gameRoomDomainService: domainservice.NewGameRoomDomainService(domainservice.GameRoomDomainServiceConfiguration{
-			GameRoomRepository: config.GameRoomRepository,
-		}),
-		integrationEventBus: config.IntegrationEventBus,
+		gameRoomDomainService: config.GameRoomDomainService,
+		integrationEventBus:   config.IntegrationEventBus,
 	}
 }
 

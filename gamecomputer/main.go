@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/task"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 )
@@ -15,10 +16,13 @@ func Start() {
 	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
 		RedisInfrastructureService: redisInfrastructureService,
 	})
+	gameRoomDomainService := domainservice.NewGameRoomDomainService(domainservice.GameRoomDomainServiceConfiguration{
+		GameRoomRepository: memoryrepository.NewGameRoomMemoryRepository(),
+	})
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{
-			GameRoomRepository:  memoryrepository.NewGameRoomMemoryRepository(),
-			IntegrationEventBus: redisIntegrationEventBus,
+			GameRoomDomainService: gameRoomDomainService,
+			IntegrationEventBus:   redisIntegrationEventBus,
 		},
 	)
 
