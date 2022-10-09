@@ -29,9 +29,13 @@ type gameRoomDomainServiceImplement struct {
 	gameRoomRepository repository.GameRoomRepository
 }
 
-func NewGameRoomDomainService(gameRoomRepository repository.GameRoomRepository) GameRoomDomainService {
+type GameRoomDomainServiceConfiguration struct {
+	GameRoomRepository repository.GameRoomRepository
+}
+
+func NewGameRoomDomainService(coniguration GameRoomDomainServiceConfiguration) GameRoomDomainService {
 	return &gameRoomDomainServiceImplement{
-		gameRoomRepository: gameRoomRepository,
+		gameRoomRepository: coniguration.GameRoomRepository,
 	}
 }
 

@@ -42,8 +42,10 @@ type GameRoomApplicationServiceConfiguration struct {
 
 func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguration) GameRoomApplicationService {
 	return &gameRoomApplicationServiceImplement{
-		gameRoomDomainService: domainservice.NewGameRoomDomainService(config.GameRoomRepository),
-		integrationEventBus:   config.IntegrationEventBus,
+		gameRoomDomainService: domainservice.NewGameRoomDomainService(domainservice.GameRoomDomainServiceConfiguration{
+			GameRoomRepository: config.GameRoomRepository,
+		}),
+		integrationEventBus: config.IntegrationEventBus,
 	}
 }
 
