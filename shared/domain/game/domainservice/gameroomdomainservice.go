@@ -136,10 +136,7 @@ func (gsi *gameRoomDomainServiceImplement) TickUnitMapInGame(gameId uuid.UUID) (
 		return aggregate.GameRoom{}, err
 	}
 
-	err = gameRoom.TickUnitMap()
-	if err != nil {
-		return aggregate.GameRoom{}, err
-	}
+	gameRoom.TickUnitMap()
 
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
