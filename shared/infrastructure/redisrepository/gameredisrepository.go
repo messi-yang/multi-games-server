@@ -77,21 +77,21 @@ func (repository *gameRedisRepository) createKey(gameId uuid.UUID) string {
 }
 
 func (repository *gameRedisRepository) Add(game entity.Game) error {
-	redisDataKey := repository.createKey(game.GetId())
+	dataKey := repository.createKey(game.GetId())
 	newGameRecord := gameRecord{
 		Id:      game.GetId(),
 		UnitMap: ConvertUnitMapToUnitModelMatrix(game.GetUnitMap()),
 	}
 	newGameRecordInBytes, _ := json.Marshal(newGameRecord)
-	repository.redisInfrastructureService.Set(redisDataKey, newGameRecordInBytes)
-	fmt.Println(game.GetId())
+	repository.redisInfrastructureService.Set(dataKey, newGameRecordInBytes)
+	repository.redisInfrastructureService.Set("game-id", []byte(game.GetId().String()))
 
 	return nil
 }
 
 func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
-	redisDataKey := repository.createKey(id)
-	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(redisDataKey)
+	dataKey := repository.createKey(id)
+	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(dataKey)
 	var gameFromRedis gameRecord
 	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
@@ -99,6 +99,22 @@ func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
 	game := entity.LoadGame(gameFromRedis.Id, unitMap, 1000)
 
 	return game, nil
+}
+
+func (repository *gameRedisRepository) GetAll() []entity.Game {
+	gameIdInBytes, _ := repository.redisInfrastructureService.Get("game-id")
+	gameId, _ := uuid.ParseBytes(gameIdInBytes)
+	dataKey := repository.createKey(gameId)
+	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(dataKey)
+	var gameFromRedis gameRecord
+	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
+
+	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
+	game := entity.LoadGame(gameFromRedis.Id, unitMap, 1000)
+	games := make([]entity.Game, 0)
+	games = append(games, game)
+
+	return games
 }
 
 func (repository *gameRedisRepository) Update(id uuid.UUID, game entity.Game) error {

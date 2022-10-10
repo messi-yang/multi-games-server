@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/sharedapplicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -32,8 +32,8 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type HandlerConfiguration struct {
-	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
-	IntegrationEventBus        eventbus.IntegrationEventBus
+	IntegrationEventBus    eventbus.IntegrationEventBus
+	GameApplicationService applicationservice.GameApplicationService
 }
 
 func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
@@ -46,16 +46,8 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		gameIdBytes, err := configuration.RedisInfrastructureService.Get("game_id")
-		if err != nil {
-			c.Error(err)
-			return
-		}
-		gameId, err := uuid.Parse(string(gameIdBytes))
-		if err != nil {
-			c.Error(err)
-			return
-		}
+		game := configuration.GameApplicationService.GetFirstGame()
+		gameId := game.GetId()
 
 		clientSession := &clientSession{
 			gameId:                gameId,
@@ -105,7 +97,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 					break
 				}
 
-				compressionApplicationService := applicationservice.NewCompressionApplicationService()
+				compressionApplicationService := sharedapplicationservice.NewCompressionApplicationService()
 				message, err := compressionApplicationService.Ungzip(compressedMessage)
 				if err != nil {
 					emitErrorEvent(conn, clientSession, err)
@@ -147,7 +139,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, clientSession *clientSession,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	compressionApplicationService := applicationservice.NewCompressionApplicationService()
+	compressionApplicationService := sharedapplicationservice.NewCompressionApplicationService()
 	compressedMessage, err := compressionApplicationService.Gzip(messageJsonInBytes)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)

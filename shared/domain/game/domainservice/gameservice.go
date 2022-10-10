@@ -49,5 +49,5 @@ func (service *gameDomainServiceImplement) GetGame(gameId uuid.UUID) (entity.Gam
 }
 
 func (service *gameDomainServiceImplement) GetAllGames() []entity.Game {
-	return nil
+	return service.gameRepository.GetAll()
 }

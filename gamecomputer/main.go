@@ -36,8 +36,10 @@ func Start() {
 	size := config.GetConfig().GetGameMapSize()
 	mapSize, _ := valueobject.NewMapSize(size, size)
 	game, _ := gameDomainService.CreateGame(mapSize)
-	gameRoomApplicationService.LoadGameRoom(game)
-	redisInfrastructureService.Set("game_id", []byte(game.GetId().String()))
+
+	games := gameDomainService.GetAllGames()
+
+	gameRoomApplicationService.LoadGameRoom(games[0])
 
 	task.NewTickUnitMapTask(task.TickUnitMapTaskConfiguration{
 		GameRoomApplicationService: gameRoomApplicationService,
