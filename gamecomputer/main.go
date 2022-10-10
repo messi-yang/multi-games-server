@@ -24,7 +24,7 @@ func Start() {
 		}),
 	})
 	gameRoomDomainService := domainservice.NewGameRoomDomainService(domainservice.GameRoomDomainServiceConfiguration{
-		GameRoomRealtimeRepository: memoryrepository.NewGameRoomRealtimeMemoryRepository(),
+		GameRoomRepository: memoryrepository.NewGameRoomMemoryRepository(),
 	})
 	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
 		applicationservice.GameRoomApplicationServiceConfiguration{
