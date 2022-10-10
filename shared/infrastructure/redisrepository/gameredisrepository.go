@@ -103,6 +103,9 @@ func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
 
 func (repository *gameRedisRepository) GetAll() []entity.Game {
 	gameIdInBytes, _ := repository.redisInfrastructureService.Get("game-id")
+	if len(gameIdInBytes) == 0 {
+		return make([]entity.Game, 0)
+	}
 	gameId, _ := uuid.ParseBytes(gameIdInBytes)
 	dataKey := repository.createKey(gameId)
 	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(dataKey)
