@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
@@ -14,8 +13,8 @@ import (
 )
 
 var (
-	ErrGameRoomNotFound      = errors.New("the game room with the id was not found")
-	ErrGameRoomAlreadyExists = errors.New("the game room with same id already exists")
+	ErrGameNotFound      = errors.New("the game room with the id was not found")
+	ErrGameAlreadyExists = errors.New("the game room with same id already exists")
 )
 
 type UnitModel struct {
@@ -23,12 +22,12 @@ type UnitModel struct {
 	Age   int  `json:"age"`
 }
 
-type gameRoomRecord struct {
+type gameRecord struct {
 	Id      uuid.UUID     `json:"id"`
 	UnitMap [][]UnitModel `json:"unitMap"`
 }
 
-func ConvertUnitMapToModelMatrix(unitMap *valueobject.UnitMap) [][]UnitModel {
+func ConvertUnitMapToUnitModelMatrix(unitMap *valueobject.UnitMap) [][]UnitModel {
 	unitMatrix := unitMap.ToValueObjectMatrix()
 	unitModelMatrix := make([][]UnitModel, 0)
 	for colIdx, unitMatrixCol := range *unitMatrix {
@@ -59,50 +58,49 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) *valueobject.U
 	return valueobject.NewUnitMapFromUnitMatrix(&unitMatrix)
 }
 
-type gameRoomPersistentRedisRepository struct {
+type gameRedisRepository struct {
 	redisInfrastructureService infrastructureservice.RedisInfrastructureService
 }
 
-type GameRoomPersistentRedisRepositoryConfiguration struct {
+type GameRedisRepositoryConfiguration struct {
 	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
 }
 
-func NewGameRoomPersistentRedisRepository(configuration GameRoomPersistentRedisRepositoryConfiguration) repository.GameRoomPersistentRepository {
-	return &gameRoomPersistentRedisRepository{
+func NewGameRedisRepository(configuration GameRedisRepositoryConfiguration) repository.GameRepository {
+	return &gameRedisRepository{
 		redisInfrastructureService: configuration.RedisInfrastructureService,
 	}
 }
 
-func (repository *gameRoomPersistentRedisRepository) createKey(gameId uuid.UUID) string {
+func (repository *gameRedisRepository) createKey(gameId uuid.UUID) string {
 	return fmt.Sprintf("game-room-id-%s", gameId)
 }
 
-func (repository *gameRoomPersistentRedisRepository) Add(gameRoom aggregate.GameRoom) error {
-	redisDataKey := repository.createKey(gameRoom.GetId())
-	newGameRoomModel := gameRoomRecord{
-		Id:      gameRoom.GetId(),
-		UnitMap: ConvertUnitMapToModelMatrix(gameRoom.GetUnitMap()),
+func (repository *gameRedisRepository) Add(game entity.Game) error {
+	redisDataKey := repository.createKey(game.GetId())
+	newGameRecord := gameRecord{
+		Id:      game.GetId(),
+		UnitMap: ConvertUnitMapToUnitModelMatrix(game.GetUnitMap()),
 	}
-	newGameRoomModelInBytes, _ := json.Marshal(newGameRoomModel)
-	repository.redisInfrastructureService.Set(redisDataKey, newGameRoomModelInBytes)
-	fmt.Println(gameRoom.GetId())
+	newGameRecordInBytes, _ := json.Marshal(newGameRecord)
+	repository.redisInfrastructureService.Set(redisDataKey, newGameRecordInBytes)
+	fmt.Println(game.GetId())
 
 	return nil
 }
 
-func (repository *gameRoomPersistentRedisRepository) Get(id uuid.UUID) (aggregate.GameRoom, error) {
+func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
 	redisDataKey := repository.createKey(id)
-	goomModelFromRedisInBytes, _ := repository.redisInfrastructureService.Get(redisDataKey)
-	var goomModelFromRedis gameRoomRecord
-	json.Unmarshal(goomModelFromRedisInBytes, &goomModelFromRedis)
+	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(redisDataKey)
+	var gameFromRedis gameRecord
+	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
-	unitMap := ConvertUnitMapMatrixToUnitMap(goomModelFromRedis.UnitMap)
-	game := entity.LoadGame(goomModelFromRedis.Id, unitMap, 1000)
-	gameRoom := aggregate.NewGameRoom(game)
+	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
+	game := entity.LoadGame(gameFromRedis.Id, unitMap, 1000)
 
-	return gameRoom, nil
+	return game, nil
 }
 
-func (repository *gameRoomPersistentRedisRepository) Update(id uuid.UUID, gameRoom aggregate.GameRoom) error {
+func (repository *gameRedisRepository) Update(id uuid.UUID, game entity.Game) error {
 	return nil
 }

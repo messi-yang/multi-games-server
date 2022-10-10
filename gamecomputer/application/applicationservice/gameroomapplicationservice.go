@@ -17,8 +17,7 @@ var (
 )
 
 type GameRoomApplicationService interface {
-	CreateGameRoom(game entity.Game) (gameId uuid.UUID, err error)
-	LoadGameRoom(gameId uuid.UUID) (err error)
+	LoadGameRoom(game entity.Game) (err error)
 
 	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
@@ -47,16 +46,8 @@ func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguratio
 	}
 }
 
-func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(game entity.Game) (gameId uuid.UUID, err error) {
-	newGameRoom, err := grs.gameRoomDomainService.CreateGameRoom(game)
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-	return newGameRoom.GetId(), nil
-}
-
-func (grs *gameRoomApplicationServiceImplement) LoadGameRoom(gameId uuid.UUID) error {
-	err := grs.gameRoomDomainService.LoadGameRoom(gameId)
+func (grs *gameRoomApplicationServiceImplement) LoadGameRoom(game entity.Game) error {
+	err := grs.gameRoomDomainService.LoadGameRoom(game)
 	if err != nil {
 		return err
 	}

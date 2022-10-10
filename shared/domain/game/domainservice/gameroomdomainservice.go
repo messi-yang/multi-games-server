@@ -9,8 +9,7 @@ import (
 )
 
 type GameRoomDomainService interface {
-	CreateGameRoom(game entity.Game) (aggregate.GameRoom, error)
-	LoadGameRoom(gameId uuid.UUID) error
+	LoadGameRoom(game entity.Game) error
 	GetAllGameRooms() []aggregate.GameRoom
 
 	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error)
@@ -24,38 +23,25 @@ type GameRoomDomainService interface {
 }
 
 type gameRoomDomainServiceImplement struct {
-	gameRoomRealtimeRepository   repository.GameRoomRealtimeRepository
-	gameRoomPersistentRepository repository.GameRoomPersistentRepository
+	gameRoomRealtimeRepository repository.GameRoomRealtimeRepository
 }
 
 type GameRoomDomainServiceConfiguration struct {
-	GameRoomRealtimeRepository   repository.GameRoomRealtimeRepository
-	GameRoomPersistentRepository repository.GameRoomPersistentRepository
+	GameRoomRealtimeRepository repository.GameRoomRealtimeRepository
 }
 
 func NewGameRoomDomainService(coniguration GameRoomDomainServiceConfiguration) GameRoomDomainService {
 	return &gameRoomDomainServiceImplement{
-		gameRoomRealtimeRepository:   coniguration.GameRoomRealtimeRepository,
-		gameRoomPersistentRepository: coniguration.GameRoomPersistentRepository,
+		gameRoomRealtimeRepository: coniguration.GameRoomRealtimeRepository,
 	}
-}
-
-func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(game entity.Game) (aggregate.GameRoom, error) {
-	gameRoom := aggregate.NewGameRoom(game)
-	gsi.gameRoomPersistentRepository.Add(gameRoom)
-
-	return gameRoom, nil
 }
 
 func (gsi *gameRoomDomainServiceImplement) GetAllGameRooms() []aggregate.GameRoom {
 	return gsi.gameRoomRealtimeRepository.GetAll()
 }
 
-func (gsi *gameRoomDomainServiceImplement) LoadGameRoom(gameId uuid.UUID) error {
-	gameRoom, err := gsi.gameRoomPersistentRepository.Get(gameId)
-	if err != nil {
-		return err
-	}
+func (gsi *gameRoomDomainServiceImplement) LoadGameRoom(game entity.Game) error {
+	gameRoom := aggregate.NewGameRoom(game)
 	gsi.gameRoomRealtimeRepository.Add(gameRoom)
 	return nil
 }
