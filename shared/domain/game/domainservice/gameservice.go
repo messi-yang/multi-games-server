@@ -1,8 +1,6 @@
 package domainservice
 
 import (
-	"time"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
@@ -30,7 +28,7 @@ func NewGameDomainService(configuration GameDomainServiceConfiguration) GameDoma
 }
 
 func (service *gameDomainServiceImplement) CreateGame(mapSize valueobject.MapSize) (entity.Game, error) {
-	newGame := entity.NewGame(mapSize, time.Second.Microseconds())
+	newGame := entity.NewGame(mapSize)
 	err := service.gameRepository.Add(newGame)
 	if err != nil {
 		return entity.Game{}, err

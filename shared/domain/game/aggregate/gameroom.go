@@ -55,13 +55,15 @@ func ggolNextUnitGenerator(
 
 type GameRoom struct {
 	game        *entity.Game
+	tickPeriod  int64
 	players     map[uuid.UUID]entity.Player
 	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
-func NewGameRoom(game entity.Game) GameRoom {
+func NewGameRoom(game entity.Game, tickPeriod int64) GameRoom {
 	return GameRoom{
 		game:        &game,
+		tickPeriod:  tickPeriod,
 		players:     make(map[uuid.UUID]entity.Player),
 		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
 	}

@@ -96,7 +96,7 @@ func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
 	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
 	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
-	game := entity.LoadGame(gameFromRedis.Id, unitMap, 1000)
+	game := entity.LoadGame(gameFromRedis.Id, unitMap)
 
 	return game, nil
 }
@@ -110,7 +110,7 @@ func (repository *gameRedisRepository) GetAll() []entity.Game {
 	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
 	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
-	game := entity.LoadGame(gameFromRedis.Id, unitMap, 1000)
+	game := entity.LoadGame(gameFromRedis.Id, unitMap)
 	games := make([]entity.Game, 0)
 	games = append(games, game)
 

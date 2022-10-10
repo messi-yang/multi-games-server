@@ -8,32 +8,29 @@ import (
 )
 
 type Game struct {
-	id         uuid.UUID
-	unitMap    *valueobject.UnitMap
-	tickedAt   time.Time
-	savedAt    time.Time
-	tickPeriod int64
+	id       uuid.UUID
+	unitMap  *valueobject.UnitMap
+	tickedAt time.Time
+	savedAt  time.Time
 }
 
-func NewGame(mapSize valueobject.MapSize, tickPeriod int64) Game {
+func NewGame(mapSize valueobject.MapSize) Game {
 	id, _ := uuid.NewUUID()
 	unitMap := valueobject.NewUnitMap(mapSize)
 	return Game{
-		id:         id,
-		unitMap:    unitMap,
-		savedAt:    time.Now(),
-		tickedAt:   time.Now(),
-		tickPeriod: tickPeriod,
+		id:       id,
+		unitMap:  unitMap,
+		savedAt:  time.Now(),
+		tickedAt: time.Now(),
 	}
 }
 
-func LoadGame(id uuid.UUID, unitMap *valueobject.UnitMap, tickPeriod int64) Game {
+func LoadGame(id uuid.UUID, unitMap *valueobject.UnitMap) Game {
 	return Game{
-		id:         id,
-		unitMap:    unitMap,
-		savedAt:    time.Now(),
-		tickedAt:   time.Now(),
-		tickPeriod: tickPeriod,
+		id:       id,
+		unitMap:  unitMap,
+		savedAt:  time.Now(),
+		tickedAt: time.Now(),
 	}
 }
 
