@@ -16,7 +16,7 @@ services:
     build: .
     environment:
       - APP=computer
-      - GAME_MAP_SIZE=400
+      - GAME_MAP_SIZE=2000
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
     depends_on:

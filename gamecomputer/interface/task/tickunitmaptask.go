@@ -12,7 +12,7 @@ type TickUnitMapTaskConfiguration struct {
 
 func NewTickUnitMapTask(configuration TickUnitMapTaskConfiguration) {
 	go func() {
-		gameTicker := time.NewTicker(time.Millisecond * 1000)
+		gameTicker := time.NewTicker(time.Millisecond * 1000000000)
 		defer gameTicker.Stop()
 		unitMapTickerStop := make(chan bool)
 

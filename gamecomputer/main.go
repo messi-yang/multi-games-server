@@ -36,6 +36,7 @@ func Start() {
 
 	games := gameDomainService.GetAllGames()
 	var gameId uuid.UUID
+
 	if len(games) > 0 {
 		gameRoomApplicationService.LoadGameRoom(games[0])
 		gameId = games[0].GetId()
