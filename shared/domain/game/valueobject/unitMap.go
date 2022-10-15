@@ -9,7 +9,7 @@ func NewUnitMap(mapSize MapSize) *UnitMap {
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
 		unitMap[i] = make([]Unit, mapSize.GetHeight())
 		for j := 0; j < mapSize.GetHeight(); j += 1 {
-			unitMap[i][j] = NewUnit(false, 0)
+			unitMap[i][j] = NewUnit(false)
 		}
 	}
 	return &UnitMap{

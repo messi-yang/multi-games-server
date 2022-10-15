@@ -25,18 +25,17 @@ func ggolNextUnitGenerator(
 		}
 	}
 	alive := cell.GetAlive()
-	age := cell.GetAge()
 	if alive {
 		if aliveAdjacentCellsCount != 2 && aliveAdjacentCellsCount != 3 {
-			nextCell := valueobject.NewUnit(false, 0)
+			nextCell := valueobject.NewUnit(false)
 			return &nextCell
 		} else {
-			nextCell := valueobject.NewUnit(alive, age+1)
+			nextCell := valueobject.NewUnit(alive)
 			return &nextCell
 		}
 	} else {
 		if aliveAdjacentCellsCount == 3 {
-			nextCell := valueobject.NewUnit(true, 0)
+			nextCell := valueobject.NewUnit(true)
 			return &nextCell
 		} else {
 			return cell

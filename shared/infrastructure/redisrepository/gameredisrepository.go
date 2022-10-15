@@ -19,7 +19,6 @@ var (
 
 type UnitModel struct {
 	Alive bool `json:"alive"`
-	Age   int  `json:"age"`
 }
 
 type gameRecord struct {
@@ -35,7 +34,6 @@ func ConvertUnitMapToUnitModelMatrix(unitMap *valueobject.UnitMap) [][]UnitModel
 		for _, unit := range unitMatrixCol {
 			unitModelMatrix[colIdx] = append(unitModelMatrix[colIdx], UnitModel{
 				Alive: unit.GetAlive(),
-				Age:   unit.GetAge(),
 			})
 		}
 	}
@@ -50,7 +48,6 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) *valueobject.U
 		for _, unitModel := range unitModelMatrixCol {
 			unitMatrix[colIdx] = append(unitMatrix[colIdx], valueobject.NewUnit(
 				unitModel.Alive,
-				unitModel.Age,
 			))
 		}
 	}
