@@ -98,23 +98,14 @@ func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
 	return game, nil
 }
 
-func (repository *gameRedisRepository) GetAll() []entity.Game {
+func (repository *gameRedisRepository) GetFirstGameId() (uuid.UUID, error) {
 	gameIdInBytes, _ := repository.redisInfrastructureService.Get("game-id")
 	if len(gameIdInBytes) == 0 {
-		return make([]entity.Game, 0)
+		return uuid.UUID{}, ErrGameNotFound
 	}
 	gameId, _ := uuid.ParseBytes(gameIdInBytes)
-	dataKey := repository.createKey(gameId)
-	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(dataKey)
-	var gameFromRedis gameRecord
-	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
-	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
-	game := entity.LoadGame(gameFromRedis.Id, unitMap)
-	games := make([]entity.Game, 0)
-	games = append(games, game)
-
-	return games
+	return gameId, nil
 }
 
 func (repository *gameRedisRepository) Update(id uuid.UUID, game entity.Game) error {

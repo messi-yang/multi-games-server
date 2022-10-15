@@ -6,7 +6,7 @@ import (
 )
 
 type GameApplicationService interface {
-	GetFirstGameId() uuid.UUID
+	GetFirstGameId() (uuid.UUID, error)
 }
 
 type gameApplicationServiceImplementation struct {
@@ -23,7 +23,7 @@ func NewGameApplicationService(configuration GameApplicationServiceConfiguration
 	}
 }
 
-func (service *gameApplicationServiceImplementation) GetFirstGameId() uuid.UUID {
-	games := service.gameDomainService.GetAllGames()
-	return games[0].GetId()
+func (service *gameApplicationServiceImplementation) GetFirstGameId() (uuid.UUID, error) {
+	gameId, err := service.gameDomainService.GetFirstGameId()
+	return gameId, err
 }

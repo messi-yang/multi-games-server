@@ -10,7 +10,7 @@ import (
 type GameDomainService interface {
 	CreateGame(mapSize valueobject.MapSize) (entity.Game, error)
 	GetGame(gameId uuid.UUID) (entity.Game, error)
-	GetAllGames() []entity.Game
+	GetFirstGameId() (uuid.UUID, error)
 }
 
 type gameDomainServiceImplement struct {
@@ -46,6 +46,7 @@ func (service *gameDomainServiceImplement) GetGame(gameId uuid.UUID) (entity.Gam
 	return game, nil
 }
 
-func (service *gameDomainServiceImplement) GetAllGames() []entity.Game {
-	return service.gameRepository.GetAll()
+func (service *gameDomainServiceImplement) GetFirstGameId() (uuid.UUID, error) {
+	gameId, err := service.gameRepository.GetFirstGameId()
+	return gameId, err
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/redisrepository"
-	"github.com/google/uuid"
 )
 
 func Start() {
@@ -34,18 +33,16 @@ func Start() {
 		},
 	)
 
-	games := gameDomainService.GetAllGames()
-	var gameId uuid.UUID
+	gameId, err := gameDomainService.GetFirstGameId()
 
-	if len(games) > 0 {
-		gameRoomApplicationService.LoadGameRoom(games[0])
-		gameId = games[0].GetId()
-	} else {
+	if err != nil {
 		size := config.GetConfig().GetGameMapSize()
 		mapSize, _ := valueobject.NewMapSize(size, size)
 		game, _ := gameDomainService.CreateGame(mapSize)
 		gameRoomApplicationService.LoadGameRoom(game)
-		gameId = game.GetId()
+	} else {
+		game, _ := gameDomainService.GetGame(gameId)
+		gameRoomApplicationService.LoadGameRoom(game)
 	}
 
 	task.NewTickUnitMapTask(task.TickUnitMapTaskConfiguration{

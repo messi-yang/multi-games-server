@@ -8,6 +8,6 @@ import (
 type GameRepository interface {
 	Add(entity.Game) error
 	Get(gameId uuid.UUID) (game entity.Game, err error)
-	GetAll() (games []entity.Game)
+	GetFirstGameId() (gameId uuid.UUID, err error)
 	Update(gameId uuid.UUID, game entity.Game) error
 }

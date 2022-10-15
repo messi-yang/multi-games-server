@@ -46,7 +46,11 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		gameId := configuration.GameApplicationService.GetFirstGameId()
+		gameId, err := configuration.GameApplicationService.GetFirstGameId()
+		if err != nil {
+			c.Error(err)
+			return
+		}
 
 		clientSession := &clientSession{
 			gameId:                gameId,
