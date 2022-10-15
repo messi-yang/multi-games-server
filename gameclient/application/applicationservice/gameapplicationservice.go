@@ -2,11 +2,11 @@ package applicationservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
+	"github.com/google/uuid"
 )
 
 type GameApplicationService interface {
-	GetFirstGame() entity.Game
+	GetFirstGameId() uuid.UUID
 }
 
 type gameApplicationServiceImplementation struct {
@@ -23,7 +23,7 @@ func NewGameApplicationService(configuration GameApplicationServiceConfiguration
 	}
 }
 
-func (service *gameApplicationServiceImplementation) GetFirstGame() entity.Game {
+func (service *gameApplicationServiceImplementation) GetFirstGameId() uuid.UUID {
 	games := service.gameDomainService.GetAllGames()
-	return games[0]
+	return games[0].GetId()
 }
