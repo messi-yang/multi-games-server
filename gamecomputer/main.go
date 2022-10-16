@@ -39,6 +39,7 @@ func Start() {
 		mapSize, _ := valueobject.NewMapSize(size, size)
 		game, _ := gameDomainService.CreateGame(mapSize)
 		gameRoomApplicationService.CreateGameRoom(game)
+		gameId = game.GetId()
 	} else {
 		game, _ := gameDomainService.GetGame(gameId)
 		gameRoomApplicationService.CreateGameRoom(game)
