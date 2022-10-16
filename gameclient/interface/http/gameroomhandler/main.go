@@ -111,17 +111,17 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 					break
 				}
 
-				actionType, err := getActionTypeFromMessage(message)
+				eventType, err := clientSession.gameRoomHandlerPresenter.ExtractEventType(message)
 				if err != nil {
 					emitErrorEvent(conn, clientSession, err)
 					break
 				}
 
-				switch *actionType {
-				case zoomAreaActionType:
-					handleZoomAreaAction(conn, clientSession, message)
-				case reviveUnitsActionType:
-					handleReviveUnitsAction(conn, clientSession, message)
+				switch eventType {
+				case gameroomhandlerpresenter.ZoomAreaRequestedEventType:
+					handleZoomAreaRequestedEvent(conn, clientSession, message)
+				case gameroomhandlerpresenter.ReviveUnitsRequestedEventType:
+					handleReviveUnitsRequestedEvent(conn, clientSession, message)
 				default:
 				}
 			}
@@ -182,8 +182,8 @@ func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSes
 	sendJSONMessageToClient(conn, clientSession, clientSession.gameRoomHandlerPresenter.CreateZoomedAreaUpdatedEvent(zoomedAreaUpdatedIntegrationEvent.Payload.Area, zoomedAreaUpdatedIntegrationEvent.Payload.UnitMap))
 }
 
-func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte) {
-	area, err := extractInformationFromZoomAreaAction(message)
+func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
+	area, err := clientSession.gameRoomHandlerPresenter.ExtractZoomAreaRequestedEvent(event)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
@@ -195,8 +195,8 @@ func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, me
 	)
 }
 
-func handleReviveUnitsAction(conn *websocket.Conn, clientSession *clientSession, message []byte) {
-	coordinates, err := extractInformationFromReviveUnitsAction(message)
+func handleReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
+	coordinates, err := clientSession.gameRoomHandlerPresenter.ExtractReviveUnitsRequestedEvent(event)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
