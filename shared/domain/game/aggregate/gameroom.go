@@ -2,7 +2,6 @@ package aggregate
 
 import (
 	"errors"
-	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
@@ -18,15 +17,13 @@ var (
 
 type GameRoom struct {
 	game        *entity.Game
-	tickPeriod  int64
 	players     map[uuid.UUID]entity.Player
 	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
-func NewGameRoom(game entity.Game, tickPeriod int64) GameRoom {
+func NewGameRoom(game entity.Game) GameRoom {
 	return GameRoom{
 		game:        &game,
-		tickPeriod:  tickPeriod,
 		players:     make(map[uuid.UUID]entity.Player),
 		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
 	}
@@ -63,10 +60,6 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*valueobject.UnitMa
 	unitMap := valueobject.NewUnitMapFromUnitMatrix(&unitMatrix)
 
 	return unitMap, nil
-}
-
-func (gr *GameRoom) GetTickedAt() time.Time {
-	return gr.game.GetTickedAt()
 }
 
 func (gr *GameRoom) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
@@ -117,8 +110,4 @@ func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) error {
 	}
 
 	return nil
-}
-
-func (gr *GameRoom) TickUnitMap() {
-	gr.game.TickUnitMap()
 }

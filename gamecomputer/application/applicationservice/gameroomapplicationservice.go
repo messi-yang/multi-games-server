@@ -17,7 +17,7 @@ var (
 )
 
 type GameRoomApplicationService interface {
-	LoadGameRoom(game entity.Game) (err error)
+	CreateGameRoom(game entity.Game) (err error)
 
 	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
@@ -25,7 +25,6 @@ type GameRoomApplicationService interface {
 	AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
 	RemoveZoomedAreaFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
 
-	TcikUnitMapInAllGames()
 	ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
 }
 
@@ -46,34 +45,13 @@ func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguratio
 	}
 }
 
-func (grs *gameRoomApplicationServiceImplement) LoadGameRoom(game entity.Game) error {
-	err := grs.gameRoomDomainService.LoadGameRoom(game)
+func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(game entity.Game) error {
+	err := grs.gameRoomDomainService.CreateGameRoom(game)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (grs *gameRoomApplicationServiceImplement) TcikUnitMapInAllGames() {
-	gameRooms := grs.gameRoomDomainService.GetAllGameRooms()
-	for _, gameRoom := range gameRooms {
-		updatedGameRoom, err := grs.gameRoomDomainService.TickUnitMapInGame(gameRoom.GetId())
-		if err != nil {
-			continue
-		}
-
-		for playerId, area := range updatedGameRoom.GetZoomedAreas() {
-			unitMap, err := updatedGameRoom.GetUnitMapByArea(area)
-			if err != nil {
-				continue
-			}
-			grs.integrationEventBus.Publish(
-				integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetId(), playerId),
-				integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, *unitMap),
-			)
-		}
-	}
 }
 
 func (grs *gameRoomApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {

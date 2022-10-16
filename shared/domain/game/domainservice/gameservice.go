@@ -28,7 +28,7 @@ func NewGameDomainService(configuration GameDomainServiceConfiguration) GameDoma
 }
 
 func (service *gameDomainServiceImplement) CreateGame(mapSize valueobject.MapSize) (entity.Game, error) {
-	newGame := entity.NewGame(mapSize)
+	newGame := entity.NewGame(uuid.New(), valueobject.NewUnitMap(mapSize))
 	err := service.gameRepository.Add(newGame)
 	if err != nil {
 		return entity.Game{}, err

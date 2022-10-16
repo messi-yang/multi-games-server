@@ -1,8 +1,6 @@
 package domainservice
 
 import (
-	"time"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
@@ -11,8 +9,7 @@ import (
 )
 
 type GameRoomDomainService interface {
-	LoadGameRoom(game entity.Game) error
-	GetAllGameRooms() []aggregate.GameRoom
+	CreateGameRoom(game entity.Game) error
 
 	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error)
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
@@ -20,7 +17,6 @@ type GameRoomDomainService interface {
 	AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error)
 	RemoveZoomedAreaFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 
-	TickUnitMapInGame(gameId uuid.UUID) (aggregate.GameRoom, error)
 	ReviveUnitsInGame(gameId uuid.UUID, coords []valueobject.Coordinate) (aggregate.GameRoom, error)
 }
 
@@ -38,12 +34,8 @@ func NewGameRoomDomainService(coniguration GameRoomDomainServiceConfiguration) G
 	}
 }
 
-func (gsi *gameRoomDomainServiceImplement) GetAllGameRooms() []aggregate.GameRoom {
-	return gsi.gameRoomRepository.GetAll()
-}
-
-func (gsi *gameRoomDomainServiceImplement) LoadGameRoom(game entity.Game) error {
-	gameRoom := aggregate.NewGameRoom(game, time.Second.Microseconds())
+func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(game entity.Game) error {
+	gameRoom := aggregate.NewGameRoom(game)
 	gsi.gameRoomRepository.Add(gameRoom)
 	return nil
 }
@@ -119,25 +111,6 @@ func (gsi *gameRoomDomainServiceImplement) RemoveZoomedAreaFromGameRoom(gameId u
 	}
 
 	gameRoom.RemoveZoomedArea(playerId)
-	gsi.gameRoomRepository.Update(gameId, gameRoom)
-
-	return gameRoom, nil
-}
-
-func (gsi *gameRoomDomainServiceImplement) TickUnitMapInGame(gameId uuid.UUID) (aggregate.GameRoom, error) {
-	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
-	if err != nil {
-		return aggregate.GameRoom{}, err
-	}
-	defer unlocker()
-
-	gameRoom, err := gsi.gameRoomRepository.Get(gameId)
-	if err != nil {
-		return aggregate.GameRoom{}, err
-	}
-
-	gameRoom.TickUnitMap()
-
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return gameRoom, nil

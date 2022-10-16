@@ -93,7 +93,7 @@ func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
 	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
 	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
-	game := entity.LoadGame(gameFromRedis.Id, unitMap)
+	game := entity.NewGame(gameFromRedis.Id, unitMap)
 
 	return game, nil
 }

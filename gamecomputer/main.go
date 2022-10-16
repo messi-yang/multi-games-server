@@ -5,7 +5,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/task"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
@@ -39,15 +38,11 @@ func Start() {
 		size := config.GetConfig().GetGameMapSize()
 		mapSize, _ := valueobject.NewMapSize(size, size)
 		game, _ := gameDomainService.CreateGame(mapSize)
-		gameRoomApplicationService.LoadGameRoom(game)
+		gameRoomApplicationService.CreateGameRoom(game)
 	} else {
 		game, _ := gameDomainService.GetGame(gameId)
-		gameRoomApplicationService.LoadGameRoom(game)
+		gameRoomApplicationService.CreateGameRoom(game)
 	}
-
-	task.NewTickUnitMapTask(task.TickUnitMapTaskConfiguration{
-		GameRoomApplicationService: gameRoomApplicationService,
-	})
 
 	integrationeventhandler.NewGameRoomIntegrationEventHandler(
 		integrationeventhandler.GameRoomIntegrationEventHandlerConfiguration{
