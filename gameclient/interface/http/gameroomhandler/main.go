@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/gameroomhandlerpresenter"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/sharedapplicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
@@ -17,10 +18,11 @@ import (
 )
 
 type clientSession struct {
-	gameId                uuid.UUID
-	player                entity.Player
-	integrationEventBus   eventbus.IntegrationEventBus
-	socketSendMessageLock sync.RWMutex
+	gameId                   uuid.UUID
+	player                   entity.Player
+	integrationEventBus      eventbus.IntegrationEventBus
+	gameRoomHandlerPresenter gameroomhandlerpresenter.GameRoomHandlerPresenter
+	socketSendMessageLock    sync.RWMutex
 }
 
 var wsupgrader = websocket.Upgrader{
@@ -32,8 +34,9 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type HandlerConfiguration struct {
-	IntegrationEventBus    eventbus.IntegrationEventBus
-	GameApplicationService applicationservice.GameApplicationService
+	IntegrationEventBus      eventbus.IntegrationEventBus
+	GameApplicationService   applicationservice.GameApplicationService
+	GameRoomHandlerPresenter gameroomhandlerpresenter.GameRoomHandlerPresenter
 }
 
 func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
@@ -53,10 +56,11 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		}
 
 		clientSession := &clientSession{
-			gameId:                gameId,
-			player:                entity.NewPlayer(),
-			integrationEventBus:   configuration.IntegrationEventBus,
-			socketSendMessageLock: sync.RWMutex{},
+			gameId:                   gameId,
+			player:                   entity.NewPlayer(),
+			integrationEventBus:      configuration.IntegrationEventBus,
+			gameRoomHandlerPresenter: configuration.GameRoomHandlerPresenter,
+			socketSendMessageLock:    sync.RWMutex{},
 		}
 
 		gameInfoUpdatedIntegrationEventSubscriber := clientSession.integrationEventBus.Subscribe(
@@ -153,33 +157,29 @@ func sendJSONMessageToClient(conn *websocket.Conn, clientSession *clientSession,
 }
 
 func emitErrorEvent(conn *websocket.Conn, clientSession *clientSession, err error) {
-	errorEvent := constructErrorHappenedEvent(err.Error())
-
 	tracerr.Print(tracerr.Wrap(err))
-
-	sendJSONMessageToClient(conn, clientSession, errorEvent)
+	sendJSONMessageToClient(conn, clientSession, clientSession.gameRoomHandlerPresenter.CreateErroredEvent(err.Error()))
 }
 
 func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
 	var gameInfoUpdatedIntegrationEvent integrationevent.GameInfoUpdatedIntegrationEvent
 	json.Unmarshal(event, &gameInfoUpdatedIntegrationEvent)
 
-	informationUpdatedEvent := constructInformationUpdatedEvent(gameInfoUpdatedIntegrationEvent.Payload.MapSize)
-	sendJSONMessageToClient(conn, clientSession, informationUpdatedEvent)
+	sendJSONMessageToClient(conn, clientSession, clientSession.gameRoomHandlerPresenter.CreateInformationUpdatedEvent(gameInfoUpdatedIntegrationEvent.Payload.MapSize))
 }
 
 func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
 	var areaZoomedIntegrationEvent integrationevent.AreaZoomedIntegrationEvent
 	json.Unmarshal(event, &areaZoomedIntegrationEvent)
 
-	sendJSONMessageToClient(conn, clientSession, constructAreaZoomedEvent(areaZoomedIntegrationEvent.Payload.Area, areaZoomedIntegrationEvent.Payload.UnitMap))
+	sendJSONMessageToClient(conn, clientSession, clientSession.gameRoomHandlerPresenter.CreateAreaZoomedEvent(areaZoomedIntegrationEvent.Payload.Area, areaZoomedIntegrationEvent.Payload.UnitMap))
 }
 
 func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
 	var zoomedAreaUpdatedIntegrationEvent integrationevent.ZoomedAreaUpdatedIntegrationEvent
 	json.Unmarshal(event, &zoomedAreaUpdatedIntegrationEvent)
 
-	sendJSONMessageToClient(conn, clientSession, constructZoomedAreaUpdatedEvent(zoomedAreaUpdatedIntegrationEvent.Payload.Area, zoomedAreaUpdatedIntegrationEvent.Payload.UnitMap))
+	sendJSONMessageToClient(conn, clientSession, clientSession.gameRoomHandlerPresenter.CreateZoomedAreaUpdatedEvent(zoomedAreaUpdatedIntegrationEvent.Payload.Area, zoomedAreaUpdatedIntegrationEvent.Payload.UnitMap))
 }
 
 func handleZoomAreaAction(conn *websocket.Conn, clientSession *clientSession, message []byte) {
