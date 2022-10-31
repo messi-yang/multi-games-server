@@ -1,5 +1,7 @@
 package valueobject
 
+import "github.com/google/uuid"
+
 type UnitMap struct {
 	unitMatrix *[][]Unit
 }
@@ -9,7 +11,7 @@ func NewUnitMap(mapSize MapSize) *UnitMap {
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
 		unitMap[i] = make([]Unit, mapSize.GetHeight())
 		for j := 0; j < mapSize.GetHeight(); j += 1 {
-			unitMap[i][j] = NewUnit(false)
+			unitMap[i][j] = NewUnit(false, uuid.Nil)
 		}
 	}
 	return &UnitMap{

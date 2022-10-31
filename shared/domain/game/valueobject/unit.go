@@ -1,12 +1,16 @@
 package valueobject
 
+import "github.com/google/uuid"
+
 type Unit struct {
 	alive bool
+	id    uuid.UUID
 }
 
-func NewUnit(alive bool) Unit {
+func NewUnit(alive bool, uuid uuid.UUID) Unit {
 	return Unit{
 		alive: alive,
+		id:    uuid,
 	}
 }
 
@@ -15,6 +19,19 @@ func (gu Unit) GetAlive() bool {
 }
 
 func (gu Unit) SetAlive(alive bool) Unit {
-	gu.alive = alive
-	return gu
+	return Unit{
+		alive: alive,
+		id:    gu.id,
+	}
+}
+
+func (gu Unit) GetId() uuid.UUID {
+	return gu.id
+}
+
+func (gu Unit) SetId(uuid uuid.UUID) Unit {
+	return Unit{
+		alive: gu.alive,
+		id:    uuid,
+	}
 }

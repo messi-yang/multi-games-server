@@ -48,6 +48,7 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) *valueobject.U
 		for _, unitModel := range unitModelMatrixCol {
 			unitMatrix[colIdx] = append(unitMatrix[colIdx], valueobject.NewUnit(
 				unitModel.Alive,
+				uuid.Nil,
 			))
 		}
 	}
@@ -101,7 +102,7 @@ func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
 func (repository *gameRedisRepository) GetFirstGameId() (uuid.UUID, error) {
 	gameIdInBytes, _ := repository.redisInfrastructureService.Get("game-id")
 	if len(gameIdInBytes) == 0 {
-		return uuid.UUID{}, ErrGameNotFound
+		return uuid.Nil, ErrGameNotFound
 	}
 	gameId, _ := uuid.ParseBytes(gameIdInBytes)
 
