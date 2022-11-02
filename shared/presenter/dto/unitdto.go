@@ -6,17 +6,17 @@ import (
 )
 
 type UnitDto struct {
-	Alive bool      `json:"alive"`
-	Id    uuid.UUID `json:"id"`
+	Alive  bool      `json:"alive"`
+	ItemId uuid.UUID `json:"id"`
 }
 
 func NewUnitDto(unit valueobject.Unit) UnitDto {
 	return UnitDto{
-		Alive: unit.GetAlive(),
-		Id:    unit.GetId(),
+		Alive:  unit.GetAlive(),
+		ItemId: unit.GetItemId(),
 	}
 }
 
 func (dto UnitDto) ToValueObject() valueobject.Unit {
-	return valueobject.NewUnit(dto.Alive, dto.Id)
+	return valueobject.NewUnit(dto.Alive, dto.ItemId)
 }
