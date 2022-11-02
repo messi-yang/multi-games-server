@@ -1,12 +1,13 @@
 package dto
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
 )
 
 type UnitMapDto [][]UnitDto
 
-func NewUnitMapDto(unitMap *valueobject.UnitMap) UnitMapDto {
+func NewUnitMapDto(unitMap *entity.UnitMap) UnitMapDto {
 	unitMapDto := make(UnitMapDto, 0)
 
 	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
@@ -20,7 +21,7 @@ func NewUnitMapDto(unitMap *valueobject.UnitMap) UnitMapDto {
 	return unitMapDto
 }
 
-func (dto UnitMapDto) ToValueObject() *valueobject.UnitMap {
+func (dto UnitMapDto) ToValueObject() *entity.UnitMap {
 	unitMatrix := make([][]valueobject.Unit, 0)
 
 	for i := 0; i < len(dto); i += 1 {
@@ -29,5 +30,5 @@ func (dto UnitMapDto) ToValueObject() *valueobject.UnitMap {
 			unitMatrix[i] = append(unitMatrix[i], dto[i][j].ToValueObject())
 		}
 	}
-	return valueobject.NewUnitMapFromUnitMatrix(&unitMatrix)
+	return entity.NewUnitMapFromUnitMatrix(&unitMatrix)
 }

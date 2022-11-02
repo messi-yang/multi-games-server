@@ -7,10 +7,10 @@ import (
 
 type Game struct {
 	id      uuid.UUID
-	unitMap *valueobject.UnitMap
+	unitMap *UnitMap
 }
 
-func NewGame(id uuid.UUID, unitMap *valueobject.UnitMap) Game {
+func NewGame(id uuid.UUID, unitMap *UnitMap) Game {
 	return Game{
 		id:      id,
 		unitMap: unitMap,
@@ -21,7 +21,7 @@ func (g *Game) GetId() uuid.UUID {
 	return g.id
 }
 
-func (g *Game) GetUnitMap() *valueobject.UnitMap {
+func (g *Game) GetUnitMap() *UnitMap {
 	return g.unitMap
 }
 
