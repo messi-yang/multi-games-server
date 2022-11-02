@@ -27,7 +27,7 @@ func NewAreaZoomedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUID) st
 
 func NewAreaZoomedIntegrationEvent(area valueobject.Area, unitMap entity.UnitMap) []byte {
 	areaDto := dto.NewAreaDto(area)
-	unitMapDto := dto.NewUnitMapDto(&unitMap)
+	unitMapDto := dto.Dto(&unitMap)
 
 	event := AreaZoomedIntegrationEvent{
 		Payload: areaZoomedIntegrationEventPayload{

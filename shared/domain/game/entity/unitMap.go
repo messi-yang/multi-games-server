@@ -2,27 +2,13 @@ package entity
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/google/uuid"
 )
 
 type UnitMap struct {
 	unitMatrix *[][]valueobject.Unit
 }
 
-func NewUnitMap(mapSize valueobject.MapSize) *UnitMap {
-	unitMap := make([][]valueobject.Unit, mapSize.GetWidth())
-	for i := 0; i < mapSize.GetWidth(); i += 1 {
-		unitMap[i] = make([]valueobject.Unit, mapSize.GetHeight())
-		for j := 0; j < mapSize.GetHeight(); j += 1 {
-			unitMap[i][j] = valueobject.NewUnit(false, uuid.Nil)
-		}
-	}
-	return &UnitMap{
-		unitMatrix: &unitMap,
-	}
-}
-
-func NewUnitMapFromUnitMatrix(unitMatrix *[][]valueobject.Unit) *UnitMap {
+func NewUnitMap(unitMatrix *[][]valueobject.Unit) *UnitMap {
 	return &UnitMap{
 		unitMatrix: unitMatrix,
 	}

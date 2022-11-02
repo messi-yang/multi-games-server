@@ -53,7 +53,7 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) *entity.UnitMa
 		}
 	}
 
-	return entity.NewUnitMapFromUnitMatrix(&unitMatrix)
+	return entity.NewUnitMap(&unitMatrix)
 }
 
 type gameRedisRepository struct {

@@ -57,7 +57,7 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*entity.UnitMap, er
 			unitMatrix[x][y] = gr.game.GetUnit(coordinate)
 		}
 	}
-	unitMap := entity.NewUnitMapFromUnitMatrix(&unitMatrix)
+	unitMap := entity.NewUnitMap(&unitMatrix)
 
 	return unitMap, nil
 }

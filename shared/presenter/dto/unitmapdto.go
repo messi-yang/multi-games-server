@@ -7,7 +7,7 @@ import (
 
 type UnitMapDto [][]UnitDto
 
-func NewUnitMapDto(unitMap *entity.UnitMap) UnitMapDto {
+func Dto(unitMap *entity.UnitMap) UnitMapDto {
 	unitMapDto := make(UnitMapDto, 0)
 
 	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
@@ -30,5 +30,5 @@ func (dto UnitMapDto) ToValueObject() *entity.UnitMap {
 			unitMatrix[i] = append(unitMatrix[i], dto[i][j].ToValueObject())
 		}
 	}
-	return entity.NewUnitMapFromUnitMatrix(&unitMatrix)
+	return entity.NewUnitMap(&unitMatrix)
 }
