@@ -1,4 +1,4 @@
-package aggregate
+package item
 
 import "github.com/google/uuid"
 
