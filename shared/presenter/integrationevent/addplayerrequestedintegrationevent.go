@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 	"github.com/google/uuid"
 )
 
 type addPlayerRequestedIntegrationEventPayload struct {
-	Player dto.PlayerDto `json:"player"`
+	PlayerId uuid.UUID `json:"playerId"`
 }
 
 type AddPlayerRequestedIntegrationEvent struct {
@@ -23,12 +21,10 @@ func NewAddPlayerRequestedIntegrationEventTopic(gameId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-add-player-requested", gameId)
 }
 
-func NewAddPlayerRequestedIntegrationEvent(player entity.Player) []byte {
-	playerDto := dto.NewPlayerDto(player)
-
+func NewAddPlayerRequestedIntegrationEvent(playerId uuid.UUID) []byte {
 	event := AddPlayerRequestedIntegrationEvent{
 		Payload: addPlayerRequestedIntegrationEventPayload{
-			Player: playerDto,
+			PlayerId: playerId,
 		},
 		Timestamp: time.Now(),
 	}

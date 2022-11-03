@@ -41,8 +41,8 @@ func NewGameRoomIntegrationEventHandler(
 			var addPlayerRequestedIntegrationEvent integrationevent.AddPlayerRequestedIntegrationEvent
 			json.Unmarshal(event, &addPlayerRequestedIntegrationEvent)
 
-			player := addPlayerRequestedIntegrationEvent.Payload.Player.ToEntity()
-			configuration.GameRoomApplicationService.AddPlayerToGameRoom(gameId, player)
+			playerId := addPlayerRequestedIntegrationEvent.Payload.PlayerId
+			configuration.GameRoomApplicationService.AddPlayerToGameRoom(gameId, playerId)
 		},
 	)
 	defer addPlayerRequestedIntegrationEventUnsubscriber()

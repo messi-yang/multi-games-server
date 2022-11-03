@@ -11,7 +11,7 @@ import (
 type GameRoomDomainService interface {
 	CreateGameRoom(game entity.Game) error
 
-	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error)
+	AddPlayerToGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 
 	AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (aggregate.GameRoom, error)
@@ -40,7 +40,7 @@ func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(game entity.Game) erro
 	return nil
 }
 
-func (gsi *gameRoomDomainServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) (aggregate.GameRoom, error) {
+func (gsi *gameRoomDomainServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error) {
 	unlocker, err := gsi.gameRoomRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.GameRoom{}, err
@@ -52,7 +52,7 @@ func (gsi *gameRoomDomainServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID,
 		return aggregate.GameRoom{}, err
 	}
 
-	gameRoom.AddPlayer(player)
+	gameRoom.AddPlayer(playerId)
 	gsi.gameRoomRepository.Update(gameId, gameRoom)
 
 	return gameRoom, nil

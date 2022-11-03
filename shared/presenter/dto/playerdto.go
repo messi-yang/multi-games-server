@@ -16,5 +16,5 @@ func NewPlayerDto(player entity.Player) PlayerDto {
 }
 
 func (dto PlayerDto) ToEntity() entity.Player {
-	return entity.NewPlayerWithExistingId(dto.Id)
+	return entity.NewPlayer(dto.Id)
 }

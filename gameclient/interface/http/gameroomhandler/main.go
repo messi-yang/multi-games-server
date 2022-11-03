@@ -9,7 +9,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/gameroomhandlerpresenter"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/sharedapplicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -19,7 +18,7 @@ import (
 
 type clientSession struct {
 	gameId                   uuid.UUID
-	player                   entity.Player
+	playerId                 uuid.UUID
 	integrationEventBus      eventbus.IntegrationEventBus
 	gameRoomHandlerPresenter gameroomhandlerpresenter.GameRoomHandlerPresenter
 	socketSendMessageLock    sync.RWMutex
@@ -57,14 +56,14 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 
 		clientSession := &clientSession{
 			gameId:                   gameId,
-			player:                   entity.NewPlayer(),
+			playerId:                 uuid.New(),
 			integrationEventBus:      configuration.IntegrationEventBus,
 			gameRoomHandlerPresenter: configuration.GameRoomHandlerPresenter,
 			socketSendMessageLock:    sync.RWMutex{},
 		}
 
 		gameInfoUpdatedIntegrationEventSubscriber := clientSession.integrationEventBus.Subscribe(
-			integrationevent.NewGameInfoUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
+			integrationevent.NewGameInfoUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.playerId),
 			func(event []byte) {
 				handleGameInfoUpdatedEvent(conn, clientSession, event)
 			},
@@ -72,7 +71,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer gameInfoUpdatedIntegrationEventSubscriber()
 
 		areaZoomedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
-			integrationevent.NewAreaZoomedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
+			integrationevent.NewAreaZoomedIntegrationEventTopic(clientSession.gameId, clientSession.playerId),
 			func(event []byte) {
 				handleAreaZoomedEvent(conn, clientSession, event)
 			},
@@ -80,7 +79,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer areaZoomedIntegrationEventUnsubscriber()
 
 		zoomedAreaUpdatedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
-			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.player.GetId()),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.playerId),
 			func(event []byte) {
 				handleZoomedAreaUpdatedEvent(conn, clientSession, event)
 			},
@@ -89,7 +88,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 
 		clientSession.integrationEventBus.Publish(
 			integrationevent.NewAddPlayerRequestedIntegrationEventTopic(clientSession.gameId),
-			integrationevent.NewAddPlayerRequestedIntegrationEvent(clientSession.player),
+			integrationevent.NewAddPlayerRequestedIntegrationEvent(clientSession.playerId),
 		)
 
 		go func() {
@@ -132,7 +131,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 
 			clientSession.integrationEventBus.Publish(
 				integrationevent.NewRemovePlayerRequestedIntegrationEventTopic(clientSession.gameId),
-				integrationevent.NewRemovePlayerRequestedIntegrationEvent(clientSession.player.GetId()),
+				integrationevent.NewRemovePlayerRequestedIntegrationEvent(clientSession.playerId),
 			)
 
 			return
@@ -191,7 +190,7 @@ func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSes
 
 	clientSession.integrationEventBus.Publish(
 		integrationevent.NewZoomAreaRequestedIntegrationEventTopic(clientSession.gameId),
-		integrationevent.NewZoomAreaRequestedIntegrationEvent(clientSession.player.GetId(), area),
+		integrationevent.NewZoomAreaRequestedIntegrationEvent(clientSession.playerId, area),
 	)
 }
 

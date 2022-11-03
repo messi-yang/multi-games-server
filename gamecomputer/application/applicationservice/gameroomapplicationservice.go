@@ -19,7 +19,7 @@ var (
 type GameRoomApplicationService interface {
 	CreateGameRoom(game entity.Game) (err error)
 
-	AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error
+	AddPlayerToGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
 
 	AddZoomedAreaToGameRoom(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
@@ -77,15 +77,15 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UU
 	return nil
 }
 
-func (grs *gameRoomApplicationServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID, player entity.Player) error {
-	updatedGameRoom, err := grs.gameRoomDomainService.AddPlayerToGameRoom(gameId, player)
+func (grs *gameRoomApplicationServiceImplement) AddPlayerToGameRoom(gameId uuid.UUID, playerId uuid.UUID) error {
+	updatedGameRoom, err := grs.gameRoomDomainService.AddPlayerToGameRoom(gameId, playerId)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 
 	grs.integrationEventBus.Publish(
-		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, player.GetId()),
+		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, playerId),
 		integrationevent.NewGameInfoUpdatedIntegrationEvent(updatedGameRoom.GetMapSize()),
 	)
 
