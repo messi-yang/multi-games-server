@@ -17,14 +17,14 @@ var (
 
 type GameRoom struct {
 	game        *entity.Game
-	playerIds   map[uuid.UUID]uuid.UUID
+	playerIds   map[uuid.UUID]bool
 	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
 func NewGameRoom(game entity.Game) GameRoom {
 	return GameRoom{
 		game:        &game,
-		playerIds:   make(map[uuid.UUID]uuid.UUID),
+		playerIds:   make(map[uuid.UUID]bool),
 		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
 	}
 }
@@ -85,7 +85,7 @@ func (gr *GameRoom) AddPlayer(playerId uuid.UUID) error {
 		return ErrPlayerAlreadyExists
 	}
 
-	gr.playerIds[playerId] = playerId
+	gr.playerIds[playerId] = true
 
 	return nil
 }
