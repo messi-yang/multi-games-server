@@ -1,4 +1,4 @@
-package aggregate
+package player
 
 import "github.com/google/uuid"
 
