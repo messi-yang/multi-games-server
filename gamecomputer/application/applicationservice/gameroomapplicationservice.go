@@ -71,7 +71,7 @@ func (grs *gameRoomApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UU
 		}
 		grs.integrationEventBus.Publish(
 			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGameRoom.GetId(), playerId),
-			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, *unitMap),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, unitMap),
 		)
 	}
 	return nil
@@ -114,7 +114,7 @@ func (grs *gameRoomApplicationServiceImplement) AddZoomedAreaToGameRoom(gameId u
 
 	grs.integrationEventBus.Publish(
 		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, playerId),
-		integrationevent.NewAreaZoomedIntegrationEvent(area, *unitMap),
+		integrationevent.NewAreaZoomedIntegrationEvent(area, unitMap),
 	)
 
 	return nil

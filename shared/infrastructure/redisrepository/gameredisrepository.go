@@ -26,10 +26,10 @@ type gameRecord struct {
 	UnitMap [][]UnitModel `json:"unitMap"`
 }
 
-func ConvertUnitMapToUnitModelMatrix(unitMap *entity.UnitMap) [][]UnitModel {
+func ConvertUnitMapToUnitModelMatrix(unitMap valueobject.UnitMap) [][]UnitModel {
 	unitMatrix := unitMap.ToValueObjectMatrix()
 	unitModelMatrix := make([][]UnitModel, 0)
-	for colIdx, unitMatrixCol := range *unitMatrix {
+	for colIdx, unitMatrixCol := range unitMatrix {
 		unitModelMatrix = append(unitModelMatrix, make([]UnitModel, 0))
 		for _, unit := range unitMatrixCol {
 			unitModelMatrix[colIdx] = append(unitModelMatrix[colIdx], UnitModel{
@@ -41,7 +41,7 @@ func ConvertUnitMapToUnitModelMatrix(unitMap *entity.UnitMap) [][]UnitModel {
 	return unitModelMatrix
 }
 
-func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) *entity.UnitMap {
+func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) valueobject.UnitMap {
 	unitMatrix := make([][]valueobject.Unit, 0)
 	for colIdx, unitModelMatrixCol := range unitModelMatrix {
 		unitMatrix = append(unitMatrix, make([]valueobject.Unit, 0))
@@ -53,7 +53,7 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) *entity.UnitMa
 		}
 	}
 
-	return entity.NewUnitMap(&unitMatrix)
+	return valueobject.NewUnitMap(unitMatrix)
 }
 
 type gameRedisRepository struct {

@@ -35,7 +35,7 @@ func (service *gameDomainServiceImplement) CreateGame(mapSize valueobject.MapSiz
 			unitMap[i][j] = valueobject.NewUnit(false, uuid.Nil)
 		}
 	}
-	newGame := entity.NewGame(uuid.New(), entity.NewUnitMap(&unitMap))
+	newGame := entity.NewGame(uuid.New(), valueobject.NewUnitMap(unitMap))
 	err := service.gameRepository.Add(newGame)
 	if err != nil {
 		return entity.Game{}, err

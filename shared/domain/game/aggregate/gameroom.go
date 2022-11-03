@@ -37,13 +37,13 @@ func (gr *GameRoom) GetMapSize() valueobject.MapSize {
 	return gr.game.GetMapSize()
 }
 
-func (gr *GameRoom) GetUnitMap() *entity.UnitMap {
+func (gr *GameRoom) GetUnitMap() valueobject.UnitMap {
 	return gr.game.GetUnitMap()
 }
 
-func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*entity.UnitMap, error) {
+func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
 	if !gr.GetMapSize().IncludesArea(area) {
-		return &entity.UnitMap{}, ErrAreaExceedsUnitMap
+		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
 	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
@@ -57,7 +57,7 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (*entity.UnitMap, er
 			unitMatrix[x][y] = gr.game.GetUnit(coordinate)
 		}
 	}
-	unitMap := entity.NewUnitMap(&unitMatrix)
+	unitMap := valueobject.NewUnitMap(unitMatrix)
 
 	return unitMap, nil
 }
