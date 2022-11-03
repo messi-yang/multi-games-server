@@ -79,10 +79,6 @@ func (gr *GameRoom) RemoveZoomedArea(playerId uuid.UUID) {
 	delete(gr.zoomedAreas, playerId)
 }
 
-func (gr *GameRoom) GetPlayers() map[uuid.UUID]uuid.UUID {
-	return gr.playerIds
-}
-
 func (gr *GameRoom) AddPlayer(playerId uuid.UUID) error {
 	_, exists := gr.playerIds[playerId]
 	if exists {
