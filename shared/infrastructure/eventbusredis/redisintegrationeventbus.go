@@ -6,13 +6,13 @@ import (
 )
 
 type redisIntegrationEventBus struct {
-	redisInfrastructureService infrastructureservice.RedisInfrastructureService
+	redisService infrastructureservice.RedisService
 }
 
 type redisIntegrationEventBusCallback = func(event []byte)
 
 type RedisIntegrationEventBusCallbackConfiguration struct {
-	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
+	RedisService infrastructureservice.RedisService
 }
 
 var redisIntegrationEventBusInstance *redisIntegrationEventBus
@@ -20,18 +20,18 @@ var redisIntegrationEventBusInstance *redisIntegrationEventBus
 func NewRedisIntegrationEventBus(config RedisIntegrationEventBusCallbackConfiguration) eventbus.IntegrationEventBus {
 	if redisIntegrationEventBusInstance == nil {
 		redisIntegrationEventBusInstance = &redisIntegrationEventBus{
-			redisInfrastructureService: infrastructureservice.NewRedisInfrastructureService(),
+			redisService: infrastructureservice.NewRedisService(),
 		}
 	}
 	return redisIntegrationEventBusInstance
 }
 
 func (gue *redisIntegrationEventBus) Publish(topic string, event []byte) {
-	gue.redisInfrastructureService.Publish(topic, event)
+	gue.redisService.Publish(topic, event)
 }
 
 func (gue *redisIntegrationEventBus) Subscribe(topic string, callback redisIntegrationEventBusCallback) (unsubscriber func()) {
-	redisUnsubscriber := gue.redisInfrastructureService.Subscribe(topic, callback)
+	redisUnsubscriber := gue.redisService.Subscribe(topic, callback)
 
 	return func() {
 		redisUnsubscriber()

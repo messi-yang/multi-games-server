@@ -5,7 +5,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/sandboxservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
@@ -13,15 +12,11 @@ import (
 )
 
 func Start() {
-	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
+	redisService := infrastructureservice.NewRedisService()
 	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
-		RedisInfrastructureService: redisInfrastructureService,
+		RedisService: redisService,
 	})
-	sandboxDomainService := sandboxservice.NewSandboxDomainService(sandboxservice.SandboxDomainServiceConfiguration{
-		SandboxRepository: redis.NewSandboxRedis(redis.SandboxRedisConfiguration{
-			RedisInfrastructureService: redisInfrastructureService,
-		}),
-	})
+	sandboxDomainService, _ := sandboxservice.NewSandboxDomainService(sandboxservice.WithSandboxRedis())
 	gameDomainService, _ := gameservice.NewGameService(gameservice.WithGameMemory())
 	gameApplicationService := applicationservice.NewGameApplicationService(
 		applicationservice.GameApplicationServiceConfiguration{

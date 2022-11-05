@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/interface/http/gamehandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/gamehandlerpresenter"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/sandboxservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
@@ -14,17 +13,13 @@ import (
 func Start() {
 	router := gin.Default()
 
-	redisInfrastructureService := infrastructureservice.NewRedisInfrastructureService()
-	sandboxDomainService := sandboxservice.NewSandboxDomainService(sandboxservice.SandboxDomainServiceConfiguration{
-		SandboxRepository: redis.NewSandboxRedis(redis.SandboxRedisConfiguration{
-			RedisInfrastructureService: redisInfrastructureService,
-		}),
-	})
+	redisService := infrastructureservice.NewRedisService()
+	sandboxDomainService, _ := sandboxservice.NewSandboxDomainService(sandboxservice.WithSandboxRedis())
 	gameApplicationService := applicationservice.NewGameApplicationService(applicationservice.GameApplicationServiceConfiguration{
 		SandboxDomainService: sandboxDomainService,
 	})
 	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
-		RedisInfrastructureService: redisInfrastructureService,
+		RedisService: redisService,
 	})
 
 	router.Group("/ws/game").GET("/", gamehandler.NewHandler(gamehandler.HandlerConfiguration{

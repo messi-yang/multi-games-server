@@ -10,11 +10,11 @@ type GameApplicationService interface {
 }
 
 type gameApplicationServiceImplementation struct {
-	sandboxDomainService sandboxservice.SandboxDomainService
+	sandboxDomainService *sandboxservice.SandboxDomainService
 }
 
 type GameApplicationServiceConfiguration struct {
-	SandboxDomainService sandboxservice.SandboxDomainService
+	SandboxDomainService *sandboxservice.SandboxDomainService
 }
 
 func NewGameApplicationService(configuration GameApplicationServiceConfiguration) GameApplicationService {

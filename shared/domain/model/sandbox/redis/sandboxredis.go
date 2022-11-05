@@ -56,16 +56,27 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) valueobject.Un
 }
 
 type sandboxRedis struct {
-	redisInfrastructureService infrastructureservice.RedisInfrastructureService
+	redisService infrastructureservice.RedisService
 }
 
-type SandboxRedisConfiguration struct {
-	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
+type sandboxRedisConfiguration func(sandboxRedis *sandboxRedis) error
+
+func NewSandboxRedis(cfgs ...sandboxRedisConfiguration) (*sandboxRedis, error) {
+	sandboxRedis := &sandboxRedis{}
+	for _, cfg := range cfgs {
+		err := cfg(sandboxRedis)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return sandboxRedis, nil
 }
 
-func NewSandboxRedis(configuration SandboxRedisConfiguration) sandbox.Repository {
-	return &sandboxRedis{
-		redisInfrastructureService: configuration.RedisInfrastructureService,
+func WithRedisService() sandboxRedisConfiguration {
+	redisService := infrastructureservice.NewRedisService()
+	return func(sandboxRedis *sandboxRedis) error {
+		sandboxRedis.redisService = redisService
+		return nil
 	}
 }
 
@@ -80,15 +91,15 @@ func (repository *sandboxRedis) Add(game sandbox.Sandbox) error {
 		UnitMap: ConvertUnitMapToUnitModelMatrix(game.GetUnitMap()),
 	}
 	newGameRecordInBytes, _ := json.Marshal(newGameRecord)
-	repository.redisInfrastructureService.Set(dataKey, newGameRecordInBytes)
-	repository.redisInfrastructureService.Set("game-id", []byte(game.GetId().String()))
+	repository.redisService.Set(dataKey, newGameRecordInBytes)
+	repository.redisService.Set("game-id", []byte(game.GetId().String()))
 
 	return nil
 }
 
 func (repository *sandboxRedis) Get(id uuid.UUID) (sandbox.Sandbox, error) {
 	dataKey := repository.createKey(id)
-	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(dataKey)
+	gameFromRedisInBytes, _ := repository.redisService.Get(dataKey)
 	var gameFromRedis sandboxRecord
 	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
@@ -99,7 +110,7 @@ func (repository *sandboxRedis) Get(id uuid.UUID) (sandbox.Sandbox, error) {
 }
 
 func (repository *sandboxRedis) GetFirstGameId() (uuid.UUID, error) {
-	gameIdInBytes, _ := repository.redisInfrastructureService.Get("game-id")
+	gameIdInBytes, _ := repository.redisService.Get("game-id")
 	if len(gameIdInBytes) == 0 {
 		return uuid.Nil, ErrGameNotFound
 	}

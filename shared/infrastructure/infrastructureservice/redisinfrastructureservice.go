@@ -7,22 +7,22 @@ import (
 	"github.com/go-redis/redis/v9"
 )
 
-type RedisInfrastructureService interface {
+type RedisService interface {
 	Subscribe(channel string, handler func(message []byte)) (unsubscriber func())
 	Publish(channel string, message []byte) error
 	Set(key string, value []byte) error
 	Get(key string) (value []byte, err error)
 }
 
-type redisInfrastructureService struct {
+type redisService struct {
 	redisClient *redis.Client
 }
 
-var redisInfrastructureServiceInstance *redisInfrastructureService
+var redisServiceInstance *redisService
 
-func NewRedisInfrastructureService() RedisInfrastructureService {
-	if redisInfrastructureServiceInstance == nil {
-		return &redisInfrastructureService{
+func NewRedisService() RedisService {
+	if redisServiceInstance == nil {
+		return &redisService{
 			redisClient: redis.NewClient(&redis.Options{
 				Addr:        os.Getenv("REDIS_HOST"),
 				Password:    os.Getenv("REDIS_PASSWORD"),
@@ -31,10 +31,10 @@ func NewRedisInfrastructureService() RedisInfrastructureService {
 			}),
 		}
 	}
-	return redisInfrastructureServiceInstance
+	return redisServiceInstance
 }
 
-func (service *redisInfrastructureService) Subscribe(channel string, handler func(message []byte)) (unsubscriber func()) {
+func (service *redisService) Subscribe(channel string, handler func(message []byte)) (unsubscriber func()) {
 	pubsub := service.redisClient.Subscribe(context.TODO(), channel)
 	go func() {
 		for msg := range pubsub.Channel() {
@@ -47,7 +47,7 @@ func (service *redisInfrastructureService) Subscribe(channel string, handler fun
 	}
 }
 
-func (service *redisInfrastructureService) Publish(channel string, message []byte) error {
+func (service *redisService) Publish(channel string, message []byte) error {
 	err := service.redisClient.Publish(context.TODO(), channel, message).Err()
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func (service *redisInfrastructureService) Publish(channel string, message []byt
 	return nil
 }
 
-func (service *redisInfrastructureService) Set(key string, value []byte) error {
+func (service *redisService) Set(key string, value []byte) error {
 	err := service.redisClient.Set(context.TODO(), key, value, 0).Err()
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (service *redisInfrastructureService) Set(key string, value []byte) error {
 	return nil
 }
 
-func (service *redisInfrastructureService) Get(key string) (value []byte, err error) {
+func (service *redisService) Get(key string) (value []byte, err error) {
 	val, err := service.redisClient.Get(context.TODO(), key).Result()
 	if err != nil {
 		return []byte{}, err

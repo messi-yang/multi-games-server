@@ -12,7 +12,7 @@ type GameService struct {
 	gameRepository gameModel.Repository
 }
 
-type GameServiceConfiguration func(os *GameService) error
+type GameServiceConfiguration func(service *GameService) error
 
 func NewGameService(cfgs ...GameServiceConfiguration) (*GameService, error) {
 	t := &GameService{}

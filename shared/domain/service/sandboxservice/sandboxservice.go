@@ -3,30 +3,36 @@ package sandboxservice
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox/redis"
 	"github.com/google/uuid"
 )
 
-type SandboxDomainService interface {
-	CreateSandbox(mapSize valueobject.MapSize) (sandbox.Sandbox, error)
-	GetSandbox(id uuid.UUID) (sandbox.Sandbox, error)
-	GetFirstSandboxId() (uuid.UUID, error)
-}
-
-type sandboxDomainServiceImplement struct {
+type SandboxDomainService struct {
 	sandboxRepository sandbox.Repository
 }
 
-type SandboxDomainServiceConfiguration struct {
-	SandboxRepository sandbox.Repository
+type SandboxDomainServiceConfiguration func(service *SandboxDomainService) error
+
+func NewSandboxDomainService(cfgs ...SandboxDomainServiceConfiguration) (*SandboxDomainService, error) {
+	t := &SandboxDomainService{}
+	for _, cfg := range cfgs {
+		err := cfg(t)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return t, nil
 }
 
-func NewSandboxDomainService(configuration SandboxDomainServiceConfiguration) SandboxDomainService {
-	return &sandboxDomainServiceImplement{
-		sandboxRepository: configuration.SandboxRepository,
+func WithSandboxRedis() SandboxDomainServiceConfiguration {
+	sandboxRedis, _ := redis.NewSandboxRedis(redis.WithRedisService())
+	return func(service *SandboxDomainService) error {
+		service.sandboxRepository = sandboxRedis
+		return nil
 	}
 }
 
-func (service *sandboxDomainServiceImplement) CreateSandbox(mapSize valueobject.MapSize) (sandbox.Sandbox, error) {
+func (service *SandboxDomainService) CreateSandbox(mapSize valueobject.MapSize) (sandbox.Sandbox, error) {
 	unitMap := make([][]valueobject.Unit, mapSize.GetWidth())
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
 		unitMap[i] = make([]valueobject.Unit, mapSize.GetHeight())
@@ -43,7 +49,7 @@ func (service *sandboxDomainServiceImplement) CreateSandbox(mapSize valueobject.
 	return newSandbox, nil
 }
 
-func (service *sandboxDomainServiceImplement) GetSandbox(id uuid.UUID) (sandbox.Sandbox, error) {
+func (service *SandboxDomainService) GetSandbox(id uuid.UUID) (sandbox.Sandbox, error) {
 	game, err := service.sandboxRepository.Get(id)
 	if err != nil {
 		return sandbox.Sandbox{}, err
@@ -52,7 +58,7 @@ func (service *sandboxDomainServiceImplement) GetSandbox(id uuid.UUID) (sandbox.
 	return game, nil
 }
 
-func (service *sandboxDomainServiceImplement) GetFirstSandboxId() (uuid.UUID, error) {
+func (service *SandboxDomainService) GetFirstSandboxId() (uuid.UUID, error) {
 	gameId, err := service.sandboxRepository.GetFirstGameId()
 	return gameId, err
 }
