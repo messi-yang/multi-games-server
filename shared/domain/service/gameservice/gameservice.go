@@ -2,87 +2,87 @@ package gameservice
 
 import (
 	gameModel "github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/memory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
 	"github.com/google/uuid"
 )
 
-type GameDomainService interface {
-	CreateGame(game sandbox.Sandbox) error
-
-	AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error)
-	RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error)
-
-	AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (gameModel.Game, error)
-	RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error)
-
-	ReviveUnitsInGame(gameId uuid.UUID, coords []valueobject.Coordinate) (gameModel.Game, error)
-}
-
-type gameDomainServiceImplement struct {
+type GameService struct {
 	gameRepository gameModel.Repository
 }
 
-type GameDomainServiceConfiguration struct {
-	GameRepository gameModel.Repository
+type GameServiceConfiguration func(os *GameService) error
+
+func NewGameService(cfgs ...GameServiceConfiguration) (*GameService, error) {
+	t := &GameService{}
+	for _, cfg := range cfgs {
+		err := cfg(t)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return t, nil
 }
 
-func NewGameDomainService(coniguration GameDomainServiceConfiguration) GameDomainService {
-	return &gameDomainServiceImplement{
-		gameRepository: coniguration.GameRepository,
+func WithGameMemory() GameServiceConfiguration {
+	gameMemory := memory.NewGameMemory()
+	return func(service *GameService) error {
+		service.gameRepository = gameMemory
+		return nil
 	}
 }
 
-func (gsi *gameDomainServiceImplement) CreateGame(sandbox sandbox.Sandbox) error {
+func (gds GameService) CreateGame(sandbox sandbox.Sandbox) error {
 	game := gameModel.NewGame(sandbox)
-	gsi.gameRepository.Add(game)
+	gds.gameRepository.Add(game)
 	return nil
 }
 
-func (gsi *gameDomainServiceImplement) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
-	unlocker, err := gsi.gameRepository.LockAccess(gameId)
+func (gds GameService) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
+	unlocker, err := gds.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 	defer unlocker()
 
-	game, err := gsi.gameRepository.Get(gameId)
+	game, err := gds.gameRepository.Get(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 
 	game.AddPlayer(playerId)
-	gsi.gameRepository.Update(gameId, game)
+	gds.gameRepository.Update(gameId, game)
 
 	return game, nil
 }
 
-func (gsi *gameDomainServiceImplement) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
-	unlocker, err := gsi.gameRepository.LockAccess(gameId)
+func (gds GameService) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
+	unlocker, err := gds.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 	defer unlocker()
 
-	game, err := gsi.gameRepository.Get(gameId)
+	game, err := gds.gameRepository.Get(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 
 	game.RemovePlayer(playerId)
-	gsi.gameRepository.Update(gameId, game)
+	gds.gameRepository.Update(gameId, game)
 
 	return game, nil
 }
 
-func (gsi *gameDomainServiceImplement) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (gameModel.Game, error) {
-	unlocker, err := gsi.gameRepository.LockAccess(gameId)
+func (gds GameService) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (gameModel.Game, error) {
+	unlocker, err := gds.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 	defer unlocker()
 
-	game, err := gsi.gameRepository.Get(gameId)
+	game, err := gds.gameRepository.Get(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
@@ -92,37 +92,37 @@ func (gsi *gameDomainServiceImplement) AddZoomedAreaToGame(gameId uuid.UUID, pla
 		return gameModel.Game{}, err
 	}
 
-	gsi.gameRepository.Update(gameId, game)
+	gds.gameRepository.Update(gameId, game)
 
 	return game, nil
 }
 
-func (gsi *gameDomainServiceImplement) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
-	unlocker, err := gsi.gameRepository.LockAccess(gameId)
+func (gds GameService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
+	unlocker, err := gds.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 	defer unlocker()
 
-	game, err := gsi.gameRepository.Get(gameId)
+	game, err := gds.gameRepository.Get(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 
 	game.RemoveZoomedArea(playerId)
-	gsi.gameRepository.Update(gameId, game)
+	gds.gameRepository.Update(gameId, game)
 
 	return game, nil
 }
 
-func (gsi *gameDomainServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) (gameModel.Game, error) {
-	unlocker, err := gsi.gameRepository.LockAccess(gameId)
+func (gds GameService) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) (gameModel.Game, error) {
+	unlocker, err := gds.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
 	defer unlocker()
 
-	game, err := gsi.gameRepository.Get(gameId)
+	game, err := gds.gameRepository.Get(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
 	}
@@ -132,7 +132,7 @@ func (gsi *gameDomainServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coord
 		return gameModel.Game{}, err
 	}
 
-	gsi.gameRepository.Update(gameId, game)
+	gds.gameRepository.Update(gameId, game)
 
 	return game, nil
 }

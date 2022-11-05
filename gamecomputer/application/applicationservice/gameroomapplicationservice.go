@@ -29,18 +29,18 @@ type GameApplicationService interface {
 }
 
 type gameApplicationServiceImplement struct {
-	gameDomainService   gameservice.GameDomainService
+	gameDomainService   *gameservice.GameService
 	integrationEventBus eventbus.IntegrationEventBus
 }
 
 type GameApplicationServiceConfiguration struct {
-	GameDomainService   gameservice.GameDomainService
+	GameService         *gameservice.GameService
 	IntegrationEventBus eventbus.IntegrationEventBus
 }
 
 func NewGameApplicationService(config GameApplicationServiceConfiguration) GameApplicationService {
 	return &gameApplicationServiceImplement{
-		gameDomainService:   config.GameDomainService,
+		gameDomainService:   config.GameService,
 		integrationEventBus: config.IntegrationEventBus,
 	}
 }
