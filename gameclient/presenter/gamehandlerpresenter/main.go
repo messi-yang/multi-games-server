@@ -1,4 +1,4 @@
-package gameroomhandlerpresenter
+package gamehandlerpresenter
 
 import (
 	"encoding/json"
@@ -76,7 +76,7 @@ type ZoomAreaRequestedEvent struct {
 	Payload ZoomAreaRequestedEventPayload `json:"payload"`
 }
 
-type GameRoomHandlerPresenter interface {
+type GameHandlerPresenter interface {
 	CreateErroredEvent(clientMessage string) ErroredEvent
 	CreateInformationUpdatedEvent(mapSize dto.MapSizeDto) InformationUpdatedEvent
 	CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) ZoomedAreaUpdatedEvent
@@ -86,14 +86,14 @@ type GameRoomHandlerPresenter interface {
 	ExtractZoomAreaRequestedEvent(msg []byte) (valueobject.Area, error)
 }
 
-type gameRoomHandlerPresenterImplement struct {
+type gameHandlerPresenterImplement struct {
 }
 
-func NewGameRoomHandlerPresenter() GameRoomHandlerPresenter {
-	return &gameRoomHandlerPresenterImplement{}
+func NewGameHandlerPresenter() GameHandlerPresenter {
+	return &gameHandlerPresenterImplement{}
 }
 
-func (presenter *gameRoomHandlerPresenterImplement) ExtractEventType(msg []byte) (EventType, error) {
+func (presenter *gameHandlerPresenterImplement) ExtractEventType(msg []byte) (EventType, error) {
 	var event Event
 	err := json.Unmarshal(msg, &event)
 	if err != nil {
@@ -103,7 +103,7 @@ func (presenter *gameRoomHandlerPresenterImplement) ExtractEventType(msg []byte)
 	return event.Type, nil
 }
 
-func (presenter *gameRoomHandlerPresenterImplement) CreateErroredEvent(clientMessage string) ErroredEvent {
+func (presenter *gameHandlerPresenterImplement) CreateErroredEvent(clientMessage string) ErroredEvent {
 	return ErroredEvent{
 		Type: ErrorHappenedEventType,
 		Payload: ErroredEventPayload{
@@ -112,7 +112,7 @@ func (presenter *gameRoomHandlerPresenterImplement) CreateErroredEvent(clientMes
 	}
 }
 
-func (presenter *gameRoomHandlerPresenterImplement) CreateInformationUpdatedEvent(mapSize dto.MapSizeDto) InformationUpdatedEvent {
+func (presenter *gameHandlerPresenterImplement) CreateInformationUpdatedEvent(mapSize dto.MapSizeDto) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
@@ -121,7 +121,7 @@ func (presenter *gameRoomHandlerPresenterImplement) CreateInformationUpdatedEven
 	}
 }
 
-func (presenter *gameRoomHandlerPresenterImplement) CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) ZoomedAreaUpdatedEvent {
+func (presenter *gameHandlerPresenterImplement) CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) ZoomedAreaUpdatedEvent {
 	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
 		Payload: ZoomedAreaUpdatedEventPayload{
@@ -132,7 +132,7 @@ func (presenter *gameRoomHandlerPresenterImplement) CreateZoomedAreaUpdatedEvent
 	}
 }
 
-func (presenter *gameRoomHandlerPresenterImplement) CreateAreaZoomedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) AreaZoomedEvent {
+func (presenter *gameHandlerPresenterImplement) CreateAreaZoomedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) AreaZoomedEvent {
 	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
 		Payload: AreaZoomedEventPayload{
@@ -142,7 +142,7 @@ func (presenter *gameRoomHandlerPresenterImplement) CreateAreaZoomedEvent(area d
 	}
 }
 
-func (presenter *gameRoomHandlerPresenterImplement) ExtractReviveUnitsRequestedEvent(msg []byte) ([]valueobject.Coordinate, error) {
+func (presenter *gameHandlerPresenterImplement) ExtractReviveUnitsRequestedEvent(msg []byte) ([]valueobject.Coordinate, error) {
 	var action ReviveUnitsRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
@@ -157,7 +157,7 @@ func (presenter *gameRoomHandlerPresenterImplement) ExtractReviveUnitsRequestedE
 	return coordinates, nil
 }
 
-func (presenter *gameRoomHandlerPresenterImplement) ExtractZoomAreaRequestedEvent(msg []byte) (valueobject.Area, error) {
+func (presenter *gameHandlerPresenterImplement) ExtractZoomAreaRequestedEvent(msg []byte) (valueobject.Area, error) {
 	var action ZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {

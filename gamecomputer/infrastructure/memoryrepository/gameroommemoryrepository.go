@@ -9,78 +9,78 @@ import (
 )
 
 var (
-	ErrGameRoomNotFound       = errors.New("the game room with the id was not found")
-	ErrGameRoomLockerNotFound = errors.New("the game room locker for with the id was not found")
-	ErrPlayerAlreadyExists    = errors.New("the player with the given id alredy exists in the game room")
+	ErrGameNotFound        = errors.New("the game room with the id was not found")
+	ErrGameLockerNotFound  = errors.New("the game room locker for with the id was not found")
+	ErrPlayerAlreadyExists = errors.New("the player with the given id alredy exists in the game room")
 )
 
-type gameRoomMemoryRepository struct {
-	records       map[uuid.UUID]*game.GameRoom
+type gameMemoryRepository struct {
+	records       map[uuid.UUID]*game.Game
 	recordLockers map[uuid.UUID]*sync.RWMutex
 }
 
-var gameRoomMemoryRepositoryInstance *gameRoomMemoryRepository
+var gameMemoryRepositoryInstance *gameMemoryRepository
 
-func NewGameRoomMemoryRepository() game.GameRoomRepository {
-	if gameRoomMemoryRepositoryInstance == nil {
-		gameRoomMemoryRepositoryInstance = &gameRoomMemoryRepository{
-			records:       make(map[uuid.UUID]*game.GameRoom),
+func NewGameMemoryRepository() game.GameRepository {
+	if gameMemoryRepositoryInstance == nil {
+		gameMemoryRepositoryInstance = &gameMemoryRepository{
+			records:       make(map[uuid.UUID]*game.Game),
 			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
-		return gameRoomMemoryRepositoryInstance
+		return gameMemoryRepositoryInstance
 	}
-	return gameRoomMemoryRepositoryInstance
+	return gameMemoryRepositoryInstance
 }
 
-func (m *gameRoomMemoryRepository) Get(id uuid.UUID) (game.GameRoom, error) {
+func (m *gameMemoryRepository) Get(id uuid.UUID) (game.Game, error) {
 	record, exists := m.records[id]
 	if !exists {
-		return game.GameRoom{}, ErrGameRoomNotFound
+		return game.Game{}, ErrGameNotFound
 	}
 
 	return *record, nil
 }
 
-func (m *gameRoomMemoryRepository) Update(id uuid.UUID, gameRoom game.GameRoom) error {
+func (m *gameMemoryRepository) Update(id uuid.UUID, game game.Game) error {
 	_, exists := m.records[id]
 	if !exists {
-		return ErrGameRoomNotFound
+		return ErrGameNotFound
 	}
 
-	m.records[id] = &gameRoom
+	m.records[id] = &game
 
 	return nil
 }
 
-func (m *gameRoomMemoryRepository) GetAll() []game.GameRoom {
-	gameRooms := make([]game.GameRoom, 0)
+func (m *gameMemoryRepository) GetAll() []game.Game {
+	games := make([]game.Game, 0)
 	for _, record := range m.records {
-		gameRooms = append(gameRooms, *record)
+		games = append(games, *record)
 	}
-	return gameRooms
+	return games
 }
 
-func (m *gameRoomMemoryRepository) Add(gameRoom game.GameRoom) error {
-	m.records[gameRoom.GetId()] = &gameRoom
-	m.recordLockers[gameRoom.GetId()] = &sync.RWMutex{}
+func (m *gameMemoryRepository) Add(game game.Game) error {
+	m.records[game.GetId()] = &game
+	m.recordLockers[game.GetId()] = &sync.RWMutex{}
 
 	return nil
 }
 
-func (m *gameRoomMemoryRepository) ReadLockAccess(gameId uuid.UUID) (func(), error) {
+func (m *gameMemoryRepository) ReadLockAccess(gameId uuid.UUID) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
-		return nil, ErrGameRoomLockerNotFound
+		return nil, ErrGameLockerNotFound
 	}
 
 	recordLocker.RLock()
 	return recordLocker.RUnlock, nil
 }
 
-func (m *gameRoomMemoryRepository) LockAccess(gameId uuid.UUID) (func(), error) {
+func (m *gameMemoryRepository) LockAccess(gameId uuid.UUID) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
-		return nil, ErrGameRoomLockerNotFound
+		return nil, ErrGameLockerNotFound
 	}
 
 	recordLocker.Lock()

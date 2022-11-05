@@ -10,13 +10,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameRoomIntegrationEventHandlerConfiguration struct {
-	IntegrationEventBus        eventbus.IntegrationEventBus
-	GameRoomApplicationService applicationservice.GameRoomApplicationService
+type GameIntegrationEventHandlerConfiguration struct {
+	IntegrationEventBus    eventbus.IntegrationEventBus
+	GameApplicationService applicationservice.GameApplicationService
 }
 
-func NewGameRoomIntegrationEventHandler(
-	configuration GameRoomIntegrationEventHandlerConfiguration,
+func NewGameIntegrationEventHandler(
+	configuration GameIntegrationEventHandlerConfiguration,
 	gameId uuid.UUID,
 ) {
 	reviveUnitsRequestedIntegrationEventUnsubscriber := configuration.IntegrationEventBus.Subscribe(
@@ -30,7 +30,7 @@ func NewGameRoomIntegrationEventHandler(
 				return
 			}
 
-			configuration.GameRoomApplicationService.ReviveUnitsInGame(gameId, coordinates)
+			configuration.GameApplicationService.ReviveUnitsInGame(gameId, coordinates)
 		},
 	)
 	defer reviveUnitsRequestedIntegrationEventUnsubscriber()
@@ -42,7 +42,7 @@ func NewGameRoomIntegrationEventHandler(
 			json.Unmarshal(event, &addPlayerRequestedIntegrationEvent)
 
 			playerId := addPlayerRequestedIntegrationEvent.Payload.PlayerId
-			configuration.GameRoomApplicationService.AddPlayerToGameRoom(gameId, playerId)
+			configuration.GameApplicationService.AddPlayerToGame(gameId, playerId)
 		},
 	)
 	defer addPlayerRequestedIntegrationEventUnsubscriber()
@@ -53,8 +53,8 @@ func NewGameRoomIntegrationEventHandler(
 			var removePlayerRequestedIntegrationEvent integrationevent.RemovePlayerRequestedIntegrationEvent
 			json.Unmarshal(event, &removePlayerRequestedIntegrationEvent)
 
-			configuration.GameRoomApplicationService.RemovePlayerFromGameRoom(gameId, removePlayerRequestedIntegrationEvent.Payload.PlayerId)
-			configuration.GameRoomApplicationService.RemoveZoomedAreaFromGameRoom(gameId, removePlayerRequestedIntegrationEvent.Payload.PlayerId)
+			configuration.GameApplicationService.RemovePlayerFromGame(gameId, removePlayerRequestedIntegrationEvent.Payload.PlayerId)
+			configuration.GameApplicationService.RemoveZoomedAreaFromGame(gameId, removePlayerRequestedIntegrationEvent.Payload.PlayerId)
 		},
 	)
 	defer removePlayerRequestedIntegrationEventUnsubscriber()
@@ -69,7 +69,7 @@ func NewGameRoomIntegrationEventHandler(
 			if err != nil {
 				return
 			}
-			configuration.GameRoomApplicationService.AddZoomedAreaToGameRoom(gameId, zoomAreaRequestedIntegrationEvent.Payload.PlayerId, area)
+			configuration.GameApplicationService.AddZoomedAreaToGame(gameId, zoomAreaRequestedIntegrationEvent.Payload.PlayerId, area)
 		},
 	)
 	defer zoomAreaRequestedIntegrationEventSubscriber()

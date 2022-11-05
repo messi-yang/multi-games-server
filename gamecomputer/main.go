@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameroomdomainservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/sandboxservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
@@ -23,13 +23,13 @@ func Start() {
 			RedisInfrastructureService: redisInfrastructureService,
 		}),
 	})
-	gameRoomDomainService := gameroomdomainservice.NewGameRoomDomainService(gameroomdomainservice.GameRoomDomainServiceConfiguration{
-		GameRoomRepository: memoryrepository.NewGameRoomMemoryRepository(),
+	gameDomainService := gameservice.NewGameDomainService(gameservice.GameDomainServiceConfiguration{
+		GameRepository: memoryrepository.NewGameMemoryRepository(),
 	})
-	gameRoomApplicationService := applicationservice.NewGameRoomApplicationService(
-		applicationservice.GameRoomApplicationServiceConfiguration{
-			GameRoomDomainService: gameRoomDomainService,
-			IntegrationEventBus:   redisIntegrationEventBus,
+	gameApplicationService := applicationservice.NewGameApplicationService(
+		applicationservice.GameApplicationServiceConfiguration{
+			GameDomainService:   gameDomainService,
+			IntegrationEventBus: redisIntegrationEventBus,
 		},
 	)
 
@@ -39,17 +39,17 @@ func Start() {
 		size := config.GetConfig().GetGameMapSize()
 		mapSize, _ := valueobject.NewMapSize(size, size)
 		newSandbox, _ := sandboxDomainService.CreateSandbox(mapSize)
-		gameRoomApplicationService.CreateGameRoom(newSandbox)
+		gameApplicationService.CreateGame(newSandbox)
 		gameId = newSandbox.GetId()
 	} else {
 		game, _ := sandboxDomainService.GetSandbox(gameId)
-		gameRoomApplicationService.CreateGameRoom(game)
+		gameApplicationService.CreateGame(game)
 	}
 
-	integrationeventhandler.NewGameRoomIntegrationEventHandler(
-		integrationeventhandler.GameRoomIntegrationEventHandlerConfiguration{
-			GameRoomApplicationService: gameRoomApplicationService,
-			IntegrationEventBus:        redisIntegrationEventBus,
+	integrationeventhandler.NewGameIntegrationEventHandler(
+		integrationeventhandler.GameIntegrationEventHandlerConfiguration{
+			GameApplicationService: gameApplicationService,
+			IntegrationEventBus:    redisIntegrationEventBus,
 		},
 		gameId,
 	)

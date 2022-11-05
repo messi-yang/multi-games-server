@@ -15,33 +15,33 @@ var (
 	ErrPlayerAlreadyExists             = errors.New("the play with the given id already exists")
 )
 
-type GameRoom struct {
+type Game struct {
 	sandbox     *sandbox.Sandbox
 	playerIds   map[uuid.UUID]bool
 	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
-func NewGameRoom(sandbox sandbox.Sandbox) GameRoom {
-	return GameRoom{
+func NewGame(sandbox sandbox.Sandbox) Game {
+	return Game{
 		sandbox:     &sandbox,
 		playerIds:   make(map[uuid.UUID]bool),
 		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
 	}
 }
 
-func (gr *GameRoom) GetId() uuid.UUID {
+func (gr *Game) GetId() uuid.UUID {
 	return gr.sandbox.GetId()
 }
 
-func (gr *GameRoom) GetMapSize() valueobject.MapSize {
+func (gr *Game) GetMapSize() valueobject.MapSize {
 	return gr.sandbox.GetMapSize()
 }
 
-func (gr *GameRoom) GetUnitMap() valueobject.UnitMap {
+func (gr *Game) GetUnitMap() valueobject.UnitMap {
 	return gr.sandbox.GetUnitMap()
 }
 
-func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
+func (gr *Game) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
 	if !gr.GetMapSize().IncludesArea(area) {
 		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
 	}
@@ -62,11 +62,11 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap
 	return unitMap, nil
 }
 
-func (gr *GameRoom) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
+func (gr *Game) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
 	return gr.zoomedAreas
 }
 
-func (gr *GameRoom) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) error {
+func (gr *Game) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) error {
 	_, exists := gr.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
@@ -75,11 +75,11 @@ func (gr *GameRoom) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) err
 	return nil
 }
 
-func (gr *GameRoom) RemoveZoomedArea(playerId uuid.UUID) {
+func (gr *Game) RemoveZoomedArea(playerId uuid.UUID) {
 	delete(gr.zoomedAreas, playerId)
 }
 
-func (gr *GameRoom) AddPlayer(playerId uuid.UUID) error {
+func (gr *Game) AddPlayer(playerId uuid.UUID) error {
 	_, exists := gr.playerIds[playerId]
 	if exists {
 		return ErrPlayerAlreadyExists
@@ -90,11 +90,11 @@ func (gr *GameRoom) AddPlayer(playerId uuid.UUID) error {
 	return nil
 }
 
-func (gr *GameRoom) RemovePlayer(playerId uuid.UUID) {
+func (gr *Game) RemovePlayer(playerId uuid.UUID) {
 	delete(gr.playerIds, playerId)
 }
 
-func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) error {
+func (gr *Game) ReviveUnits(coordinates []valueobject.Coordinate) error {
 	if !gr.GetMapSize().IncludesAllCoordinates(coordinates) {
 		return ErrSomeCoordinatesNotIncludedInMap
 	}
