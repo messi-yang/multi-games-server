@@ -5,7 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
 )

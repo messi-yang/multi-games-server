@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/dto"
 )
 
 type EventType string
