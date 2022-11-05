@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 )
 
 type UnitMapDto [][]UnitDto

@@ -4,8 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game"
 	"github.com/google/uuid"
 )
 
@@ -16,16 +15,16 @@ var (
 )
 
 type gameRoomMemoryRepository struct {
-	records       map[uuid.UUID]*aggregate.GameRoom
+	records       map[uuid.UUID]*game.GameRoom
 	recordLockers map[uuid.UUID]*sync.RWMutex
 }
 
 var gameRoomMemoryRepositoryInstance *gameRoomMemoryRepository
 
-func NewGameRoomMemoryRepository() repository.GameRoomRepository {
+func NewGameRoomMemoryRepository() game.GameRoomRepository {
 	if gameRoomMemoryRepositoryInstance == nil {
 		gameRoomMemoryRepositoryInstance = &gameRoomMemoryRepository{
-			records:       make(map[uuid.UUID]*aggregate.GameRoom),
+			records:       make(map[uuid.UUID]*game.GameRoom),
 			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
 		return gameRoomMemoryRepositoryInstance
@@ -33,16 +32,16 @@ func NewGameRoomMemoryRepository() repository.GameRoomRepository {
 	return gameRoomMemoryRepositoryInstance
 }
 
-func (m *gameRoomMemoryRepository) Get(id uuid.UUID) (aggregate.GameRoom, error) {
+func (m *gameRoomMemoryRepository) Get(id uuid.UUID) (game.GameRoom, error) {
 	record, exists := m.records[id]
 	if !exists {
-		return aggregate.GameRoom{}, ErrGameRoomNotFound
+		return game.GameRoom{}, ErrGameRoomNotFound
 	}
 
 	return *record, nil
 }
 
-func (m *gameRoomMemoryRepository) Update(id uuid.UUID, gameRoom aggregate.GameRoom) error {
+func (m *gameRoomMemoryRepository) Update(id uuid.UUID, gameRoom game.GameRoom) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameRoomNotFound
@@ -53,15 +52,15 @@ func (m *gameRoomMemoryRepository) Update(id uuid.UUID, gameRoom aggregate.GameR
 	return nil
 }
 
-func (m *gameRoomMemoryRepository) GetAll() []aggregate.GameRoom {
-	gameRooms := make([]aggregate.GameRoom, 0)
+func (m *gameRoomMemoryRepository) GetAll() []game.GameRoom {
+	gameRooms := make([]game.GameRoom, 0)
 	for _, record := range m.records {
 		gameRooms = append(gameRooms, *record)
 	}
 	return gameRooms
 }
 
-func (m *gameRoomMemoryRepository) Add(gameRoom aggregate.GameRoom) error {
+func (m *gameRoomMemoryRepository) Add(gameRoom game.GameRoom) error {
 	m.records[gameRoom.GetId()] = &gameRoom
 	m.recordLockers[gameRoom.GetId()] = &sync.RWMutex{}
 

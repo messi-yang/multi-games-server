@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+import "github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 
 type MapSizeDto struct {
 	Width  int `json:"width"`

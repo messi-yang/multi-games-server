@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameroomdomainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/sandboxservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"

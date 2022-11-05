@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/sandbox"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameroomdomainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"

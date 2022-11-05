@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/sandbox"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/google/uuid"
 )

@@ -1,10 +1,10 @@
-package aggregate
+package game
 
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/sandbox"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
 	"github.com/google/uuid"
 )
 
