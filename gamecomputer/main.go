@@ -3,8 +3,8 @@ package gamecomputer
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/memoryrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/memory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/sandboxservice"
@@ -24,7 +24,7 @@ func Start() {
 		}),
 	})
 	gameDomainService := gameservice.NewGameDomainService(gameservice.GameDomainServiceConfiguration{
-		GameRepository: memoryrepository.NewGameMemoryRepository(),
+		GameRepository: memory.NewGameMemory(),
 	})
 	gameApplicationService := applicationservice.NewGameApplicationService(
 		applicationservice.GameApplicationServiceConfiguration{

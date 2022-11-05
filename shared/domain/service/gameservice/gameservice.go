@@ -20,11 +20,11 @@ type GameDomainService interface {
 }
 
 type gameDomainServiceImplement struct {
-	gameRepository gameModel.GameRepository
+	gameRepository gameModel.Repository
 }
 
 type GameDomainServiceConfiguration struct {
-	GameRepository gameModel.GameRepository
+	GameRepository gameModel.Repository
 }
 
 func NewGameDomainService(coniguration GameDomainServiceConfiguration) GameDomainService {

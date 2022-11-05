@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameRepository interface {
+type Repository interface {
 	Add(Game) error
 	Get(gameId uuid.UUID) (game Game, err error)
 	Update(gameId uuid.UUID, game Game) error
