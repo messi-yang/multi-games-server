@@ -13,11 +13,11 @@ type SandboxDomainService interface {
 }
 
 type sandboxDomainServiceImplement struct {
-	sandboxRepository sandbox.SandboxRepository
+	sandboxRepository sandbox.Repository
 }
 
 type SandboxDomainServiceConfiguration struct {
-	SandboxRepository sandbox.SandboxRepository
+	SandboxRepository sandbox.Repository
 }
 
 func NewSandboxDomainService(configuration SandboxDomainServiceConfiguration) SandboxDomainService {

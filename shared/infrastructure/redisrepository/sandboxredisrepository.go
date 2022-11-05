@@ -63,7 +63,7 @@ type SandboxRedisRepositoryConfiguration struct {
 	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
 }
 
-func NewSandboxRedisRepository(configuration SandboxRedisRepositoryConfiguration) sandbox.SandboxRepository {
+func NewSandboxRedisRepository(configuration SandboxRedisRepositoryConfiguration) sandbox.Repository {
 	return &sandboxRedisRepository{
 		redisInfrastructureService: configuration.RedisInfrastructureService,
 	}
