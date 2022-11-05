@@ -14,9 +14,9 @@ func Start() {
 	router := gin.Default()
 
 	redisService := infrastructureservice.NewRedisService()
-	sandboxDomainService, _ := sandboxservice.NewSandboxDomainService(sandboxservice.WithSandboxRedis())
+	sandboxService, _ := sandboxservice.NewSandboxService(sandboxservice.WithSandboxRedis())
 	gameApplicationService := applicationservice.NewGameApplicationService(applicationservice.GameApplicationServiceConfiguration{
-		SandboxDomainService: sandboxDomainService,
+		SandboxService: sandboxService,
 	})
 	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
 		RedisService: redisService,

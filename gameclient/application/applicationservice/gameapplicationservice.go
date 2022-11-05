@@ -10,20 +10,20 @@ type GameApplicationService interface {
 }
 
 type gameApplicationServiceImplementation struct {
-	sandboxDomainService *sandboxservice.SandboxDomainService
+	sandboxService *sandboxservice.SandboxService
 }
 
 type GameApplicationServiceConfiguration struct {
-	SandboxDomainService *sandboxservice.SandboxDomainService
+	SandboxService *sandboxservice.SandboxService
 }
 
 func NewGameApplicationService(configuration GameApplicationServiceConfiguration) GameApplicationService {
 	return &gameApplicationServiceImplementation{
-		sandboxDomainService: configuration.SandboxDomainService,
+		sandboxService: configuration.SandboxService,
 	}
 }
 
 func (service *gameApplicationServiceImplementation) GetFirstSandboxId() (uuid.UUID, error) {
-	gameId, err := service.sandboxDomainService.GetFirstSandboxId()
+	gameId, err := service.sandboxService.GetFirstSandboxId()
 	return gameId, err
 }

@@ -16,25 +16,25 @@ func Start() {
 	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
 		RedisService: redisService,
 	})
-	sandboxDomainService, _ := sandboxservice.NewSandboxDomainService(sandboxservice.WithSandboxRedis())
-	gameDomainService, _ := gameservice.NewGameService(gameservice.WithGameMemory())
+	sandboxService, _ := sandboxservice.NewSandboxService(sandboxservice.WithSandboxRedis())
+	gameService, _ := gameservice.NewGameService(gameservice.WithGameMemory())
 	gameApplicationService := applicationservice.NewGameApplicationService(
 		applicationservice.GameApplicationServiceConfiguration{
-			GameService:         gameDomainService,
+			GameService:         gameService,
 			IntegrationEventBus: redisIntegrationEventBus,
 		},
 	)
 
-	gameId, err := sandboxDomainService.GetFirstSandboxId()
+	gameId, err := sandboxService.GetFirstSandboxId()
 
 	if err != nil {
 		size := config.GetConfig().GetGameMapSize()
 		mapSize, _ := valueobject.NewMapSize(size, size)
-		newSandbox, _ := sandboxDomainService.CreateSandbox(mapSize)
+		newSandbox, _ := sandboxService.CreateSandbox(mapSize)
 		gameApplicationService.CreateGame(newSandbox)
 		gameId = newSandbox.GetId()
 	} else {
-		game, _ := sandboxDomainService.GetSandbox(gameId)
+		game, _ := sandboxService.GetSandbox(gameId)
 		gameApplicationService.CreateGame(game)
 	}
 

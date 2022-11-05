@@ -29,7 +29,7 @@ type GameApplicationService interface {
 }
 
 type gameApplicationServiceImplement struct {
-	gameDomainService   *gameservice.GameService
+	gameService         *gameservice.GameService
 	integrationEventBus eventbus.IntegrationEventBus
 }
 
@@ -40,13 +40,13 @@ type GameApplicationServiceConfiguration struct {
 
 func NewGameApplicationService(config GameApplicationServiceConfiguration) GameApplicationService {
 	return &gameApplicationServiceImplement{
-		gameDomainService:   config.GameService,
+		gameService:         config.GameService,
 		integrationEventBus: config.IntegrationEventBus,
 	}
 }
 
 func (grs *gameApplicationServiceImplement) CreateGame(game sandbox.Sandbox) error {
-	err := grs.gameDomainService.CreateGame(game)
+	err := grs.gameService.CreateGame(game)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (grs *gameApplicationServiceImplement) CreateGame(game sandbox.Sandbox) err
 }
 
 func (grs *gameApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
-	updatedGame, err := grs.gameDomainService.ReviveUnitsInGame(gameId, coordinates)
+	updatedGame, err := grs.gameService.ReviveUnitsInGame(gameId, coordinates)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (grs *gameApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, 
 }
 
 func (grs *gameApplicationServiceImplement) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) error {
-	updatedGame, err := grs.gameDomainService.AddPlayerToGame(gameId, playerId)
+	updatedGame, err := grs.gameService.AddPlayerToGame(gameId, playerId)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -93,7 +93,7 @@ func (grs *gameApplicationServiceImplement) AddPlayerToGame(gameId uuid.UUID, pl
 }
 
 func (grs *gameApplicationServiceImplement) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
-	_, err := grs.gameDomainService.RemovePlayerFromGame(gameId, playerId)
+	_, err := grs.gameService.RemovePlayerFromGame(gameId, playerId)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (grs *gameApplicationServiceImplement) RemovePlayerFromGame(gameId uuid.UUI
 }
 
 func (grs *gameApplicationServiceImplement) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
-	updatedGame, err := grs.gameDomainService.AddZoomedAreaToGame(gameId, playerId, area)
+	updatedGame, err := grs.gameService.AddZoomedAreaToGame(gameId, playerId, area)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (grs *gameApplicationServiceImplement) AddZoomedAreaToGame(gameId uuid.UUID
 }
 
 func (grs *gameApplicationServiceImplement) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
-	_, err := grs.gameDomainService.RemoveZoomedAreaFromGame(gameId, playerId)
+	_, err := grs.gameService.RemoveZoomedAreaFromGame(gameId, playerId)
 	if err != nil {
 		return err
 	}

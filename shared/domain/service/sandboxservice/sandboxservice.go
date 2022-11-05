@@ -7,14 +7,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type SandboxDomainService struct {
+type SandboxService struct {
 	sandboxRepository sandbox.Repository
 }
 
-type SandboxDomainServiceConfiguration func(service *SandboxDomainService) error
+type SandboxServiceConfiguration func(service *SandboxService) error
 
-func NewSandboxDomainService(cfgs ...SandboxDomainServiceConfiguration) (*SandboxDomainService, error) {
-	t := &SandboxDomainService{}
+func NewSandboxService(cfgs ...SandboxServiceConfiguration) (*SandboxService, error) {
+	t := &SandboxService{}
 	for _, cfg := range cfgs {
 		err := cfg(t)
 		if err != nil {
@@ -24,15 +24,15 @@ func NewSandboxDomainService(cfgs ...SandboxDomainServiceConfiguration) (*Sandbo
 	return t, nil
 }
 
-func WithSandboxRedis() SandboxDomainServiceConfiguration {
+func WithSandboxRedis() SandboxServiceConfiguration {
 	sandboxRedis, _ := redis.NewSandboxRedis(redis.WithRedisService())
-	return func(service *SandboxDomainService) error {
+	return func(service *SandboxService) error {
 		service.sandboxRepository = sandboxRedis
 		return nil
 	}
 }
 
-func (service *SandboxDomainService) CreateSandbox(mapSize valueobject.MapSize) (sandbox.Sandbox, error) {
+func (service *SandboxService) CreateSandbox(mapSize valueobject.MapSize) (sandbox.Sandbox, error) {
 	unitMap := make([][]valueobject.Unit, mapSize.GetWidth())
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
 		unitMap[i] = make([]valueobject.Unit, mapSize.GetHeight())
@@ -49,7 +49,7 @@ func (service *SandboxDomainService) CreateSandbox(mapSize valueobject.MapSize) 
 	return newSandbox, nil
 }
 
-func (service *SandboxDomainService) GetSandbox(id uuid.UUID) (sandbox.Sandbox, error) {
+func (service *SandboxService) GetSandbox(id uuid.UUID) (sandbox.Sandbox, error) {
 	game, err := service.sandboxRepository.Get(id)
 	if err != nil {
 		return sandbox.Sandbox{}, err
@@ -58,7 +58,7 @@ func (service *SandboxDomainService) GetSandbox(id uuid.UUID) (sandbox.Sandbox, 
 	return game, nil
 }
 
-func (service *SandboxDomainService) GetFirstSandboxId() (uuid.UUID, error) {
+func (service *SandboxService) GetFirstSandboxId() (uuid.UUID, error) {
 	gameId, err := service.sandboxRepository.GetFirstGameId()
 	return gameId, err
 }
