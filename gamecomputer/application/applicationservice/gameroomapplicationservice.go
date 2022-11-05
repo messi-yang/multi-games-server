@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/domainservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/sandbox"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameroomdomainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
 )
@@ -17,7 +17,7 @@ var (
 )
 
 type GameRoomApplicationService interface {
-	CreateGameRoom(game entity.Game) (err error)
+	CreateGameRoom(game sandbox.Sandbox) (err error)
 
 	AddPlayerToGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) error
@@ -29,12 +29,12 @@ type GameRoomApplicationService interface {
 }
 
 type gameRoomApplicationServiceImplement struct {
-	gameRoomDomainService domainservice.GameRoomDomainService
+	gameRoomDomainService gameroomdomainservice.GameRoomDomainService
 	integrationEventBus   eventbus.IntegrationEventBus
 }
 
 type GameRoomApplicationServiceConfiguration struct {
-	GameRoomDomainService domainservice.GameRoomDomainService
+	GameRoomDomainService gameroomdomainservice.GameRoomDomainService
 	IntegrationEventBus   eventbus.IntegrationEventBus
 }
 
@@ -45,7 +45,7 @@ func NewGameRoomApplicationService(config GameRoomApplicationServiceConfiguratio
 	}
 }
 
-func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(game entity.Game) error {
+func (grs *gameRoomApplicationServiceImplement) CreateGameRoom(game sandbox.Sandbox) error {
 	err := grs.gameRoomDomainService.CreateGameRoom(game)
 	if err != nil {
 		return err

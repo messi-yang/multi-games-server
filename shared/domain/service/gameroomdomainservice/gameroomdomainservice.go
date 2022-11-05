@@ -1,15 +1,15 @@
-package domainservice
+package gameroomdomainservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/sandbox"
 	"github.com/google/uuid"
 )
 
 type GameRoomDomainService interface {
-	CreateGameRoom(game entity.Game) error
+	CreateGameRoom(game sandbox.Sandbox) error
 
 	AddPlayerToGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
 	RemovePlayerFromGameRoom(gameId uuid.UUID, playerId uuid.UUID) (aggregate.GameRoom, error)
@@ -34,7 +34,7 @@ func NewGameRoomDomainService(coniguration GameRoomDomainServiceConfiguration) G
 	}
 }
 
-func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(game entity.Game) error {
+func (gsi *gameRoomDomainServiceImplement) CreateGameRoom(game sandbox.Sandbox) error {
 	gameRoom := aggregate.NewGameRoom(game)
 	gsi.gameRoomRepository.Add(gameRoom)
 	return nil

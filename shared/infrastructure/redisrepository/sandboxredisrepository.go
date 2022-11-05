@@ -5,9 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/sandbox"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/google/uuid"
 )
@@ -21,7 +20,7 @@ type UnitModel struct {
 	Alive bool `json:"alive"`
 }
 
-type gameRecord struct {
+type sandboxRecord struct {
 	Id      uuid.UUID     `json:"id"`
 	UnitMap [][]UnitModel `json:"unitMap"`
 }
@@ -56,27 +55,27 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) valueobject.Un
 	return valueobject.NewUnitMap(unitMatrix)
 }
 
-type gameRedisRepository struct {
+type sandboxRedisRepository struct {
 	redisInfrastructureService infrastructureservice.RedisInfrastructureService
 }
 
-type GameRedisRepositoryConfiguration struct {
+type SandboxRedisRepositoryConfiguration struct {
 	RedisInfrastructureService infrastructureservice.RedisInfrastructureService
 }
 
-func NewGameRedisRepository(configuration GameRedisRepositoryConfiguration) repository.GameRepository {
-	return &gameRedisRepository{
+func NewSandboxRedisRepository(configuration SandboxRedisRepositoryConfiguration) sandbox.SandboxRepository {
+	return &sandboxRedisRepository{
 		redisInfrastructureService: configuration.RedisInfrastructureService,
 	}
 }
 
-func (repository *gameRedisRepository) createKey(gameId uuid.UUID) string {
+func (repository *sandboxRedisRepository) createKey(gameId uuid.UUID) string {
 	return fmt.Sprintf("game-room-id-%s", gameId)
 }
 
-func (repository *gameRedisRepository) Add(game entity.Game) error {
+func (repository *sandboxRedisRepository) Add(game sandbox.Sandbox) error {
 	dataKey := repository.createKey(game.GetId())
-	newGameRecord := gameRecord{
+	newGameRecord := sandboxRecord{
 		Id:      game.GetId(),
 		UnitMap: ConvertUnitMapToUnitModelMatrix(game.GetUnitMap()),
 	}
@@ -87,19 +86,19 @@ func (repository *gameRedisRepository) Add(game entity.Game) error {
 	return nil
 }
 
-func (repository *gameRedisRepository) Get(id uuid.UUID) (entity.Game, error) {
+func (repository *sandboxRedisRepository) Get(id uuid.UUID) (sandbox.Sandbox, error) {
 	dataKey := repository.createKey(id)
 	gameFromRedisInBytes, _ := repository.redisInfrastructureService.Get(dataKey)
-	var gameFromRedis gameRecord
+	var gameFromRedis sandboxRecord
 	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
 	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
-	game := entity.NewGame(gameFromRedis.Id, unitMap)
+	game := sandbox.NewSandbox(gameFromRedis.Id, unitMap)
 
 	return game, nil
 }
 
-func (repository *gameRedisRepository) GetFirstGameId() (uuid.UUID, error) {
+func (repository *sandboxRedisRepository) GetFirstGameId() (uuid.UUID, error) {
 	gameIdInBytes, _ := repository.redisInfrastructureService.Get("game-id")
 	if len(gameIdInBytes) == 0 {
 		return uuid.Nil, ErrGameNotFound
@@ -109,6 +108,6 @@ func (repository *gameRedisRepository) GetFirstGameId() (uuid.UUID, error) {
 	return gameId, nil
 }
 
-func (repository *gameRedisRepository) Update(id uuid.UUID, game entity.Game) error {
+func (repository *sandboxRedisRepository) Update(id uuid.UUID, game sandbox.Sandbox) error {
 	return nil
 }

@@ -48,7 +48,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		gameId, err := configuration.GameApplicationService.GetFirstGameId()
+		gameId, err := configuration.GameApplicationService.GetFirstSandboxId()
 		if err != nil {
 			c.Error(err)
 			return

@@ -3,8 +3,8 @@ package aggregate
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/sandbox"
 	"github.com/google/uuid"
 )
 
@@ -16,29 +16,29 @@ var (
 )
 
 type GameRoom struct {
-	game        *entity.Game
+	sandbox     *sandbox.Sandbox
 	playerIds   map[uuid.UUID]bool
 	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
-func NewGameRoom(game entity.Game) GameRoom {
+func NewGameRoom(sandbox sandbox.Sandbox) GameRoom {
 	return GameRoom{
-		game:        &game,
+		sandbox:     &sandbox,
 		playerIds:   make(map[uuid.UUID]bool),
 		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
 	}
 }
 
 func (gr *GameRoom) GetId() uuid.UUID {
-	return gr.game.GetId()
+	return gr.sandbox.GetId()
 }
 
 func (gr *GameRoom) GetMapSize() valueobject.MapSize {
-	return gr.game.GetMapSize()
+	return gr.sandbox.GetMapSize()
 }
 
 func (gr *GameRoom) GetUnitMap() valueobject.UnitMap {
-	return gr.game.GetUnitMap()
+	return gr.sandbox.GetUnitMap()
 }
 
 func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
@@ -54,7 +54,7 @@ func (gr *GameRoom) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap
 		unitMatrix[x] = make([]valueobject.Unit, areaHeight)
 		for y := 0; y < areaHeight; y += 1 {
 			coordinate, _ := valueobject.NewCoordinate(x+offsetX, y+offsetY)
-			unitMatrix[x][y] = gr.game.GetUnit(coordinate)
+			unitMatrix[x][y] = gr.sandbox.GetUnit(coordinate)
 		}
 	}
 	unitMap := valueobject.NewUnitMap(unitMatrix)
@@ -100,9 +100,9 @@ func (gr *GameRoom) ReviveUnits(coordinates []valueobject.Coordinate) error {
 	}
 
 	for _, coordinate := range coordinates {
-		unit := gr.game.GetUnit(coordinate)
+		unit := gr.sandbox.GetUnit(coordinate)
 		newUnit := unit.SetAlive(true)
-		gr.game.SetUnit(coordinate, newUnit)
+		gr.sandbox.SetUnit(coordinate, newUnit)
 	}
 
 	return nil
