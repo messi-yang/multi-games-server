@@ -10,7 +10,7 @@ type ErrInvalidDimension struct {
 }
 
 func (e *ErrInvalidDimension) Error() string {
-	return fmt.Sprintf("width (%d) and height(%d) of map size must be greater than 0", e.width, e.height)
+	return fmt.Sprintf("width (%d) and height(%d) of dimension must be greater than 0", e.width, e.height)
 }
 
 type Dimension struct {

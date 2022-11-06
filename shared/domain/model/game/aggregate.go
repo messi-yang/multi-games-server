@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrAreaExceedsUnitMap              = errors.New("area should contain valid from and to coordinates and it should never exceed map size")
+	ErrAreaExceedsUnitMap              = errors.New("area should contain valid from and to coordinates and it should never exceed dimension")
 	ErrSomeCoordinatesNotIncludedInMap = errors.New("some coordinates are not included in the unit map")
 	ErrPlayerNotFound                  = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists             = errors.New("the play with the given id already exists")
