@@ -4,7 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 )
 
@@ -16,8 +16,10 @@ func Start() {
 	)
 
 	size := config.GetConfig().GetGameDimension()
-	dimension, _ := valueobject.NewDimension(size, size)
-	gameId, _ := gameApplicationService.CreateGame(dimension)
+	gameId, _ := gameApplicationService.CreateGame(dto.DimensionDto{
+		Width:  size,
+		Height: size,
+	})
 
 	integrationeventhandler.NewGameIntegrationEventHandler(
 		integrationeventhandler.GameIntegrationEventHandlerConfiguration{

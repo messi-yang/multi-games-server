@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
@@ -52,10 +53,14 @@ func WithRedisIntegrationEventBus() gameApplicationServiceConfiguration {
 	}
 }
 
-func (grs *GameApplicationService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, error) {
+func (grs *GameApplicationService) CreateGame(dimensionDto dto.DimensionDto) (uuid.UUID, error) {
+	dimension, err := dimensionDto.ToValueObject()
+	if err != nil {
+		return uuid.Nil, err
+	}
 	gameId, err := grs.gameService.CreateGame(dimension)
 	if err != nil {
-		return gameId, err
+		return uuid.Nil, err
 	}
 
 	return gameId, nil

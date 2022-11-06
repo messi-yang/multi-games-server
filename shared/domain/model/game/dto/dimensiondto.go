@@ -13,3 +13,7 @@ func NewDimensionDto(dimension valueobject.Dimension) DimensionDto {
 		Height: dimension.GetHeight(),
 	}
 }
+
+func (dto DimensionDto) ToValueObject() (valueobject.Dimension, error) {
+	return valueobject.NewDimension(dto.Width, dto.Height)
+}
