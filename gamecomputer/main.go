@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/integrationeventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/sandboxservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 )
@@ -16,8 +15,7 @@ func Start() {
 	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
 		RedisService: redisService,
 	})
-	sandboxService, _ := sandboxservice.NewSandboxService(sandboxservice.WithSandboxRedis())
-	gameService, _ := gameservice.NewGameService(gameservice.WithGameMemory())
+	gameService, _ := gameservice.NewGameService(gameservice.WithGameMemory(), gameservice.WithSandboxRedis())
 	gameApplicationService := applicationservice.NewGameApplicationService(
 		applicationservice.GameApplicationServiceConfiguration{
 			GameService:         gameService,
@@ -25,16 +23,16 @@ func Start() {
 		},
 	)
 
-	gameId, err := sandboxService.GetFirstSandboxId()
+	gameId, err := gameService.GetFirstSandboxId()
 
 	if err != nil {
 		size := config.GetConfig().GetGameDimension()
 		dimension, _ := valueobject.NewDimension(size, size)
-		newSandbox, _ := sandboxService.CreateSandbox(dimension)
+		newSandbox, _ := gameService.CreateSandbox(dimension)
 		gameApplicationService.CreateGame(newSandbox)
 		gameId = newSandbox.GetId()
 	} else {
-		game, _ := sandboxService.GetSandbox(gameId)
+		game, _ := gameService.GetSandbox(gameId)
 		gameApplicationService.CreateGame(game)
 	}
 

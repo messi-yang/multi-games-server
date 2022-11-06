@@ -4,7 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/interface/http/gamehandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/presenter/gamehandlerpresenter"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/sandboxservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/infrastructureservice"
 	"github.com/gin-gonic/gin"
@@ -14,9 +14,9 @@ func Start() {
 	router := gin.Default()
 
 	redisService := infrastructureservice.NewRedisService()
-	sandboxService, _ := sandboxservice.NewSandboxService(sandboxservice.WithSandboxRedis())
+	gameService, _ := gameservice.NewGameService(gameservice.WithSandboxRedis())
 	gameApplicationService := applicationservice.NewGameApplicationService(applicationservice.GameApplicationServiceConfiguration{
-		SandboxService: sandboxService,
+		GameService: gameService,
 	})
 	redisIntegrationEventBus := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.RedisIntegrationEventBusCallbackConfiguration{
 		RedisService: redisService,
