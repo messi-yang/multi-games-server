@@ -1,11 +1,10 @@
-package gamehandlerpresenter
+package gamehandler
 
 import (
 	"encoding/json"
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 )
 
 type EventType string
@@ -76,24 +75,16 @@ type ZoomAreaRequestedEvent struct {
 	Payload ZoomAreaRequestedEventPayload `json:"payload"`
 }
 
-type GameHandlerPresenter interface {
-	CreateErroredEvent(clientMessage string) ErroredEvent
-	CreateInformationUpdatedEvent(dimension dto.DimensionDto) InformationUpdatedEvent
-	CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) ZoomedAreaUpdatedEvent
-	CreateAreaZoomedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) AreaZoomedEvent
-	ExtractEventType(msg []byte) (EventType, error)
-	ExtractReviveUnitsRequestedEvent(msg []byte) ([]valueobject.Coordinate, error)
-	ExtractZoomAreaRequestedEvent(msg []byte) (valueobject.Area, error)
+type GameHandlerPresenter struct {
 }
 
-type gameHandlerPresenterImplement struct {
+func NewGameHandlerPresenter() *GameHandlerPresenter {
+	return &GameHandlerPresenter{}
 }
 
-func NewGameHandlerPresenter() GameHandlerPresenter {
-	return &gameHandlerPresenterImplement{}
-}
+var gameHandlerPresenter = NewGameHandlerPresenter()
 
-func (presenter *gameHandlerPresenterImplement) ExtractEventType(msg []byte) (EventType, error) {
+func (presenter *GameHandlerPresenter) ExtractEventType(msg []byte) (EventType, error) {
 	var event Event
 	err := json.Unmarshal(msg, &event)
 	if err != nil {
@@ -103,7 +94,7 @@ func (presenter *gameHandlerPresenterImplement) ExtractEventType(msg []byte) (Ev
 	return event.Type, nil
 }
 
-func (presenter *gameHandlerPresenterImplement) CreateErroredEvent(clientMessage string) ErroredEvent {
+func (presenter *GameHandlerPresenter) CreateErroredEvent(clientMessage string) ErroredEvent {
 	return ErroredEvent{
 		Type: ErrorHappenedEventType,
 		Payload: ErroredEventPayload{
@@ -112,7 +103,7 @@ func (presenter *gameHandlerPresenterImplement) CreateErroredEvent(clientMessage
 	}
 }
 
-func (presenter *gameHandlerPresenterImplement) CreateInformationUpdatedEvent(dimension dto.DimensionDto) InformationUpdatedEvent {
+func (presenter *GameHandlerPresenter) CreateInformationUpdatedEvent(dimension dto.DimensionDto) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
@@ -121,7 +112,7 @@ func (presenter *gameHandlerPresenterImplement) CreateInformationUpdatedEvent(di
 	}
 }
 
-func (presenter *gameHandlerPresenterImplement) CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) ZoomedAreaUpdatedEvent {
+func (presenter *GameHandlerPresenter) CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) ZoomedAreaUpdatedEvent {
 	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
 		Payload: ZoomedAreaUpdatedEventPayload{
@@ -132,7 +123,7 @@ func (presenter *gameHandlerPresenterImplement) CreateZoomedAreaUpdatedEvent(are
 	}
 }
 
-func (presenter *gameHandlerPresenterImplement) CreateAreaZoomedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) AreaZoomedEvent {
+func (presenter *GameHandlerPresenter) CreateAreaZoomedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) AreaZoomedEvent {
 	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
 		Payload: AreaZoomedEventPayload{
@@ -142,32 +133,21 @@ func (presenter *gameHandlerPresenterImplement) CreateAreaZoomedEvent(area dto.A
 	}
 }
 
-func (presenter *gameHandlerPresenterImplement) ExtractReviveUnitsRequestedEvent(msg []byte) ([]valueobject.Coordinate, error) {
+func (presenter *GameHandlerPresenter) ExtractReviveUnitsRequestedEvent(msg []byte) ([]dto.CoordinateDto, error) {
 	var action ReviveUnitsRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return nil, err
 	}
-
-	coordinates, err := dto.ParseCoordinateDtos(action.Payload.Coordinates)
-	if err != nil {
-		return nil, err
-	}
-
-	return coordinates, nil
+	return action.Payload.Coordinates, nil
 }
 
-func (presenter *gameHandlerPresenterImplement) ExtractZoomAreaRequestedEvent(msg []byte) (valueobject.Area, error) {
+func (presenter *GameHandlerPresenter) ExtractZoomAreaRequestedEvent(msg []byte) (dto.AreaDto, error) {
 	var action ZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
-		return valueobject.Area{}, err
+		return dto.AreaDto{}, err
 	}
 
-	area, err := action.Payload.Area.ToValueObject()
-	if err != nil {
-		return valueobject.Area{}, err
-	}
-
-	return area, nil
+	return action.Payload.Area, nil
 }

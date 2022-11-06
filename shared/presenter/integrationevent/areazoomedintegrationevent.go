@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -24,10 +23,7 @@ func NewAreaZoomedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUID) st
 	return fmt.Sprintf("game-room-%s-player-%s-area-zoomed", gameId, playerId)
 }
 
-func NewAreaZoomedIntegrationEvent(area valueobject.Area, unitBlock valueobject.UnitBlock) []byte {
-	areaDto := dto.NewAreaDto(area)
-	unitBlockDto := dto.Dto(unitBlock)
-
+func NewAreaZoomedIntegrationEvent(areaDto dto.AreaDto, unitBlockDto dto.UnitBlockDto) []byte {
 	event := AreaZoomedIntegrationEvent{
 		Payload: areaZoomedIntegrationEventPayload{
 			Area:      areaDto,

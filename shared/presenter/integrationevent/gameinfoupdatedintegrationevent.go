@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/google/uuid"
 )
 
@@ -23,9 +22,7 @@ func NewGameInfoUpdatedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUI
 	return fmt.Sprintf("game-room-%s-player-%s-game-info-updated", gameId, playerId)
 }
 
-func NewGameInfoUpdatedIntegrationEvent(dimension valueobject.Dimension) []byte {
-	dimensionDto := dto.NewDimensionDto(dimension)
-
+func NewGameInfoUpdatedIntegrationEvent(dimensionDto dto.DimensionDto) []byte {
 	event := GameInfoUpdatedIntegrationEvent{
 		Payload: gameInfoUpdatedIntegrationEventPayload{
 			Dimension: dimensionDto,

@@ -6,7 +6,7 @@ import (
 
 type UnitBlockDto [][]UnitDto
 
-func Dto(unitBlock valueobject.UnitBlock) UnitBlockDto {
+func NewUnitBlockDto(unitBlock valueobject.UnitBlock) UnitBlockDto {
 	unitBlockDto := make(UnitBlockDto, 0)
 
 	for i := 0; i < unitBlock.GetDimension().GetWidth(); i += 1 {

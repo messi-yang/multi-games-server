@@ -5,7 +5,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
 )
@@ -25,12 +24,7 @@ func NewGameIntegrationEventHandler(
 			var reviveUnitsRequestedIntegrationEvent integrationevent.ReviveUnitsRequestedIntegrationEvent
 			json.Unmarshal(event, &reviveUnitsRequestedIntegrationEvent)
 
-			coordinates, err := dto.ParseCoordinateDtos(reviveUnitsRequestedIntegrationEvent.Payload.Coordinates)
-			if err != nil {
-				return
-			}
-
-			configuration.GameApplicationService.ReviveUnitsInGame(gameId, coordinates)
+			configuration.GameApplicationService.ReviveUnitsInGame(gameId, reviveUnitsRequestedIntegrationEvent.Payload.Coordinates)
 		},
 	)
 	defer reviveUnitsRequestedIntegrationEventUnsubscriber()
@@ -65,11 +59,7 @@ func NewGameIntegrationEventHandler(
 			var zoomAreaRequestedIntegrationEvent integrationevent.ZoomAreaRequestedIntegrationEvent
 			json.Unmarshal(event, &zoomAreaRequestedIntegrationEvent)
 
-			area, err := zoomAreaRequestedIntegrationEvent.Payload.Area.ToValueObject()
-			if err != nil {
-				return
-			}
-			configuration.GameApplicationService.AddZoomedAreaToGame(gameId, zoomAreaRequestedIntegrationEvent.Payload.PlayerId, area)
+			configuration.GameApplicationService.AddZoomedAreaToGame(gameId, zoomAreaRequestedIntegrationEvent.Payload.PlayerId, zoomAreaRequestedIntegrationEvent.Payload.Area)
 		},
 	)
 	defer zoomAreaRequestedIntegrationEventSubscriber()

@@ -2,11 +2,9 @@ package applicationservice
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
@@ -66,7 +64,12 @@ func (grs *GameApplicationService) CreateGame(dimensionDto dto.DimensionDto) (uu
 	return gameId, nil
 }
 
-func (grs *GameApplicationService) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
+func (grs *GameApplicationService) ReviveUnitsInGame(gameId uuid.UUID, coordinateDtos []dto.CoordinateDto) error {
+	coordinates, err := dto.ParseCoordinateDtos(coordinateDtos)
+	if err != nil {
+		return err
+	}
+
 	updatedGame, err := grs.gameService.ReviveUnitsInGame(gameId, coordinates)
 	if err != nil {
 		return err
@@ -83,7 +86,7 @@ func (grs *GameApplicationService) ReviveUnitsInGame(gameId uuid.UUID, coordinat
 		}
 		grs.integrationEventBus.Publish(
 			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGame.GetId(), playerId),
-			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, unitBlock),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(dto.NewAreaDto(area), dto.NewUnitBlockDto(unitBlock)),
 		)
 	}
 	return nil
@@ -92,13 +95,13 @@ func (grs *GameApplicationService) ReviveUnitsInGame(gameId uuid.UUID, coordinat
 func (grs *GameApplicationService) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) error {
 	updatedGame, err := grs.gameService.AddPlayerToGame(gameId, playerId)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
+	dimensionDto := dto.NewDimensionDto(updatedGame.GetDimension())
 
 	grs.integrationEventBus.Publish(
 		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, playerId),
-		integrationevent.NewGameInfoUpdatedIntegrationEvent(updatedGame.GetDimension()),
+		integrationevent.NewGameInfoUpdatedIntegrationEvent(dimensionDto),
 	)
 
 	return nil
@@ -113,7 +116,12 @@ func (grs *GameApplicationService) RemovePlayerFromGame(gameId uuid.UUID, player
 	return nil
 }
 
-func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
+func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, areaDto dto.AreaDto) error {
+	area, err := areaDto.ToValueObject()
+	if err != nil {
+		return err
+	}
+
 	updatedGame, err := grs.gameService.AddZoomedAreaToGame(gameId, playerId, area)
 	if err != nil {
 		return err
@@ -124,9 +132,11 @@ func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerI
 		return err
 	}
 
+	unitBlockDto := dto.NewUnitBlockDto(unitBlock)
+
 	grs.integrationEventBus.Publish(
 		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, playerId),
-		integrationevent.NewAreaZoomedIntegrationEvent(area, unitBlock),
+		integrationevent.NewAreaZoomedIntegrationEvent(areaDto, unitBlockDto),
 	)
 
 	return nil
