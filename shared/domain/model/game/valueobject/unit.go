@@ -1,16 +1,18 @@
 package valueobject
 
-import "github.com/google/uuid"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/common/valueobject"
+)
 
 type Unit struct {
-	alive  bool
-	itemId uuid.UUID
+	alive    bool
+	itemType valueobject.ItemType
 }
 
-func NewUnit(alive bool, itemId uuid.UUID) Unit {
+func NewUnit(alive bool, itemType valueobject.ItemType) Unit {
 	return Unit{
-		alive:  alive,
-		itemId: itemId,
+		alive:    alive,
+		itemType: itemType,
 	}
 }
 
@@ -20,18 +22,18 @@ func (gu Unit) GetAlive() bool {
 
 func (gu Unit) SetAlive(alive bool) Unit {
 	return Unit{
-		alive:  alive,
-		itemId: gu.itemId,
+		alive:    alive,
+		itemType: gu.itemType,
 	}
 }
 
-func (gu Unit) GetItemId() uuid.UUID {
-	return gu.itemId
+func (gu Unit) GetItemType() valueobject.ItemType {
+	return gu.itemType
 }
 
-func (gu Unit) SetItemId(itemId uuid.UUID) Unit {
+func (gu Unit) SetItemType(itemType valueobject.ItemType) Unit {
 	return Unit{
-		alive:  gu.alive,
-		itemId: itemId,
+		alive:    gu.alive,
+		itemType: itemType,
 	}
 }

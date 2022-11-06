@@ -1,6 +1,7 @@
 package gameservice
 
 import (
+	commonValueobject "github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/common/valueobject"
 	gameModel "github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/memory"
@@ -50,7 +51,7 @@ func (gs *GameService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, e
 	for i := 0; i < dimension.GetWidth(); i += 1 {
 		unitBlock[i] = make([]valueobject.Unit, dimension.GetHeight())
 		for j := 0; j < dimension.GetHeight(); j += 1 {
-			unitBlock[i][j] = valueobject.NewUnit(false, uuid.Nil)
+			unitBlock[i][j] = valueobject.NewUnit(false, commonValueobject.ItemTypeStone)
 		}
 	}
 	newSandbox := entity.NewSandbox(gs.hardcodedSandboxId, valueobject.NewUnitBlock(unitBlock))
