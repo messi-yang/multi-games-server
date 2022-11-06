@@ -37,12 +37,8 @@ func WithGameMemory() gameServiceConfiguration {
 	}
 }
 
-func (gs *GameService) GetAllGames() []gameModel.Game {
-	sandbox := entity.NewSandbox(gs.hardcodedSandboxId, valueobject.UnitBlock{})
-	game := gameModel.NewGame(sandbox)
-	games := make([]gameModel.Game, 0)
-	games = append(games, game)
-	return games
+func (gs *GameService) GetAllGameIds() []uuid.UUID {
+	return []uuid.UUID{gs.hardcodedSandboxId}
 }
 
 func (gs *GameService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, error) {

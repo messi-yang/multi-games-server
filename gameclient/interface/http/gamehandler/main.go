@@ -48,8 +48,8 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		games := configuration.GameApplicationService.GetAllGames()
-		gameId := games[0].GetId()
+		gamesIds := configuration.GameApplicationService.GetAllGameIds()
+		gameId := gamesIds[0]
 
 		clientSession := &clientSession{
 			gameId:                gameId,
