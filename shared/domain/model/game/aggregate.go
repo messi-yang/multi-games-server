@@ -3,8 +3,8 @@ package game
 import (
 	"errors"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
 	"github.com/google/uuid"
 )
 
@@ -16,14 +16,14 @@ var (
 )
 
 type Game struct {
-	sandbox     *sandbox.Sandbox
+	sandbox     entity.Sandbox
 	playerIds   map[uuid.UUID]bool
 	zoomedAreas map[uuid.UUID]valueobject.Area
 }
 
-func NewGame(sandbox sandbox.Sandbox) Game {
+func NewGame(sandbox entity.Sandbox) Game {
 	return Game{
-		sandbox:     &sandbox,
+		sandbox:     sandbox,
 		playerIds:   make(map[uuid.UUID]bool),
 		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
 	}

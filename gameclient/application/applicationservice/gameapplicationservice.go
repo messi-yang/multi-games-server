@@ -1,29 +1,35 @@
 package applicationservice
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
-	"github.com/google/uuid"
 )
 
-type GameApplicationService interface {
-	GetFirstSandboxId() (uuid.UUID, error)
-}
-
-type gameApplicationServiceImplementation struct {
+type GameApplicationService struct {
 	GameService *gameservice.GameService
 }
 
-type GameApplicationServiceConfiguration struct {
-	GameService *gameservice.GameService
+type gameApplicationServiceConfiguration func(service *GameApplicationService) error
+
+func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*GameApplicationService, error) {
+	service := &GameApplicationService{}
+	for _, cfg := range cfgs {
+		err := cfg(service)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return service, nil
 }
 
-func NewGameApplicationService(configuration GameApplicationServiceConfiguration) GameApplicationService {
-	return &gameApplicationServiceImplementation{
-		GameService: configuration.GameService,
+func WithGameService() gameApplicationServiceConfiguration {
+	gameService, _ := gameservice.NewGameService()
+	return func(service *GameApplicationService) error {
+		service.GameService = gameService
+		return nil
 	}
 }
 
-func (service *gameApplicationServiceImplementation) GetFirstSandboxId() (uuid.UUID, error) {
-	gameId, err := service.GameService.GetFirstSandboxId()
-	return gameId, err
+func (service *GameApplicationService) GetAllGames() []game.Game {
+	return service.GameService.GetAllGames()
 }

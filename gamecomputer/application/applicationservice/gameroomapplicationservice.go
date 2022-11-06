@@ -6,7 +6,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
@@ -17,7 +16,7 @@ var (
 )
 
 type GameApplicationService interface {
-	CreateGame(game sandbox.Sandbox) (err error)
+	CreateGame(dimension valueobject.Dimension) (gameId uuid.UUID, err error)
 
 	AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) error
 	RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) error
@@ -45,13 +44,13 @@ func NewGameApplicationService(config GameApplicationServiceConfiguration) GameA
 	}
 }
 
-func (grs *gameApplicationServiceImplement) CreateGame(game sandbox.Sandbox) error {
-	err := grs.gameService.CreateGame(game)
+func (grs *gameApplicationServiceImplement) CreateGame(dimension valueobject.Dimension) (uuid.UUID, error) {
+	gameId, err := grs.gameService.CreateGame(dimension)
 	if err != nil {
-		return err
+		return gameId, err
 	}
 
-	return nil
+	return gameId, nil
 }
 
 func (grs *gameApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {

@@ -34,7 +34,7 @@ var wsupgrader = websocket.Upgrader{
 
 type HandlerConfiguration struct {
 	IntegrationEventBus    eventbus.IntegrationEventBus
-	GameApplicationService applicationservice.GameApplicationService
+	GameApplicationService *applicationservice.GameApplicationService
 	GameHandlerPresenter   gamehandlerpresenter.GameHandlerPresenter
 }
 
@@ -48,11 +48,8 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		gameId, err := configuration.GameApplicationService.GetFirstSandboxId()
-		if err != nil {
-			c.Error(err)
-			return
-		}
+		games := configuration.GameApplicationService.GetAllGames()
+		gameId := games[0].GetId()
 
 		clientSession := &clientSession{
 			gameId:                gameId,

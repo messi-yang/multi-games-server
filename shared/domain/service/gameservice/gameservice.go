@@ -2,16 +2,14 @@ package gameservice
 
 import (
 	gameModel "github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/memory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/sandbox/redis"
 	"github.com/google/uuid"
 )
 
 type GameService struct {
-	gameRepository    gameModel.Repository
-	sandboxRepository sandbox.Repository
+	gameRepository gameModel.Repository
 }
 
 type gameServiceConfiguration func(service *GameService) error
@@ -35,15 +33,16 @@ func WithGameMemory() gameServiceConfiguration {
 	}
 }
 
-func WithSandboxRedis() gameServiceConfiguration {
-	sandboxRedis, _ := redis.NewSandboxRedis(redis.WithRedisService())
-	return func(service *GameService) error {
-		service.sandboxRepository = sandboxRedis
-		return nil
-	}
+func (service *GameService) GetAllGames() []gameModel.Game {
+	sandboxId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
+	sandbox := entity.NewSandbox(sandboxId, valueobject.UnitBlock{})
+	game := gameModel.NewGame(sandbox)
+	games := make([]gameModel.Game, 0)
+	games = append(games, game)
+	return games
 }
 
-func (service *GameService) CreateSandbox(dimension valueobject.Dimension) (sandbox.Sandbox, error) {
+func (gs *GameService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, error) {
 	unitBlock := make([][]valueobject.Unit, dimension.GetWidth())
 	for i := 0; i < dimension.GetWidth(); i += 1 {
 		unitBlock[i] = make([]valueobject.Unit, dimension.GetHeight())
@@ -51,33 +50,20 @@ func (service *GameService) CreateSandbox(dimension valueobject.Dimension) (sand
 			unitBlock[i][j] = valueobject.NewUnit(false, uuid.Nil)
 		}
 	}
-	newSandbox := sandbox.NewSandbox(uuid.New(), valueobject.NewUnitBlock(unitBlock))
-	err := service.sandboxRepository.Add(newSandbox)
-	if err != nil {
-		return sandbox.Sandbox{}, err
-	}
-
-	return newSandbox, nil
+	sandboxId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
+	newSandbox := entity.NewSandbox(sandboxId, valueobject.NewUnitBlock(unitBlock))
+	game := gameModel.NewGame(newSandbox)
+	gs.gameRepository.Add(game)
+	return game.GetId(), nil
 }
 
-func (service *GameService) GetSandbox(id uuid.UUID) (sandbox.Sandbox, error) {
-	game, err := service.sandboxRepository.Get(id)
+func (service *GameService) GetGame(id uuid.UUID) (gameModel.Game, error) {
+	game, err := service.gameRepository.Get(id)
 	if err != nil {
-		return sandbox.Sandbox{}, err
+		return gameModel.Game{}, err
 	}
 
 	return game, nil
-}
-
-func (service *GameService) GetFirstSandboxId() (uuid.UUID, error) {
-	gameId, err := service.sandboxRepository.GetFirstGameId()
-	return gameId, err
-}
-
-func (gs *GameService) CreateGame(sandbox sandbox.Sandbox) error {
-	game := gameModel.NewGame(sandbox)
-	gs.gameRepository.Add(game)
-	return nil
 }
 
 func (gs *GameService) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {

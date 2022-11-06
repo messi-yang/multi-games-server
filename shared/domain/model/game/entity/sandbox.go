@@ -1,4 +1,4 @@
-package sandbox
+package entity
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
