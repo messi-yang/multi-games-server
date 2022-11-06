@@ -9,13 +9,17 @@ import (
 )
 
 type GameService struct {
-	gameRepository gameModel.Repository
+	gameRepository     gameModel.Repository
+	hardcodedSandboxId uuid.UUID
 }
 
 type gameServiceConfiguration func(service *GameService) error
 
 func NewGameService(cfgs ...gameServiceConfiguration) (*GameService, error) {
-	t := &GameService{}
+	hardcodedSandboxId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
+	t := &GameService{
+		hardcodedSandboxId: hardcodedSandboxId,
+	}
 	for _, cfg := range cfgs {
 		err := cfg(t)
 		if err != nil {
@@ -33,9 +37,8 @@ func WithGameMemory() gameServiceConfiguration {
 	}
 }
 
-func (service *GameService) GetAllGames() []gameModel.Game {
-	sandboxId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
-	sandbox := entity.NewSandbox(sandboxId, valueobject.UnitBlock{})
+func (gs *GameService) GetAllGames() []gameModel.Game {
+	sandbox := entity.NewSandbox(gs.hardcodedSandboxId, valueobject.UnitBlock{})
 	game := gameModel.NewGame(sandbox)
 	games := make([]gameModel.Game, 0)
 	games = append(games, game)
@@ -50,8 +53,7 @@ func (gs *GameService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, e
 			unitBlock[i][j] = valueobject.NewUnit(false, uuid.Nil)
 		}
 	}
-	sandboxId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
-	newSandbox := entity.NewSandbox(sandboxId, valueobject.NewUnitBlock(unitBlock))
+	newSandbox := entity.NewSandbox(gs.hardcodedSandboxId, valueobject.NewUnitBlock(unitBlock))
 	game := gameModel.NewGame(newSandbox)
 	gs.gameRepository.Add(game)
 	return game.GetId(), nil
