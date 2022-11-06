@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
 )
@@ -15,36 +16,43 @@ var (
 	ErrEventNotFound = errors.New("event was not found")
 )
 
-type GameApplicationService interface {
-	CreateGame(dimension valueobject.Dimension) (gameId uuid.UUID, err error)
-
-	AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) error
-	RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) error
-
-	AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error
-	RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) error
-
-	ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error
-}
-
-type gameApplicationServiceImplement struct {
+type GameApplicationService struct {
 	gameService         *gameservice.GameService
 	integrationEventBus eventbus.IntegrationEventBus
 }
 
-type GameApplicationServiceConfiguration struct {
-	GameService         *gameservice.GameService
-	IntegrationEventBus eventbus.IntegrationEventBus
+type gameApplicationServiceConfiguration func(service *GameApplicationService) error
+
+func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*GameApplicationService, error) {
+	service := &GameApplicationService{}
+	for _, cfg := range cfgs {
+		err := cfg(service)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return service, nil
 }
 
-func NewGameApplicationService(config GameApplicationServiceConfiguration) GameApplicationService {
-	return &gameApplicationServiceImplement{
-		gameService:         config.GameService,
-		integrationEventBus: config.IntegrationEventBus,
+func WithGameService() gameApplicationServiceConfiguration {
+	gameService, _ := gameservice.NewGameService(
+		gameservice.WithGameMemory(),
+	)
+	return func(service *GameApplicationService) error {
+		service.gameService = gameService
+		return nil
 	}
 }
 
-func (grs *gameApplicationServiceImplement) CreateGame(dimension valueobject.Dimension) (uuid.UUID, error) {
+func WithRedisIntegrationEventBus() gameApplicationServiceConfiguration {
+	return func(service *GameApplicationService) error {
+		redisIntegrationEventBus, _ := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.WithRedisService())
+		service.integrationEventBus = redisIntegrationEventBus
+		return nil
+	}
+}
+
+func (grs *GameApplicationService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, error) {
 	gameId, err := grs.gameService.CreateGame(dimension)
 	if err != nil {
 		return gameId, err
@@ -53,7 +61,7 @@ func (grs *gameApplicationServiceImplement) CreateGame(dimension valueobject.Dim
 	return gameId, nil
 }
 
-func (grs *gameApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
+func (grs *GameApplicationService) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) error {
 	updatedGame, err := grs.gameService.ReviveUnitsInGame(gameId, coordinates)
 	if err != nil {
 		return err
@@ -76,7 +84,7 @@ func (grs *gameApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, 
 	return nil
 }
 
-func (grs *gameApplicationServiceImplement) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *GameApplicationService) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) error {
 	updatedGame, err := grs.gameService.AddPlayerToGame(gameId, playerId)
 	if err != nil {
 		fmt.Println(err)
@@ -91,7 +99,7 @@ func (grs *gameApplicationServiceImplement) AddPlayerToGame(gameId uuid.UUID, pl
 	return nil
 }
 
-func (grs *gameApplicationServiceImplement) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *GameApplicationService) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
 	_, err := grs.gameService.RemovePlayerFromGame(gameId, playerId)
 	if err != nil {
 		return err
@@ -100,7 +108,7 @@ func (grs *gameApplicationServiceImplement) RemovePlayerFromGame(gameId uuid.UUI
 	return nil
 }
 
-func (grs *gameApplicationServiceImplement) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
+func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) error {
 	updatedGame, err := grs.gameService.AddZoomedAreaToGame(gameId, playerId, area)
 	if err != nil {
 		return err
@@ -119,7 +127,7 @@ func (grs *gameApplicationServiceImplement) AddZoomedAreaToGame(gameId uuid.UUID
 	return nil
 }
 
-func (grs *gameApplicationServiceImplement) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *GameApplicationService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
 	_, err := grs.gameService.RemoveZoomedAreaFromGame(gameId, playerId)
 	if err != nil {
 		return err

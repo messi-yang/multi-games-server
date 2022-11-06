@@ -12,7 +12,7 @@ import (
 
 type GameIntegrationEventHandlerConfiguration struct {
 	IntegrationEventBus    eventbus.IntegrationEventBus
-	GameApplicationService applicationservice.GameApplicationService
+	GameApplicationService *applicationservice.GameApplicationService
 }
 
 func NewGameIntegrationEventHandler(

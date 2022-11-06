@@ -9,28 +9,32 @@ type redisIntegrationEventBus struct {
 	redisService infrastructureservice.RedisService
 }
 
-type redisIntegrationEventBusCallback = func(event []byte)
+type redisIntegrationEventBusCallbackConfiguration func(eventBus *redisIntegrationEventBus) error
 
-type RedisIntegrationEventBusCallbackConfiguration struct {
-	RedisService infrastructureservice.RedisService
-}
-
-var redisIntegrationEventBusInstance *redisIntegrationEventBus
-
-func NewRedisIntegrationEventBus(config RedisIntegrationEventBusCallbackConfiguration) eventbus.IntegrationEventBus {
-	if redisIntegrationEventBusInstance == nil {
-		redisIntegrationEventBusInstance = &redisIntegrationEventBus{
-			redisService: infrastructureservice.NewRedisService(),
+func NewRedisIntegrationEventBus(cfgs ...redisIntegrationEventBusCallbackConfiguration) (eventbus.IntegrationEventBus, error) {
+	service := &redisIntegrationEventBus{}
+	for _, cfg := range cfgs {
+		err := cfg(service)
+		if err != nil {
+			return nil, err
 		}
 	}
-	return redisIntegrationEventBusInstance
+	return service, nil
+}
+
+func WithRedisService() redisIntegrationEventBusCallbackConfiguration {
+	redisService := infrastructureservice.NewRedisService()
+	return func(eventBus *redisIntegrationEventBus) error {
+		eventBus.redisService = redisService
+		return nil
+	}
 }
 
 func (gue *redisIntegrationEventBus) Publish(topic string, event []byte) {
 	gue.redisService.Publish(topic, event)
 }
 
-func (gue *redisIntegrationEventBus) Subscribe(topic string, callback redisIntegrationEventBusCallback) (unsubscriber func()) {
+func (gue *redisIntegrationEventBus) Subscribe(topic string, callback func(event []byte)) (unsubscriber func()) {
 	redisUnsubscriber := gue.redisService.Subscribe(topic, callback)
 
 	return func() {
