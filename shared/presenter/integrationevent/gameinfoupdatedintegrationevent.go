@@ -11,7 +11,7 @@ import (
 )
 
 type gameInfoUpdatedIntegrationEventPayload struct {
-	MapSize dto.MapSizeDto `json:"mapSize"`
+	Dimension dto.DimensionDto `json:"dimension"`
 }
 
 type GameInfoUpdatedIntegrationEvent struct {
@@ -23,12 +23,12 @@ func NewGameInfoUpdatedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUI
 	return fmt.Sprintf("game-room-%s-player-%s-game-info-updated", gameId, playerId)
 }
 
-func NewGameInfoUpdatedIntegrationEvent(mapSize valueobject.MapSize) []byte {
-	mapSizeDto := dto.NewMapSizeDto(mapSize)
+func NewGameInfoUpdatedIntegrationEvent(dimension valueobject.Dimension) []byte {
+	dimensionDto := dto.NewDimensionDto(dimension)
 
 	event := GameInfoUpdatedIntegrationEvent{
 		Payload: gameInfoUpdatedIntegrationEventPayload{
-			MapSize: mapSizeDto,
+			Dimension: dimensionDto,
 		},
 		Timestamp: time.Now(),
 	}

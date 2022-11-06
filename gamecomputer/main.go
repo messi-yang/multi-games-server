@@ -28,9 +28,9 @@ func Start() {
 	gameId, err := sandboxService.GetFirstSandboxId()
 
 	if err != nil {
-		size := config.GetConfig().GetGameMapSize()
-		mapSize, _ := valueobject.NewMapSize(size, size)
-		newSandbox, _ := sandboxService.CreateSandbox(mapSize)
+		size := config.GetConfig().GetGameDimension()
+		dimension, _ := valueobject.NewDimension(size, size)
+		newSandbox, _ := sandboxService.CreateSandbox(dimension)
 		gameApplicationService.CreateGame(newSandbox)
 		gameId = newSandbox.GetId()
 	} else {

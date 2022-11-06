@@ -4,40 +4,40 @@ import (
 	"fmt"
 )
 
-type ErrInvalidMapSize struct {
+type ErrInvalidDimension struct {
 	width  int
 	height int
 }
 
-func (e *ErrInvalidMapSize) Error() string {
+func (e *ErrInvalidDimension) Error() string {
 	return fmt.Sprintf("width (%d) and height(%d) of map size must be greater than 0", e.width, e.height)
 }
 
-type MapSize struct {
+type Dimension struct {
 	width  int
 	height int
 }
 
-func NewMapSize(width int, height int) (MapSize, error) {
+func NewDimension(width int, height int) (Dimension, error) {
 	if width < 1 || height < 1 {
-		return MapSize{}, &ErrInvalidMapSize{width: width, height: height}
+		return Dimension{}, &ErrInvalidDimension{width: width, height: height}
 	}
 
-	return MapSize{
+	return Dimension{
 		width:  width,
 		height: height,
 	}, nil
 }
 
-func (ms MapSize) GetWidth() int {
+func (ms Dimension) GetWidth() int {
 	return ms.width
 }
 
-func (ms MapSize) GetHeight() int {
+func (ms Dimension) GetHeight() int {
 	return ms.height
 }
 
-func (ms MapSize) IncludesArea(area Area) bool {
+func (ms Dimension) IncludesArea(area Area) bool {
 	if area.from.x < 0 || area.from.x >= ms.width {
 		return false
 	}
@@ -53,7 +53,7 @@ func (ms MapSize) IncludesArea(area Area) bool {
 	return true
 }
 
-func (ms MapSize) IncludesAllCoordinates(coordinates []Coordinate) bool {
+func (ms Dimension) IncludesAllCoordinates(coordinates []Coordinate) bool {
 	includesAll := true
 	for _, coordinate := range coordinates {
 		if coordinate.x >= ms.width || coordinate.y >= ms.height {

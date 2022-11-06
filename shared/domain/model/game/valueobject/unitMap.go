@@ -14,9 +14,9 @@ func (um UnitMap) ToValueObjectMatrix() [][]Unit {
 	return um.unitMatrix
 }
 
-func (um UnitMap) GetMapSize() MapSize {
-	gameMapSize, _ := NewMapSize(len(um.unitMatrix), len(um.unitMatrix[0]))
-	return gameMapSize
+func (um UnitMap) GetDimension() Dimension {
+	gameDimension, _ := NewDimension(len(um.unitMatrix), len(um.unitMatrix[0]))
+	return gameDimension
 }
 
 func (um UnitMap) GetUnit(coord Coordinate) Unit {

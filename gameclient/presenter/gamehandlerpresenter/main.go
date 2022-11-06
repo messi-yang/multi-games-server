@@ -33,7 +33,7 @@ type ErroredEvent struct {
 }
 
 type InformationUpdatedEventPayload struct {
-	MapSize dto.MapSizeDto `json:"mapSize"`
+	Dimension dto.DimensionDto `json:"dimension"`
 }
 type InformationUpdatedEvent struct {
 	Type    EventType                      `json:"type"`
@@ -78,7 +78,7 @@ type ZoomAreaRequestedEvent struct {
 
 type GameHandlerPresenter interface {
 	CreateErroredEvent(clientMessage string) ErroredEvent
-	CreateInformationUpdatedEvent(mapSize dto.MapSizeDto) InformationUpdatedEvent
+	CreateInformationUpdatedEvent(dimension dto.DimensionDto) InformationUpdatedEvent
 	CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) ZoomedAreaUpdatedEvent
 	CreateAreaZoomedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) AreaZoomedEvent
 	ExtractEventType(msg []byte) (EventType, error)
@@ -112,11 +112,11 @@ func (presenter *gameHandlerPresenterImplement) CreateErroredEvent(clientMessage
 	}
 }
 
-func (presenter *gameHandlerPresenterImplement) CreateInformationUpdatedEvent(mapSize dto.MapSizeDto) InformationUpdatedEvent {
+func (presenter *gameHandlerPresenterImplement) CreateInformationUpdatedEvent(dimension dto.DimensionDto) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
-			MapSize: mapSize,
+			Dimension: dimension,
 		},
 	}
 }

@@ -164,7 +164,7 @@ func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSessi
 	var gameInfoUpdatedIntegrationEvent integrationevent.GameInfoUpdatedIntegrationEvent
 	json.Unmarshal(event, &gameInfoUpdatedIntegrationEvent)
 
-	sendJSONMessageToClient(conn, clientSession, clientSession.gameHandlerPresenter.CreateInformationUpdatedEvent(gameInfoUpdatedIntegrationEvent.Payload.MapSize))
+	sendJSONMessageToClient(conn, clientSession, clientSession.gameHandlerPresenter.CreateInformationUpdatedEvent(gameInfoUpdatedIntegrationEvent.Payload.Dimension))
 }
 
 func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {

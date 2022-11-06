@@ -86,7 +86,7 @@ func (grs *gameApplicationServiceImplement) AddPlayerToGame(gameId uuid.UUID, pl
 
 	grs.integrationEventBus.Publish(
 		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, playerId),
-		integrationevent.NewGameInfoUpdatedIntegrationEvent(updatedGame.GetMapSize()),
+		integrationevent.NewGameInfoUpdatedIntegrationEvent(updatedGame.GetDimension()),
 	)
 
 	return nil

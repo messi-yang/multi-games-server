@@ -33,6 +33,6 @@ func (g *Sandbox) SetUnit(coordinate valueobject.Coordinate, unit valueobject.Un
 	g.unitMap.SetUnit(coordinate, unit)
 }
 
-func (g *Sandbox) GetMapSize() valueobject.MapSize {
-	return g.unitMap.GetMapSize()
+func (g *Sandbox) GetDimension() valueobject.Dimension {
+	return g.unitMap.GetDimension()
 }

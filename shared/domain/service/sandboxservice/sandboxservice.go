@@ -32,11 +32,11 @@ func WithSandboxRedis() SandboxServiceConfiguration {
 	}
 }
 
-func (service *SandboxService) CreateSandbox(mapSize valueobject.MapSize) (sandbox.Sandbox, error) {
-	unitMap := make([][]valueobject.Unit, mapSize.GetWidth())
-	for i := 0; i < mapSize.GetWidth(); i += 1 {
-		unitMap[i] = make([]valueobject.Unit, mapSize.GetHeight())
-		for j := 0; j < mapSize.GetHeight(); j += 1 {
+func (service *SandboxService) CreateSandbox(dimension valueobject.Dimension) (sandbox.Sandbox, error) {
+	unitMap := make([][]valueobject.Unit, dimension.GetWidth())
+	for i := 0; i < dimension.GetWidth(); i += 1 {
+		unitMap[i] = make([]valueobject.Unit, dimension.GetHeight())
+		for j := 0; j < dimension.GetHeight(); j += 1 {
 			unitMap[i][j] = valueobject.NewUnit(false, uuid.Nil)
 		}
 	}

@@ -33,8 +33,8 @@ func (gr *Game) GetId() uuid.UUID {
 	return gr.sandbox.GetId()
 }
 
-func (gr *Game) GetMapSize() valueobject.MapSize {
-	return gr.sandbox.GetMapSize()
+func (gr *Game) GetDimension() valueobject.Dimension {
+	return gr.sandbox.GetDimension()
 }
 
 func (gr *Game) GetUnitMap() valueobject.UnitMap {
@@ -42,7 +42,7 @@ func (gr *Game) GetUnitMap() valueobject.UnitMap {
 }
 
 func (gr *Game) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
-	if !gr.GetMapSize().IncludesArea(area) {
+	if !gr.GetDimension().IncludesArea(area) {
 		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
 	}
 	offsetX := area.GetFrom().GetX()
@@ -95,7 +95,7 @@ func (gr *Game) RemovePlayer(playerId uuid.UUID) {
 }
 
 func (gr *Game) ReviveUnits(coordinates []valueobject.Coordinate) error {
-	if !gr.GetMapSize().IncludesAllCoordinates(coordinates) {
+	if !gr.GetDimension().IncludesAllCoordinates(coordinates) {
 		return ErrSomeCoordinatesNotIncludedInMap
 	}
 

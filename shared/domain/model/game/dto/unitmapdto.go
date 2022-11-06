@@ -9,9 +9,9 @@ type UnitMapDto [][]UnitDto
 func Dto(unitMap valueobject.UnitMap) UnitMapDto {
 	unitMapDto := make(UnitMapDto, 0)
 
-	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
+	for i := 0; i < unitMap.GetDimension().GetWidth(); i += 1 {
 		unitMapDto = append(unitMapDto, make([]UnitDto, 0))
-		for j := 0; j < unitMap.GetMapSize().GetHeight(); j += 1 {
+		for j := 0; j < unitMap.GetDimension().GetHeight(); j += 1 {
 			coord, _ := valueobject.NewCoordinate(i, j)
 			unit := unitMap.GetUnit(coord)
 			unitMapDto[i] = append(unitMapDto[i], NewUnitDto(unit))
