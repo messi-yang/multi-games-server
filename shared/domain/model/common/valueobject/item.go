@@ -4,7 +4,7 @@ type Item struct {
 	itemType ItemType
 }
 
-func NewUnit(itemType ItemType) Item {
+func NewItem(itemType ItemType) Item {
 	return Item{
 		itemType: itemType,
 	}
