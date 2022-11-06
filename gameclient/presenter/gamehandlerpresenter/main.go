@@ -40,9 +40,9 @@ type InformationUpdatedEvent struct {
 	Payload InformationUpdatedEventPayload `json:"payload"`
 }
 type ZoomedAreaUpdatedEventPayload struct {
-	Area      dto.AreaDto    `json:"area"`
-	UnitMap   dto.UnitMapDto `json:"unitMap"`
-	UpdatedAt time.Time      `json:"updatedAt"`
+	Area      dto.AreaDto      `json:"area"`
+	UnitBlock dto.UnitBlockDto `json:"unitBlock"`
+	UpdatedAt time.Time        `json:"updatedAt"`
 }
 type ZoomedAreaUpdatedEvent struct {
 	Type    EventType                     `json:"type"`
@@ -50,8 +50,8 @@ type ZoomedAreaUpdatedEvent struct {
 }
 
 type AreaZoomedEventPayload struct {
-	Area    dto.AreaDto    `json:"area"`
-	UnitMap dto.UnitMapDto `json:"unitMap"`
+	Area      dto.AreaDto      `json:"area"`
+	UnitBlock dto.UnitBlockDto `json:"unitBlock"`
 }
 type AreaZoomedEvent struct {
 	Type    EventType              `json:"type"`
@@ -79,8 +79,8 @@ type ZoomAreaRequestedEvent struct {
 type GameHandlerPresenter interface {
 	CreateErroredEvent(clientMessage string) ErroredEvent
 	CreateInformationUpdatedEvent(dimension dto.DimensionDto) InformationUpdatedEvent
-	CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) ZoomedAreaUpdatedEvent
-	CreateAreaZoomedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) AreaZoomedEvent
+	CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) ZoomedAreaUpdatedEvent
+	CreateAreaZoomedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) AreaZoomedEvent
 	ExtractEventType(msg []byte) (EventType, error)
 	ExtractReviveUnitsRequestedEvent(msg []byte) ([]valueobject.Coordinate, error)
 	ExtractZoomAreaRequestedEvent(msg []byte) (valueobject.Area, error)
@@ -121,23 +121,23 @@ func (presenter *gameHandlerPresenterImplement) CreateInformationUpdatedEvent(di
 	}
 }
 
-func (presenter *gameHandlerPresenterImplement) CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) ZoomedAreaUpdatedEvent {
+func (presenter *gameHandlerPresenterImplement) CreateZoomedAreaUpdatedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) ZoomedAreaUpdatedEvent {
 	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
 		Payload: ZoomedAreaUpdatedEventPayload{
 			Area:      area,
-			UnitMap:   unitMap,
+			UnitBlock: unitBlock,
 			UpdatedAt: time.Now(),
 		},
 	}
 }
 
-func (presenter *gameHandlerPresenterImplement) CreateAreaZoomedEvent(area dto.AreaDto, unitMap dto.UnitMapDto) AreaZoomedEvent {
+func (presenter *gameHandlerPresenterImplement) CreateAreaZoomedEvent(area dto.AreaDto, unitBlock dto.UnitBlockDto) AreaZoomedEvent {
 	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
 		Payload: AreaZoomedEventPayload{
-			Area:    area,
-			UnitMap: unitMap,
+			Area:      area,
+			UnitBlock: unitBlock,
 		},
 	}
 }

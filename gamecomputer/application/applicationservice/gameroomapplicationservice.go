@@ -65,13 +65,13 @@ func (grs *gameApplicationServiceImplement) ReviveUnitsInGame(gameId uuid.UUID, 
 		if len(coordinatesInArea) == 0 {
 			continue
 		}
-		unitMap, err := updatedGame.GetUnitMapByArea(area)
+		unitBlock, err := updatedGame.GetUnitBlockByArea(area)
 		if err != nil {
 			continue
 		}
 		grs.integrationEventBus.Publish(
 			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGame.GetId(), playerId),
-			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, unitMap),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(area, unitBlock),
 		)
 	}
 	return nil
@@ -107,14 +107,14 @@ func (grs *gameApplicationServiceImplement) AddZoomedAreaToGame(gameId uuid.UUID
 		return err
 	}
 
-	unitMap, err := updatedGame.GetUnitMapByArea(area)
+	unitBlock, err := updatedGame.GetUnitBlockByArea(area)
 	if err != nil {
 		return err
 	}
 
 	grs.integrationEventBus.Publish(
 		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, playerId),
-		integrationevent.NewAreaZoomedIntegrationEvent(area, unitMap),
+		integrationevent.NewAreaZoomedIntegrationEvent(area, unitBlock),
 	)
 
 	return nil

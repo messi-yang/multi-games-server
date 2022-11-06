@@ -1,28 +1,28 @@
 package valueobject
 
-type UnitMap struct {
+type UnitBlock struct {
 	unitMatrix [][]Unit
 }
 
-func NewUnitMap(unitMatrix [][]Unit) UnitMap {
-	return UnitMap{
+func NewUnitBlock(unitMatrix [][]Unit) UnitBlock {
+	return UnitBlock{
 		unitMatrix: unitMatrix,
 	}
 }
 
-func (um UnitMap) ToValueObjectMatrix() [][]Unit {
+func (um UnitBlock) ToValueObjectMatrix() [][]Unit {
 	return um.unitMatrix
 }
 
-func (um UnitMap) GetDimension() Dimension {
+func (um UnitBlock) GetDimension() Dimension {
 	gameDimension, _ := NewDimension(len(um.unitMatrix), len(um.unitMatrix[0]))
 	return gameDimension
 }
 
-func (um UnitMap) GetUnit(coord Coordinate) Unit {
+func (um UnitBlock) GetUnit(coord Coordinate) Unit {
 	return (um.unitMatrix)[coord.GetX()][coord.GetY()]
 }
 
-func (um UnitMap) SetUnit(coord Coordinate, unit Unit) {
+func (um UnitBlock) SetUnit(coord Coordinate, unit Unit) {
 	(um.unitMatrix)[coord.GetX()][coord.GetY()] = unit
 }

@@ -6,14 +6,14 @@ import (
 )
 
 type Sandbox struct {
-	id      uuid.UUID
-	unitMap valueobject.UnitMap
+	id        uuid.UUID
+	unitBlock valueobject.UnitBlock
 }
 
-func NewSandbox(id uuid.UUID, unitMap valueobject.UnitMap) Sandbox {
+func NewSandbox(id uuid.UUID, unitBlock valueobject.UnitBlock) Sandbox {
 	return Sandbox{
-		id:      id,
-		unitMap: unitMap,
+		id:        id,
+		unitBlock: unitBlock,
 	}
 }
 
@@ -21,18 +21,18 @@ func (g *Sandbox) GetId() uuid.UUID {
 	return g.id
 }
 
-func (g *Sandbox) GetUnitMap() valueobject.UnitMap {
-	return g.unitMap
+func (g *Sandbox) GetUnitBlock() valueobject.UnitBlock {
+	return g.unitBlock
 }
 
 func (g *Sandbox) GetUnit(coordinate valueobject.Coordinate) valueobject.Unit {
-	return g.unitMap.GetUnit(coordinate)
+	return g.unitBlock.GetUnit(coordinate)
 }
 
 func (g *Sandbox) SetUnit(coordinate valueobject.Coordinate, unit valueobject.Unit) {
-	g.unitMap.SetUnit(coordinate, unit)
+	g.unitBlock.SetUnit(coordinate, unit)
 }
 
 func (g *Sandbox) GetDimension() valueobject.Dimension {
-	return g.unitMap.GetDimension()
+	return g.unitBlock.GetDimension()
 }

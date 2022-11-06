@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrAreaExceedsUnitMap              = errors.New("area should contain valid from and to coordinates and it should never exceed dimension")
+	ErrAreaExceedsUnitBlock            = errors.New("area should contain valid from and to coordinates and it should never exceed dimension")
 	ErrSomeCoordinatesNotIncludedInMap = errors.New("some coordinates are not included in the unit map")
 	ErrPlayerNotFound                  = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists             = errors.New("the play with the given id already exists")
@@ -37,13 +37,13 @@ func (gr *Game) GetDimension() valueobject.Dimension {
 	return gr.sandbox.GetDimension()
 }
 
-func (gr *Game) GetUnitMap() valueobject.UnitMap {
-	return gr.sandbox.GetUnitMap()
+func (gr *Game) GetUnitBlock() valueobject.UnitBlock {
+	return gr.sandbox.GetUnitBlock()
 }
 
-func (gr *Game) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, error) {
+func (gr *Game) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock, error) {
 	if !gr.GetDimension().IncludesArea(area) {
-		return valueobject.UnitMap{}, ErrAreaExceedsUnitMap
+		return valueobject.UnitBlock{}, ErrAreaExceedsUnitBlock
 	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
@@ -57,9 +57,9 @@ func (gr *Game) GetUnitMapByArea(area valueobject.Area) (valueobject.UnitMap, er
 			unitMatrix[x][y] = gr.sandbox.GetUnit(coordinate)
 		}
 	}
-	unitMap := valueobject.NewUnitMap(unitMatrix)
+	unitBlock := valueobject.NewUnitBlock(unitMatrix)
 
-	return unitMap, nil
+	return unitBlock, nil
 }
 
 func (gr *Game) GetZoomedAreas() map[uuid.UUID]valueobject.Area {

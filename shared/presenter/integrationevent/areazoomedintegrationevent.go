@@ -11,8 +11,8 @@ import (
 )
 
 type areaZoomedIntegrationEventPayload struct {
-	Area    dto.AreaDto    `json:"area"`
-	UnitMap dto.UnitMapDto `json:"unitMap"`
+	Area      dto.AreaDto      `json:"area"`
+	UnitBlock dto.UnitBlockDto `json:"unitBlock"`
 }
 
 type AreaZoomedIntegrationEvent struct {
@@ -24,14 +24,14 @@ func NewAreaZoomedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUID) st
 	return fmt.Sprintf("game-room-%s-player-%s-area-zoomed", gameId, playerId)
 }
 
-func NewAreaZoomedIntegrationEvent(area valueobject.Area, unitMap valueobject.UnitMap) []byte {
+func NewAreaZoomedIntegrationEvent(area valueobject.Area, unitBlock valueobject.UnitBlock) []byte {
 	areaDto := dto.NewAreaDto(area)
-	unitMapDto := dto.Dto(unitMap)
+	unitBlockDto := dto.Dto(unitBlock)
 
 	event := AreaZoomedIntegrationEvent{
 		Payload: areaZoomedIntegrationEventPayload{
-			Area:    areaDto,
-			UnitMap: unitMapDto,
+			Area:      areaDto,
+			UnitBlock: unitBlockDto,
 		},
 		Timestamp: time.Now(),
 	}

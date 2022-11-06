@@ -171,14 +171,14 @@ func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, e
 	var areaZoomedIntegrationEvent integrationevent.AreaZoomedIntegrationEvent
 	json.Unmarshal(event, &areaZoomedIntegrationEvent)
 
-	sendJSONMessageToClient(conn, clientSession, clientSession.gameHandlerPresenter.CreateAreaZoomedEvent(areaZoomedIntegrationEvent.Payload.Area, areaZoomedIntegrationEvent.Payload.UnitMap))
+	sendJSONMessageToClient(conn, clientSession, clientSession.gameHandlerPresenter.CreateAreaZoomedEvent(areaZoomedIntegrationEvent.Payload.Area, areaZoomedIntegrationEvent.Payload.UnitBlock))
 }
 
 func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
 	var zoomedAreaUpdatedIntegrationEvent integrationevent.ZoomedAreaUpdatedIntegrationEvent
 	json.Unmarshal(event, &zoomedAreaUpdatedIntegrationEvent)
 
-	sendJSONMessageToClient(conn, clientSession, clientSession.gameHandlerPresenter.CreateZoomedAreaUpdatedEvent(zoomedAreaUpdatedIntegrationEvent.Payload.Area, zoomedAreaUpdatedIntegrationEvent.Payload.UnitMap))
+	sendJSONMessageToClient(conn, clientSession, clientSession.gameHandlerPresenter.CreateZoomedAreaUpdatedEvent(zoomedAreaUpdatedIntegrationEvent.Payload.Area, zoomedAreaUpdatedIntegrationEvent.Payload.UnitBlock))
 }
 
 func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {

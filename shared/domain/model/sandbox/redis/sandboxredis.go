@@ -21,12 +21,12 @@ type UnitModel struct {
 }
 
 type sandboxRecord struct {
-	Id      uuid.UUID     `json:"id"`
-	UnitMap [][]UnitModel `json:"unitMap"`
+	Id        uuid.UUID     `json:"id"`
+	UnitBlock [][]UnitModel `json:"unitBlock"`
 }
 
-func ConvertUnitMapToUnitModelMatrix(unitMap valueobject.UnitMap) [][]UnitModel {
-	unitMatrix := unitMap.ToValueObjectMatrix()
+func ConvertUnitBlockToUnitModelMatrix(unitBlock valueobject.UnitBlock) [][]UnitModel {
+	unitMatrix := unitBlock.ToValueObjectMatrix()
 	unitModelMatrix := make([][]UnitModel, 0)
 	for colIdx, unitMatrixCol := range unitMatrix {
 		unitModelMatrix = append(unitModelMatrix, make([]UnitModel, 0))
@@ -40,7 +40,7 @@ func ConvertUnitMapToUnitModelMatrix(unitMap valueobject.UnitMap) [][]UnitModel 
 	return unitModelMatrix
 }
 
-func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) valueobject.UnitMap {
+func ConvertUnitBlockMatrixToUnitBlock(unitModelMatrix [][]UnitModel) valueobject.UnitBlock {
 	unitMatrix := make([][]valueobject.Unit, 0)
 	for colIdx, unitModelMatrixCol := range unitModelMatrix {
 		unitMatrix = append(unitMatrix, make([]valueobject.Unit, 0))
@@ -52,7 +52,7 @@ func ConvertUnitMapMatrixToUnitMap(unitModelMatrix [][]UnitModel) valueobject.Un
 		}
 	}
 
-	return valueobject.NewUnitMap(unitMatrix)
+	return valueobject.NewUnitBlock(unitMatrix)
 }
 
 type sandboxRedis struct {
@@ -87,8 +87,8 @@ func (repository *sandboxRedis) createKey(gameId uuid.UUID) string {
 func (repository *sandboxRedis) Add(game sandbox.Sandbox) error {
 	dataKey := repository.createKey(game.GetId())
 	newGameRecord := sandboxRecord{
-		Id:      game.GetId(),
-		UnitMap: ConvertUnitMapToUnitModelMatrix(game.GetUnitMap()),
+		Id:        game.GetId(),
+		UnitBlock: ConvertUnitBlockToUnitModelMatrix(game.GetUnitBlock()),
 	}
 	newGameRecordInBytes, _ := json.Marshal(newGameRecord)
 	repository.redisService.Set(dataKey, newGameRecordInBytes)
@@ -103,8 +103,8 @@ func (repository *sandboxRedis) Get(id uuid.UUID) (sandbox.Sandbox, error) {
 	var gameFromRedis sandboxRecord
 	json.Unmarshal(gameFromRedisInBytes, &gameFromRedis)
 
-	unitMap := ConvertUnitMapMatrixToUnitMap(gameFromRedis.UnitMap)
-	game := sandbox.NewSandbox(gameFromRedis.Id, unitMap)
+	unitBlock := ConvertUnitBlockMatrixToUnitBlock(gameFromRedis.UnitBlock)
+	game := sandbox.NewSandbox(gameFromRedis.Id, unitBlock)
 
 	return game, nil
 }
