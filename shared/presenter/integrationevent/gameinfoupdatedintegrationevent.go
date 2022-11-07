@@ -18,8 +18,8 @@ type GameInfoUpdatedIntegrationEvent struct {
 	Timestamp time.Time                              `json:"timestamp"`
 }
 
-func NewGameInfoUpdatedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-player-%s-game-info-updated", gameId, playerId)
+func NewGameInfoUpdatedIntegrationEventTopic(gameId uuid.UUID, playerIdDto dto.PlayerIdDto) string {
+	return fmt.Sprintf("game-room-%s-player-%s-game-info-updated", gameId, playerIdDto.Value)
 }
 
 func NewGameInfoUpdatedIntegrationEvent(dimensionDto dto.DimensionDto) []byte {

@@ -17,15 +17,15 @@ var (
 
 type Game struct {
 	sandbox     entity.Sandbox
-	playerIds   map[uuid.UUID]bool
-	zoomedAreas map[uuid.UUID]valueobject.Area
+	playerIds   map[valueobject.PlayerId]bool
+	zoomedAreas map[valueobject.PlayerId]valueobject.Area
 }
 
 func NewGame(sandbox entity.Sandbox) Game {
 	return Game{
 		sandbox:     sandbox,
-		playerIds:   make(map[uuid.UUID]bool),
-		zoomedAreas: make(map[uuid.UUID]valueobject.Area),
+		playerIds:   make(map[valueobject.PlayerId]bool),
+		zoomedAreas: make(map[valueobject.PlayerId]valueobject.Area),
 	}
 }
 
@@ -62,11 +62,11 @@ func (gr *Game) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock
 	return unitBlock, nil
 }
 
-func (gr *Game) GetZoomedAreas() map[uuid.UUID]valueobject.Area {
+func (gr *Game) GetZoomedAreas() map[valueobject.PlayerId]valueobject.Area {
 	return gr.zoomedAreas
 }
 
-func (gr *Game) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) error {
+func (gr *Game) AddZoomedArea(playerId valueobject.PlayerId, area valueobject.Area) error {
 	_, exists := gr.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
@@ -75,11 +75,11 @@ func (gr *Game) AddZoomedArea(playerId uuid.UUID, area valueobject.Area) error {
 	return nil
 }
 
-func (gr *Game) RemoveZoomedArea(playerId uuid.UUID) {
+func (gr *Game) RemoveZoomedArea(playerId valueobject.PlayerId) {
 	delete(gr.zoomedAreas, playerId)
 }
 
-func (gr *Game) AddPlayer(playerId uuid.UUID) error {
+func (gr *Game) AddPlayer(playerId valueobject.PlayerId) error {
 	_, exists := gr.playerIds[playerId]
 	if exists {
 		return ErrPlayerAlreadyExists
@@ -90,7 +90,7 @@ func (gr *Game) AddPlayer(playerId uuid.UUID) error {
 	return nil
 }
 
-func (gr *Game) RemovePlayer(playerId uuid.UUID) {
+func (gr *Game) RemovePlayer(playerId valueobject.PlayerId) {
 	delete(gr.playerIds, playerId)
 }
 

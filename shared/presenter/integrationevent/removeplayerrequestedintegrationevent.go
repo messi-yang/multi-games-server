@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
 	"github.com/google/uuid"
 )
 
 type removePlayerRequestedIntegrationEventPayload struct {
-	PlayerId uuid.UUID `json:"playerId"`
+	PlayerId dto.PlayerIdDto `json:"playerId"`
 }
 
 type RemovePlayerRequestedIntegrationEvent struct {
@@ -21,10 +22,10 @@ func NewRemovePlayerRequestedIntegrationEventTopic(gameId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-remove-player-requested", gameId)
 }
 
-func NewRemovePlayerRequestedIntegrationEvent(playerId uuid.UUID) []byte {
+func NewRemovePlayerRequestedIntegrationEvent(playerIdDto dto.PlayerIdDto) []byte {
 	event := RemovePlayerRequestedIntegrationEvent{
 		Payload: removePlayerRequestedIntegrationEventPayload{
-			PlayerId: playerId,
+			PlayerId: playerIdDto,
 		},
 		Timestamp: time.Now(),
 	}

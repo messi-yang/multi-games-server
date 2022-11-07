@@ -85,14 +85,15 @@ func (grs *GameApplicationService) ReviveUnitsInGame(gameId uuid.UUID, coordinat
 			continue
 		}
 		grs.integrationEventBus.Publish(
-			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGame.GetId(), playerId),
+			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGame.GetId(), dto.NewPlayerIdDto(playerId.GetId())),
 			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(dto.NewAreaDto(area), dto.NewUnitBlockDto(unitBlock)),
 		)
 	}
 	return nil
 }
 
-func (grs *GameApplicationService) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *GameApplicationService) AddPlayerToGame(gameId uuid.UUID, playerIdDto dto.PlayerIdDto) error {
+	playerId := playerIdDto.ToValueObject()
 	updatedGame, err := grs.gameService.AddPlayerToGame(gameId, playerId)
 	if err != nil {
 		return err
@@ -100,14 +101,15 @@ func (grs *GameApplicationService) AddPlayerToGame(gameId uuid.UUID, playerId uu
 	dimensionDto := dto.NewDimensionDto(updatedGame.GetDimension())
 
 	grs.integrationEventBus.Publish(
-		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, playerId),
+		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, playerIdDto),
 		integrationevent.NewGameInfoUpdatedIntegrationEvent(dimensionDto),
 	)
 
 	return nil
 }
 
-func (grs *GameApplicationService) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *GameApplicationService) RemovePlayerFromGame(gameId uuid.UUID, playerIdDto dto.PlayerIdDto) error {
+	playerId := playerIdDto.ToValueObject()
 	_, err := grs.gameService.RemovePlayerFromGame(gameId, playerId)
 	if err != nil {
 		return err
@@ -116,11 +118,12 @@ func (grs *GameApplicationService) RemovePlayerFromGame(gameId uuid.UUID, player
 	return nil
 }
 
-func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, areaDto dto.AreaDto) error {
+func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerIdDto dto.PlayerIdDto, areaDto dto.AreaDto) error {
 	area, err := areaDto.ToValueObject()
 	if err != nil {
 		return err
 	}
+	playerId := playerIdDto.ToValueObject()
 
 	updatedGame, err := grs.gameService.AddZoomedAreaToGame(gameId, playerId, area)
 	if err != nil {
@@ -135,14 +138,15 @@ func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerI
 	unitBlockDto := dto.NewUnitBlockDto(unitBlock)
 
 	grs.integrationEventBus.Publish(
-		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, playerId),
+		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, playerIdDto),
 		integrationevent.NewAreaZoomedIntegrationEvent(areaDto, unitBlockDto),
 	)
 
 	return nil
 }
 
-func (grs *GameApplicationService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) error {
+func (grs *GameApplicationService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerIdDto dto.PlayerIdDto) error {
+	playerId := playerIdDto.ToValueObject()
 	_, err := grs.gameService.RemoveZoomedAreaFromGame(gameId, playerId)
 	if err != nil {
 		return err

@@ -10,8 +10,8 @@ import (
 )
 
 type zoomAreaRequestedIntegrationEventPayload struct {
-	PlayerId uuid.UUID   `json:"playerId"`
-	Area     dto.AreaDto `json:"area"`
+	PlayerId dto.PlayerIdDto `json:"playerId"`
+	Area     dto.AreaDto     `json:"area"`
 }
 
 type ZoomAreaRequestedIntegrationEvent struct {
@@ -23,10 +23,10 @@ func NewZoomAreaRequestedIntegrationEventTopic(gameId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-zoom-area-requested", gameId)
 }
 
-func NewZoomAreaRequestedIntegrationEvent(playerId uuid.UUID, areaDto dto.AreaDto) []byte {
+func NewZoomAreaRequestedIntegrationEvent(playerIdDto dto.PlayerIdDto, areaDto dto.AreaDto) []byte {
 	event := ZoomAreaRequestedIntegrationEvent{
 		Payload: zoomAreaRequestedIntegrationEventPayload{
-			PlayerId: playerId,
+			PlayerId: playerIdDto,
 			Area:     areaDto,
 		},
 		Timestamp: time.Now(),

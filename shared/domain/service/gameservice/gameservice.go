@@ -64,7 +64,7 @@ func (service *GameService) GetGame(id uuid.UUID) (gameModel.Game, error) {
 	return game, nil
 }
 
-func (gs *GameService) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
+func (gs *GameService) AddPlayerToGame(gameId uuid.UUID, playerId valueobject.PlayerId) (gameModel.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
@@ -82,7 +82,7 @@ func (gs *GameService) AddPlayerToGame(gameId uuid.UUID, playerId uuid.UUID) (ga
 	return game, nil
 }
 
-func (gs *GameService) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
+func (gs *GameService) RemovePlayerFromGame(gameId uuid.UUID, playerId valueobject.PlayerId) (gameModel.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
@@ -100,7 +100,7 @@ func (gs *GameService) RemovePlayerFromGame(gameId uuid.UUID, playerId uuid.UUID
 	return game, nil
 }
 
-func (gs *GameService) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID, area valueobject.Area) (gameModel.Game, error) {
+func (gs *GameService) AddZoomedAreaToGame(gameId uuid.UUID, playerId valueobject.PlayerId, area valueobject.Area) (gameModel.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err
@@ -122,7 +122,7 @@ func (gs *GameService) AddZoomedAreaToGame(gameId uuid.UUID, playerId uuid.UUID,
 	return game, nil
 }
 
-func (gs *GameService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId uuid.UUID) (gameModel.Game, error) {
+func (gs *GameService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId valueobject.PlayerId) (gameModel.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return gameModel.Game{}, err

@@ -19,8 +19,8 @@ type ZoomedAreaUpdatedIntegrationEvent struct {
 	Timestamp time.Time                                `json:"timestamp"`
 }
 
-func NewZoomedAreaUpdatedIntegrationEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-player-%s-zoomed-area-updated", gameId, playerId)
+func NewZoomedAreaUpdatedIntegrationEventTopic(gameId uuid.UUID, playerIdDto dto.PlayerIdDto) string {
+	return fmt.Sprintf("game-room-%s-player-%s-zoomed-area-updated", gameId, playerIdDto.Value)
 }
 
 func NewZoomedAreaUpdatedIntegrationEvent(areaDto dto.AreaDto, unitBlockDto dto.UnitBlockDto) []byte {
