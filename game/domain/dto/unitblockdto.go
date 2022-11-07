@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 )
 
 type UnitBlockDto [][]UnitDto

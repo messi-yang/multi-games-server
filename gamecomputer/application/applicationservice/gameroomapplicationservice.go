@@ -3,9 +3,9 @@ package applicationservice
 import (
 	"errors"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ var (
 )
 
 type GameApplicationService struct {
-	gameService         *gameservice.GameService
+	gameService         *service.GameService
 	integrationEventBus eventbus.IntegrationEventBus
 }
 
@@ -34,8 +34,8 @@ func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*Ga
 }
 
 func WithGameService() gameApplicationServiceConfiguration {
-	gameService, _ := gameservice.NewGameService(
-		gameservice.WithGameMemory(),
+	gameService, _ := service.NewGameService(
+		service.WithGameMemory(),
 	)
 	return func(service *GameApplicationService) error {
 		service.gameService = gameService

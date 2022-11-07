@@ -1,12 +1,12 @@
 package applicationservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
 	"github.com/google/uuid"
 )
 
 type GameApplicationService struct {
-	GameService *gameservice.GameService
+	GameService *service.GameService
 }
 
 type gameApplicationServiceConfiguration func(service *GameApplicationService) error
@@ -23,7 +23,7 @@ func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*Ga
 }
 
 func WithGameService() gameApplicationServiceConfiguration {
-	gameService, _ := gameservice.NewGameService()
+	gameService, _ := service.NewGameService()
 	return func(service *GameApplicationService) error {
 		service.GameService = gameService
 		return nil

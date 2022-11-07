@@ -4,7 +4,8 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/domain/model/game"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/repository"
 	"github.com/google/uuid"
 )
 
@@ -15,16 +16,16 @@ var (
 )
 
 type gameMemory struct {
-	records       map[uuid.UUID]*game.Game
+	records       map[uuid.UUID]*aggregate.Game
 	recordLockers map[uuid.UUID]*sync.RWMutex
 }
 
 var gameMemoryInstance *gameMemory
 
-func NewGameMemory() game.Repository {
+func NewGameMemory() repository.GameRepository {
 	if gameMemoryInstance == nil {
 		gameMemoryInstance = &gameMemory{
-			records:       make(map[uuid.UUID]*game.Game),
+			records:       make(map[uuid.UUID]*aggregate.Game),
 			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
 		}
 		return gameMemoryInstance
@@ -32,16 +33,16 @@ func NewGameMemory() game.Repository {
 	return gameMemoryInstance
 }
 
-func (m *gameMemory) Get(id uuid.UUID) (game.Game, error) {
+func (m *gameMemory) Get(id uuid.UUID) (aggregate.Game, error) {
 	record, exists := m.records[id]
 	if !exists {
-		return game.Game{}, ErrGameNotFound
+		return aggregate.Game{}, ErrGameNotFound
 	}
 
 	return *record, nil
 }
 
-func (m *gameMemory) Update(id uuid.UUID, game game.Game) error {
+func (m *gameMemory) Update(id uuid.UUID, game aggregate.Game) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
@@ -52,15 +53,15 @@ func (m *gameMemory) Update(id uuid.UUID, game game.Game) error {
 	return nil
 }
 
-func (m *gameMemory) GetAll() []game.Game {
-	games := make([]game.Game, 0)
+func (m *gameMemory) GetAll() []aggregate.Game {
+	games := make([]aggregate.Game, 0)
 	for _, record := range m.records {
 		games = append(games, *record)
 	}
 	return games
 }
 
-func (m *gameMemory) Add(game game.Game) error {
+func (m *gameMemory) Add(game aggregate.Game) error {
 	m.records[game.GetId()] = &game
 	m.recordLockers[game.GetId()] = &sync.RWMutex{}
 
