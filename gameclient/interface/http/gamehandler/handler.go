@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/adapter/applicationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/application/applicationservice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -18,7 +17,7 @@ import (
 
 type clientSession struct {
 	gameId                uuid.UUID
-	playerId              dto.PlayerIdDto
+	playerId              uuid.UUID
 	socketSendMessageLock sync.RWMutex
 }
 
@@ -48,8 +47,8 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		gameId := gamesIds[0]
 
 		clientSession := &clientSession{
-			gameId:                gameId,
-			playerId:              dto.NewPlayerIdDto(uuid.New()),
+			gameId:                gameId.GetId(),
+			playerId:              uuid.New(),
 			socketSendMessageLock: sync.RWMutex{},
 		}
 

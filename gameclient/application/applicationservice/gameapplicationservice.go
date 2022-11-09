@@ -2,7 +2,7 @@ package applicationservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
-	"github.com/google/uuid"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 )
 
 type GameApplicationService struct {
@@ -30,6 +30,6 @@ func WithGameService() gameApplicationServiceConfiguration {
 	}
 }
 
-func (service *GameApplicationService) GetAllGameIds() []uuid.UUID {
+func (service *GameApplicationService) GetAllGameIds() []valueobject.GameId {
 	return service.GameService.GetAllGameIds()
 }

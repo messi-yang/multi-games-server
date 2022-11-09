@@ -6,7 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/repository"
-	"github.com/google/uuid"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 )
 
 var (
@@ -16,8 +16,8 @@ var (
 )
 
 type gameMemory struct {
-	records       map[uuid.UUID]*aggregate.Game
-	recordLockers map[uuid.UUID]*sync.RWMutex
+	records       map[valueobject.GameId]*aggregate.Game
+	recordLockers map[valueobject.GameId]*sync.RWMutex
 }
 
 var gameMemoryInstance *gameMemory
@@ -25,15 +25,15 @@ var gameMemoryInstance *gameMemory
 func NewGameMemory() repository.GameRepository {
 	if gameMemoryInstance == nil {
 		gameMemoryInstance = &gameMemory{
-			records:       make(map[uuid.UUID]*aggregate.Game),
-			recordLockers: make(map[uuid.UUID]*sync.RWMutex),
+			records:       make(map[valueobject.GameId]*aggregate.Game),
+			recordLockers: make(map[valueobject.GameId]*sync.RWMutex),
 		}
 		return gameMemoryInstance
 	}
 	return gameMemoryInstance
 }
 
-func (m *gameMemory) Get(id uuid.UUID) (aggregate.Game, error) {
+func (m *gameMemory) Get(id valueobject.GameId) (aggregate.Game, error) {
 	record, exists := m.records[id]
 	if !exists {
 		return aggregate.Game{}, ErrGameNotFound
@@ -42,7 +42,7 @@ func (m *gameMemory) Get(id uuid.UUID) (aggregate.Game, error) {
 	return *record, nil
 }
 
-func (m *gameMemory) Update(id uuid.UUID, game aggregate.Game) error {
+func (m *gameMemory) Update(id valueobject.GameId, game aggregate.Game) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
@@ -68,7 +68,7 @@ func (m *gameMemory) Add(game aggregate.Game) error {
 	return nil
 }
 
-func (m *gameMemory) ReadLockAccess(gameId uuid.UUID) (func(), error) {
+func (m *gameMemory) ReadLockAccess(gameId valueobject.GameId) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound
@@ -78,7 +78,7 @@ func (m *gameMemory) ReadLockAccess(gameId uuid.UUID) (func(), error) {
 	return recordLocker.RUnlock, nil
 }
 
-func (m *gameMemory) LockAccess(gameId uuid.UUID) (func(), error) {
+func (m *gameMemory) LockAccess(gameId valueobject.GameId) (func(), error) {
 	recordLocker, exists := m.recordLockers[gameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound

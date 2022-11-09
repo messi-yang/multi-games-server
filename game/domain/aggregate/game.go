@@ -3,9 +3,7 @@ package aggregate
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
-	"github.com/google/uuid"
 )
 
 var (
@@ -16,29 +14,31 @@ var (
 )
 
 type Game struct {
-	sandbox     entity.Sandbox
+	id          valueobject.GameId
+	unitBlock   valueobject.UnitBlock
 	playerIds   map[valueobject.PlayerId]bool
 	zoomedAreas map[valueobject.PlayerId]valueobject.Area
 }
 
-func NewGame(sandbox entity.Sandbox) Game {
+func NewGame(id valueobject.GameId, unitBlock valueobject.UnitBlock) Game {
 	return Game{
-		sandbox:     sandbox,
+		id:          id,
+		unitBlock:   unitBlock,
 		playerIds:   make(map[valueobject.PlayerId]bool),
 		zoomedAreas: make(map[valueobject.PlayerId]valueobject.Area),
 	}
 }
 
-func (gr *Game) GetId() uuid.UUID {
-	return gr.sandbox.GetId()
+func (gr *Game) GetId() valueobject.GameId {
+	return gr.id
 }
 
 func (gr *Game) GetDimension() valueobject.Dimension {
-	return gr.sandbox.GetDimension()
+	return gr.unitBlock.GetDimension()
 }
 
 func (gr *Game) GetUnitBlock() valueobject.UnitBlock {
-	return gr.sandbox.GetUnitBlock()
+	return gr.unitBlock
 }
 
 func (gr *Game) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock, error) {
@@ -54,7 +54,7 @@ func (gr *Game) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock
 		unitMatrix[x] = make([]valueobject.Unit, areaHeight)
 		for y := 0; y < areaHeight; y += 1 {
 			coordinate, _ := valueobject.NewCoordinate(x+offsetX, y+offsetY)
-			unitMatrix[x][y] = gr.sandbox.GetUnit(coordinate)
+			unitMatrix[x][y] = gr.unitBlock.GetUnit(coordinate)
 		}
 	}
 	unitBlock := valueobject.NewUnitBlock(unitMatrix)
@@ -100,9 +100,9 @@ func (gr *Game) ReviveUnits(coordinates []valueobject.Coordinate) error {
 	}
 
 	for _, coordinate := range coordinates {
-		unit := gr.sandbox.GetUnit(coordinate)
+		unit := gr.unitBlock.GetUnit(coordinate)
 		newUnit := unit.SetAlive(true)
-		gr.sandbox.SetUnit(coordinate, newUnit)
+		gr.unitBlock.SetUnit(coordinate, newUnit)
 	}
 
 	return nil

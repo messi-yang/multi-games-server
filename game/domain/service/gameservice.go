@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/entity"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/infrastructure/memory"
@@ -11,7 +10,7 @@ import (
 
 type GameService struct {
 	gameRepository     repository.GameRepository
-	hardcodedSandboxId uuid.UUID
+	hardcodedSandboxId valueobject.GameId
 }
 
 type gameServiceConfiguration func(service *GameService) error
@@ -19,7 +18,7 @@ type gameServiceConfiguration func(service *GameService) error
 func NewGameService(cfgs ...gameServiceConfiguration) (*GameService, error) {
 	hardcodedSandboxId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
 	t := &GameService{
-		hardcodedSandboxId: hardcodedSandboxId,
+		hardcodedSandboxId: valueobject.NewGameId(hardcodedSandboxId),
 	}
 	for _, cfg := range cfgs {
 		err := cfg(t)
@@ -38,11 +37,11 @@ func WithGameMemory() gameServiceConfiguration {
 	}
 }
 
-func (gs *GameService) GetAllGameIds() []uuid.UUID {
-	return []uuid.UUID{gs.hardcodedSandboxId}
+func (gs *GameService) GetAllGameIds() []valueobject.GameId {
+	return []valueobject.GameId{gs.hardcodedSandboxId}
 }
 
-func (gs *GameService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, error) {
+func (gs *GameService) CreateGame(dimension valueobject.Dimension) (valueobject.GameId, error) {
 	unitBlock := make([][]valueobject.Unit, dimension.GetWidth())
 	for i := 0; i < dimension.GetWidth(); i += 1 {
 		unitBlock[i] = make([]valueobject.Unit, dimension.GetHeight())
@@ -50,13 +49,12 @@ func (gs *GameService) CreateGame(dimension valueobject.Dimension) (uuid.UUID, e
 			unitBlock[i][j] = valueobject.NewUnit(false, valueobject.ItemTypeEmpty)
 		}
 	}
-	newSandbox := entity.NewSandbox(gs.hardcodedSandboxId, valueobject.NewUnitBlock(unitBlock))
-	game := aggregate.NewGame(newSandbox)
+	game := aggregate.NewGame(gs.hardcodedSandboxId, valueobject.NewUnitBlock(unitBlock))
 	gs.gameRepository.Add(game)
 	return game.GetId(), nil
 }
 
-func (service *GameService) GetGame(id uuid.UUID) (aggregate.Game, error) {
+func (service *GameService) GetGame(id valueobject.GameId) (aggregate.Game, error) {
 	game, err := service.gameRepository.Get(id)
 	if err != nil {
 		return aggregate.Game{}, err
@@ -65,7 +63,7 @@ func (service *GameService) GetGame(id uuid.UUID) (aggregate.Game, error) {
 	return game, nil
 }
 
-func (gs *GameService) AddPlayerToGame(gameId uuid.UUID, playerId valueobject.PlayerId) (aggregate.Game, error) {
+func (gs *GameService) AddPlayerToGame(gameId valueobject.GameId, playerId valueobject.PlayerId) (aggregate.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.Game{}, err
@@ -83,7 +81,7 @@ func (gs *GameService) AddPlayerToGame(gameId uuid.UUID, playerId valueobject.Pl
 	return game, nil
 }
 
-func (gs *GameService) RemovePlayerFromGame(gameId uuid.UUID, playerId valueobject.PlayerId) (aggregate.Game, error) {
+func (gs *GameService) RemovePlayerFromGame(gameId valueobject.GameId, playerId valueobject.PlayerId) (aggregate.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.Game{}, err
@@ -101,7 +99,7 @@ func (gs *GameService) RemovePlayerFromGame(gameId uuid.UUID, playerId valueobje
 	return game, nil
 }
 
-func (gs *GameService) AddZoomedAreaToGame(gameId uuid.UUID, playerId valueobject.PlayerId, area valueobject.Area) (aggregate.Game, error) {
+func (gs *GameService) AddZoomedAreaToGame(gameId valueobject.GameId, playerId valueobject.PlayerId, area valueobject.Area) (aggregate.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.Game{}, err
@@ -123,7 +121,7 @@ func (gs *GameService) AddZoomedAreaToGame(gameId uuid.UUID, playerId valueobjec
 	return game, nil
 }
 
-func (gs *GameService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId valueobject.PlayerId) (aggregate.Game, error) {
+func (gs *GameService) RemoveZoomedAreaFromGame(gameId valueobject.GameId, playerId valueobject.PlayerId) (aggregate.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.Game{}, err
@@ -141,7 +139,7 @@ func (gs *GameService) RemoveZoomedAreaFromGame(gameId uuid.UUID, playerId value
 	return game, nil
 }
 
-func (gs *GameService) ReviveUnitsInGame(gameId uuid.UUID, coordinates []valueobject.Coordinate) (aggregate.Game, error) {
+func (gs *GameService) ReviveUnitsInGame(gameId valueobject.GameId, coordinates []valueobject.Coordinate) (aggregate.Game, error) {
 	unlocker, err := gs.gameRepository.LockAccess(gameId)
 	if err != nil {
 		return aggregate.Game{}, err

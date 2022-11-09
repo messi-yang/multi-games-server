@@ -12,8 +12,8 @@ type AreaZoomedApplicationEvent struct {
 	UnitBlock dto.UnitBlockDto `json:"unitBlock"`
 }
 
-func NewAreaZoomedApplicationEventTopic(gameId uuid.UUID, playerIdDto dto.PlayerIdDto) string {
-	return fmt.Sprintf("game-room-%s-player-%s-area-zoomed", gameId, playerIdDto.Value)
+func NewAreaZoomedApplicationEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
+	return fmt.Sprintf("game-room-%s-player-%s-area-zoomed", gameId, playerId)
 }
 
 func NewAreaZoomedApplicationEvent(areaDto dto.AreaDto, unitBlockDto dto.UnitBlockDto) AreaZoomedApplicationEvent {

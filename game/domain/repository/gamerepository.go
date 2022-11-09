@@ -2,15 +2,15 @@ package repository
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
-	"github.com/google/uuid"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 )
 
 type GameRepository interface {
 	Add(aggregate.Game) error
-	Get(gameId uuid.UUID) (game aggregate.Game, err error)
-	Update(gameId uuid.UUID, game aggregate.Game) error
+	Get(gameId valueobject.GameId) (game aggregate.Game, err error)
+	Update(gameId valueobject.GameId, game aggregate.Game) error
 	GetAll() []aggregate.Game
 
-	ReadLockAccess(gameId uuid.UUID) (rUnlocker func(), err error)
-	LockAccess(gameId uuid.UUID) (unlocker func(), err error)
+	ReadLockAccess(gameId valueobject.GameId) (rUnlocker func(), err error)
+	LockAccess(gameId valueobject.GameId) (unlocker func(), err error)
 }

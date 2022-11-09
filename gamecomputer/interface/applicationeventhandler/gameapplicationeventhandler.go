@@ -2,9 +2,9 @@ package applicationeventhandler
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/adapter/applicationevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
-	"github.com/google/uuid"
 )
 
 type GameApplicationEventHandlerConfiguration struct {
@@ -13,12 +13,12 @@ type GameApplicationEventHandlerConfiguration struct {
 
 func NewGameApplicationEventHandler(
 	configuration GameApplicationEventHandlerConfiguration,
-	gameId uuid.UUID,
+	gameId valueobject.GameId,
 ) {
 	reviveUnitsRequestedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
 		rediseventbus.WithRedisInfrastructureService[applicationevent.ReviveUnitsRequestedApplicationEvent](),
 	).Subscribe(
-		applicationevent.NewReviveUnitsRequestedApplicationEventTopic(gameId),
+		applicationevent.NewReviveUnitsRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.ReviveUnitsRequestedApplicationEvent) {
 			configuration.GameApplicationService.ReviveUnitsInGame(gameId, event.Coordinates)
 		},
@@ -28,7 +28,7 @@ func NewGameApplicationEventHandler(
 	addPlayerRequestedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
 		rediseventbus.WithRedisInfrastructureService[applicationevent.AddPlayerRequestedApplicationEvent](),
 	).Subscribe(
-		applicationevent.NewAddPlayerRequestedApplicationEventTopic(gameId),
+		applicationevent.NewAddPlayerRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.AddPlayerRequestedApplicationEvent) {
 			playerId := event.PlayerId
 			configuration.GameApplicationService.AddPlayerToGame(gameId, playerId)
@@ -39,7 +39,7 @@ func NewGameApplicationEventHandler(
 	removePlayerRequestedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
 		rediseventbus.WithRedisInfrastructureService[applicationevent.RemovePlayerRequestedApplicationEvent](),
 	).Subscribe(
-		applicationevent.NewRemovePlayerRequestedApplicationEventTopic(gameId),
+		applicationevent.NewRemovePlayerRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.RemovePlayerRequestedApplicationEvent) {
 			configuration.GameApplicationService.RemovePlayerFromGame(gameId, event.PlayerId)
 			configuration.GameApplicationService.RemoveZoomedAreaFromGame(gameId, event.PlayerId)
@@ -50,7 +50,7 @@ func NewGameApplicationEventHandler(
 	zoomAreaRequestedApplicationEventSubscriber := rediseventbus.NewRedisApplicationEventBus(
 		rediseventbus.WithRedisInfrastructureService[applicationevent.ZoomAreaRequestedApplicationEvent](),
 	).Subscribe(
-		applicationevent.NewZoomAreaRequestedApplicationEventTopic(gameId),
+		applicationevent.NewZoomAreaRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.ZoomAreaRequestedApplicationEvent) {
 			configuration.GameApplicationService.AddZoomedAreaToGame(gameId, event.PlayerId, event.Area)
 		},
