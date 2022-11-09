@@ -3,9 +3,9 @@ package service
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/entity"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/memory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/repository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/infrastructure/memory"
 	"github.com/google/uuid"
 )
 

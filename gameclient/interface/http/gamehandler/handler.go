@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/application/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/sharedapplicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -19,7 +19,6 @@ import (
 type clientSession struct {
 	gameId                uuid.UUID
 	playerId              dto.PlayerIdDto
-	integrationEventBus   eventbus.IntegrationEventBus
 	socketSendMessageLock sync.RWMutex
 }
 
@@ -32,7 +31,6 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type HandlerConfiguration struct {
-	IntegrationEventBus    eventbus.IntegrationEventBus
 	GameApplicationService *applicationservice.GameApplicationService
 }
 
@@ -52,37 +50,44 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		clientSession := &clientSession{
 			gameId:                gameId,
 			playerId:              dto.NewPlayerIdDto(uuid.New()),
-			integrationEventBus:   configuration.IntegrationEventBus,
 			socketSendMessageLock: sync.RWMutex{},
 		}
 
-		gameInfoUpdatedIntegrationEventSubscriber := clientSession.integrationEventBus.Subscribe(
-			integrationevent.NewGameInfoUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.playerId),
-			func(event []byte) {
+		gameInfoUpdatedApplicationEventSubscriber := rediseventbus.NewRedisApplicationEventBus(
+			rediseventbus.WithRedisInfrastructureService[applicationevent.GameInfoUpdatedApplicationEvent](),
+		).Subscribe(
+			applicationevent.NewGameInfoUpdatedApplicationEventTopic(clientSession.gameId, clientSession.playerId),
+			func(event applicationevent.GameInfoUpdatedApplicationEvent) {
 				handleGameInfoUpdatedEvent(conn, clientSession, event)
 			},
 		)
-		defer gameInfoUpdatedIntegrationEventSubscriber()
+		defer gameInfoUpdatedApplicationEventSubscriber()
 
-		areaZoomedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
-			integrationevent.NewAreaZoomedIntegrationEventTopic(clientSession.gameId, clientSession.playerId),
-			func(event []byte) {
+		areaZoomedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
+			rediseventbus.WithRedisInfrastructureService[applicationevent.AreaZoomedApplicationEvent](),
+		).Subscribe(
+			applicationevent.NewAreaZoomedApplicationEventTopic(clientSession.gameId, clientSession.playerId),
+			func(event applicationevent.AreaZoomedApplicationEvent) {
 				handleAreaZoomedEvent(conn, clientSession, event)
 			},
 		)
-		defer areaZoomedIntegrationEventUnsubscriber()
+		defer areaZoomedApplicationEventUnsubscriber()
 
-		zoomedAreaUpdatedIntegrationEventUnsubscriber := clientSession.integrationEventBus.Subscribe(
-			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(clientSession.gameId, clientSession.playerId),
-			func(event []byte) {
+		zoomedAreaUpdatedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
+			rediseventbus.WithRedisInfrastructureService[applicationevent.ZoomedAreaUpdatedApplicationEvent](),
+		).Subscribe(
+			applicationevent.NewZoomedAreaUpdatedApplicationEventTopic(clientSession.gameId, clientSession.playerId),
+			func(event applicationevent.ZoomedAreaUpdatedApplicationEvent) {
 				handleZoomedAreaUpdatedEvent(conn, clientSession, event)
 			},
 		)
-		defer zoomedAreaUpdatedIntegrationEventUnsubscriber()
+		defer zoomedAreaUpdatedApplicationEventUnsubscriber()
 
-		clientSession.integrationEventBus.Publish(
-			integrationevent.NewAddPlayerRequestedIntegrationEventTopic(clientSession.gameId),
-			integrationevent.NewAddPlayerRequestedIntegrationEvent(clientSession.playerId),
+		rediseventbus.NewRedisApplicationEventBus(
+			rediseventbus.WithRedisInfrastructureService[applicationevent.AddPlayerRequestedApplicationEvent](),
+		).Publish(
+			applicationevent.NewAddPlayerRequestedApplicationEventTopic(clientSession.gameId),
+			applicationevent.NewAddPlayerRequestedApplicationEvent(clientSession.playerId),
 		)
 
 		go func() {
@@ -97,7 +102,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 					break
 				}
 
-				compressionApplicationService := sharedapplicationservice.NewCompressionApplicationService()
+				compressionApplicationService := service.NewCompressionApplicationService()
 				message, err := compressionApplicationService.Ungzip(compressedMessage)
 				if err != nil {
 					emitErrorEvent(conn, clientSession, err)
@@ -123,9 +128,11 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		for {
 			<-closeConnFlag
 
-			clientSession.integrationEventBus.Publish(
-				integrationevent.NewRemovePlayerRequestedIntegrationEventTopic(clientSession.gameId),
-				integrationevent.NewRemovePlayerRequestedIntegrationEvent(clientSession.playerId),
+			rediseventbus.NewRedisApplicationEventBus(
+				rediseventbus.WithRedisInfrastructureService[applicationevent.RemovePlayerRequestedApplicationEvent](),
+			).Publish(
+				applicationevent.NewRemovePlayerRequestedApplicationEventTopic(clientSession.gameId),
+				applicationevent.NewRemovePlayerRequestedApplicationEvent(clientSession.playerId),
 			)
 
 			return
@@ -139,7 +146,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, clientSession *clientSession,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	compressionApplicationService := sharedapplicationservice.NewCompressionApplicationService()
+	compressionApplicationService := service.NewCompressionApplicationService()
 	compressedMessage, err := compressionApplicationService.Gzip(messageJsonInBytes)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
@@ -154,25 +161,16 @@ func emitErrorEvent(conn *websocket.Conn, clientSession *clientSession, err erro
 	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateErroredEvent(err.Error()))
 }
 
-func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	var gameInfoUpdatedIntegrationEvent integrationevent.GameInfoUpdatedIntegrationEvent
-	json.Unmarshal(event, &gameInfoUpdatedIntegrationEvent)
-
-	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateInformationUpdatedEvent(gameInfoUpdatedIntegrationEvent.Payload.Dimension))
+func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event applicationevent.GameInfoUpdatedApplicationEvent) {
+	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateInformationUpdatedEvent(event.Dimension))
 }
 
-func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	var areaZoomedIntegrationEvent integrationevent.AreaZoomedIntegrationEvent
-	json.Unmarshal(event, &areaZoomedIntegrationEvent)
-
-	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateAreaZoomedEvent(areaZoomedIntegrationEvent.Payload.Area, areaZoomedIntegrationEvent.Payload.UnitBlock))
+func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, event applicationevent.AreaZoomedApplicationEvent) {
+	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateAreaZoomedEvent(event.Area, event.UnitBlock))
 }
 
-func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	var zoomedAreaUpdatedIntegrationEvent integrationevent.ZoomedAreaUpdatedIntegrationEvent
-	json.Unmarshal(event, &zoomedAreaUpdatedIntegrationEvent)
-
-	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateZoomedAreaUpdatedEvent(zoomedAreaUpdatedIntegrationEvent.Payload.Area, zoomedAreaUpdatedIntegrationEvent.Payload.UnitBlock))
+func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event applicationevent.ZoomedAreaUpdatedApplicationEvent) {
+	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateZoomedAreaUpdatedEvent(event.Area, event.UnitBlock))
 }
 
 func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
@@ -182,9 +180,11 @@ func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSes
 		return
 	}
 
-	clientSession.integrationEventBus.Publish(
-		integrationevent.NewZoomAreaRequestedIntegrationEventTopic(clientSession.gameId),
-		integrationevent.NewZoomAreaRequestedIntegrationEvent(clientSession.playerId, areaDto),
+	rediseventbus.NewRedisApplicationEventBus(
+		rediseventbus.WithRedisInfrastructureService[applicationevent.ZoomAreaRequestedApplicationEvent](),
+	).Publish(
+		applicationevent.NewZoomAreaRequestedApplicationEventTopic(clientSession.gameId),
+		applicationevent.NewZoomAreaRequestedApplicationEvent(clientSession.playerId, areaDto),
 	)
 }
 
@@ -195,8 +195,10 @@ func handleReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *client
 		return
 	}
 
-	clientSession.integrationEventBus.Publish(
-		integrationevent.NewReviveUnitsRequestedIntegrationEventTopic(clientSession.gameId),
-		integrationevent.NewReviveUnitsRequestedIntegrationEvent(coordinateDtos),
+	rediseventbus.NewRedisApplicationEventBus(
+		rediseventbus.WithRedisInfrastructureService[applicationevent.ReviveUnitsRequestedApplicationEvent](),
+	).Publish(
+		applicationevent.NewReviveUnitsRequestedApplicationEventTopic(clientSession.gameId),
+		applicationevent.NewReviveUnitsRequestedApplicationEvent(coordinateDtos),
 	)
 }

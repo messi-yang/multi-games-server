@@ -3,11 +3,10 @@ package applicationservice
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/application/eventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/infrastructure/eventbusredis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/shared/presenter/integrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/dto"
 	"github.com/google/uuid"
 )
 
@@ -16,8 +15,7 @@ var (
 )
 
 type GameApplicationService struct {
-	gameService         *service.GameService
-	integrationEventBus eventbus.IntegrationEventBus
+	gameService *service.GameService
 }
 
 type gameApplicationServiceConfiguration func(service *GameApplicationService) error
@@ -39,14 +37,6 @@ func WithGameService() gameApplicationServiceConfiguration {
 	)
 	return func(service *GameApplicationService) error {
 		service.gameService = gameService
-		return nil
-	}
-}
-
-func WithRedisIntegrationEventBus() gameApplicationServiceConfiguration {
-	return func(service *GameApplicationService) error {
-		redisIntegrationEventBus, _ := eventbusredis.NewRedisIntegrationEventBus(eventbusredis.WithRedisService())
-		service.integrationEventBus = redisIntegrationEventBus
 		return nil
 	}
 }
@@ -84,9 +74,11 @@ func (grs *GameApplicationService) ReviveUnitsInGame(gameId uuid.UUID, coordinat
 		if err != nil {
 			continue
 		}
-		grs.integrationEventBus.Publish(
-			integrationevent.NewZoomedAreaUpdatedIntegrationEventTopic(updatedGame.GetId(), dto.NewPlayerIdDto(playerId.GetId())),
-			integrationevent.NewZoomedAreaUpdatedIntegrationEvent(dto.NewAreaDto(area), dto.NewUnitBlockDto(unitBlock)),
+		rediseventbus.NewRedisApplicationEventBus(
+			rediseventbus.WithRedisInfrastructureService[applicationevent.ZoomedAreaUpdatedApplicationEvent](),
+		).Publish(
+			applicationevent.NewZoomedAreaUpdatedApplicationEventTopic(updatedGame.GetId(), dto.NewPlayerIdDto(playerId.GetId())),
+			applicationevent.NewZoomedAreaUpdatedApplicationEvent(dto.NewAreaDto(area), dto.NewUnitBlockDto(unitBlock)),
 		)
 	}
 	return nil
@@ -100,9 +92,11 @@ func (grs *GameApplicationService) AddPlayerToGame(gameId uuid.UUID, playerIdDto
 	}
 	dimensionDto := dto.NewDimensionDto(updatedGame.GetDimension())
 
-	grs.integrationEventBus.Publish(
-		integrationevent.NewGameInfoUpdatedIntegrationEventTopic(gameId, playerIdDto),
-		integrationevent.NewGameInfoUpdatedIntegrationEvent(dimensionDto),
+	rediseventbus.NewRedisApplicationEventBus(
+		rediseventbus.WithRedisInfrastructureService[applicationevent.GameInfoUpdatedApplicationEvent](),
+	).Publish(
+		applicationevent.NewGameInfoUpdatedApplicationEventTopic(gameId, playerIdDto),
+		applicationevent.NewGameInfoUpdatedApplicationEvent(dimensionDto),
 	)
 
 	return nil
@@ -137,9 +131,11 @@ func (grs *GameApplicationService) AddZoomedAreaToGame(gameId uuid.UUID, playerI
 
 	unitBlockDto := dto.NewUnitBlockDto(unitBlock)
 
-	grs.integrationEventBus.Publish(
-		integrationevent.NewAreaZoomedIntegrationEventTopic(gameId, playerIdDto),
-		integrationevent.NewAreaZoomedIntegrationEvent(areaDto, unitBlockDto),
+	rediseventbus.NewRedisApplicationEventBus(
+		rediseventbus.WithRedisInfrastructureService[applicationevent.AreaZoomedApplicationEvent](),
+	).Publish(
+		applicationevent.NewAreaZoomedApplicationEventTopic(gameId, playerIdDto),
+		applicationevent.NewAreaZoomedApplicationEvent(areaDto, unitBlockDto),
 	)
 
 	return nil

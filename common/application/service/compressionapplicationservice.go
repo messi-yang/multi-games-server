@@ -1,4 +1,4 @@
-package sharedapplicationservice
+package service
 
 import (
 	"bytes"
