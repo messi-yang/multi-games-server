@@ -10,10 +10,6 @@ func NewUnitBlock(unitMatrix [][]Unit) UnitBlock {
 	}
 }
 
-func (um UnitBlock) ToValueObjectMatrix() [][]Unit {
-	return um.unitMatrix
-}
-
 func (um UnitBlock) GetDimension() Dimension {
 	gameDimension, _ := NewDimension(len(um.unitMatrix), len(um.unitMatrix[0]))
 	return gameDimension
