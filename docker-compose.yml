@@ -22,10 +22,10 @@ services:
       POSTGRES_DB: game
     networks:
       - base
-  computer:
+  livegameserver:
     build: .
     environment:
-      - APP=computer
+      - APP=live-game-server
       - GAME_MAP_SIZE=400
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
@@ -39,16 +39,16 @@ services:
     working_dir:
       /app
     command: make dev
-  client:
+  commonserver:
     build: .
     environment:
-      - APP=client
+      - APP=common-server
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
     ports:
       - 8080:8080
     depends_on:
-      - computer
+      - livegameserver
     networks:
       - base
     volumes:

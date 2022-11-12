@@ -4,7 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/adapter/applicationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
 )
 
 type GameApplicationEventHandlerConfiguration struct {

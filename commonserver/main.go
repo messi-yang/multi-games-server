@@ -1,8 +1,8 @@
-package gameclient
+package commonserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient/interface/http/gamehandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/commonserver/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/commonserver/interface/http/gamehandler"
 	"github.com/gin-gonic/gin"
 )
 

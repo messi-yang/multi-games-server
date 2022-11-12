@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameclient"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer"
+	"github.com/dum-dum-genius/game-of-liberty-computer/commonserver"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver"
 )
 
 func main() {
@@ -13,9 +13,9 @@ func main() {
 		panic("You must set the 'APP'")
 	}
 
-	if app == "client" {
-		gameclient.Start()
-	} else if app == "computer" {
-		gamecomputer.Start()
+	if app == "common-server" {
+		commonserver.Start()
+	} else if app == "live-game-server" {
+		livegameserver.Start()
 	}
 }

@@ -1,10 +1,10 @@
-package gamecomputer
+package livegameserver
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/infrastructure/config"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gamecomputer/interface/applicationeventhandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/infrastructure/config"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/interface/applicationeventhandler"
 )
 
 func Start() {
