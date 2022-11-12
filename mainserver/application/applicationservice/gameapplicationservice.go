@@ -2,7 +2,7 @@ package applicationservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
+	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 )
 
 type LiveGameApplicationService struct {
@@ -30,6 +30,6 @@ func WithLiveGameService() liveGameApplicationServiceConfiguration {
 	}
 }
 
-func (service *LiveGameApplicationService) GetAllLiveGameIds() []valueobject.GameId {
+func (service *LiveGameApplicationService) GetAllLiveGameIds() []liveGameValueObject.LiveGameId {
 	return service.LiveGameService.GetAllLiveGameIds()
 }

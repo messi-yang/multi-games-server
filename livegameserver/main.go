@@ -13,7 +13,7 @@ func Start() {
 	)
 
 	size := config.GetConfig().GetLiveGameDimension()
-	gameId, _ := liveGameApplicationService.CreateLiveGame(dto.DimensionDto{
+	liveGameId, _ := liveGameApplicationService.CreateLiveGame(dto.DimensionDto{
 		Width:  size,
 		Height: size,
 	})
@@ -22,6 +22,6 @@ func Start() {
 		applicationeventhandler.GameApplicationEventHandlerConfiguration{
 			LiveGameApplicationService: liveGameApplicationService,
 		},
-		gameId,
+		liveGameId,
 	)
 }

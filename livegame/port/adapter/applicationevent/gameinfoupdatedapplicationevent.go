@@ -11,8 +11,8 @@ type GameInfoUpdatedApplicationEvent struct {
 	Dimension dto.DimensionDto `json:"dimension"`
 }
 
-func NewGameInfoUpdatedApplicationEventTopic(gameId uuid.UUID, playerId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-player-%s-game-info-updated", gameId, playerId)
+func NewGameInfoUpdatedApplicationEventTopic(liveGameId uuid.UUID, playerId uuid.UUID) string {
+	return fmt.Sprintf("game-room-%s-player-%s-game-info-updated", liveGameId, playerId)
 }
 
 func NewGameInfoUpdatedApplicationEvent(dimensionDto dto.DimensionDto) GameInfoUpdatedApplicationEvent {

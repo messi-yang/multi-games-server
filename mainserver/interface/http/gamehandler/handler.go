@@ -16,7 +16,7 @@ import (
 )
 
 type clientSession struct {
-	gameId                uuid.UUID
+	liveGameId            uuid.UUID
 	playerId              uuid.UUID
 	socketSendMessageLock sync.RWMutex
 }
@@ -44,10 +44,10 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		closeConnFlag := make(chan bool)
 
 		gamesIds := configuration.LiveGameApplicationService.GetAllLiveGameIds()
-		gameId := gamesIds[0]
+		liveGameId := gamesIds[0]
 
 		clientSession := &clientSession{
-			gameId:                gameId.GetId(),
+			liveGameId:            liveGameId.GetId(),
 			playerId:              uuid.New(),
 			socketSendMessageLock: sync.RWMutex{},
 		}
@@ -55,7 +55,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		gameInfoUpdatedApplicationEventSubscriber := rediseventbus.NewRedisApplicationEventBus(
 			rediseventbus.WithRedisInfrastructureService[applicationevent.GameInfoUpdatedApplicationEvent](),
 		).Subscribe(
-			applicationevent.NewGameInfoUpdatedApplicationEventTopic(clientSession.gameId, clientSession.playerId),
+			applicationevent.NewGameInfoUpdatedApplicationEventTopic(clientSession.liveGameId, clientSession.playerId),
 			func(event applicationevent.GameInfoUpdatedApplicationEvent) {
 				handleGameInfoUpdatedEvent(conn, clientSession, event)
 			},
@@ -65,7 +65,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		areaZoomedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
 			rediseventbus.WithRedisInfrastructureService[applicationevent.AreaZoomedApplicationEvent](),
 		).Subscribe(
-			applicationevent.NewAreaZoomedApplicationEventTopic(clientSession.gameId, clientSession.playerId),
+			applicationevent.NewAreaZoomedApplicationEventTopic(clientSession.liveGameId, clientSession.playerId),
 			func(event applicationevent.AreaZoomedApplicationEvent) {
 				handleAreaZoomedEvent(conn, clientSession, event)
 			},
@@ -75,7 +75,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		zoomedAreaUpdatedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
 			rediseventbus.WithRedisInfrastructureService[applicationevent.ZoomedAreaUpdatedApplicationEvent](),
 		).Subscribe(
-			applicationevent.NewZoomedAreaUpdatedApplicationEventTopic(clientSession.gameId, clientSession.playerId),
+			applicationevent.NewZoomedAreaUpdatedApplicationEventTopic(clientSession.liveGameId, clientSession.playerId),
 			func(event applicationevent.ZoomedAreaUpdatedApplicationEvent) {
 				handleZoomedAreaUpdatedEvent(conn, clientSession, event)
 			},
@@ -85,7 +85,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		rediseventbus.NewRedisApplicationEventBus(
 			rediseventbus.WithRedisInfrastructureService[applicationevent.AddPlayerRequestedApplicationEvent](),
 		).Publish(
-			applicationevent.NewAddPlayerRequestedApplicationEventTopic(clientSession.gameId),
+			applicationevent.NewAddPlayerRequestedApplicationEventTopic(clientSession.liveGameId),
 			applicationevent.NewAddPlayerRequestedApplicationEvent(clientSession.playerId),
 		)
 
@@ -130,7 +130,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 			rediseventbus.NewRedisApplicationEventBus(
 				rediseventbus.WithRedisInfrastructureService[applicationevent.RemovePlayerRequestedApplicationEvent](),
 			).Publish(
-				applicationevent.NewRemovePlayerRequestedApplicationEventTopic(clientSession.gameId),
+				applicationevent.NewRemovePlayerRequestedApplicationEventTopic(clientSession.liveGameId),
 				applicationevent.NewRemovePlayerRequestedApplicationEvent(clientSession.playerId),
 			)
 
@@ -182,7 +182,7 @@ func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSes
 	rediseventbus.NewRedisApplicationEventBus(
 		rediseventbus.WithRedisInfrastructureService[applicationevent.ZoomAreaRequestedApplicationEvent](),
 	).Publish(
-		applicationevent.NewZoomAreaRequestedApplicationEventTopic(clientSession.gameId),
+		applicationevent.NewZoomAreaRequestedApplicationEventTopic(clientSession.liveGameId),
 		applicationevent.NewZoomAreaRequestedApplicationEvent(clientSession.playerId, areaDto),
 	)
 }
@@ -197,7 +197,7 @@ func handleReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *client
 	rediseventbus.NewRedisApplicationEventBus(
 		rediseventbus.WithRedisInfrastructureService[applicationevent.ReviveUnitsRequestedApplicationEvent](),
 	).Publish(
-		applicationevent.NewReviveUnitsRequestedApplicationEventTopic(clientSession.gameId),
+		applicationevent.NewReviveUnitsRequestedApplicationEventTopic(clientSession.liveGameId),
 		applicationevent.NewReviveUnitsRequestedApplicationEvent(coordinateDtos),
 	)
 }

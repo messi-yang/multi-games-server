@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
+import "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 
 type CoordinateDto struct {
 	X int `json:"x"`

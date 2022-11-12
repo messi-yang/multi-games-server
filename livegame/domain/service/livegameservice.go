@@ -1,24 +1,25 @@
 package service
 
 import (
+	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/repository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
+	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/infrastructure/memory"
 	"github.com/google/uuid"
 )
 
 type LiveGameService struct {
-	liveGameRepository repository.LiveGameRepository
-	hardcodedGameIdId  valueobject.GameId
+	liveGameRepository  repository.LiveGameRepository
+	hardcodedLiveGameId liveGameValueObject.LiveGameId
 }
 
 type liveGameServiceConfiguration func(service *LiveGameService) error
 
 func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameService, error) {
-	hardcodedGameIdId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
+	hardcodedLiveGameId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
 	t := &LiveGameService{
-		hardcodedGameIdId: valueobject.NewGameId(hardcodedGameIdId),
+		hardcodedLiveGameId: liveGameValueObject.NewLiveGameId(hardcodedLiveGameId),
 	}
 	for _, cfg := range cfgs {
 		err := cfg(t)
@@ -37,24 +38,24 @@ func WithGameMemory() liveGameServiceConfiguration {
 	}
 }
 
-func (gs *LiveGameService) GetAllLiveGameIds() []valueobject.GameId {
-	return []valueobject.GameId{gs.hardcodedGameIdId}
+func (gs *LiveGameService) GetAllLiveGameIds() []liveGameValueObject.LiveGameId {
+	return []liveGameValueObject.LiveGameId{gs.hardcodedLiveGameId}
 }
 
-func (gs *LiveGameService) CreateLiveGame(dimension valueobject.Dimension) (valueobject.GameId, error) {
-	unitBlock := make([][]valueobject.Unit, dimension.GetWidth())
+func (gs *LiveGameService) CreateLiveGame(dimension commonValueObject.Dimension) (liveGameValueObject.LiveGameId, error) {
+	unitBlock := make([][]commonValueObject.Unit, dimension.GetWidth())
 	for i := 0; i < dimension.GetWidth(); i += 1 {
-		unitBlock[i] = make([]valueobject.Unit, dimension.GetHeight())
+		unitBlock[i] = make([]commonValueObject.Unit, dimension.GetHeight())
 		for j := 0; j < dimension.GetHeight(); j += 1 {
-			unitBlock[i][j] = valueobject.NewUnit(false, valueobject.ItemTypeEmpty)
+			unitBlock[i][j] = commonValueObject.NewUnit(false, commonValueObject.ItemTypeEmpty)
 		}
 	}
-	newLiveGame := aggregate.NewLiveGame(gs.hardcodedGameIdId, valueobject.NewUnitBlock(unitBlock))
+	newLiveGame := aggregate.NewLiveGame(gs.hardcodedLiveGameId, commonValueObject.NewUnitBlock(unitBlock))
 	gs.liveGameRepository.Add(newLiveGame)
 	return newLiveGame.GetId(), nil
 }
 
-func (service *LiveGameService) GetLiveGame(id valueobject.GameId) (aggregate.LiveGame, error) {
+func (service *LiveGameService) GetLiveGame(id liveGameValueObject.LiveGameId) (aggregate.LiveGame, error) {
 	liveGame, err := service.liveGameRepository.Get(id)
 	if err != nil {
 		return aggregate.LiveGame{}, err
@@ -63,50 +64,50 @@ func (service *LiveGameService) GetLiveGame(id valueobject.GameId) (aggregate.Li
 	return liveGame, nil
 }
 
-func (gs *LiveGameService) AddPlayerToLiveGame(gameId valueobject.GameId, playerId valueobject.PlayerId) (aggregate.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(gameId)
+func (gs *LiveGameService) AddPlayerToLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId commonValueObject.PlayerId) (aggregate.LiveGame, error) {
+	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(gameId)
+	gameLive, err := gs.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 
 	gameLive.AddPlayer(playerId)
-	gs.liveGameRepository.Update(gameId, gameLive)
+	gs.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) RemovePlayerFromLiveGame(gameId valueobject.GameId, playerId valueobject.PlayerId) (aggregate.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(gameId)
+func (gs *LiveGameService) RemovePlayerFromLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId commonValueObject.PlayerId) (aggregate.LiveGame, error) {
+	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(gameId)
+	gameLive, err := gs.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 
 	gameLive.RemovePlayer(playerId)
-	gs.liveGameRepository.Update(gameId, gameLive)
+	gs.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) AddZoomedAreaToLiveGame(gameId valueobject.GameId, playerId valueobject.PlayerId, area valueobject.Area) (aggregate.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(gameId)
+func (gs *LiveGameService) AddZoomedAreaToLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId commonValueObject.PlayerId, area commonValueObject.Area) (aggregate.LiveGame, error) {
+	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(gameId)
+	gameLive, err := gs.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
@@ -116,37 +117,37 @@ func (gs *LiveGameService) AddZoomedAreaToLiveGame(gameId valueobject.GameId, pl
 		return aggregate.LiveGame{}, err
 	}
 
-	gs.liveGameRepository.Update(gameId, gameLive)
+	gs.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) RemoveZoomedAreaFromLiveGame(gameId valueobject.GameId, playerId valueobject.PlayerId) (aggregate.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(gameId)
+func (gs *LiveGameService) RemoveZoomedAreaFromLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId commonValueObject.PlayerId) (aggregate.LiveGame, error) {
+	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(gameId)
+	gameLive, err := gs.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 
 	gameLive.RemoveZoomedArea(playerId)
-	gs.liveGameRepository.Update(gameId, gameLive)
+	gs.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) ReviveUnitsInLiveGame(gameId valueobject.GameId, coordinates []valueobject.Coordinate) (aggregate.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(gameId)
+func (gs *LiveGameService) ReviveUnitsInLiveGame(liveGameId liveGameValueObject.LiveGameId, coordinates []commonValueObject.Coordinate) (aggregate.LiveGame, error) {
+	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(gameId)
+	gameLive, err := gs.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return aggregate.LiveGame{}, err
 	}
@@ -156,7 +157,7 @@ func (gs *LiveGameService) ReviveUnitsInLiveGame(gameId valueobject.GameId, coor
 		return aggregate.LiveGame{}, err
 	}
 
-	gs.liveGameRepository.Update(gameId, gameLive)
+	gs.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }

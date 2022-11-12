@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 )
 
 type AreaDto struct {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/repository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
+	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 )
 
 var (
@@ -16,8 +16,8 @@ var (
 )
 
 type gameMemory struct {
-	records       map[valueobject.GameId]*aggregate.LiveGame
-	recordLockers map[valueobject.GameId]*sync.RWMutex
+	records       map[liveGameValueObject.LiveGameId]*aggregate.LiveGame
+	recordLockers map[liveGameValueObject.LiveGameId]*sync.RWMutex
 }
 
 var gameMemoryInstance *gameMemory
@@ -25,15 +25,15 @@ var gameMemoryInstance *gameMemory
 func NewLiveGameMemory() repository.LiveGameRepository {
 	if gameMemoryInstance == nil {
 		gameMemoryInstance = &gameMemory{
-			records:       make(map[valueobject.GameId]*aggregate.LiveGame),
-			recordLockers: make(map[valueobject.GameId]*sync.RWMutex),
+			records:       make(map[liveGameValueObject.LiveGameId]*aggregate.LiveGame),
+			recordLockers: make(map[liveGameValueObject.LiveGameId]*sync.RWMutex),
 		}
 		return gameMemoryInstance
 	}
 	return gameMemoryInstance
 }
 
-func (m *gameMemory) Get(id valueobject.GameId) (aggregate.LiveGame, error) {
+func (m *gameMemory) Get(id liveGameValueObject.LiveGameId) (aggregate.LiveGame, error) {
 	record, exists := m.records[id]
 	if !exists {
 		return aggregate.LiveGame{}, ErrGameNotFound
@@ -42,7 +42,7 @@ func (m *gameMemory) Get(id valueobject.GameId) (aggregate.LiveGame, error) {
 	return *record, nil
 }
 
-func (m *gameMemory) Update(id valueobject.GameId, liveGame aggregate.LiveGame) error {
+func (m *gameMemory) Update(id liveGameValueObject.LiveGameId, liveGame aggregate.LiveGame) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
@@ -68,8 +68,8 @@ func (m *gameMemory) Add(liveGame aggregate.LiveGame) error {
 	return nil
 }
 
-func (m *gameMemory) ReadLockAccess(gameId valueobject.GameId) (func(), error) {
-	recordLocker, exists := m.recordLockers[gameId]
+func (m *gameMemory) ReadLockAccess(liveGameId liveGameValueObject.LiveGameId) (func(), error) {
+	recordLocker, exists := m.recordLockers[liveGameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound
 	}
@@ -78,8 +78,8 @@ func (m *gameMemory) ReadLockAccess(gameId valueobject.GameId) (func(), error) {
 	return recordLocker.RUnlock, nil
 }
 
-func (m *gameMemory) LockAccess(gameId valueobject.GameId) (func(), error) {
-	recordLocker, exists := m.recordLockers[gameId]
+func (m *gameMemory) LockAccess(liveGameId liveGameValueObject.LiveGameId) (func(), error) {
+	recordLocker, exists := m.recordLockers[liveGameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound
 	}

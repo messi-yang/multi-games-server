@@ -12,8 +12,8 @@ type ZoomAreaRequestedApplicationEvent struct {
 	Area     dto.AreaDto `json:"area"`
 }
 
-func NewZoomAreaRequestedApplicationEventTopic(gameId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-zoom-area-requested", gameId)
+func NewZoomAreaRequestedApplicationEventTopic(liveGameId uuid.UUID) string {
+	return fmt.Sprintf("game-room-%s-zoom-area-requested", liveGameId)
 }
 
 func NewZoomAreaRequestedApplicationEvent(playerId uuid.UUID, areaDto dto.AreaDto) ZoomAreaRequestedApplicationEvent {

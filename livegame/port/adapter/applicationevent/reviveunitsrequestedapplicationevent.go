@@ -11,8 +11,8 @@ type ReviveUnitsRequestedApplicationEvent struct {
 	Coordinates []dto.CoordinateDto `json:"coordinates"`
 }
 
-func NewReviveUnitsRequestedApplicationEventTopic(gameId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-revive-units-requested", gameId)
+func NewReviveUnitsRequestedApplicationEventTopic(liveGameId uuid.UUID) string {
+	return fmt.Sprintf("game-room-%s-revive-units-requested", liveGameId)
 }
 
 func NewReviveUnitsRequestedApplicationEvent(coordinateDtos []dto.CoordinateDto) ReviveUnitsRequestedApplicationEvent {

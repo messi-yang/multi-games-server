@@ -10,8 +10,8 @@ type RemovePlayerRequestedApplicationEvent struct {
 	PlayerId uuid.UUID `json:"playerId"`
 }
 
-func NewRemovePlayerRequestedApplicationEventTopic(gameId uuid.UUID) string {
-	return fmt.Sprintf("game-room-%s-remove-player-requested", gameId)
+func NewRemovePlayerRequestedApplicationEventTopic(liveGameId uuid.UUID) string {
+	return fmt.Sprintf("game-room-%s-remove-player-requested", liveGameId)
 }
 
 func NewRemovePlayerRequestedApplicationEvent(playerId uuid.UUID) RemovePlayerRequestedApplicationEvent {
