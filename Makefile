@@ -1,16 +1,16 @@
 BUILD_FOLDER=dist
 BINARY_NAME=game-of-liberty
 
-# .PHONY: install-air
-install-air:
-	go install github.com/cosmtrek/air@latest
+# .PHONY: create-db-migrate-file
+create-db-migrate:
+	migrate create -ext sql -dir db/migration $(FILE_NAME)
 
 # .PHONY: build
 build:
 	go build -o ${BUILD_FOLDER}/${BINARY_NAME}
 
 # .PHONY: dev
-dev: install-air
+dev:
 	air
 
 # .PHONY: start

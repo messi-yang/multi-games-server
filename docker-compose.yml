@@ -12,6 +12,16 @@ services:
       - REDIS_PASSWORD=password
     networks:
       - base
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: gamer
+      POSTGRES_PASSWORD: gamer
+      POSTGRES_DB: game
+    networks:
+      - base
   computer:
     build: .
     environment:
@@ -21,6 +31,7 @@ services:
       - REDIS_PASSWORD=password
     depends_on:
       - redis
+      - db
     networks:
       - base
     volumes:
