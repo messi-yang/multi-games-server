@@ -7,8 +7,8 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/commonserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/mainserver/application/applicationservice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"

@@ -39,10 +39,10 @@ services:
     working_dir:
       /app
     command: make dev
-  commonserver:
+  mainserver:
     build: .
     environment:
-      - APP=common-server
+      - APP=main-server
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
     ports:

@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/commonserver"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver"
+	"github.com/dum-dum-genius/game-of-liberty-computer/mainserver"
 )
 
 func main() {
@@ -13,8 +13,8 @@ func main() {
 		panic("You must set the 'APP'")
 	}
 
-	if app == "common-server" {
-		commonserver.Start()
+	if app == "main-server" {
+		mainserver.Start()
 	} else if app == "live-game-server" {
 		livegameserver.Start()
 	}
