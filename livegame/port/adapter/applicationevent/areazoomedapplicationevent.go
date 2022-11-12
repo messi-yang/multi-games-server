@@ -3,7 +3,7 @@ package applicationevent
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/dto"
 	"github.com/google/uuid"
 )
 

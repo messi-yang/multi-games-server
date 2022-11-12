@@ -3,7 +3,7 @@ package aggregate
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 )
 
 var (
@@ -13,15 +13,15 @@ var (
 	ErrPlayerAlreadyExists             = errors.New("the play with the given id already exists")
 )
 
-type Game struct {
+type LiveGame struct {
 	id          valueobject.GameId
 	unitBlock   valueobject.UnitBlock
 	playerIds   map[valueobject.PlayerId]bool
 	zoomedAreas map[valueobject.PlayerId]valueobject.Area
 }
 
-func NewGame(id valueobject.GameId, unitBlock valueobject.UnitBlock) Game {
-	return Game{
+func NewLiveGame(id valueobject.GameId, unitBlock valueobject.UnitBlock) LiveGame {
+	return LiveGame{
 		id:          id,
 		unitBlock:   unitBlock,
 		playerIds:   make(map[valueobject.PlayerId]bool),
@@ -29,20 +29,20 @@ func NewGame(id valueobject.GameId, unitBlock valueobject.UnitBlock) Game {
 	}
 }
 
-func (gr *Game) GetId() valueobject.GameId {
-	return gr.id
+func (liveGame *LiveGame) GetId() valueobject.GameId {
+	return liveGame.id
 }
 
-func (gr *Game) GetDimension() valueobject.Dimension {
-	return gr.unitBlock.GetDimension()
+func (liveGame *LiveGame) GetDimension() valueobject.Dimension {
+	return liveGame.unitBlock.GetDimension()
 }
 
-func (gr *Game) GetUnitBlock() valueobject.UnitBlock {
-	return gr.unitBlock
+func (liveGame *LiveGame) GetUnitBlock() valueobject.UnitBlock {
+	return liveGame.unitBlock
 }
 
-func (gr *Game) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock, error) {
-	if !gr.GetDimension().IncludesArea(area) {
+func (liveGame *LiveGame) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock, error) {
+	if !liveGame.GetDimension().IncludesArea(area) {
 		return valueobject.UnitBlock{}, ErrAreaExceedsUnitBlock
 	}
 	offsetX := area.GetFrom().GetX()
@@ -54,7 +54,7 @@ func (gr *Game) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock
 		unitMatrix[x] = make([]valueobject.Unit, areaHeight)
 		for y := 0; y < areaHeight; y += 1 {
 			coordinate, _ := valueobject.NewCoordinate(x+offsetX, y+offsetY)
-			unitMatrix[x][y] = gr.unitBlock.GetUnit(coordinate)
+			unitMatrix[x][y] = liveGame.unitBlock.GetUnit(coordinate)
 		}
 	}
 	unitBlock := valueobject.NewUnitBlock(unitMatrix)
@@ -62,47 +62,47 @@ func (gr *Game) GetUnitBlockByArea(area valueobject.Area) (valueobject.UnitBlock
 	return unitBlock, nil
 }
 
-func (gr *Game) GetZoomedAreas() map[valueobject.PlayerId]valueobject.Area {
-	return gr.zoomedAreas
+func (liveGame *LiveGame) GetZoomedAreas() map[valueobject.PlayerId]valueobject.Area {
+	return liveGame.zoomedAreas
 }
 
-func (gr *Game) AddZoomedArea(playerId valueobject.PlayerId, area valueobject.Area) error {
-	_, exists := gr.playerIds[playerId]
+func (liveGame *LiveGame) AddZoomedArea(playerId valueobject.PlayerId, area valueobject.Area) error {
+	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
 	}
-	gr.zoomedAreas[playerId] = area
+	liveGame.zoomedAreas[playerId] = area
 	return nil
 }
 
-func (gr *Game) RemoveZoomedArea(playerId valueobject.PlayerId) {
-	delete(gr.zoomedAreas, playerId)
+func (liveGame *LiveGame) RemoveZoomedArea(playerId valueobject.PlayerId) {
+	delete(liveGame.zoomedAreas, playerId)
 }
 
-func (gr *Game) AddPlayer(playerId valueobject.PlayerId) error {
-	_, exists := gr.playerIds[playerId]
+func (liveGame *LiveGame) AddPlayer(playerId valueobject.PlayerId) error {
+	_, exists := liveGame.playerIds[playerId]
 	if exists {
 		return ErrPlayerAlreadyExists
 	}
 
-	gr.playerIds[playerId] = true
+	liveGame.playerIds[playerId] = true
 
 	return nil
 }
 
-func (gr *Game) RemovePlayer(playerId valueobject.PlayerId) {
-	delete(gr.playerIds, playerId)
+func (liveGame *LiveGame) RemovePlayer(playerId valueobject.PlayerId) {
+	delete(liveGame.playerIds, playerId)
 }
 
-func (gr *Game) ReviveUnits(coordinates []valueobject.Coordinate) error {
-	if !gr.GetDimension().IncludesAllCoordinates(coordinates) {
+func (liveGame *LiveGame) ReviveUnits(coordinates []valueobject.Coordinate) error {
+	if !liveGame.GetDimension().IncludesAllCoordinates(coordinates) {
 		return ErrSomeCoordinatesNotIncludedInMap
 	}
 
 	for _, coordinate := range coordinates {
-		unit := gr.unitBlock.GetUnit(coordinate)
+		unit := liveGame.unitBlock.GetUnit(coordinate)
 		newUnit := unit.SetAlive(true)
-		gr.unitBlock.SetUnit(coordinate, newUnit)
+		liveGame.unitBlock.SetUnit(coordinate, newUnit)
 	}
 
 	return nil

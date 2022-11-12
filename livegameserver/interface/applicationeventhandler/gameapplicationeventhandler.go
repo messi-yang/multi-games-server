@@ -2,13 +2,13 @@ package applicationeventhandler
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/adapter/applicationevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
 )
 
 type GameApplicationEventHandlerConfiguration struct {
-	GameApplicationService *applicationservice.GameApplicationService
+	LiveGameApplicationService *applicationservice.LiveGameApplicationService
 }
 
 func NewGameApplicationEventHandler(
@@ -20,7 +20,7 @@ func NewGameApplicationEventHandler(
 	).Subscribe(
 		applicationevent.NewReviveUnitsRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.ReviveUnitsRequestedApplicationEvent) {
-			configuration.GameApplicationService.ReviveUnitsInGame(gameId, event.Coordinates)
+			configuration.LiveGameApplicationService.ReviveUnitsInLiveGame(gameId, event.Coordinates)
 		},
 	)
 	defer reviveUnitsRequestedApplicationEventUnsubscriber()
@@ -31,7 +31,7 @@ func NewGameApplicationEventHandler(
 		applicationevent.NewAddPlayerRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.AddPlayerRequestedApplicationEvent) {
 			playerId := event.PlayerId
-			configuration.GameApplicationService.AddPlayerToGame(gameId, playerId)
+			configuration.LiveGameApplicationService.AddPlayerToLiveGame(gameId, playerId)
 		},
 	)
 	defer addPlayerRequestedApplicationEventUnsubscriber()
@@ -41,8 +41,8 @@ func NewGameApplicationEventHandler(
 	).Subscribe(
 		applicationevent.NewRemovePlayerRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.RemovePlayerRequestedApplicationEvent) {
-			configuration.GameApplicationService.RemovePlayerFromGame(gameId, event.PlayerId)
-			configuration.GameApplicationService.RemoveZoomedAreaFromGame(gameId, event.PlayerId)
+			configuration.LiveGameApplicationService.RemovePlayerFromLiveGame(gameId, event.PlayerId)
+			configuration.LiveGameApplicationService.RemoveZoomedAreaFromLiveGame(gameId, event.PlayerId)
 		},
 	)
 	defer removePlayerRequestedApplicationEventUnsubscriber()
@@ -52,7 +52,7 @@ func NewGameApplicationEventHandler(
 	).Subscribe(
 		applicationevent.NewZoomAreaRequestedApplicationEventTopic(gameId.GetId()),
 		func(event applicationevent.ZoomAreaRequestedApplicationEvent) {
-			configuration.GameApplicationService.AddZoomedAreaToGame(gameId, event.PlayerId, event.Area)
+			configuration.LiveGameApplicationService.AddZoomedAreaToLiveGame(gameId, event.PlayerId, event.Area)
 		},
 	)
 	defer zoomAreaRequestedApplicationEventSubscriber()

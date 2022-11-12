@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+import "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 
 type DimensionDto struct {
 	Width  int `json:"width"`

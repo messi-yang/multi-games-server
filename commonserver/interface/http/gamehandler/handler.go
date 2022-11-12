@@ -8,7 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/commonserver/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/adapter/applicationevent"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -30,7 +30,7 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type HandlerConfiguration struct {
-	GameApplicationService *applicationservice.GameApplicationService
+	LiveGameApplicationService *applicationservice.LiveGameApplicationService
 }
 
 func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
@@ -43,7 +43,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		gamesIds := configuration.GameApplicationService.GetAllGameIds()
+		gamesIds := configuration.LiveGameApplicationService.GetAllLiveGameIds()
 		gameId := gamesIds[0]
 
 		clientSession := &clientSession{

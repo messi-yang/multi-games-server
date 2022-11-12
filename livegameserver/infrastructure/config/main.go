@@ -8,7 +8,7 @@ import (
 )
 
 type Config interface {
-	GetGameDimension() int
+	GetLiveGameDimension() int
 }
 
 type configImpl struct {
@@ -35,6 +35,6 @@ func GetConfig() Config {
 	}
 }
 
-func (ci *configImpl) GetGameDimension() int {
+func (ci *configImpl) GetLiveGameDimension() int {
 	return ci.GAME_MAP_SIZE
 }

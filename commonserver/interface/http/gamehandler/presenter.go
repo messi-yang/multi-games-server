@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/port/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/dto"
 )
 
 type EventType string

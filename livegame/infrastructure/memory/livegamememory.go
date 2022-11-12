@@ -4,9 +4,9 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/repository"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/aggregate"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/repository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 )
 
 var (
@@ -16,16 +16,16 @@ var (
 )
 
 type gameMemory struct {
-	records       map[valueobject.GameId]*aggregate.Game
+	records       map[valueobject.GameId]*aggregate.LiveGame
 	recordLockers map[valueobject.GameId]*sync.RWMutex
 }
 
 var gameMemoryInstance *gameMemory
 
-func NewGameMemory() repository.GameRepository {
+func NewLiveGameMemory() repository.LiveGameRepository {
 	if gameMemoryInstance == nil {
 		gameMemoryInstance = &gameMemory{
-			records:       make(map[valueobject.GameId]*aggregate.Game),
+			records:       make(map[valueobject.GameId]*aggregate.LiveGame),
 			recordLockers: make(map[valueobject.GameId]*sync.RWMutex),
 		}
 		return gameMemoryInstance
@@ -33,37 +33,37 @@ func NewGameMemory() repository.GameRepository {
 	return gameMemoryInstance
 }
 
-func (m *gameMemory) Get(id valueobject.GameId) (aggregate.Game, error) {
+func (m *gameMemory) Get(id valueobject.GameId) (aggregate.LiveGame, error) {
 	record, exists := m.records[id]
 	if !exists {
-		return aggregate.Game{}, ErrGameNotFound
+		return aggregate.LiveGame{}, ErrGameNotFound
 	}
 
 	return *record, nil
 }
 
-func (m *gameMemory) Update(id valueobject.GameId, game aggregate.Game) error {
+func (m *gameMemory) Update(id valueobject.GameId, liveGame aggregate.LiveGame) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
 	}
 
-	m.records[id] = &game
+	m.records[id] = &liveGame
 
 	return nil
 }
 
-func (m *gameMemory) GetAll() []aggregate.Game {
-	games := make([]aggregate.Game, 0)
+func (m *gameMemory) GetAll() []aggregate.LiveGame {
+	liveGames := make([]aggregate.LiveGame, 0)
 	for _, record := range m.records {
-		games = append(games, *record)
+		liveGames = append(liveGames, *record)
 	}
-	return games
+	return liveGames
 }
 
-func (m *gameMemory) Add(game aggregate.Game) error {
-	m.records[game.GetId()] = &game
-	m.recordLockers[game.GetId()] = &sync.RWMutex{}
+func (m *gameMemory) Add(liveGame aggregate.LiveGame) error {
+	m.records[liveGame.GetId()] = &liveGame
+	m.recordLockers[liveGame.GetId()] = &sync.RWMutex{}
 
 	return nil
 }

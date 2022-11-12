@@ -1,18 +1,18 @@
 package applicationservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 )
 
-type GameApplicationService struct {
-	GameService *service.GameService
+type LiveGameApplicationService struct {
+	LiveGameService *service.LiveGameService
 }
 
-type gameApplicationServiceConfiguration func(service *GameApplicationService) error
+type liveGameApplicationServiceConfiguration func(service *LiveGameApplicationService) error
 
-func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*GameApplicationService, error) {
-	service := &GameApplicationService{}
+func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfiguration) (*LiveGameApplicationService, error) {
+	service := &LiveGameApplicationService{}
 	for _, cfg := range cfgs {
 		err := cfg(service)
 		if err != nil {
@@ -22,14 +22,14 @@ func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*Ga
 	return service, nil
 }
 
-func WithGameService() gameApplicationServiceConfiguration {
-	gameService, _ := service.NewGameService()
-	return func(service *GameApplicationService) error {
-		service.GameService = gameService
+func WithLiveGameService() liveGameApplicationServiceConfiguration {
+	liveGameService, _ := service.NewLiveGameService()
+	return func(service *LiveGameApplicationService) error {
+		service.LiveGameService = liveGameService
 		return nil
 	}
 }
 
-func (service *GameApplicationService) GetAllGameIds() []valueobject.GameId {
-	return service.GameService.GetAllGameIds()
+func (service *LiveGameApplicationService) GetAllLiveGameIds() []valueobject.GameId {
+	return service.LiveGameService.GetAllLiveGameIds()
 }

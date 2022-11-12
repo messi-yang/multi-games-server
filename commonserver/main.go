@@ -9,10 +9,10 @@ import (
 func Start() {
 	router := gin.Default()
 
-	gameApplicationService, _ := applicationservice.NewGameApplicationService(applicationservice.WithGameService())
+	liveGameApplicationService, _ := applicationservice.NewLiveGameApplicationService(applicationservice.WithLiveGameService())
 
 	router.Group("/ws/game").GET("/", gamehandler.NewHandler(gamehandler.HandlerConfiguration{
-		GameApplicationService: gameApplicationService,
+		LiveGameApplicationService: liveGameApplicationService,
 	}))
 
 	router.Run()
