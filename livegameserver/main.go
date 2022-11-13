@@ -16,6 +16,12 @@ func Start() {
 		Height: 200,
 	})
 
+	// gameService, _ := service.NewGameService(
+	// 	service.WithPostgresGameRepository(),
+	// )
+	// games, _ := gameService.GeAllGames()
+	// fmt.Println(games)
+
 	applicationeventhandler.NewGameApplicationEventHandler(
 		applicationeventhandler.GameApplicationEventHandlerConfiguration{
 			LiveGameApplicationService: liveGameApplicationService,

@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/repository"
 	gameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/infrastructure/postgresgamerepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/infrastructure/gamerepository"
 	"github.com/google/uuid"
 )
 
@@ -28,7 +28,7 @@ func NewGameService(cfgs ...gameServiceConfiguration) (*GameService, error) {
 
 func WithPostgresGameRepository() gameServiceConfiguration {
 	return func(service *GameService) error {
-		postgresGameRepository, err := postgresgamerepository.NewPostgresGameRepository()
+		postgresGameRepository, err := gamerepository.NewPostgresGameRepository(gamerepository.WithPostgresClient())
 		if err != nil {
 			return err
 		}
