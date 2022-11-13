@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/repository"
 	gameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/infrastructure/postgresgamerepository"
 	"github.com/google/uuid"
 )
 
@@ -25,6 +26,17 @@ func NewGameService(cfgs ...gameServiceConfiguration) (*GameService, error) {
 	return t, nil
 }
 
+func WithPostgresGameRepository() gameServiceConfiguration {
+	return func(service *GameService) error {
+		postgresGameRepository, err := postgresgamerepository.NewPostgresGameRepository()
+		if err != nil {
+			return err
+		}
+		service.gameRepository = postgresGameRepository
+		return nil
+	}
+}
+
 func (service *GameService) CreateGame(dimension commonValueObject.Dimension) (gameValueObject.GameId, error) {
 	unitMatrix := make([][]commonValueObject.Unit, dimension.GetWidth())
 	for i := 0; i < dimension.GetWidth(); i += 1 {
@@ -34,13 +46,14 @@ func (service *GameService) CreateGame(dimension commonValueObject.Dimension) (g
 		}
 	}
 	unitBlock := commonValueObject.NewUnitBlock(unitMatrix)
+
 	newGame := aggregate.NewGame(gameValueObject.NewGameId(uuid.New()), unitBlock)
-	err := service.gameRepository.Add(newGame)
+	newGameId, err := service.gameRepository.Add(newGame)
 	if err != nil {
 		return gameValueObject.GameId{}, err
 	}
 
-	return newGame.GetId(), nil
+	return newGameId, nil
 }
 
 func (service *GameService) GetGame(gameId gameValueObject.GameId) (aggregate.Game, error) {
@@ -50,4 +63,13 @@ func (service *GameService) GetGame(gameId gameValueObject.GameId) (aggregate.Ga
 	}
 
 	return game, nil
+}
+
+func (service *GameService) GeAllGames() ([]aggregate.Game, error) {
+	games, err := service.gameRepository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return games, nil
 }

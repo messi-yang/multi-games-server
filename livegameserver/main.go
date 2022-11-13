@@ -3,7 +3,6 @@ package livegameserver
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/infrastructure/config"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/interface/applicationeventhandler"
 )
 
@@ -12,10 +11,9 @@ func Start() {
 		applicationservice.WithLiveGameService(),
 	)
 
-	size := config.GetConfig().GetLiveGameDimension()
 	liveGameId, _ := liveGameApplicationService.CreateLiveGame(dto.DimensionDto{
-		Width:  size,
-		Height: size,
+		Width:  200,
+		Height: 200,
 	})
 
 	applicationeventhandler.NewGameApplicationEventHandler(

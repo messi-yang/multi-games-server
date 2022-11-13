@@ -15,6 +15,10 @@ func (um UnitBlock) GetDimension() Dimension {
 	return gameDimension
 }
 
+func (um UnitBlock) GetUnitMatrix() [][]Unit {
+	return um.unitMatrix
+}
+
 func (um UnitBlock) GetUnit(coord Coordinate) Unit {
 	return (um.unitMatrix)[coord.GetX()][coord.GetY()]
 }

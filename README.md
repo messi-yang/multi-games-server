@@ -14,8 +14,14 @@ We follow [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_des
 docker-compose up
 ```
 
-### Create new db migration file
+### Create new migration db file
 
 ```bash
-docker compose exec computer make create-db-migrate FILE_NAME=${file_name_in_snake_case}
+docker compose exec livegameserver make create-migrate-db-file FILE_NAME=${file_name_in_snake_case}
+```
+
+### Migration db according to migration db files
+
+```bash
+docker compose exec livegameserver make migrate-db
 ```

@@ -26,9 +26,12 @@ services:
     build: .
     environment:
       - APP=live-game-server
-      - GAME_MAP_SIZE=400
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=gamer
+      - POSTGRES_PASSWORD=gamer
+      - POSTGRES_DB=game
     depends_on:
       - redis
       - db
@@ -45,6 +48,10 @@ services:
       - APP=main-server
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=gamer
+      - POSTGRES_PASSWORD=gamer
+      - POSTGRES_DB=game
     ports:
       - 8080:8080
     depends_on:

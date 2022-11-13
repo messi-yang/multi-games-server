@@ -6,17 +6,27 @@ import (
 )
 
 type Game struct {
-	id        gameValueObject.GameId
-	unitBlock commonValueObject.UnitBlock
+	id                 gameValueObject.GameId
+	unitBlockDimension commonValueObject.Dimension
+	unitBlock          commonValueObject.UnitBlock
 }
 
 func NewGame(id gameValueObject.GameId, unitBlock commonValueObject.UnitBlock) Game {
 	return Game{
-		id:        id,
-		unitBlock: unitBlock,
+		id:                 id,
+		unitBlockDimension: unitBlock.GetDimension(),
+		unitBlock:          unitBlock,
 	}
 }
 
 func (game *Game) GetId() gameValueObject.GameId {
 	return game.id
+}
+
+func (game *Game) GetUnitBlock() commonValueObject.UnitBlock {
+	return game.unitBlock
+}
+
+func (game *Game) GetUnitBlockDimension() commonValueObject.Dimension {
+	return game.unitBlockDimension
 }
