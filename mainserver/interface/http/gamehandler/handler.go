@@ -30,7 +30,7 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type HandlerConfiguration struct {
-	LiveGameApplicationService *applicationservice.LiveGameApplicationService
+	GameApplicationService *applicationservice.GameApplicationService
 }
 
 func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
@@ -43,8 +43,11 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		gamesIds := configuration.LiveGameApplicationService.GetAllLiveGameIds()
-		liveGameId := gamesIds[0]
+		gamesId, err := configuration.GameApplicationService.GetFirstGameId()
+		if err != nil {
+			return
+		}
+		liveGameId := gamesId
 
 		clientSession := &clientSession{
 			liveGameId:            liveGameId.GetId(),

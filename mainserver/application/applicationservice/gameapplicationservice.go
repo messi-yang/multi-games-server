@@ -1,18 +1,18 @@
 package applicationservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/service"
-	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
 )
 
-type LiveGameApplicationService struct {
-	LiveGameService *service.LiveGameService
+type GameApplicationService struct {
+	GameService *service.GameService
 }
 
-type liveGameApplicationServiceConfiguration func(service *LiveGameApplicationService) error
+type gameApplicationServiceConfiguration func(service *GameApplicationService) error
 
-func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfiguration) (*LiveGameApplicationService, error) {
-	service := &LiveGameApplicationService{}
+func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*GameApplicationService, error) {
+	service := &GameApplicationService{}
 	for _, cfg := range cfgs {
 		err := cfg(service)
 		if err != nil {
@@ -22,14 +22,18 @@ func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfigurati
 	return service, nil
 }
 
-func WithLiveGameService() liveGameApplicationServiceConfiguration {
-	liveGameService, _ := service.NewLiveGameService()
-	return func(service *LiveGameApplicationService) error {
-		service.LiveGameService = liveGameService
+func WithGameService() gameApplicationServiceConfiguration {
+	gameService, _ := service.NewGameService(service.WithPostgresGameRepository())
+	return func(service *GameApplicationService) error {
+		service.GameService = gameService
 		return nil
 	}
 }
 
-func (service *LiveGameApplicationService) GetAllLiveGameIds() []liveGameValueObject.LiveGameId {
-	return service.LiveGameService.GetAllLiveGameIds()
+func (service *GameApplicationService) GetFirstGameId() (valueobject.GameId, error) {
+	games, err := service.GameService.GeAllGames()
+	if err != nil {
+		return valueobject.GameId{}, err
+	}
+	return games[0].GetId(), nil
 }

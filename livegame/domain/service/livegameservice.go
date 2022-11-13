@@ -2,25 +2,21 @@ package service
 
 import (
 	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
+	gameAggregate "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/repository"
 	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/infrastructure/memoryrepository"
-	"github.com/google/uuid"
 )
 
 type LiveGameService struct {
-	liveGameRepository  repository.LiveGameRepository
-	hardcodedLiveGameId liveGameValueObject.LiveGameId
+	liveGameRepository repository.LiveGameRepository
 }
 
 type liveGameServiceConfiguration func(service *LiveGameService) error
 
 func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameService, error) {
-	hardcodedLiveGameId, _ := uuid.Parse("1a53a474-ebbd-49e4-a2c1-dde5aa5759bc")
-	t := &LiveGameService{
-		hardcodedLiveGameId: liveGameValueObject.NewLiveGameId(hardcodedLiveGameId),
-	}
+	t := &LiveGameService{}
 	for _, cfg := range cfgs {
 		err := cfg(t)
 		if err != nil {
@@ -38,19 +34,8 @@ func WithGameMemoryRepository() liveGameServiceConfiguration {
 	}
 }
 
-func (gs *LiveGameService) GetAllLiveGameIds() []liveGameValueObject.LiveGameId {
-	return []liveGameValueObject.LiveGameId{gs.hardcodedLiveGameId}
-}
-
-func (gs *LiveGameService) CreateLiveGame(dimension commonValueObject.Dimension) (liveGameValueObject.LiveGameId, error) {
-	unitBlock := make([][]commonValueObject.Unit, dimension.GetWidth())
-	for i := 0; i < dimension.GetWidth(); i += 1 {
-		unitBlock[i] = make([]commonValueObject.Unit, dimension.GetHeight())
-		for j := 0; j < dimension.GetHeight(); j += 1 {
-			unitBlock[i][j] = commonValueObject.NewUnit(false, commonValueObject.ItemTypeEmpty)
-		}
-	}
-	newLiveGame := aggregate.NewLiveGame(gs.hardcodedLiveGameId, commonValueObject.NewUnitBlock(unitBlock))
+func (gs *LiveGameService) CreateLiveGame(game gameAggregate.Game) (liveGameValueObject.LiveGameId, error) {
+	newLiveGame := aggregate.NewLiveGame(liveGameValueObject.NewLiveGameId(game.GetId().GetId()), game.GetUnitBlock())
 	gs.liveGameRepository.Add(newLiveGame)
 	return newLiveGame.GetId(), nil
 }

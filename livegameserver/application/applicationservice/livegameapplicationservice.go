@@ -3,7 +3,9 @@ package applicationservice
 import (
 	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/service"
+	gameDomainService "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
+	gameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+	liveGameDomainService "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/service"
 	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/adapter/applicationevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/dto"
@@ -11,7 +13,8 @@ import (
 )
 
 type LiveGameApplicationService struct {
-	liveGameService *service.LiveGameService
+	liveGameService *liveGameDomainService.LiveGameService
+	gameService     *gameDomainService.GameService
 }
 
 type liveGameApplicationServiceConfiguration func(service *LiveGameApplicationService) error
@@ -28,21 +31,31 @@ func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfigurati
 }
 
 func WithLiveGameService() liveGameApplicationServiceConfiguration {
-	liveGameService, _ := service.NewLiveGameService(
-		service.WithGameMemoryRepository(),
-	)
-	return func(service *LiveGameApplicationService) error {
-		service.liveGameService = liveGameService
+	return func(liveGameApplicationService *LiveGameApplicationService) error {
+		liveGameService, _ := liveGameDomainService.NewLiveGameService(
+			liveGameDomainService.WithGameMemoryRepository(),
+		)
+		liveGameApplicationService.liveGameService = liveGameService
 		return nil
 	}
 }
 
-func (grs *LiveGameApplicationService) CreateLiveGame(dimensionDto dto.DimensionDto) (liveGameValueObject.LiveGameId, error) {
-	dimension, err := dimensionDto.ToValueObject()
+func WithGameService() liveGameApplicationServiceConfiguration {
+	return func(liveGameApplicationService *LiveGameApplicationService) error {
+		gameService, _ := gameDomainService.NewGameService(
+			gameDomainService.WithPostgresGameRepository(),
+		)
+		liveGameApplicationService.gameService = gameService
+		return nil
+	}
+}
+
+func (grs *LiveGameApplicationService) CreateLiveGame(gameId gameValueObject.GameId) (liveGameValueObject.LiveGameId, error) {
+	game, err := grs.gameService.GetGame(gameId)
 	if err != nil {
 		return liveGameValueObject.LiveGameId{}, err
 	}
-	liveGameId, err := grs.liveGameService.CreateLiveGame(dimension)
+	liveGameId, err := grs.liveGameService.CreateLiveGame(game)
 	if err != nil {
 		return liveGameValueObject.LiveGameId{}, err
 	}
