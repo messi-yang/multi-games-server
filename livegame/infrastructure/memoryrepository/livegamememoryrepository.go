@@ -1,4 +1,4 @@
-package memory
+package memoryrepository
 
 import (
 	"errors"
@@ -15,25 +15,25 @@ var (
 	ErrPlayerAlreadyExists = errors.New("the player with the given id alredy exists in the game room")
 )
 
-type gameMemory struct {
+type gameMemoryRepository struct {
 	records       map[liveGameValueObject.LiveGameId]*aggregate.LiveGame
 	recordLockers map[liveGameValueObject.LiveGameId]*sync.RWMutex
 }
 
-var gameMemoryInstance *gameMemory
+var gameMemoryRepositoryInstance *gameMemoryRepository
 
-func NewLiveGameMemory() repository.LiveGameRepository {
-	if gameMemoryInstance == nil {
-		gameMemoryInstance = &gameMemory{
+func NewLiveGameMemoryRepository() repository.LiveGameRepository {
+	if gameMemoryRepositoryInstance == nil {
+		gameMemoryRepositoryInstance = &gameMemoryRepository{
 			records:       make(map[liveGameValueObject.LiveGameId]*aggregate.LiveGame),
 			recordLockers: make(map[liveGameValueObject.LiveGameId]*sync.RWMutex),
 		}
-		return gameMemoryInstance
+		return gameMemoryRepositoryInstance
 	}
-	return gameMemoryInstance
+	return gameMemoryRepositoryInstance
 }
 
-func (m *gameMemory) Get(id liveGameValueObject.LiveGameId) (aggregate.LiveGame, error) {
+func (m *gameMemoryRepository) Get(id liveGameValueObject.LiveGameId) (aggregate.LiveGame, error) {
 	record, exists := m.records[id]
 	if !exists {
 		return aggregate.LiveGame{}, ErrGameNotFound
@@ -42,7 +42,7 @@ func (m *gameMemory) Get(id liveGameValueObject.LiveGameId) (aggregate.LiveGame,
 	return *record, nil
 }
 
-func (m *gameMemory) Update(id liveGameValueObject.LiveGameId, liveGame aggregate.LiveGame) error {
+func (m *gameMemoryRepository) Update(id liveGameValueObject.LiveGameId, liveGame aggregate.LiveGame) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
@@ -53,7 +53,7 @@ func (m *gameMemory) Update(id liveGameValueObject.LiveGameId, liveGame aggregat
 	return nil
 }
 
-func (m *gameMemory) GetAll() []aggregate.LiveGame {
+func (m *gameMemoryRepository) GetAll() []aggregate.LiveGame {
 	liveGames := make([]aggregate.LiveGame, 0)
 	for _, record := range m.records {
 		liveGames = append(liveGames, *record)
@@ -61,14 +61,14 @@ func (m *gameMemory) GetAll() []aggregate.LiveGame {
 	return liveGames
 }
 
-func (m *gameMemory) Add(liveGame aggregate.LiveGame) error {
+func (m *gameMemoryRepository) Add(liveGame aggregate.LiveGame) error {
 	m.records[liveGame.GetId()] = &liveGame
 	m.recordLockers[liveGame.GetId()] = &sync.RWMutex{}
 
 	return nil
 }
 
-func (m *gameMemory) ReadLockAccess(liveGameId liveGameValueObject.LiveGameId) (func(), error) {
+func (m *gameMemoryRepository) ReadLockAccess(liveGameId liveGameValueObject.LiveGameId) (func(), error) {
 	recordLocker, exists := m.recordLockers[liveGameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound
@@ -78,7 +78,7 @@ func (m *gameMemory) ReadLockAccess(liveGameId liveGameValueObject.LiveGameId) (
 	return recordLocker.RUnlock, nil
 }
 
-func (m *gameMemory) LockAccess(liveGameId liveGameValueObject.LiveGameId) (func(), error) {
+func (m *gameMemoryRepository) LockAccess(liveGameId liveGameValueObject.LiveGameId) (func(), error) {
 	recordLocker, exists := m.recordLockers[liveGameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound

@@ -29,7 +29,7 @@ func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfigurati
 
 func WithLiveGameService() liveGameApplicationServiceConfiguration {
 	liveGameService, _ := service.NewLiveGameService(
-		service.WithGameMemory(),
+		service.WithGameMemoryRepository(),
 	)
 	return func(service *LiveGameApplicationService) error {
 		service.liveGameService = liveGameService

@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/aggregate"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/repository"
 	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/infrastructure/memory"
+	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/infrastructure/memoryrepository"
 	"github.com/google/uuid"
 )
 
@@ -30,10 +30,10 @@ func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameService,
 	return t, nil
 }
 
-func WithGameMemory() liveGameServiceConfiguration {
-	liveGameMemory := memory.NewLiveGameMemory()
+func WithGameMemoryRepository() liveGameServiceConfiguration {
+	liveGameMemoryRepository := memoryrepository.NewLiveGameMemoryRepository()
 	return func(service *LiveGameService) error {
-		service.liveGameRepository = liveGameMemory
+		service.liveGameRepository = liveGameMemoryRepository
 		return nil
 	}
 }
