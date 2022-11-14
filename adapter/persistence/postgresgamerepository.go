@@ -1,9 +1,9 @@
-package gamerepository
+package persistence
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/postgresclient"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/port/model"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/dbmodel"
 	"gorm.io/gorm"
 )
 
@@ -36,7 +36,7 @@ func WithPostgresClient() postgresGameRepositoryConfiguration {
 }
 
 func (m *postgresGameRepository) Get(id gamemodel.GameId) (gamemodel.Game, error) {
-	gameModel := model.GameModel{Id: id.GetId()}
+	gameModel := dbmodel.GameDbModel{Id: id.GetId()}
 	result := m.postgresClient.First(&gameModel)
 	if result.Error != nil {
 		return gamemodel.Game{}, result.Error
@@ -50,7 +50,7 @@ func (m *postgresGameRepository) Update(id gamemodel.GameId, game gamemodel.Game
 }
 
 func (m *postgresGameRepository) GetAll() ([]gamemodel.Game, error) {
-	var gameDbModels []model.GameModel
+	var gameDbModels []dbmodel.GameDbModel
 	result := m.postgresClient.Find(&gameDbModels)
 	if result.Error != nil {
 		return nil, result.Error
@@ -65,7 +65,7 @@ func (m *postgresGameRepository) GetAll() ([]gamemodel.Game, error) {
 }
 
 func (m *postgresGameRepository) Add(game gamemodel.Game) (gamemodel.GameId, error) {
-	gameModel := model.NewGameModel(game)
+	gameModel := dbmodel.NewGameDbModel(game)
 	res := m.postgresClient.Create(&gameModel)
 	if res.Error != nil {
 		return gamemodel.GameId{}, res.Error

@@ -1,7 +1,7 @@
 package livegameservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/livegame/infrastructure/memoryrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/adapter/persistence"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
@@ -25,7 +25,7 @@ func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameService,
 }
 
 func WithGameMemoryRepository() liveGameServiceConfiguration {
-	liveGameMemoryRepository := memoryrepository.NewLiveGameMemoryRepository()
+	liveGameMemoryRepository := persistence.NewMemoryLiveGameRepository()
 	return func(service *LiveGameService) error {
 		service.liveGameRepository = liveGameMemoryRepository
 		return nil

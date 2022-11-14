@@ -1,4 +1,4 @@
-package memoryrepository
+package persistence
 
 import (
 	"errors"
@@ -13,25 +13,25 @@ var (
 	ErrPlayerAlreadyExists = errors.New("the player with the given id alredy exists in the game room")
 )
 
-type gameMemoryRepository struct {
+type memoryLiveGameRepository struct {
 	records       map[livegamemodel.LiveGameId]*livegamemodel.LiveGame
 	recordLockers map[livegamemodel.LiveGameId]*sync.RWMutex
 }
 
-var gameMemoryRepositoryInstance *gameMemoryRepository
+var memoryLiveGameRepositoryInstance *memoryLiveGameRepository
 
-func NewLiveGameMemoryRepository() livegamemodel.LiveGameRepository {
-	if gameMemoryRepositoryInstance == nil {
-		gameMemoryRepositoryInstance = &gameMemoryRepository{
+func NewMemoryLiveGameRepository() livegamemodel.LiveGameRepository {
+	if memoryLiveGameRepositoryInstance == nil {
+		memoryLiveGameRepositoryInstance = &memoryLiveGameRepository{
 			records:       make(map[livegamemodel.LiveGameId]*livegamemodel.LiveGame),
 			recordLockers: make(map[livegamemodel.LiveGameId]*sync.RWMutex),
 		}
-		return gameMemoryRepositoryInstance
+		return memoryLiveGameRepositoryInstance
 	}
-	return gameMemoryRepositoryInstance
+	return memoryLiveGameRepositoryInstance
 }
 
-func (m *gameMemoryRepository) Get(id livegamemodel.LiveGameId) (livegamemodel.LiveGame, error) {
+func (m *memoryLiveGameRepository) Get(id livegamemodel.LiveGameId) (livegamemodel.LiveGame, error) {
 	record, exists := m.records[id]
 	if !exists {
 		return livegamemodel.LiveGame{}, ErrGameNotFound
@@ -40,7 +40,7 @@ func (m *gameMemoryRepository) Get(id livegamemodel.LiveGameId) (livegamemodel.L
 	return *record, nil
 }
 
-func (m *gameMemoryRepository) Update(id livegamemodel.LiveGameId, liveGame livegamemodel.LiveGame) error {
+func (m *memoryLiveGameRepository) Update(id livegamemodel.LiveGameId, liveGame livegamemodel.LiveGame) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
@@ -51,7 +51,7 @@ func (m *gameMemoryRepository) Update(id livegamemodel.LiveGameId, liveGame live
 	return nil
 }
 
-func (m *gameMemoryRepository) GetAll() []livegamemodel.LiveGame {
+func (m *memoryLiveGameRepository) GetAll() []livegamemodel.LiveGame {
 	liveGames := make([]livegamemodel.LiveGame, 0)
 	for _, record := range m.records {
 		liveGames = append(liveGames, *record)
@@ -59,14 +59,14 @@ func (m *gameMemoryRepository) GetAll() []livegamemodel.LiveGame {
 	return liveGames
 }
 
-func (m *gameMemoryRepository) Add(liveGame livegamemodel.LiveGame) error {
+func (m *memoryLiveGameRepository) Add(liveGame livegamemodel.LiveGame) error {
 	m.records[liveGame.GetId()] = &liveGame
 	m.recordLockers[liveGame.GetId()] = &sync.RWMutex{}
 
 	return nil
 }
 
-func (m *gameMemoryRepository) ReadLockAccess(liveGameId livegamemodel.LiveGameId) (func(), error) {
+func (m *memoryLiveGameRepository) ReadLockAccess(liveGameId livegamemodel.LiveGameId) (func(), error) {
 	recordLocker, exists := m.recordLockers[liveGameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound
@@ -76,7 +76,7 @@ func (m *gameMemoryRepository) ReadLockAccess(liveGameId livegamemodel.LiveGameI
 	return recordLocker.RUnlock, nil
 }
 
-func (m *gameMemoryRepository) LockAccess(liveGameId livegamemodel.LiveGameId) (func(), error) {
+func (m *memoryLiveGameRepository) LockAccess(liveGameId livegamemodel.LiveGameId) (func(), error) {
 	recordLocker, exists := m.recordLockers[liveGameId]
 	if !exists {
 		return nil, ErrGameLockerNotFound
