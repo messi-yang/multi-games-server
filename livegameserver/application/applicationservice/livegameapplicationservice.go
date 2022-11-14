@@ -1,10 +1,10 @@
 package applicationservice
 
 import (
-	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/livegame/port/adapter/applicationevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/livegame/port/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
@@ -94,7 +94,7 @@ func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegame
 }
 
 func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId uuid.UUID) error {
-	updatedGame, err := grs.liveGameService.AddPlayerToLiveGame(liveGameId, commonValueObject.NewPlayerId(playerId))
+	updatedGame, err := grs.liveGameService.AddPlayerToLiveGame(liveGameId, gamecommonmodel.NewPlayerId(playerId))
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemo
 }
 
 func (grs *LiveGameApplicationService) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId uuid.UUID) error {
-	_, err := grs.liveGameService.RemovePlayerFromLiveGame(liveGameId, commonValueObject.NewPlayerId(playerId))
+	_, err := grs.liveGameService.RemovePlayerFromLiveGame(liveGameId, gamecommonmodel.NewPlayerId(playerId))
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livega
 		return err
 	}
 
-	updatedGame, err := grs.liveGameService.AddZoomedAreaToLiveGame(liveGameId, commonValueObject.NewPlayerId(playerId), area)
+	updatedGame, err := grs.liveGameService.AddZoomedAreaToLiveGame(liveGameId, gamecommonmodel.NewPlayerId(playerId), area)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livega
 }
 
 func (grs *LiveGameApplicationService) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId uuid.UUID) error {
-	_, err := grs.liveGameService.RemoveZoomedAreaFromLiveGame(liveGameId, commonValueObject.NewPlayerId(playerId))
+	_, err := grs.liveGameService.RemoveZoomedAreaFromLiveGame(liveGameId, gamecommonmodel.NewPlayerId(playerId))
 	if err != nil {
 		return err
 	}

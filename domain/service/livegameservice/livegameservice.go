@@ -1,8 +1,8 @@
 package livegameservice
 
 import (
-	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/livegame/infrastructure/memoryrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 )
@@ -47,7 +47,7 @@ func (service *LiveGameService) GetLiveGame(id livegamemodel.LiveGameId) (livega
 	return liveGame, nil
 }
 
-func (gs *LiveGameService) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonValueObject.PlayerId) (livegamemodel.LiveGame, error) {
+func (gs *LiveGameService) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
 	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
@@ -65,7 +65,7 @@ func (gs *LiveGameService) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGame
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonValueObject.PlayerId) (livegamemodel.LiveGame, error) {
+func (gs *LiveGameService) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
 	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
@@ -83,7 +83,7 @@ func (gs *LiveGameService) RemovePlayerFromLiveGame(liveGameId livegamemodel.Liv
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonValueObject.PlayerId, area commonValueObject.Area) (livegamemodel.LiveGame, error) {
+func (gs *LiveGameService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) (livegamemodel.LiveGame, error) {
 	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
@@ -105,7 +105,7 @@ func (gs *LiveGameService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.Live
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonValueObject.PlayerId) (livegamemodel.LiveGame, error) {
+func (gs *LiveGameService) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
 	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
@@ -123,7 +123,7 @@ func (gs *LiveGameService) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []commonValueObject.Coordinate) (livegamemodel.LiveGame, error) {
+func (gs *LiveGameService) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) (livegamemodel.LiveGame, error) {
 	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err

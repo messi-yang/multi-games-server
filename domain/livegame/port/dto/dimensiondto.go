@@ -1,19 +1,21 @@
 package dto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
+)
 
 type DimensionDto struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
-func NewDimensionDto(dimension valueobject.Dimension) DimensionDto {
+func NewDimensionDto(dimension gamecommonmodel.Dimension) DimensionDto {
 	return DimensionDto{
 		Width:  dimension.GetWidth(),
 		Height: dimension.GetHeight(),
 	}
 }
 
-func (dto DimensionDto) ToValueObject() (valueobject.Dimension, error) {
-	return valueobject.NewDimension(dto.Width, dto.Height)
+func (dto DimensionDto) ToValueObject() (gamecommonmodel.Dimension, error) {
+	return gamecommonmodel.NewDimension(dto.Width, dto.Height)
 }

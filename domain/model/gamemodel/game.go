@@ -1,16 +1,16 @@
 package gamemodel
 
 import (
-	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 )
 
 type Game struct {
 	id                 GameId
-	unitBlockDimension commonValueObject.Dimension
-	unitBlock          commonValueObject.UnitBlock
+	unitBlockDimension gamecommonmodel.Dimension
+	unitBlock          gamecommonmodel.UnitBlock
 }
 
-func NewGame(id GameId, unitBlock commonValueObject.UnitBlock) Game {
+func NewGame(id GameId, unitBlock gamecommonmodel.UnitBlock) Game {
 	return Game{
 		id:                 id,
 		unitBlockDimension: unitBlock.GetDimension(),
@@ -22,10 +22,10 @@ func (game *Game) GetId() GameId {
 	return game.id
 }
 
-func (game *Game) GetUnitBlock() commonValueObject.UnitBlock {
+func (game *Game) GetUnitBlock() gamecommonmodel.UnitBlock {
 	return game.unitBlock
 }
 
-func (game *Game) GetUnitBlockDimension() commonValueObject.Dimension {
+func (game *Game) GetUnitBlockDimension() gamecommonmodel.Dimension {
 	return game.unitBlockDimension
 }

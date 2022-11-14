@@ -1,4 +1,4 @@
-package valueobject
+package gamecommonmodel
 
 type Unit struct {
 	alive    bool

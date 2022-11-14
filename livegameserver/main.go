@@ -1,7 +1,7 @@
 package livegameserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
@@ -22,7 +22,7 @@ func Start() {
 	if len(games) > 0 {
 		liveGameId, _ = liveGameApplicationService.CreateLiveGame(games[0].GetId())
 	} else {
-		dimension, _ := valueobject.NewDimension(200, 200)
+		dimension, _ := gamecommonmodel.NewDimension(200, 200)
 		gameId, _ := gameService.CreateGame(dimension)
 		liveGameId = livegamemodel.NewLiveGameId(gameId.GetId())
 	}

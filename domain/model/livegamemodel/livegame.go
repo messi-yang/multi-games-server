@@ -3,7 +3,7 @@ package livegamemodel
 import (
 	"errors"
 
-	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 )
 
 var (
@@ -15,17 +15,17 @@ var (
 
 type LiveGame struct {
 	id          LiveGameId
-	unitBlock   commonValueObject.UnitBlock
-	playerIds   map[commonValueObject.PlayerId]bool
-	zoomedAreas map[commonValueObject.PlayerId]commonValueObject.Area
+	unitBlock   gamecommonmodel.UnitBlock
+	playerIds   map[gamecommonmodel.PlayerId]bool
+	zoomedAreas map[gamecommonmodel.PlayerId]gamecommonmodel.Area
 }
 
-func NewLiveGame(id LiveGameId, unitBlock commonValueObject.UnitBlock) LiveGame {
+func NewLiveGame(id LiveGameId, unitBlock gamecommonmodel.UnitBlock) LiveGame {
 	return LiveGame{
 		id:          id,
 		unitBlock:   unitBlock,
-		playerIds:   make(map[commonValueObject.PlayerId]bool),
-		zoomedAreas: make(map[commonValueObject.PlayerId]commonValueObject.Area),
+		playerIds:   make(map[gamecommonmodel.PlayerId]bool),
+		zoomedAreas: make(map[gamecommonmodel.PlayerId]gamecommonmodel.Area),
 	}
 }
 
@@ -33,40 +33,40 @@ func (liveGame *LiveGame) GetId() LiveGameId {
 	return liveGame.id
 }
 
-func (liveGame *LiveGame) GetDimension() commonValueObject.Dimension {
+func (liveGame *LiveGame) GetDimension() gamecommonmodel.Dimension {
 	return liveGame.unitBlock.GetDimension()
 }
 
-func (liveGame *LiveGame) GetUnitBlock() commonValueObject.UnitBlock {
+func (liveGame *LiveGame) GetUnitBlock() gamecommonmodel.UnitBlock {
 	return liveGame.unitBlock
 }
 
-func (liveGame *LiveGame) GetUnitBlockByArea(area commonValueObject.Area) (commonValueObject.UnitBlock, error) {
+func (liveGame *LiveGame) GetUnitBlockByArea(area gamecommonmodel.Area) (gamecommonmodel.UnitBlock, error) {
 	if !liveGame.GetDimension().IncludesArea(area) {
-		return commonValueObject.UnitBlock{}, ErrAreaExceedsUnitBlock
+		return gamecommonmodel.UnitBlock{}, ErrAreaExceedsUnitBlock
 	}
 	offsetX := area.GetFrom().GetX()
 	offsetY := area.GetFrom().GetY()
 	areaWidth := area.GetWidth()
 	areaHeight := area.GetHeight()
-	unitMatrix := make([][]commonValueObject.Unit, areaWidth)
+	unitMatrix := make([][]gamecommonmodel.Unit, areaWidth)
 	for x := 0; x < areaWidth; x += 1 {
-		unitMatrix[x] = make([]commonValueObject.Unit, areaHeight)
+		unitMatrix[x] = make([]gamecommonmodel.Unit, areaHeight)
 		for y := 0; y < areaHeight; y += 1 {
-			coordinate, _ := commonValueObject.NewCoordinate(x+offsetX, y+offsetY)
+			coordinate, _ := gamecommonmodel.NewCoordinate(x+offsetX, y+offsetY)
 			unitMatrix[x][y] = liveGame.unitBlock.GetUnit(coordinate)
 		}
 	}
-	unitBlock := commonValueObject.NewUnitBlock(unitMatrix)
+	unitBlock := gamecommonmodel.NewUnitBlock(unitMatrix)
 
 	return unitBlock, nil
 }
 
-func (liveGame *LiveGame) GetZoomedAreas() map[commonValueObject.PlayerId]commonValueObject.Area {
+func (liveGame *LiveGame) GetZoomedAreas() map[gamecommonmodel.PlayerId]gamecommonmodel.Area {
 	return liveGame.zoomedAreas
 }
 
-func (liveGame *LiveGame) AddZoomedArea(playerId commonValueObject.PlayerId, area commonValueObject.Area) error {
+func (liveGame *LiveGame) AddZoomedArea(playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
@@ -75,11 +75,11 @@ func (liveGame *LiveGame) AddZoomedArea(playerId commonValueObject.PlayerId, are
 	return nil
 }
 
-func (liveGame *LiveGame) RemoveZoomedArea(playerId commonValueObject.PlayerId) {
+func (liveGame *LiveGame) RemoveZoomedArea(playerId gamecommonmodel.PlayerId) {
 	delete(liveGame.zoomedAreas, playerId)
 }
 
-func (liveGame *LiveGame) AddPlayer(playerId commonValueObject.PlayerId) error {
+func (liveGame *LiveGame) AddPlayer(playerId gamecommonmodel.PlayerId) error {
 	_, exists := liveGame.playerIds[playerId]
 	if exists {
 		return ErrPlayerAlreadyExists
@@ -90,11 +90,11 @@ func (liveGame *LiveGame) AddPlayer(playerId commonValueObject.PlayerId) error {
 	return nil
 }
 
-func (liveGame *LiveGame) RemovePlayer(playerId commonValueObject.PlayerId) {
+func (liveGame *LiveGame) RemovePlayer(playerId gamecommonmodel.PlayerId) {
 	delete(liveGame.playerIds, playerId)
 }
 
-func (liveGame *LiveGame) ReviveUnits(coordinates []commonValueObject.Coordinate) error {
+func (liveGame *LiveGame) ReviveUnits(coordinates []gamecommonmodel.Coordinate) error {
 	if !liveGame.GetDimension().IncludesAllCoordinates(coordinates) {
 		return ErrSomeCoordinatesNotIncludedInMap
 	}

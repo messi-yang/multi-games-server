@@ -1,8 +1,8 @@
 package gameservice
 
 import (
-	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/game/infrastructure/gamerepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/google/uuid"
 )
@@ -35,15 +35,15 @@ func WithPostgresGameRepository() gameServiceConfiguration {
 	}
 }
 
-func (service *GameService) CreateGame(dimension commonValueObject.Dimension) (gamemodel.GameId, error) {
-	unitMatrix := make([][]commonValueObject.Unit, dimension.GetWidth())
+func (service *GameService) CreateGame(dimension gamecommonmodel.Dimension) (gamemodel.GameId, error) {
+	unitMatrix := make([][]gamecommonmodel.Unit, dimension.GetWidth())
 	for i := 0; i < dimension.GetWidth(); i += 1 {
-		unitMatrix[i] = make([]commonValueObject.Unit, dimension.GetHeight())
+		unitMatrix[i] = make([]gamecommonmodel.Unit, dimension.GetHeight())
 		for j := 0; j < dimension.GetHeight(); j += 1 {
-			unitMatrix[i][j] = commonValueObject.NewUnit(false, commonValueObject.ItemTypeEmpty)
+			unitMatrix[i][j] = gamecommonmodel.NewUnit(false, gamecommonmodel.ItemTypeEmpty)
 		}
 	}
-	unitBlock := commonValueObject.NewUnitBlock(unitMatrix)
+	unitBlock := gamecommonmodel.NewUnitBlock(unitMatrix)
 
 	newGame := gamemodel.NewGame(gamemodel.NewGameId(uuid.New()), unitBlock)
 	newGameId, err := service.gameRepository.Add(newGame)

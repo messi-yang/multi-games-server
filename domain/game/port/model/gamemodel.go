@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/google/uuid"
 )
@@ -25,21 +25,21 @@ func (GameModel) TableName() string {
 	return "games"
 }
 
-func convertUnitModelBlockToUnitBlock(unitModelBlock [][]UnitModel) valueobject.UnitBlock {
-	unitMatrix := make([][]valueobject.Unit, 0)
+func convertUnitModelBlockToUnitBlock(unitModelBlock [][]UnitModel) gamecommonmodel.UnitBlock {
+	unitMatrix := make([][]gamecommonmodel.Unit, 0)
 	for colIdx, unitModelCol := range unitModelBlock {
-		unitMatrix = append(unitMatrix, []valueobject.Unit{})
+		unitMatrix = append(unitMatrix, []gamecommonmodel.Unit{})
 		for _, unit := range unitModelCol {
-			unitMatrix[colIdx] = append(unitMatrix[colIdx], valueobject.NewUnit(
-				unit.ItemType != string(valueobject.ItemTypeEmpty),
-				valueobject.ItemTypeEmpty,
+			unitMatrix[colIdx] = append(unitMatrix[colIdx], gamecommonmodel.NewUnit(
+				unit.ItemType != string(gamecommonmodel.ItemTypeEmpty),
+				gamecommonmodel.ItemTypeEmpty,
 			))
 		}
 	}
-	return valueobject.NewUnitBlock(unitMatrix)
+	return gamecommonmodel.NewUnitBlock(unitMatrix)
 }
 
-func convertUnitBlockToUnitModelBlock(unitBlock valueobject.UnitBlock) [][]UnitModel {
+func convertUnitBlockToUnitModelBlock(unitBlock gamecommonmodel.UnitBlock) [][]UnitModel {
 	unitModelBlock := make([][]UnitModel, 0)
 	for unitColIdx, unitCol := range unitBlock.GetUnitMatrix() {
 		unitModelBlock = append(unitModelBlock, []UnitModel{})

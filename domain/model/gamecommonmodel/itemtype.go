@@ -1,4 +1,4 @@
-package valueobject
+package gamecommonmodel
 
 type ItemType string
 
