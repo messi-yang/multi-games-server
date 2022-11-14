@@ -1,12 +1,12 @@
 package applicationservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 )
 
 type GameApplicationService struct {
-	GameService *service.GameService
+	GameService *gameservice.GameService
 }
 
 type gameApplicationServiceConfiguration func(service *GameApplicationService) error
@@ -23,17 +23,17 @@ func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*Ga
 }
 
 func WithGameService() gameApplicationServiceConfiguration {
-	gameService, _ := service.NewGameService(service.WithPostgresGameRepository())
+	gameService, _ := gameservice.NewGameService(gameservice.WithPostgresGameRepository())
 	return func(service *GameApplicationService) error {
 		service.GameService = gameService
 		return nil
 	}
 }
 
-func (service *GameApplicationService) GetFirstGameId() (valueobject.GameId, error) {
+func (service *GameApplicationService) GetFirstGameId() (gamemodel.GameId, error) {
 	games, err := service.GameService.GeAllGames()
 	if err != nil {
-		return valueobject.GameId{}, err
+		return gamemodel.GameId{}, err
 	}
 	return games[0].GetId(), nil
 }

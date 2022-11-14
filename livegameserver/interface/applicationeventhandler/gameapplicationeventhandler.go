@@ -2,8 +2,8 @@ package applicationeventhandler
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
-	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/livegame/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
 )
 
@@ -13,7 +13,7 @@ type GameApplicationEventHandlerConfiguration struct {
 
 func NewGameApplicationEventHandler(
 	configuration GameApplicationEventHandlerConfiguration,
-	liveGameId liveGameValueObject.LiveGameId,
+	liveGameId livegamemodel.LiveGameId,
 ) {
 	reviveUnitsRequestedApplicationEventUnsubscriber := rediseventbus.NewRedisApplicationEventBus(
 		rediseventbus.WithRedisInfrastructureService[applicationevent.ReviveUnitsRequestedApplicationEvent](),

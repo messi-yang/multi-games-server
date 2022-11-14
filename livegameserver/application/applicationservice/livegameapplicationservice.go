@@ -3,18 +3,18 @@ package applicationservice
 import (
 	commonValueObject "github.com/dum-dum-genius/game-of-liberty-computer/common/domain/valueobject"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
-	gameDomainService "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/service"
-	gameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/game/domain/valueobject"
-	liveGameDomainService "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/service"
-	liveGameValueObject "github.com/dum-dum-genius/game-of-liberty-computer/livegame/domain/valueobject"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/adapter/applicationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegame/port/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/livegame/port/adapter/applicationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/livegame/port/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/livegameservice"
 	"github.com/google/uuid"
 )
 
 type LiveGameApplicationService struct {
-	liveGameService *liveGameDomainService.LiveGameService
-	gameService     *gameDomainService.GameService
+	liveGameService *livegameservice.LiveGameService
+	gameService     *gameservice.GameService
 }
 
 type liveGameApplicationServiceConfiguration func(service *LiveGameApplicationService) error
@@ -32,8 +32,8 @@ func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfigurati
 
 func WithLiveGameService() liveGameApplicationServiceConfiguration {
 	return func(liveGameApplicationService *LiveGameApplicationService) error {
-		liveGameService, _ := liveGameDomainService.NewLiveGameService(
-			liveGameDomainService.WithGameMemoryRepository(),
+		liveGameService, _ := livegameservice.NewLiveGameService(
+			livegameservice.WithGameMemoryRepository(),
 		)
 		liveGameApplicationService.liveGameService = liveGameService
 		return nil
@@ -42,28 +42,28 @@ func WithLiveGameService() liveGameApplicationServiceConfiguration {
 
 func WithGameService() liveGameApplicationServiceConfiguration {
 	return func(liveGameApplicationService *LiveGameApplicationService) error {
-		gameService, _ := gameDomainService.NewGameService(
-			gameDomainService.WithPostgresGameRepository(),
+		gameService, _ := gameservice.NewGameService(
+			gameservice.WithPostgresGameRepository(),
 		)
 		liveGameApplicationService.gameService = gameService
 		return nil
 	}
 }
 
-func (grs *LiveGameApplicationService) CreateLiveGame(gameId gameValueObject.GameId) (liveGameValueObject.LiveGameId, error) {
+func (grs *LiveGameApplicationService) CreateLiveGame(gameId gamemodel.GameId) (livegamemodel.LiveGameId, error) {
 	game, err := grs.gameService.GetGame(gameId)
 	if err != nil {
-		return liveGameValueObject.LiveGameId{}, err
+		return livegamemodel.LiveGameId{}, err
 	}
 	liveGameId, err := grs.liveGameService.CreateLiveGame(game)
 	if err != nil {
-		return liveGameValueObject.LiveGameId{}, err
+		return livegamemodel.LiveGameId{}, err
 	}
 
 	return liveGameId, nil
 }
 
-func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId liveGameValueObject.LiveGameId, coordinateDtos []dto.CoordinateDto) error {
+func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinateDtos []dto.CoordinateDto) error {
 	coordinates, err := dto.ParseCoordinateDtos(coordinateDtos)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId liveGame
 	return nil
 }
 
-func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId uuid.UUID) error {
+func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId uuid.UUID) error {
 	updatedGame, err := grs.liveGameService.AddPlayerToLiveGame(liveGameId, commonValueObject.NewPlayerId(playerId))
 	if err != nil {
 		return err
@@ -110,7 +110,7 @@ func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId liveGameVa
 	return nil
 }
 
-func (grs *LiveGameApplicationService) RemovePlayerFromLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId uuid.UUID) error {
+func (grs *LiveGameApplicationService) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId uuid.UUID) error {
 	_, err := grs.liveGameService.RemovePlayerFromLiveGame(liveGameId, commonValueObject.NewPlayerId(playerId))
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func (grs *LiveGameApplicationService) RemovePlayerFromLiveGame(liveGameId liveG
 	return nil
 }
 
-func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId uuid.UUID, areaDto dto.AreaDto) error {
+func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId uuid.UUID, areaDto dto.AreaDto) error {
 	area, err := areaDto.ToValueObject()
 	if err != nil {
 		return err
@@ -147,7 +147,7 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId liveGa
 	return nil
 }
 
-func (grs *LiveGameApplicationService) RemoveZoomedAreaFromLiveGame(liveGameId liveGameValueObject.LiveGameId, playerId uuid.UUID) error {
+func (grs *LiveGameApplicationService) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId uuid.UUID) error {
 	_, err := grs.liveGameService.RemoveZoomedAreaFromLiveGame(liveGameId, commonValueObject.NewPlayerId(playerId))
 	if err != nil {
 		return err
