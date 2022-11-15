@@ -176,7 +176,7 @@ func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSes
 }
 
 func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	areaDto, err := gameHandlerPresenter.ExtractZoomAreaRequestedEvent(event)
+	areaUiDto, err := gameHandlerPresenter.ExtractZoomAreaRequestedEvent(event)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
@@ -186,12 +186,12 @@ func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSes
 		rediseventbus.WithRedisInfrastructureService[applicationevent.ZoomAreaRequestedApplicationEvent](),
 	).Publish(
 		applicationevent.NewZoomAreaRequestedApplicationEventTopic(clientSession.liveGameId),
-		applicationevent.NewZoomAreaRequestedApplicationEvent(clientSession.playerId, areaDto),
+		applicationevent.NewZoomAreaRequestedApplicationEvent(clientSession.playerId, areaUiDto),
 	)
 }
 
 func handleReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	coordinateDtos, err := gameHandlerPresenter.ExtractReviveUnitsRequestedEvent(event)
+	coordinateUiDtos, err := gameHandlerPresenter.ExtractReviveUnitsRequestedEvent(event)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
@@ -201,6 +201,6 @@ func handleReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *client
 		rediseventbus.WithRedisInfrastructureService[applicationevent.ReviveUnitsRequestedApplicationEvent](),
 	).Publish(
 		applicationevent.NewReviveUnitsRequestedApplicationEventTopic(clientSession.liveGameId),
-		applicationevent.NewReviveUnitsRequestedApplicationEvent(coordinateDtos),
+		applicationevent.NewReviveUnitsRequestedApplicationEvent(coordinateUiDtos),
 	)
 }

@@ -1,25 +1,25 @@
-package dto
+package uidto
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 )
 
-type AreaDto struct {
-	From CoordinateDto `json:"from"`
-	To   CoordinateDto `json:"to"`
+type AreaUiDto struct {
+	From CoordinateUiDto `json:"from"`
+	To   CoordinateUiDto `json:"to"`
 }
 
-func NewAreaDto(area gamecommonmodel.Area) AreaDto {
-	fromCoordinateDto := NewCoordinateDto(area.GetFrom())
-	ToValueObjectDto := NewCoordinateDto(area.GetTo())
+func NewAreaUiDto(area gamecommonmodel.Area) AreaUiDto {
+	fromCoordinateUiDto := NewCoordinateUiDto(area.GetFrom())
+	ToValueObjectUiDto := NewCoordinateUiDto(area.GetTo())
 
-	return AreaDto{
-		From: fromCoordinateDto,
-		To:   ToValueObjectDto,
+	return AreaUiDto{
+		From: fromCoordinateUiDto,
+		To:   ToValueObjectUiDto,
 	}
 }
 
-func (dto AreaDto) ToValueObject() (gamecommonmodel.Area, error) {
+func (dto AreaUiDto) ToValueObject() (gamecommonmodel.Area, error) {
 	fromCoordinate, err := dto.From.ToValueObject()
 	if err != nil {
 		return gamecommonmodel.Area{}, err

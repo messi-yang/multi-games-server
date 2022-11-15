@@ -36,7 +36,7 @@ func WithPostgresClient() postgresGameRepositoryConfiguration {
 }
 
 func (m *postgresGameRepository) Get(id gamemodel.GameId) (gamemodel.Game, error) {
-	gameModel := postgresdto.GamePostgresDto{Id: id.GetId()}
+	gameModel := postgresdto.GamePostgresUiDto{Id: id.GetId()}
 	result := m.postgresClient.First(&gameModel)
 	if result.Error != nil {
 		return gamemodel.Game{}, result.Error
@@ -50,22 +50,22 @@ func (m *postgresGameRepository) Update(id gamemodel.GameId, game gamemodel.Game
 }
 
 func (m *postgresGameRepository) GetAll() ([]gamemodel.Game, error) {
-	var gamePostgresDtos []postgresdto.GamePostgresDto
-	result := m.postgresClient.Find(&gamePostgresDtos)
+	var gamePostgresUiDtos []postgresdto.GamePostgresUiDto
+	result := m.postgresClient.Find(&gamePostgresUiDtos)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	gameAggregates := make([]gamemodel.Game, 0)
-	for _, gamePostgresDto := range gamePostgresDtos {
-		gameAggregates = append(gameAggregates, gamePostgresDto.ToAggregate())
+	for _, gamePostgresUiDto := range gamePostgresUiDtos {
+		gameAggregates = append(gameAggregates, gamePostgresUiDto.ToAggregate())
 	}
 
 	return gameAggregates, nil
 }
 
 func (m *postgresGameRepository) Add(game gamemodel.Game) (gamemodel.GameId, error) {
-	gameModel := postgresdto.NewGamePostgresDto(game)
+	gameModel := postgresdto.NewGamePostgresUiDto(game)
 	res := m.postgresClient.Create(&gameModel)
 	if res.Error != nil {
 		return gamemodel.GameId{}, res.Error
