@@ -1,9 +1,9 @@
-package persistence
+package postgresrepository
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/postgresclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/dbmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/postgresrepository/postgresdto"
 	"gorm.io/gorm"
 )
 
@@ -36,7 +36,7 @@ func WithPostgresClient() postgresGameRepositoryConfiguration {
 }
 
 func (m *postgresGameRepository) Get(id gamemodel.GameId) (gamemodel.Game, error) {
-	gameModel := dbmodel.GameDbModel{Id: id.GetId()}
+	gameModel := postgresdto.GamePostgresDto{Id: id.GetId()}
 	result := m.postgresClient.First(&gameModel)
 	if result.Error != nil {
 		return gamemodel.Game{}, result.Error
@@ -50,22 +50,22 @@ func (m *postgresGameRepository) Update(id gamemodel.GameId, game gamemodel.Game
 }
 
 func (m *postgresGameRepository) GetAll() ([]gamemodel.Game, error) {
-	var gameDbModels []dbmodel.GameDbModel
-	result := m.postgresClient.Find(&gameDbModels)
+	var gamePostgresDtos []postgresdto.GamePostgresDto
+	result := m.postgresClient.Find(&gamePostgresDtos)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	gameAggregates := make([]gamemodel.Game, 0)
-	for _, gameDbModel := range gameDbModels {
-		gameAggregates = append(gameAggregates, gameDbModel.ToAggregate())
+	for _, gamePostgresDto := range gamePostgresDtos {
+		gameAggregates = append(gameAggregates, gamePostgresDto.ToAggregate())
 	}
 
 	return gameAggregates, nil
 }
 
 func (m *postgresGameRepository) Add(game gamemodel.Game) (gamemodel.GameId, error) {
-	gameModel := dbmodel.NewGameDbModel(game)
+	gameModel := postgresdto.NewGamePostgresDto(game)
 	res := m.postgresClient.Create(&gameModel)
 	if res.Error != nil {
 		return gamemodel.GameId{}, res.Error
