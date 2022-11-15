@@ -3,20 +3,20 @@ package applicationevent
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/uipresenter/uidto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
 	"github.com/google/uuid"
 )
 
 type GameInfoUpdatedApplicationEvent struct {
-	Dimension uidto.DimensionUiDto `json:"dimension"`
+	Dimension presenterdto.DimensionPresenterDto `json:"dimension"`
 }
 
 func NewGameInfoUpdatedApplicationEventTopic(liveGameId uuid.UUID, playerId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-player-%s-game-info-updated", liveGameId, playerId)
 }
 
-func NewGameInfoUpdatedApplicationEvent(dimensionUiDto uidto.DimensionUiDto) GameInfoUpdatedApplicationEvent {
+func NewGameInfoUpdatedApplicationEvent(dimensionPresenterDto presenterdto.DimensionPresenterDto) GameInfoUpdatedApplicationEvent {
 	return GameInfoUpdatedApplicationEvent{
-		Dimension: dimensionUiDto,
+		Dimension: dimensionPresenterDto,
 	}
 }

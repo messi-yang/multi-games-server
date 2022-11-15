@@ -3,22 +3,22 @@ package applicationevent
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/uipresenter/uidto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
 	"github.com/google/uuid"
 )
 
 type AreaZoomedApplicationEvent struct {
-	Area      uidto.AreaUiDto      `json:"area"`
-	UnitBlock uidto.UnitBlockUiDto `json:"unitBlock"`
+	Area      presenterdto.AreaPresenterDto      `json:"area"`
+	UnitBlock presenterdto.UnitBlockPresenterDto `json:"unitBlock"`
 }
 
 func NewAreaZoomedApplicationEventTopic(liveGameId uuid.UUID, playerId uuid.UUID) string {
 	return fmt.Sprintf("game-room-%s-player-%s-area-zoomed", liveGameId, playerId)
 }
 
-func NewAreaZoomedApplicationEvent(areaUiDto uidto.AreaUiDto, unitBlockUiDto uidto.UnitBlockUiDto) AreaZoomedApplicationEvent {
+func NewAreaZoomedApplicationEvent(areaPresenterDto presenterdto.AreaPresenterDto, unitBlockPresenterDto presenterdto.UnitBlockPresenterDto) AreaZoomedApplicationEvent {
 	return AreaZoomedApplicationEvent{
-		Area:      areaUiDto,
-		UnitBlock: unitBlockUiDto,
+		Area:      areaPresenterDto,
+		UnitBlock: unitBlockPresenterDto,
 	}
 }

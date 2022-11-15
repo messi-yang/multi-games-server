@@ -1,21 +1,21 @@
-package uidto
+package presenterdto
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 )
 
-type DimensionUiDto struct {
+type DimensionPresenterDto struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
-func NewDimensionUiDto(dimension gamecommonmodel.Dimension) DimensionUiDto {
-	return DimensionUiDto{
+func NewDimensionPresenterDto(dimension gamecommonmodel.Dimension) DimensionPresenterDto {
+	return DimensionPresenterDto{
 		Width:  dimension.GetWidth(),
 		Height: dimension.GetHeight(),
 	}
 }
 
-func (dto DimensionUiDto) ToValueObject() (gamecommonmodel.Dimension, error) {
+func (dto DimensionPresenterDto) ToValueObject() (gamecommonmodel.Dimension, error) {
 	return gamecommonmodel.NewDimension(dto.Width, dto.Height)
 }

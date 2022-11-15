@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/uipresenter/uidto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
 )
 
 type EventType string
@@ -32,16 +32,16 @@ type ErroredEvent struct {
 }
 
 type InformationUpdatedEventPayload struct {
-	Dimension uidto.DimensionUiDto `json:"dimension"`
+	Dimension presenterdto.DimensionPresenterDto `json:"dimension"`
 }
 type InformationUpdatedEvent struct {
 	Type    EventType                      `json:"type"`
 	Payload InformationUpdatedEventPayload `json:"payload"`
 }
 type ZoomedAreaUpdatedEventPayload struct {
-	Area      uidto.AreaUiDto      `json:"area"`
-	UnitBlock uidto.UnitBlockUiDto `json:"unitBlock"`
-	UpdatedAt time.Time            `json:"updatedAt"`
+	Area      presenterdto.AreaPresenterDto      `json:"area"`
+	UnitBlock presenterdto.UnitBlockPresenterDto `json:"unitBlock"`
+	UpdatedAt time.Time                          `json:"updatedAt"`
 }
 type ZoomedAreaUpdatedEvent struct {
 	Type    EventType                     `json:"type"`
@@ -49,8 +49,8 @@ type ZoomedAreaUpdatedEvent struct {
 }
 
 type AreaZoomedEventPayload struct {
-	Area      uidto.AreaUiDto      `json:"area"`
-	UnitBlock uidto.UnitBlockUiDto `json:"unitBlock"`
+	Area      presenterdto.AreaPresenterDto      `json:"area"`
+	UnitBlock presenterdto.UnitBlockPresenterDto `json:"unitBlock"`
 }
 type AreaZoomedEvent struct {
 	Type    EventType              `json:"type"`
@@ -58,8 +58,8 @@ type AreaZoomedEvent struct {
 }
 
 type ReviveUnitsRequestedEventPayload struct {
-	Coordinates []uidto.CoordinateUiDto `json:"coordinates"`
-	ActionedAt  time.Time               `json:"actionedAt"`
+	Coordinates []presenterdto.CoordinatePresenterDto `json:"coordinates"`
+	ActionedAt  time.Time                             `json:"actionedAt"`
 }
 type ReviveUnitsRequestedEvent struct {
 	Type    EventType                        `json:"type"`
@@ -67,8 +67,8 @@ type ReviveUnitsRequestedEvent struct {
 }
 
 type ZoomAreaRequestedEventPayload struct {
-	Area       uidto.AreaUiDto `json:"area"`
-	ActionedAt time.Time       `json:"actionedAt"`
+	Area       presenterdto.AreaPresenterDto `json:"area"`
+	ActionedAt time.Time                     `json:"actionedAt"`
 }
 type ZoomAreaRequestedEvent struct {
 	Type    EventType                     `json:"type"`
@@ -103,7 +103,7 @@ func (presenter *GameHandlerPresenter) CreateErroredEvent(clientMessage string) 
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateInformationUpdatedEvent(dimension uidto.DimensionUiDto) InformationUpdatedEvent {
+func (presenter *GameHandlerPresenter) CreateInformationUpdatedEvent(dimension presenterdto.DimensionPresenterDto) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
@@ -112,7 +112,7 @@ func (presenter *GameHandlerPresenter) CreateInformationUpdatedEvent(dimension u
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateZoomedAreaUpdatedEvent(area uidto.AreaUiDto, unitBlock uidto.UnitBlockUiDto) ZoomedAreaUpdatedEvent {
+func (presenter *GameHandlerPresenter) CreateZoomedAreaUpdatedEvent(area presenterdto.AreaPresenterDto, unitBlock presenterdto.UnitBlockPresenterDto) ZoomedAreaUpdatedEvent {
 	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
 		Payload: ZoomedAreaUpdatedEventPayload{
@@ -123,7 +123,7 @@ func (presenter *GameHandlerPresenter) CreateZoomedAreaUpdatedEvent(area uidto.A
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateAreaZoomedEvent(area uidto.AreaUiDto, unitBlock uidto.UnitBlockUiDto) AreaZoomedEvent {
+func (presenter *GameHandlerPresenter) CreateAreaZoomedEvent(area presenterdto.AreaPresenterDto, unitBlock presenterdto.UnitBlockPresenterDto) AreaZoomedEvent {
 	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
 		Payload: AreaZoomedEventPayload{
@@ -133,7 +133,7 @@ func (presenter *GameHandlerPresenter) CreateAreaZoomedEvent(area uidto.AreaUiDt
 	}
 }
 
-func (presenter *GameHandlerPresenter) ExtractReviveUnitsRequestedEvent(msg []byte) ([]uidto.CoordinateUiDto, error) {
+func (presenter *GameHandlerPresenter) ExtractReviveUnitsRequestedEvent(msg []byte) ([]presenterdto.CoordinatePresenterDto, error) {
 	var action ReviveUnitsRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
@@ -142,11 +142,11 @@ func (presenter *GameHandlerPresenter) ExtractReviveUnitsRequestedEvent(msg []by
 	return action.Payload.Coordinates, nil
 }
 
-func (presenter *GameHandlerPresenter) ExtractZoomAreaRequestedEvent(msg []byte) (uidto.AreaUiDto, error) {
+func (presenter *GameHandlerPresenter) ExtractZoomAreaRequestedEvent(msg []byte) (presenterdto.AreaPresenterDto, error) {
 	var action ZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
-		return uidto.AreaUiDto{}, err
+		return presenterdto.AreaPresenterDto{}, err
 	}
 
 	return action.Payload.Area, nil

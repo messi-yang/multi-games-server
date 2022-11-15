@@ -1,26 +1,26 @@
-package uidto
+package presenterdto
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 )
 
-type UnitBlockUiDto [][]UnitUiDto
+type UnitBlockPresenterDto [][]UnitPresenterDto
 
-func NewUnitBlockUiDto(unitBlock gamecommonmodel.UnitBlock) UnitBlockUiDto {
-	unitBlockUiDto := make(UnitBlockUiDto, 0)
+func NewUnitBlockPresenterDto(unitBlock gamecommonmodel.UnitBlock) UnitBlockPresenterDto {
+	unitBlockPresenterDto := make(UnitBlockPresenterDto, 0)
 
 	for i := 0; i < unitBlock.GetDimension().GetWidth(); i += 1 {
-		unitBlockUiDto = append(unitBlockUiDto, make([]UnitUiDto, 0))
+		unitBlockPresenterDto = append(unitBlockPresenterDto, make([]UnitPresenterDto, 0))
 		for j := 0; j < unitBlock.GetDimension().GetHeight(); j += 1 {
 			coord, _ := gamecommonmodel.NewCoordinate(i, j)
 			unit := unitBlock.GetUnit(coord)
-			unitBlockUiDto[i] = append(unitBlockUiDto[i], NewUnitUiDto(unit))
+			unitBlockPresenterDto[i] = append(unitBlockPresenterDto[i], NewUnitPresenterDto(unit))
 		}
 	}
-	return unitBlockUiDto
+	return unitBlockPresenterDto
 }
 
-func (dto UnitBlockUiDto) ToValueObject() gamecommonmodel.UnitBlock {
+func (dto UnitBlockPresenterDto) ToValueObject() gamecommonmodel.UnitBlock {
 	unitMatrix := make([][]gamecommonmodel.Unit, 0)
 
 	for i := 0; i < len(dto); i += 1 {
