@@ -10,12 +10,12 @@ import (
 type EventType string
 
 const (
-	ErrorHappenedEventType        EventType = "ERRORED"
-	InformationUpdatedEventType   EventType = "INFORMATION_UPDATED"
-	AreaZoomedEventType           EventType = "AREA_ZOOMED"
-	ZoomedAreaUpdatedEventType    EventType = "ZOOMED_AREA_UPDATED"
-	ZoomAreaRequestedEventType    EventType = "ZOOM_AREA"
-	ReviveUnitsRequestedEventType EventType = "REVIVE_UNITS"
+	ErrorHappenedEventType             EventType = "ERRORED"
+	InformationUpdatedEventType        EventType = "INFORMATION_UPDATED"
+	RedisAreaZoomedEventType           EventType = "AREA_ZOOMED"
+	RedisZoomedAreaUpdatedEventType    EventType = "ZOOMED_AREA_UPDATED"
+	RedisZoomAreaRequestedEventType    EventType = "ZOOM_AREA"
+	RedisReviveUnitsRequestedEventType EventType = "REVIVE_UNITS"
 )
 
 type Event struct {
@@ -38,41 +38,41 @@ type InformationUpdatedEvent struct {
 	Type    EventType                      `json:"type"`
 	Payload InformationUpdatedEventPayload `json:"payload"`
 }
-type ZoomedAreaUpdatedEventPayload struct {
+type RedisZoomedAreaUpdatedEventPayload struct {
 	Area      presenterdto.AreaPresenterDto      `json:"area"`
 	UnitBlock presenterdto.UnitBlockPresenterDto `json:"unitBlock"`
 	UpdatedAt time.Time                          `json:"updatedAt"`
 }
-type ZoomedAreaUpdatedEvent struct {
-	Type    EventType                     `json:"type"`
-	Payload ZoomedAreaUpdatedEventPayload `json:"payload"`
+type RedisZoomedAreaUpdatedEvent struct {
+	Type    EventType                          `json:"type"`
+	Payload RedisZoomedAreaUpdatedEventPayload `json:"payload"`
 }
 
-type AreaZoomedEventPayload struct {
+type RedisAreaZoomedEventPayload struct {
 	Area      presenterdto.AreaPresenterDto      `json:"area"`
 	UnitBlock presenterdto.UnitBlockPresenterDto `json:"unitBlock"`
 }
-type AreaZoomedEvent struct {
-	Type    EventType              `json:"type"`
-	Payload AreaZoomedEventPayload `json:"payload"`
+type RedisAreaZoomedEvent struct {
+	Type    EventType                   `json:"type"`
+	Payload RedisAreaZoomedEventPayload `json:"payload"`
 }
 
-type ReviveUnitsRequestedEventPayload struct {
+type RedisReviveUnitsRequestedEventPayload struct {
 	Coordinates []presenterdto.CoordinatePresenterDto `json:"coordinates"`
 	ActionedAt  time.Time                             `json:"actionedAt"`
 }
-type ReviveUnitsRequestedEvent struct {
-	Type    EventType                        `json:"type"`
-	Payload ReviveUnitsRequestedEventPayload `json:"payload"`
+type RedisReviveUnitsRequestedEvent struct {
+	Type    EventType                             `json:"type"`
+	Payload RedisReviveUnitsRequestedEventPayload `json:"payload"`
 }
 
-type ZoomAreaRequestedEventPayload struct {
+type RedisZoomAreaRequestedEventPayload struct {
 	Area       presenterdto.AreaPresenterDto `json:"area"`
 	ActionedAt time.Time                     `json:"actionedAt"`
 }
-type ZoomAreaRequestedEvent struct {
-	Type    EventType                     `json:"type"`
-	Payload ZoomAreaRequestedEventPayload `json:"payload"`
+type RedisZoomAreaRequestedEvent struct {
+	Type    EventType                          `json:"type"`
+	Payload RedisZoomAreaRequestedEventPayload `json:"payload"`
 }
 
 type GameHandlerPresenter struct {
@@ -112,10 +112,10 @@ func (presenter *GameHandlerPresenter) CreateInformationUpdatedEvent(dimension p
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateZoomedAreaUpdatedEvent(area presenterdto.AreaPresenterDto, unitBlock presenterdto.UnitBlockPresenterDto) ZoomedAreaUpdatedEvent {
-	return ZoomedAreaUpdatedEvent{
-		Type: ZoomedAreaUpdatedEventType,
-		Payload: ZoomedAreaUpdatedEventPayload{
+func (presenter *GameHandlerPresenter) CreateRedisZoomedAreaUpdatedEvent(area presenterdto.AreaPresenterDto, unitBlock presenterdto.UnitBlockPresenterDto) RedisZoomedAreaUpdatedEvent {
+	return RedisZoomedAreaUpdatedEvent{
+		Type: RedisZoomedAreaUpdatedEventType,
+		Payload: RedisZoomedAreaUpdatedEventPayload{
 			Area:      area,
 			UnitBlock: unitBlock,
 			UpdatedAt: time.Now(),
@@ -123,18 +123,18 @@ func (presenter *GameHandlerPresenter) CreateZoomedAreaUpdatedEvent(area present
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateAreaZoomedEvent(area presenterdto.AreaPresenterDto, unitBlock presenterdto.UnitBlockPresenterDto) AreaZoomedEvent {
-	return AreaZoomedEvent{
-		Type: AreaZoomedEventType,
-		Payload: AreaZoomedEventPayload{
+func (presenter *GameHandlerPresenter) CreateRedisAreaZoomedEvent(area presenterdto.AreaPresenterDto, unitBlock presenterdto.UnitBlockPresenterDto) RedisAreaZoomedEvent {
+	return RedisAreaZoomedEvent{
+		Type: RedisAreaZoomedEventType,
+		Payload: RedisAreaZoomedEventPayload{
 			Area:      area,
 			UnitBlock: unitBlock,
 		},
 	}
 }
 
-func (presenter *GameHandlerPresenter) ExtractReviveUnitsRequestedEvent(msg []byte) ([]presenterdto.CoordinatePresenterDto, error) {
-	var action ReviveUnitsRequestedEvent
+func (presenter *GameHandlerPresenter) ExtractRedisReviveUnitsRequestedEvent(msg []byte) ([]presenterdto.CoordinatePresenterDto, error) {
+	var action RedisReviveUnitsRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return nil, err
@@ -142,8 +142,8 @@ func (presenter *GameHandlerPresenter) ExtractReviveUnitsRequestedEvent(msg []by
 	return action.Payload.Coordinates, nil
 }
 
-func (presenter *GameHandlerPresenter) ExtractZoomAreaRequestedEvent(msg []byte) (presenterdto.AreaPresenterDto, error) {
-	var action ZoomAreaRequestedEvent
+func (presenter *GameHandlerPresenter) ExtractRedisZoomAreaRequestedEvent(msg []byte) (presenterdto.AreaPresenterDto, error) {
+	var action RedisZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return presenterdto.AreaPresenterDto{}, err

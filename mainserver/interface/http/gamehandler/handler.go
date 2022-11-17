@@ -8,7 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
 	"github.com/dum-dum-genius/game-of-liberty-computer/mainserver/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/integrationeventlistener"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -55,33 +55,33 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 			socketSendMessageLock: sync.RWMutex{},
 		}
 
-		gameInfoUpdatedListener, _ := integrationeventlistener.NewGameInfoUpdatedListener()
-		gameInfoUpdatedListenerUnsubscriber := gameInfoUpdatedListener.Subscribe(
+		redisGameInfoUpdatedListener, _ := redis.NewRedisGameInfoUpdatedListener()
+		redisGameInfoUpdatedListenerUnsubscriber := redisGameInfoUpdatedListener.Subscribe(
 			clientSession.liveGameId,
 			clientSession.playerId,
-			func(event integrationeventlistener.GameInfoUpdatedIntegrationEvent) {
-				handleGameInfoUpdatedEvent(conn, clientSession, event)
+			func(event redis.RedisGameInfoUpdatedIntegrationEvent) {
+				handleRedisGameInfoUpdatedEvent(conn, clientSession, event)
 			},
 		)
-		defer gameInfoUpdatedListenerUnsubscriber()
+		defer redisGameInfoUpdatedListenerUnsubscriber()
 
-		areaZoomedListener, _ := integrationeventlistener.NewAreaZoomedListener()
-		areaZoomedListenerUnsubscriber := areaZoomedListener.Subscribe(clientSession.liveGameId, clientSession.playerId, func(event integrationeventlistener.AreaZoomedIntegrationEvent) {
-			handleAreaZoomedEvent(conn, clientSession, event)
+		redisAreaZoomedListener, _ := redis.NewRedisAreaZoomedListener()
+		redisAreaZoomedListenerUnsubscriber := redisAreaZoomedListener.Subscribe(clientSession.liveGameId, clientSession.playerId, func(event redis.RedisAreaZoomedIntegrationEvent) {
+			handleRedisAreaZoomedEvent(conn, clientSession, event)
 		})
-		defer areaZoomedListenerUnsubscriber()
+		defer redisAreaZoomedListenerUnsubscriber()
 
-		zoomedAreaUpdatedListener, _ := integrationeventlistener.NewZoomedAreaUpdatedListener()
-		zoomedAreaUpdatedListenerUnsubscriber := zoomedAreaUpdatedListener.Subscribe(clientSession.liveGameId, clientSession.playerId, func(event integrationeventlistener.ZoomedAreaUpdatedIntegrationEvent) {
-			handleZoomedAreaUpdatedEvent(conn, clientSession, event)
+		redisZoomedAreaUpdatedListener, _ := redis.NewRedisZoomedAreaUpdatedListener()
+		redisZoomedAreaUpdatedListenerUnsubscriber := redisZoomedAreaUpdatedListener.Subscribe(clientSession.liveGameId, clientSession.playerId, func(event redis.RedisZoomedAreaUpdatedIntegrationEvent) {
+			handleRedisZoomedAreaUpdatedEvent(conn, clientSession, event)
 		})
-		defer zoomedAreaUpdatedListenerUnsubscriber()
+		defer redisZoomedAreaUpdatedListenerUnsubscriber()
 
 		rediseventbus.NewRedisIntegrationEventBus(
-			rediseventbus.WithRedisInfrastructureService[integrationeventlistener.AddPlayerRequestedIntegrationEvent](),
+			rediseventbus.WithRedisInfrastructureService[redis.RedisAddPlayerRequestedIntegrationEvent](),
 		).Publish(
-			integrationeventlistener.AddPlayerRequestedListenerChannel,
-			integrationeventlistener.NewAddPlayerRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId),
+			redis.RedisAddPlayerRequestedListenerChannel,
+			redis.NewRedisAddPlayerRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId),
 		)
 
 		go func() {
@@ -110,10 +110,10 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 				}
 
 				switch eventType {
-				case ZoomAreaRequestedEventType:
-					handleZoomAreaRequestedEvent(conn, clientSession, message)
-				case ReviveUnitsRequestedEventType:
-					handleReviveUnitsRequestedEvent(conn, clientSession, message)
+				case RedisZoomAreaRequestedEventType:
+					handleRedisZoomAreaRequestedEvent(conn, clientSession, message)
+				case RedisReviveUnitsRequestedEventType:
+					handleRedisReviveUnitsRequestedEvent(conn, clientSession, message)
 				default:
 				}
 			}
@@ -123,10 +123,10 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 			<-closeConnFlag
 
 			rediseventbus.NewRedisIntegrationEventBus(
-				rediseventbus.WithRedisInfrastructureService[integrationeventlistener.RemovePlayerRequestedIntegrationEvent](),
+				rediseventbus.WithRedisInfrastructureService[redis.RedisRemovePlayerRequestedIntegrationEvent](),
 			).Publish(
-				integrationeventlistener.RemovePlayerRequestedListenerChannel,
-				integrationeventlistener.NewRemovePlayerRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId),
+				redis.RedisRemovePlayerRequestedListenerChannel,
+				redis.NewRedisRemovePlayerRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId),
 			)
 
 			return
@@ -155,44 +155,44 @@ func emitErrorEvent(conn *websocket.Conn, clientSession *clientSession, err erro
 	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateErroredEvent(err.Error()))
 }
 
-func handleGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event integrationeventlistener.GameInfoUpdatedIntegrationEvent) {
+func handleRedisGameInfoUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event redis.RedisGameInfoUpdatedIntegrationEvent) {
 	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateInformationUpdatedEvent(event.Dimension))
 }
 
-func handleAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, event integrationeventlistener.AreaZoomedIntegrationEvent) {
-	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateAreaZoomedEvent(event.Area, event.UnitBlock))
+func handleRedisAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSession, event redis.RedisAreaZoomedIntegrationEvent) {
+	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateRedisAreaZoomedEvent(event.Area, event.UnitBlock))
 }
 
-func handleZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event integrationeventlistener.ZoomedAreaUpdatedIntegrationEvent) {
-	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateZoomedAreaUpdatedEvent(event.Area, event.UnitBlock))
+func handleRedisZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event redis.RedisZoomedAreaUpdatedIntegrationEvent) {
+	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateRedisZoomedAreaUpdatedEvent(event.Area, event.UnitBlock))
 }
 
-func handleZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	areaPresenterDto, err := gameHandlerPresenter.ExtractZoomAreaRequestedEvent(event)
+func handleRedisZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
+	areaPresenterDto, err := gameHandlerPresenter.ExtractRedisZoomAreaRequestedEvent(event)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
 
 	rediseventbus.NewRedisIntegrationEventBus(
-		rediseventbus.WithRedisInfrastructureService[integrationeventlistener.ZoomAreaRequestedIntegrationEvent](),
+		rediseventbus.WithRedisInfrastructureService[redis.RedisZoomAreaRequestedIntegrationEvent](),
 	).Publish(
-		integrationeventlistener.ZoomAreaRequestedListenerChannel,
-		integrationeventlistener.NewZoomAreaRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId, areaPresenterDto),
+		redis.RedisZoomAreaRequestedListenerChannel,
+		redis.NewRedisZoomAreaRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId, areaPresenterDto),
 	)
 }
 
-func handleReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	coordinatePresenterDtos, err := gameHandlerPresenter.ExtractReviveUnitsRequestedEvent(event)
+func handleRedisReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
+	coordinatePresenterDtos, err := gameHandlerPresenter.ExtractRedisReviveUnitsRequestedEvent(event)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
 		return
 	}
 
 	rediseventbus.NewRedisIntegrationEventBus(
-		rediseventbus.WithRedisInfrastructureService[integrationeventlistener.ReviveUnitsRequestedIntegrationEvent](),
+		rediseventbus.WithRedisInfrastructureService[redis.RedisReviveUnitsRequestedIntegrationEvent](),
 	).Publish(
-		integrationeventlistener.ReviveUnitsRequestedListenerChannel,
-		integrationeventlistener.NewReviveUnitsRequestedIntegrationEvent(clientSession.liveGameId, coordinatePresenterDtos),
+		redis.RedisReviveUnitsRequestedListenerChannel,
+		redis.NewRedisReviveUnitsRequestedIntegrationEvent(clientSession.liveGameId, coordinatePresenterDtos),
 	)
 }
