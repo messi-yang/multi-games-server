@@ -27,8 +27,8 @@ func Start() {
 		liveGameId = livegamemodel.NewLiveGameId(gameId.GetId())
 	}
 
-	applicationeventhandler.NewGameApplicationEventHandler(
-		applicationeventhandler.GameApplicationEventHandlerConfiguration{
+	applicationeventhandler.NewGameIntegrationEventHandler(
+		applicationeventhandler.GameIntegrationEventHandlerConfiguration{
 			LiveGameApplicationService: liveGameApplicationService,
 		},
 		liveGameId,

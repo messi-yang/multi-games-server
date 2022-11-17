@@ -7,32 +7,32 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
 )
 
-type redisApplicationEventBus[T any] struct {
+type redisIntegrationEventBus[T any] struct {
 	redisInfrastructureService *service.RedisInfrastructureService
 }
 
-type redisApplicationEventBusConfiguration[T any] func(eventBus *redisApplicationEventBus[T])
+type redisIntegrationEventBusConfiguration[T any] func(eventBus *redisIntegrationEventBus[T])
 
-func NewRedisApplicationEventBus[T any](cfgs ...redisApplicationEventBusConfiguration[T]) eventbus.ApplicationEventBus[T] {
-	eventBus := &redisApplicationEventBus[T]{}
+func NewRedisIntegrationEventBus[T any](cfgs ...redisIntegrationEventBusConfiguration[T]) eventbus.IntegrationEventBus[T] {
+	eventBus := &redisIntegrationEventBus[T]{}
 	for _, cfg := range cfgs {
 		cfg(eventBus)
 	}
 	return eventBus
 }
 
-func WithRedisInfrastructureService[T any]() redisApplicationEventBusConfiguration[T] {
-	return func(eventBus *redisApplicationEventBus[T]) {
+func WithRedisInfrastructureService[T any]() redisIntegrationEventBusConfiguration[T] {
+	return func(eventBus *redisIntegrationEventBus[T]) {
 		eventBus.redisInfrastructureService = service.NewRedisInfrastructureService()
 	}
 }
 
-func (gue *redisApplicationEventBus[T]) Publish(topic string, event T) {
+func (gue *redisIntegrationEventBus[T]) Publish(topic string, event T) {
 	jsonBytes, _ := json.Marshal(event)
 	gue.redisInfrastructureService.Publish(topic, jsonBytes)
 }
 
-func (gue *redisApplicationEventBus[T]) Subscribe(topic string, callback func(event T)) (unsubscriber func()) {
+func (gue *redisIntegrationEventBus[T]) Subscribe(topic string, callback func(event T)) (unsubscriber func()) {
 	redisUnsubscriber := gue.redisInfrastructureService.Subscribe(topic, func(event []byte) {
 		var targetEvent T
 		json.Unmarshal(event, &targetEvent)

@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"os"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/redisclient"
 	"github.com/go-redis/redis/v9"
 )
 
@@ -16,12 +16,7 @@ var RedisInfrastructureServiceInstance *RedisInfrastructureService
 func NewRedisInfrastructureService() *RedisInfrastructureService {
 	if RedisInfrastructureServiceInstance == nil {
 		return &RedisInfrastructureService{
-			redisClient: redis.NewClient(&redis.Options{
-				Addr:        os.Getenv("REDIS_HOST"),
-				Password:    os.Getenv("REDIS_PASSWORD"),
-				DB:          0,
-				ReadTimeout: -1,
-			}),
+			redisClient: redisclient.NewRedisClient(),
 		}
 	}
 	return RedisInfrastructureServiceInstance
