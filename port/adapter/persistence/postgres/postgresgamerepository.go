@@ -1,9 +1,9 @@
-package postgresrepository
+package postgres
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/postgresclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/postgresrepository/postgresdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/persistence/postgres/postgresdto"
 	"gorm.io/gorm"
 )
 

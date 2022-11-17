@@ -4,7 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/memoryrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/persistence/memory"
 )
 
 type LiveGameService struct {
@@ -25,7 +25,7 @@ func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameService,
 }
 
 func WithGameMemoryRepository() liveGameServiceConfiguration {
-	liveGameMemoryRepository := memoryrepository.NewMemoryLiveGameRepository()
+	liveGameMemoryRepository := memory.NewMemoryLiveGameRepository()
 	return func(service *LiveGameService) error {
 		service.liveGameRepository = liveGameMemoryRepository
 		return nil
