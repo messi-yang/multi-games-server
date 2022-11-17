@@ -24,22 +24,34 @@ func NewGameIntegrationEventHandler(
 	redisAddPlayerRequestedListener, _ := redis.NewRedisAddPlayerRequestedListener()
 	redisAddPlayerRequestedListenerUnsubscriber := redisAddPlayerRequestedListener.Subscribe(func(event redis.RedisAddPlayerRequestedIntegrationEvent) {
 		liveGameId := livegamemodel.NewLiveGameId(event.GameId)
-		configuration.LiveGameApplicationService.AddPlayerToLiveGame(liveGameId, event.PlayerId)
+		playerId, err := event.PlayerId.ToValueObject()
+		if err != nil {
+			return
+		}
+		configuration.LiveGameApplicationService.AddPlayerToLiveGame(liveGameId, playerId)
 	})
 	defer redisAddPlayerRequestedListenerUnsubscriber()
 
 	redisRemovePlayerRequestedListener, _ := redis.NewRedisRemovePlayerRequestedListener()
 	redisRemovePlayerRequestedListenerUnsubscriber := redisRemovePlayerRequestedListener.Subscribe(func(event redis.RedisRemovePlayerRequestedIntegrationEvent) {
 		liveGameId := livegamemodel.NewLiveGameId(event.GameId)
-		configuration.LiveGameApplicationService.RemovePlayerFromLiveGame(liveGameId, event.PlayerId)
-		configuration.LiveGameApplicationService.RemoveZoomedAreaFromLiveGame(liveGameId, event.PlayerId)
+		playerId, err := event.PlayerId.ToValueObject()
+		if err != nil {
+			return
+		}
+		configuration.LiveGameApplicationService.RemovePlayerFromLiveGame(liveGameId, playerId)
+		configuration.LiveGameApplicationService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
 	})
 	defer redisRemovePlayerRequestedListenerUnsubscriber()
 
 	redisZoomAreaRequestedListener, _ := redis.NewRedisZoomAreaRequestedListener()
 	redisZoomAreaRequestedListenerUnsubscriber := redisZoomAreaRequestedListener.Subscribe(func(event redis.RedisZoomAreaRequestedIntegrationEvent) {
 		liveGameId := livegamemodel.NewLiveGameId(event.GameId)
-		configuration.LiveGameApplicationService.AddZoomedAreaToLiveGame(liveGameId, event.PlayerId, event.Area)
+		playerId, err := event.PlayerId.ToValueObject()
+		if err != nil {
+			return
+		}
+		configuration.LiveGameApplicationService.AddZoomedAreaToLiveGame(liveGameId, playerId, event.Area)
 	})
 	defer redisZoomAreaRequestedListenerUnsubscriber()
 
