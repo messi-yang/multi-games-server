@@ -16,14 +16,20 @@ func NewGameIntegrationEventHandler(
 ) {
 	redisReviveUnitsRequestedListener, _ := redis.NewRedisReviveUnitsRequestedListener()
 	redisReviveUnitsRequestedListenerUnsubscriber := redisReviveUnitsRequestedListener.Subscribe(func(event redis.RedisReviveUnitsRequestedIntegrationEvent) {
-		liveGameId := livegamemodel.NewLiveGameId(event.GameId)
+		liveGameId, err := event.LiveGameId.ToValueObject()
+		if err != nil {
+			return
+		}
 		configuration.LiveGameApplicationService.ReviveUnitsInLiveGame(liveGameId, event.Coordinates)
 	})
 	defer redisReviveUnitsRequestedListenerUnsubscriber()
 
 	redisAddPlayerRequestedListener, _ := redis.NewRedisAddPlayerRequestedListener()
 	redisAddPlayerRequestedListenerUnsubscriber := redisAddPlayerRequestedListener.Subscribe(func(event redis.RedisAddPlayerRequestedIntegrationEvent) {
-		liveGameId := livegamemodel.NewLiveGameId(event.GameId)
+		liveGameId, err := event.LiveGameId.ToValueObject()
+		if err != nil {
+			return
+		}
 		playerId, err := event.PlayerId.ToValueObject()
 		if err != nil {
 			return
@@ -34,7 +40,10 @@ func NewGameIntegrationEventHandler(
 
 	redisRemovePlayerRequestedListener, _ := redis.NewRedisRemovePlayerRequestedListener()
 	redisRemovePlayerRequestedListenerUnsubscriber := redisRemovePlayerRequestedListener.Subscribe(func(event redis.RedisRemovePlayerRequestedIntegrationEvent) {
-		liveGameId := livegamemodel.NewLiveGameId(event.GameId)
+		liveGameId, err := event.LiveGameId.ToValueObject()
+		if err != nil {
+			return
+		}
 		playerId, err := event.PlayerId.ToValueObject()
 		if err != nil {
 			return
@@ -46,7 +55,10 @@ func NewGameIntegrationEventHandler(
 
 	redisZoomAreaRequestedListener, _ := redis.NewRedisZoomAreaRequestedListener()
 	redisZoomAreaRequestedListenerUnsubscriber := redisZoomAreaRequestedListener.Subscribe(func(event redis.RedisZoomAreaRequestedIntegrationEvent) {
-		liveGameId := livegamemodel.NewLiveGameId(event.GameId)
+		liveGameId, err := event.LiveGameId.ToValueObject()
+		if err != nil {
+			return
+		}
 		playerId, err := event.PlayerId.ToValueObject()
 		if err != nil {
 			return

@@ -6,26 +6,26 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
-	"github.com/google/uuid"
 )
 
 type RedisGameInfoUpdatedIntegrationEvent struct {
-	GameId    uuid.UUID                          `json:"gameId"`
-	PlayerId  presenterdto.PlayerIdPresenterDto  `json:"playerId"`
-	Dimension presenterdto.DimensionPresenterDto `json:"dimension"`
+	LiveGameId presenterdto.LiveGameIdPresenterDto `json:"liveGameId"`
+	PlayerId   presenterdto.PlayerIdPresenterDto   `json:"playerId"`
+	Dimension  presenterdto.DimensionPresenterDto  `json:"dimension"`
 }
 
-func NewRedisGameInfoUpdatedIntegrationEvent(gameId uuid.UUID, playerId gamecommonmodel.PlayerId, dimensionPresenterDto presenterdto.DimensionPresenterDto) RedisGameInfoUpdatedIntegrationEvent {
+func NewRedisGameInfoUpdatedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimensionPresenterDto presenterdto.DimensionPresenterDto) RedisGameInfoUpdatedIntegrationEvent {
 	return RedisGameInfoUpdatedIntegrationEvent{
-		GameId:    gameId,
-		PlayerId:  presenterdto.NewPlayerIdPresenterDto(playerId),
-		Dimension: dimensionPresenterDto,
+		LiveGameId: presenterdto.NewLiveGameIdPresenterDto(liveGameId),
+		PlayerId:   presenterdto.NewPlayerIdPresenterDto(playerId),
+		Dimension:  dimensionPresenterDto,
 	}
 }
 
-func RedisGameInfoUpdatedListenerChannel(gameId uuid.UUID, playerId gamecommonmodel.PlayerId) string {
-	return fmt.Sprintf("game-info-updated-live-game-id-%s-player-id-%s", gameId, playerId.GetId().String())
+func RedisGameInfoUpdatedListenerChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
+	return fmt.Sprintf("game-info-updated-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
 }
 
 type RedisGameInfoUpdatedListener struct {
@@ -47,8 +47,8 @@ func NewRedisGameInfoUpdatedListener(cfgs ...redisRedisGameInfoUpdatedListenerCo
 	return t, nil
 }
 
-func (listener *RedisGameInfoUpdatedListener) Subscribe(gameId uuid.UUID, playerId gamecommonmodel.PlayerId, subscriber func(RedisGameInfoUpdatedIntegrationEvent)) func() {
-	unsubscriber := listener.redisInfrastructureService.Subscribe(RedisGameInfoUpdatedListenerChannel(gameId, playerId), func(message []byte) {
+func (listener *RedisGameInfoUpdatedListener) Subscribe(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, subscriber func(RedisGameInfoUpdatedIntegrationEvent)) func() {
+	unsubscriber := listener.redisInfrastructureService.Subscribe(RedisGameInfoUpdatedListenerChannel(liveGameId, playerId), func(message []byte) {
 		var event RedisGameInfoUpdatedIntegrationEvent
 		json.Unmarshal(message, &event)
 		subscriber(event)

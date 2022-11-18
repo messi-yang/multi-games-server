@@ -5,19 +5,19 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
-	"github.com/google/uuid"
 )
 
 type RedisRemovePlayerRequestedIntegrationEvent struct {
-	GameId   uuid.UUID                         `json:"gameId"`
-	PlayerId presenterdto.PlayerIdPresenterDto `json:"playerId"`
+	LiveGameId presenterdto.LiveGameIdPresenterDto `json:"liveGameId"`
+	PlayerId   presenterdto.PlayerIdPresenterDto   `json:"playerId"`
 }
 
-func NewRedisRemovePlayerRequestedIntegrationEvent(gameId uuid.UUID, playerId gamecommonmodel.PlayerId) RedisRemovePlayerRequestedIntegrationEvent {
+func NewRedisRemovePlayerRequestedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) RedisRemovePlayerRequestedIntegrationEvent {
 	return RedisRemovePlayerRequestedIntegrationEvent{
-		GameId:   gameId,
-		PlayerId: presenterdto.NewPlayerIdPresenterDto(playerId),
+		LiveGameId: presenterdto.NewLiveGameIdPresenterDto(liveGameId),
+		PlayerId:   presenterdto.NewPlayerIdPresenterDto(playerId),
 	}
 }
 

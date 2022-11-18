@@ -85,8 +85,8 @@ func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegame
 		rediseventbus.NewRedisIntegrationEventBus(
 			rediseventbus.WithRedisInfrastructureService[redis.RedisZoomedAreaUpdatedIntegrationEvent](),
 		).Publish(
-			redis.RedisZoomedAreaUpdatedListenerChannel(updatedGame.GetId().GetId(), playerId),
-			redis.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId().GetId(), playerId, presenterdto.NewAreaPresenterDto(area), presenterdto.NewUnitBlockPresenterDto(unitBlock)),
+			redis.RedisZoomedAreaUpdatedListenerChannel(updatedGame.GetId(), playerId),
+			redis.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, presenterdto.NewAreaPresenterDto(area), presenterdto.NewUnitBlockPresenterDto(unitBlock)),
 		)
 	}
 	return nil
@@ -102,8 +102,8 @@ func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemo
 	rediseventbus.NewRedisIntegrationEventBus(
 		rediseventbus.WithRedisInfrastructureService[redis.RedisGameInfoUpdatedIntegrationEvent](),
 	).Publish(
-		redis.RedisGameInfoUpdatedListenerChannel(liveGameId.GetId(), playerId),
-		redis.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId.GetId(), playerId, dimensionPresenterDto),
+		redis.RedisGameInfoUpdatedListenerChannel(liveGameId, playerId),
+		redis.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, dimensionPresenterDto),
 	)
 
 	return nil
@@ -139,8 +139,8 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livega
 	rediseventbus.NewRedisIntegrationEventBus(
 		rediseventbus.WithRedisInfrastructureService[redis.RedisAreaZoomedIntegrationEvent](),
 	).Publish(
-		redis.RedisAreaZoomedListenerChannel(liveGameId.GetId(), playerId),
-		redis.NewRedisAreaZoomedIntegrationEvent(liveGameId.GetId(), playerId, areaPresenterDto, unitBlockPresenterDto),
+		redis.RedisAreaZoomedListenerChannel(liveGameId, playerId),
+		redis.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, areaPresenterDto, unitBlockPresenterDto),
 	)
 
 	return nil

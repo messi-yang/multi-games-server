@@ -4,18 +4,18 @@ import (
 	"encoding/json"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
-	"github.com/google/uuid"
 )
 
 type RedisReviveUnitsRequestedIntegrationEvent struct {
-	GameId      uuid.UUID                             `json:"gameId"`
+	LiveGameId  presenterdto.LiveGameIdPresenterDto   `json:"liveGameId"`
 	Coordinates []presenterdto.CoordinatePresenterDto `json:"coordinates"`
 }
 
-func NewRedisReviveUnitsRequestedIntegrationEvent(gameId uuid.UUID, coordinatePresenterDtos []presenterdto.CoordinatePresenterDto) RedisReviveUnitsRequestedIntegrationEvent {
+func NewRedisReviveUnitsRequestedIntegrationEvent(liveGameId livegamemodel.LiveGameId, coordinatePresenterDtos []presenterdto.CoordinatePresenterDto) RedisReviveUnitsRequestedIntegrationEvent {
 	return RedisReviveUnitsRequestedIntegrationEvent{
-		GameId:      gameId,
+		LiveGameId:  presenterdto.NewLiveGameIdPresenterDto(liveGameId),
 		Coordinates: coordinatePresenterDtos,
 	}
 }
