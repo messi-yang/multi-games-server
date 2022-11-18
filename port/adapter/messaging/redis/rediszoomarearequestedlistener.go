@@ -15,11 +15,11 @@ type RedisZoomAreaRequestedIntegrationEvent struct {
 	Area       presenterdto.AreaPresenterDto       `json:"area"`
 }
 
-func NewRedisZoomAreaRequestedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, areaPresenterDto presenterdto.AreaPresenterDto) RedisZoomAreaRequestedIntegrationEvent {
+func NewRedisZoomAreaRequestedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) RedisZoomAreaRequestedIntegrationEvent {
 	return RedisZoomAreaRequestedIntegrationEvent{
 		LiveGameId: presenterdto.NewLiveGameIdPresenterDto(liveGameId),
 		PlayerId:   presenterdto.NewPlayerIdPresenterDto(playerId),
-		Area:       areaPresenterDto,
+		Area:       presenterdto.NewAreaPresenterDto(area),
 	}
 }
 

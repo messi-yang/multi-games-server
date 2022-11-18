@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
 )
 
@@ -133,21 +134,30 @@ func (presenter *GameHandlerPresenter) CreateRedisAreaZoomedEvent(area presenter
 	}
 }
 
-func (presenter *GameHandlerPresenter) ExtractRedisReviveUnitsRequestedEvent(msg []byte) ([]presenterdto.CoordinatePresenterDto, error) {
+func (presenter *GameHandlerPresenter) ExtractRedisReviveUnitsRequestedEvent(msg []byte) ([]gamecommonmodel.Coordinate, error) {
 	var action RedisReviveUnitsRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return nil, err
 	}
-	return action.Payload.Coordinates, nil
+	coordinates, err := presenterdto.ParseCoordinatePresenterDtos(action.Payload.Coordinates)
+	if err != nil {
+		return nil, err
+	}
+
+	return coordinates, nil
 }
 
-func (presenter *GameHandlerPresenter) ExtractRedisZoomAreaRequestedEvent(msg []byte) (presenterdto.AreaPresenterDto, error) {
+func (presenter *GameHandlerPresenter) ExtractRedisZoomAreaRequestedEvent(msg []byte) (gamecommonmodel.Area, error) {
 	var action RedisZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
-		return presenterdto.AreaPresenterDto{}, err
+		return gamecommonmodel.Area{}, err
+	}
+	area, err := action.Payload.Area.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.Area{}, err
 	}
 
-	return action.Payload.Area, nil
+	return area, nil
 }

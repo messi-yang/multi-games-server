@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redis"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
 )
 
 type GameIntegrationEventHandlerConfiguration struct {
@@ -20,7 +21,11 @@ func NewGameIntegrationEventHandler(
 		if err != nil {
 			return
 		}
-		configuration.LiveGameApplicationService.ReviveUnitsInLiveGame(liveGameId, event.Coordinates)
+		coordinates, err := presenterdto.ParseCoordinatePresenterDtos(event.Coordinates)
+		if err != nil {
+			return
+		}
+		configuration.LiveGameApplicationService.ReviveUnitsInLiveGame(liveGameId, coordinates)
 	})
 	defer redisReviveUnitsRequestedListenerUnsubscriber()
 
@@ -63,7 +68,11 @@ func NewGameIntegrationEventHandler(
 		if err != nil {
 			return
 		}
-		configuration.LiveGameApplicationService.AddZoomedAreaToLiveGame(liveGameId, playerId, event.Area)
+		area, err := event.Area.ToValueObject()
+		if err != nil {
+			return
+		}
+		configuration.LiveGameApplicationService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
 	})
 	defer redisZoomAreaRequestedListenerUnsubscriber()
 

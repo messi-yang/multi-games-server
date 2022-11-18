@@ -16,11 +16,11 @@ type RedisGameInfoUpdatedIntegrationEvent struct {
 	Dimension  presenterdto.DimensionPresenterDto  `json:"dimension"`
 }
 
-func NewRedisGameInfoUpdatedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimensionPresenterDto presenterdto.DimensionPresenterDto) RedisGameInfoUpdatedIntegrationEvent {
+func NewRedisGameInfoUpdatedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimension gamecommonmodel.Dimension) RedisGameInfoUpdatedIntegrationEvent {
 	return RedisGameInfoUpdatedIntegrationEvent{
 		LiveGameId: presenterdto.NewLiveGameIdPresenterDto(liveGameId),
 		PlayerId:   presenterdto.NewPlayerIdPresenterDto(playerId),
-		Dimension:  dimensionPresenterDto,
+		Dimension:  presenterdto.NewDimensionPresenterDto(dimension),
 	}
 }
 

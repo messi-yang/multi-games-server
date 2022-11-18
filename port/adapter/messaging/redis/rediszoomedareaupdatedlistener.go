@@ -17,12 +17,12 @@ type RedisZoomedAreaUpdatedIntegrationEvent struct {
 	UnitBlock  presenterdto.UnitBlockPresenterDto  `json:"unitBlock"`
 }
 
-func NewRedisZoomedAreaUpdatedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area presenterdto.AreaPresenterDto, unitBlock presenterdto.UnitBlockPresenterDto) RedisZoomedAreaUpdatedIntegrationEvent {
+func NewRedisZoomedAreaUpdatedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) RedisZoomedAreaUpdatedIntegrationEvent {
 	return RedisZoomedAreaUpdatedIntegrationEvent{
 		LiveGameId: presenterdto.NewLiveGameIdPresenterDto(liveGameId),
 		PlayerId:   presenterdto.NewPlayerIdPresenterDto(playerId),
-		Area:       area,
-		UnitBlock:  unitBlock,
+		Area:       presenterdto.NewAreaPresenterDto(area),
+		UnitBlock:  presenterdto.NewUnitBlockPresenterDto(unitBlock),
 	}
 }
 

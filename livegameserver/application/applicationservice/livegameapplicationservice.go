@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/livegameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
 )
 
 type LiveGameApplicationService struct {
@@ -62,12 +61,7 @@ func (grs *LiveGameApplicationService) CreateLiveGame(gameId gamemodel.GameId) (
 	return liveGameId, nil
 }
 
-func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinatePresenterDtos []presenterdto.CoordinatePresenterDto) error {
-	coordinates, err := presenterdto.ParseCoordinatePresenterDtos(coordinatePresenterDtos)
-	if err != nil {
-		return err
-	}
-
+func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) error {
 	updatedGame, err := grs.liveGameService.ReviveUnitsInLiveGame(liveGameId, coordinates)
 	if err != nil {
 		return err
@@ -86,7 +80,7 @@ func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegame
 			rediseventbus.WithRedisInfrastructureService[redis.RedisZoomedAreaUpdatedIntegrationEvent](),
 		).Publish(
 			redis.RedisZoomedAreaUpdatedListenerChannel(updatedGame.GetId(), playerId),
-			redis.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, presenterdto.NewAreaPresenterDto(area), presenterdto.NewUnitBlockPresenterDto(unitBlock)),
+			redis.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, area, unitBlock),
 		)
 	}
 	return nil
@@ -97,13 +91,12 @@ func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemo
 	if err != nil {
 		return err
 	}
-	dimensionPresenterDto := presenterdto.NewDimensionPresenterDto(updatedGame.GetDimension())
 
 	rediseventbus.NewRedisIntegrationEventBus(
 		rediseventbus.WithRedisInfrastructureService[redis.RedisGameInfoUpdatedIntegrationEvent](),
 	).Publish(
 		redis.RedisGameInfoUpdatedListenerChannel(liveGameId, playerId),
-		redis.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, dimensionPresenterDto),
+		redis.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, updatedGame.GetDimension()),
 	)
 
 	return nil
@@ -118,12 +111,7 @@ func (grs *LiveGameApplicationService) RemovePlayerFromLiveGame(liveGameId liveg
 	return nil
 }
 
-func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, areaPresenterDto presenterdto.AreaPresenterDto) error {
-	area, err := areaPresenterDto.ToValueObject()
-	if err != nil {
-		return err
-	}
-
+func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) error {
 	updatedGame, err := grs.liveGameService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
 	if err != nil {
 		return err
@@ -134,13 +122,11 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livega
 		return err
 	}
 
-	unitBlockPresenterDto := presenterdto.NewUnitBlockPresenterDto(unitBlock)
-
 	rediseventbus.NewRedisIntegrationEventBus(
 		rediseventbus.WithRedisInfrastructureService[redis.RedisAreaZoomedIntegrationEvent](),
 	).Publish(
 		redis.RedisAreaZoomedListenerChannel(liveGameId, playerId),
-		redis.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, areaPresenterDto, unitBlockPresenterDto),
+		redis.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, area, unitBlock),
 	)
 
 	return nil
