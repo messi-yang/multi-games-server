@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -31,14 +31,14 @@ func RedisAreaZoomedListenerChannel(liveGameId livegamemodel.LiveGameId, playerI
 }
 
 type RedisAreaZoomedListener struct {
-	redisInfrastructureService *service.RedisInfrastructureService
+	redisMessageSubscriber *commonredis.RedisMessageSubscriber
 }
 
 type redisRedisAreaZoomedListenerConfiguration func(listener *RedisAreaZoomedListener) error
 
 func NewRedisAreaZoomedListener(cfgs ...redisRedisAreaZoomedListenerConfiguration) (*RedisAreaZoomedListener, error) {
 	t := &RedisAreaZoomedListener{
-		redisInfrastructureService: service.NewRedisInfrastructureService(),
+		redisMessageSubscriber: commonredis.NewRedisMessageSubscriber(),
 	}
 	for _, cfg := range cfgs {
 		err := cfg(t)
@@ -50,7 +50,7 @@ func NewRedisAreaZoomedListener(cfgs ...redisRedisAreaZoomedListenerConfiguratio
 }
 
 func (listener *RedisAreaZoomedListener) Subscribe(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, subscriber func(RedisAreaZoomedIntegrationEvent)) func() {
-	unsubscriber := listener.redisInfrastructureService.Subscribe(RedisAreaZoomedListenerChannel(liveGameId, playerId), func(message []byte) {
+	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisAreaZoomedListenerChannel(liveGameId, playerId), func(message []byte) {
 		var event RedisAreaZoomedIntegrationEvent
 		json.Unmarshal(message, &event)
 		subscriber(event)

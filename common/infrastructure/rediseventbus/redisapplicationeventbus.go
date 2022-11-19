@@ -31,15 +31,3 @@ func (gue *redisIntegrationEventBus[T]) Publish(topic string, event T) {
 	jsonBytes, _ := json.Marshal(event)
 	gue.redisInfrastructureService.Publish(topic, jsonBytes)
 }
-
-func (gue *redisIntegrationEventBus[T]) Subscribe(topic string, callback func(event T)) (unsubscriber func()) {
-	redisUnsubscriber := gue.redisInfrastructureService.Subscribe(topic, func(event []byte) {
-		var targetEvent T
-		json.Unmarshal(event, &targetEvent)
-		callback(targetEvent)
-	})
-
-	return func() {
-		redisUnsubscriber()
-	}
-}

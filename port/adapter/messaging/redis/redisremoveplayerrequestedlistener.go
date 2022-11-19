@@ -3,7 +3,7 @@ package redis
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -24,14 +24,14 @@ func NewRedisRemovePlayerRequestedIntegrationEvent(liveGameId livegamemodel.Live
 var RedisRemovePlayerRequestedListenerChannel string = "remove-player-requested"
 
 type RedisRemovePlayerRequestedListener struct {
-	redisInfrastructureService *service.RedisInfrastructureService
+	redisMessageSubscriber *commonredis.RedisMessageSubscriber
 }
 
 type redisRedisRemovePlayerRequestedListenerConfiguration func(listener *RedisRemovePlayerRequestedListener) error
 
 func NewRedisRemovePlayerRequestedListener(cfgs ...redisRedisRemovePlayerRequestedListenerConfiguration) (*RedisRemovePlayerRequestedListener, error) {
 	t := &RedisRemovePlayerRequestedListener{
-		redisInfrastructureService: service.NewRedisInfrastructureService(),
+		redisMessageSubscriber: commonredis.NewRedisMessageSubscriber(),
 	}
 	for _, cfg := range cfgs {
 		err := cfg(t)
@@ -43,7 +43,7 @@ func NewRedisRemovePlayerRequestedListener(cfgs ...redisRedisRemovePlayerRequest
 }
 
 func (listener *RedisRemovePlayerRequestedListener) Subscribe(subscriber func(RedisRemovePlayerRequestedIntegrationEvent)) func() {
-	unsubscriber := listener.redisInfrastructureService.Subscribe(RedisRemovePlayerRequestedListenerChannel, func(message []byte) {
+	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisRemovePlayerRequestedListenerChannel, func(message []byte) {
 		var event RedisRemovePlayerRequestedIntegrationEvent
 		json.Unmarshal(message, &event)
 		subscriber(event)

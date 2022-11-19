@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -31,14 +31,14 @@ func RedisZoomedAreaUpdatedListenerChannel(liveGameId livegamemodel.LiveGameId, 
 }
 
 type RedisZoomedAreaUpdatedListener struct {
-	redisInfrastructureService *service.RedisInfrastructureService
+	redisMessageSubscriber *commonredis.RedisMessageSubscriber
 }
 
 type redisRedisZoomedAreaUpdatedListenerConfiguration func(listener *RedisZoomedAreaUpdatedListener) error
 
 func NewRedisZoomedAreaUpdatedListener(cfgs ...redisRedisZoomedAreaUpdatedListenerConfiguration) (*RedisZoomedAreaUpdatedListener, error) {
 	t := &RedisZoomedAreaUpdatedListener{
-		redisInfrastructureService: service.NewRedisInfrastructureService(),
+		redisMessageSubscriber: commonredis.NewRedisMessageSubscriber(),
 	}
 	for _, cfg := range cfgs {
 		err := cfg(t)
@@ -50,7 +50,7 @@ func NewRedisZoomedAreaUpdatedListener(cfgs ...redisRedisZoomedAreaUpdatedListen
 }
 
 func (listener *RedisZoomedAreaUpdatedListener) Subscribe(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, subscriber func(RedisZoomedAreaUpdatedIntegrationEvent)) func() {
-	unsubscriber := listener.redisInfrastructureService.Subscribe(RedisZoomedAreaUpdatedListenerChannel(liveGameId, playerId), func(message []byte) {
+	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisZoomedAreaUpdatedListenerChannel(liveGameId, playerId), func(message []byte) {
 		var redisZoomedAreaUpdatedIntegrationEvent RedisZoomedAreaUpdatedIntegrationEvent
 		json.Unmarshal(message, &redisZoomedAreaUpdatedIntegrationEvent)
 		subscriber(redisZoomedAreaUpdatedIntegrationEvent)

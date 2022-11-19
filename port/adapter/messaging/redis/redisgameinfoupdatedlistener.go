@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -29,14 +29,14 @@ func RedisGameInfoUpdatedListenerChannel(liveGameId livegamemodel.LiveGameId, pl
 }
 
 type RedisGameInfoUpdatedListener struct {
-	redisInfrastructureService *service.RedisInfrastructureService
+	redisMessageSubscriber *commonredis.RedisMessageSubscriber
 }
 
 type redisRedisGameInfoUpdatedListenerConfiguration func(listener *RedisGameInfoUpdatedListener) error
 
 func NewRedisGameInfoUpdatedListener(cfgs ...redisRedisGameInfoUpdatedListenerConfiguration) (*RedisGameInfoUpdatedListener, error) {
 	t := &RedisGameInfoUpdatedListener{
-		redisInfrastructureService: service.NewRedisInfrastructureService(),
+		redisMessageSubscriber: commonredis.NewRedisMessageSubscriber(),
 	}
 	for _, cfg := range cfgs {
 		err := cfg(t)
@@ -48,7 +48,7 @@ func NewRedisGameInfoUpdatedListener(cfgs ...redisRedisGameInfoUpdatedListenerCo
 }
 
 func (listener *RedisGameInfoUpdatedListener) Subscribe(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, subscriber func(RedisGameInfoUpdatedIntegrationEvent)) func() {
-	unsubscriber := listener.redisInfrastructureService.Subscribe(RedisGameInfoUpdatedListenerChannel(liveGameId, playerId), func(message []byte) {
+	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisGameInfoUpdatedListenerChannel(liveGameId, playerId), func(message []byte) {
 		var event RedisGameInfoUpdatedIntegrationEvent
 		json.Unmarshal(message, &event)
 		subscriber(event)

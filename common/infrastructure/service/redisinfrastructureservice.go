@@ -22,19 +22,6 @@ func NewRedisInfrastructureService() *RedisInfrastructureService {
 	return RedisInfrastructureServiceInstance
 }
 
-func (service *RedisInfrastructureService) Subscribe(channel string, handler func(message []byte)) (unsubscriber func()) {
-	pubsub := service.redisClient.Subscribe(context.TODO(), channel)
-	go func() {
-		for msg := range pubsub.Channel() {
-			handler([]byte(msg.Payload))
-		}
-	}()
-
-	return func() {
-		pubsub.Close()
-	}
-}
-
 func (service *RedisInfrastructureService) Publish(channel string, message []byte) error {
 	err := service.redisClient.Publish(context.TODO(), channel, message).Err()
 	if err != nil {
