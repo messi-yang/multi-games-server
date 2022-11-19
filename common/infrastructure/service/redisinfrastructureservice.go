@@ -42,21 +42,3 @@ func (service *RedisInfrastructureService) Publish(channel string, message []byt
 	}
 	return nil
 }
-
-func (service *RedisInfrastructureService) Set(key string, value []byte) error {
-	err := service.redisClient.Set(context.TODO(), key, value, 0).Err()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (service *RedisInfrastructureService) Get(key string) (value []byte, err error) {
-	val, err := service.redisClient.Get(context.TODO(), key).Result()
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return []byte(val), nil
-}
