@@ -1,7 +1,7 @@
 package applicationservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/rediseventbus"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/redisnotification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
@@ -76,9 +76,7 @@ func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegame
 		if err != nil {
 			continue
 		}
-		rediseventbus.NewRedisIntegrationEventBus(
-			rediseventbus.WithRedisInfrastructureService[redis.RedisZoomedAreaUpdatedIntegrationEvent](),
-		).Publish(
+		redisnotification.NewRedisNotificationPublisher().Publish(
 			redis.RedisZoomedAreaUpdatedListenerChannel(updatedGame.GetId(), playerId),
 			redis.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, area, unitBlock),
 		)
@@ -92,9 +90,7 @@ func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemo
 		return err
 	}
 
-	rediseventbus.NewRedisIntegrationEventBus(
-		rediseventbus.WithRedisInfrastructureService[redis.RedisGameInfoUpdatedIntegrationEvent](),
-	).Publish(
+	redisnotification.NewRedisNotificationPublisher().Publish(
 		redis.RedisGameInfoUpdatedListenerChannel(liveGameId, playerId),
 		redis.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, updatedGame.GetDimension()),
 	)
@@ -122,9 +118,7 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livega
 		return err
 	}
 
-	rediseventbus.NewRedisIntegrationEventBus(
-		rediseventbus.WithRedisInfrastructureService[redis.RedisAreaZoomedIntegrationEvent](),
-	).Publish(
+	redisnotification.NewRedisNotificationPublisher().Publish(
 		redis.RedisAreaZoomedListenerChannel(liveGameId, playerId),
 		redis.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, area, unitBlock),
 	)
