@@ -2,13 +2,13 @@ package applicationservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/livegameservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redissubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/notification/redis"
 )
 
 type LiveGameApplicationService struct {
@@ -52,7 +52,7 @@ func WithGameService() liveGameApplicationServiceConfiguration {
 
 func WithRedisNotificationPublisher() liveGameApplicationServiceConfiguration {
 	return func(liveGameApplicationService *LiveGameApplicationService) error {
-		liveGameApplicationService.notificationPublisher = commonredisnotification.NewRedisNotificationPublisher()
+		liveGameApplicationService.notificationPublisher = commonredis.NewRedisNotificationPublisher()
 		return nil
 	}
 }
@@ -86,8 +86,8 @@ func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegame
 			continue
 		}
 		grs.notificationPublisher.Publish(
-			redissubscriber.RedisZoomedAreaUpdatedSubscriberChannel(updatedGame.GetId(), playerId),
-			redissubscriber.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, area, unitBlock),
+			redis.RedisZoomedAreaUpdatedSubscriberChannel(updatedGame.GetId(), playerId),
+			redis.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, area, unitBlock),
 		)
 	}
 	return nil
@@ -100,8 +100,8 @@ func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemo
 	}
 
 	grs.notificationPublisher.Publish(
-		redissubscriber.RedisGameInfoUpdatedSubscriberChannel(liveGameId, playerId),
-		redissubscriber.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, updatedGame.GetDimension()),
+		redis.RedisGameInfoUpdatedSubscriberChannel(liveGameId, playerId),
+		redis.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, updatedGame.GetDimension()),
 	)
 
 	return nil
@@ -128,8 +128,8 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livega
 	}
 
 	grs.notificationPublisher.Publish(
-		redissubscriber.RedisAreaZoomedSubscriberChannel(liveGameId, playerId),
-		redissubscriber.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, area, unitBlock),
+		redis.RedisAreaZoomedSubscriberChannel(liveGameId, playerId),
+		redis.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, area, unitBlock),
 	)
 
 	return nil

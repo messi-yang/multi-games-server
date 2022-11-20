@@ -1,4 +1,4 @@
-package commonredisnotification
+package redis
 
 import (
 	"context"

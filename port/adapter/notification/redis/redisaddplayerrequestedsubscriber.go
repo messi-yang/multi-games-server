@@ -1,10 +1,10 @@
-package redissubscriber
+package redis
 
 import (
 	"encoding/json"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -25,12 +25,12 @@ func NewRedisAddPlayerRequestedIntegrationEvent(liveGameId livegamemodel.LiveGam
 var RedisAddPlayerRequestedSubscriberChannel string = "add-player-requested"
 
 type RedisAddPlayerRequestedSubscriber struct {
-	redisProvider *commonredisnotification.RedisProvider
+	redisProvider *commonredis.RedisProvider
 }
 
 func NewRedisAddPlayerRequestedSubscriber() (notification.NotificationSubscriber[RedisAddPlayerRequestedIntegrationEvent], error) {
 	return &RedisAddPlayerRequestedSubscriber{
-		redisProvider: commonredisnotification.NewRedisProvider(),
+		redisProvider: commonredis.NewRedisProvider(),
 	}, nil
 }
 

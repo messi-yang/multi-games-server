@@ -1,11 +1,11 @@
-package redissubscriber
+package redis
 
 import (
 	"encoding/json"
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -34,14 +34,14 @@ func RedisZoomedAreaUpdatedSubscriberChannel(liveGameId livegamemodel.LiveGameId
 type RedisZoomedAreaUpdatedSubscriber struct {
 	liveGameId    livegamemodel.LiveGameId
 	playerId      gamecommonmodel.PlayerId
-	redisProvider *commonredisnotification.RedisProvider
+	redisProvider *commonredis.RedisProvider
 }
 
 func NewRedisZoomedAreaUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (notification.NotificationSubscriber[RedisZoomedAreaUpdatedIntegrationEvent], error) {
 	return &RedisZoomedAreaUpdatedSubscriber{
 		liveGameId:    liveGameId,
 		playerId:      playerId,
-		redisProvider: commonredisnotification.NewRedisProvider(),
+		redisProvider: commonredis.NewRedisProvider(),
 	}, nil
 }
 

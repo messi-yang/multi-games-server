@@ -1,7 +1,7 @@
 package mainserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/mainserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/mainserver/interface/http/gamehandler"
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ func Start() {
 
 	router.Group("/ws/game").GET("/", gamehandler.NewHandler(gamehandler.HandlerConfiguration{
 		GameApplicationService: gameApplicationService,
-		NotificationPublisher:  commonredisnotification.NewRedisNotificationPublisher(),
+		NotificationPublisher:  commonredis.NewRedisNotificationPublisher(),
 	}))
 
 	router.Run()
