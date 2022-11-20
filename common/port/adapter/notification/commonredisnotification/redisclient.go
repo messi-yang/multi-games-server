@@ -1,4 +1,4 @@
-package redisclient
+package commonredisnotification
 
 import (
 	"os"

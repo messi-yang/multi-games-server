@@ -1,21 +1,18 @@
 package commonredisnotification
 
 import (
-	"context"
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
-	"github.com/go-redis/redis/v9"
 )
 
 type RedisNotificationPublisher struct {
-	redisClient *redis.Client
+	redisProvider *RedisProvider
 }
 
 func NewRedisNotificationPublisher() notification.NotificationPublisher {
 	return &RedisNotificationPublisher{
-		redisClient: redisclient.NewRedisClient(),
+		redisProvider: NewRedisProvider(),
 	}
 }
 
@@ -25,7 +22,7 @@ func (publisher *RedisNotificationPublisher) Publish(channel string, jsonMessage
 		return err
 	}
 
-	err = publisher.redisClient.Publish(context.TODO(), channel, message).Err()
+	err = publisher.redisProvider.Publish(channel, message)
 	if err != nil {
 		return err
 	}

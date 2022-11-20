@@ -3,7 +3,8 @@ package redissubscriber
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredissubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -24,19 +25,17 @@ func NewRedisAddPlayerRequestedIntegrationEvent(liveGameId livegamemodel.LiveGam
 var RedisAddPlayerRequestedSubscriberChannel string = "add-player-requested"
 
 type RedisAddPlayerRequestedSubscriber struct {
-	redisMessageSubscriber *commonredissubscriber.RedisMessageSubscriber
+	redisProvider *commonredisnotification.RedisProvider
 }
 
-type redisRedisAddPlayerRequestedSubscriberConfiguration func(subscriber *RedisAddPlayerRequestedSubscriber) error
-
-func NewRedisAddPlayerRequestedSubscriber(cfgs ...redisRedisAddPlayerRequestedSubscriberConfiguration) (commonredissubscriber.RedisSubscriber[RedisAddPlayerRequestedIntegrationEvent], error) {
+func NewRedisAddPlayerRequestedSubscriber() (notification.NotificationSubscriber[RedisAddPlayerRequestedIntegrationEvent], error) {
 	return &RedisAddPlayerRequestedSubscriber{
-		redisMessageSubscriber: commonredissubscriber.NewRedisMessageSubscriber(),
+		redisProvider: commonredisnotification.NewRedisProvider(),
 	}, nil
 }
 
 func (subscriber *RedisAddPlayerRequestedSubscriber) Subscribe(handler func(RedisAddPlayerRequestedIntegrationEvent)) func() {
-	unsubscriber := subscriber.redisMessageSubscriber.Subscribe(RedisAddPlayerRequestedSubscriberChannel, func(message []byte) {
+	unsubscriber := subscriber.redisProvider.Subscribe(RedisAddPlayerRequestedSubscriberChannel, func(message []byte) {
 		var event RedisAddPlayerRequestedIntegrationEvent
 		json.Unmarshal(message, &event)
 		handler(event)

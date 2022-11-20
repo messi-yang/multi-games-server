@@ -3,7 +3,8 @@ package redissubscriber
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredissubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -26,17 +27,17 @@ func NewRedisZoomAreaRequestedIntegrationEvent(liveGameId livegamemodel.LiveGame
 var RedisZoomAreaRequestedSubscriberChannel string = "zoom-area-requested"
 
 type RedisZoomAreaRequestedSubscriber struct {
-	redisMessageSubscriber *commonredissubscriber.RedisMessageSubscriber
+	redisProvider *commonredisnotification.RedisProvider
 }
 
-func NewRedisZoomAreaRequestedSubscriber() (commonredissubscriber.RedisSubscriber[RedisZoomAreaRequestedIntegrationEvent], error) {
+func NewRedisZoomAreaRequestedSubscriber() (notification.NotificationSubscriber[RedisZoomAreaRequestedIntegrationEvent], error) {
 	return &RedisZoomAreaRequestedSubscriber{
-		redisMessageSubscriber: commonredissubscriber.NewRedisMessageSubscriber(),
+		redisProvider: commonredisnotification.NewRedisProvider(),
 	}, nil
 }
 
 func (subscriber *RedisZoomAreaRequestedSubscriber) Subscribe(handler func(RedisZoomAreaRequestedIntegrationEvent)) func() {
-	unsubscriber := subscriber.redisMessageSubscriber.Subscribe(RedisZoomAreaRequestedSubscriberChannel, func(message []byte) {
+	unsubscriber := subscriber.redisProvider.Subscribe(RedisZoomAreaRequestedSubscriberChannel, func(message []byte) {
 		var event RedisZoomAreaRequestedIntegrationEvent
 		json.Unmarshal(message, &event)
 		handler(event)

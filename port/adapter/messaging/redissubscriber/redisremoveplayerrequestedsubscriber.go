@@ -3,7 +3,8 @@ package redissubscriber
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredissubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -24,17 +25,17 @@ func NewRedisRemovePlayerRequestedIntegrationEvent(liveGameId livegamemodel.Live
 var RedisRemovePlayerRequestedSubscriberChannel string = "remove-player-requested"
 
 type RedisRemovePlayerRequestedSubscriber struct {
-	redisMessageSubscriber *commonredissubscriber.RedisMessageSubscriber
+	redisProvider *commonredisnotification.RedisProvider
 }
 
-func NewRedisRemovePlayerRequestedSubscriber() (commonredissubscriber.RedisSubscriber[RedisRemovePlayerRequestedIntegrationEvent], error) {
+func NewRedisRemovePlayerRequestedSubscriber() (notification.NotificationSubscriber[RedisRemovePlayerRequestedIntegrationEvent], error) {
 	return &RedisRemovePlayerRequestedSubscriber{
-		redisMessageSubscriber: commonredissubscriber.NewRedisMessageSubscriber(),
+		redisProvider: commonredisnotification.NewRedisProvider(),
 	}, nil
 }
 
 func (subscriber *RedisRemovePlayerRequestedSubscriber) Subscribe(handler func(RedisRemovePlayerRequestedIntegrationEvent)) func() {
-	unsubscriber := subscriber.redisMessageSubscriber.Subscribe(RedisRemovePlayerRequestedSubscriberChannel, func(message []byte) {
+	unsubscriber := subscriber.redisProvider.Subscribe(RedisRemovePlayerRequestedSubscriberChannel, func(message []byte) {
 		var event RedisRemovePlayerRequestedIntegrationEvent
 		json.Unmarshal(message, &event)
 		handler(event)

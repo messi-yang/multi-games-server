@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredissubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -31,21 +32,21 @@ func RedisAreaZoomedSubscriberChannel(liveGameId livegamemodel.LiveGameId, playe
 }
 
 type RedisAreaZoomedSubscriber struct {
-	liveGameId             livegamemodel.LiveGameId
-	playerId               gamecommonmodel.PlayerId
-	redisMessageSubscriber *commonredissubscriber.RedisMessageSubscriber
+	liveGameId    livegamemodel.LiveGameId
+	playerId      gamecommonmodel.PlayerId
+	redisProvider *commonredisnotification.RedisProvider
 }
 
-func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonredissubscriber.RedisSubscriber[RedisAreaZoomedIntegrationEvent], error) {
+func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (notification.NotificationSubscriber[RedisAreaZoomedIntegrationEvent], error) {
 	return &RedisAreaZoomedSubscriber{
-		liveGameId:             liveGameId,
-		playerId:               playerId,
-		redisMessageSubscriber: commonredissubscriber.NewRedisMessageSubscriber(),
+		liveGameId:    liveGameId,
+		playerId:      playerId,
+		redisProvider: commonredisnotification.NewRedisProvider(),
 	}, nil
 }
 
 func (subscriber *RedisAreaZoomedSubscriber) Subscribe(handler func(RedisAreaZoomedIntegrationEvent)) func() {
-	unsubscriber := subscriber.redisMessageSubscriber.Subscribe(RedisAreaZoomedSubscriberChannel(subscriber.liveGameId, subscriber.playerId), func(message []byte) {
+	unsubscriber := subscriber.redisProvider.Subscribe(RedisAreaZoomedSubscriberChannel(subscriber.liveGameId, subscriber.playerId), func(message []byte) {
 		var event RedisAreaZoomedIntegrationEvent
 		json.Unmarshal(message, &event)
 		handler(event)
