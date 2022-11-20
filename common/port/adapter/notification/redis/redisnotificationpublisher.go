@@ -16,8 +16,8 @@ func NewRedisNotificationPublisher() notification.NotificationPublisher {
 	}
 }
 
-func (publisher *RedisNotificationPublisher) Publish(channel string, jsonMessage any) error {
-	message, err := json.Marshal(jsonMessage)
+func (publisher *RedisNotificationPublisher) Publish(channel string, event any) error {
+	message, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}

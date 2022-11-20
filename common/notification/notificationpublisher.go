@@ -1,5 +1,5 @@
 package notification
 
 type NotificationPublisher interface {
-	Publish(channel string, jsonMessage any) error
+	Publish(channel string, event any) error
 }
