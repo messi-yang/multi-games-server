@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/infrastructure/postgresclient"
+	commonpostgres "github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/persistence/postgres"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/persistence/postgres/postgresdto"
 	"gorm.io/gorm"
@@ -26,7 +26,7 @@ func NewPostgresGameRepository(cfgs ...postgresGameRepositoryConfiguration) (gam
 
 func WithPostgresClient() postgresGameRepositoryConfiguration {
 	return func(repository *postgresGameRepository) error {
-		postgresClient, err := postgresclient.NewPostgresClient()
+		postgresClient, err := commonpostgres.NewPostgresClient()
 		if err != nil {
 			return err
 		}
