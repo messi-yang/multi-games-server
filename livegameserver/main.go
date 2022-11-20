@@ -12,6 +12,7 @@ func Start() {
 	liveGameApplicationService, _ := applicationservice.NewLiveGameApplicationService(
 		applicationservice.WithLiveGameService(),
 		applicationservice.WithGameService(),
+		applicationservice.WithRedisNotificationPublisher(),
 	)
 
 	gameService, _ := gameservice.NewGameService(

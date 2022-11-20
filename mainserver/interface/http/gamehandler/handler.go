@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/application/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/notification/commonredisnotification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/mainserver/application/applicationservice"
@@ -33,6 +33,7 @@ var wsupgrader = websocket.Upgrader{
 
 type HandlerConfiguration struct {
 	GameApplicationService *applicationservice.GameApplicationService
+	NotificationPublisher  notification.NotificationPublisher
 }
 
 func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
@@ -76,7 +77,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		})
 		defer redisZoomedAreaUpdatedSubscriberUnsubscriber()
 
-		commonredisnotification.NewRedisNotificationPublisher().Publish(
+		configuration.NotificationPublisher.Publish(
 			redissubscriber.RedisAddPlayerRequestedSubscriberChannel,
 			redissubscriber.NewRedisAddPlayerRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId),
 		)
@@ -108,9 +109,27 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 
 				switch eventType {
 				case RedisZoomAreaRequestedEventType:
-					handleRedisZoomAreaRequestedEvent(conn, clientSession, message)
+					area, err := gameHandlerPresenter.ExtractRedisZoomAreaRequestedEvent(message)
+					if err != nil {
+						emitErrorEvent(conn, clientSession, err)
+						return
+					}
+
+					configuration.NotificationPublisher.Publish(
+						redissubscriber.RedisZoomAreaRequestedSubscriberChannel,
+						redissubscriber.NewRedisZoomAreaRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId, area),
+					)
 				case RedisReviveUnitsRequestedEventType:
-					handleRedisReviveUnitsRequestedEvent(conn, clientSession, message)
+					coordinatePresenters, err := gameHandlerPresenter.ExtractRedisReviveUnitsRequestedEvent(message)
+					if err != nil {
+						emitErrorEvent(conn, clientSession, err)
+						return
+					}
+
+					configuration.NotificationPublisher.Publish(
+						redissubscriber.RedisReviveUnitsRequestedSubscriberChannel,
+						redissubscriber.NewRedisReviveUnitsRequestedIntegrationEvent(clientSession.liveGameId, coordinatePresenters),
+					)
 				default:
 				}
 			}
@@ -119,7 +138,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		for {
 			<-closeConnFlag
 
-			commonredisnotification.NewRedisNotificationPublisher().Publish(
+			configuration.NotificationPublisher.Publish(
 				redissubscriber.RedisRemovePlayerRequestedSubscriberChannel,
 				redissubscriber.NewRedisRemovePlayerRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId),
 			)
@@ -160,30 +179,4 @@ func handleRedisAreaZoomedEvent(conn *websocket.Conn, clientSession *clientSessi
 
 func handleRedisZoomedAreaUpdatedEvent(conn *websocket.Conn, clientSession *clientSession, event redissubscriber.RedisZoomedAreaUpdatedIntegrationEvent) {
 	sendJSONMessageToClient(conn, clientSession, gameHandlerPresenter.CreateRedisZoomedAreaUpdatedEvent(event.Area, event.UnitBlock))
-}
-
-func handleRedisZoomAreaRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	area, err := gameHandlerPresenter.ExtractRedisZoomAreaRequestedEvent(event)
-	if err != nil {
-		emitErrorEvent(conn, clientSession, err)
-		return
-	}
-
-	commonredisnotification.NewRedisNotificationPublisher().Publish(
-		redissubscriber.RedisZoomAreaRequestedSubscriberChannel,
-		redissubscriber.NewRedisZoomAreaRequestedIntegrationEvent(clientSession.liveGameId, clientSession.playerId, area),
-	)
-}
-
-func handleRedisReviveUnitsRequestedEvent(conn *websocket.Conn, clientSession *clientSession, event []byte) {
-	coordinatePresenters, err := gameHandlerPresenter.ExtractRedisReviveUnitsRequestedEvent(event)
-	if err != nil {
-		emitErrorEvent(conn, clientSession, err)
-		return
-	}
-
-	commonredisnotification.NewRedisNotificationPublisher().Publish(
-		redissubscriber.RedisReviveUnitsRequestedSubscriberChannel,
-		redissubscriber.NewRedisReviveUnitsRequestedIntegrationEvent(clientSession.liveGameId, coordinatePresenters),
-	)
 }
