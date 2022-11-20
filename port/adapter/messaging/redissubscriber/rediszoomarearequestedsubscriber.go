@@ -1,9 +1,9 @@
-package redislistener
+package redissubscriber
 
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredislistener"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredissubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -23,23 +23,23 @@ func NewRedisZoomAreaRequestedIntegrationEvent(liveGameId livegamemodel.LiveGame
 	}
 }
 
-var RedisZoomAreaRequestedListenerChannel string = "zoom-area-requested"
+var RedisZoomAreaRequestedSubscriberChannel string = "zoom-area-requested"
 
-type RedisZoomAreaRequestedListener struct {
-	redisMessageSubscriber *commonredislistener.RedisMessageSubscriber
+type RedisZoomAreaRequestedSubscriber struct {
+	redisMessageSubscriber *commonredissubscriber.RedisMessageSubscriber
 }
 
-func NewRedisZoomAreaRequestedListener() (commonredislistener.RedisListener[RedisZoomAreaRequestedIntegrationEvent], error) {
-	return &RedisZoomAreaRequestedListener{
-		redisMessageSubscriber: commonredislistener.NewRedisMessageSubscriber(),
+func NewRedisZoomAreaRequestedSubscriber() (commonredissubscriber.RedisSubscriber[RedisZoomAreaRequestedIntegrationEvent], error) {
+	return &RedisZoomAreaRequestedSubscriber{
+		redisMessageSubscriber: commonredissubscriber.NewRedisMessageSubscriber(),
 	}, nil
 }
 
-func (listener *RedisZoomAreaRequestedListener) Subscribe(subscriber func(RedisZoomAreaRequestedIntegrationEvent)) func() {
-	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisZoomAreaRequestedListenerChannel, func(message []byte) {
+func (subscriber *RedisZoomAreaRequestedSubscriber) Subscribe(handler func(RedisZoomAreaRequestedIntegrationEvent)) func() {
+	unsubscriber := subscriber.redisMessageSubscriber.Subscribe(RedisZoomAreaRequestedSubscriberChannel, func(message []byte) {
 		var event RedisZoomAreaRequestedIntegrationEvent
 		json.Unmarshal(message, &event)
-		subscriber(event)
+		handler(event)
 	})
 
 	return func() {

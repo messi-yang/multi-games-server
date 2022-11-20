@@ -1,9 +1,9 @@
-package redislistener
+package redissubscriber
 
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredislistener"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredissubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -21,23 +21,23 @@ func NewRedisRemovePlayerRequestedIntegrationEvent(liveGameId livegamemodel.Live
 	}
 }
 
-var RedisRemovePlayerRequestedListenerChannel string = "remove-player-requested"
+var RedisRemovePlayerRequestedSubscriberChannel string = "remove-player-requested"
 
-type RedisRemovePlayerRequestedListener struct {
-	redisMessageSubscriber *commonredislistener.RedisMessageSubscriber
+type RedisRemovePlayerRequestedSubscriber struct {
+	redisMessageSubscriber *commonredissubscriber.RedisMessageSubscriber
 }
 
-func NewRedisRemovePlayerRequestedListener() (commonredislistener.RedisListener[RedisRemovePlayerRequestedIntegrationEvent], error) {
-	return &RedisRemovePlayerRequestedListener{
-		redisMessageSubscriber: commonredislistener.NewRedisMessageSubscriber(),
+func NewRedisRemovePlayerRequestedSubscriber() (commonredissubscriber.RedisSubscriber[RedisRemovePlayerRequestedIntegrationEvent], error) {
+	return &RedisRemovePlayerRequestedSubscriber{
+		redisMessageSubscriber: commonredissubscriber.NewRedisMessageSubscriber(),
 	}, nil
 }
 
-func (listener *RedisRemovePlayerRequestedListener) Subscribe(subscriber func(RedisRemovePlayerRequestedIntegrationEvent)) func() {
-	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisRemovePlayerRequestedListenerChannel, func(message []byte) {
+func (subscriber *RedisRemovePlayerRequestedSubscriber) Subscribe(handler func(RedisRemovePlayerRequestedIntegrationEvent)) func() {
+	unsubscriber := subscriber.redisMessageSubscriber.Subscribe(RedisRemovePlayerRequestedSubscriberChannel, func(message []byte) {
 		var event RedisRemovePlayerRequestedIntegrationEvent
 		json.Unmarshal(message, &event)
-		subscriber(event)
+		handler(event)
 	})
 
 	return func() {

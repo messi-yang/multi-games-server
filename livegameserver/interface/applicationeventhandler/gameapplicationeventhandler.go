@@ -3,7 +3,7 @@ package applicationeventhandler
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redislistener"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redissubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
 )
 
@@ -15,8 +15,8 @@ func NewGameIntegrationEventHandler(
 	configuration GameIntegrationEventHandlerConfiguration,
 	liveGameId livegamemodel.LiveGameId,
 ) {
-	redisReviveUnitsRequestedListener, _ := redislistener.NewRedisReviveUnitsRequestedListener()
-	redisReviveUnitsRequestedListenerUnsubscriber := redisReviveUnitsRequestedListener.Subscribe(func(event redislistener.RedisReviveUnitsRequestedIntegrationEvent) {
+	redisReviveUnitsRequestedSubscriber, _ := redissubscriber.NewRedisReviveUnitsRequestedSubscriber()
+	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(func(event redissubscriber.RedisReviveUnitsRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
@@ -27,10 +27,10 @@ func NewGameIntegrationEventHandler(
 		}
 		configuration.LiveGameApplicationService.ReviveUnitsInLiveGame(liveGameId, coordinates)
 	})
-	defer redisReviveUnitsRequestedListenerUnsubscriber()
+	defer redisReviveUnitsRequestedSubscriberUnsubscriber()
 
-	redisAddPlayerRequestedListener, _ := redislistener.NewRedisAddPlayerRequestedListener()
-	redisAddPlayerRequestedListenerUnsubscriber := redisAddPlayerRequestedListener.Subscribe(func(event redislistener.RedisAddPlayerRequestedIntegrationEvent) {
+	redisAddPlayerRequestedSubscriber, _ := redissubscriber.NewRedisAddPlayerRequestedSubscriber()
+	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(func(event redissubscriber.RedisAddPlayerRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
@@ -41,10 +41,10 @@ func NewGameIntegrationEventHandler(
 		}
 		configuration.LiveGameApplicationService.AddPlayerToLiveGame(liveGameId, playerId)
 	})
-	defer redisAddPlayerRequestedListenerUnsubscriber()
+	defer redisAddPlayerRequestedSubscriberUnsubscriber()
 
-	redisRemovePlayerRequestedListener, _ := redislistener.NewRedisRemovePlayerRequestedListener()
-	redisRemovePlayerRequestedListenerUnsubscriber := redisRemovePlayerRequestedListener.Subscribe(func(event redislistener.RedisRemovePlayerRequestedIntegrationEvent) {
+	redisRemovePlayerRequestedSubscriber, _ := redissubscriber.NewRedisRemovePlayerRequestedSubscriber()
+	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(func(event redissubscriber.RedisRemovePlayerRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
@@ -56,10 +56,10 @@ func NewGameIntegrationEventHandler(
 		configuration.LiveGameApplicationService.RemovePlayerFromLiveGame(liveGameId, playerId)
 		configuration.LiveGameApplicationService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
 	})
-	defer redisRemovePlayerRequestedListenerUnsubscriber()
+	defer redisRemovePlayerRequestedSubscriberUnsubscriber()
 
-	redisZoomAreaRequestedListener, _ := redislistener.NewRedisZoomAreaRequestedListener()
-	redisZoomAreaRequestedListenerUnsubscriber := redisZoomAreaRequestedListener.Subscribe(func(event redislistener.RedisZoomAreaRequestedIntegrationEvent) {
+	redisZoomAreaRequestedSubscriber, _ := redissubscriber.NewRedisZoomAreaRequestedSubscriber()
+	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(func(event redissubscriber.RedisZoomAreaRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
@@ -74,7 +74,7 @@ func NewGameIntegrationEventHandler(
 		}
 		configuration.LiveGameApplicationService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
 	})
-	defer redisZoomAreaRequestedListenerUnsubscriber()
+	defer redisZoomAreaRequestedSubscriberUnsubscriber()
 
 	closeConnFlag := make(chan bool)
 	for {

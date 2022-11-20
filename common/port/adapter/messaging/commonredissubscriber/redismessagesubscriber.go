@@ -1,4 +1,4 @@
-package commonredislistener
+package commonredissubscriber
 
 import (
 	"context"

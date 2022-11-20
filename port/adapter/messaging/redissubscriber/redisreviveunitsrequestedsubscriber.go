@@ -1,9 +1,9 @@
-package redislistener
+package redissubscriber
 
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredislistener"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredissubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -21,23 +21,23 @@ func NewRedisReviveUnitsRequestedIntegrationEvent(liveGameId livegamemodel.LiveG
 	}
 }
 
-var RedisReviveUnitsRequestedListenerChannel string = "revive-units-requested"
+var RedisReviveUnitsRequestedSubscriberChannel string = "revive-units-requested"
 
-type RedisReviveUnitsRequestedListener struct {
-	redisMessageSubscriber *commonredislistener.RedisMessageSubscriber
+type RedisReviveUnitsRequestedSubscriber struct {
+	redisMessageSubscriber *commonredissubscriber.RedisMessageSubscriber
 }
 
-func NewRedisReviveUnitsRequestedListener() (commonredislistener.RedisListener[RedisReviveUnitsRequestedIntegrationEvent], error) {
-	return &RedisReviveUnitsRequestedListener{
-		redisMessageSubscriber: commonredislistener.NewRedisMessageSubscriber(),
+func NewRedisReviveUnitsRequestedSubscriber() (commonredissubscriber.RedisSubscriber[RedisReviveUnitsRequestedIntegrationEvent], error) {
+	return &RedisReviveUnitsRequestedSubscriber{
+		redisMessageSubscriber: commonredissubscriber.NewRedisMessageSubscriber(),
 	}, nil
 }
 
-func (listener *RedisReviveUnitsRequestedListener) Subscribe(subscriber func(RedisReviveUnitsRequestedIntegrationEvent)) func() {
-	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisReviveUnitsRequestedListenerChannel, func(message []byte) {
+func (subscriber *RedisReviveUnitsRequestedSubscriber) Subscribe(handler func(RedisReviveUnitsRequestedIntegrationEvent)) func() {
+	unsubscriber := subscriber.redisMessageSubscriber.Subscribe(RedisReviveUnitsRequestedSubscriberChannel, func(message []byte) {
 		var event RedisReviveUnitsRequestedIntegrationEvent
 		json.Unmarshal(message, &event)
-		subscriber(event)
+		handler(event)
 	})
 
 	return func() {

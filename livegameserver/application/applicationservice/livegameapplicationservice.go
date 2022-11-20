@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/livegameservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redislistener"
+	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/messaging/redissubscriber"
 )
 
 type LiveGameApplicationService struct {
@@ -77,8 +77,8 @@ func (grs *LiveGameApplicationService) ReviveUnitsInLiveGame(liveGameId livegame
 			continue
 		}
 		commonredisnotification.NewRedisNotificationPublisher().Publish(
-			redislistener.RedisZoomedAreaUpdatedListenerChannel(updatedGame.GetId(), playerId),
-			redislistener.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, area, unitBlock),
+			redissubscriber.RedisZoomedAreaUpdatedSubscriberChannel(updatedGame.GetId(), playerId),
+			redissubscriber.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, area, unitBlock),
 		)
 	}
 	return nil
@@ -91,8 +91,8 @@ func (grs *LiveGameApplicationService) AddPlayerToLiveGame(liveGameId livegamemo
 	}
 
 	commonredisnotification.NewRedisNotificationPublisher().Publish(
-		redislistener.RedisGameInfoUpdatedListenerChannel(liveGameId, playerId),
-		redislistener.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, updatedGame.GetDimension()),
+		redissubscriber.RedisGameInfoUpdatedSubscriberChannel(liveGameId, playerId),
+		redissubscriber.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, updatedGame.GetDimension()),
 	)
 
 	return nil
@@ -119,8 +119,8 @@ func (grs *LiveGameApplicationService) AddZoomedAreaToLiveGame(liveGameId livega
 	}
 
 	commonredisnotification.NewRedisNotificationPublisher().Publish(
-		redislistener.RedisAreaZoomedListenerChannel(liveGameId, playerId),
-		redislistener.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, area, unitBlock),
+		redissubscriber.RedisAreaZoomedSubscriberChannel(liveGameId, playerId),
+		redissubscriber.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, area, unitBlock),
 	)
 
 	return nil
