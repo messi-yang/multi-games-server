@@ -1,10 +1,10 @@
-package redis
+package redislistener
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredis"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredislistener"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -31,26 +31,23 @@ func RedisZoomedAreaUpdatedListenerChannel(liveGameId livegamemodel.LiveGameId, 
 }
 
 type RedisZoomedAreaUpdatedListener struct {
-	redisMessageSubscriber *commonredis.RedisMessageSubscriber
+	liveGameId             livegamemodel.LiveGameId
+	playerId               gamecommonmodel.PlayerId
+	redisMessageSubscriber *commonredislistener.RedisMessageSubscriber
 }
 
 type redisRedisZoomedAreaUpdatedListenerConfiguration func(listener *RedisZoomedAreaUpdatedListener) error
 
-func NewRedisZoomedAreaUpdatedListener(cfgs ...redisRedisZoomedAreaUpdatedListenerConfiguration) (*RedisZoomedAreaUpdatedListener, error) {
-	t := &RedisZoomedAreaUpdatedListener{
-		redisMessageSubscriber: commonredis.NewRedisMessageSubscriber(),
-	}
-	for _, cfg := range cfgs {
-		err := cfg(t)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return t, nil
+func NewRedisZoomedAreaUpdatedListener(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonredislistener.RedisListener[RedisZoomedAreaUpdatedIntegrationEvent], error) {
+	return &RedisZoomedAreaUpdatedListener{
+		liveGameId:             liveGameId,
+		playerId:               playerId,
+		redisMessageSubscriber: commonredislistener.NewRedisMessageSubscriber(),
+	}, nil
 }
 
-func (listener *RedisZoomedAreaUpdatedListener) Subscribe(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, subscriber func(RedisZoomedAreaUpdatedIntegrationEvent)) func() {
-	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisZoomedAreaUpdatedListenerChannel(liveGameId, playerId), func(message []byte) {
+func (listener *RedisZoomedAreaUpdatedListener) Subscribe(subscriber func(RedisZoomedAreaUpdatedIntegrationEvent)) func() {
+	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisZoomedAreaUpdatedListenerChannel(listener.liveGameId, listener.playerId), func(message []byte) {
 		var redisZoomedAreaUpdatedIntegrationEvent RedisZoomedAreaUpdatedIntegrationEvent
 		json.Unmarshal(message, &redisZoomedAreaUpdatedIntegrationEvent)
 		subscriber(redisZoomedAreaUpdatedIntegrationEvent)

@@ -1,10 +1,10 @@
-package redis
+package redislistener
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredis"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredislistener"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -29,26 +29,21 @@ func RedisGameInfoUpdatedListenerChannel(liveGameId livegamemodel.LiveGameId, pl
 }
 
 type RedisGameInfoUpdatedListener struct {
-	redisMessageSubscriber *commonredis.RedisMessageSubscriber
+	liveGameId             livegamemodel.LiveGameId
+	playerId               gamecommonmodel.PlayerId
+	redisMessageSubscriber *commonredislistener.RedisMessageSubscriber
 }
 
-type redisRedisGameInfoUpdatedListenerConfiguration func(listener *RedisGameInfoUpdatedListener) error
-
-func NewRedisGameInfoUpdatedListener(cfgs ...redisRedisGameInfoUpdatedListenerConfiguration) (*RedisGameInfoUpdatedListener, error) {
-	t := &RedisGameInfoUpdatedListener{
-		redisMessageSubscriber: commonredis.NewRedisMessageSubscriber(),
-	}
-	for _, cfg := range cfgs {
-		err := cfg(t)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return t, nil
+func NewRedisGameInfoUpdatedListener(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonredislistener.RedisListener[RedisGameInfoUpdatedIntegrationEvent], error) {
+	return &RedisGameInfoUpdatedListener{
+		liveGameId:             liveGameId,
+		playerId:               playerId,
+		redisMessageSubscriber: commonredislistener.NewRedisMessageSubscriber(),
+	}, nil
 }
 
-func (listener *RedisGameInfoUpdatedListener) Subscribe(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, subscriber func(RedisGameInfoUpdatedIntegrationEvent)) func() {
-	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisGameInfoUpdatedListenerChannel(liveGameId, playerId), func(message []byte) {
+func (listener *RedisGameInfoUpdatedListener) Subscribe(subscriber func(RedisGameInfoUpdatedIntegrationEvent)) func() {
+	unsubscriber := listener.redisMessageSubscriber.Subscribe(RedisGameInfoUpdatedListenerChannel(listener.liveGameId, listener.playerId), func(message []byte) {
 		var event RedisGameInfoUpdatedIntegrationEvent
 		json.Unmarshal(message, &event)
 		subscriber(event)

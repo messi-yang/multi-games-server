@@ -1,9 +1,9 @@
-package redis
+package redislistener
 
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredis"
+	"github.com/dum-dum-genius/game-of-liberty-computer/common/port/adapter/messaging/commonredislistener"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/presenter/presenterdto"
@@ -26,22 +26,13 @@ func NewRedisZoomAreaRequestedIntegrationEvent(liveGameId livegamemodel.LiveGame
 var RedisZoomAreaRequestedListenerChannel string = "zoom-area-requested"
 
 type RedisZoomAreaRequestedListener struct {
-	redisMessageSubscriber *commonredis.RedisMessageSubscriber
+	redisMessageSubscriber *commonredislistener.RedisMessageSubscriber
 }
 
-type redisZoomedAreaRequestedListenerConfiguration func(listener *RedisZoomAreaRequestedListener) error
-
-func NewRedisZoomAreaRequestedListener(cfgs ...redisZoomedAreaRequestedListenerConfiguration) (*RedisZoomAreaRequestedListener, error) {
-	t := &RedisZoomAreaRequestedListener{
-		redisMessageSubscriber: commonredis.NewRedisMessageSubscriber(),
-	}
-	for _, cfg := range cfgs {
-		err := cfg(t)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return t, nil
+func NewRedisZoomAreaRequestedListener() (commonredislistener.RedisListener[RedisZoomAreaRequestedIntegrationEvent], error) {
+	return &RedisZoomAreaRequestedListener{
+		redisMessageSubscriber: commonredislistener.NewRedisMessageSubscriber(),
+	}, nil
 }
 
 func (listener *RedisZoomAreaRequestedListener) Subscribe(subscriber func(RedisZoomAreaRequestedIntegrationEvent)) func() {

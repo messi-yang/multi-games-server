@@ -1,4 +1,4 @@
-package redisnotification
+package commonredisnotification
 
 import (
 	"context"
