@@ -8,7 +8,7 @@ import (
 )
 
 type GameIntegrationEventHandlerConfiguration struct {
-	LiveGameApplicationService *applicationservice.LiveGameApplicationService
+	LiveGameApplicationService applicationservice.LiveGameApplicationService
 }
 
 func NewGameIntegrationEventHandler(

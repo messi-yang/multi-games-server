@@ -7,14 +7,24 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/persistence/memory"
 )
 
-type LiveGameService struct {
+type LiveGameService interface {
+	CreateLiveGame(game gamemodel.Game) (livegamemodel.LiveGameId, error)
+	GetLiveGame(id livegamemodel.LiveGameId) (livegamemodel.LiveGame, error)
+	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error)
+	RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error)
+	AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) (livegamemodel.LiveGame, error)
+	RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error)
+	ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) (livegamemodel.LiveGame, error)
+}
+
+type LiveGameServe struct {
 	liveGameRepository livegamemodel.LiveGameRepository
 }
 
-type liveGameServiceConfiguration func(service *LiveGameService) error
+type liveGameServiceConfiguration func(serve *LiveGameServe) error
 
-func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameService, error) {
-	t := &LiveGameService{}
+func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameServe, error) {
+	t := &LiveGameServe{}
 	for _, cfg := range cfgs {
 		err := cfg(t)
 		if err != nil {
@@ -26,20 +36,20 @@ func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameService,
 
 func WithGameMemoryRepository() liveGameServiceConfiguration {
 	liveGameMemoryRepository := memory.NewMemoryLiveGameRepository()
-	return func(service *LiveGameService) error {
-		service.liveGameRepository = liveGameMemoryRepository
+	return func(serve *LiveGameServe) error {
+		serve.liveGameRepository = liveGameMemoryRepository
 		return nil
 	}
 }
 
-func (gs *LiveGameService) CreateLiveGame(game gamemodel.Game) (livegamemodel.LiveGameId, error) {
+func (serve *LiveGameServe) CreateLiveGame(game gamemodel.Game) (livegamemodel.LiveGameId, error) {
 	newLiveGame := livegamemodel.NewLiveGame(livegamemodel.NewLiveGameId(game.GetId().GetId()), game.GetUnitBlock())
-	gs.liveGameRepository.Add(newLiveGame)
+	serve.liveGameRepository.Add(newLiveGame)
 	return newLiveGame.GetId(), nil
 }
 
-func (service *LiveGameService) GetLiveGame(id livegamemodel.LiveGameId) (livegamemodel.LiveGame, error) {
-	liveGame, err := service.liveGameRepository.Get(id)
+func (serve *LiveGameServe) GetLiveGame(id livegamemodel.LiveGameId) (livegamemodel.LiveGame, error) {
+	liveGame, err := serve.liveGameRepository.Get(id)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
@@ -47,50 +57,50 @@ func (service *LiveGameService) GetLiveGame(id livegamemodel.LiveGameId) (livega
 	return liveGame, nil
 }
 
-func (gs *LiveGameService) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
+func (serce *LiveGameServe) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
+	unlocker, err := serce.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(liveGameId)
+	gameLive, err := serce.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 
 	gameLive.AddPlayer(playerId)
-	gs.liveGameRepository.Update(liveGameId, gameLive)
+	serce.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
+func (serce *LiveGameServe) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
+	unlocker, err := serce.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(liveGameId)
+	gameLive, err := serce.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 
 	gameLive.RemovePlayer(playerId)
-	gs.liveGameRepository.Update(liveGameId, gameLive)
+	serce.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) (livegamemodel.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
+func (serce *LiveGameServe) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) (livegamemodel.LiveGame, error) {
+	unlocker, err := serce.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(liveGameId)
+	gameLive, err := serce.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
@@ -100,37 +110,37 @@ func (gs *LiveGameService) AddZoomedAreaToLiveGame(liveGameId livegamemodel.Live
 		return livegamemodel.LiveGame{}, err
 	}
 
-	gs.liveGameRepository.Update(liveGameId, gameLive)
+	serce.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
+func (serce *LiveGameServe) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {
+	unlocker, err := serce.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(liveGameId)
+	gameLive, err := serce.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 
 	gameLive.RemoveZoomedArea(playerId)
-	gs.liveGameRepository.Update(liveGameId, gameLive)
+	serce.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }
 
-func (gs *LiveGameService) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) (livegamemodel.LiveGame, error) {
-	unlocker, err := gs.liveGameRepository.LockAccess(liveGameId)
+func (serce *LiveGameServe) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) (livegamemodel.LiveGame, error) {
+	unlocker, err := serce.liveGameRepository.LockAccess(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
 	defer unlocker()
 
-	gameLive, err := gs.liveGameRepository.Get(liveGameId)
+	gameLive, err := serce.liveGameRepository.Get(liveGameId)
 	if err != nil {
 		return livegamemodel.LiveGame{}, err
 	}
@@ -140,7 +150,7 @@ func (gs *LiveGameService) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGa
 		return livegamemodel.LiveGame{}, err
 	}
 
-	gs.liveGameRepository.Update(liveGameId, gameLive)
+	serce.liveGameRepository.Update(liveGameId, gameLive)
 
 	return gameLive, nil
 }

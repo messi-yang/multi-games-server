@@ -5,33 +5,37 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 )
 
-type GameApplicationService struct {
-	GameService *gameservice.GameService
+type GameApplicationService interface {
+	GetFirstGameId() (gamemodel.GameId, error)
 }
 
-type gameApplicationServiceConfiguration func(service *GameApplicationService) error
+type GameApplicationServe struct {
+	GameService gameservice.GameService
+}
 
-func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*GameApplicationService, error) {
-	service := &GameApplicationService{}
+type gameApplicationServiceConfiguration func(serve *GameApplicationServe) error
+
+func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*GameApplicationServe, error) {
+	serve := &GameApplicationServe{}
 	for _, cfg := range cfgs {
-		err := cfg(service)
+		err := cfg(serve)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return service, nil
+	return serve, nil
 }
 
 func WithGameService() gameApplicationServiceConfiguration {
 	gameService, _ := gameservice.NewGameService(gameservice.WithPostgresGameRepository())
-	return func(service *GameApplicationService) error {
-		service.GameService = gameService
+	return func(serve *GameApplicationServe) error {
+		serve.GameService = gameService
 		return nil
 	}
 }
 
-func (service *GameApplicationService) GetFirstGameId() (gamemodel.GameId, error) {
-	games, err := service.GameService.GeAllGames()
+func (serve *GameApplicationServe) GetFirstGameId() (gamemodel.GameId, error) {
+	games, err := serve.GameService.GeAllGames()
 	if err != nil {
 		return gamemodel.GameId{}, err
 	}

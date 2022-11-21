@@ -7,14 +7,20 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameService struct {
+type GameService interface {
+	CreateGame(dimension gamecommonmodel.Dimension) (gamemodel.GameId, error)
+	GetGame(gameId gamemodel.GameId) (gamemodel.Game, error)
+	GeAllGames() ([]gamemodel.Game, error)
+}
+
+type GameServe struct {
 	gameRepository gamemodel.GameRepository
 }
 
-type gameServiceConfiguration func(service *GameService) error
+type gameServiceConfiguration func(serve *GameServe) error
 
-func NewGameService(cfgs ...gameServiceConfiguration) (*GameService, error) {
-	t := &GameService{}
+func NewGameService(cfgs ...gameServiceConfiguration) (GameService, error) {
+	t := &GameServe{}
 	for _, cfg := range cfgs {
 		err := cfg(t)
 		if err != nil {
@@ -25,17 +31,17 @@ func NewGameService(cfgs ...gameServiceConfiguration) (*GameService, error) {
 }
 
 func WithPostgresGameRepository() gameServiceConfiguration {
-	return func(service *GameService) error {
+	return func(serve *GameServe) error {
 		postgresGameRepository, err := postgres.NewPostgresGameRepository(postgres.WithPostgresClient())
 		if err != nil {
 			return err
 		}
-		service.gameRepository = postgresGameRepository
+		serve.gameRepository = postgresGameRepository
 		return nil
 	}
 }
 
-func (service *GameService) CreateGame(dimension gamecommonmodel.Dimension) (gamemodel.GameId, error) {
+func (serve *GameServe) CreateGame(dimension gamecommonmodel.Dimension) (gamemodel.GameId, error) {
 	unitMatrix := make([][]gamecommonmodel.Unit, dimension.GetWidth())
 	for i := 0; i < dimension.GetWidth(); i += 1 {
 		unitMatrix[i] = make([]gamecommonmodel.Unit, dimension.GetHeight())
@@ -46,7 +52,7 @@ func (service *GameService) CreateGame(dimension gamecommonmodel.Dimension) (gam
 	unitBlock := gamecommonmodel.NewUnitBlock(unitMatrix)
 
 	newGame := gamemodel.NewGame(gamemodel.NewGameId(uuid.New()), unitBlock)
-	newGameId, err := service.gameRepository.Add(newGame)
+	newGameId, err := serve.gameRepository.Add(newGame)
 	if err != nil {
 		return gamemodel.GameId{}, err
 	}
@@ -54,8 +60,8 @@ func (service *GameService) CreateGame(dimension gamecommonmodel.Dimension) (gam
 	return newGameId, nil
 }
 
-func (service *GameService) GetGame(gameId gamemodel.GameId) (gamemodel.Game, error) {
-	game, err := service.gameRepository.Get(gameId)
+func (serve *GameServe) GetGame(gameId gamemodel.GameId) (gamemodel.Game, error) {
+	game, err := serve.gameRepository.Get(gameId)
 	if err != nil {
 		return gamemodel.Game{}, err
 	}
@@ -63,8 +69,8 @@ func (service *GameService) GetGame(gameId gamemodel.GameId) (gamemodel.Game, er
 	return game, nil
 }
 
-func (service *GameService) GeAllGames() ([]gamemodel.Game, error) {
-	games, err := service.gameRepository.GetAll()
+func (serve *GameServe) GeAllGames() ([]gamemodel.Game, error) {
+	games, err := serve.gameRepository.GetAll()
 	if err != nil {
 		return nil, err
 	}

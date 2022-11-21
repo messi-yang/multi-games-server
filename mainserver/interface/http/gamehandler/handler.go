@@ -32,7 +32,7 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type HandlerConfiguration struct {
-	GameApplicationService *applicationservice.GameApplicationService
+	GameApplicationService applicationservice.GameApplicationService
 	NotificationPublisher  notification.NotificationPublisher
 }
 
