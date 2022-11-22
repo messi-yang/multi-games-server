@@ -4,7 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/persistence/memory"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/persistence/memory"
 )
 
 type LiveGameService interface {
