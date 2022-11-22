@@ -3,7 +3,7 @@ package applicationeventhandler
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/notification/redis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/presenter/presenterdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/presenterdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/applicationservice"
 )
 
