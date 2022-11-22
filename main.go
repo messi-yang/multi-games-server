@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/apiserver"
-	"github.com/dum-dum-genius/game-of-liberty-computer/gameserver"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver"
 )
 
 func main() {

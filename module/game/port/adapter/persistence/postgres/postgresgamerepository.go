@@ -1,0 +1,83 @@
+package postgres
+
+import (
+	commonpostgres "github.com/dum-dum-genius/game-of-liberty-computer/module/common/port/adapter/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/persistence/postgres/postgresdto"
+	"gorm.io/gorm"
+)
+
+type postgresGameRepository struct {
+	postgresClient *gorm.DB
+}
+
+type postgresGameRepositoryConfiguration func(respository *postgresGameRepository) error
+
+func NewPostgresGameRepository(cfgs ...postgresGameRepositoryConfiguration) (gamemodel.GameRepository, error) {
+	respository := &postgresGameRepository{}
+	for _, cfg := range cfgs {
+		err := cfg(respository)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return respository, nil
+}
+
+func WithPostgresClient() postgresGameRepositoryConfiguration {
+	return func(repository *postgresGameRepository) error {
+		postgresClient, err := commonpostgres.NewPostgresClient()
+		if err != nil {
+			return err
+		}
+		repository.postgresClient = postgresClient
+		return nil
+	}
+}
+
+func (m *postgresGameRepository) Get(id gamemodel.GameId) (gamemodel.Game, error) {
+	gameModel := postgresdto.GamePostgresPresenterDto{Id: id.GetId()}
+	result := m.postgresClient.First(&gameModel)
+	if result.Error != nil {
+		return gamemodel.Game{}, result.Error
+	}
+
+	return gameModel.ToAggregate(), nil
+}
+
+func (m *postgresGameRepository) Update(id gamemodel.GameId, game gamemodel.Game) error {
+	return nil
+}
+
+func (m *postgresGameRepository) GetAll() ([]gamemodel.Game, error) {
+	var gamePostgresPresenterDtos []postgresdto.GamePostgresPresenterDto
+	result := m.postgresClient.Find(&gamePostgresPresenterDtos)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	gameAggregates := make([]gamemodel.Game, 0)
+	for _, gamePostgresPresenterDto := range gamePostgresPresenterDtos {
+		gameAggregates = append(gameAggregates, gamePostgresPresenterDto.ToAggregate())
+	}
+
+	return gameAggregates, nil
+}
+
+func (m *postgresGameRepository) Add(game gamemodel.Game) (gamemodel.GameId, error) {
+	gameModel := postgresdto.NewGamePostgresPresenterDto(game)
+	res := m.postgresClient.Create(&gameModel)
+	if res.Error != nil {
+		return gamemodel.GameId{}, res.Error
+	}
+
+	return game.GetId(), nil
+}
+
+func (m *postgresGameRepository) ReadLockAccess(gameId gamemodel.GameId) (func(), error) {
+	return func() {}, nil
+}
+
+func (m *postgresGameRepository) LockAccess(gameId gamemodel.GameId) (func(), error) {
+	return func() {}, nil
+}
