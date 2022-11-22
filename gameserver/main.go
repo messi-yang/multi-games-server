@@ -1,11 +1,11 @@
-package livegameserver
+package gameserver
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/application/applicationservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/livegameserver/interface/applicationeventhandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameserver/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/gameserver/interface/applicationeventhandler"
 )
 
 func Start() {

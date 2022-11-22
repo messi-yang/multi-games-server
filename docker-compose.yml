@@ -22,10 +22,10 @@ services:
       POSTGRES_DB: game
     networks:
       - base
-  livegameserver:
+  gameserver:
     build: .
     environment:
-      - APP=live-game-server
+      - APP=gameserver
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
       - POSTGRES_HOST=postgres
@@ -42,10 +42,10 @@ services:
     working_dir:
       /app
     command: make dev
-  mainserver:
+  apiserver:
     build: .
     environment:
-      - APP=main-server
+      - APP=apiserver
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
       - POSTGRES_HOST=postgres
@@ -55,7 +55,7 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - livegameserver
+      - gameserver
     networks:
       - base
     volumes:

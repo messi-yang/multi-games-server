@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/apiserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/compression"
 	"github.com/dum-dum-genius/game-of-liberty-computer/common/notification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/mainserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/port/adapter/notification/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
