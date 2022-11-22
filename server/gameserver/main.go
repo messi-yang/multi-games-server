@@ -19,19 +19,17 @@ func Start() {
 		gameservice.WithPostgresGameRepository(),
 	)
 	games, _ := gameService.GeAllGames()
-	var liveGameId livegamemodel.LiveGameId
 	if len(games) > 0 {
-		liveGameId, _ = liveGameApplicationService.CreateLiveGame(games[0].GetId())
+		liveGameApplicationService.CreateLiveGame(games[0].GetId())
 	} else {
 		dimension, _ := gamecommonmodel.NewDimension(200, 200)
 		gameId, _ := gameService.CreateGame(dimension)
-		liveGameId = livegamemodel.NewLiveGameId(gameId.GetId())
+		livegamemodel.NewLiveGameId(gameId.GetId())
 	}
 
 	applicationeventhandler.NewGameIntegrationEventHandler(
 		applicationeventhandler.GameIntegrationEventHandlerConfiguration{
 			LiveGameApplicationService: liveGameApplicationService,
 		},
-		liveGameId,
 	)
 }

@@ -1,7 +1,6 @@
 package applicationeventhandler
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/presenterdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/applicationservice"
@@ -13,7 +12,6 @@ type GameIntegrationEventHandlerConfiguration struct {
 
 func NewGameIntegrationEventHandler(
 	configuration GameIntegrationEventHandlerConfiguration,
-	liveGameId livegamemodel.LiveGameId,
 ) {
 	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
 	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(func(event redis.RedisReviveUnitsRequestedIntegrationEvent) {
