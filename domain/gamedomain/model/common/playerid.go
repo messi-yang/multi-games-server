@@ -1,4 +1,4 @@
-package gamecommonmodel
+package common
 
 import "github.com/google/uuid"
 

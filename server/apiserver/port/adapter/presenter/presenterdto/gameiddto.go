@@ -1,7 +1,7 @@
 package presenterdto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/google/uuid"
 )
 

@@ -1,7 +1,7 @@
 package presenterdto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
+	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 )
 
 type UnitBlockPresenterDto [][]UnitPresenterDto

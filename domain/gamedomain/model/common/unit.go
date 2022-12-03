@@ -1,4 +1,4 @@
-package gamecommonmodel
+package common
 
 type Unit struct {
 	alive    bool

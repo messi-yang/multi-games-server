@@ -3,8 +3,8 @@ package postgresdto
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
+	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
 	"github.com/google/uuid"
 )
 

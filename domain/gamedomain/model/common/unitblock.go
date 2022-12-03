@@ -1,4 +1,4 @@
-package gamecommonmodel
+package common
 
 type UnitBlock struct {
 	unitMatrix [][]Unit

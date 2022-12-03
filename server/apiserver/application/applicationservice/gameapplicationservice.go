@@ -1,8 +1,8 @@
 package applicationservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
 )
 
 type GameApplicationService interface {

@@ -1,4 +1,4 @@
-package gamecommonmodel
+package common
 
 import "fmt"
 

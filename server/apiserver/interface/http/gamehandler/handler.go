@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
+	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/apiredis"
 	commoncompression "github.com/dum-dum-genius/game-of-liberty-computer/server/common/compression"

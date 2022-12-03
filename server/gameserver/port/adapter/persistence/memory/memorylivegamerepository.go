@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 )
 
 var (

@@ -1,11 +1,11 @@
 package applicationservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/service/gameservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/service/livegameservice"
+	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/livegameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/apiredis"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"

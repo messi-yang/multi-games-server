@@ -1,4 +1,4 @@
-package gamecommonmodel
+package common
 
 type Item struct {
 	itemType ItemType

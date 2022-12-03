@@ -1,9 +1,9 @@
 package gameserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/service/gameservice"
+	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/interface/applicationeventhandler"
 )

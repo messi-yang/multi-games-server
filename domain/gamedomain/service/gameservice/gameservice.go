@@ -1,8 +1,8 @@
 package gameservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
+	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
 	commonpostgres "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
 	"github.com/google/uuid"
 )
