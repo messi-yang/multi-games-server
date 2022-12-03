@@ -1,4 +1,4 @@
-package compression
+package service
 
 import (
 	"bytes"
@@ -6,18 +6,18 @@ import (
 	"io/ioutil"
 )
 
-type GzipCompressor interface {
+type GzipService interface {
 	Ungzip([]byte) ([]byte, error)
 	Gzip([]byte) ([]byte, error)
 }
 
-type gzipCompress struct{}
+type gzipServe struct{}
 
-func NewGzipCompressor() GzipCompressor {
-	return &gzipCompress{}
+func NewGzipService() GzipService {
+	return &gzipServe{}
 }
 
-func (*gzipCompress) Ungzip(data []byte) ([]byte, error) {
+func (*gzipServe) Ungzip(data []byte) ([]byte, error) {
 	gunzip, err := gzip.NewReader(bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (*gzipCompress) Ungzip(data []byte) ([]byte, error) {
 	return compressedData, nil
 }
 
-func (*gzipCompress) Gzip(data []byte) ([]byte, error) {
+func (*gzipServe) Gzip(data []byte) ([]byte, error) {
 	var b bytes.Buffer
 	gz := gzip.NewWriter(&b)
 	_, err := gz.Write(data)
