@@ -1,4 +1,4 @@
-package redis
+package gameredis
 
 import (
 	"encoding/json"

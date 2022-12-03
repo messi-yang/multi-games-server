@@ -1,9 +1,9 @@
 package applicationeventhandler
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/presenterdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/applicationservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/gameredis"
 )
 
 type GameIntegrationEventHandlerConfiguration struct {
@@ -13,8 +13,8 @@ type GameIntegrationEventHandlerConfiguration struct {
 func NewGameIntegrationEventHandler(
 	configuration GameIntegrationEventHandlerConfiguration,
 ) {
-	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
-	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(func(event redis.RedisReviveUnitsRequestedIntegrationEvent) {
+	redisReviveUnitsRequestedSubscriber, _ := gameredis.NewRedisReviveUnitsRequestedSubscriber()
+	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(func(event gameredis.RedisReviveUnitsRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
@@ -27,8 +27,8 @@ func NewGameIntegrationEventHandler(
 	})
 	defer redisReviveUnitsRequestedSubscriberUnsubscriber()
 
-	redisAddPlayerRequestedSubscriber, _ := redis.NewRedisAddPlayerRequestedSubscriber()
-	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(func(event redis.RedisAddPlayerRequestedIntegrationEvent) {
+	redisAddPlayerRequestedSubscriber, _ := gameredis.NewRedisAddPlayerRequestedSubscriber()
+	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(func(event gameredis.RedisAddPlayerRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
@@ -41,8 +41,8 @@ func NewGameIntegrationEventHandler(
 	})
 	defer redisAddPlayerRequestedSubscriberUnsubscriber()
 
-	redisRemovePlayerRequestedSubscriber, _ := redis.NewRedisRemovePlayerRequestedSubscriber()
-	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(func(event redis.RedisRemovePlayerRequestedIntegrationEvent) {
+	redisRemovePlayerRequestedSubscriber, _ := gameredis.NewRedisRemovePlayerRequestedSubscriber()
+	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(func(event gameredis.RedisRemovePlayerRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
@@ -56,8 +56,8 @@ func NewGameIntegrationEventHandler(
 	})
 	defer redisRemovePlayerRequestedSubscriberUnsubscriber()
 
-	redisZoomAreaRequestedSubscriber, _ := redis.NewRedisZoomAreaRequestedSubscriber()
-	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(func(event redis.RedisZoomAreaRequestedIntegrationEvent) {
+	redisZoomAreaRequestedSubscriber, _ := gameredis.NewRedisZoomAreaRequestedSubscriber()
+	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(func(event gameredis.RedisZoomAreaRequestedIntegrationEvent) {
 		liveGameId, err := event.LiveGameId.ToValueObject()
 		if err != nil {
 			return
