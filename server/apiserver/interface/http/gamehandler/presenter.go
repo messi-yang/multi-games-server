@@ -5,7 +5,7 @@ import (
 	"time"
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/presenterdto"
+	presenterdto "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/dto"
 )
 
 type EventType string

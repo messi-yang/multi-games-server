@@ -1,4 +1,4 @@
-package presenterdto
+package dto
 
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"

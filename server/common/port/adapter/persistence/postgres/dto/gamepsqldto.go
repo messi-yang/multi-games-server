@@ -1,4 +1,4 @@
-package postgresdto
+package dto
 
 import (
 	"time"
