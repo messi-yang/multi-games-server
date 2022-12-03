@@ -3,7 +3,7 @@ package gameservice
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/persistence/postgres"
+	commonpostgres "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
 	"github.com/google/uuid"
 )
 
@@ -32,7 +32,7 @@ func NewGameService(cfgs ...gameServiceConfiguration) (GameService, error) {
 
 func WithPostgresGameRepository() gameServiceConfiguration {
 	return func(serve *GameServe) error {
-		postgresGameRepository, err := postgres.NewPostgresGameRepository(postgres.WithPostgresClient())
+		postgresGameRepository, err := commonpostgres.NewPostgresGameRepository(commonpostgres.WithPostgresClient())
 		if err != nil {
 			return err
 		}

@@ -1,9 +1,9 @@
-package postgres
+package commonpostgres
 
 import (
 	commonpostgres "github.com/dum-dum-genius/game-of-liberty-computer/module/common/port/adapter/persistence/postgres"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/port/adapter/persistence/postgres/postgresdto"
+	commonpostgresdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres/postgresdto"
 	"gorm.io/gorm"
 )
 
@@ -36,7 +36,7 @@ func WithPostgresClient() postgresGameRepositoryConfiguration {
 }
 
 func (m *postgresGameRepository) Get(id gamemodel.GameId) (gamemodel.Game, error) {
-	gameModel := postgresdto.GamePostgresPresenterDto{Id: id.GetId()}
+	gameModel := commonpostgresdto.GamePostgresPresenterDto{Id: id.GetId()}
 	result := m.postgresClient.First(&gameModel)
 	if result.Error != nil {
 		return gamemodel.Game{}, result.Error
@@ -50,7 +50,7 @@ func (m *postgresGameRepository) Update(id gamemodel.GameId, game gamemodel.Game
 }
 
 func (m *postgresGameRepository) GetAll() ([]gamemodel.Game, error) {
-	var gamePostgresPresenterDtos []postgresdto.GamePostgresPresenterDto
+	var gamePostgresPresenterDtos []commonpostgresdto.GamePostgresPresenterDto
 	result := m.postgresClient.Find(&gamePostgresPresenterDtos)
 	if result.Error != nil {
 		return nil, result.Error
@@ -65,7 +65,7 @@ func (m *postgresGameRepository) GetAll() ([]gamemodel.Game, error) {
 }
 
 func (m *postgresGameRepository) Add(game gamemodel.Game) (gamemodel.GameId, error) {
-	gameModel := postgresdto.NewGamePostgresPresenterDto(game)
+	gameModel := commonpostgresdto.NewGamePostgresPresenterDto(game)
 	res := m.postgresClient.Create(&gameModel)
 	if res.Error != nil {
 		return gamemodel.GameId{}, res.Error
