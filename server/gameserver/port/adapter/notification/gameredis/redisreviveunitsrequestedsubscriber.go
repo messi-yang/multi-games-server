@@ -5,20 +5,20 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	presenterdto "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
 type RedisReviveUnitsRequestedIntegrationEvent struct {
-	LiveGameId  presenterdto.LiveGameIdPresenterDto   `json:"liveGameId"`
-	Coordinates []presenterdto.CoordinatePresenterDto `json:"coordinates"`
+	LiveGameId  jsondto.LiveGameIdJsonDto   `json:"liveGameId"`
+	Coordinates []jsondto.CoordinateJsonDto `json:"coordinates"`
 }
 
 func NewRedisReviveUnitsRequestedIntegrationEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) RedisReviveUnitsRequestedIntegrationEvent {
 	return RedisReviveUnitsRequestedIntegrationEvent{
-		LiveGameId:  presenterdto.NewLiveGameIdPresenterDto(liveGameId),
-		Coordinates: presenterdto.NewCoordinatePresenterDtos(coordinates),
+		LiveGameId:  jsondto.NewLiveGameIdJsonDto(liveGameId),
+		Coordinates: jsondto.NewCoordinateJsonDtos(coordinates),
 	}
 }
 

@@ -1,7 +1,7 @@
 package applicationeventhandler
 
 import (
-	presenterdto "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	applicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/gameredis"
 )
@@ -19,7 +19,7 @@ func NewGameIntegrationEventHandler(
 		if err != nil {
 			return
 		}
-		coordinates, err := presenterdto.ParseCoordinatePresenterDtos(event.Coordinates)
+		coordinates, err := jsondto.ParseCoordinateJsonDtos(event.Coordinates)
 		if err != nil {
 			return
 		}

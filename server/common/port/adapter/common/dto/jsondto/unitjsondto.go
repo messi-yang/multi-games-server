@@ -1,21 +1,21 @@
-package dto
+package jsondto
 
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 )
 
-type UnitPresenterDto struct {
+type UnitJsonDto struct {
 	Alive    bool                     `json:"alive"`
 	ItemType gamecommonmodel.ItemType `json:"itemType"`
 }
 
-func NewUnitPresenterDto(unit gamecommonmodel.Unit) UnitPresenterDto {
-	return UnitPresenterDto{
+func NewUnitJsonDto(unit gamecommonmodel.Unit) UnitJsonDto {
+	return UnitJsonDto{
 		Alive:    unit.GetAlive(),
 		ItemType: unit.GetItemType(),
 	}
 }
 
-func (dto UnitPresenterDto) ToValueObject() gamecommonmodel.Unit {
+func (dto UnitJsonDto) ToValueObject() gamecommonmodel.Unit {
 	return gamecommonmodel.NewUnit(dto.Alive, dto.ItemType)
 }

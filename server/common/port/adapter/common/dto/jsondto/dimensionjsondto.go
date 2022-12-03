@@ -1,21 +1,21 @@
-package dto
+package jsondto
 
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 )
 
-type DimensionPresenterDto struct {
+type DimensionJsonDto struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
-func NewDimensionPresenterDto(dimension gamecommonmodel.Dimension) DimensionPresenterDto {
-	return DimensionPresenterDto{
+func NewDimensionJsonDto(dimension gamecommonmodel.Dimension) DimensionJsonDto {
+	return DimensionJsonDto{
 		Width:  dimension.GetWidth(),
 		Height: dimension.GetHeight(),
 	}
 }
 
-func (dto DimensionPresenterDto) ToValueObject() (gamecommonmodel.Dimension, error) {
+func (dto DimensionJsonDto) ToValueObject() (gamecommonmodel.Dimension, error) {
 	return gamecommonmodel.NewDimension(dto.Width, dto.Height)
 }

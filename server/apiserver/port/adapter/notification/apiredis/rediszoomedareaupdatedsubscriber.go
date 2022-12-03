@@ -6,24 +6,24 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	presenterdto "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
 type RedisZoomedAreaUpdatedIntegrationEvent struct {
-	LiveGameId presenterdto.LiveGameIdPresenterDto `json:"liveGameId"`
-	PlayerId   presenterdto.PlayerIdPresenterDto   `json:"playerId"`
-	Area       presenterdto.AreaPresenterDto       `json:"area"`
-	UnitBlock  presenterdto.UnitBlockPresenterDto  `json:"unitBlock"`
+	LiveGameId jsondto.LiveGameIdJsonDto `json:"liveGameId"`
+	PlayerId   jsondto.PlayerIdJsonDto   `json:"playerId"`
+	Area       jsondto.AreaJsonDto       `json:"area"`
+	UnitBlock  jsondto.UnitBlockJsonDto  `json:"unitBlock"`
 }
 
 func NewRedisZoomedAreaUpdatedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) RedisZoomedAreaUpdatedIntegrationEvent {
 	return RedisZoomedAreaUpdatedIntegrationEvent{
-		LiveGameId: presenterdto.NewLiveGameIdPresenterDto(liveGameId),
-		PlayerId:   presenterdto.NewPlayerIdPresenterDto(playerId),
-		Area:       presenterdto.NewAreaPresenterDto(area),
-		UnitBlock:  presenterdto.NewUnitBlockPresenterDto(unitBlock),
+		LiveGameId: jsondto.NewLiveGameIdJsonDto(liveGameId),
+		PlayerId:   jsondto.NewPlayerIdJsonDto(playerId),
+		Area:       jsondto.NewAreaJsonDto(area),
+		UnitBlock:  jsondto.NewUnitBlockJsonDto(unitBlock),
 	}
 }
 

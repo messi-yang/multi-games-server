@@ -5,20 +5,20 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	presenterdto "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
 type RedisAddPlayerRequestedIntegrationEvent struct {
-	LiveGameId presenterdto.LiveGameIdPresenterDto `json:"liveGameId"`
-	PlayerId   presenterdto.PlayerIdPresenterDto   `json:"playerId"`
+	LiveGameId jsondto.LiveGameIdJsonDto `json:"liveGameId"`
+	PlayerId   jsondto.PlayerIdJsonDto   `json:"playerId"`
 }
 
 func NewRedisAddPlayerRequestedIntegrationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) RedisAddPlayerRequestedIntegrationEvent {
 	return RedisAddPlayerRequestedIntegrationEvent{
-		LiveGameId: presenterdto.NewLiveGameIdPresenterDto(liveGameId),
-		PlayerId:   presenterdto.NewPlayerIdPresenterDto(playerId),
+		LiveGameId: jsondto.NewLiveGameIdJsonDto(liveGameId),
+		PlayerId:   jsondto.NewPlayerIdJsonDto(playerId),
 	}
 }
 
