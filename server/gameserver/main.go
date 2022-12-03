@@ -4,7 +4,7 @@ import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/applicationservice"
+	applicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/interface/applicationeventhandler"
 )
 

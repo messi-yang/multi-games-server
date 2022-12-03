@@ -7,7 +7,7 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/applicationservice"
+	applicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/apiredis"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	commonservice "github.com/dum-dum-genius/game-of-liberty-computer/server/common/service"

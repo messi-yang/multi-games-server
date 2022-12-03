@@ -2,7 +2,7 @@ package applicationeventhandler
 
 import (
 	presenterdto "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/applicationservice"
+	applicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/gameredis"
 )
 

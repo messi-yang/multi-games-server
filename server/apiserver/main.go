@@ -1,7 +1,7 @@
 package apiserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/applicationservice"
+	applicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/interface/http/gamehandler"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 	"github.com/gin-gonic/gin"
