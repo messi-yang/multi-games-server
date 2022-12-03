@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/common/compression"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/apiredis"
+	commoncompression "github.com/dum-dum-genius/game-of-liberty-computer/server/common/compression"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/gameredis"
 	"github.com/gin-gonic/gin"
@@ -95,7 +95,7 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 					break
 				}
 
-				gzipCompressor := compression.NewGzipCompressor()
+				gzipCompressor := commoncompression.NewGzipCompressor()
 				message, err := gzipCompressor.Ungzip(compressedMessage)
 				if err != nil {
 					emitErrorEvent(conn, clientSession, err)
@@ -155,7 +155,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, clientSession *clientSession,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	gzipCompressor := compression.NewGzipCompressor()
+	gzipCompressor := commoncompression.NewGzipCompressor()
 	compressedMessage, err := gzipCompressor.Gzip(messageJsonInBytes)
 	if err != nil {
 		emitErrorEvent(conn, clientSession, err)
