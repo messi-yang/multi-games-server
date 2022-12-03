@@ -3,10 +3,10 @@ package gameredis
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/common/notification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/presenter/presenterdto"
+	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
@@ -30,7 +30,7 @@ type RedisZoomAreaRequestedSubscriber struct {
 	redisProvider *commonredis.RedisProvider
 }
 
-func NewRedisZoomAreaRequestedSubscriber() (notification.NotificationSubscriber[RedisZoomAreaRequestedIntegrationEvent], error) {
+func NewRedisZoomAreaRequestedSubscriber() (commonnotification.NotificationSubscriber[RedisZoomAreaRequestedIntegrationEvent], error) {
 	return &RedisZoomAreaRequestedSubscriber{
 		redisProvider: commonredis.NewRedisProvider(),
 	}, nil

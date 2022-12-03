@@ -3,14 +3,14 @@ package redis
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/common/notification"
+	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 )
 
 type RedisNotificationPublisher struct {
 	redisProvider *RedisProvider
 }
 
-func NewRedisNotificationPublisher() notification.NotificationPublisher {
+func NewRedisNotificationPublisher() commonnotification.NotificationPublisher {
 	return &RedisNotificationPublisher{
 		redisProvider: NewRedisProvider(),
 	}

@@ -6,11 +6,11 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/common/compression"
-	"github.com/dum-dum-genius/game-of-liberty-computer/module/common/notification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/module/game/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/applicationservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/apiredis"
+	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/gameredis"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -34,7 +34,7 @@ var wsupgrader = websocket.Upgrader{
 
 type HandlerConfiguration struct {
 	GameApplicationService applicationservice.GameApplicationService
-	NotificationPublisher  notification.NotificationPublisher
+	NotificationPublisher  commonnotification.NotificationPublisher
 }
 
 func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
