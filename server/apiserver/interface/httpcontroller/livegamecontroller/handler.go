@@ -1,4 +1,4 @@
-package gamehandler
+package livegamecontroller
 
 import (
 	"encoding/json"
@@ -24,12 +24,12 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-type HandlerConfiguration struct {
+type Configuration struct {
 	GameApplicationService     service.GameApplicationService
 	LiveGameApplicationService service.LiveGameApplicationService
 }
 
-func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
+func NewController(configuration Configuration) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {

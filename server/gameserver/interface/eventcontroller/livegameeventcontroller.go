@@ -1,4 +1,4 @@
-package applicationeventhandler
+package eventcontroller
 
 import (
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
@@ -7,12 +7,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/redis"
 )
 
-type GameIntegrationEventHandlerConfiguration struct {
+type LiveGameEventControllerConfiguration struct {
 	LiveGameApplicationService service.LiveGameApplicationService
 }
 
-func NewGameIntegrationEventHandler(
-	configuration GameIntegrationEventHandlerConfiguration,
+func NewLiveGameEventController(
+	configuration LiveGameEventControllerConfiguration,
 ) {
 	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
 	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(

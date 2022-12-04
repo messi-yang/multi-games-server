@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
 	applicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/interface/applicationeventhandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/interface/eventcontroller"
 )
 
 func Start() {
@@ -27,8 +27,8 @@ func Start() {
 		livegamemodel.NewLiveGameId(gameId.GetId())
 	}
 
-	applicationeventhandler.NewGameIntegrationEventHandler(
-		applicationeventhandler.GameIntegrationEventHandlerConfiguration{
+	eventcontroller.NewLiveGameEventController(
+		eventcontroller.LiveGameEventControllerConfiguration{
 			LiveGameApplicationService: liveGameApplicationService,
 		},
 	)
