@@ -1,0 +1,27 @@
+package dto
+
+import (
+	"fmt"
+
+	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
+)
+
+type RedisGameInfoUpdatedEvent struct {
+	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
+	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
+	Dimension  commonjsondto.DimensionJsonDto  `json:"dimension"`
+}
+
+func NewRedisGameInfoUpdatedEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimension gamecommonmodel.Dimension) RedisGameInfoUpdatedEvent {
+	return RedisGameInfoUpdatedEvent{
+		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
+		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
+		Dimension:  commonjsondto.NewDimensionJsonDto(dimension),
+	}
+}
+
+func NewRedisGameInfoUpdatedEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
+	return fmt.Sprintf("game-info-updated-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
+}

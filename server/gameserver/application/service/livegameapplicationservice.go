@@ -6,9 +6,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/livegameservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/apiredis"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
+	commonredisdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis/dto"
 )
 
 type LiveGameApplicationService interface {
@@ -95,8 +95,8 @@ func (serve *LiveGameApplicationServe) ReviveUnitsInLiveGame(liveGameId livegame
 			continue
 		}
 		serve.notificationPublisher.Publish(
-			apiredis.RedisZoomedAreaUpdatedSubscriberChannel(updatedGame.GetId(), playerId),
-			apiredis.NewRedisZoomedAreaUpdatedIntegrationEvent(updatedGame.GetId(), playerId, area, unitBlock),
+			commonredisdto.NewRedisZoomedAreaUpdatedEventChannel(updatedGame.GetId(), playerId),
+			commonredisdto.NewRedisZoomedAreaUpdatedEvent(updatedGame.GetId(), playerId, area, unitBlock),
 		)
 	}
 	return nil
@@ -109,8 +109,8 @@ func (serve *LiveGameApplicationServe) AddPlayerToLiveGame(liveGameId livegamemo
 	}
 
 	serve.notificationPublisher.Publish(
-		apiredis.RedisGameInfoUpdatedSubscriberChannel(liveGameId, playerId),
-		apiredis.NewRedisGameInfoUpdatedIntegrationEvent(liveGameId, playerId, updatedGame.GetDimension()),
+		commonredisdto.NewRedisGameInfoUpdatedEventChannel(liveGameId, playerId),
+		commonredisdto.NewRedisGameInfoUpdatedEvent(liveGameId, playerId, updatedGame.GetDimension()),
 	)
 
 	return nil
@@ -137,8 +137,8 @@ func (serve *LiveGameApplicationServe) AddZoomedAreaToLiveGame(liveGameId livega
 	}
 
 	serve.notificationPublisher.Publish(
-		apiredis.RedisAreaZoomedSubscriberChannel(liveGameId, playerId),
-		apiredis.NewRedisAreaZoomedIntegrationEvent(liveGameId, playerId, area, unitBlock),
+		commonredisdto.NewRedisAreaZoomedEventChannel(liveGameId, playerId),
+		commonredisdto.NewRedisAreaZoomedEvent(liveGameId, playerId, area, unitBlock),
 	)
 
 	return nil
