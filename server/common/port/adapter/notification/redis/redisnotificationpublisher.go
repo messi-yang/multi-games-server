@@ -3,7 +3,7 @@ package redis
 import (
 	"encoding/json"
 
-	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification"
+	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/notification"
 )
 
 type RedisNotificationPublisher struct {
