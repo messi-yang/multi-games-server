@@ -14,11 +14,17 @@ type ReviveUnitsRequestedApplicationEvent struct {
 	Coordinates []jsondto.CoordinateJsonDto     `json:"coordinates"`
 }
 
-func NewReviveUnitsRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) ApplicationEvent {
+func NewReviveUnitsRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) *ReviveUnitsRequestedApplicationEvent {
 	return &ReviveUnitsRequestedApplicationEvent{
 		LiveGameId:  commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		Coordinates: commonjsondto.NewCoordinateJsonDtos(coordinates),
 	}
+}
+
+func DeserializeReviveUnitsRequestedApplicationEvent(message []byte) ReviveUnitsRequestedApplicationEvent {
+	var event ReviveUnitsRequestedApplicationEvent
+	json.Unmarshal(message, &event)
+	return event
 }
 
 func NewReviveUnitsRequestedApplicationEventChannel() string {

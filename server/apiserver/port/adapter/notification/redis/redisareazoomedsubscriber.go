@@ -1,8 +1,6 @@
 package redis
 
 import (
-	"encoding/json"
-
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
@@ -25,11 +23,12 @@ func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId 
 }
 
 func (subscriber *RedisAreaZoomedSubscriber) Subscribe(handler func(*commonapplicationevent.AreaZoomedApplicationEvent)) func() {
-	unsubscriber := subscriber.redisProvider.Subscribe(commonapplicationevent.NewAreaZoomedApplicationEventChannel(subscriber.liveGameId, subscriber.playerId), func(message []byte) {
-		var event commonapplicationevent.AreaZoomedApplicationEvent
-		json.Unmarshal(message, &event)
-		handler(&event)
-	})
+	unsubscriber := subscriber.redisProvider.Subscribe(
+		commonapplicationevent.NewAreaZoomedApplicationEventChannel(subscriber.liveGameId, subscriber.playerId),
+		func(message []byte) {
+			event := commonapplicationevent.DeserializeAreaZoomedApplicationEvent(message)
+			handler(&event)
+		})
 
 	return func() {
 		unsubscriber()

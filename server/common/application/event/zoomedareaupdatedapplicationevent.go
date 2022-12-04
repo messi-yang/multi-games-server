@@ -16,13 +16,19 @@ type ZoomedAreaUpdatedApplicationEvent struct {
 	UnitBlock  commonjsondto.UnitBlockJsonDto  `json:"unitBlock"`
 }
 
-func NewZoomedAreaUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) ApplicationEvent {
+func NewZoomedAreaUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) *ZoomedAreaUpdatedApplicationEvent {
 	return &ZoomedAreaUpdatedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Area:       commonjsondto.NewAreaJsonDto(area),
 		UnitBlock:  commonjsondto.NewUnitBlockJsonDto(unitBlock),
 	}
+}
+
+func DeserializeZoomedAreaUpdatedApplicationEvent(message []byte) ZoomedAreaUpdatedApplicationEvent {
+	var event ZoomedAreaUpdatedApplicationEvent
+	json.Unmarshal(message, &event)
+	return event
 }
 
 func NewZoomedAreaUpdatedApplicationEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {

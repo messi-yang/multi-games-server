@@ -15,12 +15,18 @@ type GameInfoUpdatedApplicationEvent struct {
 	Dimension  commonjsondto.DimensionJsonDto  `json:"dimension"`
 }
 
-func NewGameInfoUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimension gamecommonmodel.Dimension) ApplicationEvent {
+func NewGameInfoUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimension gamecommonmodel.Dimension) *GameInfoUpdatedApplicationEvent {
 	return &GameInfoUpdatedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Dimension:  commonjsondto.NewDimensionJsonDto(dimension),
 	}
+}
+
+func DeserializeGameInfoUpdatedApplicationEvent(message []byte) GameInfoUpdatedApplicationEvent {
+	var event GameInfoUpdatedApplicationEvent
+	json.Unmarshal(message, &event)
+	return event
 }
 
 func NewGameInfoUpdatedApplicationEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {

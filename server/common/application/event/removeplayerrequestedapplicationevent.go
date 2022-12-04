@@ -13,11 +13,17 @@ type RemovePlayerRequestedApplicationEvent struct {
 	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
 }
 
-func NewRemovePlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) ApplicationEvent {
+func NewRemovePlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) *RemovePlayerRequestedApplicationEvent {
 	return &RemovePlayerRequestedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 	}
+}
+
+func DeserializeRemovePlayerRequestedApplicationEvent(message []byte) RemovePlayerRequestedApplicationEvent {
+	var event RemovePlayerRequestedApplicationEvent
+	json.Unmarshal(message, &event)
+	return event
 }
 
 func NewRemovePlayerRequestedApplicationEventChannel() string {

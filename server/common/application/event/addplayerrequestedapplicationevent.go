@@ -13,11 +13,17 @@ type AddPlayerRequestedApplicationEvent struct {
 	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
 }
 
-func NewAddPlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) ApplicationEvent {
+func NewAddPlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) *AddPlayerRequestedApplicationEvent {
 	return &AddPlayerRequestedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 	}
+}
+
+func DeserializeAddPlayerRequestedApplicationEvent(message []byte) AddPlayerRequestedApplicationEvent {
+	var event AddPlayerRequestedApplicationEvent
+	json.Unmarshal(message, &event)
+	return event
 }
 
 func NewAddPlayerRequestedApplicationEventChannel() string {

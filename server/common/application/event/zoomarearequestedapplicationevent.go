@@ -14,12 +14,18 @@ type ZoomAreaRequestedApplicationEvent struct {
 	Area       commonjsondto.AreaJsonDto       `json:"area"`
 }
 
-func NewZoomAreaRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) ApplicationEvent {
+func NewZoomAreaRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) *ZoomAreaRequestedApplicationEvent {
 	return &ZoomAreaRequestedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Area:       commonjsondto.NewAreaJsonDto(area),
 	}
+}
+
+func DeserializeZoomAreaRequestedApplicationEvent(message []byte) ZoomAreaRequestedApplicationEvent {
+	var event ZoomAreaRequestedApplicationEvent
+	json.Unmarshal(message, &event)
+	return event
 }
 
 func NewZoomAreaRequestedApplicationEventChannel() string {

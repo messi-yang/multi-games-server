@@ -1,8 +1,6 @@
 package redis
 
 import (
-	"encoding/json"
-
 	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
@@ -19,11 +17,12 @@ func NewRedisZoomAreaRequestedSubscriber() (commonnotification.NotificationSubsc
 }
 
 func (subscriber *RedisZoomAreaRequestedSubscriber) Subscribe(handler func(*commonapplicationevent.ZoomAreaRequestedApplicationEvent)) func() {
-	unsubscriber := subscriber.redisProvider.Subscribe(commonapplicationevent.NewZoomAreaRequestedApplicationEventChannel(), func(message []byte) {
-		var event commonapplicationevent.ZoomAreaRequestedApplicationEvent
-		json.Unmarshal(message, &event)
-		handler(&event)
-	})
+	unsubscriber := subscriber.redisProvider.Subscribe(
+		commonapplicationevent.NewZoomAreaRequestedApplicationEventChannel(),
+		func(message []byte) {
+			event := commonapplicationevent.DeserializeZoomAreaRequestedApplicationEvent(message)
+			handler(&event)
+		})
 
 	return func() {
 		unsubscriber()

@@ -1,8 +1,6 @@
 package redis
 
 import (
-	"encoding/json"
-
 	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
@@ -19,11 +17,12 @@ func NewRedisRemovePlayerRequestedSubscriber() (commonnotification.NotificationS
 }
 
 func (subscriber *RedisRemovePlayerRequestedSubscriber) Subscribe(handler func(*commonapplicationevent.RemovePlayerRequestedApplicationEvent)) func() {
-	unsubscriber := subscriber.redisProvider.Subscribe(commonapplicationevent.NewRemovePlayerRequestedApplicationEventChannel(), func(message []byte) {
-		var event commonapplicationevent.RemovePlayerRequestedApplicationEvent
-		json.Unmarshal(message, &event)
-		handler(&event)
-	})
+	unsubscriber := subscriber.redisProvider.Subscribe(
+		commonapplicationevent.NewRemovePlayerRequestedApplicationEventChannel(),
+		func(message []byte) {
+			event := commonapplicationevent.DeserializeRemovePlayerRequestedApplicationEvent(message)
+			handler(&event)
+		})
 
 	return func() {
 		unsubscriber()
