@@ -23,3 +23,27 @@ func NewRedisZoomAreaRequestedEvent(liveGameId livegamemodel.LiveGameId, playerI
 func NewRedisZoomAreaRequestedEventChannel() string {
 	return "zoom-area-requested"
 }
+
+func (event *RedisZoomAreaRequestedEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+	liveGameId, err := event.LiveGameId.ToValueObject()
+	if err != nil {
+		return livegamemodel.LiveGameId{}, err
+	}
+	return liveGameId, nil
+}
+
+func (event *RedisZoomAreaRequestedEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
+	playerId, err := event.PlayerId.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.PlayerId{}, err
+	}
+	return playerId, nil
+}
+
+func (event *RedisZoomAreaRequestedEvent) GetArea() (gamecommonmodel.Area, error) {
+	area, err := event.Area.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.Area{}, err
+	}
+	return area, nil
+}

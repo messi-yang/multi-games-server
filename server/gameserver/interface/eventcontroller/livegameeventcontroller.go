@@ -1,7 +1,6 @@
 package eventcontroller
 
 import (
-	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonredisdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/redis"
@@ -17,11 +16,11 @@ func NewLiveGameEventController(
 	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
 	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(
 		func(event commonredisdto.RedisReviveUnitsRequestedEvent) {
-			liveGameId, err := event.LiveGameId.ToValueObject()
+			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
 			}
-			coordinates, err := commonjsondto.ParseCoordinateJsonDtos(event.Coordinates)
+			coordinates, err := event.GetCoordinates()
 			if err != nil {
 				return
 			}
@@ -33,11 +32,11 @@ func NewLiveGameEventController(
 	redisAddPlayerRequestedSubscriber, _ := redis.NewRedisAddPlayerRequestedSubscriber()
 	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(
 		func(event commonredisdto.RedisAddPlayerRequestedEvent) {
-			liveGameId, err := event.LiveGameId.ToValueObject()
+			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
 			}
-			playerId, err := event.PlayerId.ToValueObject()
+			playerId, err := event.GetPlayerId()
 			if err != nil {
 				return
 			}
@@ -49,11 +48,11 @@ func NewLiveGameEventController(
 	redisRemovePlayerRequestedSubscriber, _ := redis.NewRedisRemovePlayerRequestedSubscriber()
 	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(
 		func(event commonredisdto.RedisRemovePlayerRequestedEvent) {
-			liveGameId, err := event.LiveGameId.ToValueObject()
+			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
 			}
-			playerId, err := event.PlayerId.ToValueObject()
+			playerId, err := event.GetPlayerId()
 			if err != nil {
 				return
 			}
@@ -66,15 +65,15 @@ func NewLiveGameEventController(
 	redisZoomAreaRequestedSubscriber, _ := redis.NewRedisZoomAreaRequestedSubscriber()
 	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(
 		func(event commonredisdto.RedisZoomAreaRequestedEvent) {
-			liveGameId, err := event.LiveGameId.ToValueObject()
+			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
 			}
-			playerId, err := event.PlayerId.ToValueObject()
+			playerId, err := event.GetPlayerId()
 			if err != nil {
 				return
 			}
-			area, err := event.Area.ToValueObject()
+			area, err := event.GetArea()
 			if err != nil {
 				return
 			}

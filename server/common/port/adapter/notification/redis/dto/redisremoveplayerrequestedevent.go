@@ -21,3 +21,19 @@ func NewRedisRemovePlayerRequestedEvent(liveGameId livegamemodel.LiveGameId, pla
 func NewRedisRemovePlayerRequestedEventChannel() string {
 	return "remove-player-requested"
 }
+
+func (event *RedisRemovePlayerRequestedEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+	liveGameId, err := event.LiveGameId.ToValueObject()
+	if err != nil {
+		return livegamemodel.LiveGameId{}, err
+	}
+	return liveGameId, nil
+}
+
+func (event *RedisRemovePlayerRequestedEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
+	playerId, err := event.PlayerId.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.PlayerId{}, err
+	}
+	return playerId, nil
+}

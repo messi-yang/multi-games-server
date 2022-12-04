@@ -22,3 +22,19 @@ func NewRedisReviveUnitsRequestedEvent(liveGameId livegamemodel.LiveGameId, coor
 func NewRedisReviveUnitsRequestedEventChannel() string {
 	return "revive-units-requested"
 }
+
+func (event *RedisReviveUnitsRequestedEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+	liveGameId, err := event.LiveGameId.ToValueObject()
+	if err != nil {
+		return livegamemodel.LiveGameId{}, err
+	}
+	return liveGameId, nil
+}
+
+func (event *RedisReviveUnitsRequestedEvent) GetCoordinates() ([]gamecommonmodel.Coordinate, error) {
+	coordinates, err := jsondto.ParseCoordinateJsonDtos(event.Coordinates)
+	if err != nil {
+		return nil, err
+	}
+	return coordinates, nil
+}
