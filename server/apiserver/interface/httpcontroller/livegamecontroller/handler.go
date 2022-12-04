@@ -10,7 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/redis"
 	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
-	commonservice "github.com/dum-dum-genius/game-of-liberty-computer/server/common/service"
+	commonapplicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -106,7 +106,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 					break
 				}
 
-				gzipCompressor := commonservice.NewGzipService()
+				gzipCompressor := commonapplicationservice.NewGzipService()
 				message, err := gzipCompressor.Ungzip(compressedMessage)
 				if err != nil {
 					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
@@ -156,7 +156,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, socketConnLock *sync.RWMutex,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	gzipCompressor := commonservice.NewGzipService()
+	gzipCompressor := commonapplicationservice.NewGzipService()
 	compressedMessage, _ := gzipCompressor.Gzip(messageJsonInBytes)
 
 	conn.WriteMessage(2, compressedMessage)
