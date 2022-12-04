@@ -76,16 +76,16 @@ type RedisZoomAreaRequestedEvent struct {
 	Payload RedisZoomAreaRequestedEventPayload `json:"payload"`
 }
 
-type GameHandlerPresenter struct {
+type Presenter struct {
 }
 
-func NewGameHandlerPresenter() *GameHandlerPresenter {
-	return &GameHandlerPresenter{}
+func NewPresenter() *Presenter {
+	return &Presenter{}
 }
 
-var gameHandlerPresenter = NewGameHandlerPresenter()
+var presenter = NewPresenter()
 
-func (presenter *GameHandlerPresenter) ExtractEventType(msg []byte) (EventType, error) {
+func (presenter *Presenter) ParseEventType(msg []byte) (EventType, error) {
 	var event Event
 	err := json.Unmarshal(msg, &event)
 	if err != nil {
@@ -95,7 +95,7 @@ func (presenter *GameHandlerPresenter) ExtractEventType(msg []byte) (EventType, 
 	return event.Type, nil
 }
 
-func (presenter *GameHandlerPresenter) CreateErroredEvent(clientMessage string) ErroredEvent {
+func (presenter *Presenter) PresentErroredEvent(clientMessage string) ErroredEvent {
 	return ErroredEvent{
 		Type: ErrorHappenedEventType,
 		Payload: ErroredEventPayload{
@@ -104,7 +104,7 @@ func (presenter *GameHandlerPresenter) CreateErroredEvent(clientMessage string) 
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateInformationUpdatedEvent(dimension commonjsondto.DimensionJsonDto) InformationUpdatedEvent {
+func (presenter *Presenter) PresentInformationUpdatedEvent(dimension commonjsondto.DimensionJsonDto) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
@@ -113,7 +113,7 @@ func (presenter *GameHandlerPresenter) CreateInformationUpdatedEvent(dimension c
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateRedisZoomedAreaUpdatedEvent(area commonjsondto.AreaJsonDto, unitBlock commonjsondto.UnitBlockJsonDto) RedisZoomedAreaUpdatedEvent {
+func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area commonjsondto.AreaJsonDto, unitBlock commonjsondto.UnitBlockJsonDto) RedisZoomedAreaUpdatedEvent {
 	return RedisZoomedAreaUpdatedEvent{
 		Type: RedisZoomedAreaUpdatedEventType,
 		Payload: RedisZoomedAreaUpdatedEventPayload{
@@ -124,7 +124,7 @@ func (presenter *GameHandlerPresenter) CreateRedisZoomedAreaUpdatedEvent(area co
 	}
 }
 
-func (presenter *GameHandlerPresenter) CreateRedisAreaZoomedEvent(area commonjsondto.AreaJsonDto, unitBlock commonjsondto.UnitBlockJsonDto) RedisAreaZoomedEvent {
+func (presenter *Presenter) PresentAreaZoomedEvent(area commonjsondto.AreaJsonDto, unitBlock commonjsondto.UnitBlockJsonDto) RedisAreaZoomedEvent {
 	return RedisAreaZoomedEvent{
 		Type: RedisAreaZoomedEventType,
 		Payload: RedisAreaZoomedEventPayload{
@@ -134,7 +134,7 @@ func (presenter *GameHandlerPresenter) CreateRedisAreaZoomedEvent(area commonjso
 	}
 }
 
-func (presenter *GameHandlerPresenter) ExtractRedisReviveUnitsRequestedEvent(msg []byte) ([]gamecommonmodel.Coordinate, error) {
+func (presenter *Presenter) ParseReviveUnitsRequestedEvent(msg []byte) ([]gamecommonmodel.Coordinate, error) {
 	var action RedisReviveUnitsRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
@@ -148,7 +148,7 @@ func (presenter *GameHandlerPresenter) ExtractRedisReviveUnitsRequestedEvent(msg
 	return coordinates, nil
 }
 
-func (presenter *GameHandlerPresenter) ExtractRedisZoomAreaRequestedEvent(msg []byte) (gamecommonmodel.Area, error) {
+func (presenter *Presenter) ParseZoomAreaRequestedEvent(msg []byte) (gamecommonmodel.Area, error) {
 	var action RedisZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {

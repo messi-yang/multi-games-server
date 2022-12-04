@@ -9,14 +9,14 @@ type GameApplicationService interface {
 	GetFirstGameId() (gamemodel.GameId, error)
 }
 
-type GameApplicationServe struct {
-	GameService gameservice.GameService
+type gameApplicationServe struct {
+	gameService gameservice.GameService
 }
 
-type gameApplicationServiceConfiguration func(serve *GameApplicationServe) error
+type gameApplicationServiceConfiguration func(serve *gameApplicationServe) error
 
-func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*GameApplicationServe, error) {
-	serve := &GameApplicationServe{}
+func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*gameApplicationServe, error) {
+	serve := &gameApplicationServe{}
 	for _, cfg := range cfgs {
 		err := cfg(serve)
 		if err != nil {
@@ -28,14 +28,14 @@ func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*Ga
 
 func WithGameService() gameApplicationServiceConfiguration {
 	gameService, _ := gameservice.NewGameService(gameservice.WithPostgresGameRepository())
-	return func(serve *GameApplicationServe) error {
-		serve.GameService = gameService
+	return func(serve *gameApplicationServe) error {
+		serve.gameService = gameService
 		return nil
 	}
 }
 
-func (serve *GameApplicationServe) GetFirstGameId() (gamemodel.GameId, error) {
-	games, err := serve.GameService.GeAllGames()
+func (serve *gameApplicationServe) GetFirstGameId() (gamemodel.GameId, error) {
+	games, err := serve.gameService.GeAllGames()
 	if err != nil {
 		return gamemodel.GameId{}, err
 	}
