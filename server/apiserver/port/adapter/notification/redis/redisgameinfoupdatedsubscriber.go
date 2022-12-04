@@ -5,9 +5,9 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
-	commonredisdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis/dto"
 )
 
 type RedisGameInfoUpdatedSubscriber struct {
@@ -16,7 +16,7 @@ type RedisGameInfoUpdatedSubscriber struct {
 	redisProvider *commonredis.RedisProvider
 }
 
-func NewRedisGameInfoUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonnotification.NotificationSubscriber[commonredisdto.RedisGameInfoUpdatedEvent], error) {
+func NewRedisGameInfoUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonnotification.NotificationSubscriber[commonapplicationevent.GameInfoUpdatedApplicationEvent], error) {
 	return &RedisGameInfoUpdatedSubscriber{
 		liveGameId:    liveGameId,
 		playerId:      playerId,
@@ -24,9 +24,9 @@ func NewRedisGameInfoUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, play
 	}, nil
 }
 
-func (subscriber *RedisGameInfoUpdatedSubscriber) Subscribe(handler func(commonredisdto.RedisGameInfoUpdatedEvent)) func() {
-	unsubscriber := subscriber.redisProvider.Subscribe(commonredisdto.NewRedisGameInfoUpdatedEventChannel(subscriber.liveGameId, subscriber.playerId), func(message []byte) {
-		var event commonredisdto.RedisGameInfoUpdatedEvent
+func (subscriber *RedisGameInfoUpdatedSubscriber) Subscribe(handler func(commonapplicationevent.GameInfoUpdatedApplicationEvent)) func() {
+	unsubscriber := subscriber.redisProvider.Subscribe(commonapplicationevent.NewGameInfoUpdatedApplicationEventChannel(subscriber.liveGameId, subscriber.playerId), func(message []byte) {
+		var event commonapplicationevent.GameInfoUpdatedApplicationEvent
 		json.Unmarshal(message, &event)
 		handler(event)
 	})

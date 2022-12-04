@@ -1,7 +1,7 @@
 package eventcontroller
 
 import (
-	commonredisdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis/dto"
+	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/redis"
 )
@@ -15,7 +15,7 @@ func NewLiveGameEventController(
 ) {
 	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
 	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(
-		func(event commonredisdto.RedisReviveUnitsRequestedEvent) {
+		func(event commonapplicationevent.ReviveUnitsRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -31,7 +31,7 @@ func NewLiveGameEventController(
 
 	redisAddPlayerRequestedSubscriber, _ := redis.NewRedisAddPlayerRequestedSubscriber()
 	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(
-		func(event commonredisdto.RedisAddPlayerRequestedEvent) {
+		func(event commonapplicationevent.AddPlayerRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -47,7 +47,7 @@ func NewLiveGameEventController(
 
 	redisRemovePlayerRequestedSubscriber, _ := redis.NewRedisRemovePlayerRequestedSubscriber()
 	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(
-		func(event commonredisdto.RedisRemovePlayerRequestedEvent) {
+		func(event commonapplicationevent.RemovePlayerRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -64,7 +64,7 @@ func NewLiveGameEventController(
 
 	redisZoomAreaRequestedSubscriber, _ := redis.NewRedisZoomAreaRequestedSubscriber()
 	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(
-		func(event commonredisdto.RedisZoomAreaRequestedEvent) {
+		func(event commonapplicationevent.ZoomAreaRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return

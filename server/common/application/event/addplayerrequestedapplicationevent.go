@@ -1,4 +1,4 @@
-package dto
+package event
 
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
@@ -6,23 +6,23 @@ import (
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
-type RedisRemovePlayerRequestedEvent struct {
+type AddPlayerRequestedApplicationEvent struct {
 	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
 	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
 }
 
-func NewRedisRemovePlayerRequestedEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) RedisRemovePlayerRequestedEvent {
-	return RedisRemovePlayerRequestedEvent{
+func NewAddPlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) AddPlayerRequestedApplicationEvent {
+	return AddPlayerRequestedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 	}
 }
 
-func NewRedisRemovePlayerRequestedEventChannel() string {
-	return "remove-player-requested"
+func NewAddPlayerRequestedApplicationEventChannel() string {
+	return "add-player-requested"
 }
 
-func (event *RedisRemovePlayerRequestedEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *AddPlayerRequestedApplicationEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := event.LiveGameId.ToValueObject()
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -30,7 +30,7 @@ func (event *RedisRemovePlayerRequestedEvent) GetLiveGameId() (livegamemodel.Liv
 	return liveGameId, nil
 }
 
-func (event *RedisRemovePlayerRequestedEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
+func (event *AddPlayerRequestedApplicationEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
 	playerId, err := event.PlayerId.ToValueObject()
 	if err != nil {
 		return gamecommonmodel.PlayerId{}, err

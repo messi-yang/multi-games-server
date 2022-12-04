@@ -9,7 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/redis"
-	commonredisdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis/dto"
+	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonservice "github.com/dum-dum-genius/game-of-liberty-computer/server/common/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -50,7 +50,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 
 		redisGameInfoUpdatedSubscriber, _ := redis.NewRedisGameInfoUpdatedSubscriber(liveGameId, playerId)
 		redisGameInfoUpdatedSubscriberUnsubscriber := redisGameInfoUpdatedSubscriber.Subscribe(
-			func(event commonredisdto.RedisGameInfoUpdatedEvent) {
+			func(event commonapplicationevent.GameInfoUpdatedApplicationEvent) {
 				dimension, err := event.GetDimension()
 				if err != nil {
 					return
@@ -62,7 +62,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 
 		redisAreaZoomedSubscriber, _ := redis.NewRedisAreaZoomedSubscriber(liveGameId, playerId)
 		redisAreaZoomedSubscriberUnsubscriber := redisAreaZoomedSubscriber.Subscribe(
-			func(event commonredisdto.RedisAreaZoomedEvent) {
+			func(event commonapplicationevent.AreaZoomedApplicationEvent) {
 				area, err := event.GetArea()
 				if err != nil {
 					return
@@ -78,7 +78,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 
 		redisZoomedAreaUpdatedSubscriber, _ := redis.NewRedisZoomedAreaUpdatedSubscriber(liveGameId, playerId)
 		redisZoomedAreaUpdatedSubscriberUnsubscriber := redisZoomedAreaUpdatedSubscriber.Subscribe(
-			func(event commonredisdto.RedisZoomedAreaUpdatedEvent) {
+			func(event commonapplicationevent.ZoomedAreaUpdatedApplicationEvent) {
 				area, err := event.GetArea()
 				if err != nil {
 					return
@@ -120,7 +120,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 				}
 
 				switch eventType {
-				case RedisZoomAreaRequestedEventType:
+				case ZoomAreaRequestedEventType:
 					area, err := presenter.ParseZoomAreaRequestedEvent(message)
 					if err != nil {
 						sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
@@ -128,7 +128,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 					}
 
 					configuration.LiveGameApplicationService.RequestToZoomArea(liveGameId, playerId, area)
-				case RedisReviveUnitsRequestedEventType:
+				case ReviveUnitsRequestedEventType:
 					coordinates, err := presenter.ParseReviveUnitsRequestedEvent(message)
 					if err != nil {
 						sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))

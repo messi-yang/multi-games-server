@@ -1,4 +1,4 @@
-package dto
+package event
 
 import (
 	"fmt"
@@ -8,15 +8,15 @@ import (
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
-type RedisZoomedAreaUpdatedEvent struct {
+type ZoomedAreaUpdatedApplicationEvent struct {
 	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
 	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
 	Area       commonjsondto.AreaJsonDto       `json:"area"`
 	UnitBlock  commonjsondto.UnitBlockJsonDto  `json:"unitBlock"`
 }
 
-func NewRedisZoomedAreaUpdatedEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) RedisZoomedAreaUpdatedEvent {
-	return RedisZoomedAreaUpdatedEvent{
+func NewZoomedAreaUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) ZoomedAreaUpdatedApplicationEvent {
+	return ZoomedAreaUpdatedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Area:       commonjsondto.NewAreaJsonDto(area),
@@ -24,11 +24,11 @@ func NewRedisZoomedAreaUpdatedEvent(liveGameId livegamemodel.LiveGameId, playerI
 	}
 }
 
-func NewRedisZoomedAreaUpdatedEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
+func NewZoomedAreaUpdatedApplicationEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
 	return fmt.Sprintf("area-zoomed-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
 }
 
-func (event *RedisZoomedAreaUpdatedEvent) GetArea() (gamecommonmodel.Area, error) {
+func (event *ZoomedAreaUpdatedApplicationEvent) GetArea() (gamecommonmodel.Area, error) {
 	area, err := event.Area.ToValueObject()
 	if err != nil {
 		return gamecommonmodel.Area{}, err
@@ -36,7 +36,7 @@ func (event *RedisZoomedAreaUpdatedEvent) GetArea() (gamecommonmodel.Area, error
 	return area, nil
 }
 
-func (event *RedisZoomedAreaUpdatedEvent) GetUnitBlock() (gamecommonmodel.UnitBlock, error) {
+func (event *ZoomedAreaUpdatedApplicationEvent) GetUnitBlock() (gamecommonmodel.UnitBlock, error) {
 	unitBlock, err := event.UnitBlock.ToValueObject()
 	if err != nil {
 		return gamecommonmodel.UnitBlock{}, err

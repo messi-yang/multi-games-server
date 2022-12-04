@@ -1,4 +1,4 @@
-package dto
+package event
 
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
@@ -6,25 +6,23 @@ import (
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
-type RedisZoomAreaRequestedEvent struct {
+type RemovePlayerRequestedApplicationEvent struct {
 	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
 	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
-	Area       commonjsondto.AreaJsonDto       `json:"area"`
 }
 
-func NewRedisZoomAreaRequestedEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) RedisZoomAreaRequestedEvent {
-	return RedisZoomAreaRequestedEvent{
+func NewRemovePlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) RemovePlayerRequestedApplicationEvent {
+	return RemovePlayerRequestedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
-		Area:       commonjsondto.NewAreaJsonDto(area),
 	}
 }
 
-func NewRedisZoomAreaRequestedEventChannel() string {
-	return "zoom-area-requested"
+func NewRemovePlayerRequestedApplicationEventChannel() string {
+	return "remove-player-requested"
 }
 
-func (event *RedisZoomAreaRequestedEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *RemovePlayerRequestedApplicationEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := event.LiveGameId.ToValueObject()
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -32,18 +30,10 @@ func (event *RedisZoomAreaRequestedEvent) GetLiveGameId() (livegamemodel.LiveGam
 	return liveGameId, nil
 }
 
-func (event *RedisZoomAreaRequestedEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
+func (event *RemovePlayerRequestedApplicationEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
 	playerId, err := event.PlayerId.ToValueObject()
 	if err != nil {
 		return gamecommonmodel.PlayerId{}, err
 	}
 	return playerId, nil
-}
-
-func (event *RedisZoomAreaRequestedEvent) GetArea() (gamecommonmodel.Area, error) {
-	area, err := event.Area.ToValueObject()
-	if err != nil {
-		return gamecommonmodel.Area{}, err
-	}
-	return area, nil
 }

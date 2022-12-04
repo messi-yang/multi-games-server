@@ -3,9 +3,9 @@ package service
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
-	commonredisdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis/dto"
 )
 
 type LiveGameApplicationService interface {
@@ -41,28 +41,28 @@ func WithRedisNotificationPublisher() liveGameApplicationServiceConfiguration {
 
 func (serve *liveGameApplicationServe) RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) {
 	serve.notificationPublisher.Publish(
-		commonredisdto.NewRedisAddPlayerRequestedEventChannel(),
-		commonredisdto.NewRedisAddPlayerRequestedEvent(liveGameId, playerId),
+		commonapplicationevent.NewAddPlayerRequestedApplicationEventChannel(),
+		commonapplicationevent.NewAddPlayerRequestedApplicationEvent(liveGameId, playerId),
 	)
 }
 
 func (serve *liveGameApplicationServe) RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) {
 	serve.notificationPublisher.Publish(
-		commonredisdto.NewRedisZoomAreaRequestedEventChannel(),
-		commonredisdto.NewRedisZoomAreaRequestedEvent(liveGameId, playerId, area),
+		commonapplicationevent.NewZoomAreaRequestedApplicationEventChannel(),
+		commonapplicationevent.NewZoomAreaRequestedApplicationEvent(liveGameId, playerId, area),
 	)
 }
 
 func (serve *liveGameApplicationServe) RequestToReviveUnits(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) {
 	serve.notificationPublisher.Publish(
-		commonredisdto.NewRedisReviveUnitsRequestedEventChannel(),
-		commonredisdto.NewRedisReviveUnitsRequestedEvent(liveGameId, coordinates),
+		commonapplicationevent.NewReviveUnitsRequestedApplicationEventChannel(),
+		commonapplicationevent.NewReviveUnitsRequestedApplicationEvent(liveGameId, coordinates),
 	)
 }
 
 func (serve *liveGameApplicationServe) RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) {
 	serve.notificationPublisher.Publish(
-		commonredisdto.NewRedisRemovePlayerRequestedEventChannel(),
-		commonredisdto.NewRedisRemovePlayerRequestedEvent(liveGameId, playerId),
+		commonapplicationevent.NewRemovePlayerRequestedApplicationEventChannel(),
+		commonapplicationevent.NewRemovePlayerRequestedApplicationEvent(liveGameId, playerId),
 	)
 }

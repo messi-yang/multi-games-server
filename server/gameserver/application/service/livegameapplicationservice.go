@@ -6,9 +6,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/livegameservice"
+	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
-	commonredisdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis/dto"
 )
 
 type LiveGameApplicationService interface {
@@ -95,8 +95,8 @@ func (serve *LiveGameApplicationServe) ReviveUnitsInLiveGame(liveGameId livegame
 			continue
 		}
 		serve.notificationPublisher.Publish(
-			commonredisdto.NewRedisZoomedAreaUpdatedEventChannel(updatedGame.GetId(), playerId),
-			commonredisdto.NewRedisZoomedAreaUpdatedEvent(updatedGame.GetId(), playerId, area, unitBlock),
+			commonapplicationevent.NewZoomedAreaUpdatedApplicationEventChannel(updatedGame.GetId(), playerId),
+			commonapplicationevent.NewZoomedAreaUpdatedApplicationEvent(updatedGame.GetId(), playerId, area, unitBlock),
 		)
 	}
 	return nil
@@ -109,8 +109,8 @@ func (serve *LiveGameApplicationServe) AddPlayerToLiveGame(liveGameId livegamemo
 	}
 
 	serve.notificationPublisher.Publish(
-		commonredisdto.NewRedisGameInfoUpdatedEventChannel(liveGameId, playerId),
-		commonredisdto.NewRedisGameInfoUpdatedEvent(liveGameId, playerId, updatedGame.GetDimension()),
+		commonapplicationevent.NewGameInfoUpdatedApplicationEventChannel(liveGameId, playerId),
+		commonapplicationevent.NewGameInfoUpdatedApplicationEvent(liveGameId, playerId, updatedGame.GetDimension()),
 	)
 
 	return nil
@@ -137,8 +137,8 @@ func (serve *LiveGameApplicationServe) AddZoomedAreaToLiveGame(liveGameId livega
 	}
 
 	serve.notificationPublisher.Publish(
-		commonredisdto.NewRedisAreaZoomedEventChannel(liveGameId, playerId),
-		commonredisdto.NewRedisAreaZoomedEvent(liveGameId, playerId, area, unitBlock),
+		commonapplicationevent.NewAreaZoomedApplicationEventChannel(liveGameId, playerId),
+		commonapplicationevent.NewAreaZoomedApplicationEvent(liveGameId, playerId, area, unitBlock),
 	)
 
 	return nil
