@@ -25,3 +25,11 @@ func NewRedisGameInfoUpdatedEvent(liveGameId livegamemodel.LiveGameId, playerId 
 func NewRedisGameInfoUpdatedEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
 	return fmt.Sprintf("game-info-updated-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
 }
+
+func (event *RedisGameInfoUpdatedEvent) GetDimension() (gamecommonmodel.Dimension, error) {
+	dimension, err := event.Dimension.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.Dimension{}, nil
+	}
+	return dimension, nil
+}

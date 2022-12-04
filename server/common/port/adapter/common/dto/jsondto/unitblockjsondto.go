@@ -20,7 +20,7 @@ func NewUnitBlockJsonDto(unitBlock gamecommonmodel.UnitBlock) UnitBlockJsonDto {
 	return unitBlockJsonDto
 }
 
-func (dto UnitBlockJsonDto) ToValueObject() gamecommonmodel.UnitBlock {
+func (dto UnitBlockJsonDto) ToValueObject() (gamecommonmodel.UnitBlock, error) {
 	unitMatrix := make([][]gamecommonmodel.Unit, 0)
 
 	for i := 0; i < len(dto); i += 1 {
@@ -29,5 +29,5 @@ func (dto UnitBlockJsonDto) ToValueObject() gamecommonmodel.UnitBlock {
 			unitMatrix[i] = append(unitMatrix[i], dto[i][j].ToValueObject())
 		}
 	}
-	return gamecommonmodel.NewUnitBlock(unitMatrix)
+	return gamecommonmodel.NewUnitBlock(unitMatrix), nil
 }

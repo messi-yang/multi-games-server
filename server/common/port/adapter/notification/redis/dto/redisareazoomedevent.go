@@ -27,3 +27,19 @@ func NewRedisAreaZoomedEvent(liveGameId livegamemodel.LiveGameId, playerId gamec
 func NewRedisAreaZoomedEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
 	return fmt.Sprintf("area-zoomed-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
 }
+
+func (event *RedisAreaZoomedEvent) GetArea() (gamecommonmodel.Area, error) {
+	area, err := event.Area.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.Area{}, err
+	}
+	return area, nil
+}
+
+func (event *RedisAreaZoomedEvent) GetUnitBlock() (gamecommonmodel.UnitBlock, error) {
+	unitBlock, err := event.UnitBlock.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.UnitBlock{}, err
+	}
+	return unitBlock, nil
+}

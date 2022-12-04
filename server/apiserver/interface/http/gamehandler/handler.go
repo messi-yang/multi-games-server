@@ -51,7 +51,11 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		redisGameInfoUpdatedSubscriber, _ := redis.NewRedisGameInfoUpdatedSubscriber(liveGameId, playerId)
 		redisGameInfoUpdatedSubscriberUnsubscriber := redisGameInfoUpdatedSubscriber.Subscribe(
 			func(event commonredisdto.RedisGameInfoUpdatedEvent) {
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(event.Dimension))
+				dimension, err := event.GetDimension()
+				if err != nil {
+					return
+				}
+				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(dimension))
 			},
 		)
 		defer redisGameInfoUpdatedSubscriberUnsubscriber()
@@ -59,7 +63,15 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		redisAreaZoomedSubscriber, _ := redis.NewRedisAreaZoomedSubscriber(liveGameId, playerId)
 		redisAreaZoomedSubscriberUnsubscriber := redisAreaZoomedSubscriber.Subscribe(
 			func(event commonredisdto.RedisAreaZoomedEvent) {
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(event.Area, event.UnitBlock))
+				area, err := event.GetArea()
+				if err != nil {
+					return
+				}
+				unitBlock, err := event.GetUnitBlock()
+				if err != nil {
+					return
+				}
+				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(area, unitBlock))
 			},
 		)
 		defer redisAreaZoomedSubscriberUnsubscriber()
@@ -67,7 +79,15 @@ func NewHandler(configuration HandlerConfiguration) func(c *gin.Context) {
 		redisZoomedAreaUpdatedSubscriber, _ := redis.NewRedisZoomedAreaUpdatedSubscriber(liveGameId, playerId)
 		redisZoomedAreaUpdatedSubscriberUnsubscriber := redisZoomedAreaUpdatedSubscriber.Subscribe(
 			func(event commonredisdto.RedisZoomedAreaUpdatedEvent) {
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentZoomedAreaUpdatedEvent(event.Area, event.UnitBlock))
+				area, err := event.GetArea()
+				if err != nil {
+					return
+				}
+				unitBlock, err := event.GetUnitBlock()
+				if err != nil {
+					return
+				}
+				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentZoomedAreaUpdatedEvent(area, unitBlock))
 			},
 		)
 		defer redisZoomedAreaUpdatedSubscriberUnsubscriber()

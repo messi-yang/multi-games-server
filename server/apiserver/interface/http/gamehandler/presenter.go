@@ -5,6 +5,7 @@ import (
 	"time"
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
@@ -104,32 +105,32 @@ func (presenter *Presenter) PresentErroredEvent(clientMessage string) ErroredEve
 	}
 }
 
-func (presenter *Presenter) PresentInformationUpdatedEvent(dimension commonjsondto.DimensionJsonDto) InformationUpdatedEvent {
+func (presenter *Presenter) PresentInformationUpdatedEvent(dimension gamecommonmodel.Dimension) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
-			Dimension: dimension,
+			Dimension: jsondto.NewDimensionJsonDto(dimension),
 		},
 	}
 }
 
-func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area commonjsondto.AreaJsonDto, unitBlock commonjsondto.UnitBlockJsonDto) RedisZoomedAreaUpdatedEvent {
+func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) RedisZoomedAreaUpdatedEvent {
 	return RedisZoomedAreaUpdatedEvent{
 		Type: RedisZoomedAreaUpdatedEventType,
 		Payload: RedisZoomedAreaUpdatedEventPayload{
-			Area:      area,
-			UnitBlock: unitBlock,
+			Area:      jsondto.NewAreaJsonDto(area),
+			UnitBlock: jsondto.NewUnitBlockJsonDto(unitBlock),
 			UpdatedAt: time.Now(),
 		},
 	}
 }
 
-func (presenter *Presenter) PresentAreaZoomedEvent(area commonjsondto.AreaJsonDto, unitBlock commonjsondto.UnitBlockJsonDto) RedisAreaZoomedEvent {
+func (presenter *Presenter) PresentAreaZoomedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) RedisAreaZoomedEvent {
 	return RedisAreaZoomedEvent{
 		Type: RedisAreaZoomedEventType,
 		Payload: RedisAreaZoomedEventPayload{
-			Area:      area,
-			UnitBlock: unitBlock,
+			Area:      jsondto.NewAreaJsonDto(area),
+			UnitBlock: jsondto.NewUnitBlockJsonDto(unitBlock),
 		},
 	}
 }
