@@ -15,7 +15,7 @@ func NewLiveGameEventController(
 ) {
 	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
 	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(
-		func(event commonapplicationevent.ReviveUnitsRequestedApplicationEvent) {
+		func(event *commonapplicationevent.ReviveUnitsRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -31,7 +31,7 @@ func NewLiveGameEventController(
 
 	redisAddPlayerRequestedSubscriber, _ := redis.NewRedisAddPlayerRequestedSubscriber()
 	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(
-		func(event commonapplicationevent.AddPlayerRequestedApplicationEvent) {
+		func(event *commonapplicationevent.AddPlayerRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -47,7 +47,7 @@ func NewLiveGameEventController(
 
 	redisRemovePlayerRequestedSubscriber, _ := redis.NewRedisRemovePlayerRequestedSubscriber()
 	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(
-		func(event commonapplicationevent.RemovePlayerRequestedApplicationEvent) {
+		func(event *commonapplicationevent.RemovePlayerRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -64,7 +64,7 @@ func NewLiveGameEventController(
 
 	redisZoomAreaRequestedSubscriber, _ := redis.NewRedisZoomAreaRequestedSubscriber()
 	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(
-		func(event commonapplicationevent.ZoomAreaRequestedApplicationEvent) {
+		func(event *commonapplicationevent.ZoomAreaRequestedApplicationEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return

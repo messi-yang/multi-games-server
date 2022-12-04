@@ -1,6 +1,8 @@
 package event
 
 import (
+	"encoding/json"
+
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
@@ -12,8 +14,8 @@ type ReviveUnitsRequestedApplicationEvent struct {
 	Coordinates []jsondto.CoordinateJsonDto     `json:"coordinates"`
 }
 
-func NewReviveUnitsRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) ReviveUnitsRequestedApplicationEvent {
-	return ReviveUnitsRequestedApplicationEvent{
+func NewReviveUnitsRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) ApplicationEvent {
+	return &ReviveUnitsRequestedApplicationEvent{
 		LiveGameId:  commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		Coordinates: commonjsondto.NewCoordinateJsonDtos(coordinates),
 	}
@@ -21,6 +23,11 @@ func NewReviveUnitsRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId
 
 func NewReviveUnitsRequestedApplicationEventChannel() string {
 	return "revive-units-requested"
+}
+
+func (event *ReviveUnitsRequestedApplicationEvent) Serialize() []byte {
+	message, _ := json.Marshal(event)
+	return message
 }
 
 func (event *ReviveUnitsRequestedApplicationEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {

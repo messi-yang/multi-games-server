@@ -50,7 +50,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 
 		redisGameInfoUpdatedSubscriber, _ := redis.NewRedisGameInfoUpdatedSubscriber(liveGameId, playerId)
 		redisGameInfoUpdatedSubscriberUnsubscriber := redisGameInfoUpdatedSubscriber.Subscribe(
-			func(event commonapplicationevent.GameInfoUpdatedApplicationEvent) {
+			func(event *commonapplicationevent.GameInfoUpdatedApplicationEvent) {
 				dimension, err := event.GetDimension()
 				if err != nil {
 					return
@@ -62,7 +62,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 
 		redisAreaZoomedSubscriber, _ := redis.NewRedisAreaZoomedSubscriber(liveGameId, playerId)
 		redisAreaZoomedSubscriberUnsubscriber := redisAreaZoomedSubscriber.Subscribe(
-			func(event commonapplicationevent.AreaZoomedApplicationEvent) {
+			func(event *commonapplicationevent.AreaZoomedApplicationEvent) {
 				area, err := event.GetArea()
 				if err != nil {
 					return
@@ -78,7 +78,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 
 		redisZoomedAreaUpdatedSubscriber, _ := redis.NewRedisZoomedAreaUpdatedSubscriber(liveGameId, playerId)
 		redisZoomedAreaUpdatedSubscriberUnsubscriber := redisZoomedAreaUpdatedSubscriber.Subscribe(
-			func(event commonapplicationevent.ZoomedAreaUpdatedApplicationEvent) {
+			func(event *commonapplicationevent.ZoomedAreaUpdatedApplicationEvent) {
 				area, err := event.GetArea()
 				if err != nil {
 					return

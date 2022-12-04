@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"fmt"
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
@@ -15,8 +16,8 @@ type AreaZoomedApplicationEvent struct {
 	UnitBlock  commonjsondto.UnitBlockJsonDto  `json:"unitBlock"`
 }
 
-func NewAreaZoomedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) AreaZoomedApplicationEvent {
-	return AreaZoomedApplicationEvent{
+func NewAreaZoomedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) ApplicationEvent {
+	return &AreaZoomedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Area:       commonjsondto.NewAreaJsonDto(area),
@@ -26,6 +27,11 @@ func NewAreaZoomedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId
 
 func NewAreaZoomedApplicationEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
 	return fmt.Sprintf("area-zoomed-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
+}
+
+func (event *AreaZoomedApplicationEvent) Serialize() []byte {
+	message, _ := json.Marshal(event)
+	return message
 }
 
 func (event *AreaZoomedApplicationEvent) GetArea() (gamecommonmodel.Area, error) {

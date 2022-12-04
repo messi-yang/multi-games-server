@@ -1,9 +1,8 @@
 package redis
 
 import (
-	"encoding/json"
-
-	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
+	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 )
 
 type RedisNotificationPublisher struct {
@@ -16,13 +15,10 @@ func NewRedisNotificationPublisher() commonnotification.NotificationPublisher {
 	}
 }
 
-func (publisher *RedisNotificationPublisher) Publish(channel string, event any) error {
-	message, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
+func (publisher *RedisNotificationPublisher) Publish(channel string, event event.ApplicationEvent) error {
+	message := event.Serialize()
 
-	err = publisher.redisProvider.Publish(channel, message)
+	err := publisher.redisProvider.Publish(channel, message)
 	if err != nil {
 		return err
 	}

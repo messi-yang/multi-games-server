@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"fmt"
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
@@ -14,8 +15,8 @@ type GameInfoUpdatedApplicationEvent struct {
 	Dimension  commonjsondto.DimensionJsonDto  `json:"dimension"`
 }
 
-func NewGameInfoUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimension gamecommonmodel.Dimension) GameInfoUpdatedApplicationEvent {
-	return GameInfoUpdatedApplicationEvent{
+func NewGameInfoUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimension gamecommonmodel.Dimension) ApplicationEvent {
+	return &GameInfoUpdatedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Dimension:  commonjsondto.NewDimensionJsonDto(dimension),
@@ -24,6 +25,11 @@ func NewGameInfoUpdatedApplicationEvent(liveGameId livegamemodel.LiveGameId, pla
 
 func NewGameInfoUpdatedApplicationEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
 	return fmt.Sprintf("game-info-updated-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
+}
+
+func (event *GameInfoUpdatedApplicationEvent) Serialize() []byte {
+	message, _ := json.Marshal(event)
+	return message
 }
 
 func (event *GameInfoUpdatedApplicationEvent) GetDimension() (gamecommonmodel.Dimension, error) {

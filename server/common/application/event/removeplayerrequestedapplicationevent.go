@@ -1,6 +1,8 @@
 package event
 
 import (
+	"encoding/json"
+
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
@@ -11,8 +13,8 @@ type RemovePlayerRequestedApplicationEvent struct {
 	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
 }
 
-func NewRemovePlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) RemovePlayerRequestedApplicationEvent {
-	return RemovePlayerRequestedApplicationEvent{
+func NewRemovePlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) ApplicationEvent {
+	return &RemovePlayerRequestedApplicationEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 	}
@@ -20,6 +22,11 @@ func NewRemovePlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameI
 
 func NewRemovePlayerRequestedApplicationEventChannel() string {
 	return "remove-player-requested"
+}
+
+func (event *RemovePlayerRequestedApplicationEvent) Serialize() []byte {
+	message, _ := json.Marshal(event)
+	return message
 }
 
 func (event *RemovePlayerRequestedApplicationEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
