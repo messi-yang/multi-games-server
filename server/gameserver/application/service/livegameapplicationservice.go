@@ -4,7 +4,6 @@ import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/livegameservice"
 	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
@@ -20,25 +19,25 @@ type LiveGameApplicationService interface {
 }
 
 type LiveGameApplicationServe struct {
+	gameRepository        gamemodel.GameRepository
 	liveGameService       livegameservice.LiveGameService
-	gameService           gameservice.GameService
 	notificationPublisher commonnotification.NotificationPublisher
 }
 
 func NewLiveGameApplicationService(
+	gameRepository gamemodel.GameRepository,
 	liveGameService livegameservice.LiveGameService,
-	gameService gameservice.GameService,
 	notificationPublisher commonnotification.NotificationPublisher,
 ) *LiveGameApplicationServe {
 	return &LiveGameApplicationServe{
+		gameRepository:        gameRepository,
 		liveGameService:       liveGameService,
-		gameService:           gameService,
 		notificationPublisher: notificationPublisher,
 	}
 }
 
 func (serve *LiveGameApplicationServe) CreateLiveGame(gameId gamemodel.GameId) (livegamemodel.LiveGameId, error) {
-	game, err := serve.gameService.GetGame(gameId)
+	game, err := serve.gameRepository.Get(gameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
 	}

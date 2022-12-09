@@ -8,8 +8,6 @@ import (
 
 type GameService interface {
 	CreateGame(dimension gamecommonmodel.Dimension) (gamemodel.GameId, error)
-	GetGame(gameId gamemodel.GameId) (gamemodel.Game, error)
-	GeAllGames() ([]gamemodel.Game, error)
 }
 
 type GameServe struct {
@@ -37,22 +35,4 @@ func (serve *GameServe) CreateGame(dimension gamecommonmodel.Dimension) (gamemod
 	}
 
 	return newGameId, nil
-}
-
-func (serve *GameServe) GetGame(gameId gamemodel.GameId) (gamemodel.Game, error) {
-	game, err := serve.gameRepository.Get(gameId)
-	if err != nil {
-		return gamemodel.Game{}, err
-	}
-
-	return game, nil
-}
-
-func (serve *GameServe) GeAllGames() ([]gamemodel.Game, error) {
-	games, err := serve.gameRepository.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	return games, nil
 }

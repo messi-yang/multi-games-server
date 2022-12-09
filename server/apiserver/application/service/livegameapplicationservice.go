@@ -5,7 +5,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
 type LiveGameApplicationService interface {
@@ -19,24 +18,8 @@ type liveGameApplicationServe struct {
 	notificationPublisher commonnotification.NotificationPublisher
 }
 
-type liveGameApplicationServiceConfiguration func(serve *liveGameApplicationServe) error
-
-func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfiguration) (*liveGameApplicationServe, error) {
-	serve := &liveGameApplicationServe{}
-	for _, cfg := range cfgs {
-		err := cfg(serve)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return serve, nil
-}
-
-func WithRedisNotificationPublisher() liveGameApplicationServiceConfiguration {
-	return func(serve *liveGameApplicationServe) error {
-		serve.notificationPublisher = commonredis.NewRedisNotificationPublisher()
-		return nil
-	}
+func NewLiveGameApplicationService(notificationPublisher commonnotification.NotificationPublisher) LiveGameApplicationService {
+	return &liveGameApplicationServe{notificationPublisher: notificationPublisher}
 }
 
 func (serve *liveGameApplicationServe) RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) {

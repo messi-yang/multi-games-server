@@ -8,7 +8,6 @@ import (
 
 type LiveGameService interface {
 	CreateLiveGame(game gamemodel.Game) (livegamemodel.LiveGameId, error)
-	GetLiveGame(id livegamemodel.LiveGameId) (livegamemodel.LiveGame, error)
 	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error)
 	RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error)
 	AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) (livegamemodel.LiveGame, error)
@@ -30,15 +29,6 @@ func (serve *LiveGameServe) CreateLiveGame(game gamemodel.Game) (livegamemodel.L
 	newLiveGame := livegamemodel.NewLiveGame(livegamemodel.NewLiveGameId(game.GetId().GetId()), game.GetUnitBlock())
 	serve.liveGameRepository.Add(newLiveGame)
 	return newLiveGame.GetId(), nil
-}
-
-func (serve *LiveGameServe) GetLiveGame(id livegamemodel.LiveGameId) (livegamemodel.LiveGame, error) {
-	liveGame, err := serve.liveGameRepository.Get(id)
-	if err != nil {
-		return livegamemodel.LiveGame{}, err
-	}
-
-	return liveGame, nil
 }
 
 func (serce *LiveGameServe) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (livegamemodel.LiveGame, error) {

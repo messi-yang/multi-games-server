@@ -26,12 +26,12 @@ func Start() {
 	)
 	notificationPublisher := commonredis.NewRedisNotificationPublisher()
 	liveGameApplicationService := applicationservice.NewLiveGameApplicationService(
+		gameRepository,
 		liveGameService,
-		gameService,
 		notificationPublisher,
 	)
 
-	games, _ := gameService.GeAllGames()
+	games, _ := gameRepository.GetAll()
 	if len(games) > 0 {
 		liveGameApplicationService.CreateLiveGame(games[0].GetId())
 	} else {

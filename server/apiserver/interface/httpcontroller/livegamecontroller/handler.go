@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/redis"
@@ -24,12 +25,11 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-type Configuration struct {
-	GameApplicationService     service.GameApplicationService
-	LiveGameApplicationService service.LiveGameApplicationService
-}
-
-func NewController(configuration Configuration) func(c *gin.Context) {
+func NewController(
+	GameRepository gamemodel.GameRepository,
+	GameApplicationService service.GameApplicationService,
+	LiveGameApplicationService service.LiveGameApplicationService,
+) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
@@ -39,10 +39,11 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		gameId, err := configuration.GameApplicationService.GetFirstGameId()
+		games, err := GameRepository.GetAll()
 		if err != nil {
 			return
 		}
+		gameId := games[0].GetId()
 
 		liveGameId := livegamemodel.NewLiveGameId(gameId.GetId())
 		playerId := gamecommonmodel.NewPlayerId(uuid.New())
@@ -92,7 +93,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 		)
 		defer redisZoomedAreaUpdatedSubscriberUnsubscriber()
 
-		configuration.LiveGameApplicationService.RequestToAddPlayer(liveGameId, playerId)
+		LiveGameApplicationService.RequestToAddPlayer(liveGameId, playerId)
 
 		go func() {
 			defer func() {
@@ -127,7 +128,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 						return
 					}
 
-					configuration.LiveGameApplicationService.RequestToZoomArea(liveGameId, playerId, area)
+					LiveGameApplicationService.RequestToZoomArea(liveGameId, playerId, area)
 				case ReviveUnitsRequestedEventType:
 					coordinates, err := presenter.ParseReviveUnitsRequestedEvent(message)
 					if err != nil {
@@ -135,7 +136,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 						return
 					}
 
-					configuration.LiveGameApplicationService.RequestToReviveUnits(liveGameId, coordinates)
+					LiveGameApplicationService.RequestToReviveUnits(liveGameId, coordinates)
 				default:
 				}
 			}
@@ -144,7 +145,7 @@ func NewController(configuration Configuration) func(c *gin.Context) {
 		for {
 			<-closeConnFlag
 
-			configuration.LiveGameApplicationService.RequestToRemovePlayer(liveGameId, playerId)
+			LiveGameApplicationService.RequestToRemovePlayer(liveGameId, playerId)
 			return
 		}
 	}
