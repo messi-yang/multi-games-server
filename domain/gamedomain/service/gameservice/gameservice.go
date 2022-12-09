@@ -3,7 +3,6 @@ package gameservice
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
-	commonpostgres "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
 	"github.com/google/uuid"
 )
 
@@ -17,28 +16,8 @@ type GameServe struct {
 	gameRepository gamemodel.GameRepository
 }
 
-type gameServiceConfiguration func(serve *GameServe) error
-
-func NewGameService(cfgs ...gameServiceConfiguration) (GameService, error) {
-	t := &GameServe{}
-	for _, cfg := range cfgs {
-		err := cfg(t)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return t, nil
-}
-
-func WithPostgresGameRepository() gameServiceConfiguration {
-	return func(serve *GameServe) error {
-		postgresGameRepository, err := commonpostgres.NewPostgresGameRepository(commonpostgres.WithPostgresClient())
-		if err != nil {
-			return err
-		}
-		serve.gameRepository = postgresGameRepository
-		return nil
-	}
+func NewGameService(gameRepository gamemodel.GameRepository) GameService {
+	return &GameServe{gameRepository: gameRepository}
 }
 
 func (serve *GameServe) CreateGame(dimension gamecommonmodel.Dimension) (gamemodel.GameId, error) {

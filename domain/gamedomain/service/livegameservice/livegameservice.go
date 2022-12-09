@@ -4,7 +4,6 @@ import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/persistence/memory"
 )
 
 type LiveGameService interface {
@@ -21,24 +20,9 @@ type LiveGameServe struct {
 	liveGameRepository livegamemodel.LiveGameRepository
 }
 
-type liveGameServiceConfiguration func(serve *LiveGameServe) error
-
-func NewLiveGameService(cfgs ...liveGameServiceConfiguration) (*LiveGameServe, error) {
-	t := &LiveGameServe{}
-	for _, cfg := range cfgs {
-		err := cfg(t)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return t, nil
-}
-
-func WithGameMemoryRepository() liveGameServiceConfiguration {
-	liveGameMemoryRepository := memory.NewMemoryLiveGameRepository()
-	return func(serve *LiveGameServe) error {
-		serve.liveGameRepository = liveGameMemoryRepository
-		return nil
+func NewLiveGameService(liveGameRepository livegamemodel.LiveGameRepository) *LiveGameServe {
+	return &LiveGameServe{
+		liveGameRepository: liveGameRepository,
 	}
 }
 

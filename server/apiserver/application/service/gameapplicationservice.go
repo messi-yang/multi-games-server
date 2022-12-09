@@ -13,25 +13,8 @@ type gameApplicationServe struct {
 	gameService gameservice.GameService
 }
 
-type gameApplicationServiceConfiguration func(serve *gameApplicationServe) error
-
-func NewGameApplicationService(cfgs ...gameApplicationServiceConfiguration) (*gameApplicationServe, error) {
-	serve := &gameApplicationServe{}
-	for _, cfg := range cfgs {
-		err := cfg(serve)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return serve, nil
-}
-
-func WithGameService() gameApplicationServiceConfiguration {
-	gameService, _ := gameservice.NewGameService(gameservice.WithPostgresGameRepository())
-	return func(serve *gameApplicationServe) error {
-		serve.gameService = gameService
-		return nil
-	}
+func NewGameApplicationService(gameService gameservice.GameService) *gameApplicationServe {
+	return &gameApplicationServe{gameService: gameService}
 }
 
 func (serve *gameApplicationServe) GetFirstGameId() (gamemodel.GameId, error) {

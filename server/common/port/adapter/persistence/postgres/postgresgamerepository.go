@@ -10,28 +10,8 @@ type postgresGameRepository struct {
 	postgresClient *gorm.DB
 }
 
-type postgresGameRepositoryConfiguration func(respository *postgresGameRepository) error
-
-func NewPostgresGameRepository(cfgs ...postgresGameRepositoryConfiguration) (gamemodel.GameRepository, error) {
-	respository := &postgresGameRepository{}
-	for _, cfg := range cfgs {
-		err := cfg(respository)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return respository, nil
-}
-
-func WithPostgresClient() postgresGameRepositoryConfiguration {
-	return func(repository *postgresGameRepository) error {
-		postgresClient, err := NewPostgresClient()
-		if err != nil {
-			return err
-		}
-		repository.postgresClient = postgresClient
-		return nil
-	}
+func NewPostgresGameRepository(postgresClient *gorm.DB) gamemodel.GameRepository {
+	return &postgresGameRepository{postgresClient: postgresClient}
 }
 
 func (m *postgresGameRepository) Get(id gamemodel.GameId) (gamemodel.Game, error) {

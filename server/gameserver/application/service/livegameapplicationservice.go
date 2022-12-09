@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/livegameservice"
 	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
 type LiveGameApplicationService interface {
@@ -26,43 +25,15 @@ type LiveGameApplicationServe struct {
 	notificationPublisher commonnotification.NotificationPublisher
 }
 
-type liveGameApplicationServiceConfiguration func(serve *LiveGameApplicationServe) error
-
-func NewLiveGameApplicationService(cfgs ...liveGameApplicationServiceConfiguration) (*LiveGameApplicationServe, error) {
-	serve := &LiveGameApplicationServe{}
-	for _, cfg := range cfgs {
-		err := cfg(serve)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return serve, nil
-}
-
-func WithLiveGameService() liveGameApplicationServiceConfiguration {
-	return func(serve *LiveGameApplicationServe) error {
-		liveGameService, _ := livegameservice.NewLiveGameService(
-			livegameservice.WithGameMemoryRepository(),
-		)
-		serve.liveGameService = liveGameService
-		return nil
-	}
-}
-
-func WithGameService() liveGameApplicationServiceConfiguration {
-	return func(serve *LiveGameApplicationServe) error {
-		gameService, _ := gameservice.NewGameService(
-			gameservice.WithPostgresGameRepository(),
-		)
-		serve.gameService = gameService
-		return nil
-	}
-}
-
-func WithRedisNotificationPublisher() liveGameApplicationServiceConfiguration {
-	return func(serve *LiveGameApplicationServe) error {
-		serve.notificationPublisher = commonredis.NewRedisNotificationPublisher()
-		return nil
+func NewLiveGameApplicationService(
+	liveGameService livegameservice.LiveGameService,
+	gameService gameservice.GameService,
+	notificationPublisher commonnotification.NotificationPublisher,
+) *LiveGameApplicationServe {
+	return &LiveGameApplicationServe{
+		liveGameService:       liveGameService,
+		gameService:           gameService,
+		notificationPublisher: notificationPublisher,
 	}
 }
 
