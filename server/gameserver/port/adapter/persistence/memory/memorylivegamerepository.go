@@ -61,27 +61,26 @@ func (m *memoryLiveGameRepository) GetAll() []livegamemodel.LiveGame {
 
 func (m *memoryLiveGameRepository) Add(liveGame livegamemodel.LiveGame) error {
 	m.records[liveGame.GetId()] = &liveGame
-	m.recordLockers[liveGame.GetId()] = &sync.RWMutex{}
 
 	return nil
 }
 
-func (m *memoryLiveGameRepository) ReadLockAccess(liveGameId livegamemodel.LiveGameId) (func(), error) {
-	recordLocker, exists := m.recordLockers[liveGameId]
+func (m *memoryLiveGameRepository) ReadLockAccess(liveGameId livegamemodel.LiveGameId) (unlock func()) {
+	_, exists := m.recordLockers[liveGameId]
 	if !exists {
-		return nil, ErrGameLockerNotFound
+		m.recordLockers[liveGameId] = &sync.RWMutex{}
 	}
 
-	recordLocker.RLock()
-	return recordLocker.RUnlock, nil
+	m.recordLockers[liveGameId].RLock()
+	return m.recordLockers[liveGameId].RUnlock
 }
 
-func (m *memoryLiveGameRepository) LockAccess(liveGameId livegamemodel.LiveGameId) (func(), error) {
-	recordLocker, exists := m.recordLockers[liveGameId]
+func (m *memoryLiveGameRepository) LockAccess(liveGameId livegamemodel.LiveGameId) (unlock func()) {
+	_, exists := m.recordLockers[liveGameId]
 	if !exists {
-		return nil, ErrGameLockerNotFound
+		m.recordLockers[liveGameId] = &sync.RWMutex{}
 	}
 
-	recordLocker.Lock()
-	return recordLocker.Unlock, nil
+	m.recordLockers[liveGameId].Lock()
+	return m.recordLockers[liveGameId].Unlock
 }

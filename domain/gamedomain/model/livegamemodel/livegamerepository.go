@@ -6,6 +6,6 @@ type LiveGameRepository interface {
 	Update(LiveGameId, LiveGame) error
 	GetAll() []LiveGame
 
-	ReadLockAccess(LiveGameId) (rUnlocker func(), err error)
-	LockAccess(LiveGameId) (unlocker func(), err error)
+	ReadLockAccess(LiveGameId) (rUnlocker func())
+	LockAccess(LiveGameId) (unlocker func())
 }
