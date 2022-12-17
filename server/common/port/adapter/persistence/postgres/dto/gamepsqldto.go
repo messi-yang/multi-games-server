@@ -8,24 +8,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type UnitPostgresJsonDto struct {
+type UnitPostgresDto struct {
 	ItemType string `json:"item_type"`
 }
 
-type GamePostgresJsonDto struct {
-	Id        uuid.UUID               `gorm:"primaryKey;unique;not null"`
-	Width     int                     `gorm:"not null"`
-	Height    int                     `gorm:"not null"`
-	UnitBlock [][]UnitPostgresJsonDto `gorm:"serializer:json"`
-	CreatedAt time.Time               `gorm:"autoCreateTime;not null"`
-	UpdatedAt time.Time               `gorm:"autoUpdateTime;not null"`
+type GamePostgresDto struct {
+	Id        uuid.UUID           `gorm:"primaryKey;unique;not null"`
+	Width     int                 `gorm:"not null"`
+	Height    int                 `gorm:"not null"`
+	UnitBlock [][]UnitPostgresDto `gorm:"serializer:json"`
+	CreatedAt time.Time           `gorm:"autoCreateTime;not null"`
+	UpdatedAt time.Time           `gorm:"autoUpdateTime;not null"`
 }
 
-func (GamePostgresJsonDto) TableName() string {
+func (GamePostgresDto) TableName() string {
 	return "games"
 }
 
-func convertUnitPostgresJsonDtoBlockToUnitBlock(unitModelBlock [][]UnitPostgresJsonDto) gamecommonmodel.UnitBlock {
+func convertUnitPostgresDtoBlockToUnitBlock(unitModelBlock [][]UnitPostgresDto) gamecommonmodel.UnitBlock {
 	unitMatrix := make([][]gamecommonmodel.Unit, 0)
 	for colIdx, unitModelCol := range unitModelBlock {
 		unitMatrix = append(unitMatrix, []gamecommonmodel.Unit{})
@@ -39,12 +39,12 @@ func convertUnitPostgresJsonDtoBlockToUnitBlock(unitModelBlock [][]UnitPostgresJ
 	return gamecommonmodel.NewUnitBlock(unitMatrix)
 }
 
-func convertUnitBlockToUnitPostgresJsonDtoBlock(unitBlock gamecommonmodel.UnitBlock) [][]UnitPostgresJsonDto {
-	unitModelBlock := make([][]UnitPostgresJsonDto, 0)
+func convertUnitBlockToUnitPostgresDtoBlock(unitBlock gamecommonmodel.UnitBlock) [][]UnitPostgresDto {
+	unitModelBlock := make([][]UnitPostgresDto, 0)
 	for unitColIdx, unitCol := range unitBlock.GetUnitMatrix() {
-		unitModelBlock = append(unitModelBlock, []UnitPostgresJsonDto{})
+		unitModelBlock = append(unitModelBlock, []UnitPostgresDto{})
 		for _, unit := range unitCol {
-			unitModelBlock[unitColIdx] = append(unitModelBlock[unitColIdx], UnitPostgresJsonDto{
+			unitModelBlock[unitColIdx] = append(unitModelBlock[unitColIdx], UnitPostgresDto{
 				ItemType: string(unit.GetItemType()),
 			})
 		}
@@ -52,15 +52,15 @@ func convertUnitBlockToUnitPostgresJsonDtoBlock(unitBlock gamecommonmodel.UnitBl
 	return unitModelBlock
 }
 
-func NewGamePostgresJsonDto(game gamemodel.Game) GamePostgresJsonDto {
-	return GamePostgresJsonDto{
+func NewGamePostgresDto(game gamemodel.Game) GamePostgresDto {
+	return GamePostgresDto{
 		Id:        game.GetId().GetId(),
 		Width:     game.GetUnitBlockDimension().GetWidth(),
 		Height:    game.GetUnitBlockDimension().GetHeight(),
-		UnitBlock: convertUnitBlockToUnitPostgresJsonDtoBlock(game.GetUnitBlock()),
+		UnitBlock: convertUnitBlockToUnitPostgresDtoBlock(game.GetUnitBlock()),
 	}
 }
 
-func (gamePostgresJsonDto GamePostgresJsonDto) ToAggregate() gamemodel.Game {
-	return gamemodel.NewGame(gamemodel.NewGameId(gamePostgresJsonDto.Id), convertUnitPostgresJsonDtoBlockToUnitBlock(gamePostgresJsonDto.UnitBlock))
+func (gamePostgresDto GamePostgresDto) ToAggregate() gamemodel.Game {
+	return gamemodel.NewGame(gamemodel.NewGameId(gamePostgresDto.Id), convertUnitPostgresDtoBlockToUnitBlock(gamePostgresDto.UnitBlock))
 }
