@@ -5,11 +5,12 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
 	"github.com/google/uuid"
 )
 
 type UnitPostgresDto struct {
-	ItemType string `json:"item_type"`
+	ItemId string `json:"item_id"`
 }
 
 type GamePostgresDto struct {
@@ -30,9 +31,11 @@ func convertUnitPostgresDtoBlockToUnitBlock(unitModelBlock [][]UnitPostgresDto) 
 	for colIdx, unitModelCol := range unitModelBlock {
 		unitMatrix = append(unitMatrix, []gamecommonmodel.Unit{})
 		for _, unit := range unitModelCol {
+			itemUuid, _ := uuid.Parse(unit.ItemId)
+			itemId := itemmodel.NewItemId(itemUuid)
 			unitMatrix[colIdx] = append(unitMatrix[colIdx], gamecommonmodel.NewUnit(
-				unit.ItemType != string(gamecommonmodel.ItemTypeEmpty),
-				gamecommonmodel.ItemTypeEmpty,
+				itemUuid != uuid.Nil,
+				itemId,
 			))
 		}
 	}
@@ -45,7 +48,7 @@ func convertUnitBlockToUnitPostgresDtoBlock(unitBlock gamecommonmodel.UnitBlock)
 		unitModelBlock = append(unitModelBlock, []UnitPostgresDto{})
 		for _, unit := range unitCol {
 			unitModelBlock[unitColIdx] = append(unitModelBlock[unitColIdx], UnitPostgresDto{
-				ItemType: string(unit.GetItemType()),
+				ItemId: unit.GetItemId().GetId().String(),
 			})
 		}
 	}

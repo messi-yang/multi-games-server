@@ -5,17 +5,21 @@ import (
 )
 
 type UnitJsonDto struct {
-	Alive    bool                     `json:"alive"`
-	ItemType gamecommonmodel.ItemType `json:"itemType"`
+	Alive  bool          `json:"alive"`
+	ItemId ItemIdJsonDto `json:"itemId"`
 }
 
 func NewUnitJsonDto(unit gamecommonmodel.Unit) UnitJsonDto {
 	return UnitJsonDto{
-		Alive:    unit.GetAlive(),
-		ItemType: unit.GetItemType(),
+		Alive:  unit.GetAlive(),
+		ItemId: NewItemIdJsonDto(unit.GetItemId()),
 	}
 }
 
-func (dto UnitJsonDto) ToValueObject() gamecommonmodel.Unit {
-	return gamecommonmodel.NewUnit(dto.Alive, dto.ItemType)
+func (dto UnitJsonDto) ToValueObject() (gamecommonmodel.Unit, error) {
+	itemId, err := dto.ItemId.ToValueObject()
+	if err != nil {
+		return gamecommonmodel.Unit{}, err
+	}
+	return gamecommonmodel.NewUnit(dto.Alive, itemId), nil
 }
