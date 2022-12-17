@@ -19,13 +19,13 @@ func Start() {
 	gameRepository := postgres.NewPostgresGameRepository(postgresClient)
 	gameService := gameservice.NewGameService(gameRepository)
 	notificationPublisher := commonredis.NewRedisNotificationPublisher()
-	liveGameApplicationService := service.NewLiveGameApplicationService(notificationPublisher)
-	gameApplicationService := service.NewGameApplicationService(gameService)
+	liveGameAppService := service.NewLiveGameAppService(notificationPublisher)
+	gameAppService := service.NewGameAppService(gameService)
 
 	router.Group("/ws/game").GET("/", livegamecontroller.NewController(
 		gameRepository,
-		gameApplicationService,
-		liveGameApplicationService,
+		gameAppService,
+		liveGameAppService,
 	))
 
 	router.Run()

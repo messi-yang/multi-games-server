@@ -4,11 +4,11 @@ import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
+	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 )
 
-type LiveGameApplicationService interface {
+type LiveGameAppService interface {
 	CreateLiveGame(gameId gamemodel.GameId) error
 	ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) error
 	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error
@@ -17,25 +17,25 @@ type LiveGameApplicationService interface {
 	RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error
 }
 
-type LiveGameApplicationServe struct {
+type LiveGameAppServe struct {
 	liveGameRepository    livegamemodel.LiveGameRepository
 	gameRepository        gamemodel.GameRepository
 	notificationPublisher commonnotification.NotificationPublisher
 }
 
-func NewLiveGameApplicationService(
+func NewLiveGameAppService(
 	liveGameRepository livegamemodel.LiveGameRepository,
 	gameRepository gamemodel.GameRepository,
 	notificationPublisher commonnotification.NotificationPublisher,
-) *LiveGameApplicationServe {
-	return &LiveGameApplicationServe{
+) *LiveGameAppServe {
+	return &LiveGameAppServe{
 		liveGameRepository:    liveGameRepository,
 		gameRepository:        gameRepository,
 		notificationPublisher: notificationPublisher,
 	}
 }
 
-func (serve *LiveGameApplicationServe) CreateLiveGame(gameId gamemodel.GameId) error {
+func (serve *LiveGameAppServe) CreateLiveGame(gameId gamemodel.GameId) error {
 	game, err := serve.gameRepository.Get(gameId)
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (serve *LiveGameApplicationServe) CreateLiveGame(gameId gamemodel.GameId) e
 	return nil
 }
 
-func (serve *LiveGameApplicationServe) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) error {
+func (serve *LiveGameAppServe) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -71,14 +71,14 @@ func (serve *LiveGameApplicationServe) ReviveUnitsInLiveGame(liveGameId livegame
 			continue
 		}
 		serve.notificationPublisher.Publish(
-			commonapplicationevent.NewZoomedAreaUpdatedApplicationEventChannel(liveGameId, playerId),
-			commonapplicationevent.NewZoomedAreaUpdatedApplicationEvent(liveGameId, playerId, area, unitBlock),
+			commonappevent.NewZoomedAreaUpdatedAppEventChannel(liveGameId, playerId),
+			commonappevent.NewZoomedAreaUpdatedAppEvent(liveGameId, playerId, area, unitBlock),
 		)
 	}
 	return nil
 }
 
-func (serve *LiveGameApplicationServe) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
+func (serve *LiveGameAppServe) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -91,14 +91,14 @@ func (serve *LiveGameApplicationServe) AddPlayerToLiveGame(liveGameId livegamemo
 	serve.liveGameRepository.Update(liveGameId, liveGame)
 
 	serve.notificationPublisher.Publish(
-		commonapplicationevent.NewGameInfoUpdatedApplicationEventChannel(liveGameId, playerId),
-		commonapplicationevent.NewGameInfoUpdatedApplicationEvent(liveGameId, playerId, liveGame.GetDimension()),
+		commonappevent.NewGameInfoUpdatedAppEventChannel(liveGameId, playerId),
+		commonappevent.NewGameInfoUpdatedAppEvent(liveGameId, playerId, liveGame.GetDimension()),
 	)
 
 	return nil
 }
 
-func (serve *LiveGameApplicationServe) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
+func (serve *LiveGameAppServe) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -113,7 +113,7 @@ func (serve *LiveGameApplicationServe) RemovePlayerFromLiveGame(liveGameId liveg
 	return nil
 }
 
-func (serve *LiveGameApplicationServe) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) error {
+func (serve *LiveGameAppServe) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -134,14 +134,14 @@ func (serve *LiveGameApplicationServe) AddZoomedAreaToLiveGame(liveGameId livega
 	}
 
 	serve.notificationPublisher.Publish(
-		commonapplicationevent.NewAreaZoomedApplicationEventChannel(liveGameId, playerId),
-		commonapplicationevent.NewAreaZoomedApplicationEvent(liveGameId, playerId, area, unitBlock),
+		commonappevent.NewAreaZoomedAppEventChannel(liveGameId, playerId),
+		commonappevent.NewAreaZoomedAppEvent(liveGameId, playerId, area, unitBlock),
 	)
 
 	return nil
 }
 
-func (serve *LiveGameApplicationServe) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
+func (serve *LiveGameAppServe) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 

@@ -3,7 +3,7 @@ package redis
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
+	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
@@ -14,7 +14,7 @@ type RedisAreaZoomedSubscriber struct {
 	redisProvider *commonredis.RedisProvider
 }
 
-func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonnotification.NotificationSubscriber[*commonapplicationevent.AreaZoomedApplicationEvent], error) {
+func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonnotification.NotificationSubscriber[*commonappevent.AreaZoomedAppEvent], error) {
 	return &RedisAreaZoomedSubscriber{
 		liveGameId:    liveGameId,
 		playerId:      playerId,
@@ -22,11 +22,11 @@ func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId 
 	}, nil
 }
 
-func (subscriber *RedisAreaZoomedSubscriber) Subscribe(handler func(*commonapplicationevent.AreaZoomedApplicationEvent)) func() {
+func (subscriber *RedisAreaZoomedSubscriber) Subscribe(handler func(*commonappevent.AreaZoomedAppEvent)) func() {
 	unsubscriber := subscriber.redisProvider.Subscribe(
-		commonapplicationevent.NewAreaZoomedApplicationEventChannel(subscriber.liveGameId, subscriber.playerId),
+		commonappevent.NewAreaZoomedAppEventChannel(subscriber.liveGameId, subscriber.playerId),
 		func(message []byte) {
-			event := commonapplicationevent.DeserializeAreaZoomedApplicationEvent(message)
+			event := commonappevent.DeserializeAreaZoomedAppEvent(message)
 			handler(&event)
 		})
 

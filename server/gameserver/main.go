@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
-	applicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
+	appservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/interface/eventcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/persistence/memory"
 )
@@ -22,7 +22,7 @@ func Start() {
 		gameRepository,
 	)
 	notificationPublisher := commonredis.NewRedisNotificationPublisher()
-	liveGameApplicationService := applicationservice.NewLiveGameApplicationService(
+	liveGameAppService := appservice.NewLiveGameAppService(
 		liveGameRepository,
 		gameRepository,
 		notificationPublisher,
@@ -30,7 +30,7 @@ func Start() {
 
 	games, _ := gameRepository.GetAll()
 	if len(games) > 0 {
-		liveGameApplicationService.CreateLiveGame(games[0].GetId())
+		liveGameAppService.CreateLiveGame(games[0].GetId())
 	} else {
 		dimension, _ := gamecommonmodel.NewDimension(200, 200)
 		gameId, _ := gameService.CreateGame(dimension)
@@ -39,7 +39,7 @@ func Start() {
 
 	eventcontroller.NewLiveGameEventController(
 		eventcontroller.LiveGameEventControllerConfiguration{
-			LiveGameApplicationService: liveGameApplicationService,
+			LiveGameAppService: liveGameAppService,
 		},
 	)
 }

@@ -8,34 +8,34 @@ import (
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
-type AddPlayerRequestedApplicationEvent struct {
+type RemovePlayerRequestedAppEvent struct {
 	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
 	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
 }
 
-func NewAddPlayerRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) *AddPlayerRequestedApplicationEvent {
-	return &AddPlayerRequestedApplicationEvent{
+func NewRemovePlayerRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) *RemovePlayerRequestedAppEvent {
+	return &RemovePlayerRequestedAppEvent{
 		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 	}
 }
 
-func DeserializeAddPlayerRequestedApplicationEvent(message []byte) AddPlayerRequestedApplicationEvent {
-	var event AddPlayerRequestedApplicationEvent
+func DeserializeRemovePlayerRequestedAppEvent(message []byte) RemovePlayerRequestedAppEvent {
+	var event RemovePlayerRequestedAppEvent
 	json.Unmarshal(message, &event)
 	return event
 }
 
-func NewAddPlayerRequestedApplicationEventChannel() string {
-	return "add-player-requested"
+func NewRemovePlayerRequestedAppEventChannel() string {
+	return "remove-player-requested"
 }
 
-func (event *AddPlayerRequestedApplicationEvent) Serialize() []byte {
+func (event *RemovePlayerRequestedAppEvent) Serialize() []byte {
 	message, _ := json.Marshal(event)
 	return message
 }
 
-func (event *AddPlayerRequestedApplicationEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *RemovePlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := event.LiveGameId.ToValueObject()
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -43,7 +43,7 @@ func (event *AddPlayerRequestedApplicationEvent) GetLiveGameId() (livegamemodel.
 	return liveGameId, nil
 }
 
-func (event *AddPlayerRequestedApplicationEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
+func (event *RemovePlayerRequestedAppEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
 	playerId, err := event.PlayerId.ToValueObject()
 	if err != nil {
 		return gamecommonmodel.PlayerId{}, err

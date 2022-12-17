@@ -9,34 +9,34 @@ import (
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
-type ReviveUnitsRequestedApplicationEvent struct {
+type ReviveUnitsRequestedAppEvent struct {
 	LiveGameId  commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
 	Coordinates []jsondto.CoordinateJsonDto     `json:"coordinates"`
 }
 
-func NewReviveUnitsRequestedApplicationEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) *ReviveUnitsRequestedApplicationEvent {
-	return &ReviveUnitsRequestedApplicationEvent{
+func NewReviveUnitsRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) *ReviveUnitsRequestedAppEvent {
+	return &ReviveUnitsRequestedAppEvent{
 		LiveGameId:  commonjsondto.NewLiveGameIdJsonDto(liveGameId),
 		Coordinates: commonjsondto.NewCoordinateJsonDtos(coordinates),
 	}
 }
 
-func DeserializeReviveUnitsRequestedApplicationEvent(message []byte) ReviveUnitsRequestedApplicationEvent {
-	var event ReviveUnitsRequestedApplicationEvent
+func DeserializeReviveUnitsRequestedAppEvent(message []byte) ReviveUnitsRequestedAppEvent {
+	var event ReviveUnitsRequestedAppEvent
 	json.Unmarshal(message, &event)
 	return event
 }
 
-func NewReviveUnitsRequestedApplicationEventChannel() string {
+func NewReviveUnitsRequestedAppEventChannel() string {
 	return "revive-units-requested"
 }
 
-func (event *ReviveUnitsRequestedApplicationEvent) Serialize() []byte {
+func (event *ReviveUnitsRequestedAppEvent) Serialize() []byte {
 	message, _ := json.Marshal(event)
 	return message
 }
 
-func (event *ReviveUnitsRequestedApplicationEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *ReviveUnitsRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := event.LiveGameId.ToValueObject()
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -44,7 +44,7 @@ func (event *ReviveUnitsRequestedApplicationEvent) GetLiveGameId() (livegamemode
 	return liveGameId, nil
 }
 
-func (event *ReviveUnitsRequestedApplicationEvent) GetCoordinates() ([]gamecommonmodel.Coordinate, error) {
+func (event *ReviveUnitsRequestedAppEvent) GetCoordinates() ([]gamecommonmodel.Coordinate, error) {
 	coordinates, err := jsondto.ParseCoordinateJsonDtos(event.Coordinates)
 	if err != nil {
 		return nil, err

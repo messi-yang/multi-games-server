@@ -1,5 +1,5 @@
 package event
 
-type ApplicationEvent interface {
+type AppEvent interface {
 	Serialize() []byte
 }

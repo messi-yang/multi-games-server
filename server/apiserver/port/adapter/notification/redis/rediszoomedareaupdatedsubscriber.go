@@ -3,7 +3,7 @@ package redis
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
+	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
@@ -14,7 +14,7 @@ type RedisZoomedAreaUpdatedSubscriber struct {
 	redisProvider *commonredis.RedisProvider
 }
 
-func NewRedisZoomedAreaUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonnotification.NotificationSubscriber[*commonapplicationevent.ZoomedAreaUpdatedApplicationEvent], error) {
+func NewRedisZoomedAreaUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonnotification.NotificationSubscriber[*commonappevent.ZoomedAreaUpdatedAppEvent], error) {
 	return &RedisZoomedAreaUpdatedSubscriber{
 		liveGameId:    liveGameId,
 		playerId:      playerId,
@@ -22,11 +22,11 @@ func NewRedisZoomedAreaUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, pl
 	}, nil
 }
 
-func (subscriber *RedisZoomedAreaUpdatedSubscriber) Subscribe(handler func(*commonapplicationevent.ZoomedAreaUpdatedApplicationEvent)) func() {
+func (subscriber *RedisZoomedAreaUpdatedSubscriber) Subscribe(handler func(*commonappevent.ZoomedAreaUpdatedAppEvent)) func() {
 	unsubscriber := subscriber.redisProvider.Subscribe(
-		commonapplicationevent.NewZoomedAreaUpdatedApplicationEventChannel(subscriber.liveGameId, subscriber.playerId),
+		commonappevent.NewZoomedAreaUpdatedAppEventChannel(subscriber.liveGameId, subscriber.playerId),
 		func(message []byte) {
-			event := commonapplicationevent.DeserializeZoomedAreaUpdatedApplicationEvent(message)
+			event := commonappevent.DeserializeZoomedAreaUpdatedAppEvent(message)
 			handler(&event)
 		})
 

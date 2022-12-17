@@ -10,8 +10,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/redis"
-	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
-	commonapplicationservice "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/service"
+	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
+	commonappservice "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -27,8 +27,8 @@ var wsupgrader = websocket.Upgrader{
 
 func NewController(
 	GameRepository gamemodel.GameRepository,
-	GameApplicationService service.GameApplicationService,
-	LiveGameApplicationService service.LiveGameApplicationService,
+	GameAppService service.GameAppService,
+	LiveGameAppService service.LiveGameAppService,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
@@ -51,7 +51,7 @@ func NewController(
 
 		redisGameInfoUpdatedSubscriber, _ := redis.NewRedisGameInfoUpdatedSubscriber(liveGameId, playerId)
 		redisGameInfoUpdatedSubscriberUnsubscriber := redisGameInfoUpdatedSubscriber.Subscribe(
-			func(event *commonapplicationevent.GameInfoUpdatedApplicationEvent) {
+			func(event *commonappevent.GameInfoUpdatedAppEvent) {
 				dimension, err := event.GetDimension()
 				if err != nil {
 					return
@@ -63,7 +63,7 @@ func NewController(
 
 		redisAreaZoomedSubscriber, _ := redis.NewRedisAreaZoomedSubscriber(liveGameId, playerId)
 		redisAreaZoomedSubscriberUnsubscriber := redisAreaZoomedSubscriber.Subscribe(
-			func(event *commonapplicationevent.AreaZoomedApplicationEvent) {
+			func(event *commonappevent.AreaZoomedAppEvent) {
 				area, err := event.GetArea()
 				if err != nil {
 					return
@@ -79,7 +79,7 @@ func NewController(
 
 		redisZoomedAreaUpdatedSubscriber, _ := redis.NewRedisZoomedAreaUpdatedSubscriber(liveGameId, playerId)
 		redisZoomedAreaUpdatedSubscriberUnsubscriber := redisZoomedAreaUpdatedSubscriber.Subscribe(
-			func(event *commonapplicationevent.ZoomedAreaUpdatedApplicationEvent) {
+			func(event *commonappevent.ZoomedAreaUpdatedAppEvent) {
 				area, err := event.GetArea()
 				if err != nil {
 					return
@@ -93,7 +93,7 @@ func NewController(
 		)
 		defer redisZoomedAreaUpdatedSubscriberUnsubscriber()
 
-		LiveGameApplicationService.RequestToAddPlayer(liveGameId, playerId)
+		LiveGameAppService.RequestToAddPlayer(liveGameId, playerId)
 
 		go func() {
 			defer func() {
@@ -107,7 +107,7 @@ func NewController(
 					break
 				}
 
-				gzipCompressor := commonapplicationservice.NewGzipService()
+				gzipCompressor := commonappservice.NewGzipService()
 				message, err := gzipCompressor.Ungzip(compressedMessage)
 				if err != nil {
 					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
@@ -128,7 +128,7 @@ func NewController(
 						return
 					}
 
-					LiveGameApplicationService.RequestToZoomArea(liveGameId, playerId, area)
+					LiveGameAppService.RequestToZoomArea(liveGameId, playerId, area)
 				case ReviveUnitsRequestedEventType:
 					coordinates, err := presenter.ParseReviveUnitsRequestedEvent(message)
 					if err != nil {
@@ -136,7 +136,7 @@ func NewController(
 						return
 					}
 
-					LiveGameApplicationService.RequestToReviveUnits(liveGameId, coordinates)
+					LiveGameAppService.RequestToReviveUnits(liveGameId, coordinates)
 				default:
 				}
 			}
@@ -145,7 +145,7 @@ func NewController(
 		for {
 			<-closeConnFlag
 
-			LiveGameApplicationService.RequestToRemovePlayer(liveGameId, playerId)
+			LiveGameAppService.RequestToRemovePlayer(liveGameId, playerId)
 			return
 		}
 	}
@@ -157,7 +157,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, socketConnLock *sync.RWMutex,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	gzipCompressor := commonapplicationservice.NewGzipService()
+	gzipCompressor := commonappservice.NewGzipService()
 	compressedMessage, _ := gzipCompressor.Gzip(messageJsonInBytes)
 
 	conn.WriteMessage(2, compressedMessage)

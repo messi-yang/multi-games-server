@@ -1,13 +1,13 @@
 package eventcontroller
 
 import (
-	commonapplicationevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
+	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/redis"
 )
 
 type LiveGameEventControllerConfiguration struct {
-	LiveGameApplicationService service.LiveGameApplicationService
+	LiveGameAppService service.LiveGameAppService
 }
 
 func NewLiveGameEventController(
@@ -15,7 +15,7 @@ func NewLiveGameEventController(
 ) {
 	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
 	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(
-		func(event *commonapplicationevent.ReviveUnitsRequestedApplicationEvent) {
+		func(event *commonappevent.ReviveUnitsRequestedAppEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -24,14 +24,14 @@ func NewLiveGameEventController(
 			if err != nil {
 				return
 			}
-			configuration.LiveGameApplicationService.ReviveUnitsInLiveGame(liveGameId, coordinates)
+			configuration.LiveGameAppService.ReviveUnitsInLiveGame(liveGameId, coordinates)
 		},
 	)
 	defer redisReviveUnitsRequestedSubscriberUnsubscriber()
 
 	redisAddPlayerRequestedSubscriber, _ := redis.NewRedisAddPlayerRequestedSubscriber()
 	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(
-		func(event *commonapplicationevent.AddPlayerRequestedApplicationEvent) {
+		func(event *commonappevent.AddPlayerRequestedAppEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -40,14 +40,14 @@ func NewLiveGameEventController(
 			if err != nil {
 				return
 			}
-			configuration.LiveGameApplicationService.AddPlayerToLiveGame(liveGameId, playerId)
+			configuration.LiveGameAppService.AddPlayerToLiveGame(liveGameId, playerId)
 		},
 	)
 	defer redisAddPlayerRequestedSubscriberUnsubscriber()
 
 	redisRemovePlayerRequestedSubscriber, _ := redis.NewRedisRemovePlayerRequestedSubscriber()
 	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(
-		func(event *commonapplicationevent.RemovePlayerRequestedApplicationEvent) {
+		func(event *commonappevent.RemovePlayerRequestedAppEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -56,15 +56,15 @@ func NewLiveGameEventController(
 			if err != nil {
 				return
 			}
-			configuration.LiveGameApplicationService.RemovePlayerFromLiveGame(liveGameId, playerId)
-			configuration.LiveGameApplicationService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
+			configuration.LiveGameAppService.RemovePlayerFromLiveGame(liveGameId, playerId)
+			configuration.LiveGameAppService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
 		},
 	)
 	defer redisRemovePlayerRequestedSubscriberUnsubscriber()
 
 	redisZoomAreaRequestedSubscriber, _ := redis.NewRedisZoomAreaRequestedSubscriber()
 	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(
-		func(event *commonapplicationevent.ZoomAreaRequestedApplicationEvent) {
+		func(event *commonappevent.ZoomAreaRequestedAppEvent) {
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -77,7 +77,7 @@ func NewLiveGameEventController(
 			if err != nil {
 				return
 			}
-			configuration.LiveGameApplicationService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
+			configuration.LiveGameAppService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
 		},
 	)
 	defer redisZoomAreaRequestedSubscriberUnsubscriber()

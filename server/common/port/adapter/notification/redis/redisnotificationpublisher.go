@@ -15,7 +15,7 @@ func NewRedisNotificationPublisher() commonnotification.NotificationPublisher {
 	}
 }
 
-func (publisher *RedisNotificationPublisher) Publish(channel string, event event.ApplicationEvent) error {
+func (publisher *RedisNotificationPublisher) Publish(channel string, event event.AppEvent) error {
 	message := event.Serialize()
 
 	err := publisher.redisProvider.Publish(channel, message)
