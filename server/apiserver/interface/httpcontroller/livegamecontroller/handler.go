@@ -45,7 +45,7 @@ func NewController(
 		}
 		gameId := games[0].GetId()
 
-		liveGameId := livegamemodel.NewLiveGameId(gameId.GetId())
+		liveGameId, _ := livegamemodel.NewLiveGameId(gameId.GetId().String())
 		playerId := gamecommonmodel.NewPlayerId(uuid.New())
 		socketConnLock := &sync.RWMutex{}
 

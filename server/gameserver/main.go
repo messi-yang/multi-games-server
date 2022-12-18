@@ -34,7 +34,7 @@ func Start() {
 	} else {
 		dimension, _ := gamecommonmodel.NewDimension(200, 200)
 		gameId, _ := gameService.CreateGame(dimension)
-		livegamemodel.NewLiveGameId(gameId.GetId())
+		livegamemodel.NewLiveGameId(gameId.GetId().String())
 	}
 
 	eventcontroller.NewLiveGameEventController(

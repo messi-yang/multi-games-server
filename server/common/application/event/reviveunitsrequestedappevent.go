@@ -10,13 +10,13 @@ import (
 )
 
 type ReviveUnitsRequestedAppEvent struct {
-	LiveGameId  commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
-	Coordinates []jsondto.CoordinateJsonDto     `json:"coordinates"`
+	LiveGameId  string                      `json:"liveGameId"`
+	Coordinates []jsondto.CoordinateJsonDto `json:"coordinates"`
 }
 
 func NewReviveUnitsRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) *ReviveUnitsRequestedAppEvent {
 	return &ReviveUnitsRequestedAppEvent{
-		LiveGameId:  commonjsondto.NewLiveGameIdJsonDto(liveGameId),
+		LiveGameId:  liveGameId.ToString(),
 		Coordinates: commonjsondto.NewCoordinateJsonDtos(coordinates),
 	}
 }
@@ -37,7 +37,7 @@ func (event *ReviveUnitsRequestedAppEvent) Serialize() []byte {
 }
 
 func (event *ReviveUnitsRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
-	liveGameId, err := event.LiveGameId.ToValueObject()
+	liveGameId, err := livegamemodel.NewLiveGameId(event.LiveGameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
 	}

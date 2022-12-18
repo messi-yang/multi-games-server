@@ -9,14 +9,14 @@ import (
 )
 
 type ZoomAreaRequestedAppEvent struct {
-	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
-	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
-	Area       commonjsondto.AreaJsonDto       `json:"area"`
+	LiveGameId string                        `json:"liveGameId"`
+	PlayerId   commonjsondto.PlayerIdJsonDto `json:"playerId"`
+	Area       commonjsondto.AreaJsonDto     `json:"area"`
 }
 
 func NewZoomAreaRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) *ZoomAreaRequestedAppEvent {
 	return &ZoomAreaRequestedAppEvent{
-		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
+		LiveGameId: liveGameId.ToString(),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Area:       commonjsondto.NewAreaJsonDto(area),
 	}
@@ -38,7 +38,7 @@ func (event *ZoomAreaRequestedAppEvent) Serialize() []byte {
 }
 
 func (event *ZoomAreaRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
-	liveGameId, err := event.LiveGameId.ToValueObject()
+	liveGameId, err := livegamemodel.NewLiveGameId(event.LiveGameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
 	}

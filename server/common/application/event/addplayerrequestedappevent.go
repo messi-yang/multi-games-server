@@ -9,13 +9,13 @@ import (
 )
 
 type AddPlayerRequestedAppEvent struct {
-	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
-	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
+	LiveGameId string                        `json:"liveGameId"`
+	PlayerId   commonjsondto.PlayerIdJsonDto `json:"playerId"`
 }
 
 func NewAddPlayerRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) *AddPlayerRequestedAppEvent {
 	return &AddPlayerRequestedAppEvent{
-		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
+		LiveGameId: liveGameId.ToString(),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 	}
 }
@@ -36,7 +36,7 @@ func (event *AddPlayerRequestedAppEvent) Serialize() []byte {
 }
 
 func (event *AddPlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
-	liveGameId, err := event.LiveGameId.ToValueObject()
+	liveGameId, err := livegamemodel.NewLiveGameId(event.LiveGameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
 	}

@@ -40,7 +40,8 @@ func (serve *LiveGameAppServe) CreateLiveGame(gameId gamemodel.GameId) error {
 	if err != nil {
 		return err
 	}
-	newLiveGame := livegamemodel.NewLiveGame(livegamemodel.NewLiveGameId(gameId.GetId()), game.GetUnitBlock())
+	liveGameId, _ := livegamemodel.NewLiveGameId(gameId.GetId().String())
+	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetUnitBlock())
 	serve.liveGameRepository.Add(newLiveGame)
 
 	return nil

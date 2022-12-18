@@ -10,15 +10,15 @@ import (
 )
 
 type ZoomedAreaUpdatedAppEvent struct {
-	LiveGameId commonjsondto.LiveGameIdJsonDto `json:"liveGameId"`
-	PlayerId   commonjsondto.PlayerIdJsonDto   `json:"playerId"`
-	Area       commonjsondto.AreaJsonDto       `json:"area"`
-	UnitBlock  commonjsondto.UnitBlockJsonDto  `json:"unitBlock"`
+	LiveGameId string                         `json:"liveGameId"`
+	PlayerId   commonjsondto.PlayerIdJsonDto  `json:"playerId"`
+	Area       commonjsondto.AreaJsonDto      `json:"area"`
+	UnitBlock  commonjsondto.UnitBlockJsonDto `json:"unitBlock"`
 }
 
 func NewZoomedAreaUpdatedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) *ZoomedAreaUpdatedAppEvent {
 	return &ZoomedAreaUpdatedAppEvent{
-		LiveGameId: commonjsondto.NewLiveGameIdJsonDto(liveGameId),
+		LiveGameId: liveGameId.ToString(),
 		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
 		Area:       commonjsondto.NewAreaJsonDto(area),
 		UnitBlock:  commonjsondto.NewUnitBlockJsonDto(unitBlock),
@@ -32,7 +32,7 @@ func DeserializeZoomedAreaUpdatedAppEvent(message []byte) ZoomedAreaUpdatedAppEv
 }
 
 func NewZoomedAreaUpdatedAppEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
-	return fmt.Sprintf("area-zoomed-live-game-id-%s-player-id-%s", liveGameId.GetId().String(), playerId.GetId().String())
+	return fmt.Sprintf("area-zoomed-live-game-id-%s-player-id-%s", liveGameId.ToString(), playerId.GetId().String())
 }
 
 func (event *ZoomedAreaUpdatedAppEvent) Serialize() []byte {
