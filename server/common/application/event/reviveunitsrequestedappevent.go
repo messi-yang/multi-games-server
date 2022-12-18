@@ -5,13 +5,12 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
 type ReviveUnitsRequestedAppEvent struct {
-	LiveGameId  string                      `json:"liveGameId"`
-	Coordinates []jsondto.CoordinateJsonDto `json:"coordinates"`
+	LiveGameId  string                            `json:"liveGameId"`
+	Coordinates []commonjsondto.CoordinateJsonDto `json:"coordinates"`
 }
 
 func NewReviveUnitsRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) *ReviveUnitsRequestedAppEvent {
@@ -45,7 +44,7 @@ func (event *ReviveUnitsRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGa
 }
 
 func (event *ReviveUnitsRequestedAppEvent) GetCoordinates() ([]gamecommonmodel.Coordinate, error) {
-	coordinates, err := jsondto.ParseCoordinateJsonDtos(event.Coordinates)
+	coordinates, err := commonjsondto.ParseCoordinateJsonDtos(event.Coordinates)
 	if err != nil {
 		return nil, err
 	}
