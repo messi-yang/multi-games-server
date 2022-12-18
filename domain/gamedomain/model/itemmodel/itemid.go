@@ -6,12 +6,17 @@ type ItemId struct {
 	id uuid.UUID
 }
 
-func NewItemId(id uuid.UUID) ItemId {
+func NewItemId(rawId string) (ItemId, error) {
+	id, err := uuid.Parse(rawId)
+	if err != nil {
+		return ItemId{}, err
+	}
+
 	return ItemId{
 		id: id,
-	}
+	}, nil
 }
 
-func (id ItemId) GetId() uuid.UUID {
-	return id.id
+func (id ItemId) ToString() string {
+	return id.id.String()
 }

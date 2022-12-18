@@ -31,10 +31,9 @@ func convertUnitPostgresDtoBlockToUnitBlock(unitModelBlock [][]UnitPostgresDto) 
 	for colIdx, unitModelCol := range unitModelBlock {
 		unitMatrix = append(unitMatrix, []gamecommonmodel.Unit{})
 		for _, unit := range unitModelCol {
-			itemUuid, _ := uuid.Parse(unit.ItemId)
-			itemId := itemmodel.NewItemId(itemUuid)
+			itemId, _ := itemmodel.NewItemId(unit.ItemId)
 			unitMatrix[colIdx] = append(unitMatrix[colIdx], gamecommonmodel.NewUnit(
-				itemUuid != uuid.Nil,
+				itemId.ToString() != uuid.Nil.String(),
 				itemId,
 			))
 		}
@@ -48,7 +47,7 @@ func convertUnitBlockToUnitPostgresDtoBlock(unitBlock gamecommonmodel.UnitBlock)
 		unitModelBlock = append(unitModelBlock, []UnitPostgresDto{})
 		for _, unit := range unitCol {
 			unitModelBlock[unitColIdx] = append(unitModelBlock[unitColIdx], UnitPostgresDto{
-				ItemId: unit.GetItemId().GetId().String(),
+				ItemId: unit.GetItemId().ToString(),
 			})
 		}
 	}
