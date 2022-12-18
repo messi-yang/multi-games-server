@@ -5,18 +5,17 @@ import (
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
 type AddPlayerRequestedAppEvent struct {
-	LiveGameId string                        `json:"liveGameId"`
-	PlayerId   commonjsondto.PlayerIdJsonDto `json:"playerId"`
+	LiveGameId string `json:"liveGameId"`
+	PlayerId   string `json:"playerId"`
 }
 
 func NewAddPlayerRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) *AddPlayerRequestedAppEvent {
 	return &AddPlayerRequestedAppEvent{
 		LiveGameId: liveGameId.ToString(),
-		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
+		PlayerId:   playerId.ToString(),
 	}
 }
 
@@ -44,7 +43,7 @@ func (event *AddPlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGame
 }
 
 func (event *AddPlayerRequestedAppEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
-	playerId, err := event.PlayerId.ToValueObject()
+	playerId, err := gamecommonmodel.NewPlayerId(event.PlayerId)
 	if err != nil {
 		return gamecommonmodel.PlayerId{}, err
 	}

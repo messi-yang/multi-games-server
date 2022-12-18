@@ -11,14 +11,14 @@ import (
 
 type GameInfoUpdatedAppEvent struct {
 	LiveGameId string                         `json:"liveGameId"`
-	PlayerId   commonjsondto.PlayerIdJsonDto  `json:"playerId"`
+	PlayerId   string                         `json:"playerId"`
 	Dimension  commonjsondto.DimensionJsonDto `json:"dimension"`
 }
 
 func NewGameInfoUpdatedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, dimension gamecommonmodel.Dimension) *GameInfoUpdatedAppEvent {
 	return &GameInfoUpdatedAppEvent{
 		LiveGameId: liveGameId.ToString(),
-		PlayerId:   commonjsondto.NewPlayerIdJsonDto(playerId),
+		PlayerId:   playerId.ToString(),
 		Dimension:  commonjsondto.NewDimensionJsonDto(dimension),
 	}
 }
@@ -30,7 +30,7 @@ func DeserializeGameInfoUpdatedAppEvent(message []byte) GameInfoUpdatedAppEvent 
 }
 
 func NewGameInfoUpdatedAppEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
-	return fmt.Sprintf("game-info-updated-live-game-id-%s-player-id-%s", liveGameId.ToString(), playerId.GetId().String())
+	return fmt.Sprintf("game-info-updated-live-game-id-%s-player-id-%s", liveGameId.ToString(), playerId.ToString())
 }
 
 func (event *GameInfoUpdatedAppEvent) Serialize() []byte {
