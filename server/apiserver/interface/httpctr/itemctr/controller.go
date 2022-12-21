@@ -1,4 +1,4 @@
-package itemcontroller
+package itemctr
 
 import (
 	"net/http"

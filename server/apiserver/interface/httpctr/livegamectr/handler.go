@@ -1,4 +1,4 @@
-package livegamecontroller
+package livegamectr
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package eventcontroller
+package eventctr
 
 import (
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
