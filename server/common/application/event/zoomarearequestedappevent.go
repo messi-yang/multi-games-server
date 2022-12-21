@@ -3,8 +3,8 @@ package event
 import (
 	"encoding/json"
 
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
@@ -14,7 +14,7 @@ type ZoomAreaRequestedAppEvent struct {
 	Area       commonjsondto.AreaJsonDto `json:"area"`
 }
 
-func NewZoomAreaRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) *ZoomAreaRequestedAppEvent {
+func NewZoomAreaRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) *ZoomAreaRequestedAppEvent {
 	return &ZoomAreaRequestedAppEvent{
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
@@ -45,18 +45,18 @@ func (event *ZoomAreaRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameI
 	return liveGameId, nil
 }
 
-func (event *ZoomAreaRequestedAppEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
-	playerId, err := gamecommonmodel.NewPlayerId(event.PlayerId)
+func (event *ZoomAreaRequestedAppEvent) GetPlayerId() (commonmodel.PlayerId, error) {
+	playerId, err := commonmodel.NewPlayerId(event.PlayerId)
 	if err != nil {
-		return gamecommonmodel.PlayerId{}, err
+		return commonmodel.PlayerId{}, err
 	}
 	return playerId, nil
 }
 
-func (event *ZoomAreaRequestedAppEvent) GetArea() (gamecommonmodel.Area, error) {
+func (event *ZoomAreaRequestedAppEvent) GetArea() (commonmodel.Area, error) {
 	area, err := event.Area.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.Area{}, err
+		return commonmodel.Area{}, err
 	}
 	return area, nil
 }

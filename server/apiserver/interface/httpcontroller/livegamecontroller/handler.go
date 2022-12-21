@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"sync"
 
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/redis"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
@@ -49,7 +49,7 @@ func NewController(
 		gameId := games[0].GetId()
 
 		liveGameId, _ := livegamemodel.NewLiveGameId(gameId.GetId().String())
-		playerId, _ := gamecommonmodel.NewPlayerId(uuid.New().String())
+		playerId, _ := commonmodel.NewPlayerId(uuid.New().String())
 		socketConnLock := &sync.RWMutex{}
 
 		redisGameInfoUpdatedSubscriber, _ := redis.NewRedisGameInfoUpdatedSubscriber(liveGameId, playerId)

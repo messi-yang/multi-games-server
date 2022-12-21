@@ -1,21 +1,21 @@
 package service
 
 import (
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 )
 
 type LiveGameAppService interface {
 	CreateLiveGame(gameId gamemodel.GameId) error
-	BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId) error
-	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error
-	RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error
-	AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) error
-	RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error
+	BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) error
+	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
+	RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
+	AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) error
+	RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
 }
 
 type LiveGameAppServe struct {
@@ -48,7 +48,7 @@ func (serve *LiveGameAppServe) CreateLiveGame(gameId gamemodel.GameId) error {
 	return nil
 }
 
-func (serve *LiveGameAppServe) BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId) error {
+func (serve *LiveGameAppServe) BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -65,7 +65,7 @@ func (serve *LiveGameAppServe) BuildItemInLiveGame(liveGameId livegamemodel.Live
 	serve.liveGameRepository.Update(liveGameId, liveGame)
 
 	for playerId, area := range liveGame.GetZoomedAreas() {
-		if !area.IncludesAnyCoordinates([]gamecommonmodel.Coordinate{coordinate}) {
+		if !area.IncludesAnyCoordinates([]commonmodel.Coordinate{coordinate}) {
 			continue
 		}
 		unitBlock, err := liveGame.GetUnitBlockByArea(area)
@@ -81,7 +81,7 @@ func (serve *LiveGameAppServe) BuildItemInLiveGame(liveGameId livegamemodel.Live
 	return nil
 }
 
-func (serve *LiveGameAppServe) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
+func (serve *LiveGameAppServe) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -101,7 +101,7 @@ func (serve *LiveGameAppServe) AddPlayerToLiveGame(liveGameId livegamemodel.Live
 	return nil
 }
 
-func (serve *LiveGameAppServe) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
+func (serve *LiveGameAppServe) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -116,7 +116,7 @@ func (serve *LiveGameAppServe) RemovePlayerFromLiveGame(liveGameId livegamemodel
 	return nil
 }
 
-func (serve *LiveGameAppServe) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) error {
+func (serve *LiveGameAppServe) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -144,7 +144,7 @@ func (serve *LiveGameAppServe) AddZoomedAreaToLiveGame(liveGameId livegamemodel.
 	return nil
 }
 
-func (serve *LiveGameAppServe) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error {
+func (serve *LiveGameAppServe) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 

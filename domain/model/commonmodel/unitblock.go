@@ -1,4 +1,4 @@
-package common
+package commonmodel
 
 type UnitBlock struct {
 	unitMatrix [][]Unit

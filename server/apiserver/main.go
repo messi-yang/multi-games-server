@@ -1,7 +1,7 @@
 package apiserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/itemservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/itemservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/interface/httpcontroller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/interface/httpcontroller/livegamecontroller"

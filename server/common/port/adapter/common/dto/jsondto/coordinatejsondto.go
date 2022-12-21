@@ -1,21 +1,19 @@
 package jsondto
 
-import (
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-)
+import "github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
 
 type CoordinateJsonDto struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-func NewCoordinateJsonDto(coordinate gamecommonmodel.Coordinate) CoordinateJsonDto {
+func NewCoordinateJsonDto(coordinate commonmodel.Coordinate) CoordinateJsonDto {
 	return CoordinateJsonDto{
 		X: coordinate.GetX(),
 		Y: coordinate.GetY(),
 	}
 }
 
-func (dto CoordinateJsonDto) ToValueObject() (gamecommonmodel.Coordinate, error) {
-	return gamecommonmodel.NewCoordinate(dto.X, dto.Y)
+func (dto CoordinateJsonDto) ToValueObject() (commonmodel.Coordinate, error) {
+	return commonmodel.NewCoordinate(dto.X, dto.Y)
 }

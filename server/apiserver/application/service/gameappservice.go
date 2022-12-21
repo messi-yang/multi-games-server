@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 )
 
 type GameAppService interface{}

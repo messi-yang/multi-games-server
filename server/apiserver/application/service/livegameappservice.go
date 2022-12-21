@@ -1,18 +1,18 @@
 package service
 
 import (
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 )
 
 type LiveGameAppService interface {
-	RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId)
-	RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area)
-	RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId)
-	RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId)
+	RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId)
+	RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area)
+	RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId)
+	RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId)
 }
 
 type liveGameAppServe struct {
@@ -23,28 +23,28 @@ func NewLiveGameAppService(notificationPublisher commonnotification.Notification
 	return &liveGameAppServe{notificationPublisher: notificationPublisher}
 }
 
-func (serve *liveGameAppServe) RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) {
+func (serve *liveGameAppServe) RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) {
 	serve.notificationPublisher.Publish(
 		commonappevent.NewAddPlayerRequestedAppEventChannel(),
 		commonappevent.NewAddPlayerRequestedAppEvent(liveGameId, playerId),
 	)
 }
 
-func (serve *liveGameAppServe) RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) {
+func (serve *liveGameAppServe) RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) {
 	serve.notificationPublisher.Publish(
 		commonappevent.NewZoomAreaRequestedAppEventChannel(),
 		commonappevent.NewZoomAreaRequestedAppEvent(liveGameId, playerId, area),
 	)
 }
 
-func (serve *liveGameAppServe) RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId) {
+func (serve *liveGameAppServe) RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) {
 	serve.notificationPublisher.Publish(
 		commonappevent.NewBuildItemRequestedAppEventChannel(),
 		commonappevent.NewBuildItemRequestedAppEvent(liveGameId, coordinate, itemId),
 	)
 }
 
-func (serve *liveGameAppServe) RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) {
+func (serve *liveGameAppServe) RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) {
 	serve.notificationPublisher.Publish(
 		commonappevent.NewRemovePlayerRequestedAppEventChannel(),
 		commonappevent.NewRemovePlayerRequestedAppEvent(liveGameId, playerId),

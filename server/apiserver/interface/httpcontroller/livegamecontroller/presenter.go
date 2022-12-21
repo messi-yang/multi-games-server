@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
@@ -107,7 +107,7 @@ func (presenter *Presenter) PresentErroredEvent(clientMessage string) ErroredEve
 	}
 }
 
-func (presenter *Presenter) PresentInformationUpdatedEvent(dimension gamecommonmodel.Dimension) InformationUpdatedEvent {
+func (presenter *Presenter) PresentInformationUpdatedEvent(dimension commonmodel.Dimension) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
@@ -116,7 +116,7 @@ func (presenter *Presenter) PresentInformationUpdatedEvent(dimension gamecommonm
 	}
 }
 
-func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) ZoomedAreaUpdatedEvent {
+func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area commonmodel.Area, unitBlock commonmodel.UnitBlock) ZoomedAreaUpdatedEvent {
 	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
 		Payload: ZoomedAreaUpdatedEventPayload{
@@ -127,7 +127,7 @@ func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area gamecommonmodel.A
 	}
 }
 
-func (presenter *Presenter) PresentAreaZoomedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) AreaZoomedEvent {
+func (presenter *Presenter) PresentAreaZoomedEvent(area commonmodel.Area, unitBlock commonmodel.UnitBlock) AreaZoomedEvent {
 	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
 		Payload: AreaZoomedEventPayload{
@@ -137,33 +137,33 @@ func (presenter *Presenter) PresentAreaZoomedEvent(area gamecommonmodel.Area, un
 	}
 }
 
-func (presenter *Presenter) ParseBuildItemRequestedEvent(msg []byte) (gamecommonmodel.Coordinate, itemmodel.ItemId, error) {
+func (presenter *Presenter) ParseBuildItemRequestedEvent(msg []byte) (commonmodel.Coordinate, itemmodel.ItemId, error) {
 	var action BuildItemEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
-		return gamecommonmodel.Coordinate{}, itemmodel.ItemId{}, err
+		return commonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
 	coordinates, err := action.Payload.Coordinate.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.Coordinate{}, itemmodel.ItemId{}, err
+		return commonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
 	itemId, err := itemmodel.NewItemId(action.Payload.ItemId)
 	if err != nil {
-		return gamecommonmodel.Coordinate{}, itemmodel.ItemId{}, err
+		return commonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
 
 	return coordinates, itemId, nil
 }
 
-func (presenter *Presenter) ParseZoomAreaRequestedEvent(msg []byte) (gamecommonmodel.Area, error) {
+func (presenter *Presenter) ParseZoomAreaRequestedEvent(msg []byte) (commonmodel.Area, error) {
 	var action ZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
-		return gamecommonmodel.Area{}, err
+		return commonmodel.Area{}, err
 	}
 	area, err := action.Payload.Area.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.Area{}, err
+		return commonmodel.Area{}, err
 	}
 
 	return area, nil

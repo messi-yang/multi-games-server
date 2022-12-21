@@ -3,8 +3,8 @@ package event
 import (
 	"encoding/json"
 
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 )
 
 type AddPlayerRequestedAppEvent struct {
@@ -12,7 +12,7 @@ type AddPlayerRequestedAppEvent struct {
 	PlayerId   string `json:"playerId"`
 }
 
-func NewAddPlayerRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) *AddPlayerRequestedAppEvent {
+func NewAddPlayerRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) *AddPlayerRequestedAppEvent {
 	return &AddPlayerRequestedAppEvent{
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
@@ -42,10 +42,10 @@ func (event *AddPlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGame
 	return liveGameId, nil
 }
 
-func (event *AddPlayerRequestedAppEvent) GetPlayerId() (gamecommonmodel.PlayerId, error) {
-	playerId, err := gamecommonmodel.NewPlayerId(event.PlayerId)
+func (event *AddPlayerRequestedAppEvent) GetPlayerId() (commonmodel.PlayerId, error) {
+	playerId, err := commonmodel.NewPlayerId(event.PlayerId)
 	if err != nil {
-		return gamecommonmodel.PlayerId{}, err
+		return commonmodel.PlayerId{}, err
 	}
 	return playerId, nil
 }

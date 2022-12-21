@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
@@ -16,7 +16,7 @@ type AreaZoomedAppEvent struct {
 	UnitBlock  commonjsondto.UnitBlockJsonDto `json:"unitBlock"`
 }
 
-func NewAreaZoomedAppEvent(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) *AreaZoomedAppEvent {
+func NewAreaZoomedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area, unitBlock commonmodel.UnitBlock) *AreaZoomedAppEvent {
 	return &AreaZoomedAppEvent{
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
@@ -31,7 +31,7 @@ func DeserializeAreaZoomedAppEvent(message []byte) AreaZoomedAppEvent {
 	return event
 }
 
-func NewAreaZoomedAppEventChannel(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) string {
+func NewAreaZoomedAppEventChannel(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) string {
 	return fmt.Sprintf("area-zoomed-live-game-id-%s-player-id-%s", liveGameId.ToString(), playerId.ToString())
 }
 
@@ -40,18 +40,18 @@ func (event *AreaZoomedAppEvent) Serialize() []byte {
 	return message
 }
 
-func (event *AreaZoomedAppEvent) GetArea() (gamecommonmodel.Area, error) {
+func (event *AreaZoomedAppEvent) GetArea() (commonmodel.Area, error) {
 	area, err := event.Area.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.Area{}, err
+		return commonmodel.Area{}, err
 	}
 	return area, nil
 }
 
-func (event *AreaZoomedAppEvent) GetUnitBlock() (gamecommonmodel.UnitBlock, error) {
+func (event *AreaZoomedAppEvent) GetUnitBlock() (commonmodel.UnitBlock, error) {
 	unitBlock, err := event.UnitBlock.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.UnitBlock{}, err
+		return commonmodel.UnitBlock{}, err
 	}
 	return unitBlock, nil
 }

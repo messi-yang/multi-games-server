@@ -1,9 +1,9 @@
 package gameserver
 
 import (
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
 	appservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
@@ -32,7 +32,7 @@ func Start() {
 	if len(games) > 0 {
 		liveGameAppService.CreateLiveGame(games[0].GetId())
 	} else {
-		dimension, _ := gamecommonmodel.NewDimension(200, 200)
+		dimension, _ := commonmodel.NewDimension(200, 200)
 		gameId, _ := gameService.CreateGame(dimension)
 		livegamemodel.NewLiveGameId(gameId.GetId().String())
 	}

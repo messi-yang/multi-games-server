@@ -1,8 +1,8 @@
 package redis
 
 import (
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
@@ -10,11 +10,11 @@ import (
 
 type RedisGameInfoUpdatedSubscriber struct {
 	liveGameId    livegamemodel.LiveGameId
-	playerId      gamecommonmodel.PlayerId
+	playerId      commonmodel.PlayerId
 	redisProvider *commonredis.RedisProvider
 }
 
-func NewRedisGameInfoUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) (commonnotification.NotificationSubscriber[*commonappevent.GameInfoUpdatedAppEvent], error) {
+func NewRedisGameInfoUpdatedSubscriber(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) (commonnotification.NotificationSubscriber[*commonappevent.GameInfoUpdatedAppEvent], error) {
 	return &RedisGameInfoUpdatedSubscriber{
 		liveGameId:    liveGameId,
 		playerId:      playerId,

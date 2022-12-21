@@ -3,9 +3,9 @@ package event
 import (
 	"encoding/json"
 
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 
@@ -15,7 +15,7 @@ type BuildItemRequestedAppEvent struct {
 	ItemId     string                    `json:"coordinates"`
 }
 
-func NewBuildItemRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId) *BuildItemRequestedAppEvent {
+func NewBuildItemRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) *BuildItemRequestedAppEvent {
 	return &BuildItemRequestedAppEvent{
 		LiveGameId: liveGameId.ToString(),
 		Coordinate: jsondto.NewCoordinateJsonDto(coordinate),
@@ -54,10 +54,10 @@ func (event *BuildItemRequestedAppEvent) GetItemId() (itemmodel.ItemId, error) {
 	return itemId, nil
 }
 
-func (event *BuildItemRequestedAppEvent) GetCoordinate() (gamecommonmodel.Coordinate, error) {
+func (event *BuildItemRequestedAppEvent) GetCoordinate() (commonmodel.Coordinate, error) {
 	coordinate, err := event.Coordinate.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.Coordinate{}, err
+		return commonmodel.Coordinate{}, err
 	}
 	return coordinate, nil
 }

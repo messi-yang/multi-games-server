@@ -1,7 +1,7 @@
 package itemservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
 )
 
 type ItemService interface {

@@ -3,9 +3,9 @@ package dto
 import (
 	"time"
 
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
 	"github.com/google/uuid"
 )
 
@@ -26,19 +26,19 @@ func (GamePostgresDto) TableName() string {
 	return "games"
 }
 
-func convertUnitPostgresDtoBlockToUnitBlock(unitModelBlock [][]UnitPostgresDto) gamecommonmodel.UnitBlock {
-	unitMatrix := make([][]gamecommonmodel.Unit, 0)
+func convertUnitPostgresDtoBlockToUnitBlock(unitModelBlock [][]UnitPostgresDto) commonmodel.UnitBlock {
+	unitMatrix := make([][]commonmodel.Unit, 0)
 	for colIdx, unitModelCol := range unitModelBlock {
-		unitMatrix = append(unitMatrix, []gamecommonmodel.Unit{})
+		unitMatrix = append(unitMatrix, []commonmodel.Unit{})
 		for _, unit := range unitModelCol {
 			itemId, _ := itemmodel.NewItemId(unit.ItemId)
-			unitMatrix[colIdx] = append(unitMatrix[colIdx], gamecommonmodel.NewUnit(itemId))
+			unitMatrix[colIdx] = append(unitMatrix[colIdx], commonmodel.NewUnit(itemId))
 		}
 	}
-	return gamecommonmodel.NewUnitBlock(unitMatrix)
+	return commonmodel.NewUnitBlock(unitMatrix)
 }
 
-func convertUnitBlockToUnitPostgresDtoBlock(unitBlock gamecommonmodel.UnitBlock) [][]UnitPostgresDto {
+func convertUnitBlockToUnitPostgresDtoBlock(unitBlock commonmodel.UnitBlock) [][]UnitPostgresDto {
 	unitModelBlock := make([][]UnitPostgresDto, 0)
 	for unitColIdx, unitCol := range unitBlock.GetUnitMatrix() {
 		unitModelBlock = append(unitModelBlock, []UnitPostgresDto{})

@@ -1,15 +1,13 @@
 package jsondto
 
-import (
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-)
+import "github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
 
 type AreaJsonDto struct {
 	From CoordinateJsonDto `json:"from"`
 	To   CoordinateJsonDto `json:"to"`
 }
 
-func NewAreaJsonDto(area gamecommonmodel.Area) AreaJsonDto {
+func NewAreaJsonDto(area commonmodel.Area) AreaJsonDto {
 	fromCoordinateJsonDto := NewCoordinateJsonDto(area.GetFrom())
 	ToValueObjectJsonDto := NewCoordinateJsonDto(area.GetTo())
 
@@ -19,23 +17,23 @@ func NewAreaJsonDto(area gamecommonmodel.Area) AreaJsonDto {
 	}
 }
 
-func (dto AreaJsonDto) ToValueObject() (gamecommonmodel.Area, error) {
+func (dto AreaJsonDto) ToValueObject() (commonmodel.Area, error) {
 	fromCoordinate, err := dto.From.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.Area{}, err
+		return commonmodel.Area{}, err
 	}
 
 	ToValueObject, err := dto.To.ToValueObject()
 	if err != nil {
-		return gamecommonmodel.Area{}, err
+		return commonmodel.Area{}, err
 	}
 
-	area, err := gamecommonmodel.NewArea(
+	area, err := commonmodel.NewArea(
 		fromCoordinate,
 		ToValueObject,
 	)
 	if err != nil {
-		return gamecommonmodel.Area{}, err
+		return commonmodel.Area{}, err
 	}
 
 	return area, nil

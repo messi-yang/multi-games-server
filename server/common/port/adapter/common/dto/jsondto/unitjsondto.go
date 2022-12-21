@@ -1,8 +1,8 @@
 package jsondto
 
 import (
-	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
 )
 
 type UnitJsonDto struct {
@@ -10,17 +10,17 @@ type UnitJsonDto struct {
 	ItemId string `json:"itemId"`
 }
 
-func NewUnitJsonDto(unit gamecommonmodel.Unit) UnitJsonDto {
+func NewUnitJsonDto(unit commonmodel.Unit) UnitJsonDto {
 	return UnitJsonDto{
 		Alive:  unit.GetAlive(),
 		ItemId: unit.GetItemId().ToString(),
 	}
 }
 
-func (dto UnitJsonDto) ToValueObject() (gamecommonmodel.Unit, error) {
+func (dto UnitJsonDto) ToValueObject() (commonmodel.Unit, error) {
 	itemId, err := itemmodel.NewItemId(dto.ItemId)
 	if err != nil {
-		return gamecommonmodel.Unit{}, err
+		return commonmodel.Unit{}, err
 	}
-	return gamecommonmodel.NewUnit(itemId), nil
+	return commonmodel.NewUnit(itemId), nil
 }
