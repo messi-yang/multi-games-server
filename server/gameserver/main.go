@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
-	appservice "github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/appserv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/interface/eventcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/persistence/memory"
 )
@@ -22,7 +22,7 @@ func Start() {
 		gameRepository,
 	)
 	notificationPublisher := commonredis.NewRedisNotificationPublisher()
-	liveGameAppService := appservice.NewLiveGameAppService(
+	liveGameAppService := appserv.NewLiveGameAppService(
 		liveGameRepository,
 		gameRepository,
 		notificationPublisher,

@@ -2,12 +2,12 @@ package eventcontroller
 
 import (
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/appserv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/redis"
 )
 
 type LiveGameEventControllerConfiguration struct {
-	LiveGameAppService service.LiveGameAppService
+	LiveGameAppService appserv.LiveGameAppService
 }
 
 func NewLiveGameEventController(

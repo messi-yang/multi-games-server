@@ -1,4 +1,4 @@
-package service
+package appserv
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"

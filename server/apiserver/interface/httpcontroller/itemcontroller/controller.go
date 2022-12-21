@@ -3,17 +3,17 @@ package itemcontroller
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/appserv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	"github.com/gin-gonic/gin"
 )
 
 type ItemController struct {
-	itemAppService service.ItemAppService
+	itemAppService appserv.ItemAppService
 }
 
 func NewItemController(
-	itemAppService service.ItemAppService,
+	itemAppService appserv.ItemAppService,
 ) *ItemController {
 	return &ItemController{
 		itemAppService: itemAppService,

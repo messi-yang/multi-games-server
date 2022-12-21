@@ -9,10 +9,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/appserv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/port/adapter/notification/redis"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
-	commonappservice "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -27,9 +27,9 @@ var wsupgrader = websocket.Upgrader{
 }
 
 func NewController(
-	ItemAppService service.ItemAppService,
+	ItemAppService appserv.ItemAppService,
 	GameRepository gamemodel.GameRepository,
-	LiveGameAppService service.LiveGameAppService,
+	LiveGameAppService appserv.LiveGameAppService,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
@@ -110,7 +110,7 @@ func NewController(
 					break
 				}
 
-				gzipCompressor := commonappservice.NewGzipService()
+				gzipCompressor := service.NewGzipService()
 				message, err := gzipCompressor.Ungzip(compressedMessage)
 				if err != nil {
 					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
@@ -162,7 +162,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, socketConnLock *sync.RWMutex,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	gzipCompressor := commonappservice.NewGzipService()
+	gzipCompressor := service.NewGzipService()
 	compressedMessage, _ := gzipCompressor.Gzip(messageJsonInBytes)
 
 	conn.WriteMessage(2, compressedMessage)
