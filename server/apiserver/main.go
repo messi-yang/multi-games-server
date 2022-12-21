@@ -1,7 +1,7 @@
 package apiserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/itemservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/interface/httpcontroller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/interface/httpcontroller/livegamecontroller"
@@ -23,14 +23,14 @@ func Start() {
 	}
 	gameRepository := postgres.NewPostgresGameRepository(postgresClient)
 	notificationPublisher := commonredis.NewRedisNotificationPublisher()
-	itemService := itemservice.NewItemServe()
+	itemDomainService := domainservice.NewItemDomainServe()
 	liveGameAppService := appservice.NewLiveGameAppService(notificationPublisher)
-	itemAppService := appservice.NewItemAppService(itemService)
+	itemAppService := appservice.NewItemAppService(itemDomainService)
 
 	itemController := itemcontroller.NewItemController(itemAppService)
 
 	router.Group("/ws/game").GET("/", livegamecontroller.NewController(
-		itemService,
+		itemDomainService,
 		gameRepository,
 		liveGameAppService,
 	))

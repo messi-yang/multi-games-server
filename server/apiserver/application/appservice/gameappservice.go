@@ -1,15 +1,15 @@
 package appservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/service/gameservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainservice"
 )
 
 type GameAppService interface{}
 
 type gameAppServe struct {
-	gameService gameservice.GameService
+	gameDomainService domainservice.GameDomainService
 }
 
-func NewGameAppService(gameService gameservice.GameService) GameAppService {
-	return &gameAppServe{gameService: gameService}
+func NewGameAppService(gameDomainService domainservice.GameDomainService) GameAppService {
+	return &gameAppServe{gameDomainService: gameDomainService}
 }

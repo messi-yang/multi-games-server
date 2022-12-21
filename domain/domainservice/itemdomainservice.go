@@ -1,20 +1,20 @@
-package itemservice
+package domainservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
 )
 
-type ItemService interface {
+type ItemDomainService interface {
 	GetAllItems() []itemmodel.Item
 }
 
-type itemServe struct{}
+type itemDomainServe struct{}
 
-func NewItemServe() ItemService {
-	return &itemServe{}
+func NewItemDomainServe() ItemDomainService {
+	return &itemDomainServe{}
 }
 
-func (serve *itemServe) GetAllItems() []itemmodel.Item {
+func (serve *itemDomainServe) GetAllItems() []itemmodel.Item {
 	stoneItemDefaultId, _ := itemmodel.NewItemId("4632b3c0-f748-4c46-954a-93a5cb4bc767")
 	// fmt.Println(uuid.New())
 

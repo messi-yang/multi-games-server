@@ -1,4 +1,4 @@
-package gameservice
+package domainservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
@@ -7,19 +7,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameService interface {
+type GameDomainService interface {
 	CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error)
 }
 
-type GameServe struct {
+type gameDomainServe struct {
 	gameRepository gamemodel.GameRepository
 }
 
-func NewGameService(gameRepository gamemodel.GameRepository) GameService {
-	return &GameServe{gameRepository: gameRepository}
+func NewGameDomainService(gameRepository gamemodel.GameRepository) GameDomainService {
+	return &gameDomainServe{gameRepository: gameRepository}
 }
 
-func (serve *GameServe) CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error) {
+func (serve *gameDomainServe) CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error) {
 	unitMatrix := make([][]commonmodel.Unit, dimension.GetWidth())
 	for i := 0; i < dimension.GetWidth(); i += 1 {
 		unitMatrix[i] = make([]commonmodel.Unit, dimension.GetHeight())
