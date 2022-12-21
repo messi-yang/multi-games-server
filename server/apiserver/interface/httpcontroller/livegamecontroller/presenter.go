@@ -5,6 +5,7 @@ import (
 	"time"
 
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
@@ -12,12 +13,12 @@ import (
 type EventType string
 
 const (
-	ErrorHappenedEventType        EventType = "ERRORED"
-	InformationUpdatedEventType   EventType = "INFORMATION_UPDATED"
-	AreaZoomedEventType           EventType = "AREA_ZOOMED"
-	ZoomedAreaUpdatedEventType    EventType = "ZOOMED_AREA_UPDATED"
-	ZoomAreaRequestedEventType    EventType = "ZOOM_AREA"
-	ReviveUnitsRequestedEventType EventType = "REVIVE_UNITS"
+	ErrorHappenedEventType      EventType = "ERRORED"
+	InformationUpdatedEventType EventType = "INFORMATION_UPDATED"
+	AreaZoomedEventType         EventType = "AREA_ZOOMED"
+	ZoomedAreaUpdatedEventType  EventType = "ZOOMED_AREA_UPDATED"
+	ZoomAreaEventType           EventType = "ZOOM_AREA"
+	BuildItemEventType          EventType = "BUILD_ITEM"
 )
 
 type Event struct {
@@ -40,41 +41,42 @@ type InformationUpdatedEvent struct {
 	Type    EventType                      `json:"type"`
 	Payload InformationUpdatedEventPayload `json:"payload"`
 }
-type ZoomedAreaUpdatedAppEventPayload struct {
+type ZoomedAreaUpdatedEventPayload struct {
 	Area      commonjsondto.AreaJsonDto      `json:"area"`
 	UnitBlock commonjsondto.UnitBlockJsonDto `json:"unitBlock"`
 	UpdatedAt time.Time                      `json:"updatedAt"`
 }
-type ZoomedAreaUpdatedAppEvent struct {
-	Type    EventType                        `json:"type"`
-	Payload ZoomedAreaUpdatedAppEventPayload `json:"payload"`
+type ZoomedAreaUpdatedEvent struct {
+	Type    EventType                     `json:"type"`
+	Payload ZoomedAreaUpdatedEventPayload `json:"payload"`
 }
 
-type AreaZoomedAppEventPayload struct {
+type AreaZoomedEventPayload struct {
 	Area      commonjsondto.AreaJsonDto      `json:"area"`
 	UnitBlock commonjsondto.UnitBlockJsonDto `json:"unitBlock"`
 }
-type AreaZoomedAppEvent struct {
-	Type    EventType                 `json:"type"`
-	Payload AreaZoomedAppEventPayload `json:"payload"`
+type AreaZoomedEvent struct {
+	Type    EventType              `json:"type"`
+	Payload AreaZoomedEventPayload `json:"payload"`
 }
 
-type ReviveUnitsRequestedAppEventPayload struct {
-	Coordinates []commonjsondto.CoordinateJsonDto `json:"coordinates"`
-	ActionedAt  time.Time                         `json:"actionedAt"`
+type BuildItemEventPayload struct {
+	Coordinate commonjsondto.CoordinateJsonDto `json:"coordinate"`
+	ItemId     string                          `json:"itemId"`
+	ActionedAt time.Time                       `json:"actionedAt"`
 }
-type ReviveUnitsRequestedAppEvent struct {
-	Type    EventType                           `json:"type"`
-	Payload ReviveUnitsRequestedAppEventPayload `json:"payload"`
+type BuildItemEvent struct {
+	Type    EventType             `json:"type"`
+	Payload BuildItemEventPayload `json:"payload"`
 }
 
-type ZoomAreaRequestedAppEventPayload struct {
+type ZoomAreaRequestedEventPayload struct {
 	Area       commonjsondto.AreaJsonDto `json:"area"`
 	ActionedAt time.Time                 `json:"actionedAt"`
 }
-type ZoomAreaRequestedAppEvent struct {
-	Type    EventType                        `json:"type"`
-	Payload ZoomAreaRequestedAppEventPayload `json:"payload"`
+type ZoomAreaRequestedEvent struct {
+	Type    EventType                     `json:"type"`
+	Payload ZoomAreaRequestedEventPayload `json:"payload"`
 }
 
 type Presenter struct {
@@ -114,10 +116,10 @@ func (presenter *Presenter) PresentInformationUpdatedEvent(dimension gamecommonm
 	}
 }
 
-func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) ZoomedAreaUpdatedAppEvent {
-	return ZoomedAreaUpdatedAppEvent{
+func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) ZoomedAreaUpdatedEvent {
+	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
-		Payload: ZoomedAreaUpdatedAppEventPayload{
+		Payload: ZoomedAreaUpdatedEventPayload{
 			Area:      jsondto.NewAreaJsonDto(area),
 			UnitBlock: jsondto.NewUnitBlockJsonDto(unitBlock),
 			UpdatedAt: time.Now(),
@@ -125,32 +127,36 @@ func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area gamecommonmodel.A
 	}
 }
 
-func (presenter *Presenter) PresentAreaZoomedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) AreaZoomedAppEvent {
-	return AreaZoomedAppEvent{
+func (presenter *Presenter) PresentAreaZoomedEvent(area gamecommonmodel.Area, unitBlock gamecommonmodel.UnitBlock) AreaZoomedEvent {
+	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
-		Payload: AreaZoomedAppEventPayload{
+		Payload: AreaZoomedEventPayload{
 			Area:      jsondto.NewAreaJsonDto(area),
 			UnitBlock: jsondto.NewUnitBlockJsonDto(unitBlock),
 		},
 	}
 }
 
-func (presenter *Presenter) ParseReviveUnitsRequestedEvent(msg []byte) ([]gamecommonmodel.Coordinate, error) {
-	var action ReviveUnitsRequestedAppEvent
+func (presenter *Presenter) ParseBuildItemRequestedEvent(msg []byte) (gamecommonmodel.Coordinate, itemmodel.ItemId, error) {
+	var action BuildItemEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
-		return nil, err
+		return gamecommonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
-	coordinates, err := commonjsondto.ParseCoordinateJsonDtos(action.Payload.Coordinates)
+	coordinates, err := action.Payload.Coordinate.ToValueObject()
 	if err != nil {
-		return nil, err
+		return gamecommonmodel.Coordinate{}, itemmodel.ItemId{}, err
+	}
+	itemId, err := itemmodel.NewItemId(action.Payload.ItemId)
+	if err != nil {
+		return gamecommonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
 
-	return coordinates, nil
+	return coordinates, itemId, nil
 }
 
 func (presenter *Presenter) ParseZoomAreaRequestedEvent(msg []byte) (gamecommonmodel.Area, error) {
-	var action ZoomAreaRequestedAppEvent
+	var action ZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return gamecommonmodel.Area{}, err

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
 )
 
 var (
@@ -94,16 +95,14 @@ func (liveGame *LiveGame) RemovePlayer(playerId common.PlayerId) {
 	delete(liveGame.playerIds, playerId)
 }
 
-func (liveGame *LiveGame) ReviveUnits(coordinates []common.Coordinate) error {
-	if !liveGame.GetDimension().IncludesAllCoordinates(coordinates) {
+func (liveGame *LiveGame) BuildItem(coordinate common.Coordinate, itemId itemmodel.ItemId) error {
+	if !liveGame.GetDimension().IncludesCoordinate(coordinate) {
 		return ErrSomeCoordinatesNotIncludedInMap
 	}
 
-	for _, coordinate := range coordinates {
-		unit := liveGame.unitBlock.GetUnit(coordinate)
-		newUnit := unit.SetAlive(true)
-		liveGame.unitBlock.SetUnit(coordinate, newUnit)
-	}
+	unit := liveGame.unitBlock.GetUnit(coordinate)
+	newUnit := unit.SetItemId(itemId)
+	liveGame.unitBlock.SetUnit(coordinate, newUnit)
 
 	return nil
 }

@@ -3,6 +3,7 @@ package service
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
@@ -10,7 +11,7 @@ import (
 
 type LiveGameAppService interface {
 	CreateLiveGame(gameId gamemodel.GameId) error
-	ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) error
+	BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId) error
 	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error
 	RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId) error
 	AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area) error
@@ -47,7 +48,7 @@ func (serve *LiveGameAppServe) CreateLiveGame(gameId gamemodel.GameId) error {
 	return nil
 }
 
-func (serve *LiveGameAppServe) ReviveUnitsInLiveGame(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) error {
+func (serve *LiveGameAppServe) BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId) error {
 	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
 	defer unlocker()
 
@@ -56,7 +57,7 @@ func (serve *LiveGameAppServe) ReviveUnitsInLiveGame(liveGameId livegamemodel.Li
 		return err
 	}
 
-	err = liveGame.ReviveUnits(coordinates)
+	err = liveGame.BuildItem(coordinate, itemId)
 	if err != nil {
 		return err
 	}
@@ -64,7 +65,7 @@ func (serve *LiveGameAppServe) ReviveUnitsInLiveGame(liveGameId livegamemodel.Li
 	serve.liveGameRepository.Update(liveGameId, liveGame)
 
 	for playerId, area := range liveGame.GetZoomedAreas() {
-		if !area.IncludesAnyCoordinates(coordinates) {
+		if !area.IncludesAnyCoordinates([]gamecommonmodel.Coordinate{coordinate}) {
 			continue
 		}
 		unitBlock, err := liveGame.GetUnitBlockByArea(area)
@@ -76,6 +77,7 @@ func (serve *LiveGameAppServe) ReviveUnitsInLiveGame(liveGameId livegamemodel.Li
 			commonappevent.NewZoomedAreaUpdatedAppEvent(liveGameId, playerId, area, unitBlock),
 		)
 	}
+
 	return nil
 }
 

@@ -25,7 +25,7 @@ func (serve *GameServe) CreateGame(dimension gamecommonmodel.Dimension) (gamemod
 		unitMatrix[i] = make([]gamecommonmodel.Unit, dimension.GetHeight())
 		for j := 0; j < dimension.GetHeight(); j += 1 {
 			itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-			unitMatrix[i][j] = gamecommonmodel.NewUnit(false, itemId)
+			unitMatrix[i][j] = gamecommonmodel.NewUnit(itemId)
 		}
 	}
 	unitBlock := gamecommonmodel.NewUnitBlock(unitMatrix)

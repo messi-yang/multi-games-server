@@ -2,6 +2,7 @@ package service
 
 import (
 	gamecommonmodel "github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/common"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/gamedomain/model/livegamemodel"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
@@ -10,7 +11,7 @@ import (
 type LiveGameAppService interface {
 	RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId)
 	RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId, area gamecommonmodel.Area)
-	RequestToReviveUnits(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate)
+	RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId)
 	RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId gamecommonmodel.PlayerId)
 }
 
@@ -36,10 +37,10 @@ func (serve *liveGameAppServe) RequestToZoomArea(liveGameId livegamemodel.LiveGa
 	)
 }
 
-func (serve *liveGameAppServe) RequestToReviveUnits(liveGameId livegamemodel.LiveGameId, coordinates []gamecommonmodel.Coordinate) {
+func (serve *liveGameAppServe) RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate gamecommonmodel.Coordinate, itemId itemmodel.ItemId) {
 	serve.notificationPublisher.Publish(
-		commonappevent.NewReviveUnitsRequestedAppEventChannel(),
-		commonappevent.NewReviveUnitsRequestedAppEvent(liveGameId, coordinates),
+		commonappevent.NewBuildItemRequestedAppEventChannel(),
+		commonappevent.NewBuildItemRequestedAppEvent(liveGameId, coordinate, itemId),
 	)
 }
 

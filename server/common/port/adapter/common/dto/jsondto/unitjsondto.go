@@ -22,5 +22,5 @@ func (dto UnitJsonDto) ToValueObject() (gamecommonmodel.Unit, error) {
 	if err != nil {
 		return gamecommonmodel.Unit{}, err
 	}
-	return gamecommonmodel.NewUnit(dto.Alive, itemId), nil
+	return gamecommonmodel.NewUnit(itemId), nil
 }

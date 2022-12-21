@@ -13,21 +13,24 @@ type LiveGameEventControllerConfiguration struct {
 func NewLiveGameEventController(
 	configuration LiveGameEventControllerConfiguration,
 ) {
-	redisReviveUnitsRequestedSubscriber, _ := redis.NewRedisReviveUnitsRequestedSubscriber()
-	redisReviveUnitsRequestedSubscriberUnsubscriber := redisReviveUnitsRequestedSubscriber.Subscribe(
-		func(event *commonappevent.ReviveUnitsRequestedAppEvent) {
-			liveGameId, err := event.GetLiveGameId()
-			if err != nil {
-				return
-			}
-			coordinates, err := event.GetCoordinates()
-			if err != nil {
-				return
-			}
-			configuration.LiveGameAppService.ReviveUnitsInLiveGame(liveGameId, coordinates)
-		},
-	)
-	defer redisReviveUnitsRequestedSubscriberUnsubscriber()
+	redisBuildItemRequestedSubscriber, _ := redis.NewRedisBuildItemRequestedSubscriber()
+	redisBuildItemRequestedSubscriberUnsubscriber := redisBuildItemRequestedSubscriber.Subscribe(func(event *commonappevent.BuildItemRequestedAppEvent) {
+		liveGameId, err := event.GetLiveGameId()
+		if err != nil {
+			return
+		}
+		coordinate, err := event.GetCoordinate()
+		if err != nil {
+			return
+		}
+		itemId, err := event.GetItemId()
+		if err != nil {
+			return
+		}
+
+		configuration.LiveGameAppService.BuildItemInLiveGame(liveGameId, coordinate, itemId)
+	})
+	defer redisBuildItemRequestedSubscriberUnsubscriber()
 
 	redisAddPlayerRequestedSubscriber, _ := redis.NewRedisAddPlayerRequestedSubscriber()
 	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(

@@ -53,6 +53,15 @@ func (ms Dimension) IncludesArea(area Area) bool {
 	return true
 }
 
+func (ms Dimension) IncludesCoordinate(coordinate Coordinate) bool {
+	includesAll := true
+	if coordinate.x >= ms.width || coordinate.y >= ms.height {
+		includesAll = false
+	}
+
+	return includesAll
+}
+
 func (ms Dimension) IncludesAllCoordinates(coordinates []Coordinate) bool {
 	includesAll := true
 	for _, coordinate := range coordinates {

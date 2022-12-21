@@ -6,21 +6,21 @@ import (
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
-type RedisReviveUnitsRequestedSubscriber struct {
+type RedisBuildItemRequestedSubscriber struct {
 	redisProvider *commonredis.RedisProvider
 }
 
-func NewRedisReviveUnitsRequestedSubscriber() (commonnotification.NotificationSubscriber[*commonappevent.ReviveUnitsRequestedAppEvent], error) {
-	return &RedisReviveUnitsRequestedSubscriber{
+func NewRedisBuildItemRequestedSubscriber() (commonnotification.NotificationSubscriber[*commonappevent.BuildItemRequestedAppEvent], error) {
+	return &RedisBuildItemRequestedSubscriber{
 		redisProvider: commonredis.NewRedisProvider(),
 	}, nil
 }
 
-func (subscriber *RedisReviveUnitsRequestedSubscriber) Subscribe(handler func(*commonappevent.ReviveUnitsRequestedAppEvent)) func() {
+func (subscriber *RedisBuildItemRequestedSubscriber) Subscribe(handler func(*commonappevent.BuildItemRequestedAppEvent)) func() {
 	unsubscriber := subscriber.redisProvider.Subscribe(
-		commonappevent.NewReviveUnitsRequestedAppEventChannel(),
+		commonappevent.NewBuildItemRequestedAppEventChannel(),
 		func(message []byte) {
-			event := commonappevent.DeserializeReviveUnitsRequestedAppEvent(message)
+			event := commonappevent.DeserializeBuildItemRequestedAppEvent(message)
 			handler(&event)
 		})
 
