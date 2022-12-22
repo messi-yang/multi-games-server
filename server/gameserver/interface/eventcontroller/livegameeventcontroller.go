@@ -6,13 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/notification/redis"
 )
 
-type LiveGameEventControllerConfiguration struct {
-	LiveGameAppService appservice.LiveGameAppService
-}
-
-func NewLiveGameEventController(
-	configuration LiveGameEventControllerConfiguration,
-) {
+func NewLiveGameEventController(liveGameAppService appservice.LiveGameAppService) {
 	redisBuildItemRequestedSubscriber, _ := redis.NewRedisBuildItemRequestedSubscriber()
 	redisBuildItemRequestedSubscriberUnsubscriber := redisBuildItemRequestedSubscriber.Subscribe(func(event *commonappevent.BuildItemRequestedAppEvent) {
 		liveGameId, err := event.GetLiveGameId()
@@ -28,7 +22,7 @@ func NewLiveGameEventController(
 			return
 		}
 
-		configuration.LiveGameAppService.BuildItemInLiveGame(liveGameId, coordinate, itemId)
+		liveGameAppService.BuildItemInLiveGame(liveGameId, coordinate, itemId)
 	})
 	defer redisBuildItemRequestedSubscriberUnsubscriber()
 
@@ -43,7 +37,7 @@ func NewLiveGameEventController(
 			if err != nil {
 				return
 			}
-			configuration.LiveGameAppService.AddPlayerToLiveGame(liveGameId, playerId)
+			liveGameAppService.AddPlayerToLiveGame(liveGameId, playerId)
 		},
 	)
 	defer redisAddPlayerRequestedSubscriberUnsubscriber()
@@ -59,8 +53,8 @@ func NewLiveGameEventController(
 			if err != nil {
 				return
 			}
-			configuration.LiveGameAppService.RemovePlayerFromLiveGame(liveGameId, playerId)
-			configuration.LiveGameAppService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
+			liveGameAppService.RemovePlayerFromLiveGame(liveGameId, playerId)
+			liveGameAppService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
 		},
 	)
 	defer redisRemovePlayerRequestedSubscriberUnsubscriber()
@@ -80,7 +74,7 @@ func NewLiveGameEventController(
 			if err != nil {
 				return
 			}
-			configuration.LiveGameAppService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
+			liveGameAppService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
 		},
 	)
 	defer redisZoomAreaRequestedSubscriberUnsubscriber()

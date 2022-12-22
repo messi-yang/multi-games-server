@@ -37,9 +37,5 @@ func Start() {
 		livegamemodel.NewLiveGameId(gameId.GetId().String())
 	}
 
-	eventcontroller.NewLiveGameEventController(
-		eventcontroller.LiveGameEventControllerConfiguration{
-			LiveGameAppService: liveGameAppService,
-		},
-	)
+	eventcontroller.NewLiveGameEventController(liveGameAppService)
 }
