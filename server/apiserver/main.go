@@ -30,7 +30,6 @@ func Start() {
 	itemController := itemcontroller.NewItemController(itemAppService)
 
 	router.Group("/ws/game").GET("/", livegamecontroller.NewController(
-		itemDomainService,
 		gameRepository,
 		liveGameAppService,
 	))

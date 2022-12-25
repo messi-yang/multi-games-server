@@ -2,7 +2,6 @@ package livegamecontroller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -27,7 +26,6 @@ var wsupgrader = websocket.Upgrader{
 }
 
 func NewController(
-	ItemAppService appservice.ItemAppService,
 	GameRepository gamemodel.GameRepository,
 	LiveGameAppService appservice.LiveGameAppService,
 ) func(c *gin.Context) {
@@ -39,8 +37,6 @@ func NewController(
 		}
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
-
-		items := ItemAppService.GetAllItems()
 
 		games, err := GameRepository.GetAll()
 		if err != nil {
@@ -133,15 +129,13 @@ func NewController(
 
 					LiveGameAppService.RequestToZoomArea(liveGameId, playerId, area)
 				case BuildItemEventType:
-					coordinate, _, err := presenter.ParseBuildItemRequestedEvent(message)
+					coordinate, itemId, err := presenter.ParseBuildItemRequestedEvent(message)
 					if err != nil {
 						sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
 						return
 					}
 
-					fmt.Println(coordinate)
-
-					LiveGameAppService.RequestToBuildItem(liveGameId, coordinate, items[0].GetId())
+					LiveGameAppService.RequestToBuildItem(liveGameId, coordinate, itemId)
 				default:
 				}
 			}
