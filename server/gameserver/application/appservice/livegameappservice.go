@@ -1,10 +1,10 @@
 package appservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/livegamemodel"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
 )

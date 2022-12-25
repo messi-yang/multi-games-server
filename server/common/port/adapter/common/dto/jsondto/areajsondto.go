@@ -1,6 +1,6 @@
 package jsondto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+import "github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
 
 type AreaJsonDto struct {
 	From CoordinateJsonDto `json:"from"`

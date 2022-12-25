@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/livegamemodel"
 	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
 )
 

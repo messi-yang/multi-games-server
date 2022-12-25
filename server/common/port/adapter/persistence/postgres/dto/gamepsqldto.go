@@ -3,9 +3,9 @@ package dto
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/itemmodel"
 	"github.com/google/uuid"
 )
 

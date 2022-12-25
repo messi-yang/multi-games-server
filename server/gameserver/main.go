@@ -1,9 +1,9 @@
 package gameserver
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/appservice"

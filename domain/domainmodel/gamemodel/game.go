@@ -1,7 +1,7 @@
 package gamemodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
 )
 
 type Game struct {

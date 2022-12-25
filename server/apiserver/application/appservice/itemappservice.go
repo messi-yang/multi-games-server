@@ -1,8 +1,8 @@
 package appservice
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/itemmodel"
 )
 
 type ItemAppService interface {

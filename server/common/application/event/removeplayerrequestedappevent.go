@@ -3,8 +3,8 @@ package event
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/livegamemodel"
 )
 
 type RemovePlayerRequestedAppEvent struct {

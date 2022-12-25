@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/gamemodel"
 	commonpostgresdto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres/dto"
 	"gorm.io/gorm"
 )

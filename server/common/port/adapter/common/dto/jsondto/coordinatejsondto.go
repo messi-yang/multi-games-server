@@ -1,6 +1,6 @@
 package jsondto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/domain/model/commonmodel"
+import "github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
 
 type CoordinateJsonDto struct {
 	X int `json:"x"`
