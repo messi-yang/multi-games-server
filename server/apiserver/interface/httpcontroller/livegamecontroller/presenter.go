@@ -19,6 +19,7 @@ const (
 	ZoomedAreaUpdatedEventType  EventType = "ZOOMED_AREA_UPDATED"
 	ZoomAreaEventType           EventType = "ZOOM_AREA"
 	BuildItemEventType          EventType = "BUILD_ITEM"
+	DestroyItemEventType        EventType = "DESTROY_ITEM"
 )
 
 type Event struct {
@@ -68,6 +69,15 @@ type BuildItemEventPayload struct {
 type BuildItemEvent struct {
 	Type    EventType             `json:"type"`
 	Payload BuildItemEventPayload `json:"payload"`
+}
+
+type DestroyItemEventPayload struct {
+	Coordinate commonjsondto.CoordinateJsonDto `json:"coordinate"`
+	ActionedAt time.Time                       `json:"actionedAt"`
+}
+type DestroyItemEvent struct {
+	Type    EventType               `json:"type"`
+	Payload DestroyItemEventPayload `json:"payload"`
 }
 
 type ZoomAreaRequestedEventPayload struct {
@@ -137,13 +147,13 @@ func (presenter *Presenter) PresentAreaZoomedEvent(area commonmodel.Area, unitBl
 	}
 }
 
-func (presenter *Presenter) ParseBuildItemRequestedEvent(msg []byte) (commonmodel.Coordinate, itemmodel.ItemId, error) {
+func (presenter *Presenter) ParseBuildItemEvent(msg []byte) (commonmodel.Coordinate, itemmodel.ItemId, error) {
 	var action BuildItemEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {
 		return commonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
-	coordinates, err := action.Payload.Coordinate.ToValueObject()
+	coordinate, err := action.Payload.Coordinate.ToValueObject()
 	if err != nil {
 		return commonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
@@ -152,10 +162,24 @@ func (presenter *Presenter) ParseBuildItemRequestedEvent(msg []byte) (commonmode
 		return commonmodel.Coordinate{}, itemmodel.ItemId{}, err
 	}
 
-	return coordinates, itemId, nil
+	return coordinate, itemId, nil
 }
 
-func (presenter *Presenter) ParseZoomAreaRequestedEvent(msg []byte) (commonmodel.Area, error) {
+func (presenter *Presenter) ParseDestroyItemEvent(msg []byte) (commonmodel.Coordinate, error) {
+	var action BuildItemEvent
+	err := json.Unmarshal(msg, &action)
+	if err != nil {
+		return commonmodel.Coordinate{}, err
+	}
+	coordinate, err := action.Payload.Coordinate.ToValueObject()
+	if err != nil {
+		return commonmodel.Coordinate{}, err
+	}
+
+	return coordinate, nil
+}
+
+func (presenter *Presenter) ParseZoomAreaEvent(msg []byte) (commonmodel.Area, error) {
 	var action ZoomAreaRequestedEvent
 	err := json.Unmarshal(msg, &action)
 	if err != nil {

@@ -121,7 +121,7 @@ func NewController(
 
 				switch eventType {
 				case ZoomAreaEventType:
-					area, err := presenter.ParseZoomAreaRequestedEvent(message)
+					area, err := presenter.ParseZoomAreaEvent(message)
 					if err != nil {
 						sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
 						return
@@ -129,13 +129,21 @@ func NewController(
 
 					LiveGameAppService.RequestToZoomArea(liveGameId, playerId, area)
 				case BuildItemEventType:
-					coordinate, itemId, err := presenter.ParseBuildItemRequestedEvent(message)
+					coordinate, itemId, err := presenter.ParseBuildItemEvent(message)
 					if err != nil {
 						sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
 						return
 					}
 
 					LiveGameAppService.RequestToBuildItem(liveGameId, coordinate, itemId)
+				case DestroyItemEventType:
+					coordinate, err := presenter.ParseDestroyItemEvent(message)
+					if err != nil {
+						sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
+						return
+					}
+
+					LiveGameAppService.RequestToDestroyItem(liveGameId, coordinate)
 				default:
 				}
 			}

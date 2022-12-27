@@ -7,6 +7,21 @@ import (
 )
 
 func NewLiveGameEventController(liveGameAppService appservice.LiveGameAppService) {
+	redisDestroyItemRequestedSubscriber, _ := redis.NewRedisDestroyItemRequestedSubscriber()
+	redisDestroyItemRequestedSubscriberUnsubscriber := redisDestroyItemRequestedSubscriber.Subscribe(func(event *commonappevent.DestroyItemRequestedAppEvent) {
+		liveGameId, err := event.GetLiveGameId()
+		if err != nil {
+			return
+		}
+		coordinate, err := event.GetCoordinate()
+		if err != nil {
+			return
+		}
+
+		liveGameAppService.DestroyItemInLiveGame(liveGameId, coordinate)
+	})
+	defer redisDestroyItemRequestedSubscriberUnsubscriber()
+
 	redisBuildItemRequestedSubscriber, _ := redis.NewRedisBuildItemRequestedSubscriber()
 	redisBuildItemRequestedSubscriberUnsubscriber := redisBuildItemRequestedSubscriber.Subscribe(func(event *commonappevent.BuildItemRequestedAppEvent) {
 		liveGameId, err := event.GetLiveGameId()

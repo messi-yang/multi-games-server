@@ -12,6 +12,7 @@ import (
 type LiveGameAppService interface {
 	CreateLiveGame(gameId gamemodel.GameId) error
 	BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) error
+	DestroyItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error
 	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
 	RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
 	AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) error
@@ -34,6 +35,29 @@ func NewLiveGameAppService(
 		gameRepository:        gameRepository,
 		notificationPublisher: notificationPublisher,
 	}
+}
+
+func (serve *LiveGameAppServe) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error {
+	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	if err != nil {
+		return err
+	}
+
+	for playerId, area := range liveGame.GetZoomedAreas() {
+		if !area.IncludesAnyCoordinates([]commonmodel.Coordinate{coordinate}) {
+			continue
+		}
+		unitBlock, err := liveGame.GetUnitBlockByArea(area)
+		if err != nil {
+			continue
+		}
+		serve.notificationPublisher.Publish(
+			commonappevent.NewZoomedAreaUpdatedAppEventChannel(liveGameId, playerId),
+			commonappevent.NewZoomedAreaUpdatedAppEvent(liveGameId, playerId, area, unitBlock),
+		)
+	}
+
+	return nil
 }
 
 func (serve *LiveGameAppServe) CreateLiveGame(gameId gamemodel.GameId) error {
@@ -64,19 +88,28 @@ func (serve *LiveGameAppServe) BuildItemInLiveGame(liveGameId livegamemodel.Live
 
 	serve.liveGameRepository.Update(liveGameId, liveGame)
 
-	for playerId, area := range liveGame.GetZoomedAreas() {
-		if !area.IncludesAnyCoordinates([]commonmodel.Coordinate{coordinate}) {
-			continue
-		}
-		unitBlock, err := liveGame.GetUnitBlockByArea(area)
-		if err != nil {
-			continue
-		}
-		serve.notificationPublisher.Publish(
-			commonappevent.NewZoomedAreaUpdatedAppEventChannel(liveGameId, playerId),
-			commonappevent.NewZoomedAreaUpdatedAppEvent(liveGameId, playerId, area, unitBlock),
-		)
+	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
+
+	return nil
+}
+
+func (serve *LiveGameAppServe) DestroyItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error {
+	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
+	defer unlocker()
+
+	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	if err != nil {
+		return err
 	}
+
+	err = liveGame.DestroyItem(coordinate)
+	if err != nil {
+		return err
+	}
+
+	serve.liveGameRepository.Update(liveGameId, liveGame)
+
+	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
 
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/itemmodel"
+	"github.com/google/uuid"
 )
 
 var (
@@ -101,6 +102,19 @@ func (liveGame *LiveGame) BuildItem(coordinate commonmodel.Coordinate, itemId it
 	}
 
 	unit := liveGame.unitBlock.GetUnit(coordinate)
+	newUnit := unit.SetItemId(itemId)
+	liveGame.unitBlock.SetUnit(coordinate, newUnit)
+
+	return nil
+}
+
+func (liveGame *LiveGame) DestroyItem(coordinate commonmodel.Coordinate) error {
+	if !liveGame.GetDimension().IncludesCoordinate(coordinate) {
+		return ErrSomeCoordinatesNotIncludedInMap
+	}
+
+	unit := liveGame.unitBlock.GetUnit(coordinate)
+	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
 	newUnit := unit.SetItemId(itemId)
 	liveGame.unitBlock.SetUnit(coordinate, newUnit)
 

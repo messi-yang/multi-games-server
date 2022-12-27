@@ -12,6 +12,7 @@ type LiveGameAppService interface {
 	RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId)
 	RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area)
 	RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId)
+	RequestToDestroyItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate)
 	RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId)
 }
 
@@ -41,6 +42,13 @@ func (serve *liveGameAppServe) RequestToBuildItem(liveGameId livegamemodel.LiveG
 	serve.notificationPublisher.Publish(
 		commonappevent.NewBuildItemRequestedAppEventChannel(),
 		commonappevent.NewBuildItemRequestedAppEvent(liveGameId, coordinate, itemId),
+	)
+}
+
+func (serve *liveGameAppServe) RequestToDestroyItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) {
+	serve.notificationPublisher.Publish(
+		commonappevent.NewDestroyItemRequestedAppEventChannel(),
+		commonappevent.NewDestroyItemRequestedAppEvent(liveGameId, coordinate),
 	)
 }
 
