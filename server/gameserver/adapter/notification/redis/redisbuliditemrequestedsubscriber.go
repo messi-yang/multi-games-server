@@ -1,9 +1,9 @@
 package redis
 
 import (
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/adapter/notification/redis"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/event"
 	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/server/common/application/notification"
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
 )
 
 type RedisBuildItemRequestedSubscriber struct {

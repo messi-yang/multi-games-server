@@ -4,11 +4,11 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainservice"
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/adapter/notification/redis"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/adapter/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/adapter/persistence/memory"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/interface/eventcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/gameserver/port/adapter/persistence/memory"
 )
 
 func Start() {

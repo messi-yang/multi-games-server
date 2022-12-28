@@ -5,8 +5,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/interface/httpcontroller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/interface/httpcontroller/livegamecontroller"
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/notification/redis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/persistence/postgres"
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/server/common/adapter/notification/redis"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/adapter/persistence/postgres"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

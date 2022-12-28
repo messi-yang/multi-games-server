@@ -6,7 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/domain/domainmodel/livegamemodel"
-	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
+	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/server/common/adapter/common/dto/jsondto"
 )
 
 type AreaZoomedAppEvent struct {

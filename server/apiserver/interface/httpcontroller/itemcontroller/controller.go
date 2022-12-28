@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/server/apiserver/application/appservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/port/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/server/common/adapter/common/dto/jsondto"
 	"github.com/gin-gonic/gin"
 )
 
