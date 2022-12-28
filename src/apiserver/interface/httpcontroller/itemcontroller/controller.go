@@ -1,0 +1,28 @@
+package itemcontroller
+
+import (
+	"net/http"
+
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/gin-gonic/gin"
+)
+
+type ItemController struct {
+	itemAppService appservice.ItemAppService
+}
+
+func NewItemController(
+	itemAppService appservice.ItemAppService,
+) *ItemController {
+	return &ItemController{
+		itemAppService: itemAppService,
+	}
+}
+
+func (controller *ItemController) HandleGetAllItems(c *gin.Context) {
+	items := controller.itemAppService.GetAllItems()
+	itemDtos := jsondto.NewItemJsonDtos(items)
+
+	c.JSON(http.StatusOK, itemDtos)
+}

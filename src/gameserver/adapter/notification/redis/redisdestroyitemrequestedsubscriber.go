@@ -1,0 +1,30 @@
+package redis
+
+import (
+	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/notification/redis"
+	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
+	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/notification"
+)
+
+type RedisDestroyItemRequestedSubscriber struct {
+	redisProvider *commonredis.RedisProvider
+}
+
+func NewRedisDestroyItemRequestedSubscriber() (commonnotification.NotificationSubscriber[*commonappevent.DestroyItemRequestedAppEvent], error) {
+	return &RedisDestroyItemRequestedSubscriber{
+		redisProvider: commonredis.NewRedisProvider(),
+	}, nil
+}
+
+func (subscriber *RedisDestroyItemRequestedSubscriber) Subscribe(handler func(*commonappevent.DestroyItemRequestedAppEvent)) func() {
+	unsubscriber := subscriber.redisProvider.Subscribe(
+		commonappevent.NewDestroyItemRequestedAppEventChannel(),
+		func(message []byte) {
+			event := commonappevent.DeserializeDestroyItemRequestedAppEvent(message)
+			handler(&event)
+		})
+
+	return func() {
+		unsubscriber()
+	}
+}
