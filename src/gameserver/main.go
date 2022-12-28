@@ -2,13 +2,13 @@ package gameserver
 
 import (
 	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/notification/redis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/persistence/postgres"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/domainmodel/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/domainmodel/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/domainservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/adapter/persistence/memory"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/appservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/eventcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service/gamedomainservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/persistence/livegamememoryrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameeventcontroller"
 )
 
 func Start() {
@@ -17,12 +17,12 @@ func Start() {
 		panic(err)
 	}
 	gameRepository := postgres.NewPostgresGameRepository(postgresClient)
-	liveGameRepository := memory.NewMemoryLiveGameRepository()
-	gameDomainService := domainservice.NewGameDomainService(
+	liveGameRepository := livegamememoryrepository.New()
+	gameDomainService := gamedomainservice.New(
 		gameRepository,
 	)
 	notificationPublisher := commonredis.NewRedisNotificationPublisher()
-	liveGameAppService := appservice.NewLiveGameAppService(
+	liveGameAppService := livegameappservice.New(
 		liveGameRepository,
 		gameRepository,
 		notificationPublisher,
@@ -37,5 +37,5 @@ func Start() {
 		livegamemodel.NewLiveGameId(gameId.GetId().String())
 	}
 
-	eventcontroller.NewLiveGameEventController(liveGameAppService)
+	livegameeventcontroller.New(liveGameAppService)
 }

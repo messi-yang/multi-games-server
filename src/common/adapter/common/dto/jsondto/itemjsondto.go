@@ -1,7 +1,7 @@
 package jsondto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/domainmodel/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
 
 type ItemJsonDto struct {

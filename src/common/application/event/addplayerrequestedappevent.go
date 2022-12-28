@@ -3,8 +3,8 @@ package event
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/domainmodel/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/domainmodel/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
 type AddPlayerRequestedAppEvent struct {
