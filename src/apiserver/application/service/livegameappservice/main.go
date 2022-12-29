@@ -2,7 +2,7 @@ package livegameappservice
 
 import (
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
-	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationeventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
@@ -17,10 +17,10 @@ type Service interface {
 }
 
 type serve struct {
-	notificationPublisher commonnotification.NotificationPublisher
+	notificationPublisher integrationeventpublisher.Publisher
 }
 
-func New(notificationPublisher commonnotification.NotificationPublisher) Service {
+func New(notificationPublisher integrationeventpublisher.Publisher) Service {
 	return &serve{notificationPublisher: notificationPublisher}
 }
 

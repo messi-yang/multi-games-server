@@ -1,18 +1,18 @@
 package redis
 
 import (
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/notification/redis"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
-	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationeventsubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/rediseprovider"
 )
 
 type RedisRemovePlayerRequestedSubscriber struct {
-	redisProvider *commonredis.RedisProvider
+	redisProvider *rediseprovider.Provider
 }
 
-func NewRedisRemovePlayerRequestedSubscriber() (commonnotification.NotificationSubscriber[*commonappevent.RemovePlayerRequestedAppEvent], error) {
+func NewRedisRemovePlayerRequestedSubscriber() (integrationeventsubscriber.DeprecatedSubscriber[*commonappevent.RemovePlayerRequestedAppEvent], error) {
 	return &RedisRemovePlayerRequestedSubscriber{
-		redisProvider: commonredis.NewRedisProvider(),
+		redisProvider: rediseprovider.New(),
 	}, nil
 }
 

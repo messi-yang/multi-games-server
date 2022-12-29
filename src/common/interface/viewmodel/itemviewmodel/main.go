@@ -1,21 +1,21 @@
-package jsondto
+package itemviewmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
 
-type ItemJsonDto struct {
+type ItemViewModel struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
 }
 
-func NewItemJsonDtos(items []itemmodel.Item) []ItemJsonDto {
-	newItemJsonDtos := make([]ItemJsonDto, 0)
+func New(items []itemmodel.Item) []ItemViewModel {
+	newItemViewModels := make([]ItemViewModel, 0)
 	for _, item := range items {
-		newItemJsonDtos = append(newItemJsonDtos, ItemJsonDto{
+		newItemViewModels = append(newItemViewModels, ItemViewModel{
 			Id:   item.GetId().ToString(),
 			Name: item.GetName(),
 		})
 	}
-	return newItemJsonDtos
+	return newItemViewModels
 }

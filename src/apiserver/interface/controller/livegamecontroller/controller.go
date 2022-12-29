@@ -8,10 +8,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/subscriber/redis"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipprovider"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -26,7 +26,7 @@ var wsupgrader = websocket.Upgrader{
 }
 
 func NewController(
-	GameRepository gamemodel.GameRepository,
+	GameRepo gamemodel.GameRepo,
 	liveGameAppService livegameappservice.Service,
 ) func(c *gin.Context) {
 	return func(c *gin.Context) {
@@ -38,7 +38,7 @@ func NewController(
 		defer conn.Close()
 		closeConnFlag := make(chan bool)
 
-		games, err := GameRepository.GetAll()
+		games, err := GameRepo.GetAll()
 		if err != nil {
 			return
 		}
@@ -106,7 +106,7 @@ func NewController(
 					break
 				}
 
-				gzipCompressor := service.NewGzipService()
+				gzipCompressor := gzipprovider.New()
 				message, err := gzipCompressor.Ungzip(compressedMessage)
 				if err != nil {
 					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentErroredEvent(err.Error()))
@@ -164,7 +164,7 @@ func sendJSONMessageToClient(conn *websocket.Conn, socketConnLock *sync.RWMutex,
 
 	messageJsonInBytes, _ := json.Marshal(message)
 
-	gzipCompressor := service.NewGzipService()
+	gzipCompressor := gzipprovider.New()
 	compressedMessage, _ := gzipCompressor.Gzip(messageJsonInBytes)
 
 	conn.WriteMessage(2, compressedMessage)

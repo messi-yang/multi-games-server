@@ -3,10 +3,19 @@ package livegameeventcontroller
 import (
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/subscriber/livegameintegrationeventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/subscriber/redis"
 )
 
 func New(liveGameAppService livegameappservice.Service) {
+	liveGameIntegrationEventSubscriber, _ := livegameintegrationeventsubscriber.New()
+	liveGameIntegrationEventSubscriberUnsubscriber := liveGameIntegrationEventSubscriber.Subscribe(commonappevent.NewAddPlayerRequestedAppEventChannel(), func(message []byte) {
+		// event := commonappevent.DeserializeAddPlayerRequestedAppEvent(message)
+		// // fmt.Println(event)
+		// // fmt.Println("REALLY!?")
+	})
+	defer liveGameIntegrationEventSubscriberUnsubscriber()
+
 	redisDestroyItemRequestedSubscriber, _ := redis.NewRedisDestroyItemRequestedSubscriber()
 	redisDestroyItemRequestedSubscriberUnsubscriber := redisDestroyItemRequestedSubscriber.Subscribe(func(event *commonappevent.DestroyItemRequestedAppEvent) {
 		liveGameId, err := event.GetLiveGameId()

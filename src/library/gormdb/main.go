@@ -1,4 +1,4 @@
-package postgres
+package gormdb
 
 import (
 	"fmt"
@@ -8,10 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var postgresClient *gorm.DB
+var gormDb *gorm.DB
 
-func NewPostgresClient() (*gorm.DB, error) {
-	if postgresClient == nil {
+func New() (*gorm.DB, error) {
+	if gormDb == nil {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",
 			os.Getenv("POSTGRES_HOST"),
@@ -19,13 +19,13 @@ func NewPostgresClient() (*gorm.DB, error) {
 			os.Getenv("POSTGRES_PASSWORD"),
 			os.Getenv("POSTGRES_DB"),
 		)
-		postgresClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		gormDb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
 			return &gorm.DB{}, err
 		}
 
-		return postgresClient, nil
+		return gormDb, nil
 	}
 
-	return postgresClient, nil
+	return gormDb, nil
 }

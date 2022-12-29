@@ -5,9 +5,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/notification/redis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/integrationevent/redisintegrationeventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service/itemdomainservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,12 +20,12 @@ func Start() {
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
 
-	postgresClient, err := postgres.NewPostgresClient()
+	gormDb, err := gormdb.New()
 	if err != nil {
 		panic(err)
 	}
-	gameRepository := postgres.NewPostgresGameRepository(postgresClient)
-	notificationPublisher := commonredis.NewRedisNotificationPublisher()
+	gameRepo := gamepsqlrepo.New(gormDb)
+	notificationPublisher := redisintegrationeventpublisher.New()
 	itemDomainService := itemdomainservice.New()
 	liveGameAppService := livegameappservice.New(notificationPublisher)
 	itemAppService := itemappservice.New(itemDomainService)
@@ -32,7 +33,7 @@ func Start() {
 	itemController := itemcontroller.New(itemAppService)
 
 	router.Group("/ws/game").GET("/", livegamecontroller.NewController(
-		gameRepository,
+		gameRepo,
 		liveGameAppService,
 	))
 

@@ -3,22 +3,22 @@ package event
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/coordinateviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
 type BuildItemRequestedAppEvent struct {
-	LiveGameId string                    `json:"liveGameId"`
-	Coordinate jsondto.CoordinateJsonDto `json:"coordinate"`
-	ItemId     string                    `json:"coordinates"`
+	LiveGameId string                                  `json:"liveGameId"`
+	Coordinate coordinateviewmodel.CoordinateViewModel `json:"coordinate"`
+	ItemId     string                                  `json:"coordinates"`
 }
 
 func NewBuildItemRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) *BuildItemRequestedAppEvent {
 	return &BuildItemRequestedAppEvent{
 		LiveGameId: liveGameId.ToString(),
-		Coordinate: jsondto.NewCoordinateJsonDto(coordinate),
+		Coordinate: coordinateviewmodel.New(coordinate),
 		ItemId:     itemId.ToString(),
 	}
 }

@@ -2,7 +2,7 @@ package livegameappservice
 
 import (
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
-	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationeventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
@@ -20,25 +20,25 @@ type Service interface {
 }
 
 type serve struct {
-	liveGameRepository    livegamemodel.Repository
-	gameRepository        gamemodel.GameRepository
-	notificationPublisher commonnotification.NotificationPublisher
+	liveGameRepo          livegamemodel.Repo
+	gameRepo              gamemodel.GameRepo
+	notificationPublisher integrationeventpublisher.Publisher
 }
 
 func New(
-	liveGameRepository livegamemodel.Repository,
-	gameRepository gamemodel.GameRepository,
-	notificationPublisher commonnotification.NotificationPublisher,
+	liveGameRepo livegamemodel.Repo,
+	gameRepo gamemodel.GameRepo,
+	notificationPublisher integrationeventpublisher.Publisher,
 ) *serve {
 	return &serve{
-		liveGameRepository:    liveGameRepository,
-		gameRepository:        gameRepository,
+		liveGameRepo:          liveGameRepo,
+		gameRepo:              gameRepo,
 		notificationPublisher: notificationPublisher,
 	}
 }
 
 func (serve *serve) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error {
-	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
@@ -61,22 +61,22 @@ func (serve *serve) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.Live
 }
 
 func (serve *serve) CreateLiveGame(gameId gamemodel.GameId) error {
-	game, err := serve.gameRepository.Get(gameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return err
 	}
 	liveGameId, _ := livegamemodel.NewLiveGameId(gameId.GetId().String())
 	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetUnitBlock())
-	serve.liveGameRepository.Add(newLiveGame)
+	serve.liveGameRepo.Add(newLiveGame)
 
 	return nil
 }
 
 func (serve *serve) BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) error {
-	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
+	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (serve *serve) BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coo
 		return err
 	}
 
-	serve.liveGameRepository.Update(liveGameId, liveGame)
+	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
 
@@ -94,10 +94,10 @@ func (serve *serve) BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coo
 }
 
 func (serve *serve) DestroyItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error {
-	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
+	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (serve *serve) DestroyItemInLiveGame(liveGameId livegamemodel.LiveGameId, c
 		return err
 	}
 
-	serve.liveGameRepository.Update(liveGameId, liveGame)
+	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
 
@@ -115,16 +115,16 @@ func (serve *serve) DestroyItemInLiveGame(liveGameId livegamemodel.LiveGameId, c
 }
 
 func (serve *serve) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
-	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
+	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
 	liveGame.AddPlayer(playerId)
-	serve.liveGameRepository.Update(liveGameId, liveGame)
+	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	serve.notificationPublisher.Publish(
 		commonappevent.NewGameInfoUpdatedAppEventChannel(liveGameId, playerId),
@@ -135,25 +135,25 @@ func (serve *serve) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, pla
 }
 
 func (serve *serve) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
-	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
+	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
 	liveGame.RemovePlayer(playerId)
-	serve.liveGameRepository.Update(liveGameId, liveGame)
+	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	return nil
 }
 
 func (serve *serve) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) error {
-	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
+	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func (serve *serve) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId,
 		return err
 	}
 
-	serve.liveGameRepository.Update(liveGameId, liveGame)
+	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	unitBlock, err := liveGame.GetUnitBlockByArea(area)
 	if err != nil {
@@ -178,16 +178,16 @@ func (serve *serve) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId,
 }
 
 func (serve *serve) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
-	unlocker := serve.liveGameRepository.LockAccess(liveGameId)
+	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepository.Get(liveGameId)
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
 	liveGame.RemoveZoomedArea(playerId)
-	serve.liveGameRepository.Update(liveGameId, liveGame)
+	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	return nil
 }

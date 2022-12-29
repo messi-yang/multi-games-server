@@ -4,24 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 
-	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/areaviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/unitblockviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
 type ZoomedAreaUpdatedAppEvent struct {
-	LiveGameId string                         `json:"liveGameId"`
-	PlayerId   string                         `json:"playerId"`
-	Area       commonjsondto.AreaJsonDto      `json:"area"`
-	UnitBlock  commonjsondto.UnitBlockJsonDto `json:"unitBlock"`
+	LiveGameId string                                `json:"liveGameId"`
+	PlayerId   string                                `json:"playerId"`
+	Area       areaviewmodel.AreaViewModel           `json:"area"`
+	UnitBlock  unitblockviewmodel.UnitBlockViewModel `json:"unitBlock"`
 }
 
 func NewZoomedAreaUpdatedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area, unitBlock commonmodel.UnitBlock) *ZoomedAreaUpdatedAppEvent {
 	return &ZoomedAreaUpdatedAppEvent{
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
-		Area:       commonjsondto.NewAreaJsonDto(area),
-		UnitBlock:  commonjsondto.NewUnitBlockJsonDto(unitBlock),
+		Area:       areaviewmodel.New(area),
+		UnitBlock:  unitblockviewmodel.New(unitBlock),
 	}
 }
 

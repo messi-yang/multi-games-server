@@ -12,11 +12,11 @@ type Service interface {
 }
 
 type servce struct {
-	gameRepository gamemodel.GameRepository
+	gameRepo gamemodel.GameRepo
 }
 
-func New(gameRepository gamemodel.GameRepository) Service {
-	return &servce{gameRepository: gameRepository}
+func New(gameRepo gamemodel.GameRepo) Service {
+	return &servce{gameRepo: gameRepo}
 }
 
 func (serve *servce) CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error) {
@@ -31,7 +31,7 @@ func (serve *servce) CreateGame(dimension commonmodel.Dimension) (gamemodel.Game
 	unitBlock := commonmodel.NewUnitBlock(unitMatrix)
 
 	newGame := gamemodel.NewGame(gamemodel.NewGameId(uuid.New()), unitBlock)
-	newGameId, err := serve.gameRepository.Add(newGame)
+	newGameId, err := serve.gameRepo.Add(newGame)
 	if err != nil {
 		return gamemodel.GameId{}, err
 	}

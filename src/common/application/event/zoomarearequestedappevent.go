@@ -3,22 +3,22 @@ package event
 import (
 	"encoding/json"
 
-	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/areaviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
 type ZoomAreaRequestedAppEvent struct {
-	LiveGameId string                    `json:"liveGameId"`
-	PlayerId   string                    `json:"playerId"`
-	Area       commonjsondto.AreaJsonDto `json:"area"`
+	LiveGameId string                      `json:"liveGameId"`
+	PlayerId   string                      `json:"playerId"`
+	Area       areaviewmodel.AreaViewModel `json:"area"`
 }
 
 func NewZoomAreaRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) *ZoomAreaRequestedAppEvent {
 	return &ZoomAreaRequestedAppEvent{
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
-		Area:       commonjsondto.NewAreaJsonDto(area),
+		Area:       areaviewmodel.New(area),
 	}
 }
 

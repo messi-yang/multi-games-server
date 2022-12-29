@@ -1,24 +1,24 @@
 package redis
 
 import (
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/notification/redis"
 	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
-	commonnotification "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/notification"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationeventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/rediseprovider"
 )
 
 type RedisAreaZoomedSubscriber struct {
 	liveGameId    livegamemodel.LiveGameId
 	playerId      commonmodel.PlayerId
-	redisProvider *commonredis.RedisProvider
+	redisProvider *rediseprovider.Provider
 }
 
-func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) (commonnotification.NotificationSubscriber[*commonappevent.AreaZoomedAppEvent], error) {
+func NewRedisAreaZoomedSubscriber(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) (integrationeventsubscriber.DeprecatedSubscriber[*commonappevent.AreaZoomedAppEvent], error) {
 	return &RedisAreaZoomedSubscriber{
 		liveGameId:    liveGameId,
 		playerId:      playerId,
-		redisProvider: commonredis.NewRedisProvider(),
+		redisProvider: rediseprovider.New(),
 	}, nil
 }
 

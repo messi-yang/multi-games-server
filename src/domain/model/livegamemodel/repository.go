@@ -1,6 +1,6 @@
 package livegamemodel
 
-type Repository interface {
+type Repo interface {
 	Add(LiveGame) error
 	Get(LiveGameId) (LiveGame, error)
 	Update(LiveGameId, LiveGame) error

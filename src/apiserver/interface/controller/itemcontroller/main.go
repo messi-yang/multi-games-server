@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/itemviewmodel"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +22,7 @@ func New(
 
 func (controller *Controller) HandleGetAllItems(c *gin.Context) {
 	items := controller.itemAppService.GetAllItems()
-	itemDtos := jsondto.NewItemJsonDtos(items)
+	itemDtos := itemviewmodel.New(items)
 
 	c.JSON(http.StatusOK, itemDtos)
 }

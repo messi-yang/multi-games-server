@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/areaviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/unitblockviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
@@ -35,16 +38,16 @@ type ErroredEvent struct {
 }
 
 type InformationUpdatedEventPayload struct {
-	Dimension commonjsondto.DimensionJsonDto `json:"dimension"`
+	Dimension dimensionviewmodel.DimensionViewModel `json:"dimension"`
 }
 type InformationUpdatedEvent struct {
 	Type    EventType                      `json:"type"`
 	Payload InformationUpdatedEventPayload `json:"payload"`
 }
 type ZoomedAreaUpdatedEventPayload struct {
-	Area      commonjsondto.AreaJsonDto      `json:"area"`
-	UnitBlock commonjsondto.UnitBlockJsonDto `json:"unitBlock"`
-	UpdatedAt time.Time                      `json:"updatedAt"`
+	Area      areaviewmodel.AreaViewModel           `json:"area"`
+	UnitBlock unitblockviewmodel.UnitBlockViewModel `json:"unitBlock"`
+	UpdatedAt time.Time                             `json:"updatedAt"`
 }
 type ZoomedAreaUpdatedEvent struct {
 	Type    EventType                     `json:"type"`
@@ -52,8 +55,8 @@ type ZoomedAreaUpdatedEvent struct {
 }
 
 type AreaZoomedEventPayload struct {
-	Area      commonjsondto.AreaJsonDto      `json:"area"`
-	UnitBlock commonjsondto.UnitBlockJsonDto `json:"unitBlock"`
+	Area      areaviewmodel.AreaViewModel           `json:"area"`
+	UnitBlock unitblockviewmodel.UnitBlockViewModel `json:"unitBlock"`
 }
 type AreaZoomedEvent struct {
 	Type    EventType              `json:"type"`
@@ -61,9 +64,9 @@ type AreaZoomedEvent struct {
 }
 
 type BuildItemEventPayload struct {
-	Coordinate commonjsondto.CoordinateJsonDto `json:"coordinate"`
-	ItemId     string                          `json:"itemId"`
-	ActionedAt time.Time                       `json:"actionedAt"`
+	Coordinate coordinateviewmodel.CoordinateViewModel `json:"coordinate"`
+	ItemId     string                                  `json:"itemId"`
+	ActionedAt time.Time                               `json:"actionedAt"`
 }
 type BuildItemEvent struct {
 	Type    EventType             `json:"type"`
@@ -71,8 +74,8 @@ type BuildItemEvent struct {
 }
 
 type DestroyItemEventPayload struct {
-	Coordinate commonjsondto.CoordinateJsonDto `json:"coordinate"`
-	ActionedAt time.Time                       `json:"actionedAt"`
+	Coordinate coordinateviewmodel.CoordinateViewModel `json:"coordinate"`
+	ActionedAt time.Time                               `json:"actionedAt"`
 }
 type DestroyItemEvent struct {
 	Type    EventType               `json:"type"`
@@ -80,8 +83,8 @@ type DestroyItemEvent struct {
 }
 
 type ZoomAreaRequestedEventPayload struct {
-	Area       commonjsondto.AreaJsonDto `json:"area"`
-	ActionedAt time.Time                 `json:"actionedAt"`
+	Area       areaviewmodel.AreaViewModel `json:"area"`
+	ActionedAt time.Time                   `json:"actionedAt"`
 }
 type ZoomAreaRequestedEvent struct {
 	Type    EventType                     `json:"type"`
@@ -120,7 +123,7 @@ func (presenter *Presenter) PresentInformationUpdatedEvent(dimension commonmodel
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
-			Dimension: commonjsondto.NewDimensionJsonDto(dimension),
+			Dimension: dimensionviewmodel.New(dimension),
 		},
 	}
 }
@@ -129,8 +132,8 @@ func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area commonmodel.Area,
 	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
 		Payload: ZoomedAreaUpdatedEventPayload{
-			Area:      commonjsondto.NewAreaJsonDto(area),
-			UnitBlock: commonjsondto.NewUnitBlockJsonDto(unitBlock),
+			Area:      areaviewmodel.New(area),
+			UnitBlock: unitblockviewmodel.New(unitBlock),
 			UpdatedAt: time.Now(),
 		},
 	}
@@ -140,8 +143,8 @@ func (presenter *Presenter) PresentAreaZoomedEvent(area commonmodel.Area, unitBl
 	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
 		Payload: AreaZoomedEventPayload{
-			Area:      commonjsondto.NewAreaJsonDto(area),
-			UnitBlock: commonjsondto.NewUnitBlockJsonDto(unitBlock),
+			Area:      areaviewmodel.New(area),
+			UnitBlock: unitblockviewmodel.New(unitBlock),
 		},
 	}
 }

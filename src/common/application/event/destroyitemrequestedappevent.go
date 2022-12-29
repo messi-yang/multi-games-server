@@ -3,20 +3,20 @@ package event
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/coordinateviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
 type DestroyItemRequestedAppEvent struct {
-	LiveGameId string                    `json:"liveGameId"`
-	Coordinate jsondto.CoordinateJsonDto `json:"coordinate"`
+	LiveGameId string                                  `json:"liveGameId"`
+	Coordinate coordinateviewmodel.CoordinateViewModel `json:"coordinate"`
 }
 
 func NewDestroyItemRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) *DestroyItemRequestedAppEvent {
 	return &DestroyItemRequestedAppEvent{
 		LiveGameId: liveGameId.ToString(),
-		Coordinate: jsondto.NewCoordinateJsonDto(coordinate),
+		Coordinate: coordinateviewmodel.New(coordinate),
 	}
 }
 

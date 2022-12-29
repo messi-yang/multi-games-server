@@ -1,34 +1,35 @@
 package gameserver
 
 import (
-	commonredis "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/notification/redis"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/integrationevent/redisintegrationeventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service/gamedomainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/persistence/livegamememoryrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/persistence/livegamememoryrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameeventcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 )
 
 func Start() {
-	postgresClient, err := postgres.NewPostgresClient()
+	gormDb, err := gormdb.New()
 	if err != nil {
 		panic(err)
 	}
-	gameRepository := postgres.NewPostgresGameRepository(postgresClient)
-	liveGameRepository := livegamememoryrepository.New()
+	gameRepo := gamepsqlrepo.New(gormDb)
+	liveGameRepo := livegamememoryrepo.New()
 	gameDomainService := gamedomainservice.New(
-		gameRepository,
+		gameRepo,
 	)
-	notificationPublisher := commonredis.NewRedisNotificationPublisher()
+	notificationPublisher := redisintegrationeventpublisher.New()
 	liveGameAppService := livegameappservice.New(
-		liveGameRepository,
-		gameRepository,
+		liveGameRepo,
+		gameRepo,
 		notificationPublisher,
 	)
 
-	games, _ := gameRepository.GetAll()
+	games, _ := gameRepo.GetAll()
 	if len(games) > 0 {
 		liveGameAppService.CreateLiveGame(games[0].GetId())
 	} else {

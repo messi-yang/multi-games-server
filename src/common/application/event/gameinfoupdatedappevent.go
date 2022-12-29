@@ -4,22 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 
-	commonjsondto "github.com/dum-dum-genius/game-of-liberty-computer/src/common/adapter/common/dto/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/dimensionviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
 type GameInfoUpdatedAppEvent struct {
-	LiveGameId string                         `json:"liveGameId"`
-	PlayerId   string                         `json:"playerId"`
-	Dimension  commonjsondto.DimensionJsonDto `json:"dimension"`
+	LiveGameId string                                `json:"liveGameId"`
+	PlayerId   string                                `json:"playerId"`
+	Dimension  dimensionviewmodel.DimensionViewModel `json:"dimension"`
 }
 
 func NewGameInfoUpdatedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, dimension commonmodel.Dimension) *GameInfoUpdatedAppEvent {
 	return &GameInfoUpdatedAppEvent{
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
-		Dimension:  commonjsondto.NewDimensionJsonDto(dimension),
+		Dimension:  dimensionviewmodel.New(dimension),
 	}
 }
 
