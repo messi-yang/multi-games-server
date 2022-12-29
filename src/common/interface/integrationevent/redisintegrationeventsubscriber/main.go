@@ -1,7 +1,7 @@
-package livegameintegrationeventsubscriber
+package redisintegrationeventsubscriber
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationeventsubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/rediseprovider"
 )
 
@@ -9,7 +9,7 @@ type subscriber struct {
 	redisProvider *rediseprovider.Provider
 }
 
-func New() (integrationeventsubscriber.Subscriber, error) {
+func New() (integrationevent.Subscriber, error) {
 	return &subscriber{
 		redisProvider: rediseprovider.New(),
 	}, nil

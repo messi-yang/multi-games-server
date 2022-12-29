@@ -1,58 +1,23 @@
 package livegameeventcontroller
 
 import (
-	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/addplayerrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/buliditemrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/destroyitemrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/removeplayerrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/zoomarearequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/integrationevent/redisintegrationeventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/subscriber/livegameintegrationeventsubscriber"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/subscriber/redis"
 )
 
 func New(liveGameAppService livegameappservice.Service) {
-	liveGameIntegrationEventSubscriber, _ := livegameintegrationeventsubscriber.New()
-	liveGameIntegrationEventSubscriberUnsubscriber := liveGameIntegrationEventSubscriber.Subscribe(commonappevent.NewAddPlayerRequestedAppEventChannel(), func(message []byte) {
-		// event := commonappevent.DeserializeAddPlayerRequestedAppEvent(message)
-		// // fmt.Println(event)
-		// // fmt.Println("REALLY!?")
-	})
-	defer liveGameIntegrationEventSubscriberUnsubscriber()
+	integrationEventSubscriber, _ := redisintegrationeventsubscriber.New()
+	integrationEventSubscriberUnsubscriber := integrationEventSubscriber.Subscribe(integrationevent.CreateLiveGameAdminChannel(), func(message []byte) {
+		integrationEvent := integrationevent.New(message)
 
-	redisDestroyItemRequestedSubscriber, _ := redis.NewRedisDestroyItemRequestedSubscriber()
-	redisDestroyItemRequestedSubscriberUnsubscriber := redisDestroyItemRequestedSubscriber.Subscribe(func(event *commonappevent.DestroyItemRequestedAppEvent) {
-		liveGameId, err := event.GetLiveGameId()
-		if err != nil {
-			return
-		}
-		coordinate, err := event.GetCoordinate()
-		if err != nil {
-			return
-		}
-
-		liveGameAppService.DestroyItemInLiveGame(liveGameId, coordinate)
-	})
-	defer redisDestroyItemRequestedSubscriberUnsubscriber()
-
-	redisBuildItemRequestedSubscriber, _ := redis.NewRedisBuildItemRequestedSubscriber()
-	redisBuildItemRequestedSubscriberUnsubscriber := redisBuildItemRequestedSubscriber.Subscribe(func(event *commonappevent.BuildItemRequestedAppEvent) {
-		liveGameId, err := event.GetLiveGameId()
-		if err != nil {
-			return
-		}
-		coordinate, err := event.GetCoordinate()
-		if err != nil {
-			return
-		}
-		itemId, err := event.GetItemId()
-		if err != nil {
-			return
-		}
-
-		liveGameAppService.BuildItemInLiveGame(liveGameId, coordinate, itemId)
-	})
-	defer redisBuildItemRequestedSubscriberUnsubscriber()
-
-	redisAddPlayerRequestedSubscriber, _ := redis.NewRedisAddPlayerRequestedSubscriber()
-	redisAddPlayerRequestedSubscriberUnsubscriber := redisAddPlayerRequestedSubscriber.Subscribe(
-		func(event *commonappevent.AddPlayerRequestedAppEvent) {
+		if integrationEvent.Name == addplayerrequestedintegrationevent.EVENT_NAME {
+			event := addplayerrequestedintegrationevent.Deserialize(message)
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -62,30 +27,36 @@ func New(liveGameAppService livegameappservice.Service) {
 				return
 			}
 			liveGameAppService.AddPlayerToLiveGame(liveGameId, playerId)
-		},
-	)
-	defer redisAddPlayerRequestedSubscriberUnsubscriber()
-
-	redisRemovePlayerRequestedSubscriber, _ := redis.NewRedisRemovePlayerRequestedSubscriber()
-	redisRemovePlayerRequestedSubscriberUnsubscriber := redisRemovePlayerRequestedSubscriber.Subscribe(
-		func(event *commonappevent.RemovePlayerRequestedAppEvent) {
+		} else if integrationEvent.Name == destroyitemrequestedintegrationevent.EVENT_NAME {
+			event := destroyitemrequestedintegrationevent.Deserialize(message)
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
 			}
-			playerId, err := event.GetPlayerId()
+			coordinate, err := event.GetCoordinate()
 			if err != nil {
 				return
 			}
-			liveGameAppService.RemovePlayerFromLiveGame(liveGameId, playerId)
-			liveGameAppService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
-		},
-	)
-	defer redisRemovePlayerRequestedSubscriberUnsubscriber()
 
-	redisZoomAreaRequestedSubscriber, _ := redis.NewRedisZoomAreaRequestedSubscriber()
-	redisZoomAreaRequestedSubscriberUnsubscriber := redisZoomAreaRequestedSubscriber.Subscribe(
-		func(event *commonappevent.ZoomAreaRequestedAppEvent) {
+			liveGameAppService.DestroyItemInLiveGame(liveGameId, coordinate)
+		} else if integrationEvent.Name == buliditemrequestedintegrationevent.EVENT_NAME {
+			event := buliditemrequestedintegrationevent.Deserialize(message)
+			liveGameId, err := event.GetLiveGameId()
+			if err != nil {
+				return
+			}
+			coordinate, err := event.GetCoordinate()
+			if err != nil {
+				return
+			}
+			itemId, err := event.GetItemId()
+			if err != nil {
+				return
+			}
+
+			liveGameAppService.BuildItemInLiveGame(liveGameId, coordinate, itemId)
+		} else if integrationEvent.Name == zoomarearequestedintegrationevent.EVENT_NAME {
+			event := zoomarearequestedintegrationevent.Deserialize(message)
 			liveGameId, err := event.GetLiveGameId()
 			if err != nil {
 				return
@@ -99,9 +70,21 @@ func New(liveGameAppService livegameappservice.Service) {
 				return
 			}
 			liveGameAppService.AddZoomedAreaToLiveGame(liveGameId, playerId, area)
-		},
-	)
-	defer redisZoomAreaRequestedSubscriberUnsubscriber()
+		} else if integrationEvent.Name == removeplayerrequestedintegrationevent.EVENT_NAME {
+			event := removeplayerrequestedintegrationevent.Deserialize(message)
+			liveGameId, err := event.GetLiveGameId()
+			if err != nil {
+				return
+			}
+			playerId, err := event.GetPlayerId()
+			if err != nil {
+				return
+			}
+			liveGameAppService.RemovePlayerFromLiveGame(liveGameId, playerId)
+			liveGameAppService.RemoveZoomedAreaFromLiveGame(liveGameId, playerId)
+		}
+	})
+	defer integrationEventSubscriberUnsubscriber()
 
 	closeConnFlag := make(chan bool)
 	for {

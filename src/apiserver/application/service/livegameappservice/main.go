@@ -1,8 +1,12 @@
 package livegameappservice
 
 import (
-	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationeventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/addplayerrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/buliditemrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/destroyitemrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/removeplayerrequestedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/zoomarearequestedintegrationevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
@@ -17,44 +21,44 @@ type Service interface {
 }
 
 type serve struct {
-	notificationPublisher integrationeventpublisher.Publisher
+	notificationPublisher integrationevent.Publisher
 }
 
-func New(notificationPublisher integrationeventpublisher.Publisher) Service {
+func New(notificationPublisher integrationevent.Publisher) Service {
 	return &serve{notificationPublisher: notificationPublisher}
 }
 
 func (serve *serve) RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) {
 	serve.notificationPublisher.Publish(
-		commonappevent.NewAddPlayerRequestedAppEventChannel(),
-		commonappevent.NewAddPlayerRequestedAppEvent(liveGameId, playerId),
+		integrationevent.CreateLiveGameAdminChannel(),
+		addplayerrequestedintegrationevent.New(liveGameId, playerId).Serialize(),
 	)
 }
 
 func (serve *serve) RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) {
 	serve.notificationPublisher.Publish(
-		commonappevent.NewZoomAreaRequestedAppEventChannel(),
-		commonappevent.NewZoomAreaRequestedAppEvent(liveGameId, playerId, area),
+		integrationevent.CreateLiveGameAdminChannel(),
+		zoomarearequestedintegrationevent.New(liveGameId, playerId, area).Serialize(),
 	)
 }
 
 func (serve *serve) RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) {
 	serve.notificationPublisher.Publish(
-		commonappevent.NewBuildItemRequestedAppEventChannel(),
-		commonappevent.NewBuildItemRequestedAppEvent(liveGameId, coordinate, itemId),
+		integrationevent.CreateLiveGameAdminChannel(),
+		buliditemrequestedintegrationevent.New(liveGameId, coordinate, itemId).Serialize(),
 	)
 }
 
 func (serve *serve) RequestToDestroyItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) {
 	serve.notificationPublisher.Publish(
-		commonappevent.NewDestroyItemRequestedAppEventChannel(),
-		commonappevent.NewDestroyItemRequestedAppEvent(liveGameId, coordinate),
+		integrationevent.CreateLiveGameAdminChannel(),
+		destroyitemrequestedintegrationevent.New(liveGameId, coordinate).Serialize(),
 	)
 }
 
 func (serve *serve) RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) {
 	serve.notificationPublisher.Publish(
-		commonappevent.NewRemovePlayerRequestedAppEventChannel(),
-		commonappevent.NewRemovePlayerRequestedAppEvent(liveGameId, playerId),
+		integrationevent.CreateLiveGameAdminChannel(),
+		removeplayerrequestedintegrationevent.New(liveGameId, playerId).Serialize(),
 	)
 }

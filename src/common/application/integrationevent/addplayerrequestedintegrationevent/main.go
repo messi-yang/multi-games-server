@@ -1,4 +1,4 @@
-package event
+package addplayerrequestedintegrationevent
 
 import (
 	"encoding/json"
@@ -7,34 +7,34 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
-type AddPlayerRequestedAppEvent struct {
+type Event struct {
+	Name       string `json:"name"`
 	LiveGameId string `json:"liveGameId"`
 	PlayerId   string `json:"playerId"`
 }
 
-func NewAddPlayerRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) *AddPlayerRequestedAppEvent {
-	return &AddPlayerRequestedAppEvent{
+var EVENT_NAME = "ADD_PLAYER_REQUESTED"
+
+func New(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) *Event {
+	return &Event{
+		Name:       EVENT_NAME,
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
 	}
 }
 
-func DeserializeAddPlayerRequestedAppEvent(message []byte) AddPlayerRequestedAppEvent {
-	var event AddPlayerRequestedAppEvent
+func Deserialize(message []byte) Event {
+	var event Event
 	json.Unmarshal(message, &event)
 	return event
 }
 
-func NewAddPlayerRequestedAppEventChannel() string {
-	return "add-player-requested"
-}
-
-func (event *AddPlayerRequestedAppEvent) Serialize() []byte {
+func (event *Event) Serialize() []byte {
 	message, _ := json.Marshal(event)
 	return message
 }
 
-func (event *AddPlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *Event) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := livegamemodel.NewLiveGameId(event.LiveGameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -42,7 +42,7 @@ func (event *AddPlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGame
 	return liveGameId, nil
 }
 
-func (event *AddPlayerRequestedAppEvent) GetPlayerId() (commonmodel.PlayerId, error) {
+func (event *Event) GetPlayerId() (commonmodel.PlayerId, error) {
 	playerId, err := commonmodel.NewPlayerId(event.PlayerId)
 	if err != nil {
 		return commonmodel.PlayerId{}, err

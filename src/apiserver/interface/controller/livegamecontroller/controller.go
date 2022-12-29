@@ -6,8 +6,11 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/subscriber/redis"
-	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/areazoomedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/gameinfoupdatedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/zoomedareaupdatedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/integrationevent/redisintegrationeventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
@@ -48,37 +51,12 @@ func NewController(
 		playerId, _ := commonmodel.NewPlayerId(uuid.New().String())
 		socketConnLock := &sync.RWMutex{}
 
-		redisGameInfoUpdatedSubscriber, _ := redis.NewRedisGameInfoUpdatedSubscriber(liveGameId, playerId)
-		redisGameInfoUpdatedSubscriberUnsubscriber := redisGameInfoUpdatedSubscriber.Subscribe(
-			func(event *commonappevent.GameInfoUpdatedAppEvent) {
-				dimension, err := event.GetDimension()
-				if err != nil {
-					return
-				}
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(dimension))
-			},
-		)
-		defer redisGameInfoUpdatedSubscriberUnsubscriber()
+		integrationEventSubscriber, _ := redisintegrationeventsubscriber.New()
+		integrationEventSubscriberUnsubscriber := integrationEventSubscriber.Subscribe(integrationevent.CreateLiveGameClientChannel(liveGameId, playerId), func(message []byte) {
+			integrationEvent := integrationevent.New(message)
 
-		redisAreaZoomedSubscriber, _ := redis.NewRedisAreaZoomedSubscriber(liveGameId, playerId)
-		redisAreaZoomedSubscriberUnsubscriber := redisAreaZoomedSubscriber.Subscribe(
-			func(event *commonappevent.AreaZoomedAppEvent) {
-				area, err := event.GetArea()
-				if err != nil {
-					return
-				}
-				unitBlock, err := event.GetUnitBlock()
-				if err != nil {
-					return
-				}
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(area, unitBlock))
-			},
-		)
-		defer redisAreaZoomedSubscriberUnsubscriber()
-
-		redisZoomedAreaUpdatedSubscriber, _ := redis.NewRedisZoomedAreaUpdatedSubscriber(liveGameId, playerId)
-		redisZoomedAreaUpdatedSubscriberUnsubscriber := redisZoomedAreaUpdatedSubscriber.Subscribe(
-			func(event *commonappevent.ZoomedAreaUpdatedAppEvent) {
+			if integrationEvent.Name == zoomedareaupdatedintegrationevent.EVENT_NAME {
+				event := zoomedareaupdatedintegrationevent.Deserialize(message)
 				area, err := event.GetArea()
 				if err != nil {
 					return
@@ -88,9 +66,27 @@ func NewController(
 					return
 				}
 				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentZoomedAreaUpdatedEvent(area, unitBlock))
-			},
-		)
-		defer redisZoomedAreaUpdatedSubscriberUnsubscriber()
+			} else if integrationEvent.Name == areazoomedintegrationevent.EVENT_NAME {
+				event := areazoomedintegrationevent.Deserialize(message)
+				area, err := event.GetArea()
+				if err != nil {
+					return
+				}
+				unitBlock, err := event.GetUnitBlock()
+				if err != nil {
+					return
+				}
+				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(area, unitBlock))
+			} else if integrationEvent.Name == gameinfoupdatedintegrationevent.EVENT_NAME {
+				event := gameinfoupdatedintegrationevent.Deserialize(message)
+				dimension, err := event.GetDimension()
+				if err != nil {
+					return
+				}
+				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(dimension))
+			}
+		})
+		defer integrationEventSubscriberUnsubscriber()
 
 		liveGameAppService.RequestToAddPlayer(liveGameId, playerId)
 

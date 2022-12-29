@@ -1,4 +1,4 @@
-package event
+package removeplayerrequestedintegrationevent
 
 import (
 	"encoding/json"
@@ -7,34 +7,34 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
-type RemovePlayerRequestedAppEvent struct {
+type Event struct {
+	Name       string `json:"name"`
 	LiveGameId string `json:"liveGameId"`
 	PlayerId   string `json:"playerId"`
 }
 
-func NewRemovePlayerRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) *RemovePlayerRequestedAppEvent {
-	return &RemovePlayerRequestedAppEvent{
+var EVENT_NAME = "REMOVE_PLAYER_REQUESTED"
+
+func New(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) *Event {
+	return &Event{
+		Name:       EVENT_NAME,
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
 	}
 }
 
-func DeserializeRemovePlayerRequestedAppEvent(message []byte) RemovePlayerRequestedAppEvent {
-	var event RemovePlayerRequestedAppEvent
+func Deserialize(message []byte) Event {
+	var event Event
 	json.Unmarshal(message, &event)
 	return event
 }
 
-func NewRemovePlayerRequestedAppEventChannel() string {
-	return "remove-player-requested"
-}
-
-func (event *RemovePlayerRequestedAppEvent) Serialize() []byte {
+func (event *Event) Serialize() []byte {
 	message, _ := json.Marshal(event)
 	return message
 }
 
-func (event *RemovePlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *Event) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := livegamemodel.NewLiveGameId(event.LiveGameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -42,7 +42,7 @@ func (event *RemovePlayerRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveG
 	return liveGameId, nil
 }
 
-func (event *RemovePlayerRequestedAppEvent) GetPlayerId() (commonmodel.PlayerId, error) {
+func (event *Event) GetPlayerId() (commonmodel.PlayerId, error) {
 	playerId, err := commonmodel.NewPlayerId(event.PlayerId)
 	if err != nil {
 		return commonmodel.PlayerId{}, err

@@ -1,4 +1,4 @@
-package event
+package destroyitemrequestedintegrationevent
 
 import (
 	"encoding/json"
@@ -8,34 +8,34 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
-type DestroyItemRequestedAppEvent struct {
+type Event struct {
+	Name       string                                  `json:"name"`
 	LiveGameId string                                  `json:"liveGameId"`
 	Coordinate coordinateviewmodel.CoordinateViewModel `json:"coordinate"`
 }
 
-func NewDestroyItemRequestedAppEvent(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) *DestroyItemRequestedAppEvent {
-	return &DestroyItemRequestedAppEvent{
+var EVENT_NAME = "DESTROY_ITEM_REQUESTED"
+
+func New(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) *Event {
+	return &Event{
+		Name:       EVENT_NAME,
 		LiveGameId: liveGameId.ToString(),
 		Coordinate: coordinateviewmodel.New(coordinate),
 	}
 }
 
-func DeserializeDestroyItemRequestedAppEvent(message []byte) DestroyItemRequestedAppEvent {
-	var event DestroyItemRequestedAppEvent
+func Deserialize(message []byte) Event {
+	var event Event
 	json.Unmarshal(message, &event)
 	return event
 }
 
-func NewDestroyItemRequestedAppEventChannel() string {
-	return "destroy-item-requested"
-}
-
-func (event *DestroyItemRequestedAppEvent) Serialize() []byte {
+func (event *Event) Serialize() []byte {
 	message, _ := json.Marshal(event)
 	return message
 }
 
-func (event *DestroyItemRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *Event) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := livegamemodel.NewLiveGameId(event.LiveGameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -43,7 +43,7 @@ func (event *DestroyItemRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGa
 	return liveGameId, nil
 }
 
-func (event *DestroyItemRequestedAppEvent) GetCoordinate() (commonmodel.Coordinate, error) {
+func (event *Event) GetCoordinate() (commonmodel.Coordinate, error) {
 	coordinate, err := event.Coordinate.ToValueObject()
 	if err != nil {
 		return commonmodel.Coordinate{}, err

@@ -1,8 +1,10 @@
 package livegameappservice
 
 import (
-	commonappevent "github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/event"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationeventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/areazoomedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/gameinfoupdatedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/zoomedareaupdatedintegrationevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
@@ -22,13 +24,13 @@ type Service interface {
 type serve struct {
 	liveGameRepo          livegamemodel.Repo
 	gameRepo              gamemodel.GameRepo
-	notificationPublisher integrationeventpublisher.Publisher
+	notificationPublisher integrationevent.Publisher
 }
 
 func New(
 	liveGameRepo livegamemodel.Repo,
 	gameRepo gamemodel.GameRepo,
-	notificationPublisher integrationeventpublisher.Publisher,
+	notificationPublisher integrationevent.Publisher,
 ) *serve {
 	return &serve{
 		liveGameRepo:          liveGameRepo,
@@ -52,8 +54,8 @@ func (serve *serve) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.Live
 			continue
 		}
 		serve.notificationPublisher.Publish(
-			commonappevent.NewZoomedAreaUpdatedAppEventChannel(liveGameId, playerId),
-			commonappevent.NewZoomedAreaUpdatedAppEvent(liveGameId, playerId, area, unitBlock),
+			integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
+			zoomedareaupdatedintegrationevent.New(liveGameId, playerId, area, unitBlock).Serialize(),
 		)
 	}
 
@@ -127,8 +129,8 @@ func (serve *serve) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, pla
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	serve.notificationPublisher.Publish(
-		commonappevent.NewGameInfoUpdatedAppEventChannel(liveGameId, playerId),
-		commonappevent.NewGameInfoUpdatedAppEvent(liveGameId, playerId, liveGame.GetDimension()),
+		integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		gameinfoupdatedintegrationevent.New(liveGameId, playerId, liveGame.GetDimension()).Serialize(),
 	)
 
 	return nil
@@ -170,8 +172,8 @@ func (serve *serve) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId,
 	}
 
 	serve.notificationPublisher.Publish(
-		commonappevent.NewAreaZoomedAppEventChannel(liveGameId, playerId),
-		commonappevent.NewAreaZoomedAppEvent(liveGameId, playerId, area, unitBlock),
+		integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		areazoomedintegrationevent.New(liveGameId, playerId, area, unitBlock).Serialize(),
 	)
 
 	return nil

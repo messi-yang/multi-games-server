@@ -1,8 +1,7 @@
-package event
+package zoomedareaupdatedintegrationevent
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/areaviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/unitblockviewmodel"
@@ -10,15 +9,19 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
-type ZoomedAreaUpdatedAppEvent struct {
+type Event struct {
+	Name       string                                `json:"name"`
 	LiveGameId string                                `json:"liveGameId"`
 	PlayerId   string                                `json:"playerId"`
 	Area       areaviewmodel.AreaViewModel           `json:"area"`
 	UnitBlock  unitblockviewmodel.UnitBlockViewModel `json:"unitBlock"`
 }
 
-func NewZoomedAreaUpdatedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area, unitBlock commonmodel.UnitBlock) *ZoomedAreaUpdatedAppEvent {
-	return &ZoomedAreaUpdatedAppEvent{
+var EVENT_NAME = "ZOOMED_AREA_UPDATED"
+
+func New(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area, unitBlock commonmodel.UnitBlock) *Event {
+	return &Event{
+		Name:       EVENT_NAME,
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
 		Area:       areaviewmodel.New(area),
@@ -26,22 +29,18 @@ func NewZoomedAreaUpdatedAppEvent(liveGameId livegamemodel.LiveGameId, playerId 
 	}
 }
 
-func DeserializeZoomedAreaUpdatedAppEvent(message []byte) ZoomedAreaUpdatedAppEvent {
-	var event ZoomedAreaUpdatedAppEvent
+func Deserialize(message []byte) Event {
+	var event Event
 	json.Unmarshal(message, &event)
 	return event
 }
 
-func NewZoomedAreaUpdatedAppEventChannel(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) string {
-	return fmt.Sprintf("zoomed-area-updated-live-game-id-%s-player-id-%s", liveGameId.ToString(), playerId.ToString())
-}
-
-func (event *ZoomedAreaUpdatedAppEvent) Serialize() []byte {
+func (event *Event) Serialize() []byte {
 	message, _ := json.Marshal(event)
 	return message
 }
 
-func (event *ZoomedAreaUpdatedAppEvent) GetArea() (commonmodel.Area, error) {
+func (event *Event) GetArea() (commonmodel.Area, error) {
 	area, err := event.Area.ToValueObject()
 	if err != nil {
 		return commonmodel.Area{}, err
@@ -49,7 +48,7 @@ func (event *ZoomedAreaUpdatedAppEvent) GetArea() (commonmodel.Area, error) {
 	return area, nil
 }
 
-func (event *ZoomedAreaUpdatedAppEvent) GetUnitBlock() (commonmodel.UnitBlock, error) {
+func (event *Event) GetUnitBlock() (commonmodel.UnitBlock, error) {
 	unitBlock, err := event.UnitBlock.ToValueObject()
 	if err != nil {
 		return commonmodel.UnitBlock{}, err

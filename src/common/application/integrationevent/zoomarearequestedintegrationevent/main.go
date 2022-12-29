@@ -1,4 +1,4 @@
-package event
+package zoomarearequestedintegrationevent
 
 import (
 	"encoding/json"
@@ -8,36 +8,36 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
-type ZoomAreaRequestedAppEvent struct {
+type Event struct {
+	Name       string                      `json:"name"`
 	LiveGameId string                      `json:"liveGameId"`
 	PlayerId   string                      `json:"playerId"`
 	Area       areaviewmodel.AreaViewModel `json:"area"`
 }
 
-func NewZoomAreaRequestedAppEvent(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) *ZoomAreaRequestedAppEvent {
-	return &ZoomAreaRequestedAppEvent{
+var EVENT_NAME = "ZOOM_AREA_REQUESTED"
+
+func New(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) *Event {
+	return &Event{
+		Name:       EVENT_NAME,
 		LiveGameId: liveGameId.ToString(),
 		PlayerId:   playerId.ToString(),
 		Area:       areaviewmodel.New(area),
 	}
 }
 
-func DeserializeZoomAreaRequestedAppEvent(message []byte) ZoomAreaRequestedAppEvent {
-	var event ZoomAreaRequestedAppEvent
+func Deserialize(message []byte) Event {
+	var event Event
 	json.Unmarshal(message, &event)
 	return event
 }
 
-func NewZoomAreaRequestedAppEventChannel() string {
-	return "zoom-area-requested"
-}
-
-func (event *ZoomAreaRequestedAppEvent) Serialize() []byte {
+func (event *Event) Serialize() []byte {
 	message, _ := json.Marshal(event)
 	return message
 }
 
-func (event *ZoomAreaRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameId, error) {
+func (event *Event) GetLiveGameId() (livegamemodel.LiveGameId, error) {
 	liveGameId, err := livegamemodel.NewLiveGameId(event.LiveGameId)
 	if err != nil {
 		return livegamemodel.LiveGameId{}, err
@@ -45,7 +45,7 @@ func (event *ZoomAreaRequestedAppEvent) GetLiveGameId() (livegamemodel.LiveGameI
 	return liveGameId, nil
 }
 
-func (event *ZoomAreaRequestedAppEvent) GetPlayerId() (commonmodel.PlayerId, error) {
+func (event *Event) GetPlayerId() (commonmodel.PlayerId, error) {
 	playerId, err := commonmodel.NewPlayerId(event.PlayerId)
 	if err != nil {
 		return commonmodel.PlayerId{}, err
@@ -53,7 +53,7 @@ func (event *ZoomAreaRequestedAppEvent) GetPlayerId() (commonmodel.PlayerId, err
 	return playerId, nil
 }
 
-func (event *ZoomAreaRequestedAppEvent) GetArea() (commonmodel.Area, error) {
+func (event *Event) GetArea() (commonmodel.Area, error) {
 	area, err := event.Area.ToValueObject()
 	if err != nil {
 		return commonmodel.Area{}, err
