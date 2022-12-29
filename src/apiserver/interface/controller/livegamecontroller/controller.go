@@ -51,41 +51,42 @@ func NewController(
 		playerId, _ := commonmodel.NewPlayerId(uuid.New().String())
 		socketConnLock := &sync.RWMutex{}
 
-		integrationEventSubscriber, _ := redisintegrationeventsubscriber.New()
-		integrationEventSubscriberUnsubscriber := integrationEventSubscriber.Subscribe(integrationevent.CreateLiveGameClientChannel(liveGameId, playerId), func(message []byte) {
-			integrationEvent := integrationevent.New(message)
+		integrationEventSubscriberUnsubscriber := redisintegrationeventsubscriber.New().Subscribe(
+			integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
+			func(message []byte) {
+				integrationEvent := integrationevent.New(message)
 
-			if integrationEvent.Name == zoomedareaupdatedintegrationevent.EVENT_NAME {
-				event := zoomedareaupdatedintegrationevent.Deserialize(message)
-				area, err := event.GetArea()
-				if err != nil {
-					return
+				if integrationEvent.Name == zoomedareaupdatedintegrationevent.EVENT_NAME {
+					event := zoomedareaupdatedintegrationevent.Deserialize(message)
+					area, err := event.GetArea()
+					if err != nil {
+						return
+					}
+					unitBlock, err := event.GetUnitBlock()
+					if err != nil {
+						return
+					}
+					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentZoomedAreaUpdatedEvent(area, unitBlock))
+				} else if integrationEvent.Name == areazoomedintegrationevent.EVENT_NAME {
+					event := areazoomedintegrationevent.Deserialize(message)
+					area, err := event.GetArea()
+					if err != nil {
+						return
+					}
+					unitBlock, err := event.GetUnitBlock()
+					if err != nil {
+						return
+					}
+					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(area, unitBlock))
+				} else if integrationEvent.Name == gameinfoupdatedintegrationevent.EVENT_NAME {
+					event := gameinfoupdatedintegrationevent.Deserialize(message)
+					dimension, err := event.GetDimension()
+					if err != nil {
+						return
+					}
+					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(dimension))
 				}
-				unitBlock, err := event.GetUnitBlock()
-				if err != nil {
-					return
-				}
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentZoomedAreaUpdatedEvent(area, unitBlock))
-			} else if integrationEvent.Name == areazoomedintegrationevent.EVENT_NAME {
-				event := areazoomedintegrationevent.Deserialize(message)
-				area, err := event.GetArea()
-				if err != nil {
-					return
-				}
-				unitBlock, err := event.GetUnitBlock()
-				if err != nil {
-					return
-				}
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(area, unitBlock))
-			} else if integrationEvent.Name == gameinfoupdatedintegrationevent.EVENT_NAME {
-				event := gameinfoupdatedintegrationevent.Deserialize(message)
-				dimension, err := event.GetDimension()
-				if err != nil {
-					return
-				}
-				sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(dimension))
-			}
-		})
+			})
 		defer integrationEventSubscriberUnsubscriber()
 
 		liveGameAppService.RequestToAddPlayer(liveGameId, playerId)
