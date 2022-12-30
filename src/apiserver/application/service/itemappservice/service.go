@@ -1,11 +1,12 @@
 package itemappservice
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
 
 type Service interface {
-	GetAllItems() []itemmodel.Item
+	GetAllItems(presenter Presenter)
 }
 
 type serve struct {
@@ -16,6 +17,7 @@ func New(itemRepo itemmodel.Repo) Service {
 	return &serve{itemRepo: itemRepo}
 }
 
-func (serve *serve) GetAllItems() []itemmodel.Item {
-	return serve.itemRepo.GetAllItems()
+func (serve *serve) GetAllItems(presenter Presenter) {
+	items := serve.itemRepo.GetAllItems()
+	presenter.Succeed(itemviewmodel.New(items))
 }

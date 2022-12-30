@@ -1,10 +1,7 @@
 package itemcontroller
 
 import (
-	"net/http"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,8 +18,5 @@ func New(
 }
 
 func (controller *Controller) HandleGetAllItems(c *gin.Context) {
-	items := controller.itemAppService.GetAllItems()
-	itemDtos := itemviewmodel.New(items)
-
-	c.JSON(http.StatusOK, itemDtos)
+	controller.itemAppService.GetAllItems(newGinPresenter(c))
 }
