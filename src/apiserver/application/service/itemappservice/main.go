@@ -2,7 +2,6 @@ package itemappservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service/itemdomainservice"
 )
 
 type Service interface {
@@ -10,13 +9,13 @@ type Service interface {
 }
 
 type serve struct {
-	itemDomainService itemdomainservice.Service
+	itemRepo itemmodel.Repo
 }
 
-func New(itemDomainService itemdomainservice.Service) Service {
-	return &serve{itemDomainService: itemDomainService}
+func New(itemRepo itemmodel.Repo) Service {
+	return &serve{itemRepo: itemRepo}
 }
 
 func (serve *serve) GetAllItems() []itemmodel.Item {
-	return serve.itemDomainService.GetAllItems()
+	return serve.itemRepo.GetAllItems()
 }
