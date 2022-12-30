@@ -6,11 +6,13 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/areazoomedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/gameinfoupdatedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/zoomedareaupdatedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/integrationevent/redisintegrationeventsubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/areazoomedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/gameinfoupdatedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomedareaupdatedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
@@ -47,49 +49,29 @@ func NewController(
 		}
 		gameId := games[0].GetId()
 
-		liveGameId, _ := livegamemodel.NewLiveGameId(gameId.GetId().String())
+		liveGameId, _ := livegamemodel.NewLiveGameId(gameId.ToString())
 		playerId, _ := commonmodel.NewPlayerId(uuid.New().String())
 		socketConnLock := &sync.RWMutex{}
 
-		integrationEventSubscriberUnsubscriber := redisintegrationeventsubscriber.New().Subscribe(
-			integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		integrationEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
+			intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
 			func(message []byte) {
-				integrationEvent := integrationevent.New(message)
+				integrationEvent := intgrevent.New(message)
 
-				if integrationEvent.Name == zoomedareaupdatedintegrationevent.EVENT_NAME {
-					event := zoomedareaupdatedintegrationevent.Deserialize(message)
-					area, err := event.GetArea()
-					if err != nil {
-						return
-					}
-					unitBlock, err := event.GetUnitBlock()
-					if err != nil {
-						return
-					}
-					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentZoomedAreaUpdatedEvent(area, unitBlock))
-				} else if integrationEvent.Name == areazoomedintegrationevent.EVENT_NAME {
-					event := areazoomedintegrationevent.Deserialize(message)
-					area, err := event.GetArea()
-					if err != nil {
-						return
-					}
-					unitBlock, err := event.GetUnitBlock()
-					if err != nil {
-						return
-					}
-					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(area, unitBlock))
-				} else if integrationEvent.Name == gameinfoupdatedintegrationevent.EVENT_NAME {
-					event := gameinfoupdatedintegrationevent.Deserialize(message)
-					dimension, err := event.GetDimension()
-					if err != nil {
-						return
-					}
-					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(dimension))
+				if integrationEvent.Name == zoomedareaupdatedintgrevent.EVENT_NAME {
+					event := zoomedareaupdatedintgrevent.Deserialize(message)
+					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentZoomedAreaUpdatedEvent(event.Area, event.UnitBlock))
+				} else if integrationEvent.Name == areazoomedintgrevent.EVENT_NAME {
+					event := areazoomedintgrevent.Deserialize(message)
+					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentAreaZoomedEvent(event.Area, event.UnitBlock))
+				} else if integrationEvent.Name == gameinfoupdatedintgrevent.EVENT_NAME {
+					event := gameinfoupdatedintgrevent.Deserialize(message)
+					sendJSONMessageToClient(conn, socketConnLock, presenter.PresentInformationUpdatedEvent(event.Dimension))
 				}
 			})
 		defer integrationEventSubscriberUnsubscriber()
 
-		liveGameAppService.RequestToAddPlayer(liveGameId, playerId)
+		liveGameAppService.RequestToAddPlayer(liveGameId.ToString(), playerId.ToString())
 
 		go func() {
 			defer func() {
@@ -124,7 +106,7 @@ func NewController(
 						return
 					}
 
-					liveGameAppService.RequestToZoomArea(liveGameId, playerId, area)
+					liveGameAppService.RequestToZoomArea(liveGameId.ToString(), playerId.ToString(), areaviewmodel.New(area))
 				case BuildItemEventType:
 					coordinate, itemId, err := presenter.ParseBuildItemEvent(message)
 					if err != nil {
@@ -132,7 +114,7 @@ func NewController(
 						return
 					}
 
-					liveGameAppService.RequestToBuildItem(liveGameId, coordinate, itemId)
+					liveGameAppService.RequestToBuildItem(liveGameId.ToString(), coordinateviewmodel.New(coordinate), itemId.ToString())
 				case DestroyItemEventType:
 					coordinate, err := presenter.ParseDestroyItemEvent(message)
 					if err != nil {
@@ -140,7 +122,7 @@ func NewController(
 						return
 					}
 
-					liveGameAppService.RequestToDestroyItem(liveGameId, coordinate)
+					liveGameAppService.RequestToDestroyItem(liveGameId.ToString(), coordinateviewmodel.New(coordinate))
 				default:
 				}
 			}
@@ -149,7 +131,7 @@ func NewController(
 		for {
 			<-closeConnFlag
 
-			liveGameAppService.RequestToRemovePlayer(liveGameId, playerId)
+			liveGameAppService.RequestToRemovePlayer(liveGameId.ToString(), playerId.ToString())
 			return
 		}
 	}

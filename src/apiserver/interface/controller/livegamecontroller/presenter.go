@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/areaviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/coordinateviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/dimensionviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/unitblockviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
@@ -38,16 +38,16 @@ type ErroredEvent struct {
 }
 
 type InformationUpdatedEventPayload struct {
-	Dimension dimensionviewmodel.DimensionViewModel `json:"dimension"`
+	Dimension dimensionviewmodel.ViewModel `json:"dimension"`
 }
 type InformationUpdatedEvent struct {
 	Type    EventType                      `json:"type"`
 	Payload InformationUpdatedEventPayload `json:"payload"`
 }
 type ZoomedAreaUpdatedEventPayload struct {
-	Area      areaviewmodel.AreaViewModel           `json:"area"`
-	UnitBlock unitblockviewmodel.UnitBlockViewModel `json:"unitBlock"`
-	UpdatedAt time.Time                             `json:"updatedAt"`
+	Area      areaviewmodel.ViewModel      `json:"area"`
+	UnitBlock unitblockviewmodel.ViewModel `json:"unitBlock"`
+	UpdatedAt time.Time                    `json:"updatedAt"`
 }
 type ZoomedAreaUpdatedEvent struct {
 	Type    EventType                     `json:"type"`
@@ -55,8 +55,8 @@ type ZoomedAreaUpdatedEvent struct {
 }
 
 type AreaZoomedEventPayload struct {
-	Area      areaviewmodel.AreaViewModel           `json:"area"`
-	UnitBlock unitblockviewmodel.UnitBlockViewModel `json:"unitBlock"`
+	Area      areaviewmodel.ViewModel      `json:"area"`
+	UnitBlock unitblockviewmodel.ViewModel `json:"unitBlock"`
 }
 type AreaZoomedEvent struct {
 	Type    EventType              `json:"type"`
@@ -64,9 +64,9 @@ type AreaZoomedEvent struct {
 }
 
 type BuildItemEventPayload struct {
-	Coordinate coordinateviewmodel.CoordinateViewModel `json:"coordinate"`
-	ItemId     string                                  `json:"itemId"`
-	ActionedAt time.Time                               `json:"actionedAt"`
+	Coordinate coordinateviewmodel.ViewModel `json:"coordinate"`
+	ItemId     string                        `json:"itemId"`
+	ActionedAt time.Time                     `json:"actionedAt"`
 }
 type BuildItemEvent struct {
 	Type    EventType             `json:"type"`
@@ -74,8 +74,8 @@ type BuildItemEvent struct {
 }
 
 type DestroyItemEventPayload struct {
-	Coordinate coordinateviewmodel.CoordinateViewModel `json:"coordinate"`
-	ActionedAt time.Time                               `json:"actionedAt"`
+	Coordinate coordinateviewmodel.ViewModel `json:"coordinate"`
+	ActionedAt time.Time                     `json:"actionedAt"`
 }
 type DestroyItemEvent struct {
 	Type    EventType               `json:"type"`
@@ -83,8 +83,8 @@ type DestroyItemEvent struct {
 }
 
 type ZoomAreaRequestedEventPayload struct {
-	Area       areaviewmodel.AreaViewModel `json:"area"`
-	ActionedAt time.Time                   `json:"actionedAt"`
+	Area       areaviewmodel.ViewModel `json:"area"`
+	ActionedAt time.Time               `json:"actionedAt"`
 }
 type ZoomAreaRequestedEvent struct {
 	Type    EventType                     `json:"type"`
@@ -119,32 +119,32 @@ func (presenter *Presenter) PresentErroredEvent(clientMessage string) ErroredEve
 	}
 }
 
-func (presenter *Presenter) PresentInformationUpdatedEvent(dimension commonmodel.Dimension) InformationUpdatedEvent {
+func (presenter *Presenter) PresentInformationUpdatedEvent(dimension dimensionviewmodel.ViewModel) InformationUpdatedEvent {
 	return InformationUpdatedEvent{
 		Type: InformationUpdatedEventType,
 		Payload: InformationUpdatedEventPayload{
-			Dimension: dimensionviewmodel.New(dimension),
+			Dimension: dimension,
 		},
 	}
 }
 
-func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area commonmodel.Area, unitBlock commonmodel.UnitBlock) ZoomedAreaUpdatedEvent {
+func (presenter *Presenter) PresentZoomedAreaUpdatedEvent(area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) ZoomedAreaUpdatedEvent {
 	return ZoomedAreaUpdatedEvent{
 		Type: ZoomedAreaUpdatedEventType,
 		Payload: ZoomedAreaUpdatedEventPayload{
-			Area:      areaviewmodel.New(area),
-			UnitBlock: unitblockviewmodel.New(unitBlock),
+			Area:      area,
+			UnitBlock: unitBlock,
 			UpdatedAt: time.Now(),
 		},
 	}
 }
 
-func (presenter *Presenter) PresentAreaZoomedEvent(area commonmodel.Area, unitBlock commonmodel.UnitBlock) AreaZoomedEvent {
+func (presenter *Presenter) PresentAreaZoomedEvent(area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) AreaZoomedEvent {
 	return AreaZoomedEvent{
 		Type: AreaZoomedEventType,
 		Payload: AreaZoomedEventPayload{
-			Area:      areaviewmodel.New(area),
-			UnitBlock: unitblockviewmodel.New(unitBlock),
+			Area:      area,
+			UnitBlock: unitBlock,
 		},
 	}
 }

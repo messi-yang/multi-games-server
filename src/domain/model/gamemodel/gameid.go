@@ -6,12 +6,17 @@ type GameId struct {
 	id uuid.UUID
 }
 
-func NewGameId(id uuid.UUID) GameId {
+func NewGameId(rawId string) (GameId, error) {
+	id, err := uuid.Parse(rawId)
+	if err != nil {
+		return GameId{}, err
+	}
+
 	return GameId{
 		id: id,
-	}
+	}, nil
 }
 
-func (gameId GameId) GetId() uuid.UUID {
-	return gameId.id
+func (gameId GameId) ToString() string {
+	return gameId.id.String()
 }

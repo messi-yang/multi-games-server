@@ -1,10 +1,15 @@
 package livegameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/areazoomedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/gameinfoupdatedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/zoomedareaupdatedintegrationevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/areazoomedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/gameinfoupdatedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomedareaupdatedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
@@ -12,30 +17,30 @@ import (
 )
 
 type Service interface {
-	CreateLiveGame(gameId gamemodel.GameId) error
-	BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) error
-	DestroyItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error
-	AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
-	RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
-	AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) error
-	RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error
+	CreateLiveGame(rawGameId string)
+	BuildItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string)
+	DestroyItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel)
+	AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string)
+	RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId string)
+	AddZoomedAreaToLiveGame(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel)
+	RemoveZoomedAreaFromLiveGame(rawLiveGameId string, rawPlayerId string)
 }
 
 type serve struct {
-	liveGameRepo          livegamemodel.Repo
-	gameRepo              gamemodel.GameRepo
-	notificationPublisher integrationevent.Publisher
+	liveGameRepo        livegamemodel.Repo
+	gameRepo            gamemodel.GameRepo
+	intgrEventPublisher intgreventpublisher.Publisher
 }
 
 func New(
 	liveGameRepo livegamemodel.Repo,
 	gameRepo gamemodel.GameRepo,
-	notificationPublisher integrationevent.Publisher,
+	intgrEventPublisher intgreventpublisher.Publisher,
 ) *serve {
 	return &serve{
-		liveGameRepo:          liveGameRepo,
-		gameRepo:              gameRepo,
-		notificationPublisher: notificationPublisher,
+		liveGameRepo:        liveGameRepo,
+		gameRepo:            gameRepo,
+		intgrEventPublisher: intgrEventPublisher,
 	}
 }
 
@@ -53,143 +58,200 @@ func (serve *serve) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.Live
 		if err != nil {
 			continue
 		}
-		serve.notificationPublisher.Publish(
-			integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
-			zoomedareaupdatedintegrationevent.New(liveGameId, playerId, area, unitBlock).Serialize(),
+		serve.intgrEventPublisher.Publish(
+			intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+			zoomedareaupdatedintgrevent.New(
+				liveGameId.ToString(),
+				playerId.ToString(),
+				areaviewmodel.New(area),
+				unitblockviewmodel.New(unitBlock),
+			).Serialize(),
 		)
 	}
 
 	return nil
 }
 
-func (serve *serve) CreateLiveGame(gameId gamemodel.GameId) error {
+func (serve *serve) CreateLiveGame(rawGameId string) {
+	gameId, err := gamemodel.NewGameId(rawGameId)
+	if err != nil {
+		return
+	}
+
 	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
-		return err
+		return
 	}
-	liveGameId, _ := livegamemodel.NewLiveGameId(gameId.GetId().String())
-	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetUnitBlock())
-	serve.liveGameRepo.Add(newLiveGame)
 
-	return nil
+	liveGameId, _ := livegamemodel.NewLiveGameId(gameId.ToString())
+	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetUnitBlock())
+
+	serve.liveGameRepo.Add(newLiveGame)
 }
 
-func (serve *serve) BuildItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) error {
+func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string) {
+	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
+	if err != nil {
+		return
+	}
+	itemId, err := itemmodel.NewItemId(rawItemId)
+	if err != nil {
+		return
+	}
+	coordinate, err := rawCoordinate.ToValueObject()
+	if err != nil {
+		return
+	}
+
 	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
-		return err
+		return
 	}
 
 	err = liveGame.BuildItem(coordinate, itemId)
 	if err != nil {
-		return err
+		return
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
-
-	return nil
 }
 
-func (serve *serve) DestroyItemInLiveGame(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error {
+func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel) {
+	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
+	if err != nil {
+		return
+	}
+	coordinate, err := rawCoordinate.ToValueObject()
+	if err != nil {
+		return
+	}
+
 	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
-		return err
+		return
 	}
 
 	err = liveGame.DestroyItem(coordinate)
 	if err != nil {
-		return err
+		return
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-
 	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
-
-	return nil
 }
 
-func (serve *serve) AddPlayerToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
+func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string) {
+	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
+	if err != nil {
+		return
+	}
+	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	if err != nil {
+		return
+	}
+
 	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
-		return err
+		return
 	}
 
 	liveGame.AddPlayer(playerId)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-
-	serve.notificationPublisher.Publish(
-		integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
-		gameinfoupdatedintegrationevent.New(liveGameId, playerId, liveGame.GetDimension()).Serialize(),
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		gameinfoupdatedintgrevent.New(rawLiveGameId, rawPlayerId, dimensionviewmodel.New(liveGame.GetDimension())).Serialize(),
 	)
-
-	return nil
 }
 
-func (serve *serve) RemovePlayerFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
+func (serve *serve) RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId string) {
+	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
+	if err != nil {
+		return
+	}
+	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	if err != nil {
+		return
+	}
+
 	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
-		return err
+		return
 	}
 
 	liveGame.RemovePlayer(playerId)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-
-	return nil
 }
 
-func (serve *serve) AddZoomedAreaToLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) error {
+func (serve *serve) AddZoomedAreaToLiveGame(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel) {
+	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
+	if err != nil {
+		return
+	}
+	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	if err != nil {
+		return
+	}
+	area, err := rawArea.ToValueObject()
+	if err != nil {
+		return
+	}
+
 	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
-		return err
+		return
 	}
 
 	if err = liveGame.AddZoomedArea(playerId, area); err != nil {
-		return err
+		return
 	}
-
-	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	unitBlock, err := liveGame.GetUnitBlockByArea(area)
 	if err != nil {
-		return err
+		return
 	}
 
-	serve.notificationPublisher.Publish(
-		integrationevent.CreateLiveGameClientChannel(liveGameId, playerId),
-		areazoomedintegrationevent.New(liveGameId, playerId, area, unitBlock).Serialize(),
+	serve.liveGameRepo.Update(liveGameId, liveGame)
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		areazoomedintgrevent.New(rawLiveGameId, rawPlayerId, rawArea, unitblockviewmodel.New(unitBlock)).Serialize(),
 	)
-
-	return nil
 }
 
-func (serve *serve) RemoveZoomedAreaFromLiveGame(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) error {
+func (serve *serve) RemoveZoomedAreaFromLiveGame(rawLiveGameId string, rawPlayerId string) {
+	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
+	if err != nil {
+		return
+	}
+	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	if err != nil {
+		return
+	}
+
 	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
-		return err
+		return
 	}
 
 	liveGame.RemoveZoomedArea(playerId)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-
-	return nil
 }

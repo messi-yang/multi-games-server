@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/viewmodel/itemviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/gin-gonic/gin"
 )
 

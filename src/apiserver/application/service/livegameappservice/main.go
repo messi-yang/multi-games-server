@@ -1,64 +1,64 @@
 package livegameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/addplayerrequestedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/buliditemrequestedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/destroyitemrequestedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/removeplayerrequestedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/integrationevent/zoomarearequestedintegrationevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/addplayerrequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/buliditemrequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/destroyitemrequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/removeplayerrequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomarearequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
 )
 
 type Service interface {
-	RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId)
-	RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area)
-	RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId)
-	RequestToDestroyItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate)
-	RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId)
+	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
+	RequestToZoomArea(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel)
+	RequestToBuildItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string)
+	RequestToDestroyItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel)
+	RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string)
 }
 
 type serve struct {
-	notificationPublisher integrationevent.Publisher
+	intgrEventPublisher intgreventpublisher.Publisher
 }
 
-func New(notificationPublisher integrationevent.Publisher) Service {
-	return &serve{notificationPublisher: notificationPublisher}
+func New(intgrEventPublisher intgreventpublisher.Publisher) Service {
+	return &serve{intgrEventPublisher: intgrEventPublisher}
 }
 
-func (serve *serve) RequestToAddPlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) {
-	serve.notificationPublisher.Publish(
-		integrationevent.CreateLiveGameAdminChannel(),
-		addplayerrequestedintegrationevent.New(liveGameId, playerId).Serialize(),
+func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string) {
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameAdminChannel(),
+		addplayerrequestedintgrevent.New(rawLiveGameId, rawPlayerId).Serialize(),
 	)
 }
 
-func (serve *serve) RequestToZoomArea(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId, area commonmodel.Area) {
-	serve.notificationPublisher.Publish(
-		integrationevent.CreateLiveGameAdminChannel(),
-		zoomarearequestedintegrationevent.New(liveGameId, playerId, area).Serialize(),
+func (serve *serve) RequestToZoomArea(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel) {
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameAdminChannel(),
+		zoomarearequestedintgrevent.New(rawLiveGameId, rawPlayerId, rawArea).Serialize(),
 	)
 }
 
-func (serve *serve) RequestToBuildItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) {
-	serve.notificationPublisher.Publish(
-		integrationevent.CreateLiveGameAdminChannel(),
-		buliditemrequestedintegrationevent.New(liveGameId, coordinate, itemId).Serialize(),
+func (serve *serve) RequestToBuildItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string) {
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameAdminChannel(),
+		buliditemrequestedintgrevent.New(rawLiveGameId, rawCoordinate, rawItemId).Serialize(),
 	)
 }
 
-func (serve *serve) RequestToDestroyItem(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) {
-	serve.notificationPublisher.Publish(
-		integrationevent.CreateLiveGameAdminChannel(),
-		destroyitemrequestedintegrationevent.New(liveGameId, coordinate).Serialize(),
+func (serve *serve) RequestToDestroyItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel) {
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameAdminChannel(),
+		destroyitemrequestedintgrevent.New(rawLiveGameId, rawCoordinate).Serialize(),
 	)
 }
 
-func (serve *serve) RequestToRemovePlayer(liveGameId livegamemodel.LiveGameId, playerId commonmodel.PlayerId) {
-	serve.notificationPublisher.Publish(
-		integrationevent.CreateLiveGameAdminChannel(),
-		removeplayerrequestedintegrationevent.New(liveGameId, playerId).Serialize(),
+func (serve *serve) RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string) {
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameAdminChannel(),
+		removeplayerrequestedintgrevent.New(rawLiveGameId, rawPlayerId).Serialize(),
 	)
 }

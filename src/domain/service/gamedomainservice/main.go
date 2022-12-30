@@ -30,7 +30,8 @@ func (serve *servce) CreateGame(dimension commonmodel.Dimension) (gamemodel.Game
 	}
 	unitBlock := commonmodel.NewUnitBlock(unitMatrix)
 
-	newGame := gamemodel.NewGame(gamemodel.NewGameId(uuid.New()), unitBlock)
+	newGameId, _ := gamemodel.NewGameId(uuid.New().String())
+	newGame := gamemodel.NewGame(newGameId, unitBlock)
 	newGameId, err := serve.gameRepo.Add(newGame)
 	if err != nil {
 		return gamemodel.GameId{}, err

@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/integrationevent/redisintegrationeventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service/itemdomainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
@@ -25,9 +25,9 @@ func Start() {
 		panic(err)
 	}
 	gameRepo := gamepsqlrepo.New(gormDb)
-	notificationPublisher := redisintegrationeventpublisher.New()
+	intgrEventPublisher := redisintgreventpublisher.New()
 	itemDomainService := itemdomainservice.New()
-	liveGameAppService := livegameappservice.New(notificationPublisher)
+	liveGameAppService := livegameappservice.New(intgrEventPublisher)
 	itemAppService := itemappservice.New(itemDomainService)
 
 	itemController := itemcontroller.New(itemAppService)

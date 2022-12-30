@@ -14,7 +14,7 @@ func New(gormDb *gorm.DB) gamemodel.GameRepo {
 }
 
 func (m *repo) Get(id gamemodel.GameId) (gamemodel.Game, error) {
-	gameModel := GamePsqlModel{Id: id.GetId()}
+	gameModel := GamePsqlModel{Id: id.ToString()}
 	result := m.gormDb.First(&gameModel)
 	if result.Error != nil {
 		return gamemodel.Game{}, result.Error

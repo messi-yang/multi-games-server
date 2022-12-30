@@ -1,14 +1,14 @@
 package gameserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/integrationevent/redisintegrationeventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service/gamedomainservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/persistence/livegamememoryrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameeventcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameintgreventcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 )
 
@@ -22,21 +22,21 @@ func Start() {
 	gameDomainService := gamedomainservice.New(
 		gameRepo,
 	)
-	notificationPublisher := redisintegrationeventpublisher.New()
+	intgrEventPublisher := redisintgreventpublisher.New()
 	liveGameAppService := livegameappservice.New(
 		liveGameRepo,
 		gameRepo,
-		notificationPublisher,
+		intgrEventPublisher,
 	)
 
 	games, _ := gameRepo.GetAll()
 	if len(games) > 0 {
-		liveGameAppService.CreateLiveGame(games[0].GetId())
+		liveGameAppService.CreateLiveGame(games[0].GetId().ToString())
 	} else {
 		dimension, _ := commonmodel.NewDimension(200, 200)
 		gameId, _ := gameDomainService.CreateGame(dimension)
-		livegamemodel.NewLiveGameId(gameId.GetId().String())
+		livegamemodel.NewLiveGameId(gameId.ToString())
 	}
 
-	livegameeventcontroller.New(liveGameAppService)
+	livegameintgreventcontroller.New(liveGameAppService)
 }

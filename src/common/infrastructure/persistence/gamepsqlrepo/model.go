@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
-	"github.com/google/uuid"
 )
 
 type UnitPsqlModel struct {
@@ -14,7 +13,7 @@ type UnitPsqlModel struct {
 }
 
 type GamePsqlModel struct {
-	Id        uuid.UUID         `gorm:"primaryKey;unique;not null"`
+	Id        string            `gorm:"primaryKey;unique;not null"`
 	Width     int               `gorm:"not null"`
 	Height    int               `gorm:"not null"`
 	UnitBlock [][]UnitPsqlModel `gorm:"serializer:json"`
@@ -53,7 +52,7 @@ func convertUnitBlockToUnitPsqlModelBlock(unitBlock commonmodel.UnitBlock) [][]U
 
 func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
 	return GamePsqlModel{
-		Id:        game.GetId().GetId(),
+		Id:        game.GetId().ToString(),
 		Width:     game.GetUnitBlockDimension().GetWidth(),
 		Height:    game.GetUnitBlockDimension().GetHeight(),
 		UnitBlock: convertUnitBlockToUnitPsqlModelBlock(game.GetUnitBlock()),
@@ -61,5 +60,6 @@ func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
 }
 
 func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.Game {
-	return gamemodel.NewGame(gamemodel.NewGameId(gamePostgresModel.Id), convertUnitPsqlModelBlockToUnitBlock(gamePostgresModel.UnitBlock))
+	gameId, _ := gamemodel.NewGameId(gamePostgresModel.Id)
+	return gamemodel.NewGame(gameId, convertUnitPsqlModelBlockToUnitBlock(gamePostgresModel.UnitBlock))
 }
