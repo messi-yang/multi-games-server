@@ -6,9 +6,12 @@ type Event struct {
 	Name string `json:"name"`
 }
 
-func New(bytes []byte) Event {
-	var event *Event
-	json.Unmarshal(bytes, &event)
+func Parse(bytes []byte) (Event, error) {
+	var event Event
+	err := json.Unmarshal(bytes, &event)
+	if err != nil {
+		return Event{}, err
+	}
 
-	return *event
+	return event, nil
 }

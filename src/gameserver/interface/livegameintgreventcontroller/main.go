@@ -15,7 +15,10 @@ func New(liveGameAppService livegameappservice.Service) {
 	liveGameAdminChannelUnsubscriber := redisintgreventsubscriber.New().Subscribe(
 		intgrevent.CreateLiveGameAdminChannel(),
 		func(message []byte) {
-			integrationEvent := intgrevent.New(message)
+			integrationEvent, err := intgrevent.Parse(message)
+			if err != nil {
+				return
+			}
 
 			if integrationEvent.Name == addplayerrequestedintgrevent.EVENT_NAME {
 

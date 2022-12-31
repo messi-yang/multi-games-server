@@ -47,11 +47,15 @@ func NewController(
 		liveGameId := gameId.ToString()
 		playerId := uuid.New().String()
 		socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
+		gzipCompressor := gzipprovider.New()
 
 		integrationEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
 			intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
 			func(message []byte) {
-				integrationEvent := intgrevent.New(message)
+				integrationEvent, err := intgrevent.Parse(message)
+				if err != nil {
+					return
+				}
 
 				if integrationEvent.Name == zoomedareaupdatedintgrevent.EVENT_NAME {
 					event := zoomedareaupdatedintgrevent.Deserialize(message)
@@ -77,20 +81,19 @@ func NewController(
 				_, compressedMessage, err := socketConn.ReadMessage()
 				if err != nil {
 					liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-					break
+					continue
 				}
 
-				gzipCompressor := gzipprovider.New()
 				message, err := gzipCompressor.Ungzip(compressedMessage)
 				if err != nil {
 					liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-					break
+					continue
 				}
 
 				commandType, err := livegameappservice.ParseCommandType(message)
 				if err != nil {
 					liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-					break
+					continue
 				}
 
 				switch commandType {
