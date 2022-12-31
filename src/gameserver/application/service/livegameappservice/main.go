@@ -59,7 +59,7 @@ func (serve *serve) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.Live
 			continue
 		}
 		serve.intgrEventPublisher.Publish(
-			intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
 			zoomedareaupdatedintgrevent.New(
 				liveGameId.ToString(),
 				playerId.ToString(),
@@ -169,7 +169,7 @@ func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string
 	liveGame.AddPlayer(playerId)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		gameinfoupdatedintgrevent.New(rawLiveGameId, rawPlayerId, dimensionviewmodel.New(liveGame.GetDimension())).Serialize(),
 	)
 }
@@ -229,7 +229,7 @@ func (serve *serve) AddZoomedAreaToLiveGame(rawLiveGameId string, rawPlayerId st
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		areazoomedintgrevent.New(rawLiveGameId, rawPlayerId, rawArea, unitblockviewmodel.New(unitBlock)).Serialize(),
 	)
 }

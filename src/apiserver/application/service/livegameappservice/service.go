@@ -10,9 +10,15 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
 )
 
 type Service interface {
+	SendErroredEvent(presenter Presenter, clientMessage string)
+	SendInformationUpdatedEvent(presenter Presenter, rawDimension dimensionviewmodel.ViewModel)
+	SendZoomedAreaUpdatedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
+	SendAreaZoomedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	RequestToZoomArea(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel)
 	RequestToBuildItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string)
@@ -26,6 +32,36 @@ type serve struct {
 
 func New(intgrEventPublisher intgreventpublisher.Publisher) Service {
 	return &serve{intgrEventPublisher: intgrEventPublisher}
+}
+
+func (serve *serve) SendErroredEvent(presenter Presenter, clientMessage string) {
+	event := ErroredEvent{}
+	event.Type = ErrorHappenedEventType
+	event.Payload.ClientMessage = clientMessage
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) SendInformationUpdatedEvent(presenter Presenter, rawDimension dimensionviewmodel.ViewModel) {
+	event := InformationUpdatedEvent{}
+	event.Type = InformationUpdatedEventType
+	event.Payload.Dimension = rawDimension
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) SendZoomedAreaUpdatedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
+	event := ZoomedAreaUpdatedEvent{}
+	event.Type = ZoomedAreaUpdatedEventType
+	event.Payload.Area = area
+	event.Payload.UnitBlock = unitBlock
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) SendAreaZoomedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
+	event := AreaZoomedEvent{}
+	event.Type = AreaZoomedEventType
+	event.Payload.Area = area
+	event.Payload.UnitBlock = unitBlock
+	presenter.OnSuccess(event)
 }
 
 func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string) {
