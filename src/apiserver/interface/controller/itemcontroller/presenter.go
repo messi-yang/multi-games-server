@@ -17,6 +17,6 @@ func newGinPresenter(c *gin.Context) itemappservice.Presenter {
 	}
 }
 
-func (p ginPresenter) Succeed(obj any) {
-	p.c.JSON(http.StatusOK, obj)
+func (p ginPresenter) OnSuccess(jsonObj any) {
+	p.c.JSON(http.StatusOK, jsonObj)
 }

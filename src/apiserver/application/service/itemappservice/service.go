@@ -19,5 +19,5 @@ func New(itemRepo itemmodel.Repo) Service {
 
 func (serve *serve) GetAllItems(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
-	presenter.Succeed(itemviewmodel.New(items))
+	presenter.OnSuccess(itemviewmodel.New(items))
 }
