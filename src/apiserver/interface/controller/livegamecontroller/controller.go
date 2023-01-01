@@ -81,7 +81,7 @@ func NewController(
 				_, compressedMessage, err := socketConn.ReadMessage()
 				if err != nil {
 					liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-					continue
+					return
 				}
 
 				message, err := gzipCompressor.Ungzip(compressedMessage)
@@ -101,7 +101,7 @@ func NewController(
 					command, err := livegameappservice.ParseCommand[livegameappservice.ZoomAreaCommand](message)
 					if err != nil {
 						liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-						return
+						continue
 					}
 
 					liveGameAppService.RequestToZoomArea(liveGameId, playerId, command.Payload.Area)
@@ -109,7 +109,7 @@ func NewController(
 					command, err := livegameappservice.ParseCommand[livegameappservice.BuildItemCommand](message)
 					if err != nil {
 						liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-						return
+						continue
 					}
 
 					liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Coordinate, command.Payload.ItemId)
@@ -117,7 +117,7 @@ func NewController(
 					command, err := livegameappservice.ParseCommand[livegameappservice.DestroyItemCommand](message)
 					if err != nil {
 						liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-						return
+						continue
 					}
 
 					liveGameAppService.RequestToDestroyItem(liveGameId, command.Payload.Coordinate)
