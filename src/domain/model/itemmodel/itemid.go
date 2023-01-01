@@ -17,6 +17,10 @@ func NewItemId(rawId string) (ItemId, error) {
 	}, nil
 }
 
+func (id ItemId) IsNotEmpty() bool {
+	return id.id.String() != uuid.Nil.String()
+}
+
 func (id ItemId) ToString() string {
 	return id.id.String()
 }
