@@ -7,7 +7,6 @@ import (
 )
 
 type ViewModel struct {
-	Alive  bool    `json:"alive"`
 	ItemId *string `json:"itemId"`
 }
 
@@ -18,7 +17,6 @@ func New(unit commonmodel.Unit) ViewModel {
 		itemId = &itemIdString
 	}
 	return ViewModel{
-		Alive:  unit.GetAlive(),
 		ItemId: itemId,
 	}
 }
