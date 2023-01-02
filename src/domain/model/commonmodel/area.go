@@ -3,20 +3,20 @@ package commonmodel
 import "fmt"
 
 type ErrInvalidArea struct {
-	from Coordinate
-	to   Coordinate
+	from Location
+	to   Location
 }
 
 func (e *ErrInvalidArea) Error() string {
-	return fmt.Sprintf("from coordinate (%+v) cannot exceed to coordinate (%+v)", e.from, e.to)
+	return fmt.Sprintf("from location (%+v) cannot exceed to location (%+v)", e.from, e.to)
 }
 
 type Area struct {
-	from Coordinate
-	to   Coordinate
+	from Location
+	to   Location
 }
 
-func NewArea(from Coordinate, to Coordinate) (Area, error) {
+func NewArea(from Location, to Location) (Area, error) {
 	if from.x > to.x || from.y > to.y {
 		return Area{}, &ErrInvalidArea{from: from, to: to}
 	}
@@ -27,11 +27,11 @@ func NewArea(from Coordinate, to Coordinate) (Area, error) {
 	}, nil
 }
 
-func (a Area) GetFrom() Coordinate {
+func (a Area) GetFrom() Location {
 	return a.from
 }
 
-func (a Area) GetTo() Coordinate {
+func (a Area) GetTo() Location {
 	return a.to
 }
 
@@ -43,17 +43,17 @@ func (a Area) GetHeight() int {
 	return a.to.y - a.from.y + 1
 }
 
-func (a Area) IncludesCoordinate(coordinate Coordinate) bool {
-	return coordinate.x >= a.from.x && coordinate.x <= a.to.x && coordinate.y >= a.from.y && coordinate.y <= a.to.y
+func (a Area) IncludesLocation(location Location) bool {
+	return location.x >= a.from.x && location.x <= a.to.x && location.y >= a.from.y && location.y <= a.to.y
 }
 
-func (a Area) IncludesAnyCoordinates(coordinates []Coordinate) bool {
-	coordinatesInArea := make([]Coordinate, 0)
-	for _, coordinate := range coordinates {
-		if a.IncludesCoordinate(coordinate) {
-			coordinatesInArea = append(coordinatesInArea, coordinate)
+func (a Area) IncludesAnyLocations(locations []Location) bool {
+	locationsInArea := make([]Location, 0)
+	for _, location := range locations {
+		if a.IncludesLocation(location) {
+			locationsInArea = append(locationsInArea, location)
 		}
 	}
 
-	return len(coordinatesInArea) > 0
+	return len(locationsInArea) > 0
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 )
 
 type CommanType string
@@ -44,17 +44,17 @@ func ParseCommand[T any](message []byte) (T, error) {
 type BuildItemCommand struct {
 	Type    CommanType `json:"type"`
 	Payload struct {
-		Coordinate coordinateviewmodel.ViewModel `json:"coordinate"`
-		ItemId     string                        `json:"itemId"`
-		ActionedAt time.Time                     `json:"actionedAt"`
+		Location   locationviewmodel.ViewModel `json:"location"`
+		ItemId     string                      `json:"itemId"`
+		ActionedAt time.Time                   `json:"actionedAt"`
 	} `json:"payload"`
 }
 
 type DestroyItemCommand struct {
 	Type    CommanType `json:"type"`
 	Payload struct {
-		Coordinate coordinateviewmodel.ViewModel `json:"coordinate"`
-		ActionedAt time.Time                     `json:"actionedAt"`
+		Location   locationviewmodel.ViewModel `json:"location"`
+		ActionedAt time.Time                   `json:"actionedAt"`
 	} `json:"payload"`
 }
 

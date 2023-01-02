@@ -9,9 +9,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomarearequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
@@ -24,8 +24,8 @@ type Service interface {
 	SendAreaZoomedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	RequestToZoomArea(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel)
-	RequestToBuildItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string)
-	RequestToDestroyItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel)
+	RequestToBuildItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string)
+	RequestToDestroyItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel)
 	RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string)
 }
 
@@ -92,17 +92,17 @@ func (serve *serve) RequestToZoomArea(rawLiveGameId string, rawPlayerId string, 
 	)
 }
 
-func (serve *serve) RequestToBuildItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string) {
+func (serve *serve) RequestToBuildItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		buliditemrequestedintgrevent.New(rawLiveGameId, rawCoordinate, rawItemId).Serialize(),
+		buliditemrequestedintgrevent.New(rawLiveGameId, rawLocation, rawItemId).Serialize(),
 	)
 }
 
-func (serve *serve) RequestToDestroyItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel) {
+func (serve *serve) RequestToDestroyItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		destroyitemrequestedintgrevent.New(rawLiveGameId, rawCoordinate).Serialize(),
+		destroyitemrequestedintgrevent.New(rawLiveGameId, rawLocation).Serialize(),
 	)
 }
 

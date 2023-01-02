@@ -125,7 +125,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Coordinate, command.Payload.ItemId)
+				controller.liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Location, command.Payload.ItemId)
 			case livegameappservice.DestroyItemCommanType:
 				command, err := livegameappservice.ParseCommand[livegameappservice.DestroyItemCommand](message)
 				if err != nil {
@@ -133,7 +133,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.liveGameAppService.RequestToDestroyItem(liveGameId, command.Payload.Coordinate)
+				controller.liveGameAppService.RequestToDestroyItem(liveGameId, command.Payload.Location)
 			default:
 			}
 		}

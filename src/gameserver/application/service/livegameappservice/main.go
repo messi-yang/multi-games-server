@@ -7,8 +7,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomedareaupdatedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
@@ -19,8 +19,8 @@ import (
 
 type Service interface {
 	CreateLiveGame(rawGameId string)
-	BuildItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string)
-	DestroyItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel)
+	BuildItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string)
+	DestroyItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel)
 	AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string)
 	RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId string)
 	AddZoomedAreaToLiveGame(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel)
@@ -45,14 +45,14 @@ func New(
 	}
 }
 
-func (serve *serve) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.LiveGameId, coordinate commonmodel.Coordinate) error {
+func (serve *serve) publishZoomedAreaUpdatedEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
 	for playerId, area := range liveGame.GetZoomedAreas() {
-		if !area.IncludesAnyCoordinates([]commonmodel.Coordinate{coordinate}) {
+		if !area.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
 		unitBlock, err := liveGame.GetUnitBlockByArea(area)
@@ -90,7 +90,7 @@ func (serve *serve) CreateLiveGame(rawGameId string) {
 	serve.liveGameRepo.Add(newLiveGame)
 }
 
-func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string) {
+func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -99,7 +99,7 @@ func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawCoordinate coor
 	if err != nil {
 		return
 	}
-	coordinate, err := rawCoordinate.ToValueObject()
+	location, err := rawLocation.ToValueObject()
 	if err != nil {
 		return
 	}
@@ -112,22 +112,22 @@ func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawCoordinate coor
 		return
 	}
 
-	err = liveGame.BuildItem(coordinate, itemId)
+	err = liveGame.BuildItem(location, itemId)
 	if err != nil {
 		return
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
-	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
+	serve.publishZoomedAreaUpdatedEvents(liveGameId, location)
 }
 
-func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel) {
+func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
 	}
-	coordinate, err := rawCoordinate.ToValueObject()
+	location, err := rawLocation.ToValueObject()
 	if err != nil {
 		return
 	}
@@ -140,13 +140,13 @@ func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawCoordinate co
 		return
 	}
 
-	err = liveGame.DestroyItem(coordinate)
+	err = liveGame.DestroyItem(location)
 	if err != nil {
 		return
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.publishZoomedAreaUpdatedEvents(liveGameId, coordinate)
+	serve.publishZoomedAreaUpdatedEvents(liveGameId, location)
 }
 
 func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string) {

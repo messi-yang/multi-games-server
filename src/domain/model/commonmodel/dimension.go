@@ -53,19 +53,19 @@ func (ms Dimension) IncludesArea(area Area) bool {
 	return true
 }
 
-func (ms Dimension) IncludesCoordinate(coordinate Coordinate) bool {
+func (ms Dimension) IncludesLocation(location Location) bool {
 	includesAll := true
-	if coordinate.x >= ms.width || coordinate.y >= ms.height {
+	if location.x >= ms.width || location.y >= ms.height {
 		includesAll = false
 	}
 
 	return includesAll
 }
 
-func (ms Dimension) IncludesAllCoordinates(coordinates []Coordinate) bool {
+func (ms Dimension) IncludesAllLocations(locations []Location) bool {
 	includesAll := true
-	for _, coordinate := range coordinates {
-		if coordinate.x >= ms.width || coordinate.y >= ms.height {
+	for _, location := range locations {
+		if location.x >= ms.width || location.y >= ms.height {
 			includesAll = false
 		}
 	}

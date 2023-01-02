@@ -13,8 +13,8 @@ func New(unitBlock commonmodel.UnitBlock) ViewModel {
 	for i := 0; i < unitBlock.GetDimension().GetWidth(); i += 1 {
 		unitBlockViewModel = append(unitBlockViewModel, make([]unitviewmodel.ViewModel, 0))
 		for j := 0; j < unitBlock.GetDimension().GetHeight(); j += 1 {
-			coord, _ := commonmodel.NewCoordinate(i, j)
-			unit := unitBlock.GetUnit(coord)
+			location, _ := commonmodel.NewLocation(i, j)
+			unit := unitBlock.GetUnit(location)
 			unitBlockViewModel[i] = append(unitBlockViewModel[i], unitviewmodel.New(unit))
 		}
 	}

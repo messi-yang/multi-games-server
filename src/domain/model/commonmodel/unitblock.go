@@ -19,10 +19,10 @@ func (um UnitBlock) GetUnitMatrix() [][]Unit {
 	return um.unitMatrix
 }
 
-func (um UnitBlock) GetUnit(coord Coordinate) Unit {
-	return (um.unitMatrix)[coord.GetX()][coord.GetY()]
+func (um UnitBlock) GetUnit(location Location) Unit {
+	return (um.unitMatrix)[location.GetX()][location.GetY()]
 }
 
-func (um UnitBlock) ReplaceUnitAt(coord Coordinate, unit Unit) {
-	(um.unitMatrix)[coord.GetX()][coord.GetY()] = unit
+func (um UnitBlock) ReplaceUnitAt(location Location, unit Unit) {
+	(um.unitMatrix)[location.GetX()][location.GetY()] = unit
 }

@@ -3,22 +3,22 @@ package destroyitemrequestedintgrevent
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 )
 
 type Event struct {
-	Name       string                        `json:"name"`
-	LiveGameId string                        `json:"liveGameId"`
-	Coordinate coordinateviewmodel.ViewModel `json:"coordinate"`
+	Name       string                      `json:"name"`
+	LiveGameId string                      `json:"liveGameId"`
+	Location   locationviewmodel.ViewModel `json:"location"`
 }
 
 var EVENT_NAME = "DESTROY_ITEM_REQUESTED"
 
-func New(liveGameId string, coordinate coordinateviewmodel.ViewModel) Event {
+func New(liveGameId string, location locationviewmodel.ViewModel) Event {
 	return Event{
 		Name:       EVENT_NAME,
 		LiveGameId: liveGameId,
-		Coordinate: coordinate,
+		Location:   location,
 	}
 }
 

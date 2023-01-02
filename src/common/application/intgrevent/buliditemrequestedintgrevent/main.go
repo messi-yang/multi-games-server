@@ -3,23 +3,23 @@ package buliditemrequestedintgrevent
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 )
 
 type Event struct {
-	Name       string                        `json:"name"`
-	LiveGameId string                        `json:"liveGameId"`
-	Coordinate coordinateviewmodel.ViewModel `json:"coordinate"`
-	ItemId     string                        `json:"coordinates"`
+	Name       string                      `json:"name"`
+	LiveGameId string                      `json:"liveGameId"`
+	Location   locationviewmodel.ViewModel `json:"location"`
+	ItemId     string                      `json:"locations"`
 }
 
 var EVENT_NAME = "BUILD_ITEM_REQUESTED"
 
-func New(liveGameId string, coordinate coordinateviewmodel.ViewModel, itemId string) Event {
+func New(liveGameId string, location locationviewmodel.ViewModel, itemId string) Event {
 	return Event{
 		Name:       EVENT_NAME,
 		LiveGameId: liveGameId,
-		Coordinate: coordinate,
+		Location:   location,
 		ItemId:     itemId,
 	}
 }

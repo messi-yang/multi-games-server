@@ -28,12 +28,12 @@ func New(liveGameAppService livegameappservice.Service) {
 			} else if integrationEvent.Name == destroyitemrequestedintgrevent.EVENT_NAME {
 
 				event := destroyitemrequestedintgrevent.Deserialize(message)
-				liveGameAppService.DestroyItemInLiveGame(event.LiveGameId, event.Coordinate)
+				liveGameAppService.DestroyItemInLiveGame(event.LiveGameId, event.Location)
 
 			} else if integrationEvent.Name == buliditemrequestedintgrevent.EVENT_NAME {
 
 				event := buliditemrequestedintgrevent.Deserialize(message)
-				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Coordinate, event.ItemId)
+				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
 
 			} else if integrationEvent.Name == zoomarearequestedintgrevent.EVENT_NAME {
 

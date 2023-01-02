@@ -1,18 +1,18 @@
 package areaviewmodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 )
 
 type ViewModel struct {
-	From coordinateviewmodel.ViewModel `json:"from"`
-	To   coordinateviewmodel.ViewModel `json:"to"`
+	From locationviewmodel.ViewModel `json:"from"`
+	To   locationviewmodel.ViewModel `json:"to"`
 }
 
 func New(area commonmodel.Area) ViewModel {
-	fromViewModel := coordinateviewmodel.New(area.GetFrom())
-	ToValueObjectViewModel := coordinateviewmodel.New(area.GetTo())
+	fromViewModel := locationviewmodel.New(area.GetFrom())
+	ToValueObjectViewModel := locationviewmodel.New(area.GetTo())
 
 	return ViewModel{
 		From: fromViewModel,
@@ -21,7 +21,7 @@ func New(area commonmodel.Area) ViewModel {
 }
 
 func (dto ViewModel) ToValueObject() (commonmodel.Area, error) {
-	fromCoordinate, err := dto.From.ToValueObject()
+	fromLocation, err := dto.From.ToValueObject()
 	if err != nil {
 		return commonmodel.Area{}, err
 	}
@@ -32,7 +32,7 @@ func (dto ViewModel) ToValueObject() (commonmodel.Area, error) {
 	}
 
 	area, err := commonmodel.NewArea(
-		fromCoordinate,
+		fromLocation,
 		ToValueObject,
 	)
 	if err != nil {

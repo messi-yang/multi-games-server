@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	ErrAreaExceedsUnitBlock            = errors.New("area should contain valid from and to coordinates and it should never exceed dimension")
-	ErrSomeCoordinatesNotIncludedInMap = errors.New("some coordinates are not included in the unit map")
-	ErrPlayerNotFound                  = errors.New("the play with the given id does not exist")
-	ErrPlayerAlreadyExists             = errors.New("the play with the given id already exists")
+	ErrAreaExceedsUnitBlock          = errors.New("area should contain valid from and to locations and it should never exceed dimension")
+	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
+	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
+	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
 
 type LiveGame struct {
@@ -56,8 +56,8 @@ func (liveGame *LiveGame) GetUnitBlockByArea(area commonmodel.Area) (commonmodel
 	for x := 0; x < areaWidth; x += 1 {
 		unitMatrix[x] = make([]commonmodel.Unit, areaHeight)
 		for y := 0; y < areaHeight; y += 1 {
-			coordinate, _ := commonmodel.NewCoordinate(x+offsetX, y+offsetY)
-			unitMatrix[x][y] = liveGame.unitBlock.GetUnit(coordinate)
+			location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
+			unitMatrix[x][y] = liveGame.unitBlock.GetUnit(location)
 		}
 	}
 	unitBlock := commonmodel.NewUnitBlock(unitMatrix)
@@ -97,27 +97,27 @@ func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
 	delete(liveGame.playerIds, playerId)
 }
 
-func (liveGame *LiveGame) BuildItem(coordinate commonmodel.Coordinate, itemId itemmodel.ItemId) error {
-	if !liveGame.GetDimension().IncludesCoordinate(coordinate) {
-		return ErrSomeCoordinatesNotIncludedInMap
+func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmodel.ItemId) error {
+	if !liveGame.GetDimension().IncludesLocation(location) {
+		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	unit := liveGame.unitBlock.GetUnit(coordinate)
+	unit := liveGame.unitBlock.GetUnit(location)
 	newUnit := unit.SetItemId(itemId)
-	liveGame.unitBlock.ReplaceUnitAt(coordinate, newUnit)
+	liveGame.unitBlock.ReplaceUnitAt(location, newUnit)
 
 	return nil
 }
 
-func (liveGame *LiveGame) DestroyItem(coordinate commonmodel.Coordinate) error {
-	if !liveGame.GetDimension().IncludesCoordinate(coordinate) {
-		return ErrSomeCoordinatesNotIncludedInMap
+func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
+	if !liveGame.GetDimension().IncludesLocation(location) {
+		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	unit := liveGame.unitBlock.GetUnit(coordinate)
+	unit := liveGame.unitBlock.GetUnit(location)
 	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
 	newUnit := unit.SetItemId(itemId)
-	liveGame.unitBlock.ReplaceUnitAt(coordinate, newUnit)
+	liveGame.unitBlock.ReplaceUnitAt(location, newUnit)
 
 	return nil
 }
