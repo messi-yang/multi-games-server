@@ -11,7 +11,7 @@ import (
 
 var (
 	ErrMapRangeExceedsGameMap        = errors.New("map range should contain valid from and to locations and it should never exceed mapSize")
-	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the gameMapUnit map")
+	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the mapUnit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
@@ -52,15 +52,15 @@ func (liveGame *LiveGame) GetGameMapByMapRange(mapRange commonmodel.MapRange) (c
 	offsetY := mapRange.GetFrom().GetY()
 	mapRangeWidth := mapRange.GetWidth()
 	mapRangeHeight := mapRange.GetHeight()
-	gameMapUnitMatrix := make([][]commonmodel.GameMapUnit, mapRangeWidth)
+	mapUnitMatrix := make([][]commonmodel.MapUnit, mapRangeWidth)
 	for x := 0; x < mapRangeWidth; x += 1 {
-		gameMapUnitMatrix[x] = make([]commonmodel.GameMapUnit, mapRangeHeight)
+		mapUnitMatrix[x] = make([]commonmodel.MapUnit, mapRangeHeight)
 		for y := 0; y < mapRangeHeight; y += 1 {
 			location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
-			gameMapUnitMatrix[x][y] = liveGame.gameMap.GetGameMapUnit(location)
+			mapUnitMatrix[x][y] = liveGame.gameMap.GetMapUnit(location)
 		}
 	}
-	gameMap := commonmodel.NewGameMap(gameMapUnitMatrix)
+	gameMap := commonmodel.NewGameMap(mapUnitMatrix)
 
 	return gameMap, nil
 }
@@ -102,9 +102,9 @@ func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmo
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	gameMapUnit := liveGame.gameMap.GetGameMapUnit(location)
-	newGameMapUnit := gameMapUnit.SetItemId(itemId)
-	liveGame.gameMap.ReplaceGameMapUnitAt(location, newGameMapUnit)
+	mapUnit := liveGame.gameMap.GetMapUnit(location)
+	newMapUnit := mapUnit.SetItemId(itemId)
+	liveGame.gameMap.ReplaceMapUnitAt(location, newMapUnit)
 
 	return nil
 }
@@ -114,10 +114,10 @@ func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	gameMapUnit := liveGame.gameMap.GetGameMapUnit(location)
+	mapUnit := liveGame.gameMap.GetMapUnit(location)
 	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-	newGameMapUnit := gameMapUnit.SetItemId(itemId)
-	liveGame.gameMap.ReplaceGameMapUnitAt(location, newGameMapUnit)
+	newMapUnit := mapUnit.SetItemId(itemId)
+	liveGame.gameMap.ReplaceMapUnitAt(location, newMapUnit)
 
 	return nil
 }

@@ -1,4 +1,4 @@
-package gamemapunitviewmodel
+package mapunitviewmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
@@ -10,10 +10,10 @@ type ViewModel struct {
 	ItemId *string `json:"itemId"`
 }
 
-func New(gameMapUnit commonmodel.GameMapUnit) ViewModel {
+func New(mapUnit commonmodel.MapUnit) ViewModel {
 	var itemId *string = nil
-	if gameMapUnit.GetItemId().IsNotEmpty() {
-		itemIdString := gameMapUnit.GetItemId().ToString()
+	if mapUnit.GetItemId().IsNotEmpty() {
+		itemIdString := mapUnit.GetItemId().ToString()
 		itemId = &itemIdString
 	}
 	return ViewModel{
@@ -21,14 +21,14 @@ func New(gameMapUnit commonmodel.GameMapUnit) ViewModel {
 	}
 }
 
-func (dto ViewModel) ToValueObject() (commonmodel.GameMapUnit, error) {
+func (dto ViewModel) ToValueObject() (commonmodel.MapUnit, error) {
 	var rawItemId string = uuid.Nil.String()
 	if dto.ItemId != nil {
 		rawItemId = *dto.ItemId
 	}
 	itemId, err := itemmodel.NewItemId(rawItemId)
 	if err != nil {
-		return commonmodel.GameMapUnit{}, err
+		return commonmodel.MapUnit{}, err
 	}
-	return commonmodel.NewGameMapUnit(itemId), nil
+	return commonmodel.NewMapUnit(itemId), nil
 }
