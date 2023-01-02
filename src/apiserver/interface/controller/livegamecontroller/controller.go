@@ -60,7 +60,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
 	gzipCompressor := gzipprovider.New()
 
-	go controller.liveGameAppService.GetItems(socketPresenter)
+	go controller.liveGameAppService.QueryItems(socketPresenter)
 
 	integrationEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
 		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
@@ -72,13 +72,13 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 
 			if integrationEvent.Name == zoomedareaupdatedintgrevent.EVENT_NAME {
 				event := zoomedareaupdatedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendZoomedAreaUpdatedEvent(socketPresenter, event.Area, event.UnitBlock)
+				controller.liveGameAppService.SendZoomedAreaUpdatedEventToClient(socketPresenter, event.Area, event.UnitBlock)
 			} else if integrationEvent.Name == areazoomedintgrevent.EVENT_NAME {
 				event := areazoomedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendAreaZoomedEvent(socketPresenter, event.Area, event.UnitBlock)
+				controller.liveGameAppService.SendAreaZoomedEventToClient(socketPresenter, event.Area, event.UnitBlock)
 			} else if integrationEvent.Name == gameinfoupdatedintgrevent.EVENT_NAME {
 				event := gameinfoupdatedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendInformationUpdatedEvent(socketPresenter, event.Dimension)
+				controller.liveGameAppService.SendInformationUpdatedEventToClient(socketPresenter, event.Dimension)
 			}
 		})
 	defer integrationEventSubscriberUnsubscriber()
@@ -93,19 +93,19 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 		for {
 			_, compressedMessage, err := socketConn.ReadMessage()
 			if err != nil {
-				controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+				controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
 				return
 			}
 
 			message, err := gzipCompressor.Ungzip(compressedMessage)
 			if err != nil {
-				controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+				controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
 				continue
 			}
 
 			commandType, err := livegameappservice.ParseCommandType(message)
 			if err != nil {
-				controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+				controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
 				continue
 			}
 
@@ -113,7 +113,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			case livegameappservice.ZoomAreaCommanType:
 				command, err := livegameappservice.ParseCommand[livegameappservice.ZoomAreaCommand](message)
 				if err != nil {
-					controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+					controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
 					continue
 				}
 
@@ -121,7 +121,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			case livegameappservice.BuildItemCommanType:
 				command, err := livegameappservice.ParseCommand[livegameappservice.BuildItemCommand](message)
 				if err != nil {
-					controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+					controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
 					continue
 				}
 
@@ -129,7 +129,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			case livegameappservice.DestroyItemCommanType:
 				command, err := livegameappservice.ParseCommand[livegameappservice.DestroyItemCommand](message)
 				if err != nil {
-					controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+					controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
 					continue
 				}
 

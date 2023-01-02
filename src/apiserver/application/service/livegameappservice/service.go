@@ -17,11 +17,11 @@ import (
 )
 
 type Service interface {
-	GetItems(presenter Presenter)
-	SendErroredEvent(presenter Presenter, clientMessage string)
-	SendInformationUpdatedEvent(presenter Presenter, rawDimension dimensionviewmodel.ViewModel)
-	SendZoomedAreaUpdatedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
-	SendAreaZoomedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
+	QueryItems(presenter Presenter)
+	SendErroredEventToClient(presenter Presenter, clientMessage string)
+	SendInformationUpdatedEventToClient(presenter Presenter, rawDimension dimensionviewmodel.ViewModel)
+	SendZoomedAreaUpdatedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
+	SendAreaZoomedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	RequestToZoomArea(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel)
 	RequestToBuildItem(rawLiveGameId string, rawCoordinate coordinateviewmodel.ViewModel, rawItemId string)
@@ -38,21 +38,21 @@ func New(intgrEventPublisher intgreventpublisher.Publisher, itemRepo itemmodel.R
 	return &serve{intgrEventPublisher: intgrEventPublisher, itemRepo: itemRepo}
 }
 
-func (serve *serve) SendErroredEvent(presenter Presenter, clientMessage string) {
+func (serve *serve) SendErroredEventToClient(presenter Presenter, clientMessage string) {
 	event := ErroredEvent{}
 	event.Type = ErrorHappenedEventType
 	event.Payload.ClientMessage = clientMessage
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendInformationUpdatedEvent(presenter Presenter, rawDimension dimensionviewmodel.ViewModel) {
+func (serve *serve) SendInformationUpdatedEventToClient(presenter Presenter, rawDimension dimensionviewmodel.ViewModel) {
 	event := InformationUpdatedEvent{}
 	event.Type = InformationUpdatedEventType
 	event.Payload.Dimension = rawDimension
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) GetItems(presenter Presenter) {
+func (serve *serve) QueryItems(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
 	itemViewModels := itemviewmodel.BatchNew(items)
 
@@ -62,7 +62,7 @@ func (serve *serve) GetItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendZoomedAreaUpdatedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
+func (serve *serve) SendZoomedAreaUpdatedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
 	event := ZoomedAreaUpdatedEvent{}
 	event.Type = ZoomedAreaUpdatedEventType
 	event.Payload.Area = area
@@ -70,7 +70,7 @@ func (serve *serve) SendZoomedAreaUpdatedEvent(presenter Presenter, area areavie
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendAreaZoomedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
+func (serve *serve) SendAreaZoomedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
 	event := AreaZoomedEvent{}
 	event.Type = AreaZoomedEventType
 	event.Payload.Area = area
