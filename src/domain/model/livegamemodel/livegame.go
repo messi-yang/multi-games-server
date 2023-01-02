@@ -104,7 +104,7 @@ func (liveGame *LiveGame) BuildItem(coordinate commonmodel.Coordinate, itemId it
 
 	unit := liveGame.unitBlock.GetUnit(coordinate)
 	newUnit := unit.SetItemId(itemId)
-	liveGame.unitBlock.SetUnit(coordinate, newUnit)
+	liveGame.unitBlock.ReplaceUnitAt(coordinate, newUnit)
 
 	return nil
 }
@@ -117,7 +117,7 @@ func (liveGame *LiveGame) DestroyItem(coordinate commonmodel.Coordinate) error {
 	unit := liveGame.unitBlock.GetUnit(coordinate)
 	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
 	newUnit := unit.SetItemId(itemId)
-	liveGame.unitBlock.SetUnit(coordinate, newUnit)
+	liveGame.unitBlock.ReplaceUnitAt(coordinate, newUnit)
 
 	return nil
 }

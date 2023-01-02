@@ -23,6 +23,6 @@ func (um UnitBlock) GetUnit(coord Coordinate) Unit {
 	return (um.unitMatrix)[coord.GetX()][coord.GetY()]
 }
 
-func (um UnitBlock) SetUnit(coord Coordinate, unit Unit) {
+func (um UnitBlock) ReplaceUnitAt(coord Coordinate, unit Unit) {
 	(um.unitMatrix)[coord.GetX()][coord.GetY()] = unit
 }
