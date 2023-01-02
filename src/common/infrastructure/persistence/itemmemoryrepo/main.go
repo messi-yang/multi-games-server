@@ -21,12 +21,12 @@ func New() itemmodel.Repo {
 
 		singleton = &memoryRepo{
 			items: []itemmodel.Item{
-				itemmodel.NewItem(stoneItemDefaultId, "stone"),
-				itemmodel.NewItem(woodItemDefaultId, "wood"),
-				itemmodel.NewItem(sandItemDefaultId, "sand"),
-				itemmodel.NewItem(mudItemDefaultId, "mud"),
-				itemmodel.NewItem(glassItemDefaultId, "glass"),
-				itemmodel.NewItem(steelItemDefaultId, "steel"),
+				itemmodel.New(stoneItemDefaultId, "stone"),
+				itemmodel.New(woodItemDefaultId, "wood"),
+				itemmodel.New(sandItemDefaultId, "sand"),
+				itemmodel.New(mudItemDefaultId, "mud"),
+				itemmodel.New(glassItemDefaultId, "glass"),
+				itemmodel.New(steelItemDefaultId, "steel"),
 			},
 		}
 		return singleton

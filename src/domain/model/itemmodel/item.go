@@ -5,7 +5,7 @@ type Item struct {
 	name string
 }
 
-func NewItem(id ItemId, name string) Item {
+func New(id ItemId, name string) Item {
 	return Item{
 		id:   id,
 		name: name,

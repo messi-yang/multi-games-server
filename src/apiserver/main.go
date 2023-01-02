@@ -27,7 +27,7 @@ func Start() {
 	gameRepo := gamepsqlrepo.New(gormDb)
 	intgrEventPublisher := redisintgreventpublisher.New()
 	itemRepo := itemmemoryrepo.New()
-	liveGameAppService := livegameappservice.New(intgrEventPublisher)
+	liveGameAppService := livegameappservice.New(intgrEventPublisher, itemRepo)
 	itemAppService := itemappservice.New(itemRepo)
 
 	itemController := itemcontroller.New(itemAppService)

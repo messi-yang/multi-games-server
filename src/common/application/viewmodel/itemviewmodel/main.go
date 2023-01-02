@@ -9,7 +9,7 @@ type ViewModel struct {
 	Name string `json:"name"`
 }
 
-func New(items []itemmodel.Item) []ViewModel {
+func BatchNew(items []itemmodel.Item) []ViewModel {
 	newViewModels := make([]ViewModel, 0)
 	for _, item := range items {
 		newViewModels = append(newViewModels, ViewModel{

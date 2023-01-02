@@ -60,6 +60,8 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
 	gzipCompressor := gzipprovider.New()
 
+	go controller.liveGameAppService.GetItems(socketPresenter)
+
 	integrationEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
 		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
 		func(message []byte) {

@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
 )
 
@@ -13,6 +14,7 @@ type EventType string
 const (
 	ErrorHappenedEventType      EventType = "ERRORED"
 	InformationUpdatedEventType EventType = "INFORMATION_UPDATED"
+	ItemsUpdatedEventType       EventType = "ITEMS_UPDATED"
 	AreaZoomedEventType         EventType = "AREA_ZOOMED"
 	ZoomedAreaUpdatedEventType  EventType = "ZOOMED_AREA_UPDATED"
 )
@@ -32,6 +34,13 @@ type InformationUpdatedEvent struct {
 	Type    EventType `json:"type"`
 	Payload struct {
 		Dimension dimensionviewmodel.ViewModel `json:"dimension"`
+	} `json:"payload"`
+}
+
+type ItemsUpdatedEvent struct {
+	Type    EventType `json:"type"`
+	Payload struct {
+		Items []itemviewmodel.ViewModel `json:"items"`
 	} `json:"payload"`
 }
 

@@ -11,10 +11,13 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/coordinateviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
 
 type Service interface {
+	GetItems(presenter Presenter)
 	SendErroredEvent(presenter Presenter, clientMessage string)
 	SendInformationUpdatedEvent(presenter Presenter, rawDimension dimensionviewmodel.ViewModel)
 	SendZoomedAreaUpdatedEvent(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
@@ -28,10 +31,11 @@ type Service interface {
 
 type serve struct {
 	intgrEventPublisher intgreventpublisher.Publisher
+	itemRepo            itemmodel.Repo
 }
 
-func New(intgrEventPublisher intgreventpublisher.Publisher) Service {
-	return &serve{intgrEventPublisher: intgrEventPublisher}
+func New(intgrEventPublisher intgreventpublisher.Publisher, itemRepo itemmodel.Repo) Service {
+	return &serve{intgrEventPublisher: intgrEventPublisher, itemRepo: itemRepo}
 }
 
 func (serve *serve) SendErroredEvent(presenter Presenter, clientMessage string) {
@@ -45,6 +49,16 @@ func (serve *serve) SendInformationUpdatedEvent(presenter Presenter, rawDimensio
 	event := InformationUpdatedEvent{}
 	event.Type = InformationUpdatedEventType
 	event.Payload.Dimension = rawDimension
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) GetItems(presenter Presenter) {
+	items := serve.itemRepo.GetAllItems()
+	itemViewModels := itemviewmodel.BatchNew(items)
+
+	event := ItemsUpdatedEvent{}
+	event.Type = ItemsUpdatedEventType
+	event.Payload.Items = itemViewModels
 	presenter.OnSuccess(event)
 }
 
