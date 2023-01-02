@@ -3,24 +3,24 @@ package gameinfoupdatedintgrevent
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
 )
 
 type Event struct {
-	Name       string                       `json:"name"`
-	LiveGameId string                       `json:"liveGameId"`
-	PlayerId   string                       `json:"playerId"`
-	Dimension  dimensionviewmodel.ViewModel `json:"dimension"`
+	Name       string                     `json:"name"`
+	LiveGameId string                     `json:"liveGameId"`
+	PlayerId   string                     `json:"playerId"`
+	MapSize    mapsizeviewmodel.ViewModel `json:"mapSize"`
 }
 
 var EVENT_NAME = "GAME_INFO_UPDATED"
 
-func New(liveGameId string, playerId string, dimension dimensionviewmodel.ViewModel) Event {
+func New(liveGameId string, playerId string, mapSize mapsizeviewmodel.ViewModel) Event {
 	return Event{
 		Name:       EVENT_NAME,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		Dimension:  dimension,
+		MapSize:    mapSize,
 	}
 }
 

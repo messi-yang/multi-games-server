@@ -10,25 +10,25 @@ import (
 )
 
 var (
-	ErrAreaExceedsUnitBlock          = errors.New("area should contain valid from and to locations and it should never exceed dimension")
-	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
+	ErrMapRangeExceedsGameMap        = errors.New("map range should contain valid from and to locations and it should never exceed mapSize")
+	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the gameMapUnit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
 
 type LiveGame struct {
-	id          LiveGameId
-	unitBlock   commonmodel.UnitBlock
-	playerIds   map[playermodel.PlayerId]bool
-	zoomedAreas map[playermodel.PlayerId]commonmodel.Area
+	id              LiveGameId
+	gameMap         commonmodel.GameMap
+	playerIds       map[playermodel.PlayerId]bool
+	zoomedMapRanges map[playermodel.PlayerId]commonmodel.MapRange
 }
 
-func NewLiveGame(id LiveGameId, unitBlock commonmodel.UnitBlock) LiveGame {
+func NewLiveGame(id LiveGameId, gameMap commonmodel.GameMap) LiveGame {
 	return LiveGame{
-		id:          id,
-		unitBlock:   unitBlock,
-		playerIds:   make(map[playermodel.PlayerId]bool),
-		zoomedAreas: make(map[playermodel.PlayerId]commonmodel.Area),
+		id:              id,
+		gameMap:         gameMap,
+		playerIds:       make(map[playermodel.PlayerId]bool),
+		zoomedMapRanges: make(map[playermodel.PlayerId]commonmodel.MapRange),
 	}
 }
 
@@ -36,50 +36,50 @@ func (liveGame *LiveGame) GetId() LiveGameId {
 	return liveGame.id
 }
 
-func (liveGame *LiveGame) GetDimension() commonmodel.Dimension {
-	return liveGame.unitBlock.GetDimension()
+func (liveGame *LiveGame) GetMapSize() commonmodel.MapSize {
+	return liveGame.gameMap.GetMapSize()
 }
 
-func (liveGame *LiveGame) GetUnitBlock() commonmodel.UnitBlock {
-	return liveGame.unitBlock
+func (liveGame *LiveGame) GetGameMap() commonmodel.GameMap {
+	return liveGame.gameMap
 }
 
-func (liveGame *LiveGame) GetUnitBlockByArea(area commonmodel.Area) (commonmodel.UnitBlock, error) {
-	if !liveGame.GetDimension().IncludesArea(area) {
-		return commonmodel.UnitBlock{}, ErrAreaExceedsUnitBlock
+func (liveGame *LiveGame) GetGameMapByMapRange(mapRange commonmodel.MapRange) (commonmodel.GameMap, error) {
+	if !liveGame.GetMapSize().IncludesMapRange(mapRange) {
+		return commonmodel.GameMap{}, ErrMapRangeExceedsGameMap
 	}
-	offsetX := area.GetFrom().GetX()
-	offsetY := area.GetFrom().GetY()
-	areaWidth := area.GetWidth()
-	areaHeight := area.GetHeight()
-	unitMatrix := make([][]commonmodel.Unit, areaWidth)
-	for x := 0; x < areaWidth; x += 1 {
-		unitMatrix[x] = make([]commonmodel.Unit, areaHeight)
-		for y := 0; y < areaHeight; y += 1 {
+	offsetX := mapRange.GetFrom().GetX()
+	offsetY := mapRange.GetFrom().GetY()
+	mapRangeWidth := mapRange.GetWidth()
+	mapRangeHeight := mapRange.GetHeight()
+	gameMapUnitMatrix := make([][]commonmodel.GameMapUnit, mapRangeWidth)
+	for x := 0; x < mapRangeWidth; x += 1 {
+		gameMapUnitMatrix[x] = make([]commonmodel.GameMapUnit, mapRangeHeight)
+		for y := 0; y < mapRangeHeight; y += 1 {
 			location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
-			unitMatrix[x][y] = liveGame.unitBlock.GetUnit(location)
+			gameMapUnitMatrix[x][y] = liveGame.gameMap.GetGameMapUnit(location)
 		}
 	}
-	unitBlock := commonmodel.NewUnitBlock(unitMatrix)
+	gameMap := commonmodel.NewGameMap(gameMapUnitMatrix)
 
-	return unitBlock, nil
+	return gameMap, nil
 }
 
-func (liveGame *LiveGame) GetZoomedAreas() map[playermodel.PlayerId]commonmodel.Area {
-	return liveGame.zoomedAreas
+func (liveGame *LiveGame) GetZoomedMapRanges() map[playermodel.PlayerId]commonmodel.MapRange {
+	return liveGame.zoomedMapRanges
 }
 
-func (liveGame *LiveGame) AddZoomedArea(playerId playermodel.PlayerId, area commonmodel.Area) error {
+func (liveGame *LiveGame) AddZoomedMapRange(playerId playermodel.PlayerId, mapRange commonmodel.MapRange) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
 	}
-	liveGame.zoomedAreas[playerId] = area
+	liveGame.zoomedMapRanges[playerId] = mapRange
 	return nil
 }
 
-func (liveGame *LiveGame) RemoveZoomedArea(playerId playermodel.PlayerId) {
-	delete(liveGame.zoomedAreas, playerId)
+func (liveGame *LiveGame) RemoveZoomedMapRange(playerId playermodel.PlayerId) {
+	delete(liveGame.zoomedMapRanges, playerId)
 }
 
 func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
@@ -98,26 +98,26 @@ func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
 }
 
 func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmodel.ItemId) error {
-	if !liveGame.GetDimension().IncludesLocation(location) {
+	if !liveGame.GetMapSize().IncludesLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	unit := liveGame.unitBlock.GetUnit(location)
-	newUnit := unit.SetItemId(itemId)
-	liveGame.unitBlock.ReplaceUnitAt(location, newUnit)
+	gameMapUnit := liveGame.gameMap.GetGameMapUnit(location)
+	newGameMapUnit := gameMapUnit.SetItemId(itemId)
+	liveGame.gameMap.ReplaceGameMapUnitAt(location, newGameMapUnit)
 
 	return nil
 }
 
 func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
-	if !liveGame.GetDimension().IncludesLocation(location) {
+	if !liveGame.GetMapSize().IncludesLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	unit := liveGame.unitBlock.GetUnit(location)
+	gameMapUnit := liveGame.gameMap.GetGameMapUnit(location)
 	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-	newUnit := unit.SetItemId(itemId)
-	liveGame.unitBlock.ReplaceUnitAt(location, newUnit)
+	newGameMapUnit := gameMapUnit.SetItemId(itemId)
+	liveGame.gameMap.ReplaceGameMapUnitAt(location, newGameMapUnit)
 
 	return nil
 }

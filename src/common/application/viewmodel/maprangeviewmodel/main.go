@@ -1,4 +1,4 @@
-package areaviewmodel
+package maprangeviewmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
@@ -10,9 +10,9 @@ type ViewModel struct {
 	To   locationviewmodel.ViewModel `json:"to"`
 }
 
-func New(area commonmodel.Area) ViewModel {
-	fromViewModel := locationviewmodel.New(area.GetFrom())
-	ToValueObjectViewModel := locationviewmodel.New(area.GetTo())
+func New(mapRange commonmodel.MapRange) ViewModel {
+	fromViewModel := locationviewmodel.New(mapRange.GetFrom())
+	ToValueObjectViewModel := locationviewmodel.New(mapRange.GetTo())
 
 	return ViewModel{
 		From: fromViewModel,
@@ -20,24 +20,24 @@ func New(area commonmodel.Area) ViewModel {
 	}
 }
 
-func (dto ViewModel) ToValueObject() (commonmodel.Area, error) {
+func (dto ViewModel) ToValueObject() (commonmodel.MapRange, error) {
 	fromLocation, err := dto.From.ToValueObject()
 	if err != nil {
-		return commonmodel.Area{}, err
+		return commonmodel.MapRange{}, err
 	}
 
 	ToValueObject, err := dto.To.ToValueObject()
 	if err != nil {
-		return commonmodel.Area{}, err
+		return commonmodel.MapRange{}, err
 	}
 
-	area, err := commonmodel.NewArea(
+	mapRange, err := commonmodel.NewMapRange(
 		fromLocation,
 		ToValueObject,
 	)
 	if err != nil {
-		return commonmodel.Area{}, err
+		return commonmodel.MapRange{}, err
 	}
 
-	return area, nil
+	return mapRange, nil
 }

@@ -6,9 +6,9 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/areazoomedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/gameinfoupdatedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomedareaupdatedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/maprangezoomedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomedmaprangeupdatedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipprovider"
@@ -70,15 +70,15 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				return
 			}
 
-			if integrationEvent.Name == zoomedareaupdatedintgrevent.EVENT_NAME {
-				event := zoomedareaupdatedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendZoomedAreaUpdatedEventToClient(socketPresenter, event.Area, event.UnitBlock)
-			} else if integrationEvent.Name == areazoomedintgrevent.EVENT_NAME {
-				event := areazoomedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendAreaZoomedEventToClient(socketPresenter, event.Area, event.UnitBlock)
+			if integrationEvent.Name == zoomedmaprangeupdatedintgrevent.EVENT_NAME {
+				event := zoomedmaprangeupdatedintgrevent.Deserialize(message)
+				controller.liveGameAppService.SendZoomedMapRangeUpdatedEventToClient(socketPresenter, event.MapRange, event.GameMap)
+			} else if integrationEvent.Name == maprangezoomedintgrevent.EVENT_NAME {
+				event := maprangezoomedintgrevent.Deserialize(message)
+				controller.liveGameAppService.SendMapRangeZoomedEventToClient(socketPresenter, event.MapRange, event.GameMap)
 			} else if integrationEvent.Name == gameinfoupdatedintgrevent.EVENT_NAME {
 				event := gameinfoupdatedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendInformationUpdatedEventToClient(socketPresenter, event.Dimension)
+				controller.liveGameAppService.SendInformationUpdatedEventToClient(socketPresenter, event.MapSize)
 			}
 		})
 	defer integrationEventSubscriberUnsubscriber()
@@ -110,14 +110,14 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			}
 
 			switch commandType {
-			case livegameappservice.ZoomAreaCommanType:
-				command, err := livegameappservice.ParseCommand[livegameappservice.ZoomAreaCommand](message)
+			case livegameappservice.ZoomMapRangeCommanType:
+				command, err := livegameappservice.ParseCommand[livegameappservice.ZoomMapRangeCommand](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
 					continue
 				}
 
-				controller.liveGameAppService.RequestToZoomArea(liveGameId, playerId, command.Payload.Area)
+				controller.liveGameAppService.RequestToZoomMapRange(liveGameId, playerId, command.Payload.MapRange)
 			case livegameappservice.BuildItemCommanType:
 				command, err := livegameappservice.ParseCommand[livegameappservice.BuildItemCommand](message)
 				if err != nil {

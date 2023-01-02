@@ -8,7 +8,7 @@ import (
 )
 
 type Service interface {
-	CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error)
+	CreateGame(mapSize commonmodel.MapSize) (gamemodel.GameId, error)
 }
 
 type servce struct {
@@ -19,19 +19,19 @@ func New(gameRepo gamemodel.GameRepo) Service {
 	return &servce{gameRepo: gameRepo}
 }
 
-func (serve *servce) CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error) {
-	unitMatrix := make([][]commonmodel.Unit, dimension.GetWidth())
-	for i := 0; i < dimension.GetWidth(); i += 1 {
-		unitMatrix[i] = make([]commonmodel.Unit, dimension.GetHeight())
-		for j := 0; j < dimension.GetHeight(); j += 1 {
+func (serve *servce) CreateGame(mapSize commonmodel.MapSize) (gamemodel.GameId, error) {
+	gameMapUnitMatrix := make([][]commonmodel.GameMapUnit, mapSize.GetWidth())
+	for i := 0; i < mapSize.GetWidth(); i += 1 {
+		gameMapUnitMatrix[i] = make([]commonmodel.GameMapUnit, mapSize.GetHeight())
+		for j := 0; j < mapSize.GetHeight(); j += 1 {
 			itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-			unitMatrix[i][j] = commonmodel.NewUnit(itemId)
+			gameMapUnitMatrix[i][j] = commonmodel.NewGameMapUnit(itemId)
 		}
 	}
-	unitBlock := commonmodel.NewUnitBlock(unitMatrix)
+	gameMap := commonmodel.NewGameMap(gameMapUnitMatrix)
 
 	newGameId, _ := gamemodel.NewGameId(uuid.New().String())
-	newGame := gamemodel.NewGame(newGameId, unitBlock)
+	newGame := gamemodel.NewGame(newGameId, gameMap)
 	newGameId, err := serve.gameRepo.Add(newGame)
 	if err != nil {
 		return gamemodel.GameId{}, err

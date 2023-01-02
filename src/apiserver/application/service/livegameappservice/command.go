@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
 )
 
 type CommanType string
 
 const (
-	NilCommandType        CommanType = ""
-	ZoomAreaCommanType    CommanType = "ZOOM_AREA"
-	BuildItemCommanType   CommanType = "BUILD_ITEM"
-	DestroyItemCommanType CommanType = "DESTROY_ITEM"
+	NilCommandType         CommanType = ""
+	ZoomMapRangeCommanType CommanType = "ZOOM_MAP_RANGE"
+	BuildItemCommanType    CommanType = "BUILD_ITEM"
+	DestroyItemCommanType  CommanType = "DESTROY_ITEM"
 )
 
 type GenericCommand struct {
@@ -58,10 +58,10 @@ type DestroyItemCommand struct {
 	} `json:"payload"`
 }
 
-type ZoomAreaCommand struct {
+type ZoomMapRangeCommand struct {
 	Type    CommanType `json:"type"`
 	Payload struct {
-		Area       areaviewmodel.ViewModel `json:"area"`
-		ActionedAt time.Time               `json:"actionedAt"`
+		MapRange   maprangeviewmodel.ViewModel `json:"mapRange"`
+		ActionedAt time.Time                   `json:"actionedAt"`
 	} `json:"payload"`
 }

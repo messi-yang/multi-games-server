@@ -6,24 +6,24 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/buliditemrequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/destroyitemrequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/removeplayerrequestedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomarearequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoommaprangerequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/gamemapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
 
 type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredEventToClient(presenter Presenter, clientMessage string)
-	SendInformationUpdatedEventToClient(presenter Presenter, rawDimension dimensionviewmodel.ViewModel)
-	SendZoomedAreaUpdatedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
-	SendAreaZoomedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel)
+	SendInformationUpdatedEventToClient(presenter Presenter, rawMapSize mapsizeviewmodel.ViewModel)
+	SendZoomedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
+	SendMapRangeZoomedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
-	RequestToZoomArea(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel)
+	RequestToZoomMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel)
 	RequestToBuildItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string)
 	RequestToDestroyItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel)
 	RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string)
@@ -45,10 +45,10 @@ func (serve *serve) SendErroredEventToClient(presenter Presenter, clientMessage 
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendInformationUpdatedEventToClient(presenter Presenter, rawDimension dimensionviewmodel.ViewModel) {
+func (serve *serve) SendInformationUpdatedEventToClient(presenter Presenter, rawMapSize mapsizeviewmodel.ViewModel) {
 	event := InformationUpdatedEvent{}
 	event.Type = InformationUpdatedEventType
-	event.Payload.Dimension = rawDimension
+	event.Payload.MapSize = rawMapSize
 	presenter.OnSuccess(event)
 }
 
@@ -62,19 +62,19 @@ func (serve *serve) QueryItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendZoomedAreaUpdatedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
-	event := ZoomedAreaUpdatedEvent{}
-	event.Type = ZoomedAreaUpdatedEventType
-	event.Payload.Area = area
-	event.Payload.UnitBlock = unitBlock
+func (serve *serve) SendZoomedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
+	event := ZoomedMapRangeUpdatedEvent{}
+	event.Type = ZoomedMapRangeUpdatedEventType
+	event.Payload.MapRange = mapRange
+	event.Payload.GameMap = gameMap
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendAreaZoomedEventToClient(presenter Presenter, area areaviewmodel.ViewModel, unitBlock unitblockviewmodel.ViewModel) {
-	event := AreaZoomedEvent{}
-	event.Type = AreaZoomedEventType
-	event.Payload.Area = area
-	event.Payload.UnitBlock = unitBlock
+func (serve *serve) SendMapRangeZoomedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
+	event := MapRangeZoomedEvent{}
+	event.Type = MapRangeZoomedEventType
+	event.Payload.MapRange = mapRange
+	event.Payload.GameMap = gameMap
 	presenter.OnSuccess(event)
 }
 
@@ -85,10 +85,10 @@ func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	)
 }
 
-func (serve *serve) RequestToZoomArea(rawLiveGameId string, rawPlayerId string, rawArea areaviewmodel.ViewModel) {
+func (serve *serve) RequestToZoomMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		zoomarearequestedintgrevent.New(rawLiveGameId, rawPlayerId, rawArea).Serialize(),
+		zoommaprangerequestedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange).Serialize(),
 	)
 }
 

@@ -3,20 +3,20 @@ package livegameappservice
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/areaviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/dimensionviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/gamemapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitblockviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
 )
 
 type EventType string
 
 const (
-	ErrorHappenedEventType      EventType = "ERRORED"
-	InformationUpdatedEventType EventType = "INFORMATION_UPDATED"
-	ItemsUpdatedEventType       EventType = "ITEMS_UPDATED"
-	AreaZoomedEventType         EventType = "AREA_ZOOMED"
-	ZoomedAreaUpdatedEventType  EventType = "ZOOMED_AREA_UPDATED"
+	ErrorHappenedEventType         EventType = "ERRORED"
+	InformationUpdatedEventType    EventType = "INFORMATION_UPDATED"
+	ItemsUpdatedEventType          EventType = "ITEMS_UPDATED"
+	MapRangeZoomedEventType        EventType = "MAP_RANGE_ZOOMED"
+	ZoomedMapRangeUpdatedEventType EventType = "ZOOMED_MAP_RANGE_UPDATED"
 )
 
 type GenericEvent struct {
@@ -33,7 +33,7 @@ type ErroredEvent struct {
 type InformationUpdatedEvent struct {
 	Type    EventType `json:"type"`
 	Payload struct {
-		Dimension dimensionviewmodel.ViewModel `json:"dimension"`
+		MapSize mapsizeviewmodel.ViewModel `json:"mapSize"`
 	} `json:"payload"`
 }
 
@@ -44,19 +44,19 @@ type ItemsUpdatedEvent struct {
 	} `json:"payload"`
 }
 
-type ZoomedAreaUpdatedEvent struct {
+type ZoomedMapRangeUpdatedEvent struct {
 	Type    EventType `json:"type"`
 	Payload struct {
-		Area      areaviewmodel.ViewModel      `json:"area"`
-		UnitBlock unitblockviewmodel.ViewModel `json:"unitBlock"`
-		UpdatedAt time.Time                    `json:"updatedAt"`
+		MapRange  maprangeviewmodel.ViewModel `json:"mapRange"`
+		GameMap   gamemapviewmodel.ViewModel  `json:"gameMap"`
+		UpdatedAt time.Time                   `json:"updatedAt"`
 	} `json:"payload"`
 }
 
-type AreaZoomedEvent struct {
+type MapRangeZoomedEvent struct {
 	Type    EventType `json:"type"`
 	Payload struct {
-		Area      areaviewmodel.ViewModel      `json:"area"`
-		UnitBlock unitblockviewmodel.ViewModel `json:"unitBlock"`
+		MapRange maprangeviewmodel.ViewModel `json:"mapRange"`
+		GameMap  gamemapviewmodel.ViewModel  `json:"gameMap"`
 	} `json:"payload"`
 }
