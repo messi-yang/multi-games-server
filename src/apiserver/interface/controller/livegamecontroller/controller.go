@@ -25,112 +25,122 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
+type Controller struct {
+	gameRepo           gamemodel.GameRepo
+	liveGameAppService livegameappservice.Service
+}
+
 func NewController(
-	GameRepo gamemodel.GameRepo,
+	gameRepo gamemodel.GameRepo,
 	liveGameAppService livegameappservice.Service,
-) func(c *gin.Context) {
-	return func(c *gin.Context) {
-		socketConn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			c.Error(err)
-			return
-		}
-		defer socketConn.Close()
-		closeConnFlag := make(chan bool)
+) *Controller {
+	return &Controller{
+		gameRepo:           gameRepo,
+		liveGameAppService: liveGameAppService,
+	}
+}
 
-		games, err := GameRepo.GetAll()
-		if err != nil {
-			return
-		}
-		gameId := games[0].GetId()
+func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
+	socketConn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	defer socketConn.Close()
+	closeConnFlag := make(chan bool)
 
-		liveGameId := gameId.ToString()
-		playerId := uuid.New().String()
-		socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
-		gzipCompressor := gzipprovider.New()
+	games, err := controller.gameRepo.GetAll()
+	if err != nil {
+		return
+	}
+	gameId := games[0].GetId()
 
-		integrationEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
-			intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
-			func(message []byte) {
-				integrationEvent, err := intgrevent.Parse(message)
-				if err != nil {
-					return
-				}
+	liveGameId := gameId.ToString()
+	playerId := uuid.New().String()
+	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
+	gzipCompressor := gzipprovider.New()
 
-				if integrationEvent.Name == zoomedareaupdatedintgrevent.EVENT_NAME {
-					event := zoomedareaupdatedintgrevent.Deserialize(message)
-					liveGameAppService.SendZoomedAreaUpdatedEvent(socketPresenter, event.Area, event.UnitBlock)
-				} else if integrationEvent.Name == areazoomedintgrevent.EVENT_NAME {
-					event := areazoomedintgrevent.Deserialize(message)
-					liveGameAppService.SendAreaZoomedEvent(socketPresenter, event.Area, event.UnitBlock)
-				} else if integrationEvent.Name == gameinfoupdatedintgrevent.EVENT_NAME {
-					event := gameinfoupdatedintgrevent.Deserialize(message)
-					liveGameAppService.SendInformationUpdatedEvent(socketPresenter, event.Dimension)
-				}
-			})
-		defer integrationEventSubscriberUnsubscriber()
-
-		liveGameAppService.RequestToAddPlayer(liveGameId, playerId)
-
-		go func() {
-			defer func() {
-				closeConnFlag <- true
-			}()
-
-			for {
-				_, compressedMessage, err := socketConn.ReadMessage()
-				if err != nil {
-					liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-					return
-				}
-
-				message, err := gzipCompressor.Ungzip(compressedMessage)
-				if err != nil {
-					liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-					continue
-				}
-
-				commandType, err := livegameappservice.ParseCommandType(message)
-				if err != nil {
-					liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-					continue
-				}
-
-				switch commandType {
-				case livegameappservice.ZoomAreaCommanType:
-					command, err := livegameappservice.ParseCommand[livegameappservice.ZoomAreaCommand](message)
-					if err != nil {
-						liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-						continue
-					}
-
-					liveGameAppService.RequestToZoomArea(liveGameId, playerId, command.Payload.Area)
-				case livegameappservice.BuildItemCommanType:
-					command, err := livegameappservice.ParseCommand[livegameappservice.BuildItemCommand](message)
-					if err != nil {
-						liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-						continue
-					}
-
-					liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Coordinate, command.Payload.ItemId)
-				case livegameappservice.DestroyItemCommanType:
-					command, err := livegameappservice.ParseCommand[livegameappservice.DestroyItemCommand](message)
-					if err != nil {
-						liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
-						continue
-					}
-
-					liveGameAppService.RequestToDestroyItem(liveGameId, command.Payload.Coordinate)
-				default:
-				}
+	integrationEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
+		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		func(message []byte) {
+			integrationEvent, err := intgrevent.Parse(message)
+			if err != nil {
+				return
 			}
+
+			if integrationEvent.Name == zoomedareaupdatedintgrevent.EVENT_NAME {
+				event := zoomedareaupdatedintgrevent.Deserialize(message)
+				controller.liveGameAppService.SendZoomedAreaUpdatedEvent(socketPresenter, event.Area, event.UnitBlock)
+			} else if integrationEvent.Name == areazoomedintgrevent.EVENT_NAME {
+				event := areazoomedintgrevent.Deserialize(message)
+				controller.liveGameAppService.SendAreaZoomedEvent(socketPresenter, event.Area, event.UnitBlock)
+			} else if integrationEvent.Name == gameinfoupdatedintgrevent.EVENT_NAME {
+				event := gameinfoupdatedintgrevent.Deserialize(message)
+				controller.liveGameAppService.SendInformationUpdatedEvent(socketPresenter, event.Dimension)
+			}
+		})
+	defer integrationEventSubscriberUnsubscriber()
+
+	controller.liveGameAppService.RequestToAddPlayer(liveGameId, playerId)
+
+	go func() {
+		defer func() {
+			closeConnFlag <- true
 		}()
 
 		for {
-			<-closeConnFlag
+			_, compressedMessage, err := socketConn.ReadMessage()
+			if err != nil {
+				controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+				return
+			}
 
-			liveGameAppService.RequestToRemovePlayer(liveGameId, playerId)
-			return
+			message, err := gzipCompressor.Ungzip(compressedMessage)
+			if err != nil {
+				controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+				continue
+			}
+
+			commandType, err := livegameappservice.ParseCommandType(message)
+			if err != nil {
+				controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+				continue
+			}
+
+			switch commandType {
+			case livegameappservice.ZoomAreaCommanType:
+				command, err := livegameappservice.ParseCommand[livegameappservice.ZoomAreaCommand](message)
+				if err != nil {
+					controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+					continue
+				}
+
+				controller.liveGameAppService.RequestToZoomArea(liveGameId, playerId, command.Payload.Area)
+			case livegameappservice.BuildItemCommanType:
+				command, err := livegameappservice.ParseCommand[livegameappservice.BuildItemCommand](message)
+				if err != nil {
+					controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+					continue
+				}
+
+				controller.liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Coordinate, command.Payload.ItemId)
+			case livegameappservice.DestroyItemCommanType:
+				command, err := livegameappservice.ParseCommand[livegameappservice.DestroyItemCommand](message)
+				if err != nil {
+					controller.liveGameAppService.SendErroredEvent(socketPresenter, err.Error())
+					continue
+				}
+
+				controller.liveGameAppService.RequestToDestroyItem(liveGameId, command.Payload.Coordinate)
+			default:
+			}
 		}
+	}()
+
+	for {
+		<-closeConnFlag
+
+		controller.liveGameAppService.RequestToRemovePlayer(liveGameId, playerId)
+		return
 	}
 }

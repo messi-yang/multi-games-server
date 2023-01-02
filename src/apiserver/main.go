@@ -31,11 +31,12 @@ func Start() {
 	itemAppService := itemappservice.New(itemRepo)
 
 	itemController := itemcontroller.New(itemAppService)
-
-	router.Group("/ws/game").GET("/", livegamecontroller.NewController(
+	liveGameController := livegamecontroller.NewController(
 		gameRepo,
 		liveGameAppService,
-	))
+	)
+
+	router.Group("/ws/game").GET("/", liveGameController.HandleLiveGameConnection)
 
 	router.GET("/items", itemController.HandleGetAllItems)
 
