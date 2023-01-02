@@ -1,4 +1,4 @@
-package commonmodel
+package playermodel
 
 import "github.com/google/uuid"
 

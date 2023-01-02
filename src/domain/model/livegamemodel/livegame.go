@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/google/uuid"
 )
 
@@ -18,16 +19,16 @@ var (
 type LiveGame struct {
 	id          LiveGameId
 	unitBlock   commonmodel.UnitBlock
-	playerIds   map[commonmodel.PlayerId]bool
-	zoomedAreas map[commonmodel.PlayerId]commonmodel.Area
+	playerIds   map[playermodel.PlayerId]bool
+	zoomedAreas map[playermodel.PlayerId]commonmodel.Area
 }
 
 func NewLiveGame(id LiveGameId, unitBlock commonmodel.UnitBlock) LiveGame {
 	return LiveGame{
 		id:          id,
 		unitBlock:   unitBlock,
-		playerIds:   make(map[commonmodel.PlayerId]bool),
-		zoomedAreas: make(map[commonmodel.PlayerId]commonmodel.Area),
+		playerIds:   make(map[playermodel.PlayerId]bool),
+		zoomedAreas: make(map[playermodel.PlayerId]commonmodel.Area),
 	}
 }
 
@@ -64,11 +65,11 @@ func (liveGame *LiveGame) GetUnitBlockByArea(area commonmodel.Area) (commonmodel
 	return unitBlock, nil
 }
 
-func (liveGame *LiveGame) GetZoomedAreas() map[commonmodel.PlayerId]commonmodel.Area {
+func (liveGame *LiveGame) GetZoomedAreas() map[playermodel.PlayerId]commonmodel.Area {
 	return liveGame.zoomedAreas
 }
 
-func (liveGame *LiveGame) AddZoomedArea(playerId commonmodel.PlayerId, area commonmodel.Area) error {
+func (liveGame *LiveGame) AddZoomedArea(playerId playermodel.PlayerId, area commonmodel.Area) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
@@ -77,11 +78,11 @@ func (liveGame *LiveGame) AddZoomedArea(playerId commonmodel.PlayerId, area comm
 	return nil
 }
 
-func (liveGame *LiveGame) RemoveZoomedArea(playerId commonmodel.PlayerId) {
+func (liveGame *LiveGame) RemoveZoomedArea(playerId playermodel.PlayerId) {
 	delete(liveGame.zoomedAreas, playerId)
 }
 
-func (liveGame *LiveGame) AddPlayer(playerId commonmodel.PlayerId) error {
+func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 	_, exists := liveGame.playerIds[playerId]
 	if exists {
 		return ErrPlayerAlreadyExists
@@ -92,7 +93,7 @@ func (liveGame *LiveGame) AddPlayer(playerId commonmodel.PlayerId) error {
 	return nil
 }
 
-func (liveGame *LiveGame) RemovePlayer(playerId commonmodel.PlayerId) {
+func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
 	delete(liveGame.playerIds, playerId)
 }
 

@@ -14,6 +14,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 )
 
 type Service interface {
@@ -153,7 +154,7 @@ func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string
 	if err != nil {
 		return
 	}
-	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	playerId, err := playermodel.NewPlayerId(rawPlayerId)
 	if err != nil {
 		return
 	}
@@ -179,7 +180,7 @@ func (serve *serve) RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId s
 	if err != nil {
 		return
 	}
-	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	playerId, err := playermodel.NewPlayerId(rawPlayerId)
 	if err != nil {
 		return
 	}
@@ -201,7 +202,7 @@ func (serve *serve) AddZoomedAreaToLiveGame(rawLiveGameId string, rawPlayerId st
 	if err != nil {
 		return
 	}
-	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	playerId, err := playermodel.NewPlayerId(rawPlayerId)
 	if err != nil {
 		return
 	}
@@ -239,7 +240,7 @@ func (serve *serve) RemoveZoomedAreaFromLiveGame(rawLiveGameId string, rawPlayer
 	if err != nil {
 		return
 	}
-	playerId, err := commonmodel.NewPlayerId(rawPlayerId)
+	playerId, err := playermodel.NewPlayerId(rawPlayerId)
 	if err != nil {
 		return
 	}
