@@ -17,18 +17,18 @@ var (
 )
 
 type LiveGame struct {
-	id              LiveGameId
-	gameMap         commonmodel.GameMap
-	playerIds       map[playermodel.PlayerId]bool
-	zoomedMapRanges map[playermodel.PlayerId]commonmodel.MapRange
+	id                LiveGameId
+	gameMap           commonmodel.GameMap
+	playerIds         map[playermodel.PlayerId]bool
+	observedMapRanges map[playermodel.PlayerId]commonmodel.MapRange
 }
 
 func NewLiveGame(id LiveGameId, gameMap commonmodel.GameMap) LiveGame {
 	return LiveGame{
-		id:              id,
-		gameMap:         gameMap,
-		playerIds:       make(map[playermodel.PlayerId]bool),
-		zoomedMapRanges: make(map[playermodel.PlayerId]commonmodel.MapRange),
+		id:                id,
+		gameMap:           gameMap,
+		playerIds:         make(map[playermodel.PlayerId]bool),
+		observedMapRanges: make(map[playermodel.PlayerId]commonmodel.MapRange),
 	}
 }
 
@@ -65,21 +65,21 @@ func (liveGame *LiveGame) GetGameMapByMapRange(mapRange commonmodel.MapRange) (c
 	return gameMap, nil
 }
 
-func (liveGame *LiveGame) GetZoomedMapRanges() map[playermodel.PlayerId]commonmodel.MapRange {
-	return liveGame.zoomedMapRanges
+func (liveGame *LiveGame) GetObservedMapRanges() map[playermodel.PlayerId]commonmodel.MapRange {
+	return liveGame.observedMapRanges
 }
 
-func (liveGame *LiveGame) AddZoomedMapRange(playerId playermodel.PlayerId, mapRange commonmodel.MapRange) error {
+func (liveGame *LiveGame) AddObservedMapRange(playerId playermodel.PlayerId, mapRange commonmodel.MapRange) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
 	}
-	liveGame.zoomedMapRanges[playerId] = mapRange
+	liveGame.observedMapRanges[playerId] = mapRange
 	return nil
 }
 
-func (liveGame *LiveGame) RemoveZoomedMapRange(playerId playermodel.PlayerId) {
-	delete(liveGame.zoomedMapRanges, playerId)
+func (liveGame *LiveGame) RemoveObservedMapRange(playerId playermodel.PlayerId) {
+	delete(liveGame.observedMapRanges, playerId)
 }
 
 func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {

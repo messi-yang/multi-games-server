@@ -5,8 +5,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/addplayerrequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/buliditemrequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/destroyitemrequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/observemaprangerequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/removeplayerrequestedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoommaprangerequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
 )
@@ -35,16 +35,16 @@ func New(liveGameAppService livegameappservice.Service) {
 				event := buliditemrequestedintgrevent.Deserialize(message)
 				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
 
-			} else if integrationEvent.Name == zoommaprangerequestedintgrevent.EVENT_NAME {
+			} else if integrationEvent.Name == observemaprangerequestedintgrevent.EVENT_NAME {
 
-				event := zoommaprangerequestedintgrevent.Deserialize(message)
-				liveGameAppService.AddZoomedMapRangeToLiveGame(event.LiveGameId, event.PlayerId, event.MapRange)
+				event := observemaprangerequestedintgrevent.Deserialize(message)
+				liveGameAppService.AddObservedMapRangeToLiveGame(event.LiveGameId, event.PlayerId, event.MapRange)
 
 			} else if integrationEvent.Name == removeplayerrequestedintgrevent.EVENT_NAME {
 
 				event := removeplayerrequestedintgrevent.Deserialize(message)
 				liveGameAppService.RemovePlayerFromLiveGame(event.LiveGameId, event.PlayerId)
-				liveGameAppService.RemoveZoomedMapRangeFromLiveGame(event.LiveGameId, event.PlayerId)
+				liveGameAppService.RemoveObservedMapRangeFromLiveGame(event.LiveGameId, event.PlayerId)
 
 			}
 		})

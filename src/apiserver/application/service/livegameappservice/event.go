@@ -12,11 +12,11 @@ import (
 type EventType string
 
 const (
-	ErrorHappenedEventType         EventType = "ERRORED"
-	InformationUpdatedEventType    EventType = "INFORMATION_UPDATED"
-	ItemsUpdatedEventType          EventType = "ITEMS_UPDATED"
-	MapRangeZoomedEventType        EventType = "MAP_RANGE_ZOOMED"
-	ZoomedMapRangeUpdatedEventType EventType = "ZOOMED_MAP_RANGE_UPDATED"
+	ErrorHappenedEventType           EventType = "ERRORED"
+	InformationUpdatedEventType      EventType = "INFORMATION_UPDATED"
+	ItemsUpdatedEventType            EventType = "ITEMS_UPDATED"
+	MapRangeObservedEventType        EventType = "MAP_RANGE_OBSERVED"
+	ObservedMapRangeUpdatedEventType EventType = "OBSERVED_MAP_RANGE_UPDATED"
 )
 
 type GenericEvent struct {
@@ -44,7 +44,7 @@ type ItemsUpdatedEvent struct {
 	} `json:"payload"`
 }
 
-type ZoomedMapRangeUpdatedEvent struct {
+type ObservedMapRangeUpdatedEvent struct {
 	Type    EventType `json:"type"`
 	Payload struct {
 		MapRange  maprangeviewmodel.ViewModel `json:"mapRange"`
@@ -53,7 +53,7 @@ type ZoomedMapRangeUpdatedEvent struct {
 	} `json:"payload"`
 }
 
-type MapRangeZoomedEvent struct {
+type MapRangeObservedEvent struct {
 	Type    EventType `json:"type"`
 	Payload struct {
 		MapRange maprangeviewmodel.ViewModel `json:"mapRange"`

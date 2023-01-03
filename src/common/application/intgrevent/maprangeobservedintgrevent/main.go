@@ -1,4 +1,4 @@
-package maprangezoomedintgrevent
+package maprangeobservedintgrevent
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ type Event struct {
 	GameMap    gamemapviewmodel.ViewModel  `json:"gameMap"`
 }
 
-var EVENT_NAME = "MAP_RANGE_ZOOMED"
+var EVENT_NAME = "MAP_RANGE_OBSERVED"
 
 func New(liveGameId string, playerId string, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) Event {
 	return Event{

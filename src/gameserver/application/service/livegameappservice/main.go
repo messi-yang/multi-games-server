@@ -3,8 +3,8 @@ package livegameappservice
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/gameinfoupdatedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/maprangezoomedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoomedmaprangeupdatedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/maprangeobservedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/observedmaprangeupdatedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/gamemapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
@@ -23,8 +23,8 @@ type Service interface {
 	DestroyItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel)
 	AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string)
 	RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId string)
-	AddZoomedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel)
-	RemoveZoomedMapRangeFromLiveGame(rawLiveGameId string, rawPlayerId string)
+	AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel)
+	RemoveObservedMapRangeFromLiveGame(rawLiveGameId string, rawPlayerId string)
 }
 
 type serve struct {
@@ -45,13 +45,13 @@ func New(
 	}
 }
 
-func (serve *serve) publishZoomedMapRangeUpdatedEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
+func (serve *serve) publishObservedMapRangeUpdatedEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
-	for playerId, mapRange := range liveGame.GetZoomedMapRanges() {
+	for playerId, mapRange := range liveGame.GetObservedMapRanges() {
 		if !mapRange.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
@@ -61,7 +61,7 @@ func (serve *serve) publishZoomedMapRangeUpdatedEvents(liveGameId livegamemodel.
 		}
 		serve.intgrEventPublisher.Publish(
 			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			zoomedmaprangeupdatedintgrevent.New(
+			observedmaprangeupdatedintgrevent.New(
 				liveGameId.ToString(),
 				playerId.ToString(),
 				maprangeviewmodel.New(mapRange),
@@ -119,7 +119,7 @@ func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawLocation locati
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
-	serve.publishZoomedMapRangeUpdatedEvents(liveGameId, location)
+	serve.publishObservedMapRangeUpdatedEvents(liveGameId, location)
 }
 
 func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel) {
@@ -146,7 +146,7 @@ func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation loca
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.publishZoomedMapRangeUpdatedEvents(liveGameId, location)
+	serve.publishObservedMapRangeUpdatedEvents(liveGameId, location)
 }
 
 func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string) {
@@ -197,7 +197,7 @@ func (serve *serve) RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId s
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 }
 
-func (serve *serve) AddZoomedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel) {
+func (serve *serve) AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -219,7 +219,7 @@ func (serve *serve) AddZoomedMapRangeToLiveGame(rawLiveGameId string, rawPlayerI
 		return
 	}
 
-	if err = liveGame.AddZoomedMapRange(playerId, mapRange); err != nil {
+	if err = liveGame.AddObservedMapRange(playerId, mapRange); err != nil {
 		return
 	}
 
@@ -231,11 +231,11 @@ func (serve *serve) AddZoomedMapRangeToLiveGame(rawLiveGameId string, rawPlayerI
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
-		maprangezoomedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange, gamemapviewmodel.New(gameMap)).Serialize(),
+		maprangeobservedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange, gamemapviewmodel.New(gameMap)).Serialize(),
 	)
 }
 
-func (serve *serve) RemoveZoomedMapRangeFromLiveGame(rawLiveGameId string, rawPlayerId string) {
+func (serve *serve) RemoveObservedMapRangeFromLiveGame(rawLiveGameId string, rawPlayerId string) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -253,6 +253,6 @@ func (serve *serve) RemoveZoomedMapRangeFromLiveGame(rawLiveGameId string, rawPl
 		return
 	}
 
-	liveGame.RemoveZoomedMapRange(playerId)
+	liveGame.RemoveObservedMapRange(playerId)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 }

@@ -11,10 +11,10 @@ import (
 type CommanType string
 
 const (
-	NilCommandType         CommanType = ""
-	ZoomMapRangeCommanType CommanType = "ZOOM_MAP_RANGE"
-	BuildItemCommanType    CommanType = "BUILD_ITEM"
-	DestroyItemCommanType  CommanType = "DESTROY_ITEM"
+	NilCommandType            CommanType = ""
+	ObserveMapRangeCommanType CommanType = "OBSERVE_MAP_RANGE"
+	BuildItemCommanType       CommanType = "BUILD_ITEM"
+	DestroyItemCommanType     CommanType = "DESTROY_ITEM"
 )
 
 type GenericCommand struct {
@@ -58,7 +58,7 @@ type DestroyItemCommand struct {
 	} `json:"payload"`
 }
 
-type ZoomMapRangeCommand struct {
+type ObserveMapRangeCommand struct {
 	Type    CommanType `json:"type"`
 	Payload struct {
 		MapRange   maprangeviewmodel.ViewModel `json:"mapRange"`

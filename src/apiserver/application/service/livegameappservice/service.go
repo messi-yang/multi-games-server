@@ -5,8 +5,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/addplayerrequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/buliditemrequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/destroyitemrequestedintgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/observemaprangerequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/removeplayerrequestedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/zoommaprangerequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/gamemapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
@@ -20,10 +20,10 @@ type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredEventToClient(presenter Presenter, clientMessage string)
 	SendInformationUpdatedEventToClient(presenter Presenter, rawMapSize mapsizeviewmodel.ViewModel)
-	SendZoomedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
-	SendMapRangeZoomedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
+	SendObservedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
+	SendMapRangeObservedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
-	RequestToZoomMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel)
+	RequestToObserveMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel)
 	RequestToBuildItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string)
 	RequestToDestroyItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel)
 	RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string)
@@ -62,17 +62,17 @@ func (serve *serve) QueryItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendZoomedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
-	event := ZoomedMapRangeUpdatedEvent{}
-	event.Type = ZoomedMapRangeUpdatedEventType
+func (serve *serve) SendObservedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
+	event := ObservedMapRangeUpdatedEvent{}
+	event.Type = ObservedMapRangeUpdatedEventType
 	event.Payload.MapRange = mapRange
 	event.Payload.GameMap = gameMap
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendMapRangeZoomedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
-	event := MapRangeZoomedEvent{}
-	event.Type = MapRangeZoomedEventType
+func (serve *serve) SendMapRangeObservedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
+	event := MapRangeObservedEvent{}
+	event.Type = MapRangeObservedEventType
 	event.Payload.MapRange = mapRange
 	event.Payload.GameMap = gameMap
 	presenter.OnSuccess(event)
@@ -85,10 +85,10 @@ func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	)
 }
 
-func (serve *serve) RequestToZoomMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel) {
+func (serve *serve) RequestToObserveMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		zoommaprangerequestedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange).Serialize(),
+		observemaprangerequestedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange).Serialize(),
 	)
 }
 
