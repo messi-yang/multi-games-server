@@ -3,11 +3,11 @@ package apiserver
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/persistence/itemmemoryrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/itemmemoryrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 
 	"github.com/gin-contrib/cors"
