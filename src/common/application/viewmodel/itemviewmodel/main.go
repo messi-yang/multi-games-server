@@ -10,15 +10,10 @@ type ViewModel struct {
 	AssetSrc string `json:"assetSrc"`
 }
 
-func BatchNew(items []itemmodel.Item) []ViewModel {
-	newViewModels := make([]ViewModel, 0)
-	for _, item := range items {
-		newViewModel := ViewModel{
-			Id:       item.GetId().ToString(),
-			Name:     item.GetName(),
-			AssetSrc: item.GetAssetSrc(),
-		}
-		newViewModels = append(newViewModels, newViewModel)
+func New(item itemmodel.Item) ViewModel {
+	return ViewModel{
+		Id:       item.GetId().ToString(),
+		Name:     item.GetName(),
+		AssetSrc: item.GetAssetSrc(),
 	}
-	return newViewModels
 }

@@ -1,6 +1,10 @@
 package commonmodel
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/samber/lo"
+)
 
 type ErrInvalidMapRange struct {
 	from Location
@@ -48,12 +52,7 @@ func (a MapRange) IncludesLocation(location Location) bool {
 }
 
 func (a MapRange) IncludesAnyLocations(locations []Location) bool {
-	locationsInMapRange := make([]Location, 0)
-	for _, location := range locations {
-		if a.IncludesLocation(location) {
-			locationsInMapRange = append(locationsInMapRange, location)
-		}
-	}
-
-	return len(locationsInMapRange) > 0
+	return lo.ContainsBy(locations, func(location Location) bool {
+		return a.IncludesLocation(location)
+	})
 }

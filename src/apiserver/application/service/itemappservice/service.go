@@ -3,6 +3,7 @@ package itemappservice
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
+	"github.com/samber/lo"
 )
 
 type Service interface {
@@ -19,5 +20,8 @@ func New(itemRepo itemmodel.Repo) Service {
 
 func (serve *serve) GetAllItems(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
-	presenter.OnSuccess(itemviewmodel.BatchNew(items))
+	itemViewModels := lo.Map(items, func(item itemmodel.Item, _ int) itemviewmodel.ViewModel {
+		return itemviewmodel.New(item)
+	})
+	presenter.OnSuccess(itemViewModels)
 }

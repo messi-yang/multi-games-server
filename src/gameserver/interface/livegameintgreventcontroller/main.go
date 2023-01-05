@@ -20,32 +20,23 @@ func New(liveGameAppService livegameappservice.Service) {
 				return
 			}
 
-			if integrationEvent.Name == addplayerrequestedintgrevent.EVENT_NAME {
-
+			switch integrationEvent.Name {
+			case addplayerrequestedintgrevent.EVENT_NAME:
 				event := addplayerrequestedintgrevent.Deserialize(message)
 				liveGameAppService.AddPlayerToLiveGame(event.LiveGameId, event.PlayerId)
-
-			} else if integrationEvent.Name == destroyitemrequestedintgrevent.EVENT_NAME {
-
+			case destroyitemrequestedintgrevent.EVENT_NAME:
 				event := destroyitemrequestedintgrevent.Deserialize(message)
 				liveGameAppService.DestroyItemInLiveGame(event.LiveGameId, event.Location)
-
-			} else if integrationEvent.Name == buliditemrequestedintgrevent.EVENT_NAME {
-
+			case buliditemrequestedintgrevent.EVENT_NAME:
 				event := buliditemrequestedintgrevent.Deserialize(message)
 				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
-
-			} else if integrationEvent.Name == observemaprangerequestedintgrevent.EVENT_NAME {
-
+			case observemaprangerequestedintgrevent.EVENT_NAME:
 				event := observemaprangerequestedintgrevent.Deserialize(message)
 				liveGameAppService.AddObservedMapRangeToLiveGame(event.LiveGameId, event.PlayerId, event.MapRange)
-
-			} else if integrationEvent.Name == removeplayerrequestedintgrevent.EVENT_NAME {
-
+			case removeplayerrequestedintgrevent.EVENT_NAME:
 				event := removeplayerrequestedintgrevent.Deserialize(message)
 				liveGameAppService.RemovePlayerFromLiveGame(event.LiveGameId, event.PlayerId)
 				liveGameAppService.RemoveObservedMapRangeFromLiveGame(event.LiveGameId, event.PlayerId)
-
 			}
 		})
 	defer liveGameAdminChannelUnsubscriber()

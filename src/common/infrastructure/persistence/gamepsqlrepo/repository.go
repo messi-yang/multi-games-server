@@ -2,6 +2,7 @@ package gamepsqlrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
@@ -28,16 +29,15 @@ func (m *repo) Update(id gamemodel.GameId, game gamemodel.Game) error {
 }
 
 func (m *repo) GetAll() ([]gamemodel.Game, error) {
-	var gamePostgresDtos []GamePsqlModel
-	result := m.gormDb.Find(&gamePostgresDtos)
+	var gamePsqlModels []GamePsqlModel
+	result := m.gormDb.Find(&gamePsqlModels)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	gameAggregates := make([]gamemodel.Game, 0)
-	for _, gamePostgresDto := range gamePostgresDtos {
-		gameAggregates = append(gameAggregates, gamePostgresDto.ToAggregate())
-	}
+	gameAggregates := lo.Map(gamePsqlModels, func(model GamePsqlModel, _ int) gamemodel.Game {
+		return model.ToAggregate()
+	})
 
 	return gameAggregates, nil
 }

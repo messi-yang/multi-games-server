@@ -14,6 +14,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
+	"github.com/samber/lo"
 )
 
 type Service interface {
@@ -54,7 +55,9 @@ func (serve *serve) SendInformationUpdatedEventToClient(presenter Presenter, raw
 
 func (serve *serve) QueryItems(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
-	itemViewModels := itemviewmodel.BatchNew(items)
+	itemViewModels := lo.Map(items, func(item itemmodel.Item, _ int) itemviewmodel.ViewModel {
+		return itemviewmodel.New(item)
+	})
 
 	event := ItemsUpdatedEvent{}
 	event.Type = ItemsUpdatedEventType

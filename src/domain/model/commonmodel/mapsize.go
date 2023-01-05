@@ -61,14 +61,3 @@ func (ms MapSize) IncludesLocation(location Location) bool {
 
 	return includesAll
 }
-
-func (ms MapSize) IncludesAllLocations(locations []Location) bool {
-	includesAll := true
-	for _, location := range locations {
-		if location.x >= ms.width || location.y >= ms.height {
-			includesAll = false
-		}
-	}
-
-	return includesAll
-}

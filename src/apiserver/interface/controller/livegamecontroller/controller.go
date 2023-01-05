@@ -70,16 +70,18 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				return
 			}
 
-			if integrationEvent.Name == observedmaprangeupdatedintgrevent.EVENT_NAME {
+			switch integrationEvent.Name {
+			case observedmaprangeupdatedintgrevent.EVENT_NAME:
 				event := observedmaprangeupdatedintgrevent.Deserialize(message)
 				controller.liveGameAppService.SendObservedMapRangeUpdatedEventToClient(socketPresenter, event.MapRange, event.GameMap)
-			} else if integrationEvent.Name == maprangeobservedintgrevent.EVENT_NAME {
+			case maprangeobservedintgrevent.EVENT_NAME:
 				event := maprangeobservedintgrevent.Deserialize(message)
 				controller.liveGameAppService.SendMapRangeObservedEventToClient(socketPresenter, event.MapRange, event.GameMap)
-			} else if integrationEvent.Name == gameinfoupdatedintgrevent.EVENT_NAME {
+			case gameinfoupdatedintgrevent.EVENT_NAME:
 				event := gameinfoupdatedintgrevent.Deserialize(message)
 				controller.liveGameAppService.SendInformationUpdatedEventToClient(socketPresenter, event.MapSize)
 			}
+
 		})
 	defer integrationEventSubscriberUnsubscriber()
 
