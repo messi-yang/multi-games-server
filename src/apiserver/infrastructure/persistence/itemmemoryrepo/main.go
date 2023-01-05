@@ -1,6 +1,9 @@
 package itemmemoryrepo
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
 
@@ -12,21 +15,19 @@ var singleton *memoryRepo
 
 func New() itemmodel.Repo {
 	if singleton == nil {
-		stoneItemDefaultId, _ := itemmodel.NewItemId("4632b3c0-f748-4c46-954a-93a5cb4bc767")
-		woodItemDefaultId, _ := itemmodel.NewItemId("7ab5bc4e-9596-4a54-adee-8807512cbbb4")
-		sandItemDefaultId, _ := itemmodel.NewItemId("3e8a5704-6de6-4156-96ea-25076aa82b35")
-		mudItemDefaultId, _ := itemmodel.NewItemId("6c2da2d6-d47b-4bc3-b884-889f9b7ba882")
-		glassItemDefaultId, _ := itemmodel.NewItemId("ec112b60-826c-438b-85eb-d5e3b2a428b5")
-		steelItemDefaultId, _ := itemmodel.NewItemId("f462b570-b02d-437a-8b10-563fec84ee96")
+		appleItemDefaultId, _ := itemmodel.NewItemId("4632b3c0-f748-4c46-954a-93a5cb4bc767")
+		bananaItemDefaultId, _ := itemmodel.NewItemId("7ab5bc4e-9596-4a54-adee-8807512cbbb4")
+		orangeItemDefaultId, _ := itemmodel.NewItemId("3e8a5704-6de6-4156-96ea-25076aa82b35")
+		waterMelonItemDefaultId, _ := itemmodel.NewItemId("6c2da2d6-d47b-4bc3-b884-889f9b7ba882")
+
+		serverUrl := os.Getenv("SERVER_URL")
 
 		singleton = &memoryRepo{
 			items: []itemmodel.Item{
-				itemmodel.New(stoneItemDefaultId, "stone"),
-				itemmodel.New(woodItemDefaultId, "wood"),
-				itemmodel.New(sandItemDefaultId, "sand"),
-				itemmodel.New(mudItemDefaultId, "mud"),
-				itemmodel.New(glassItemDefaultId, "glass"),
-				itemmodel.New(steelItemDefaultId, "steel"),
+				itemmodel.New(appleItemDefaultId, "apple", fmt.Sprintf("%s/assets/items/apple.png", serverUrl)),
+				itemmodel.New(bananaItemDefaultId, "banana", fmt.Sprintf("%s/assets/items/banana.png", serverUrl)),
+				itemmodel.New(orangeItemDefaultId, "orange", fmt.Sprintf("%s/assets/items/orange.png", serverUrl)),
+				itemmodel.New(waterMelonItemDefaultId, "water melon", fmt.Sprintf("%s/assets/items/water-melon.png", serverUrl)),
 			},
 		}
 		return singleton

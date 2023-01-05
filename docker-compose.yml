@@ -46,6 +46,7 @@ services:
     build: .
     environment:
       - APP=apiserver
+      - SERVER_URL=http://localhost:8080
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
       - POSTGRES_HOST=postgres

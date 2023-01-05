@@ -36,6 +36,8 @@ func Start() {
 		liveGameAppService,
 	)
 
+	router.Static("/assets", "./src/assets")
+
 	router.Group("/ws/game").GET("/", liveGameController.HandleLiveGameConnection)
 
 	router.GET("/items", itemController.HandleGetAllItems)

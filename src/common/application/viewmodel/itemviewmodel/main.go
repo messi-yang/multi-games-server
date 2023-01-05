@@ -5,17 +5,20 @@ import (
 )
 
 type ViewModel struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	AssetSrc string `json:"assetSrc"`
 }
 
 func BatchNew(items []itemmodel.Item) []ViewModel {
 	newViewModels := make([]ViewModel, 0)
 	for _, item := range items {
-		newViewModels = append(newViewModels, ViewModel{
-			Id:   item.GetId().ToString(),
-			Name: item.GetName(),
-		})
+		newViewModel := ViewModel{
+			Id:       item.GetId().ToString(),
+			Name:     item.GetName(),
+			AssetSrc: item.GetAssetSrc(),
+		}
+		newViewModels = append(newViewModels, newViewModel)
 	}
 	return newViewModels
 }
