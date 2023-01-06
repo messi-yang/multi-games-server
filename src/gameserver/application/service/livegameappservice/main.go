@@ -45,7 +45,7 @@ func New(
 	}
 }
 
-func (serve *serve) publishObservedMapRangeUpdatedEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
+func (serve *serve) publishObservedMapRangeUpdatedServerEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawLocation locati
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
-	serve.publishObservedMapRangeUpdatedEvents(liveGameId, location)
+	serve.publishObservedMapRangeUpdatedServerEvents(liveGameId, location)
 }
 
 func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel) {
@@ -146,7 +146,7 @@ func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation loca
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.publishObservedMapRangeUpdatedEvents(liveGameId, location)
+	serve.publishObservedMapRangeUpdatedServerEvents(liveGameId, location)
 }
 
 func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string) {

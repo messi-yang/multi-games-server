@@ -19,10 +19,10 @@ import (
 
 type Service interface {
 	QueryItems(presenter Presenter)
-	SendErroredEventToClient(presenter Presenter, clientMessage string)
-	SendInformationUpdatedEventToClient(presenter Presenter, rawMapSize mapsizeviewmodel.ViewModel)
-	SendObservedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
-	SendMapRangeObservedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
+	SendErroredServerEvent(presenter Presenter, clientMessage string)
+	SendInformationUpdatedServerEvent(presenter Presenter, rawMapSize mapsizeviewmodel.ViewModel)
+	SendObservedMapRangeUpdatedServerEvent(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
+	SendMapRangeObservedServerEvent(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	RequestToObserveMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel)
 	RequestToBuildItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string)
@@ -39,16 +39,16 @@ func New(intgrEventPublisher intgreventpublisher.Publisher, itemRepo itemmodel.R
 	return &serve{intgrEventPublisher: intgrEventPublisher, itemRepo: itemRepo}
 }
 
-func (serve *serve) SendErroredEventToClient(presenter Presenter, clientMessage string) {
-	event := ErroredEvent{}
-	event.Type = ErrorHappenedEventType
+func (serve *serve) SendErroredServerEvent(presenter Presenter, clientMessage string) {
+	event := ErroredServerEvent{}
+	event.Type = ErroredServerEventType
 	event.Payload.ClientMessage = clientMessage
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendInformationUpdatedEventToClient(presenter Presenter, rawMapSize mapsizeviewmodel.ViewModel) {
-	event := InformationUpdatedEvent{}
-	event.Type = InformationUpdatedEventType
+func (serve *serve) SendInformationUpdatedServerEvent(presenter Presenter, rawMapSize mapsizeviewmodel.ViewModel) {
+	event := InformationUpdatedServerEvent{}
+	event.Type = InformationUpdatedServerEventType
 	event.Payload.MapSize = rawMapSize
 	presenter.OnSuccess(event)
 }
@@ -59,23 +59,23 @@ func (serve *serve) QueryItems(presenter Presenter) {
 		return itemviewmodel.New(item)
 	})
 
-	event := ItemsUpdatedEvent{}
-	event.Type = ItemsUpdatedEventType
+	event := ItemsUpdatedServerEvent{}
+	event.Type = ItemsUpdatedServerEventType
 	event.Payload.Items = itemViewModels
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendObservedMapRangeUpdatedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
-	event := ObservedMapRangeUpdatedEvent{}
-	event.Type = ObservedMapRangeUpdatedEventType
+func (serve *serve) SendObservedMapRangeUpdatedServerEvent(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
+	event := ObservedMapRangeUpdatedServerEvent{}
+	event.Type = ObservedMapRangeUpdatedServerEventType
 	event.Payload.MapRange = mapRange
 	event.Payload.GameMap = gameMap
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendMapRangeObservedEventToClient(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
-	event := MapRangeObservedEvent{}
-	event.Type = MapRangeObservedEventType
+func (serve *serve) SendMapRangeObservedServerEvent(presenter Presenter, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) {
+	event := MapRangeObservedServerEvent{}
+	event.Type = MapRangeObservedServerEventType
 	event.Payload.MapRange = mapRange
 	event.Payload.GameMap = gameMap
 	presenter.OnSuccess(event)

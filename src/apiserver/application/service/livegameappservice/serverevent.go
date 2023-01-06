@@ -9,43 +9,43 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
 )
 
-type EventType string
+type ServerEventType string
 
 const (
-	ErrorHappenedEventType           EventType = "ERRORED"
-	InformationUpdatedEventType      EventType = "INFORMATION_UPDATED"
-	ItemsUpdatedEventType            EventType = "ITEMS_UPDATED"
-	MapRangeObservedEventType        EventType = "MAP_RANGE_OBSERVED"
-	ObservedMapRangeUpdatedEventType EventType = "OBSERVED_MAP_RANGE_UPDATED"
+	ErroredServerEventType                 ServerEventType = "ERRORED"
+	InformationUpdatedServerEventType      ServerEventType = "INFORMATION_UPDATED"
+	ItemsUpdatedServerEventType            ServerEventType = "ITEMS_UPDATED"
+	MapRangeObservedServerEventType        ServerEventType = "MAP_RANGE_OBSERVED"
+	ObservedMapRangeUpdatedServerEventType ServerEventType = "OBSERVED_MAP_RANGE_UPDATED"
 )
 
-type GenericEvent struct {
-	Type EventType `json:"type"`
+type GenericServerEvent struct {
+	Type ServerEventType `json:"type"`
 }
 
-type ErroredEvent struct {
-	Type    EventType `json:"type"`
+type ErroredServerEvent struct {
+	Type    ServerEventType `json:"type"`
 	Payload struct {
 		ClientMessage string `json:"clientMessage"`
 	} `json:"payload"`
 }
 
-type InformationUpdatedEvent struct {
-	Type    EventType `json:"type"`
+type InformationUpdatedServerEvent struct {
+	Type    ServerEventType `json:"type"`
 	Payload struct {
 		MapSize mapsizeviewmodel.ViewModel `json:"mapSize"`
 	} `json:"payload"`
 }
 
-type ItemsUpdatedEvent struct {
-	Type    EventType `json:"type"`
+type ItemsUpdatedServerEvent struct {
+	Type    ServerEventType `json:"type"`
 	Payload struct {
 		Items []itemviewmodel.ViewModel `json:"items"`
 	} `json:"payload"`
 }
 
-type ObservedMapRangeUpdatedEvent struct {
-	Type    EventType `json:"type"`
+type ObservedMapRangeUpdatedServerEvent struct {
+	Type    ServerEventType `json:"type"`
 	Payload struct {
 		MapRange  maprangeviewmodel.ViewModel `json:"mapRange"`
 		GameMap   gamemapviewmodel.ViewModel  `json:"gameMap"`
@@ -53,8 +53,8 @@ type ObservedMapRangeUpdatedEvent struct {
 	} `json:"payload"`
 }
 
-type MapRangeObservedEvent struct {
-	Type    EventType `json:"type"`
+type MapRangeObservedServerEvent struct {
+	Type    ServerEventType `json:"type"`
 	Payload struct {
 		MapRange maprangeviewmodel.ViewModel `json:"mapRange"`
 		GameMap  gamemapviewmodel.ViewModel  `json:"gameMap"`

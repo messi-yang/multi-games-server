@@ -73,13 +73,13 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			switch integrationEvent.Name {
 			case observedmaprangeupdatedintgrevent.EVENT_NAME:
 				event := observedmaprangeupdatedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendObservedMapRangeUpdatedEventToClient(socketPresenter, event.MapRange, event.GameMap)
+				controller.liveGameAppService.SendObservedMapRangeUpdatedServerEvent(socketPresenter, event.MapRange, event.GameMap)
 			case maprangeobservedintgrevent.EVENT_NAME:
 				event := maprangeobservedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendMapRangeObservedEventToClient(socketPresenter, event.MapRange, event.GameMap)
+				controller.liveGameAppService.SendMapRangeObservedServerEvent(socketPresenter, event.MapRange, event.GameMap)
 			case gameinfoupdatedintgrevent.EVENT_NAME:
 				event := gameinfoupdatedintgrevent.Deserialize(message)
-				controller.liveGameAppService.SendInformationUpdatedEventToClient(socketPresenter, event.MapSize)
+				controller.liveGameAppService.SendInformationUpdatedServerEvent(socketPresenter, event.MapSize)
 			}
 
 		})
@@ -95,43 +95,43 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 		for {
 			_, compressedMessage, err := socketConn.ReadMessage()
 			if err != nil {
-				controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
+				controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 				return
 			}
 
 			message, err := gzipCompressor.Ungzip(compressedMessage)
 			if err != nil {
-				controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
+				controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 				continue
 			}
 
-			commandType, err := livegameappservice.ParseCommandType(message)
+			commandType, err := livegameappservice.ParseClientEventType(message)
 			if err != nil {
-				controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
+				controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 				continue
 			}
 
 			switch commandType {
-			case livegameappservice.ObserveMapRangeCommanType:
-				command, err := livegameappservice.ParseCommand[livegameappservice.ObserveMapRangeCommand](message)
+			case livegameappservice.ObserveMapRangeClientEventType:
+				command, err := livegameappservice.ParseClientEvent[livegameappservice.ObserveMapRangeClientEvent](message)
 				if err != nil {
-					controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
+					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 
 				controller.liveGameAppService.RequestToObserveMapRange(liveGameId, playerId, command.Payload.MapRange)
-			case livegameappservice.BuildItemCommanType:
-				command, err := livegameappservice.ParseCommand[livegameappservice.BuildItemCommand](message)
+			case livegameappservice.BuildItemClientEventType:
+				command, err := livegameappservice.ParseClientEvent[livegameappservice.BuildItemClientEvent](message)
 				if err != nil {
-					controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
+					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 
 				controller.liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Location, command.Payload.ItemId)
-			case livegameappservice.DestroyItemCommanType:
-				command, err := livegameappservice.ParseCommand[livegameappservice.DestroyItemCommand](message)
+			case livegameappservice.DestroyItemClientEventType:
+				command, err := livegameappservice.ParseClientEvent[livegameappservice.DestroyItemClientEvent](message)
 				if err != nil {
-					controller.liveGameAppService.SendErroredEventToClient(socketPresenter, err.Error())
+					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 
