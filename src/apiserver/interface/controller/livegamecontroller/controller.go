@@ -112,6 +112,8 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			}
 
 			switch commandType {
+			case livegameappservice.PingClientEventType:
+				continue
 			case livegameappservice.ObserveMapRangeClientEventType:
 				command, err := livegameappservice.ParseClientEvent[livegameappservice.ObserveMapRangeClientEvent](message)
 				if err != nil {

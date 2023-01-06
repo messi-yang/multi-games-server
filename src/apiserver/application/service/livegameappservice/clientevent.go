@@ -12,6 +12,7 @@ type ClientEventType string
 
 const (
 	NilClientEventType             ClientEventType = ""
+	PingClientEventType            ClientEventType = "PING"
 	ObserveMapRangeClientEventType ClientEventType = "OBSERVE_MAP_RANGE"
 	BuildItemClientEventType       ClientEventType = "BUILD_ITEM"
 	DestroyItemClientEventType     ClientEventType = "DESTROY_ITEM"
@@ -39,6 +40,10 @@ func ParseClientEvent[T any](message []byte) (T, error) {
 	}
 
 	return clientEvent, nil
+}
+
+type PingClientEvent struct {
+	Type ClientEventType `json:"type"`
 }
 
 type BuildItemClientEvent struct {
