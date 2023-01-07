@@ -3,10 +3,10 @@ package livegameappservice
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/gamemapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitmapviewmodel"
 )
 
 type ServerEventType string
@@ -48,7 +48,7 @@ type ObservedMapRangeUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
 		MapRange  maprangeviewmodel.ViewModel `json:"mapRange"`
-		GameMap   gamemapviewmodel.ViewModel  `json:"gameMap"`
+		UnitMap   unitmapviewmodel.ViewModel  `json:"unitMap"`
 		UpdatedAt time.Time                   `json:"updatedAt"`
 	} `json:"payload"`
 }
@@ -57,6 +57,6 @@ type MapRangeObservedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
 		MapRange maprangeviewmodel.ViewModel `json:"mapRange"`
-		GameMap  gamemapviewmodel.ViewModel  `json:"gameMap"`
+		UnitMap  unitmapviewmodel.ViewModel  `json:"unitMap"`
 	} `json:"payload"`
 }

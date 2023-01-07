@@ -3,8 +3,8 @@ package observedmaprangeupdatedintgrevent
 import (
 	"encoding/json"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/gamemapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitmapviewmodel"
 )
 
 type Event struct {
@@ -12,18 +12,18 @@ type Event struct {
 	LiveGameId string                      `json:"liveGameId"`
 	PlayerId   string                      `json:"playerId"`
 	MapRange   maprangeviewmodel.ViewModel `json:"mapRange"`
-	GameMap    gamemapviewmodel.ViewModel  `json:"gameMap"`
+	UnitMap    unitmapviewmodel.ViewModel  `json:"unitMap"`
 }
 
 var EVENT_NAME = "OBSERVED_MAP_RANGE_UPDATED"
 
-func New(liveGameId string, playerId string, mapRange maprangeviewmodel.ViewModel, gameMap gamemapviewmodel.ViewModel) Event {
+func New(liveGameId string, playerId string, mapRange maprangeviewmodel.ViewModel, unitMap unitmapviewmodel.ViewModel) Event {
 	return Event{
 		Name:       EVENT_NAME,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		MapRange:   mapRange,
-		GameMap:    gameMap,
+		UnitMap:    unitMap,
 	}
 }
 

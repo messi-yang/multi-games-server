@@ -6,10 +6,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/maprangeobservedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/observedmaprangeupdatedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/gamemapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitmapviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
@@ -55,7 +55,7 @@ func (serve *serve) publishObservedMapRangeUpdatedServerEvents(liveGameId livega
 		if !mapRange.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
-		gameMap, err := liveGame.GetGameMapByMapRange(mapRange)
+		unitMap, err := liveGame.GetUnitMapByMapRange(mapRange)
 		if err != nil {
 			continue
 		}
@@ -65,7 +65,7 @@ func (serve *serve) publishObservedMapRangeUpdatedServerEvents(liveGameId livega
 				liveGameId.ToString(),
 				playerId.ToString(),
 				maprangeviewmodel.New(mapRange),
-				gamemapviewmodel.New(gameMap),
+				unitmapviewmodel.New(unitMap),
 			).Serialize(),
 		)
 	}
@@ -85,7 +85,7 @@ func (serve *serve) CreateLiveGame(rawGameId string) {
 	}
 
 	liveGameId, _ := livegamemodel.NewLiveGameId(gameId.ToString())
-	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetGameMap())
+	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetUnitMap())
 
 	serve.liveGameRepo.Add(newLiveGame)
 }
@@ -223,7 +223,7 @@ func (serve *serve) AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlaye
 		return
 	}
 
-	gameMap, err := liveGame.GetGameMapByMapRange(mapRange)
+	unitMap, err := liveGame.GetUnitMapByMapRange(mapRange)
 	if err != nil {
 		return
 	}
@@ -231,7 +231,7 @@ func (serve *serve) AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlaye
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
-		maprangeobservedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange, gamemapviewmodel.New(gameMap)).Serialize(),
+		maprangeobservedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange, unitmapviewmodel.New(unitMap)).Serialize(),
 	)
 }
 

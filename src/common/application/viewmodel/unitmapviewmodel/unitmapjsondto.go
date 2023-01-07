@@ -1,4 +1,4 @@
-package gamemapviewmodel
+package unitmapviewmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapunitviewmodel"
@@ -7,21 +7,21 @@ import (
 
 type ViewModel [][]mapunitviewmodel.ViewModel
 
-func New(gameMap commonmodel.GameMap) ViewModel {
-	gameMapViewModel := make(ViewModel, 0)
+func New(unitMap commonmodel.UnitMap) ViewModel {
+	unitMapViewModel := make(ViewModel, 0)
 
-	for i := 0; i < gameMap.GetMapSize().GetWidth(); i += 1 {
-		gameMapViewModel = append(gameMapViewModel, make([]mapunitviewmodel.ViewModel, 0))
-		for j := 0; j < gameMap.GetMapSize().GetHeight(); j += 1 {
+	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
+		unitMapViewModel = append(unitMapViewModel, make([]mapunitviewmodel.ViewModel, 0))
+		for j := 0; j < unitMap.GetMapSize().GetHeight(); j += 1 {
 			location, _ := commonmodel.NewLocation(i, j)
-			mapUnit := gameMap.GetMapUnit(location)
-			gameMapViewModel[i] = append(gameMapViewModel[i], mapunitviewmodel.New(mapUnit))
+			mapUnit := unitMap.GetMapUnit(location)
+			unitMapViewModel[i] = append(unitMapViewModel[i], mapunitviewmodel.New(mapUnit))
 		}
 	}
-	return gameMapViewModel
+	return unitMapViewModel
 }
 
-func (dto ViewModel) ToValueObject() (commonmodel.GameMap, error) {
+func (dto ViewModel) ToValueObject() (commonmodel.UnitMap, error) {
 	mapUnitMatrix := make([][]commonmodel.MapUnit, 0)
 
 	for i := 0; i < len(dto); i += 1 {
@@ -29,10 +29,10 @@ func (dto ViewModel) ToValueObject() (commonmodel.GameMap, error) {
 		for j := 0; j < len(dto[0]); j += 1 {
 			mapUnit, err := dto[i][j].ToValueObject()
 			if err != nil {
-				return commonmodel.GameMap{}, err
+				return commonmodel.UnitMap{}, err
 			}
 			mapUnitMatrix[i] = append(mapUnitMatrix[i], mapUnit)
 		}
 	}
-	return commonmodel.NewGameMap(mapUnitMatrix), nil
+	return commonmodel.NewUnitMap(mapUnitMatrix), nil
 }

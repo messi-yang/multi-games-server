@@ -28,10 +28,10 @@ func (serve *servce) CreateGame(mapSize commonmodel.MapSize) (gamemodel.GameId, 
 			mapUnitMatrix[i][j] = commonmodel.NewMapUnit(itemId)
 		}
 	}
-	gameMap := commonmodel.NewGameMap(mapUnitMatrix)
+	unitMap := commonmodel.NewUnitMap(mapUnitMatrix)
 
 	newGameId, _ := gamemodel.NewGameId(uuid.New().String())
-	newGame := gamemodel.NewGame(newGameId, gameMap)
+	newGame := gamemodel.NewGame(newGameId, unitMap)
 	newGameId, err := serve.gameRepo.Add(newGame)
 	if err != nil {
 		return gamemodel.GameId{}, err
