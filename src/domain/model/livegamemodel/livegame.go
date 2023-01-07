@@ -11,7 +11,7 @@ import (
 
 var (
 	ErrMapRangeExceedsUnitMap        = errors.New("map range should contain valid from and to locations and it should never exceed mapSize")
-	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the mapUnit map")
+	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
@@ -52,15 +52,15 @@ func (liveGame *LiveGame) GetUnitMapByMapRange(mapRange commonmodel.MapRange) (c
 	offsetY := mapRange.GetFrom().GetY()
 	mapRangeWidth := mapRange.GetWidth()
 	mapRangeHeight := mapRange.GetHeight()
-	mapUnitMatrix := make([][]commonmodel.MapUnit, mapRangeWidth)
+	unitMatrix := make([][]commonmodel.Unit, mapRangeWidth)
 	for x := 0; x < mapRangeWidth; x += 1 {
-		mapUnitMatrix[x] = make([]commonmodel.MapUnit, mapRangeHeight)
+		unitMatrix[x] = make([]commonmodel.Unit, mapRangeHeight)
 		for y := 0; y < mapRangeHeight; y += 1 {
 			location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
-			mapUnitMatrix[x][y] = liveGame.unitMap.GetMapUnit(location)
+			unitMatrix[x][y] = liveGame.unitMap.GetUnit(location)
 		}
 	}
-	unitMap := commonmodel.NewUnitMap(mapUnitMatrix)
+	unitMap := commonmodel.NewUnitMap(unitMatrix)
 
 	return unitMap, nil
 }
@@ -102,9 +102,9 @@ func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmo
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	mapUnit := liveGame.unitMap.GetMapUnit(location)
-	newMapUnit := mapUnit.SetItemId(itemId)
-	liveGame.unitMap.ReplaceMapUnitAt(location, newMapUnit)
+	unit := liveGame.unitMap.GetUnit(location)
+	newUnit := unit.SetItemId(itemId)
+	liveGame.unitMap.ReplaceUnitAt(location, newUnit)
 
 	return nil
 }
@@ -114,10 +114,10 @@ func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	mapUnit := liveGame.unitMap.GetMapUnit(location)
+	unit := liveGame.unitMap.GetUnit(location)
 	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-	newMapUnit := mapUnit.SetItemId(itemId)
-	liveGame.unitMap.ReplaceMapUnitAt(location, newMapUnit)
+	newUnit := unit.SetItemId(itemId)
+	liveGame.unitMap.ReplaceUnitAt(location, newUnit)
 
 	return nil
 }

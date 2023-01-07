@@ -20,15 +20,15 @@ func New(gameRepo gamemodel.GameRepo) Service {
 }
 
 func (serve *servce) CreateGame(mapSize commonmodel.MapSize) (gamemodel.GameId, error) {
-	mapUnitMatrix := make([][]commonmodel.MapUnit, mapSize.GetWidth())
+	unitMatrix := make([][]commonmodel.Unit, mapSize.GetWidth())
 	for i := 0; i < mapSize.GetWidth(); i += 1 {
-		mapUnitMatrix[i] = make([]commonmodel.MapUnit, mapSize.GetHeight())
+		unitMatrix[i] = make([]commonmodel.Unit, mapSize.GetHeight())
 		for j := 0; j < mapSize.GetHeight(); j += 1 {
 			itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-			mapUnitMatrix[i][j] = commonmodel.NewMapUnit(itemId)
+			unitMatrix[i][j] = commonmodel.NewUnit(itemId)
 		}
 	}
-	unitMap := commonmodel.NewUnitMap(mapUnitMatrix)
+	unitMap := commonmodel.NewUnitMap(unitMatrix)
 
 	newGameId, _ := gamemodel.NewGameId(uuid.New().String())
 	newGame := gamemodel.NewGame(newGameId, unitMap)
