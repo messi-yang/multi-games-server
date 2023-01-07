@@ -2,9 +2,6 @@ package livegameappservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/gameinfoupdatedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/maprangeobservedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/observedmaprangeupdatedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
@@ -61,12 +58,12 @@ func (serve *serve) publishObservedMapRangeUpdatedServerEvents(liveGameId livega
 		}
 		serve.intgrEventPublisher.Publish(
 			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			observedmaprangeupdatedintgrevent.New(
+			intgrevent.Marshal(intgrevent.NewObservedMapRangeUpdatedEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
 				maprangeviewmodel.New(mapRange),
 				unitmapviewmodel.New(unitMap),
-			).Serialize(),
+			)),
 		)
 	}
 
@@ -171,7 +168,9 @@ func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
-		gameinfoupdatedintgrevent.New(rawLiveGameId, rawPlayerId, mapsizeviewmodel.New(liveGame.GetMapSize())).Serialize(),
+		intgrevent.Marshal(
+			intgrevent.NewGameInfoUpdatedEvent(rawLiveGameId, rawPlayerId, mapsizeviewmodel.New(liveGame.GetMapSize())),
+		),
 	)
 }
 
@@ -231,7 +230,9 @@ func (serve *serve) AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlaye
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
-		maprangeobservedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange, unitmapviewmodel.New(unitMap)).Serialize(),
+		intgrevent.Marshal(
+			intgrevent.NewMapRangeObservedEvent(rawLiveGameId, rawPlayerId, rawMapRange, unitmapviewmodel.New(unitMap)),
+		),
 	)
 }
 

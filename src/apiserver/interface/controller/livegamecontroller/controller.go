@@ -6,9 +6,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/gameinfoupdatedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/maprangeobservedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/observedmaprangeupdatedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipprovider"
@@ -62,28 +59,37 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 
 	go controller.liveGameAppService.QueryItems(socketPresenter)
 
-	integrationEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
+	intgrEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
 		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
 		func(message []byte) {
-			integrationEvent, err := intgrevent.Parse(message)
+			intgrEvent, err := intgrevent.Unmarshal[intgrevent.GenericIntgrEvent](message)
 			if err != nil {
 				return
 			}
 
-			switch integrationEvent.Name {
-			case observedmaprangeupdatedintgrevent.EVENT_NAME:
-				event := observedmaprangeupdatedintgrevent.Deserialize(message)
+			switch intgrEvent.Name {
+			case intgrevent.ObservedMapRangeUpdatedEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ObservedMapRangeUpdatedEvent](message)
+				if err != nil {
+					return
+				}
 				controller.liveGameAppService.SendObservedMapRangeUpdatedServerEvent(socketPresenter, event.MapRange, event.UnitMap)
-			case maprangeobservedintgrevent.EVENT_NAME:
-				event := maprangeobservedintgrevent.Deserialize(message)
+			case intgrevent.MapRangeObservedEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.MapRangeObservedEvent](message)
+				if err != nil {
+					return
+				}
 				controller.liveGameAppService.SendMapRangeObservedServerEvent(socketPresenter, event.MapRange, event.UnitMap)
-			case gameinfoupdatedintgrevent.EVENT_NAME:
-				event := gameinfoupdatedintgrevent.Deserialize(message)
+			case intgrevent.GameInfoUpdatedEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.GameInfoUpdatedEvent](message)
+				if err != nil {
+					return
+				}
 				controller.liveGameAppService.SendInformationUpdatedServerEvent(socketPresenter, event.MapSize)
 			}
 
 		})
-	defer integrationEventSubscriberUnsubscriber()
+	defer intgrEventSubscriberUnsubscriber()
 
 	controller.liveGameAppService.RequestToAddPlayer(liveGameId, playerId)
 

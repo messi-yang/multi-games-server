@@ -2,11 +2,6 @@ package livegameappservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/addplayerrequestedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/buliditemrequestedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/destroyitemrequestedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/observemaprangerequestedintgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent/removeplayerrequestedintgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
@@ -84,34 +79,34 @@ func (serve *serve) SendMapRangeObservedServerEvent(presenter Presenter, mapRang
 func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		addplayerrequestedintgrevent.New(rawLiveGameId, rawPlayerId).Serialize(),
+		intgrevent.Marshal(intgrevent.NewAddPlayerRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
 	)
 }
 
 func (serve *serve) RequestToObserveMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		observemaprangerequestedintgrevent.New(rawLiveGameId, rawPlayerId, rawMapRange).Serialize(),
+		intgrevent.Marshal(intgrevent.NewObserveMapRangeRequestedEvent(rawLiveGameId, rawPlayerId, rawMapRange)),
 	)
 }
 
 func (serve *serve) RequestToBuildItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		buliditemrequestedintgrevent.New(rawLiveGameId, rawLocation, rawItemId).Serialize(),
+		intgrevent.Marshal(intgrevent.NewBuildItemRequestedIntgrEvent(rawLiveGameId, rawLocation, rawItemId)),
 	)
 }
 
 func (serve *serve) RequestToDestroyItem(rawLiveGameId string, rawLocation locationviewmodel.ViewModel) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		destroyitemrequestedintgrevent.New(rawLiveGameId, rawLocation).Serialize(),
+		intgrevent.Marshal(intgrevent.NewDestroyItemRequested(rawLiveGameId, rawLocation)),
 	)
 }
 
 func (serve *serve) RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		removeplayerrequestedintgrevent.New(rawLiveGameId, rawPlayerId).Serialize(),
+		intgrevent.Marshal(intgrevent.NewRemovePlayerRequestedEvent(rawLiveGameId, rawPlayerId)),
 	)
 }
