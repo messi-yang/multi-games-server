@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 	"github.com/google/uuid"
 )
 
@@ -20,14 +21,10 @@ func New(gameRepo gamemodel.GameRepo) Service {
 }
 
 func (serve *servce) CreateGame(mapSize commonmodel.MapSize) (gamemodel.GameId, error) {
-	unitMatrix := make([][]commonmodel.Unit, mapSize.GetWidth())
-	for i := 0; i < mapSize.GetWidth(); i += 1 {
-		unitMatrix[i] = make([]commonmodel.Unit, mapSize.GetHeight())
-		for j := 0; j < mapSize.GetHeight(); j += 1 {
-			itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-			unitMatrix[i][j] = commonmodel.NewUnit(itemId)
-		}
-	}
+	unitMatrix, _ := tool.RangeMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
+		itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
+		return commonmodel.NewUnit(itemId), nil
+	})
 	unitMap := commonmodel.NewUnitMap(unitMatrix)
 
 	newGameId, _ := gamemodel.NewGameId(uuid.New().String())

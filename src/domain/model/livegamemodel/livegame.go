@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 	"github.com/google/uuid"
 )
 
@@ -52,14 +53,10 @@ func (liveGame *LiveGame) GetUnitMapByRange(rangeVo commonmodel.Range) (commonmo
 	offsetY := rangeVo.GetFrom().GetY()
 	rangeVoWidth := rangeVo.GetWidth()
 	rangeVoHeight := rangeVo.GetHeight()
-	unitMatrix := make([][]commonmodel.Unit, rangeVoWidth)
-	for x := 0; x < rangeVoWidth; x += 1 {
-		unitMatrix[x] = make([]commonmodel.Unit, rangeVoHeight)
-		for y := 0; y < rangeVoHeight; y += 1 {
-			location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
-			unitMatrix[x][y] = liveGame.unitMap.GetUnit(location)
-		}
-	}
+	unitMatrix, _ := tool.RangeMatrix(rangeVoWidth, rangeVoHeight, func(x int, y int) (commonmodel.Unit, error) {
+		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
+		return liveGame.unitMap.GetUnit(location), nil
+	})
 	unitMap := commonmodel.NewUnitMap(unitMatrix)
 
 	return unitMap, nil
