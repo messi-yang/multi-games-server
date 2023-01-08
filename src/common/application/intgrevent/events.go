@@ -7,14 +7,14 @@ import (
 type IntgrEventName string
 
 const (
-	AddPlayerRequestedIntgrEventName  IntgrEventName = "ADD_PLAYER_REQUESTED"
-	BuildItemRequestedIntgrEventName  IntgrEventName = "BUILD_ITEM_REQUESTED"
-	DestroyItemRequestedEventName     IntgrEventName = "DESTROY_ITEM_REQUESTED"
-	GameInfoUpdatedEventName          IntgrEventName = "GAME_INFO_UPDATED"
-	MapRangeObservedEventName         IntgrEventName = "MAP_RANGE_OBSERVED"
-	ObservedMapRangeUpdatedEventName  IntgrEventName = "OBSERVED_MAP_RANGE_UPDATED"
-	ObserveMapRangeRequestedEventName IntgrEventName = "OBSERVE_MAP_RANGE_REQUESTED"
-	RemovePlayerRequestedEventName    IntgrEventName = "REMOVE_PLAYER_REQUESTED"
+	AddPlayerRequestedIntgrEventName IntgrEventName = "ADD_PLAYER_REQUESTED"
+	BuildItemRequestedIntgrEventName IntgrEventName = "BUILD_ITEM_REQUESTED"
+	DestroyItemRequestedEventName    IntgrEventName = "DESTROY_ITEM_REQUESTED"
+	GameInfoUpdatedEventName         IntgrEventName = "GAME_INFO_UPDATED"
+	ExtentObservedEventName          IntgrEventName = "MAP_RANGE_OBSERVED"
+	ObservedExtentUpdatedEventName   IntgrEventName = "OBSERVED_MAP_RANGE_UPDATED"
+	ObserveExtentRequestedEventName  IntgrEventName = "OBSERVE_MAP_RANGE_REQUESTED"
+	RemovePlayerRequestedEventName   IntgrEventName = "REMOVE_PLAYER_REQUESTED"
 )
 
 type GenericIntgrEvent struct {
@@ -81,55 +81,55 @@ func NewGameInfoUpdatedEvent(liveGameId string, playerId string, mapSize viewmod
 	}
 }
 
-type MapRangeObservedEvent struct {
-	Name       IntgrEventName              `json:"name"`
-	LiveGameId string                      `json:"liveGameId"`
-	PlayerId   string                      `json:"playerId"`
-	MapRange   viewmodel.MapRangeViewModel `json:"mapRange"`
-	UnitMap    viewmodel.UnitMapViewModel  `json:"unitMap"`
+type ExtentObservedEvent struct {
+	Name       IntgrEventName             `json:"name"`
+	LiveGameId string                     `json:"liveGameId"`
+	PlayerId   string                     `json:"playerId"`
+	Extent     viewmodel.ExtentViewModel  `json:"extent"`
+	UnitMap    viewmodel.UnitMapViewModel `json:"unitMap"`
 }
 
-func NewMapRangeObservedEvent(liveGameId string, playerId string, mapRange viewmodel.MapRangeViewModel, unitMap viewmodel.UnitMapViewModel) MapRangeObservedEvent {
-	return MapRangeObservedEvent{
-		Name:       MapRangeObservedEventName,
+func NewExtentObservedEvent(liveGameId string, playerId string, extent viewmodel.ExtentViewModel, unitMap viewmodel.UnitMapViewModel) ExtentObservedEvent {
+	return ExtentObservedEvent{
+		Name:       ExtentObservedEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		MapRange:   mapRange,
+		Extent:     extent,
 		UnitMap:    unitMap,
 	}
 }
 
-type ObservedMapRangeUpdatedEvent struct {
-	Name       IntgrEventName              `json:"name"`
-	LiveGameId string                      `json:"liveGameId"`
-	PlayerId   string                      `json:"playerId"`
-	MapRange   viewmodel.MapRangeViewModel `json:"mapRange"`
-	UnitMap    viewmodel.UnitMapViewModel  `json:"unitMap"`
+type ObservedExtentUpdatedEvent struct {
+	Name       IntgrEventName             `json:"name"`
+	LiveGameId string                     `json:"liveGameId"`
+	PlayerId   string                     `json:"playerId"`
+	Extent     viewmodel.ExtentViewModel  `json:"extent"`
+	UnitMap    viewmodel.UnitMapViewModel `json:"unitMap"`
 }
 
-func NewObservedMapRangeUpdatedEvent(liveGameId string, playerId string, mapRange viewmodel.MapRangeViewModel, unitMap viewmodel.UnitMapViewModel) ObservedMapRangeUpdatedEvent {
-	return ObservedMapRangeUpdatedEvent{
-		Name:       ObservedMapRangeUpdatedEventName,
+func NewObservedExtentUpdatedEvent(liveGameId string, playerId string, extent viewmodel.ExtentViewModel, unitMap viewmodel.UnitMapViewModel) ObservedExtentUpdatedEvent {
+	return ObservedExtentUpdatedEvent{
+		Name:       ObservedExtentUpdatedEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		MapRange:   mapRange,
+		Extent:     extent,
 		UnitMap:    unitMap,
 	}
 }
 
-type ObserveMapRangeRequestedEvent struct {
-	Name       IntgrEventName              `json:"name"`
-	LiveGameId string                      `json:"liveGameId"`
-	PlayerId   string                      `json:"playerId"`
-	MapRange   viewmodel.MapRangeViewModel `json:"mapRange"`
+type ObserveExtentRequestedEvent struct {
+	Name       IntgrEventName            `json:"name"`
+	LiveGameId string                    `json:"liveGameId"`
+	PlayerId   string                    `json:"playerId"`
+	Extent     viewmodel.ExtentViewModel `json:"extent"`
 }
 
-func NewObserveMapRangeRequestedEvent(liveGameId string, playerId string, mapRange viewmodel.MapRangeViewModel) ObserveMapRangeRequestedEvent {
-	return ObserveMapRangeRequestedEvent{
-		Name:       ObserveMapRangeRequestedEventName,
+func NewObserveExtentRequestedEvent(liveGameId string, playerId string, extent viewmodel.ExtentViewModel) ObserveExtentRequestedEvent {
+	return ObserveExtentRequestedEvent{
+		Name:       ObserveExtentRequestedEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		MapRange:   mapRange,
+		Extent:     extent,
 	}
 }
 

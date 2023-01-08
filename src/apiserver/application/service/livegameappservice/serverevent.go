@@ -9,11 +9,11 @@ import (
 type ServerEventType string
 
 const (
-	ErroredServerEventType                 ServerEventType = "ERRORED"
-	InformationUpdatedServerEventType      ServerEventType = "INFORMATION_UPDATED"
-	ItemsUpdatedServerEventType            ServerEventType = "ITEMS_UPDATED"
-	MapRangeObservedServerEventType        ServerEventType = "MAP_RANGE_OBSERVED"
-	ObservedMapRangeUpdatedServerEventType ServerEventType = "OBSERVED_MAP_RANGE_UPDATED"
+	ErroredServerEventType               ServerEventType = "ERRORED"
+	InformationUpdatedServerEventType    ServerEventType = "INFORMATION_UPDATED"
+	ItemsUpdatedServerEventType          ServerEventType = "ITEMS_UPDATED"
+	ExtentObservedServerEventType        ServerEventType = "MAP_RANGE_OBSERVED"
+	ObservedExtentUpdatedServerEventType ServerEventType = "OBSERVED_MAP_RANGE_UPDATED"
 )
 
 type GenericServerEvent struct {
@@ -41,19 +41,19 @@ type ItemsUpdatedServerEvent struct {
 	} `json:"payload"`
 }
 
-type ObservedMapRangeUpdatedServerEvent struct {
+type ObservedExtentUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MapRange  viewmodel.MapRangeViewModel `json:"mapRange"`
-		UnitMap   viewmodel.UnitMapViewModel  `json:"unitMap"`
-		UpdatedAt time.Time                   `json:"updatedAt"`
+		Extent    viewmodel.ExtentViewModel  `json:"extent"`
+		UnitMap   viewmodel.UnitMapViewModel `json:"unitMap"`
+		UpdatedAt time.Time                  `json:"updatedAt"`
 	} `json:"payload"`
 }
 
-type MapRangeObservedServerEvent struct {
+type ExtentObservedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MapRange viewmodel.MapRangeViewModel `json:"mapRange"`
-		UnitMap  viewmodel.UnitMapViewModel  `json:"unitMap"`
+		Extent  viewmodel.ExtentViewModel  `json:"extent"`
+		UnitMap viewmodel.UnitMapViewModel `json:"unitMap"`
 	} `json:"payload"`
 }

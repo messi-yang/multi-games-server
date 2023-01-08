@@ -68,18 +68,18 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			}
 
 			switch intgrEvent.Name {
-			case intgrevent.ObservedMapRangeUpdatedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ObservedMapRangeUpdatedEvent](message)
+			case intgrevent.ObservedExtentUpdatedEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ObservedExtentUpdatedEvent](message)
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendObservedMapRangeUpdatedServerEvent(socketPresenter, event.MapRange, event.UnitMap)
-			case intgrevent.MapRangeObservedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.MapRangeObservedEvent](message)
+				controller.liveGameAppService.SendObservedExtentUpdatedServerEvent(socketPresenter, event.Extent, event.UnitMap)
+			case intgrevent.ExtentObservedEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ExtentObservedEvent](message)
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendMapRangeObservedServerEvent(socketPresenter, event.MapRange, event.UnitMap)
+				controller.liveGameAppService.SendExtentObservedServerEvent(socketPresenter, event.Extent, event.UnitMap)
 			case intgrevent.GameInfoUpdatedEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.GameInfoUpdatedEvent](message)
 				if err != nil {
@@ -120,14 +120,14 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			switch commandType {
 			case livegameappservice.PingClientEventType:
 				continue
-			case livegameappservice.ObserveMapRangeClientEventType:
-				command, err := livegameappservice.ParseClientEvent[livegameappservice.ObserveMapRangeClientEvent](message)
+			case livegameappservice.ObserveExtentClientEventType:
+				command, err := livegameappservice.ParseClientEvent[livegameappservice.ObserveExtentClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 
-				controller.liveGameAppService.RequestToObserveMapRange(liveGameId, playerId, command.Payload.MapRange)
+				controller.liveGameAppService.RequestToObserveExtent(liveGameId, playerId, command.Payload.Extent)
 			case livegameappservice.BuildItemClientEventType:
 				command, err := livegameappservice.ParseClientEvent[livegameappservice.BuildItemClientEvent](message)
 				if err != nil {

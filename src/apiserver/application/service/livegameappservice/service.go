@@ -11,10 +11,10 @@ type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendInformationUpdatedServerEvent(presenter Presenter, rawMapSize viewmodel.MapSizeViewModel)
-	SendObservedMapRangeUpdatedServerEvent(presenter Presenter, mapRange viewmodel.MapRangeViewModel, unitMap viewmodel.UnitMapViewModel)
-	SendMapRangeObservedServerEvent(presenter Presenter, mapRange viewmodel.MapRangeViewModel, unitMap viewmodel.UnitMapViewModel)
+	SendObservedExtentUpdatedServerEvent(presenter Presenter, extent viewmodel.ExtentViewModel, unitMap viewmodel.UnitMapViewModel)
+	SendExtentObservedServerEvent(presenter Presenter, extent viewmodel.ExtentViewModel, unitMap viewmodel.UnitMapViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
-	RequestToObserveMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange viewmodel.MapRangeViewModel)
+	RequestToObserveExtent(rawLiveGameId string, rawPlayerId string, rawExtent viewmodel.ExtentViewModel)
 	RequestToBuildItem(rawLiveGameId string, rawLocation viewmodel.LocationViewModel, rawItemId string)
 	RequestToDestroyItem(rawLiveGameId string, rawLocation viewmodel.LocationViewModel)
 	RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string)
@@ -55,18 +55,18 @@ func (serve *serve) QueryItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendObservedMapRangeUpdatedServerEvent(presenter Presenter, mapRange viewmodel.MapRangeViewModel, unitMap viewmodel.UnitMapViewModel) {
-	event := ObservedMapRangeUpdatedServerEvent{}
-	event.Type = ObservedMapRangeUpdatedServerEventType
-	event.Payload.MapRange = mapRange
+func (serve *serve) SendObservedExtentUpdatedServerEvent(presenter Presenter, extent viewmodel.ExtentViewModel, unitMap viewmodel.UnitMapViewModel) {
+	event := ObservedExtentUpdatedServerEvent{}
+	event.Type = ObservedExtentUpdatedServerEventType
+	event.Payload.Extent = extent
 	event.Payload.UnitMap = unitMap
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendMapRangeObservedServerEvent(presenter Presenter, mapRange viewmodel.MapRangeViewModel, unitMap viewmodel.UnitMapViewModel) {
-	event := MapRangeObservedServerEvent{}
-	event.Type = MapRangeObservedServerEventType
-	event.Payload.MapRange = mapRange
+func (serve *serve) SendExtentObservedServerEvent(presenter Presenter, extent viewmodel.ExtentViewModel, unitMap viewmodel.UnitMapViewModel) {
+	event := ExtentObservedServerEvent{}
+	event.Type = ExtentObservedServerEventType
+	event.Payload.Extent = extent
 	event.Payload.UnitMap = unitMap
 	presenter.OnSuccess(event)
 }
@@ -78,10 +78,10 @@ func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	)
 }
 
-func (serve *serve) RequestToObserveMapRange(rawLiveGameId string, rawPlayerId string, rawMapRange viewmodel.MapRangeViewModel) {
+func (serve *serve) RequestToObserveExtent(rawLiveGameId string, rawPlayerId string, rawExtent viewmodel.ExtentViewModel) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewObserveMapRangeRequestedEvent(rawLiveGameId, rawPlayerId, rawMapRange)),
+		intgrevent.Marshal(intgrevent.NewObserveExtentRequestedEvent(rawLiveGameId, rawPlayerId, rawExtent)),
 	)
 }
 

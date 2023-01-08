@@ -34,19 +34,19 @@ func New(liveGameAppService livegameappservice.Service) {
 					return
 				}
 				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
-			case intgrevent.ObserveMapRangeRequestedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ObserveMapRangeRequestedEvent](message)
+			case intgrevent.ObserveExtentRequestedEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ObserveExtentRequestedEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.AddObservedMapRangeToLiveGame(event.LiveGameId, event.PlayerId, event.MapRange)
+				liveGameAppService.AddObservedExtentToLiveGame(event.LiveGameId, event.PlayerId, event.Extent)
 			case intgrevent.RemovePlayerRequestedEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.RemovePlayerRequestedEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.RemovePlayerFromLiveGame(event.LiveGameId, event.PlayerId)
-				liveGameAppService.RemoveObservedMapRangeFromLiveGame(event.LiveGameId, event.PlayerId)
+				liveGameAppService.RemoveObservedExtentFromLiveGame(event.LiveGameId, event.PlayerId)
 			}
 		})
 	defer liveGameAdminChannelUnsubscriber()

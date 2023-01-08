@@ -10,11 +10,11 @@ import (
 type ClientEventType string
 
 const (
-	NilClientEventType             ClientEventType = ""
-	PingClientEventType            ClientEventType = "PING"
-	ObserveMapRangeClientEventType ClientEventType = "OBSERVE_MAP_RANGE"
-	BuildItemClientEventType       ClientEventType = "BUILD_ITEM"
-	DestroyItemClientEventType     ClientEventType = "DESTROY_ITEM"
+	NilClientEventType           ClientEventType = ""
+	PingClientEventType          ClientEventType = "PING"
+	ObserveExtentClientEventType ClientEventType = "OBSERVE_MAP_RANGE"
+	BuildItemClientEventType     ClientEventType = "BUILD_ITEM"
+	DestroyItemClientEventType   ClientEventType = "DESTROY_ITEM"
 )
 
 type GenericClientEvent struct {
@@ -62,10 +62,10 @@ type DestroyItemClientEvent struct {
 	} `json:"payload"`
 }
 
-type ObserveMapRangeClientEvent struct {
+type ObserveExtentClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
-		MapRange   viewmodel.MapRangeViewModel `json:"mapRange"`
-		ActionedAt time.Time                   `json:"actionedAt"`
+		Extent     viewmodel.ExtentViewModel `json:"extent"`
+		ActionedAt time.Time                 `json:"actionedAt"`
 	} `json:"payload"`
 }

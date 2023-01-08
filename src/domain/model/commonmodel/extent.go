@@ -6,52 +6,52 @@ import (
 	"github.com/samber/lo"
 )
 
-type ErrInvalidMapRange struct {
+type ErrInvalidExtent struct {
 	from Location
 	to   Location
 }
 
-func (e *ErrInvalidMapRange) Error() string {
+func (e *ErrInvalidExtent) Error() string {
 	return fmt.Sprintf("from location (%+v) cannot exceed to location (%+v)", e.from, e.to)
 }
 
-type MapRange struct {
+type Extent struct {
 	from Location
 	to   Location
 }
 
-func NewMapRange(from Location, to Location) (MapRange, error) {
+func NewExtent(from Location, to Location) (Extent, error) {
 	if from.x > to.x || from.y > to.y {
-		return MapRange{}, &ErrInvalidMapRange{from: from, to: to}
+		return Extent{}, &ErrInvalidExtent{from: from, to: to}
 	}
 
-	return MapRange{
+	return Extent{
 		from: from,
 		to:   to,
 	}, nil
 }
 
-func (a MapRange) GetFrom() Location {
+func (a Extent) GetFrom() Location {
 	return a.from
 }
 
-func (a MapRange) GetTo() Location {
+func (a Extent) GetTo() Location {
 	return a.to
 }
 
-func (a MapRange) GetWidth() int {
+func (a Extent) GetWidth() int {
 	return a.to.x - a.from.x + 1
 }
 
-func (a MapRange) GetHeight() int {
+func (a Extent) GetHeight() int {
 	return a.to.y - a.from.y + 1
 }
 
-func (a MapRange) IncludesLocation(location Location) bool {
+func (a Extent) IncludesLocation(location Location) bool {
 	return location.x >= a.from.x && location.x <= a.to.x && location.y >= a.from.y && location.y <= a.to.y
 }
 
-func (a MapRange) IncludesAnyLocations(locations []Location) bool {
+func (a Extent) IncludesAnyLocations(locations []Location) bool {
 	return lo.ContainsBy(locations, func(location Location) bool {
 		return a.IncludesLocation(location)
 	})
