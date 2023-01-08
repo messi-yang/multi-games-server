@@ -4,23 +4,23 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 )
 
-type UnitMapViewModel [][]UnitViewModel
+type UnitMap [][]Unit
 
-func NewUnitMapViewModel(unitMap commonmodel.UnitMap) UnitMapViewModel {
-	unitMapViewModel := make(UnitMapViewModel, 0)
+func NewUnitMap(unitMap commonmodel.UnitMap) UnitMap {
+	unitMapViewModel := make(UnitMap, 0)
 
 	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
-		unitMapViewModel = append(unitMapViewModel, make([]UnitViewModel, 0))
+		unitMapViewModel = append(unitMapViewModel, make([]Unit, 0))
 		for j := 0; j < unitMap.GetMapSize().GetHeight(); j += 1 {
 			location, _ := commonmodel.NewLocation(i, j)
 			unit := unitMap.GetUnit(location)
-			unitMapViewModel[i] = append(unitMapViewModel[i], NewUnitViewModel(unit))
+			unitMapViewModel[i] = append(unitMapViewModel[i], NewUnit(unit))
 		}
 	}
 	return unitMapViewModel
 }
 
-func (dto UnitMapViewModel) ToValueObject() (commonmodel.UnitMap, error) {
+func (dto UnitMap) ToValueObject() (commonmodel.UnitMap, error) {
 	unitMatrix := make([][]commonmodel.Unit, 0)
 
 	for i := 0; i < len(dto); i += 1 {

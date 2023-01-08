@@ -2,18 +2,18 @@ package viewmodel
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 
-type LocationViewModel struct {
+type Location struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
-func NewLocationViewModel(location commonmodel.Location) LocationViewModel {
-	return LocationViewModel{
+func NewLocation(location commonmodel.Location) Location {
+	return Location{
 		X: location.GetX(),
 		Y: location.GetY(),
 	}
 }
 
-func (dto LocationViewModel) ToValueObject() (commonmodel.Location, error) {
+func (dto Location) ToValueObject() (commonmodel.Location, error) {
 	return commonmodel.NewLocation(dto.X, dto.Y)
 }
