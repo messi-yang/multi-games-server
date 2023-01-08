@@ -2,7 +2,6 @@ package livegameappservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
@@ -24,13 +23,13 @@ type Service interface {
 type serve struct {
 	liveGameRepo        livegamemodel.Repo
 	gameRepo            gamemodel.GameRepo
-	intgrEventPublisher intgreventpublisher.Publisher
+	intgrEventPublisher intgrevent.IntgrEventPublisher
 }
 
 func New(
 	liveGameRepo livegamemodel.Repo,
 	gameRepo gamemodel.GameRepo,
-	intgrEventPublisher intgreventpublisher.Publisher,
+	intgrEventPublisher intgrevent.IntgrEventPublisher,
 ) *serve {
 	return &serve{
 		liveGameRepo:        liveGameRepo,
