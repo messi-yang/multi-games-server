@@ -12,7 +12,7 @@ type ClientEventType string
 const (
 	NilClientEventType          ClientEventType = ""
 	PingClientEventType         ClientEventType = "PING"
-	ObserveRangeClientEventType ClientEventType = "OBSERVE_MAP_RANGE"
+	ObserveRangeClientEventType ClientEventType = "OBSERVE_RANGE"
 	BuildItemClientEventType    ClientEventType = "BUILD_ITEM"
 	DestroyItemClientEventType  ClientEventType = "DESTROY_ITEM"
 )

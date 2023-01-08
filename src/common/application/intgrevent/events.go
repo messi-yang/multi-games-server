@@ -11,9 +11,9 @@ const (
 	BuildItemRequestedIntgrEventName IntgrEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedEventName    IntgrEventName = "DESTROY_ITEM_REQUESTED"
 	GameInfoUpdatedEventName         IntgrEventName = "GAME_INFO_UPDATED"
-	RangeObservedEventName           IntgrEventName = "MAP_RANGE_OBSERVED"
-	ObservedRangeUpdatedEventName    IntgrEventName = "OBSERVED_MAP_RANGE_UPDATED"
-	ObserveRangeRequestedEventName   IntgrEventName = "OBSERVE_MAP_RANGE_REQUESTED"
+	RangeObservedEventName           IntgrEventName = "RANGE_OBSERVED"
+	ObservedRangeUpdatedEventName    IntgrEventName = "OBSERVED_RANGE_UPDATED"
+	ObserveRangeRequestedEventName   IntgrEventName = "OBSERVE_RANGE_REQUESTED"
 	RemovePlayerRequestedEventName   IntgrEventName = "REMOVE_PLAYER_REQUESTED"
 )
 

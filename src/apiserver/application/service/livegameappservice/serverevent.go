@@ -12,8 +12,8 @@ const (
 	ErroredServerEventType              ServerEventType = "ERRORED"
 	InformationUpdatedServerEventType   ServerEventType = "INFORMATION_UPDATED"
 	ItemsUpdatedServerEventType         ServerEventType = "ITEMS_UPDATED"
-	RangeObservedServerEventType        ServerEventType = "MAP_RANGE_OBSERVED"
-	ObservedRangeUpdatedServerEventType ServerEventType = "OBSERVED_MAP_RANGE_UPDATED"
+	RangeObservedServerEventType        ServerEventType = "RANGE_OBSERVED"
+	ObservedRangeUpdatedServerEventType ServerEventType = "OBSERVED_RANGE_UPDATED"
 )
 
 type GenericServerEvent struct {
