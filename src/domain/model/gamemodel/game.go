@@ -5,16 +5,16 @@ import (
 )
 
 type Game struct {
-	id             GameId
-	unitMapMapSize commonmodel.MapSize
-	unitMap        commonmodel.UnitMap
+	id      GameId
+	mapSize commonmodel.MapSize
+	unitMap commonmodel.UnitMap
 }
 
 func NewGame(id GameId, unitMap commonmodel.UnitMap) Game {
 	return Game{
-		id:             id,
-		unitMapMapSize: unitMap.GetMapSize(),
-		unitMap:        unitMap,
+		id:      id,
+		mapSize: unitMap.GetMapSize(),
+		unitMap: unitMap,
 	}
 }
 
@@ -26,6 +26,6 @@ func (game *Game) GetUnitMap() commonmodel.UnitMap {
 	return game.unitMap
 }
 
-func (game *Game) GetUnitMapMapSize() commonmodel.MapSize {
-	return game.unitMapMapSize
+func (game *Game) GetMapSize() commonmodel.MapSize {
+	return game.mapSize
 }

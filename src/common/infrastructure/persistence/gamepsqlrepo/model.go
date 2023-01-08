@@ -53,8 +53,8 @@ func convertUnitMapToUnitPsqlModelBlock(unitMap commonmodel.UnitMap) [][]UnitPsq
 func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
 	return GamePsqlModel{
 		Id:        game.GetId().ToString(),
-		Width:     game.GetUnitMapMapSize().GetWidth(),
-		Height:    game.GetUnitMapMapSize().GetHeight(),
+		Width:     game.GetMapSize().GetWidth(),
+		Height:    game.GetMapSize().GetHeight(),
 		UnitBlock: convertUnitMapToUnitPsqlModelBlock(game.GetUnitMap()),
 	}
 }
