@@ -20,7 +20,7 @@ type LiveGame struct {
 	id             LiveGameId
 	unitMap        commonmodel.UnitMap
 	playerIds      map[playermodel.PlayerId]bool
-	observedRanges map[playermodel.PlayerId]commonmodel.RangeVo
+	observedRanges map[playermodel.PlayerId]commonmodel.Range
 }
 
 func NewLiveGame(id LiveGameId, unitMap commonmodel.UnitMap) LiveGame {
@@ -28,7 +28,7 @@ func NewLiveGame(id LiveGameId, unitMap commonmodel.UnitMap) LiveGame {
 		id:             id,
 		unitMap:        unitMap,
 		playerIds:      make(map[playermodel.PlayerId]bool),
-		observedRanges: make(map[playermodel.PlayerId]commonmodel.RangeVo),
+		observedRanges: make(map[playermodel.PlayerId]commonmodel.Range),
 	}
 }
 
@@ -44,7 +44,7 @@ func (liveGame *LiveGame) GetUnitMap() commonmodel.UnitMap {
 	return liveGame.unitMap
 }
 
-func (liveGame *LiveGame) GetUnitMapByRange(rangeVo commonmodel.RangeVo) (commonmodel.UnitMap, error) {
+func (liveGame *LiveGame) GetUnitMapByRange(rangeVo commonmodel.Range) (commonmodel.UnitMap, error) {
 	if !liveGame.GetMapSize().IncludesRange(rangeVo) {
 		return commonmodel.UnitMap{}, ErrRangeExceedsUnitMap
 	}
@@ -65,11 +65,11 @@ func (liveGame *LiveGame) GetUnitMapByRange(rangeVo commonmodel.RangeVo) (common
 	return unitMap, nil
 }
 
-func (liveGame *LiveGame) GetObservedRanges() map[playermodel.PlayerId]commonmodel.RangeVo {
+func (liveGame *LiveGame) GetObservedRanges() map[playermodel.PlayerId]commonmodel.Range {
 	return liveGame.observedRanges
 }
 
-func (liveGame *LiveGame) AddObservedRange(playerId playermodel.PlayerId, rangeVo commonmodel.RangeVo) error {
+func (liveGame *LiveGame) AddObservedRange(playerId playermodel.PlayerId, rangeVo commonmodel.Range) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
