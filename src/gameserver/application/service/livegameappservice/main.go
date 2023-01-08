@@ -54,7 +54,7 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 		}
 		serve.intgrEventPublisher.Publish(
 			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			intgrevent.Marshal(intgrevent.NewObservedRangeUpdatedEvent(
+			intgrevent.Marshal(intgrevent.NewObservedRangeUpdatedIntgrEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
 				viewmodel.NewRange(rangeVo),
@@ -165,7 +165,7 @@ func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		intgrevent.Marshal(
-			intgrevent.NewGameInfoUpdatedEvent(rawLiveGameId, rawPlayerId, viewmodel.NewMapSize(liveGame.GetMapSize())),
+			intgrevent.NewGameInfoUpdatedIntgrEvent(rawLiveGameId, rawPlayerId, viewmodel.NewMapSize(liveGame.GetMapSize())),
 		),
 	)
 }
@@ -227,7 +227,7 @@ func (serve *serve) AddObservedRangeToLiveGame(rawLiveGameId string, rawPlayerId
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		intgrevent.Marshal(
-			intgrevent.NewRangeObservedEvent(rawLiveGameId, rawPlayerId, rangeVm, viewmodel.NewUnitMap(unitMap)),
+			intgrevent.NewRangeObservedIntgrEvent(rawLiveGameId, rawPlayerId, rangeVm, viewmodel.NewUnitMap(unitMap)),
 		),
 	)
 }

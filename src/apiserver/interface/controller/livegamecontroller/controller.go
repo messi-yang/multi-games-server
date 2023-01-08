@@ -68,20 +68,20 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			}
 
 			switch intgrEvent.Name {
-			case intgrevent.ObservedRangeUpdatedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ObservedRangeUpdatedEvent](message)
+			case intgrevent.ObservedRangeUpdatedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ObservedRangeUpdatedIntgrEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendObservedRangeUpdatedServerEvent(socketPresenter, event.Range, event.UnitMap)
-			case intgrevent.RangeObservedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.RangeObservedEvent](message)
+			case intgrevent.RangeObservedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.RangeObservedIntgrEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendRangeObservedServerEvent(socketPresenter, event.Range, event.UnitMap)
-			case intgrevent.GameInfoUpdatedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.GameInfoUpdatedEvent](message)
+			case intgrevent.GameInfoUpdatedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.GameInfoUpdatedIntgrEvent](message)
 				if err != nil {
 					return
 				}

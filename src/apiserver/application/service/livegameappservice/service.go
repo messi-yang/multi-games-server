@@ -81,7 +81,7 @@ func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 func (serve *serve) RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rangeVm viewmodel.Range) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewObserveRangeRequestedEvent(rawLiveGameId, rawPlayerId, rangeVm)),
+		intgrevent.Marshal(intgrevent.NewObserveRangeRequestedIntgrEvent(rawLiveGameId, rawPlayerId, rangeVm)),
 	)
 }
 
@@ -95,13 +95,13 @@ func (serve *serve) RequestToBuildItem(rawLiveGameId string, rawLocation viewmod
 func (serve *serve) RequestToDestroyItem(rawLiveGameId string, rawLocation viewmodel.Location) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewDestroyItemRequested(rawLiveGameId, rawLocation)),
+		intgrevent.Marshal(intgrevent.NewDestroyItemRequestedIntgrEvent(rawLiveGameId, rawLocation)),
 	)
 }
 
 func (serve *serve) RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewRemovePlayerRequestedEvent(rawLiveGameId, rawPlayerId)),
+		intgrevent.Marshal(intgrevent.NewRemovePlayerRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
 	)
 }

@@ -22,8 +22,8 @@ func New(liveGameAppService livegameappservice.Service) {
 					return
 				}
 				liveGameAppService.AddPlayerToLiveGame(event.LiveGameId, event.PlayerId)
-			case intgrevent.DestroyItemRequestedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.DestroyItemRequestedEvent](message)
+			case intgrevent.DestroyItemRequestedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.DestroyItemRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
@@ -34,14 +34,14 @@ func New(liveGameAppService livegameappservice.Service) {
 					return
 				}
 				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
-			case intgrevent.ObserveRangeRequestedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ObserveRangeRequestedEvent](message)
+			case intgrevent.ObserveRangeRequestedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ObserveRangeRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.AddObservedRangeToLiveGame(event.LiveGameId, event.PlayerId, event.Range)
-			case intgrevent.RemovePlayerRequestedEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.RemovePlayerRequestedEvent](message)
+			case intgrevent.RemovePlayerRequestedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.RemovePlayerRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
