@@ -16,7 +16,7 @@ type GamePsqlModel struct {
 	Id        string            `gorm:"primaryKey;unique;not null"`
 	Width     int               `gorm:"not null"`
 	Height    int               `gorm:"not null"`
-	UnitBlock [][]UnitPsqlModel `gorm:"serializer:json"`
+	UnitMap   [][]UnitPsqlModel `gorm:"serializer:json"`
 	CreatedAt time.Time         `gorm:"autoCreateTime;not null"`
 	UpdatedAt time.Time         `gorm:"autoUpdateTime;not null"`
 }
@@ -25,9 +25,9 @@ func (GamePsqlModel) TableName() string {
 	return "games"
 }
 
-func convertUnitPsqlModelBlockToUnitMap(unitModelBlock [][]UnitPsqlModel) commonmodel.UnitMap {
+func convertUnitMapPsqlModelToUnitMap(unitMapPsqlModel [][]UnitPsqlModel) commonmodel.UnitMap {
 	unitMatrix := make([][]commonmodel.Unit, 0)
-	for colIdx, unitModelCol := range unitModelBlock {
+	for colIdx, unitModelCol := range unitMapPsqlModel {
 		unitMatrix = append(unitMatrix, []commonmodel.Unit{})
 		for _, unit := range unitModelCol {
 			itemId, _ := itemmodel.NewItemId(unit.ItemId)
@@ -37,29 +37,29 @@ func convertUnitPsqlModelBlockToUnitMap(unitModelBlock [][]UnitPsqlModel) common
 	return commonmodel.NewUnitMap(unitMatrix)
 }
 
-func convertUnitMapToUnitPsqlModelBlock(unitMap commonmodel.UnitMap) [][]UnitPsqlModel {
-	unitModelBlock := make([][]UnitPsqlModel, 0)
+func convertUnitMapToUnitMapPsqlModel(unitMap commonmodel.UnitMap) [][]UnitPsqlModel {
+	unitMapPsqlModel := make([][]UnitPsqlModel, 0)
 	for unitColIdx, unitCol := range unitMap.GetUnitMatrix() {
-		unitModelBlock = append(unitModelBlock, []UnitPsqlModel{})
+		unitMapPsqlModel = append(unitMapPsqlModel, []UnitPsqlModel{})
 		for _, unit := range unitCol {
-			unitModelBlock[unitColIdx] = append(unitModelBlock[unitColIdx], UnitPsqlModel{
+			unitMapPsqlModel[unitColIdx] = append(unitMapPsqlModel[unitColIdx], UnitPsqlModel{
 				ItemId: unit.GetItemId().ToString(),
 			})
 		}
 	}
-	return unitModelBlock
+	return unitMapPsqlModel
 }
 
 func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
 	return GamePsqlModel{
-		Id:        game.GetId().ToString(),
-		Width:     game.GetMapSize().GetWidth(),
-		Height:    game.GetMapSize().GetHeight(),
-		UnitBlock: convertUnitMapToUnitPsqlModelBlock(game.GetUnitMap()),
+		Id:      game.GetId().ToString(),
+		Width:   game.GetMapSize().GetWidth(),
+		Height:  game.GetMapSize().GetHeight(),
+		UnitMap: convertUnitMapToUnitMapPsqlModel(game.GetUnitMap()),
 	}
 }
 
 func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.Game {
 	gameId, _ := gamemodel.NewGameId(gamePostgresModel.Id)
-	return gamemodel.NewGame(gameId, convertUnitPsqlModelBlockToUnitMap(gamePostgresModel.UnitBlock))
+	return gamemodel.NewGame(gameId, convertUnitMapPsqlModelToUnitMap(gamePostgresModel.UnitMap))
 }
