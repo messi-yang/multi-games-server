@@ -10,25 +10,25 @@ import (
 )
 
 var (
-	ErrExtentExceedsUnitMap          = errors.New("map range should contain valid from and to locations and it should never exceed mapSize")
+	ErrRangeExceedsUnitMap           = errors.New("map range should contain valid from and to locations and it should never exceed mapSize")
 	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
 
 type LiveGame struct {
-	id              LiveGameId
-	unitMap         commonmodel.UnitMap
-	playerIds       map[playermodel.PlayerId]bool
-	observedExtents map[playermodel.PlayerId]commonmodel.Extent
+	id             LiveGameId
+	unitMap        commonmodel.UnitMap
+	playerIds      map[playermodel.PlayerId]bool
+	observedRanges map[playermodel.PlayerId]commonmodel.RangeVo
 }
 
 func NewLiveGame(id LiveGameId, unitMap commonmodel.UnitMap) LiveGame {
 	return LiveGame{
-		id:              id,
-		unitMap:         unitMap,
-		playerIds:       make(map[playermodel.PlayerId]bool),
-		observedExtents: make(map[playermodel.PlayerId]commonmodel.Extent),
+		id:             id,
+		unitMap:        unitMap,
+		playerIds:      make(map[playermodel.PlayerId]bool),
+		observedRanges: make(map[playermodel.PlayerId]commonmodel.RangeVo),
 	}
 }
 
@@ -44,18 +44,18 @@ func (liveGame *LiveGame) GetUnitMap() commonmodel.UnitMap {
 	return liveGame.unitMap
 }
 
-func (liveGame *LiveGame) GetUnitMapByExtent(extent commonmodel.Extent) (commonmodel.UnitMap, error) {
-	if !liveGame.GetMapSize().IncludesExtent(extent) {
-		return commonmodel.UnitMap{}, ErrExtentExceedsUnitMap
+func (liveGame *LiveGame) GetUnitMapByRange(rangeVo commonmodel.RangeVo) (commonmodel.UnitMap, error) {
+	if !liveGame.GetMapSize().IncludesRange(rangeVo) {
+		return commonmodel.UnitMap{}, ErrRangeExceedsUnitMap
 	}
-	offsetX := extent.GetFrom().GetX()
-	offsetY := extent.GetFrom().GetY()
-	extentWidth := extent.GetWidth()
-	extentHeight := extent.GetHeight()
-	unitMatrix := make([][]commonmodel.Unit, extentWidth)
-	for x := 0; x < extentWidth; x += 1 {
-		unitMatrix[x] = make([]commonmodel.Unit, extentHeight)
-		for y := 0; y < extentHeight; y += 1 {
+	offsetX := rangeVo.GetFrom().GetX()
+	offsetY := rangeVo.GetFrom().GetY()
+	rangeVoWidth := rangeVo.GetWidth()
+	rangeVoHeight := rangeVo.GetHeight()
+	unitMatrix := make([][]commonmodel.Unit, rangeVoWidth)
+	for x := 0; x < rangeVoWidth; x += 1 {
+		unitMatrix[x] = make([]commonmodel.Unit, rangeVoHeight)
+		for y := 0; y < rangeVoHeight; y += 1 {
 			location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
 			unitMatrix[x][y] = liveGame.unitMap.GetUnit(location)
 		}
@@ -65,21 +65,21 @@ func (liveGame *LiveGame) GetUnitMapByExtent(extent commonmodel.Extent) (commonm
 	return unitMap, nil
 }
 
-func (liveGame *LiveGame) GetObservedExtents() map[playermodel.PlayerId]commonmodel.Extent {
-	return liveGame.observedExtents
+func (liveGame *LiveGame) GetObservedRanges() map[playermodel.PlayerId]commonmodel.RangeVo {
+	return liveGame.observedRanges
 }
 
-func (liveGame *LiveGame) AddObservedExtent(playerId playermodel.PlayerId, extent commonmodel.Extent) error {
+func (liveGame *LiveGame) AddObservedRange(playerId playermodel.PlayerId, rangeVo commonmodel.RangeVo) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
 	}
-	liveGame.observedExtents[playerId] = extent
+	liveGame.observedRanges[playerId] = rangeVo
 	return nil
 }
 
-func (liveGame *LiveGame) RemoveObservedExtent(playerId playermodel.PlayerId) {
-	delete(liveGame.observedExtents, playerId)
+func (liveGame *LiveGame) RemoveObservedRange(playerId playermodel.PlayerId) {
+	delete(liveGame.observedRanges, playerId)
 }
 
 func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {

@@ -16,8 +16,8 @@ type Service interface {
 	DestroyItemInLiveGame(rawLiveGameId string, rawLocation viewmodel.LocationViewModel)
 	AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string)
 	RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId string)
-	AddObservedExtentToLiveGame(rawLiveGameId string, rawPlayerId string, rawExtent viewmodel.ExtentViewModel)
-	RemoveObservedExtentFromLiveGame(rawLiveGameId string, rawPlayerId string)
+	AddObservedRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawRange viewmodel.RangeViewModel)
+	RemoveObservedRangeFromLiveGame(rawLiveGameId string, rawPlayerId string)
 }
 
 type serve struct {
@@ -38,26 +38,26 @@ func New(
 	}
 }
 
-func (serve *serve) publishObservedExtentUpdatedServerEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
+func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
-	for playerId, extent := range liveGame.GetObservedExtents() {
-		if !extent.IncludesAnyLocations([]commonmodel.Location{location}) {
+	for playerId, rangeVo := range liveGame.GetObservedRanges() {
+		if !rangeVo.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
-		unitMap, err := liveGame.GetUnitMapByExtent(extent)
+		unitMap, err := liveGame.GetUnitMapByRange(rangeVo)
 		if err != nil {
 			continue
 		}
 		serve.intgrEventPublisher.Publish(
 			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			intgrevent.Marshal(intgrevent.NewObservedExtentUpdatedEvent(
+			intgrevent.Marshal(intgrevent.NewObservedRangeUpdatedEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
-				viewmodel.NewExtentViewModel(extent),
+				viewmodel.NewRangeViewModel(rangeVo),
 				viewmodel.NewUnitMapViewModel(unitMap),
 			)),
 		)
@@ -112,7 +112,7 @@ func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawLocation viewmo
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
-	serve.publishObservedExtentUpdatedServerEvents(liveGameId, location)
+	serve.publishObservedRangeUpdatedServerEvents(liveGameId, location)
 }
 
 func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation viewmodel.LocationViewModel) {
@@ -139,7 +139,7 @@ func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation view
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.publishObservedExtentUpdatedServerEvents(liveGameId, location)
+	serve.publishObservedRangeUpdatedServerEvents(liveGameId, location)
 }
 
 func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string) {
@@ -192,7 +192,7 @@ func (serve *serve) RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId s
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 }
 
-func (serve *serve) AddObservedExtentToLiveGame(rawLiveGameId string, rawPlayerId string, rawExtent viewmodel.ExtentViewModel) {
+func (serve *serve) AddObservedRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawRange viewmodel.RangeViewModel) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -201,7 +201,7 @@ func (serve *serve) AddObservedExtentToLiveGame(rawLiveGameId string, rawPlayerI
 	if err != nil {
 		return
 	}
-	extent, err := rawExtent.ToValueObject()
+	rangeVo, err := rawRange.ToValueObject()
 	if err != nil {
 		return
 	}
@@ -214,11 +214,11 @@ func (serve *serve) AddObservedExtentToLiveGame(rawLiveGameId string, rawPlayerI
 		return
 	}
 
-	if err = liveGame.AddObservedExtent(playerId, extent); err != nil {
+	if err = liveGame.AddObservedRange(playerId, rangeVo); err != nil {
 		return
 	}
 
-	unitMap, err := liveGame.GetUnitMapByExtent(extent)
+	unitMap, err := liveGame.GetUnitMapByRange(rangeVo)
 	if err != nil {
 		return
 	}
@@ -227,12 +227,12 @@ func (serve *serve) AddObservedExtentToLiveGame(rawLiveGameId string, rawPlayerI
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		intgrevent.Marshal(
-			intgrevent.NewExtentObservedEvent(rawLiveGameId, rawPlayerId, rawExtent, viewmodel.NewUnitMapViewModel(unitMap)),
+			intgrevent.NewRangeObservedEvent(rawLiveGameId, rawPlayerId, rawRange, viewmodel.NewUnitMapViewModel(unitMap)),
 		),
 	)
 }
 
-func (serve *serve) RemoveObservedExtentFromLiveGame(rawLiveGameId string, rawPlayerId string) {
+func (serve *serve) RemoveObservedRangeFromLiveGame(rawLiveGameId string, rawPlayerId string) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -250,6 +250,6 @@ func (serve *serve) RemoveObservedExtentFromLiveGame(rawLiveGameId string, rawPl
 		return
 	}
 
-	liveGame.RemoveObservedExtent(playerId)
+	liveGame.RemoveObservedRange(playerId)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 }

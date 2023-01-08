@@ -37,17 +37,17 @@ func (ms MapSize) GetHeight() int {
 	return ms.height
 }
 
-func (ms MapSize) IncludesExtent(extent Extent) bool {
-	if extent.from.x < 0 || extent.from.x >= ms.width {
+func (ms MapSize) IncludesRange(rangeVo RangeVo) bool {
+	if rangeVo.from.x < 0 || rangeVo.from.x >= ms.width {
 		return false
 	}
-	if extent.to.x < 0 || extent.to.x >= ms.width {
+	if rangeVo.to.x < 0 || rangeVo.to.x >= ms.width {
 		return false
 	}
-	if extent.from.y < 0 || extent.from.y >= ms.height {
+	if rangeVo.from.y < 0 || rangeVo.from.y >= ms.height {
 		return false
 	}
-	if extent.to.y < 0 || extent.to.y >= ms.height {
+	if rangeVo.to.y < 0 || rangeVo.to.y >= ms.height {
 		return false
 	}
 	return true

@@ -9,11 +9,11 @@ import (
 type ServerEventType string
 
 const (
-	ErroredServerEventType               ServerEventType = "ERRORED"
-	InformationUpdatedServerEventType    ServerEventType = "INFORMATION_UPDATED"
-	ItemsUpdatedServerEventType          ServerEventType = "ITEMS_UPDATED"
-	ExtentObservedServerEventType        ServerEventType = "MAP_RANGE_OBSERVED"
-	ObservedExtentUpdatedServerEventType ServerEventType = "OBSERVED_MAP_RANGE_UPDATED"
+	ErroredServerEventType              ServerEventType = "ERRORED"
+	InformationUpdatedServerEventType   ServerEventType = "INFORMATION_UPDATED"
+	ItemsUpdatedServerEventType         ServerEventType = "ITEMS_UPDATED"
+	RangeObservedServerEventType        ServerEventType = "MAP_RANGE_OBSERVED"
+	ObservedRangeUpdatedServerEventType ServerEventType = "OBSERVED_MAP_RANGE_UPDATED"
 )
 
 type GenericServerEvent struct {
@@ -41,19 +41,19 @@ type ItemsUpdatedServerEvent struct {
 	} `json:"payload"`
 }
 
-type ObservedExtentUpdatedServerEvent struct {
+type ObservedRangeUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Extent    viewmodel.ExtentViewModel  `json:"extent"`
+		Range     viewmodel.RangeViewModel   `json:"range"`
 		UnitMap   viewmodel.UnitMapViewModel `json:"unitMap"`
 		UpdatedAt time.Time                  `json:"updatedAt"`
 	} `json:"payload"`
 }
 
-type ExtentObservedServerEvent struct {
+type RangeObservedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Extent  viewmodel.ExtentViewModel  `json:"extent"`
+		Range   viewmodel.RangeViewModel   `json:"range"`
 		UnitMap viewmodel.UnitMapViewModel `json:"unitMap"`
 	} `json:"payload"`
 }
