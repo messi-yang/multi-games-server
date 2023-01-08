@@ -48,7 +48,7 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 		if !rangeVo.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
-		unitMap, err := liveGame.GetUnitMapByRange(rangeVo)
+		mapVo, err := liveGame.GetMapByRange(rangeVo)
 		if err != nil {
 			continue
 		}
@@ -58,7 +58,7 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 				liveGameId.ToString(),
 				playerId.ToString(),
 				viewmodel.NewRange(rangeVo),
-				viewmodel.NewUnitMap(unitMap),
+				viewmodel.NewMap(mapVo),
 			)),
 		)
 	}
@@ -78,7 +78,7 @@ func (serve *serve) CreateLiveGame(rawGameId string) {
 	}
 
 	liveGameId, _ := livegamemodel.NewLiveGameId(gameId.ToString())
-	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetUnitMap())
+	newLiveGame := livegamemodel.NewLiveGame(liveGameId, game.GetMap())
 
 	serve.liveGameRepo.Add(newLiveGame)
 }
@@ -218,7 +218,7 @@ func (serve *serve) AddObservedRangeToLiveGame(rawLiveGameId string, rawPlayerId
 		return
 	}
 
-	unitMap, err := liveGame.GetUnitMapByRange(rangeVo)
+	mapVo, err := liveGame.GetMapByRange(rangeVo)
 	if err != nil {
 		return
 	}
@@ -227,7 +227,7 @@ func (serve *serve) AddObservedRangeToLiveGame(rawLiveGameId string, rawPlayerId
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		intgrevent.Marshal(
-			intgrevent.NewRangeObservedIntgrEvent(rawLiveGameId, rawPlayerId, rangeVm, viewmodel.NewUnitMap(unitMap)),
+			intgrevent.NewRangeObservedIntgrEvent(rawLiveGameId, rawPlayerId, rangeVm, viewmodel.NewMap(mapVo)),
 		),
 	)
 }

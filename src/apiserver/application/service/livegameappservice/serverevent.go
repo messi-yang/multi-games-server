@@ -44,16 +44,16 @@ type ItemsUpdatedServerEvent struct {
 type ObservedRangeUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Range     viewmodel.Range   `json:"range"`
-		UnitMap   viewmodel.UnitMap `json:"unitMap"`
-		UpdatedAt time.Time         `json:"updatedAt"`
+		Range     viewmodel.Range `json:"range"`
+		Map       viewmodel.Map   `json:"map"`
+		UpdatedAt time.Time       `json:"updatedAt"`
 	} `json:"payload"`
 }
 
 type RangeObservedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Range   viewmodel.Range   `json:"range"`
-		UnitMap viewmodel.UnitMap `json:"unitMap"`
+		Range viewmodel.Range `json:"range"`
+		Map   viewmodel.Map   `json:"map"`
 	} `json:"payload"`
 }

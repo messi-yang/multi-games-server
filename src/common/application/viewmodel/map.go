@@ -5,19 +5,19 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 )
 
-type UnitMap [][]Unit
+type Map [][]Unit
 
-func NewUnitMap(unitMap commonmodel.UnitMap) UnitMap {
-	unitMapViewModel, _ := tool.MapMatrix(unitMap.GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (Unit, error) {
+func NewMap(mapVo commonmodel.Map) Map {
+	mapViewModel, _ := tool.MapMatrix(mapVo.GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (Unit, error) {
 		return NewUnit(unit), nil
 	})
-	return unitMapViewModel
+	return mapViewModel
 }
 
-func (dto UnitMap) ToValueObject() (commonmodel.UnitMap, error) {
+func (dto Map) ToValueObject() (commonmodel.Map, error) {
 	unitMatrix, _ := tool.MapMatrix(dto, func(colIdx int, rowIdx int, unitVm Unit) (commonmodel.Unit, error) {
 		unitVo, _ := unitVm.ToValueObject()
 		return unitVo, nil
 	})
-	return commonmodel.NewUnitMap(unitMatrix), nil
+	return commonmodel.NewMap(unitMatrix), nil
 }

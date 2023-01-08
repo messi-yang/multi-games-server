@@ -11,8 +11,8 @@ type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendInformationUpdatedServerEvent(presenter Presenter, rawMapSize viewmodel.MapSize)
-	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.Range, unitMap viewmodel.UnitMap)
-	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.Range, unitMap viewmodel.UnitMap)
+	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.Range, mapVm viewmodel.Map)
+	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.Range, mapVm viewmodel.Map)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rangeVm viewmodel.Range)
 	RequestToBuildItem(rawLiveGameId string, rawLocation viewmodel.Location, rawItemId string)
@@ -55,19 +55,19 @@ func (serve *serve) QueryItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.Range, unitMap viewmodel.UnitMap) {
+func (serve *serve) SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.Range, mapVm viewmodel.Map) {
 	event := ObservedRangeUpdatedServerEvent{}
 	event.Type = ObservedRangeUpdatedServerEventType
 	event.Payload.Range = rangeVm
-	event.Payload.UnitMap = unitMap
+	event.Payload.Map = mapVm
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.Range, unitMap viewmodel.UnitMap) {
+func (serve *serve) SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.Range, mapVm viewmodel.Map) {
 	event := RangeObservedServerEvent{}
 	event.Type = RangeObservedServerEventType
 	event.Payload.Range = rangeVm
-	event.Payload.UnitMap = unitMap
+	event.Payload.Map = mapVm
 	presenter.OnSuccess(event)
 }
 

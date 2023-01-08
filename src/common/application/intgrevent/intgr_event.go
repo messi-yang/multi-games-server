@@ -82,38 +82,38 @@ func NewGameInfoUpdatedIntgrEvent(liveGameId string, playerId string, mapSize vi
 }
 
 type RangeObservedIntgrEvent struct {
-	Name       IntgrEventName    `json:"name"`
-	LiveGameId string            `json:"liveGameId"`
-	PlayerId   string            `json:"playerId"`
-	Range      viewmodel.Range   `json:"range"`
-	UnitMap    viewmodel.UnitMap `json:"unitMap"`
+	Name       IntgrEventName  `json:"name"`
+	LiveGameId string          `json:"liveGameId"`
+	PlayerId   string          `json:"playerId"`
+	Range      viewmodel.Range `json:"range"`
+	Map        viewmodel.Map   `json:"map"`
 }
 
-func NewRangeObservedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.Range, unitMap viewmodel.UnitMap) RangeObservedIntgrEvent {
+func NewRangeObservedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.Range, mapVm viewmodel.Map) RangeObservedIntgrEvent {
 	return RangeObservedIntgrEvent{
 		Name:       RangeObservedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Range:      rangeVm,
-		UnitMap:    unitMap,
+		Map:        mapVm,
 	}
 }
 
 type ObservedRangeUpdatedIntgrEvent struct {
-	Name       IntgrEventName    `json:"name"`
-	LiveGameId string            `json:"liveGameId"`
-	PlayerId   string            `json:"playerId"`
-	Range      viewmodel.Range   `json:"range"`
-	UnitMap    viewmodel.UnitMap `json:"unitMap"`
+	Name       IntgrEventName  `json:"name"`
+	LiveGameId string          `json:"liveGameId"`
+	PlayerId   string          `json:"playerId"`
+	Range      viewmodel.Range `json:"range"`
+	Map        viewmodel.Map   `json:"map"`
 }
 
-func NewObservedRangeUpdatedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.Range, unitMap viewmodel.UnitMap) ObservedRangeUpdatedIntgrEvent {
+func NewObservedRangeUpdatedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.Range, mapVm viewmodel.Map) ObservedRangeUpdatedIntgrEvent {
 	return ObservedRangeUpdatedIntgrEvent{
 		Name:       ObservedRangeUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Range:      rangeVm,
-		UnitMap:    unitMap,
+		Map:        mapVm,
 	}
 }
 

@@ -25,29 +25,29 @@ func (GamePsqlModel) TableName() string {
 	return "games"
 }
 
-func convertUnitMapPsqlModelToUnitMap(unitMapPsqlModel [][]UnitPsqlModel) commonmodel.UnitMap {
+func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) commonmodel.Map {
 	unitMatrix := make([][]commonmodel.Unit, 0)
-	for colIdx, unitModelCol := range unitMapPsqlModel {
+	for colIdx, unitModelCol := range mapPsqlModel {
 		unitMatrix = append(unitMatrix, []commonmodel.Unit{})
 		for _, unit := range unitModelCol {
 			itemId, _ := itemmodel.NewItemId(unit.ItemId)
 			unitMatrix[colIdx] = append(unitMatrix[colIdx], commonmodel.NewUnit(itemId))
 		}
 	}
-	return commonmodel.NewUnitMap(unitMatrix)
+	return commonmodel.NewMap(unitMatrix)
 }
 
-func convertUnitMapToUnitMapPsqlModel(unitMap commonmodel.UnitMap) [][]UnitPsqlModel {
-	unitMapPsqlModel := make([][]UnitPsqlModel, 0)
-	for unitColIdx, unitCol := range unitMap.GetUnitMatrix() {
-		unitMapPsqlModel = append(unitMapPsqlModel, []UnitPsqlModel{})
+func convertMapToMapPsqlModel(mapVo commonmodel.Map) [][]UnitPsqlModel {
+	mapPsqlModel := make([][]UnitPsqlModel, 0)
+	for unitColIdx, unitCol := range mapVo.GetUnitMatrix() {
+		mapPsqlModel = append(mapPsqlModel, []UnitPsqlModel{})
 		for _, unit := range unitCol {
-			unitMapPsqlModel[unitColIdx] = append(unitMapPsqlModel[unitColIdx], UnitPsqlModel{
+			mapPsqlModel[unitColIdx] = append(mapPsqlModel[unitColIdx], UnitPsqlModel{
 				ItemId: unit.GetItemId().ToString(),
 			})
 		}
 	}
-	return unitMapPsqlModel
+	return mapPsqlModel
 }
 
 func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
@@ -55,11 +55,11 @@ func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
 		Id:      game.GetId().ToString(),
 		Width:   game.GetMapSize().GetWidth(),
 		Height:  game.GetMapSize().GetHeight(),
-		UnitMap: convertUnitMapToUnitMapPsqlModel(game.GetUnitMap()),
+		UnitMap: convertMapToMapPsqlModel(game.GetMap()),
 	}
 }
 
 func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.Game {
 	gameId, _ := gamemodel.NewGameId(gamePostgresModel.Id)
-	return gamemodel.NewGame(gameId, convertUnitMapPsqlModelToUnitMap(gamePostgresModel.UnitMap))
+	return gamemodel.NewGame(gameId, convertMapPsqlModelToMap(gamePostgresModel.UnitMap))
 }

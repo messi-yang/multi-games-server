@@ -73,13 +73,13 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendObservedRangeUpdatedServerEvent(socketPresenter, event.Range, event.UnitMap)
+				controller.liveGameAppService.SendObservedRangeUpdatedServerEvent(socketPresenter, event.Range, event.Map)
 			case intgrevent.RangeObservedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.RangeObservedIntgrEvent](message)
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendRangeObservedServerEvent(socketPresenter, event.Range, event.UnitMap)
+				controller.liveGameAppService.SendRangeObservedServerEvent(socketPresenter, event.Range, event.Map)
 			case intgrevent.GameInfoUpdatedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.GameInfoUpdatedIntgrEvent](message)
 				if err != nil {
