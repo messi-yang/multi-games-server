@@ -89,12 +89,12 @@ type RangeObservedEvent struct {
 	UnitMap    viewmodel.UnitMapViewModel `json:"unitMap"`
 }
 
-func NewRangeObservedEvent(liveGameId string, playerId string, rangeVo viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) RangeObservedEvent {
+func NewRangeObservedEvent(liveGameId string, playerId string, rangeVm viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) RangeObservedEvent {
 	return RangeObservedEvent{
 		Name:       RangeObservedEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		Range:      rangeVo,
+		Range:      rangeVm,
 		UnitMap:    unitMap,
 	}
 }
@@ -107,12 +107,12 @@ type ObservedRangeUpdatedEvent struct {
 	UnitMap    viewmodel.UnitMapViewModel `json:"unitMap"`
 }
 
-func NewObservedRangeUpdatedEvent(liveGameId string, playerId string, rangeVo viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) ObservedRangeUpdatedEvent {
+func NewObservedRangeUpdatedEvent(liveGameId string, playerId string, rangeVm viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) ObservedRangeUpdatedEvent {
 	return ObservedRangeUpdatedEvent{
 		Name:       ObservedRangeUpdatedEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		Range:      rangeVo,
+		Range:      rangeVm,
 		UnitMap:    unitMap,
 	}
 }
@@ -124,12 +124,12 @@ type ObserveRangeRequestedEvent struct {
 	Range      viewmodel.RangeViewModel `json:"range"`
 }
 
-func NewObserveRangeRequestedEvent(liveGameId string, playerId string, rangeVo viewmodel.RangeViewModel) ObserveRangeRequestedEvent {
+func NewObserveRangeRequestedEvent(liveGameId string, playerId string, rangeVm viewmodel.RangeViewModel) ObserveRangeRequestedEvent {
 	return ObserveRangeRequestedEvent{
 		Name:       ObserveRangeRequestedEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		Range:      rangeVo,
+		Range:      rangeVm,
 	}
 }
 

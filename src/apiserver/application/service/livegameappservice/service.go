@@ -11,10 +11,10 @@ type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendInformationUpdatedServerEvent(presenter Presenter, rawMapSize viewmodel.MapSizeViewModel)
-	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeViewModel viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel)
-	SendRangeObservedServerEvent(presenter Presenter, rangeViewModel viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel)
+	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel)
+	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel)
 	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
-	RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rawRange viewmodel.RangeViewModel)
+	RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rangeVm viewmodel.RangeViewModel)
 	RequestToBuildItem(rawLiveGameId string, rawLocation viewmodel.LocationViewModel, rawItemId string)
 	RequestToDestroyItem(rawLiveGameId string, rawLocation viewmodel.LocationViewModel)
 	RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string)
@@ -55,18 +55,18 @@ func (serve *serve) QueryItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeViewModel viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) {
+func (serve *serve) SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) {
 	event := ObservedRangeUpdatedServerEvent{}
 	event.Type = ObservedRangeUpdatedServerEventType
-	event.Payload.Range = rangeViewModel
+	event.Payload.Range = rangeVm
 	event.Payload.UnitMap = unitMap
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendRangeObservedServerEvent(presenter Presenter, rangeViewModel viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) {
+func (serve *serve) SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeViewModel, unitMap viewmodel.UnitMapViewModel) {
 	event := RangeObservedServerEvent{}
 	event.Type = RangeObservedServerEventType
-	event.Payload.Range = rangeViewModel
+	event.Payload.Range = rangeVm
 	event.Payload.UnitMap = unitMap
 	presenter.OnSuccess(event)
 }
@@ -78,10 +78,10 @@ func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
 	)
 }
 
-func (serve *serve) RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rawRange viewmodel.RangeViewModel) {
+func (serve *serve) RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rangeVm viewmodel.RangeViewModel) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewObserveRangeRequestedEvent(rawLiveGameId, rawPlayerId, rawRange)),
+		intgrevent.Marshal(intgrevent.NewObserveRangeRequestedEvent(rawLiveGameId, rawPlayerId, rangeVm)),
 	)
 }
 
