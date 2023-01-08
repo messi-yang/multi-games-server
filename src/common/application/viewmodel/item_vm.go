@@ -4,14 +4,14 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 )
 
-type Item struct {
+type ItemVm struct {
 	Id       string `json:"id"`
 	Name     string `json:"name"`
 	AssetSrc string `json:"assetSrc"`
 }
 
-func NewItem(item itemmodel.Item) Item {
-	return Item{
+func NewItemVm(item itemmodel.Item) ItemVm {
+	return ItemVm{
 		Id:       item.GetId().ToString(),
 		Name:     item.GetName(),
 		AssetSrc: item.GetAssetSrc(),

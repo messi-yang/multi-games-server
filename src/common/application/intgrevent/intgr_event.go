@@ -22,17 +22,17 @@ type GenericIntgrEvent struct {
 }
 
 type BuildItemRequestedIntgrEvent struct {
-	Name       IntgrEventName     `json:"name"`
-	LiveGameId string             `json:"liveGameId"`
-	Location   viewmodel.Location `json:"location"`
-	ItemId     string             `json:"locations"`
+	Name       IntgrEventName       `json:"name"`
+	LiveGameId string               `json:"liveGameId"`
+	Location   viewmodel.LocationVm `json:"location"`
+	ItemId     string               `json:"locations"`
 }
 
-func NewBuildItemRequestedIntgrEvent(liveGameId string, location viewmodel.Location, itemId string) BuildItemRequestedIntgrEvent {
+func NewBuildItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedIntgrEvent {
 	return BuildItemRequestedIntgrEvent{
 		Name:       BuildItemRequestedIntgrEventName,
 		LiveGameId: liveGameId,
-		Location:   location,
+		Location:   locationVm,
 		ItemId:     itemId,
 	}
 }
@@ -52,44 +52,44 @@ func NewAddPlayerRequestedIntgrEvent(liveGameId string, playerId string) AddPlay
 }
 
 type DestroyItemRequestedIntgrEvent struct {
-	Name       IntgrEventName     `json:"name"`
-	LiveGameId string             `json:"liveGameId"`
-	Location   viewmodel.Location `json:"location"`
+	Name       IntgrEventName       `json:"name"`
+	LiveGameId string               `json:"liveGameId"`
+	Location   viewmodel.LocationVm `json:"location"`
 }
 
-func NewDestroyItemRequestedIntgrEvent(liveGameId string, location viewmodel.Location) DestroyItemRequestedIntgrEvent {
+func NewDestroyItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.LocationVm) DestroyItemRequestedIntgrEvent {
 	return DestroyItemRequestedIntgrEvent{
 		Name:       DestroyItemRequestedIntgrEventName,
 		LiveGameId: liveGameId,
-		Location:   location,
+		Location:   locationVm,
 	}
 }
 
 type GameInfoUpdatedIntgrEvent struct {
-	Name       IntgrEventName    `json:"name"`
-	LiveGameId string            `json:"liveGameId"`
-	PlayerId   string            `json:"playerId"`
-	MapSize    viewmodel.MapSize `json:"mapSize"`
+	Name       IntgrEventName      `json:"name"`
+	LiveGameId string              `json:"liveGameId"`
+	PlayerId   string              `json:"playerId"`
+	MapSize    viewmodel.MapSizeVm `json:"mapSize"`
 }
 
-func NewGameInfoUpdatedIntgrEvent(liveGameId string, playerId string, mapSize viewmodel.MapSize) GameInfoUpdatedIntgrEvent {
+func NewGameInfoUpdatedIntgrEvent(liveGameId string, playerId string, mapSizeVm viewmodel.MapSizeVm) GameInfoUpdatedIntgrEvent {
 	return GameInfoUpdatedIntgrEvent{
 		Name:       GameInfoUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		MapSize:    mapSize,
+		MapSize:    mapSizeVm,
 	}
 }
 
 type RangeObservedIntgrEvent struct {
-	Name       IntgrEventName  `json:"name"`
-	LiveGameId string          `json:"liveGameId"`
-	PlayerId   string          `json:"playerId"`
-	Range      viewmodel.Range `json:"range"`
-	Map        viewmodel.Map   `json:"map"`
+	Name       IntgrEventName    `json:"name"`
+	LiveGameId string            `json:"liveGameId"`
+	PlayerId   string            `json:"playerId"`
+	Range      viewmodel.RangeVm `json:"range"`
+	Map        viewmodel.MapVm   `json:"map"`
 }
 
-func NewRangeObservedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.Range, mapVm viewmodel.Map) RangeObservedIntgrEvent {
+func NewRangeObservedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm) RangeObservedIntgrEvent {
 	return RangeObservedIntgrEvent{
 		Name:       RangeObservedIntgrEventName,
 		LiveGameId: liveGameId,
@@ -100,14 +100,14 @@ func NewRangeObservedIntgrEvent(liveGameId string, playerId string, rangeVm view
 }
 
 type ObservedRangeUpdatedIntgrEvent struct {
-	Name       IntgrEventName  `json:"name"`
-	LiveGameId string          `json:"liveGameId"`
-	PlayerId   string          `json:"playerId"`
-	Range      viewmodel.Range `json:"range"`
-	Map        viewmodel.Map   `json:"map"`
+	Name       IntgrEventName    `json:"name"`
+	LiveGameId string            `json:"liveGameId"`
+	PlayerId   string            `json:"playerId"`
+	Range      viewmodel.RangeVm `json:"range"`
+	Map        viewmodel.MapVm   `json:"map"`
 }
 
-func NewObservedRangeUpdatedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.Range, mapVm viewmodel.Map) ObservedRangeUpdatedIntgrEvent {
+func NewObservedRangeUpdatedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm) ObservedRangeUpdatedIntgrEvent {
 	return ObservedRangeUpdatedIntgrEvent{
 		Name:       ObservedRangeUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
@@ -118,13 +118,13 @@ func NewObservedRangeUpdatedIntgrEvent(liveGameId string, playerId string, range
 }
 
 type ObserveRangeRequestedIntgrEvent struct {
-	Name       IntgrEventName  `json:"name"`
-	LiveGameId string          `json:"liveGameId"`
-	PlayerId   string          `json:"playerId"`
-	Range      viewmodel.Range `json:"range"`
+	Name       IntgrEventName    `json:"name"`
+	LiveGameId string            `json:"liveGameId"`
+	PlayerId   string            `json:"playerId"`
+	Range      viewmodel.RangeVm `json:"range"`
 }
 
-func NewObserveRangeRequestedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.Range) ObserveRangeRequestedIntgrEvent {
+func NewObserveRangeRequestedIntgrEvent(liveGameId string, playerId string, rangeVm viewmodel.RangeVm) ObserveRangeRequestedIntgrEvent {
 	return ObserveRangeRequestedIntgrEvent{
 		Name:       ObserveRangeRequestedIntgrEventName,
 		LiveGameId: liveGameId,

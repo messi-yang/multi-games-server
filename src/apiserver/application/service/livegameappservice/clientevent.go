@@ -48,24 +48,24 @@ type PingClientEvent struct {
 type BuildItemClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
-		Location   viewmodel.Location `json:"location"`
-		ItemId     string             `json:"itemId"`
-		ActionedAt time.Time          `json:"actionedAt"`
+		Location   viewmodel.LocationVm `json:"location"`
+		ItemId     string               `json:"itemId"`
+		ActionedAt time.Time            `json:"actionedAt"`
 	} `json:"payload"`
 }
 
 type DestroyItemClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
-		Location   viewmodel.Location `json:"location"`
-		ActionedAt time.Time          `json:"actionedAt"`
+		Location   viewmodel.LocationVm `json:"location"`
+		ActionedAt time.Time            `json:"actionedAt"`
 	} `json:"payload"`
 }
 
 type ObserveRangeClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
-		Range      viewmodel.Range `json:"range"`
-		ActionedAt time.Time       `json:"actionedAt"`
+		Range      viewmodel.RangeVm `json:"range"`
+		ActionedAt time.Time         `json:"actionedAt"`
 	} `json:"payload"`
 }

@@ -7,18 +7,18 @@ import (
 	"github.com/samber/lo"
 )
 
-type Unit struct {
+type UnitVm struct {
 	ItemId *string `json:"itemId"`
 }
 
-func NewUnit(unit commonmodel.Unit) Unit {
+func NewUnitVm(unit commonmodel.Unit) UnitVm {
 	var itemId *string = lo.Ternary(unit.GetItemId().IsEmpty(), nil, lo.ToPtr(unit.GetItemId().ToString()))
-	return Unit{
+	return UnitVm{
 		ItemId: itemId,
 	}
 }
 
-func (dto Unit) ToValueObject() (commonmodel.Unit, error) {
+func (dto UnitVm) ToValueObject() (commonmodel.Unit, error) {
 	var rawItemId string = lo.Ternary(dto.ItemId == nil, *dto.ItemId, uuid.Nil.String())
 	itemId, err := itemmodel.NewItemId(rawItemId)
 	if err != nil {

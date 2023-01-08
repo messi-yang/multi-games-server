@@ -30,30 +30,30 @@ type ErroredServerEvent struct {
 type InformationUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MapSize viewmodel.MapSize `json:"mapSize"`
+		MapSize viewmodel.MapSizeVm `json:"mapSize"`
 	} `json:"payload"`
 }
 
 type ItemsUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Items []viewmodel.Item `json:"items"`
+		Items []viewmodel.ItemVm `json:"items"`
 	} `json:"payload"`
 }
 
 type ObservedRangeUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Range     viewmodel.Range `json:"range"`
-		Map       viewmodel.Map   `json:"map"`
-		UpdatedAt time.Time       `json:"updatedAt"`
+		Range     viewmodel.RangeVm `json:"range"`
+		Map       viewmodel.MapVm   `json:"map"`
+		UpdatedAt time.Time         `json:"updatedAt"`
 	} `json:"payload"`
 }
 
 type RangeObservedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Range viewmodel.Range `json:"range"`
-		Map   viewmodel.Map   `json:"map"`
+		Range viewmodel.RangeVm `json:"range"`
+		Map   viewmodel.MapVm   `json:"map"`
 	} `json:"payload"`
 }
