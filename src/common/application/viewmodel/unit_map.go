@@ -2,36 +2,22 @@ package viewmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 )
 
 type UnitMap [][]Unit
 
 func NewUnitMap(unitMap commonmodel.UnitMap) UnitMap {
-	unitMapViewModel := make(UnitMap, 0)
-
-	for i := 0; i < unitMap.GetMapSize().GetWidth(); i += 1 {
-		unitMapViewModel = append(unitMapViewModel, make([]Unit, 0))
-		for j := 0; j < unitMap.GetMapSize().GetHeight(); j += 1 {
-			location, _ := commonmodel.NewLocation(i, j)
-			unit := unitMap.GetUnit(location)
-			unitMapViewModel[i] = append(unitMapViewModel[i], NewUnit(unit))
-		}
-	}
+	unitMapViewModel, _ := tool.MapMatrix(unitMap.GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (Unit, error) {
+		return NewUnit(unit), nil
+	})
 	return unitMapViewModel
 }
 
 func (dto UnitMap) ToValueObject() (commonmodel.UnitMap, error) {
-	unitMatrix := make([][]commonmodel.Unit, 0)
-
-	for i := 0; i < len(dto); i += 1 {
-		unitMatrix = append(unitMatrix, make([]commonmodel.Unit, 0))
-		for j := 0; j < len(dto[0]); j += 1 {
-			unit, err := dto[i][j].ToValueObject()
-			if err != nil {
-				return commonmodel.UnitMap{}, err
-			}
-			unitMatrix[i] = append(unitMatrix[i], unit)
-		}
-	}
+	unitMatrix, _ := tool.MapMatrix(dto, func(colIdx int, rowIdx int, unitVm Unit) (commonmodel.Unit, error) {
+		unitVo, _ := unitVm.ToValueObject()
+		return unitVo, nil
+	})
 	return commonmodel.NewUnitMap(unitMatrix), nil
 }
