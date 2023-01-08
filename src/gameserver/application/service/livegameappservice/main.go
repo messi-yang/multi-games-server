@@ -3,10 +3,7 @@ package livegameappservice
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/messaging/intgreventpublisher"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitmapviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
@@ -16,11 +13,11 @@ import (
 
 type Service interface {
 	CreateLiveGame(rawGameId string)
-	BuildItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string)
-	DestroyItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel)
+	BuildItemInLiveGame(rawLiveGameId string, rawLocation viewmodel.LocationViewModel, rawItemId string)
+	DestroyItemInLiveGame(rawLiveGameId string, rawLocation viewmodel.LocationViewModel)
 	AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string)
 	RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId string)
-	AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel)
+	AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange viewmodel.MapRangeViewModel)
 	RemoveObservedMapRangeFromLiveGame(rawLiveGameId string, rawPlayerId string)
 }
 
@@ -61,8 +58,8 @@ func (serve *serve) publishObservedMapRangeUpdatedServerEvents(liveGameId livega
 			intgrevent.Marshal(intgrevent.NewObservedMapRangeUpdatedEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
-				maprangeviewmodel.New(mapRange),
-				unitmapviewmodel.New(unitMap),
+				viewmodel.NewMapRangeViewModel(mapRange),
+				viewmodel.NewUnitMapViewModel(unitMap),
 			)),
 		)
 	}
@@ -87,7 +84,7 @@ func (serve *serve) CreateLiveGame(rawGameId string) {
 	serve.liveGameRepo.Add(newLiveGame)
 }
 
-func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel, rawItemId string) {
+func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawLocation viewmodel.LocationViewModel, rawItemId string) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -119,7 +116,7 @@ func (serve *serve) BuildItemInLiveGame(rawLiveGameId string, rawLocation locati
 	serve.publishObservedMapRangeUpdatedServerEvents(liveGameId, location)
 }
 
-func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation locationviewmodel.ViewModel) {
+func (serve *serve) DestroyItemInLiveGame(rawLiveGameId string, rawLocation viewmodel.LocationViewModel) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -169,7 +166,7 @@ func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		intgrevent.Marshal(
-			intgrevent.NewGameInfoUpdatedEvent(rawLiveGameId, rawPlayerId, mapsizeviewmodel.New(liveGame.GetMapSize())),
+			intgrevent.NewGameInfoUpdatedEvent(rawLiveGameId, rawPlayerId, viewmodel.NewMapSizeViewModel(liveGame.GetMapSize())),
 		),
 	)
 }
@@ -196,7 +193,7 @@ func (serve *serve) RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId s
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 }
 
-func (serve *serve) AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange maprangeviewmodel.ViewModel) {
+func (serve *serve) AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlayerId string, rawMapRange viewmodel.MapRangeViewModel) {
 	liveGameId, err := livegamemodel.NewLiveGameId(rawLiveGameId)
 	if err != nil {
 		return
@@ -231,7 +228,7 @@ func (serve *serve) AddObservedMapRangeToLiveGame(rawLiveGameId string, rawPlaye
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
 		intgrevent.Marshal(
-			intgrevent.NewMapRangeObservedEvent(rawLiveGameId, rawPlayerId, rawMapRange, unitmapviewmodel.New(unitMap)),
+			intgrevent.NewMapRangeObservedEvent(rawLiveGameId, rawPlayerId, rawMapRange, viewmodel.NewUnitMapViewModel(unitMap)),
 		),
 	)
 }

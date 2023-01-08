@@ -1,19 +1,19 @@
-package mapsizeviewmodel
+package viewmodel
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 
-type ViewModel struct {
+type MapSizeViewModel struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
-func New(mapSize commonmodel.MapSize) ViewModel {
-	return ViewModel{
+func NewMapSizeViewModel(mapSize commonmodel.MapSize) MapSizeViewModel {
+	return MapSizeViewModel{
 		Width:  mapSize.GetWidth(),
 		Height: mapSize.GetHeight(),
 	}
 }
 
-func (dto ViewModel) ToValueObject() (commonmodel.MapSize, error) {
+func (dto MapSizeViewModel) ToValueObject() (commonmodel.MapSize, error) {
 	return commonmodel.NewMapSize(dto.Width, dto.Height)
 }

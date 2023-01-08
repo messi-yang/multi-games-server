@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/locationviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 )
 
 type ClientEventType string
@@ -49,7 +48,7 @@ type PingClientEvent struct {
 type BuildItemClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
-		Location   locationviewmodel.ViewModel `json:"location"`
+		Location   viewmodel.LocationViewModel `json:"location"`
 		ItemId     string                      `json:"itemId"`
 		ActionedAt time.Time                   `json:"actionedAt"`
 	} `json:"payload"`
@@ -58,7 +57,7 @@ type BuildItemClientEvent struct {
 type DestroyItemClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
-		Location   locationviewmodel.ViewModel `json:"location"`
+		Location   viewmodel.LocationViewModel `json:"location"`
 		ActionedAt time.Time                   `json:"actionedAt"`
 	} `json:"payload"`
 }
@@ -66,7 +65,7 @@ type DestroyItemClientEvent struct {
 type ObserveMapRangeClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
-		MapRange   maprangeviewmodel.ViewModel `json:"mapRange"`
+		MapRange   viewmodel.MapRangeViewModel `json:"mapRange"`
 		ActionedAt time.Time                   `json:"actionedAt"`
 	} `json:"payload"`
 }

@@ -1,7 +1,7 @@
 package itemappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/samber/lo"
 )
@@ -20,8 +20,8 @@ func New(itemRepo itemmodel.Repo) Service {
 
 func (serve *serve) GetAllItems(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
-	itemViewModels := lo.Map(items, func(item itemmodel.Item, _ int) itemviewmodel.ViewModel {
-		return itemviewmodel.New(item)
+	itemViewModels := lo.Map(items, func(item itemmodel.Item, _ int) viewmodel.ItemViewModel {
+		return viewmodel.NewItemViewModel(item)
 	})
 	presenter.OnSuccess(itemViewModels)
 }

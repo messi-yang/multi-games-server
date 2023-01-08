@@ -1,4 +1,4 @@
-package unitviewmodel
+package viewmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
@@ -7,18 +7,18 @@ import (
 	"github.com/samber/lo"
 )
 
-type ViewModel struct {
+type UnitViewModel struct {
 	ItemId *string `json:"itemId"`
 }
 
-func New(unit commonmodel.Unit) ViewModel {
+func NewUnitViewModel(unit commonmodel.Unit) UnitViewModel {
 	var itemId *string = lo.Ternary(unit.GetItemId().IsEmpty(), nil, lo.ToPtr(unit.GetItemId().ToString()))
-	return ViewModel{
+	return UnitViewModel{
 		ItemId: itemId,
 	}
 }
 
-func (dto ViewModel) ToValueObject() (commonmodel.Unit, error) {
+func (dto UnitViewModel) ToValueObject() (commonmodel.Unit, error) {
 	var rawItemId string = lo.Ternary(dto.ItemId == nil, *dto.ItemId, uuid.Nil.String())
 	itemId, err := itemmodel.NewItemId(rawItemId)
 	if err != nil {

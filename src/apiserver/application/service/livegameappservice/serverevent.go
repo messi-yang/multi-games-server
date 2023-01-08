@@ -3,10 +3,7 @@ package livegameappservice
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/itemviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/maprangeviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/mapsizeviewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel/unitmapviewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 )
 
 type ServerEventType string
@@ -33,22 +30,22 @@ type ErroredServerEvent struct {
 type InformationUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MapSize mapsizeviewmodel.ViewModel `json:"mapSize"`
+		MapSize viewmodel.MapSizeViewModel `json:"mapSize"`
 	} `json:"payload"`
 }
 
 type ItemsUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Items []itemviewmodel.ViewModel `json:"items"`
+		Items []viewmodel.ItemViewModel `json:"items"`
 	} `json:"payload"`
 }
 
 type ObservedMapRangeUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MapRange  maprangeviewmodel.ViewModel `json:"mapRange"`
-		UnitMap   unitmapviewmodel.ViewModel  `json:"unitMap"`
+		MapRange  viewmodel.MapRangeViewModel `json:"mapRange"`
+		UnitMap   viewmodel.UnitMapViewModel  `json:"unitMap"`
 		UpdatedAt time.Time                   `json:"updatedAt"`
 	} `json:"payload"`
 }
@@ -56,7 +53,7 @@ type ObservedMapRangeUpdatedServerEvent struct {
 type MapRangeObservedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MapRange maprangeviewmodel.ViewModel `json:"mapRange"`
-		UnitMap  unitmapviewmodel.ViewModel  `json:"unitMap"`
+		MapRange viewmodel.MapRangeViewModel `json:"mapRange"`
+		UnitMap  viewmodel.UnitMapViewModel  `json:"unitMap"`
 	} `json:"payload"`
 }
