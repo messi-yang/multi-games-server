@@ -165,7 +165,7 @@ func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) 
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		intgrevent.Marshal(
-			intgrevent.NewGameInfoUpdatedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewDimensionVm(liveGame.GetDimension())),
+			intgrevent.NewDimensionUpdatedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewDimensionVm(liveGame.GetDimension())),
 		),
 	)
 	serve.intgrEventPublisher.Publish(

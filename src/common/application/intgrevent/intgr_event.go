@@ -11,7 +11,7 @@ const (
 	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
 	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
-	GameInfoUpdatedIntgrEventName        IntgrEventName = "GAME_INFO_UPDATED"
+	DimensionUpdatedIntgrEventName       IntgrEventName = "DIMENSION_UPDATED"
 	RangeObservedIntgrEventName          IntgrEventName = "RANGE_OBSERVED"
 	ObservedRangeUpdatedIntgrEventName   IntgrEventName = "OBSERVED_RANGE_UPDATED"
 	ObserveRangeRequestedIntgrEventName  IntgrEventName = "OBSERVE_RANGE_REQUESTED"
@@ -72,24 +72,24 @@ type GameJoinedIntgrEvent struct {
 	PlayerId   string         `json:"playerId"`
 }
 
-func NewGameJoinedIntgrEvent(liveGameId string, playerId string) GameInfoUpdatedIntgrEvent {
-	return GameInfoUpdatedIntgrEvent{
+func NewGameJoinedIntgrEvent(liveGameId string, playerId string) DimensionUpdatedIntgrEvent {
+	return DimensionUpdatedIntgrEvent{
 		Name:       GameJoinedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}
 }
 
-type GameInfoUpdatedIntgrEvent struct {
+type DimensionUpdatedIntgrEvent struct {
 	Name       IntgrEventName        `json:"name"`
 	LiveGameId string                `json:"liveGameId"`
 	PlayerId   string                `json:"playerId"`
 	Dimension  viewmodel.DimensionVm `json:"dimension"`
 }
 
-func NewGameInfoUpdatedIntgrEvent(liveGameId string, playerId string, dimensionVm viewmodel.DimensionVm) GameInfoUpdatedIntgrEvent {
-	return GameInfoUpdatedIntgrEvent{
-		Name:       GameInfoUpdatedIntgrEventName,
+func NewDimensionUpdatedIntgrEvent(liveGameId string, playerId string, dimensionVm viewmodel.DimensionVm) DimensionUpdatedIntgrEvent {
+	return DimensionUpdatedIntgrEvent{
+		Name:       DimensionUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Dimension:  dimensionVm,
