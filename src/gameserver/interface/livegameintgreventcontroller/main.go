@@ -16,8 +16,8 @@ func New(liveGameAppService livegameappservice.Service) {
 			}
 
 			switch intgrEvent.Name {
-			case intgrevent.AddPlayerRequestedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.AddPlayerRequestedIntgrEvent](message)
+			case intgrevent.JoinLiveGameRequestedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.JoinLiveGameRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
@@ -40,8 +40,8 @@ func New(liveGameAppService livegameappservice.Service) {
 					return
 				}
 				liveGameAppService.AddObservedRangeToLiveGame(event.LiveGameId, event.PlayerId, event.Range)
-			case intgrevent.RemovePlayerRequestedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.RemovePlayerRequestedIntgrEvent](message)
+			case intgrevent.LeaveLiveGameRequestedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.LeaveLiveGameRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}

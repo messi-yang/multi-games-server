@@ -10,14 +10,15 @@ import (
 type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
+	SendGameJoinedServerEvent(presenter Presenter, rawPlayerId string)
 	SendInformationUpdatedServerEvent(presenter Presenter, mapSizeVm viewmodel.MapSizeVm)
 	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
-	RequestToAddPlayer(rawLiveGameId string, rawPlayerId string)
+	RequestToJoinLiveGame(rawLiveGameId string, rawPlayerId string)
 	RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rangeVm viewmodel.RangeVm)
 	RequestToBuildItem(rawLiveGameId string, locationVm viewmodel.LocationVm, rawItemId string)
 	RequestToDestroyItem(rawLiveGameId string, locationVm viewmodel.LocationVm)
-	RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string)
+	RequestToLeaveLiveGame(rawLiveGameId string, rawPlayerId string)
 }
 
 type serve struct {
@@ -33,6 +34,13 @@ func (serve *serve) SendErroredServerEvent(presenter Presenter, clientMessage st
 	event := ErroredServerEvent{}
 	event.Type = ErroredServerEventType
 	event.Payload.ClientMessage = clientMessage
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, rawPlayerId string) {
+	event := GameJoinedServerEvent{}
+	event.Type = GameJoinedServerEventType
+	event.Payload.PlayerId = rawPlayerId
 	presenter.OnSuccess(event)
 }
 
@@ -71,10 +79,10 @@ func (serve *serve) SendRangeObservedServerEvent(presenter Presenter, rangeVm vi
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) RequestToAddPlayer(rawLiveGameId string, rawPlayerId string) {
+func (serve *serve) RequestToJoinLiveGame(rawLiveGameId string, rawPlayerId string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewAddPlayerRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
+		intgrevent.Marshal(intgrevent.NewJoinLiveGameRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
 	)
 }
 
@@ -99,9 +107,9 @@ func (serve *serve) RequestToDestroyItem(rawLiveGameId string, locationVm viewmo
 	)
 }
 
-func (serve *serve) RequestToRemovePlayer(rawLiveGameId string, rawPlayerId string) {
+func (serve *serve) RequestToLeaveLiveGame(rawLiveGameId string, rawPlayerId string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewRemovePlayerRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
+		intgrevent.Marshal(intgrevent.NewLeaveLiveGameRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
 	)
 }

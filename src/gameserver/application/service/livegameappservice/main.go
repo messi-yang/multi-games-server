@@ -168,6 +168,12 @@ func (serve *serve) AddPlayerToLiveGame(rawLiveGameId string, rawPlayerId string
 			intgrevent.NewGameInfoUpdatedIntgrEvent(rawLiveGameId, rawPlayerId, viewmodel.NewMapSizeVm(liveGame.GetMapSize())),
 		),
 	)
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameClientChannel(rawLiveGameId, rawPlayerId),
+		intgrevent.Marshal(
+			intgrevent.NewGameJoinedIntgrEvent(rawLiveGameId, rawPlayerId),
+		),
+	)
 }
 
 func (serve *serve) RemovePlayerFromLiveGame(rawLiveGameId string, rawPlayerId string) {

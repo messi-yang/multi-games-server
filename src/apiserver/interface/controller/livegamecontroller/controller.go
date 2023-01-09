@@ -68,6 +68,12 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			}
 
 			switch intgrEvent.Name {
+			case intgrevent.GameJoinedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.GameJoinedIntgrEvent](message)
+				if err != nil {
+					return
+				}
+				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.LiveGameId)
 			case intgrevent.ObservedRangeUpdatedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.ObservedRangeUpdatedIntgrEvent](message)
 				if err != nil {
@@ -91,7 +97,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 		})
 	defer intgrEventSubscriberUnsubscriber()
 
-	controller.liveGameAppService.RequestToAddPlayer(liveGameId, playerId)
+	controller.liveGameAppService.RequestToJoinLiveGame(liveGameId, playerId)
 
 	go func() {
 		defer func() {
@@ -152,7 +158,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.liveGameAppService.RequestToRemovePlayer(liveGameId, playerId)
+		controller.liveGameAppService.RequestToLeaveLiveGame(liveGameId, playerId)
 		return
 	}
 }

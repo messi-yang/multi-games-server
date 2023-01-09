@@ -11,6 +11,7 @@ type ServerEventType string
 const (
 	ErroredServerEventType              ServerEventType = "ERRORED"
 	InformationUpdatedServerEventType   ServerEventType = "INFORMATION_UPDATED"
+	GameJoinedServerEventType           ServerEventType = "GAME_JOINED"
 	ItemsUpdatedServerEventType         ServerEventType = "ITEMS_UPDATED"
 	RangeObservedServerEventType        ServerEventType = "RANGE_OBSERVED"
 	ObservedRangeUpdatedServerEventType ServerEventType = "OBSERVED_RANGE_UPDATED"
@@ -24,6 +25,13 @@ type ErroredServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
 		ClientMessage string `json:"clientMessage"`
+	} `json:"payload"`
+}
+
+type GameJoinedServerEvent struct {
+	Type    ServerEventType `json:"type"`
+	Payload struct {
+		PlayerId string `json:"playerId"`
 	} `json:"payload"`
 }
 

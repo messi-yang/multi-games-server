@@ -7,14 +7,15 @@ import (
 type IntgrEventName string
 
 const (
-	AddPlayerRequestedIntgrEventName    IntgrEventName = "ADD_PLAYER_REQUESTED"
-	BuildItemRequestedIntgrEventName    IntgrEventName = "BUILD_ITEM_REQUESTED"
-	DestroyItemRequestedIntgrEventName  IntgrEventName = "DESTROY_ITEM_REQUESTED"
-	GameInfoUpdatedIntgrEventName       IntgrEventName = "GAME_INFO_UPDATED"
-	RangeObservedIntgrEventName         IntgrEventName = "RANGE_OBSERVED"
-	ObservedRangeUpdatedIntgrEventName  IntgrEventName = "OBSERVED_RANGE_UPDATED"
-	ObserveRangeRequestedIntgrEventName IntgrEventName = "OBSERVE_RANGE_REQUESTED"
-	RemovePlayerRequestedIntgrEventName IntgrEventName = "REMOVE_PLAYER_REQUESTED"
+	JoinLiveGameRequestedIntgrEventName  IntgrEventName = "ADD_PLAYER_REQUESTED"
+	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
+	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
+	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
+	GameInfoUpdatedIntgrEventName        IntgrEventName = "GAME_INFO_UPDATED"
+	RangeObservedIntgrEventName          IntgrEventName = "RANGE_OBSERVED"
+	ObservedRangeUpdatedIntgrEventName   IntgrEventName = "OBSERVED_RANGE_UPDATED"
+	ObserveRangeRequestedIntgrEventName  IntgrEventName = "OBSERVE_RANGE_REQUESTED"
+	LeaveLiveGameRequestedIntgrEventName IntgrEventName = "REMOVE_PLAYER_REQUESTED"
 )
 
 type GenericIntgrEvent struct {
@@ -37,15 +38,15 @@ func NewBuildItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.Loc
 	}
 }
 
-type AddPlayerRequestedIntgrEvent struct {
+type JoinLiveGameRequestedIntgrEvent struct {
 	Name       IntgrEventName `json:"name"`
 	LiveGameId string         `json:"liveGameId"`
 	PlayerId   string         `json:"playerId"`
 }
 
-func NewAddPlayerRequestedIntgrEvent(liveGameId string, playerId string) AddPlayerRequestedIntgrEvent {
-	return AddPlayerRequestedIntgrEvent{
-		Name:       AddPlayerRequestedIntgrEventName,
+func NewJoinLiveGameRequestedIntgrEvent(liveGameId string, playerId string) JoinLiveGameRequestedIntgrEvent {
+	return JoinLiveGameRequestedIntgrEvent{
+		Name:       JoinLiveGameRequestedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}
@@ -62,6 +63,20 @@ func NewDestroyItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.L
 		Name:       DestroyItemRequestedIntgrEventName,
 		LiveGameId: liveGameId,
 		Location:   locationVm,
+	}
+}
+
+type GameJoinedIntgrEvent struct {
+	Name       IntgrEventName `json:"name"`
+	LiveGameId string         `json:"liveGameId"`
+	PlayerId   string         `json:"playerId"`
+}
+
+func NewGameJoinedIntgrEvent(liveGameId string, playerId string) GameInfoUpdatedIntgrEvent {
+	return GameInfoUpdatedIntgrEvent{
+		Name:       GameJoinedIntgrEventName,
+		LiveGameId: liveGameId,
+		PlayerId:   playerId,
 	}
 }
 
@@ -133,15 +148,15 @@ func NewObserveRangeRequestedIntgrEvent(liveGameId string, playerId string, rang
 	}
 }
 
-type RemovePlayerRequestedIntgrEvent struct {
+type LeaveLiveGameRequestedIntgrEvent struct {
 	Name       IntgrEventName `json:"name"`
 	LiveGameId string         `json:"liveGameId"`
 	PlayerId   string         `json:"playerId"`
 }
 
-func NewRemovePlayerRequestedIntgrEvent(liveGameId string, playerId string) RemovePlayerRequestedIntgrEvent {
-	return RemovePlayerRequestedIntgrEvent{
-		Name:       RemovePlayerRequestedIntgrEventName,
+func NewLeaveLiveGameRequestedIntgrEvent(liveGameId string, playerId string) LeaveLiveGameRequestedIntgrEvent {
+	return LeaveLiveGameRequestedIntgrEvent{
+		Name:       LeaveLiveGameRequestedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}
