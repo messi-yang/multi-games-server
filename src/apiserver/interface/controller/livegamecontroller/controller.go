@@ -91,7 +91,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendInformationUpdatedServerEvent(socketPresenter, event.MapSize)
+				controller.liveGameAppService.SendInformationUpdatedServerEvent(socketPresenter, event.Dimension)
 			}
 
 		})

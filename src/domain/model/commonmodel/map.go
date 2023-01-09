@@ -10,9 +10,9 @@ func NewMap(unitMatrix [][]Unit) Map {
 	}
 }
 
-func (um Map) GetMapSize() MapSize {
-	mapSize, _ := NewMapSize(len(um.unitMatrix), len(um.unitMatrix[0]))
-	return mapSize
+func (um Map) GetDimension() Dimension {
+	dimension, _ := NewDimension(len(um.unitMatrix), len(um.unitMatrix[0]))
+	return dimension
 }
 
 func (um Map) GetUnitMatrix() [][]Unit {

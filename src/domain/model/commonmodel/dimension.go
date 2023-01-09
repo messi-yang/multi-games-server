@@ -4,40 +4,40 @@ import (
 	"fmt"
 )
 
-type ErrInvalidMapSize struct {
+type ErrInvalidDimension struct {
 	width  int
 	height int
 }
 
-func (e *ErrInvalidMapSize) Error() string {
-	return fmt.Sprintf("width (%d) and height(%d) of mapSize must be greater than 0", e.width, e.height)
+func (e *ErrInvalidDimension) Error() string {
+	return fmt.Sprintf("width (%d) and height(%d) of dimension must be greater than 0", e.width, e.height)
 }
 
-type MapSize struct {
+type Dimension struct {
 	width  int
 	height int
 }
 
-func NewMapSize(width int, height int) (MapSize, error) {
+func NewDimension(width int, height int) (Dimension, error) {
 	if width < 1 || height < 1 {
-		return MapSize{}, &ErrInvalidMapSize{width: width, height: height}
+		return Dimension{}, &ErrInvalidDimension{width: width, height: height}
 	}
 
-	return MapSize{
+	return Dimension{
 		width:  width,
 		height: height,
 	}, nil
 }
 
-func (ms MapSize) GetWidth() int {
+func (ms Dimension) GetWidth() int {
 	return ms.width
 }
 
-func (ms MapSize) GetHeight() int {
+func (ms Dimension) GetHeight() int {
 	return ms.height
 }
 
-func (ms MapSize) IncludesRange(rangeVo Range) bool {
+func (ms Dimension) IncludesRange(rangeVo Range) bool {
 	if rangeVo.from.x < 0 || rangeVo.from.x >= ms.width {
 		return false
 	}
@@ -53,7 +53,7 @@ func (ms MapSize) IncludesRange(rangeVo Range) bool {
 	return true
 }
 
-func (ms MapSize) IncludesLocation(location Location) bool {
+func (ms Dimension) IncludesLocation(location Location) bool {
 	includesAll := true
 	if location.x >= ms.width || location.y >= ms.height {
 		includesAll = false

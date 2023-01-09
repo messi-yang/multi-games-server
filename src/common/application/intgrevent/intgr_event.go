@@ -81,18 +81,18 @@ func NewGameJoinedIntgrEvent(liveGameId string, playerId string) GameInfoUpdated
 }
 
 type GameInfoUpdatedIntgrEvent struct {
-	Name       IntgrEventName      `json:"name"`
-	LiveGameId string              `json:"liveGameId"`
-	PlayerId   string              `json:"playerId"`
-	MapSize    viewmodel.MapSizeVm `json:"mapSize"`
+	Name       IntgrEventName        `json:"name"`
+	LiveGameId string                `json:"liveGameId"`
+	PlayerId   string                `json:"playerId"`
+	Dimension  viewmodel.DimensionVm `json:"dimension"`
 }
 
-func NewGameInfoUpdatedIntgrEvent(liveGameId string, playerId string, mapSizeVm viewmodel.MapSizeVm) GameInfoUpdatedIntgrEvent {
+func NewGameInfoUpdatedIntgrEvent(liveGameId string, playerId string, dimensionVm viewmodel.DimensionVm) GameInfoUpdatedIntgrEvent {
 	return GameInfoUpdatedIntgrEvent{
 		Name:       GameInfoUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		MapSize:    mapSizeVm,
+		Dimension:  dimensionVm,
 	}
 }
 

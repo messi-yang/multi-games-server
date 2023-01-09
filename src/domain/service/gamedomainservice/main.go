@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	CreateGame(mapSize commonmodel.MapSize) (gamemodel.GameId, error)
+	CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error)
 }
 
 type servce struct {
@@ -20,8 +20,8 @@ func New(gameRepo gamemodel.GameRepo) Service {
 	return &servce{gameRepo: gameRepo}
 }
 
-func (serve *servce) CreateGame(mapSize commonmodel.MapSize) (gamemodel.GameId, error) {
-	unitMatrix, _ := tool.RangeMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
+func (serve *servce) CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error) {
+	unitMatrix, _ := tool.RangeMatrix(dimension.GetWidth(), dimension.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
 		itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
 		return commonmodel.NewUnit(itemId), nil
 	})

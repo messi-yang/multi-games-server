@@ -38,7 +38,7 @@ type GameJoinedServerEvent struct {
 type InformationUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MapSize viewmodel.MapSizeVm `json:"mapSize"`
+		Dimension viewmodel.DimensionVm `json:"dimension"`
 	} `json:"payload"`
 }
 
