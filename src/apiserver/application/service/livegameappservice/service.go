@@ -10,15 +10,15 @@ import (
 type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
-	SendGameJoinedServerEvent(presenter Presenter, rawPlayerId string)
+	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string)
 	SendInformationUpdatedServerEvent(presenter Presenter, mapSizeVm viewmodel.MapSizeVm)
 	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
-	RequestToJoinLiveGame(rawLiveGameId string, rawPlayerId string)
-	RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rangeVm viewmodel.RangeVm)
-	RequestToBuildItem(rawLiveGameId string, locationVm viewmodel.LocationVm, rawItemId string)
-	RequestToDestroyItem(rawLiveGameId string, locationVm viewmodel.LocationVm)
-	RequestToLeaveLiveGame(rawLiveGameId string, rawPlayerId string)
+	RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string)
+	RequestToObserveRange(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm)
+	RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
+	RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
+	RequestToLeaveLiveGame(liveGameIdVm string, playerIdVm string)
 }
 
 type serve struct {
@@ -37,10 +37,10 @@ func (serve *serve) SendErroredServerEvent(presenter Presenter, clientMessage st
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, rawPlayerId string) {
+func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerIdVm string) {
 	event := GameJoinedServerEvent{}
 	event.Type = GameJoinedServerEventType
-	event.Payload.PlayerId = rawPlayerId
+	event.Payload.PlayerId = playerIdVm
 	presenter.OnSuccess(event)
 }
 
@@ -79,37 +79,37 @@ func (serve *serve) SendRangeObservedServerEvent(presenter Presenter, rangeVm vi
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) RequestToJoinLiveGame(rawLiveGameId string, rawPlayerId string) {
+func (serve *serve) RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewJoinLiveGameRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
+		intgrevent.Marshal(intgrevent.NewJoinLiveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
 	)
 }
 
-func (serve *serve) RequestToObserveRange(rawLiveGameId string, rawPlayerId string, rangeVm viewmodel.RangeVm) {
+func (serve *serve) RequestToObserveRange(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewObserveRangeRequestedIntgrEvent(rawLiveGameId, rawPlayerId, rangeVm)),
+		intgrevent.Marshal(intgrevent.NewObserveRangeRequestedIntgrEvent(liveGameIdVm, playerIdVm, rangeVm)),
 	)
 }
 
-func (serve *serve) RequestToBuildItem(rawLiveGameId string, locationVm viewmodel.LocationVm, rawItemId string) {
+func (serve *serve) RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewBuildItemRequestedIntgrEvent(rawLiveGameId, locationVm, rawItemId)),
+		intgrevent.Marshal(intgrevent.NewBuildItemRequestedIntgrEvent(liveGameIdVm, locationVm, itemIdVm)),
 	)
 }
 
-func (serve *serve) RequestToDestroyItem(rawLiveGameId string, locationVm viewmodel.LocationVm) {
+func (serve *serve) RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewDestroyItemRequestedIntgrEvent(rawLiveGameId, locationVm)),
+		intgrevent.Marshal(intgrevent.NewDestroyItemRequestedIntgrEvent(liveGameIdVm, locationVm)),
 	)
 }
 
-func (serve *serve) RequestToLeaveLiveGame(rawLiveGameId string, rawPlayerId string) {
+func (serve *serve) RequestToLeaveLiveGame(liveGameIdVm string, playerIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewLeaveLiveGameRequestedIntgrEvent(rawLiveGameId, rawPlayerId)),
+		intgrevent.Marshal(intgrevent.NewLeaveLiveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
 	)
 }

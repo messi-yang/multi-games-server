@@ -6,8 +6,8 @@ type ItemId struct {
 	id uuid.UUID
 }
 
-func NewItemId(rawId string) (ItemId, error) {
-	id, err := uuid.Parse(rawId)
+func NewItemId(uuidStr string) (ItemId, error) {
+	id, err := uuid.Parse(uuidStr)
 	if err != nil {
 		return ItemId{}, err
 	}

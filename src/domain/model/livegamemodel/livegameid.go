@@ -6,8 +6,8 @@ type LiveGameId struct {
 	id uuid.UUID
 }
 
-func NewLiveGameId(rawId string) (LiveGameId, error) {
-	id, err := uuid.Parse(rawId)
+func NewLiveGameId(uuidStr string) (LiveGameId, error) {
+	id, err := uuid.Parse(uuidStr)
 	if err != nil {
 		return LiveGameId{}, err
 	}

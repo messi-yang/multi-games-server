@@ -19,8 +19,8 @@ func NewUnitVm(unit commonmodel.Unit) UnitVm {
 }
 
 func (dto UnitVm) ToValueObject() (commonmodel.Unit, error) {
-	var rawItemId string = lo.Ternary(dto.ItemId == nil, *dto.ItemId, uuid.Nil.String())
-	itemId, err := itemmodel.NewItemId(rawItemId)
+	var itemIdVm string = lo.Ternary(dto.ItemId == nil, *dto.ItemId, uuid.Nil.String())
+	itemId, err := itemmodel.NewItemId(itemIdVm)
 	if err != nil {
 		return commonmodel.Unit{}, err
 	}
