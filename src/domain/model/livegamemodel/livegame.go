@@ -15,12 +15,14 @@ var (
 	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
+	ErrPlayerViewNotFound            = errors.New("ErrPlayerViewNotFound")
 )
 
 type LiveGame struct {
 	id             LiveGameId
 	map_           commonmodel.Map
 	playerIds      map[playermodel.PlayerId]bool
+	playerViews    map[playermodel.PlayerId]View
 	observedRanges map[playermodel.PlayerId]commonmodel.Range
 }
 
@@ -29,6 +31,7 @@ func NewLiveGame(id LiveGameId, map_ commonmodel.Map) LiveGame {
 		id:             id,
 		map_:           map_,
 		playerIds:      make(map[playermodel.PlayerId]bool),
+		playerViews:    make(map[playermodel.PlayerId]View),
 		observedRanges: make(map[playermodel.PlayerId]commonmodel.Range),
 	}
 }
@@ -79,6 +82,18 @@ func (liveGame *LiveGame) removeObservedRange(playerId playermodel.PlayerId) {
 	delete(liveGame.observedRanges, playerId)
 }
 
+func (liveGame *LiveGame) SetPlayerView(playerId playermodel.PlayerId, view View) {
+	liveGame.playerViews[playerId] = view
+}
+
+func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, error) {
+	view, exists := liveGame.playerViews[playerId]
+	if exists {
+		return View{}, ErrPlayerViewNotFound
+	}
+	return view, nil
+}
+
 func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 	_, exists := liveGame.playerIds[playerId]
 	if exists {
@@ -86,6 +101,9 @@ func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 	}
 
 	liveGame.playerIds[playerId] = true
+
+	originLocation, _ := commonmodel.NewLocation(0, 0)
+	liveGame.SetPlayerView(playerId, NewView(originLocation))
 
 	return nil
 }

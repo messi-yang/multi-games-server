@@ -67,16 +67,18 @@ func NewDestroyItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.L
 }
 
 type GameJoinedIntgrEvent struct {
-	Name       IntgrEventName `json:"name"`
-	LiveGameId string         `json:"liveGameId"`
-	PlayerId   string         `json:"playerId"`
+	Name       IntgrEventName   `json:"name"`
+	LiveGameId string           `json:"liveGameId"`
+	PlayerId   string           `json:"playerId"`
+	View       viewmodel.ViewVm `json:"view"`
 }
 
-func NewGameJoinedIntgrEvent(liveGameId string, playerId string) DimensionUpdatedIntgrEvent {
-	return DimensionUpdatedIntgrEvent{
+func NewGameJoinedIntgrEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
+	return GameJoinedIntgrEvent{
 		Name:       GameJoinedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
+		View:       viewVm,
 	}
 }
 

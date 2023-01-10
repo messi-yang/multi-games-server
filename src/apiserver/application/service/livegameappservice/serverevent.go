@@ -31,7 +31,8 @@ type ErroredServerEvent struct {
 type GameJoinedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		PlayerId string `json:"playerId"`
+		PlayerId string           `json:"playerId"`
+		View     viewmodel.ViewVm `json:"view"`
 	} `json:"payload"`
 }
 

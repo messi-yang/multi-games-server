@@ -167,10 +167,11 @@ func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) 
 			intgrevent.NewDimensionUpdatedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewDimensionVm(liveGame.GetDimension())),
 		),
 	)
+	view, _ := liveGame.GetPlayerView(playerId)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		intgrevent.Marshal(
-			intgrevent.NewGameJoinedIntgrEvent(liveGameIdVm, playerIdVm),
+			intgrevent.NewGameJoinedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view)),
 		),
 	)
 }
