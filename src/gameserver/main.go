@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service/gamedomainservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/persistence/livegamememoryrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameintgreventcontroller"
@@ -19,7 +19,7 @@ func Start() {
 	}
 	gameRepo := gamepsqlrepo.New(gormDb)
 	liveGameRepo := livegamememoryrepo.New()
-	gameDomainService := gamedomainservice.New(
+	gameDomainService := service.NewGameDomainService(
 		gameRepo,
 	)
 	intgrEventPublisher := redisintgreventpublisher.New()
