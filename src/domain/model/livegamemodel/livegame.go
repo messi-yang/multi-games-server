@@ -48,15 +48,15 @@ func (liveGame *LiveGame) GetMap() commonmodel.Map {
 	return liveGame.map_
 }
 
-func (liveGame *LiveGame) GetMapByRange(rangeVo commonmodel.Range) (commonmodel.Map, error) {
-	if !liveGame.GetDimension().IncludesRange(rangeVo) {
+func (liveGame *LiveGame) GetMapByRange(range_ commonmodel.Range) (commonmodel.Map, error) {
+	if !liveGame.GetDimension().IncludesRange(range_) {
 		return commonmodel.Map{}, ErrRangeExceedsMap
 	}
-	offsetX := rangeVo.GetFrom().GetX()
-	offsetY := rangeVo.GetFrom().GetY()
-	rangeVoWidth := rangeVo.GetWidth()
-	rangeVoHeight := rangeVo.GetHeight()
-	unitMatrix, _ := tool.RangeMatrix(rangeVoWidth, rangeVoHeight, func(x int, y int) (commonmodel.Unit, error) {
+	offsetX := range_.GetFrom().GetX()
+	offsetY := range_.GetFrom().GetY()
+	range_Width := range_.GetWidth()
+	range_Height := range_.GetHeight()
+	unitMatrix, _ := tool.RangeMatrix(range_Width, range_Height, func(x int, y int) (commonmodel.Unit, error) {
 		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
 		return liveGame.map_.GetUnit(location), nil
 	})
@@ -69,12 +69,12 @@ func (liveGame *LiveGame) GetObservedRanges() map[playermodel.PlayerId]commonmod
 	return liveGame.observedRanges
 }
 
-func (liveGame *LiveGame) AddObservedRange(playerId playermodel.PlayerId, rangeVo commonmodel.Range) error {
+func (liveGame *LiveGame) AddObservedRange(playerId playermodel.PlayerId, range_ commonmodel.Range) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
 	}
-	liveGame.observedRanges[playerId] = rangeVo
+	liveGame.observedRanges[playerId] = range_
 	return nil
 }
 

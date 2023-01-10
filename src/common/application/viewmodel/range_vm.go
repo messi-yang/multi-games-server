@@ -9,10 +9,10 @@ type RangeVm struct {
 	To   LocationVm `json:"to"`
 }
 
-func NewRangeVm(rangeVo commonmodel.Range) RangeVm {
+func NewRangeVm(range_ commonmodel.Range) RangeVm {
 	return RangeVm{
-		From: NewLocationVm(rangeVo.GetFrom()),
-		To:   NewLocationVm(rangeVo.GetTo()),
+		From: NewLocationVm(range_.GetFrom()),
+		To:   NewLocationVm(range_.GetTo()),
 	}
 }
 
@@ -27,7 +27,7 @@ func (dto RangeVm) ToValueObject() (commonmodel.Range, error) {
 		return commonmodel.Range{}, err
 	}
 
-	rangeVo, err := commonmodel.NewRange(
+	range_, err := commonmodel.NewRange(
 		fromLocationVm,
 		toLocationVm,
 	)
@@ -35,5 +35,5 @@ func (dto RangeVm) ToValueObject() (commonmodel.Range, error) {
 		return commonmodel.Range{}, err
 	}
 
-	return rangeVo, nil
+	return range_, nil
 }
