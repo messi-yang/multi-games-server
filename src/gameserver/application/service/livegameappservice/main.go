@@ -17,7 +17,6 @@ type Service interface {
 	AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string)
 	RemovePlayerFromLiveGame(liveGameIdVm string, playerIdVm string)
 	AddObservedRangeToLiveGame(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm)
-	RemoveObservedRangeFromLiveGame(liveGameIdVm string, playerIdVm string)
 }
 
 type serve struct {
@@ -236,26 +235,4 @@ func (serve *serve) AddObservedRangeToLiveGame(liveGameIdVm string, playerIdVm s
 			intgrevent.NewRangeObservedIntgrEvent(liveGameIdVm, playerIdVm, rangeVm, viewmodel.NewMapVm(mapVo)),
 		),
 	)
-}
-
-func (serve *serve) RemoveObservedRangeFromLiveGame(liveGameIdVm string, playerIdVm string) {
-	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := playermodel.NewPlayerId(playerIdVm)
-	if err != nil {
-		return
-	}
-
-	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
-	defer unlocker()
-
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
-	if err != nil {
-		return
-	}
-
-	liveGame.RemoveObservedRange(playerId)
-	serve.liveGameRepo.Update(liveGameId, liveGame)
 }

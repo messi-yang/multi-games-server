@@ -75,7 +75,7 @@ func (liveGame *LiveGame) AddObservedRange(playerId playermodel.PlayerId, rangeV
 	return nil
 }
 
-func (liveGame *LiveGame) RemoveObservedRange(playerId playermodel.PlayerId) {
+func (liveGame *LiveGame) removeObservedRange(playerId playermodel.PlayerId) {
 	delete(liveGame.observedRanges, playerId)
 }
 
@@ -91,6 +91,7 @@ func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 }
 
 func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
+	liveGame.removeObservedRange(playerId)
 	delete(liveGame.playerIds, playerId)
 }
 

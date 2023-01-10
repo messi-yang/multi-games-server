@@ -46,7 +46,6 @@ func New(liveGameAppService livegameappservice.Service) {
 					return
 				}
 				liveGameAppService.RemovePlayerFromLiveGame(event.LiveGameId, event.PlayerId)
-				liveGameAppService.RemoveObservedRangeFromLiveGame(event.LiveGameId, event.PlayerId)
 			}
 		})
 	defer liveGameAdminChannelUnsubscriber()
