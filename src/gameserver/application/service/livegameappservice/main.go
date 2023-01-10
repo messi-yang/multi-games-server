@@ -47,7 +47,7 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 		if !rangeVo.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
-		mapVo, err := liveGame.GetMapByRange(rangeVo)
+		map_, err := liveGame.GetMapByRange(rangeVo)
 		if err != nil {
 			continue
 		}
@@ -57,7 +57,7 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 				liveGameId.ToString(),
 				playerId.ToString(),
 				viewmodel.NewRangeVm(rangeVo),
-				viewmodel.NewMapVm(mapVo),
+				viewmodel.NewMapVm(map_),
 			)),
 		)
 	}
@@ -223,7 +223,7 @@ func (serve *serve) AddObservedRangeToLiveGame(liveGameIdVm string, playerIdVm s
 		return
 	}
 
-	mapVo, err := liveGame.GetMapByRange(rangeVo)
+	map_, err := liveGame.GetMapByRange(rangeVo)
 	if err != nil {
 		return
 	}
@@ -232,7 +232,7 @@ func (serve *serve) AddObservedRangeToLiveGame(liveGameIdVm string, playerIdVm s
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		intgrevent.Marshal(
-			intgrevent.NewRangeObservedIntgrEvent(liveGameIdVm, playerIdVm, rangeVm, viewmodel.NewMapVm(mapVo)),
+			intgrevent.NewRangeObservedIntgrEvent(liveGameIdVm, playerIdVm, rangeVm, viewmodel.NewMapVm(map_)),
 		),
 	)
 }

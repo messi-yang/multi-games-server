@@ -7,14 +7,14 @@ import (
 type Game struct {
 	id        GameId
 	dimension commonmodel.Dimension
-	mapVo     commonmodel.Map
+	map_      commonmodel.Map
 }
 
-func NewGame(id GameId, mapVo commonmodel.Map) Game {
+func NewGame(id GameId, map_ commonmodel.Map) Game {
 	return Game{
 		id:        id,
-		dimension: mapVo.GetDimension(),
-		mapVo:     mapVo,
+		dimension: map_.GetDimension(),
+		map_:      map_,
 	}
 }
 
@@ -23,7 +23,7 @@ func (game *Game) GetId() GameId {
 }
 
 func (game *Game) GetMap() commonmodel.Map {
-	return game.mapVo
+	return game.map_
 }
 
 func (game *Game) GetDimension() commonmodel.Dimension {

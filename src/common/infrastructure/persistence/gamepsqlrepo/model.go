@@ -37,9 +37,9 @@ func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) commonmodel.Map {
 	return commonmodel.NewMap(unitMatrix)
 }
 
-func convertMapToMapPsqlModel(mapVo commonmodel.Map) [][]UnitPsqlModel {
+func convertMapToMapPsqlModel(map_ commonmodel.Map) [][]UnitPsqlModel {
 	mapPsqlModel := make([][]UnitPsqlModel, 0)
-	for unitColIdx, unitCol := range mapVo.GetUnitMatrix() {
+	for unitColIdx, unitCol := range map_.GetUnitMatrix() {
 		mapPsqlModel = append(mapPsqlModel, []UnitPsqlModel{})
 		for _, unit := range unitCol {
 			mapPsqlModel[unitColIdx] = append(mapPsqlModel[unitColIdx], UnitPsqlModel{

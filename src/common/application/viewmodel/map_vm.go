@@ -7,8 +7,8 @@ import (
 
 type MapVm [][]UnitVm
 
-func NewMapVm(mapVo commonmodel.Map) MapVm {
-	mapViewModel, _ := tool.MapMatrix(mapVo.GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (UnitVm, error) {
+func NewMapVm(map_ commonmodel.Map) MapVm {
+	mapViewModel, _ := tool.MapMatrix(map_.GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (UnitVm, error) {
 		return NewUnitVm(unit), nil
 	})
 	return mapViewModel

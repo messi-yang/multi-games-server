@@ -19,15 +19,15 @@ var (
 
 type LiveGame struct {
 	id             LiveGameId
-	mapVo          commonmodel.Map
+	map_           commonmodel.Map
 	playerIds      map[playermodel.PlayerId]bool
 	observedRanges map[playermodel.PlayerId]commonmodel.Range
 }
 
-func NewLiveGame(id LiveGameId, mapVo commonmodel.Map) LiveGame {
+func NewLiveGame(id LiveGameId, map_ commonmodel.Map) LiveGame {
 	return LiveGame{
 		id:             id,
-		mapVo:          mapVo,
+		map_:           map_,
 		playerIds:      make(map[playermodel.PlayerId]bool),
 		observedRanges: make(map[playermodel.PlayerId]commonmodel.Range),
 	}
@@ -38,11 +38,11 @@ func (liveGame *LiveGame) GetId() LiveGameId {
 }
 
 func (liveGame *LiveGame) GetDimension() commonmodel.Dimension {
-	return liveGame.mapVo.GetDimension()
+	return liveGame.map_.GetDimension()
 }
 
 func (liveGame *LiveGame) GetMap() commonmodel.Map {
-	return liveGame.mapVo
+	return liveGame.map_
 }
 
 func (liveGame *LiveGame) GetMapByRange(rangeVo commonmodel.Range) (commonmodel.Map, error) {
@@ -55,11 +55,11 @@ func (liveGame *LiveGame) GetMapByRange(rangeVo commonmodel.Range) (commonmodel.
 	rangeVoHeight := rangeVo.GetHeight()
 	unitMatrix, _ := tool.RangeMatrix(rangeVoWidth, rangeVoHeight, func(x int, y int) (commonmodel.Unit, error) {
 		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
-		return liveGame.mapVo.GetUnit(location), nil
+		return liveGame.map_.GetUnit(location), nil
 	})
-	mapVo := commonmodel.NewMap(unitMatrix)
+	map_ := commonmodel.NewMap(unitMatrix)
 
-	return mapVo, nil
+	return map_, nil
 }
 
 func (liveGame *LiveGame) GetObservedRanges() map[playermodel.PlayerId]commonmodel.Range {
@@ -100,9 +100,9 @@ func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmo
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	unit := liveGame.mapVo.GetUnit(location)
+	unit := liveGame.map_.GetUnit(location)
 	newUnit := unit.SetItemId(itemId)
-	liveGame.mapVo.ReplaceUnitAt(location, newUnit)
+	liveGame.map_.ReplaceUnitAt(location, newUnit)
 
 	return nil
 }
@@ -112,10 +112,10 @@ func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
-	unit := liveGame.mapVo.GetUnit(location)
+	unit := liveGame.map_.GetUnit(location)
 	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
 	newUnit := unit.SetItemId(itemId)
-	liveGame.mapVo.ReplaceUnitAt(location, newUnit)
+	liveGame.map_.ReplaceUnitAt(location, newUnit)
 
 	return nil
 }
