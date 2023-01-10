@@ -10,7 +10,6 @@ type ServerEventType string
 
 const (
 	ErroredServerEventType              ServerEventType = "ERRORED"
-	DimensionUpdatedServerEventType     ServerEventType = "DIMENSION_UPDATED"
 	GameJoinedServerEventType           ServerEventType = "GAME_JOINED"
 	ItemsUpdatedServerEventType         ServerEventType = "ITEMS_UPDATED"
 	RangeObservedServerEventType        ServerEventType = "RANGE_OBSERVED"
@@ -31,14 +30,8 @@ type ErroredServerEvent struct {
 type GameJoinedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		PlayerId string           `json:"playerId"`
-		View     viewmodel.ViewVm `json:"view"`
-	} `json:"payload"`
-}
-
-type DimensionUpdatedServerEvent struct {
-	Type    ServerEventType `json:"type"`
-	Payload struct {
+		PlayerId  string                `json:"playerId"`
+		View      viewmodel.ViewVm      `json:"view"`
 		Dimension viewmodel.DimensionVm `json:"dimension"`
 	} `json:"payload"`
 }

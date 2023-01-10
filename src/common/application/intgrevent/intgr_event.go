@@ -11,7 +11,6 @@ const (
 	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
 	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
-	DimensionUpdatedIntgrEventName       IntgrEventName = "DIMENSION_UPDATED"
 	RangeObservedIntgrEventName          IntgrEventName = "RANGE_OBSERVED"
 	ObservedRangeUpdatedIntgrEventName   IntgrEventName = "OBSERVED_RANGE_UPDATED"
 	ObserveRangeRequestedIntgrEventName  IntgrEventName = "OBSERVE_RANGE_REQUESTED"
@@ -67,33 +66,19 @@ func NewDestroyItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.L
 }
 
 type GameJoinedIntgrEvent struct {
-	Name       IntgrEventName   `json:"name"`
-	LiveGameId string           `json:"liveGameId"`
-	PlayerId   string           `json:"playerId"`
-	View       viewmodel.ViewVm `json:"view"`
+	Name       IntgrEventName        `json:"name"`
+	LiveGameId string                `json:"liveGameId"`
+	PlayerId   string                `json:"playerId"`
+	View       viewmodel.ViewVm      `json:"view"`
+	Dimension  viewmodel.DimensionVm `json:"dimension"`
 }
 
-func NewGameJoinedIntgrEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
+func NewGameJoinedIntgrEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm, dimensionVm viewmodel.DimensionVm) GameJoinedIntgrEvent {
 	return GameJoinedIntgrEvent{
 		Name:       GameJoinedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		View:       viewVm,
-	}
-}
-
-type DimensionUpdatedIntgrEvent struct {
-	Name       IntgrEventName        `json:"name"`
-	LiveGameId string                `json:"liveGameId"`
-	PlayerId   string                `json:"playerId"`
-	Dimension  viewmodel.DimensionVm `json:"dimension"`
-}
-
-func NewDimensionUpdatedIntgrEvent(liveGameId string, playerId string, dimensionVm viewmodel.DimensionVm) DimensionUpdatedIntgrEvent {
-	return DimensionUpdatedIntgrEvent{
-		Name:       DimensionUpdatedIntgrEventName,
-		LiveGameId: liveGameId,
-		PlayerId:   playerId,
 		Dimension:  dimensionVm,
 	}
 }

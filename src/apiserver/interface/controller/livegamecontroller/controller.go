@@ -73,7 +73,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.PlayerId, event.View)
+				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.PlayerId, event.View, event.Dimension)
 			case intgrevent.ObservedRangeUpdatedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.ObservedRangeUpdatedIntgrEvent](message)
 				if err != nil {
@@ -86,12 +86,6 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 					return
 				}
 				controller.liveGameAppService.SendRangeObservedServerEvent(socketPresenter, event.Range, event.Map)
-			case intgrevent.DimensionUpdatedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.DimensionUpdatedIntgrEvent](message)
-				if err != nil {
-					return
-				}
-				controller.liveGameAppService.SendDimensionUpdatedServerEvent(socketPresenter, event.Dimension)
 			}
 
 		})
