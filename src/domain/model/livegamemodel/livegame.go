@@ -44,8 +44,25 @@ func (liveGame *LiveGame) GetDimension() commonmodel.Dimension {
 	return liveGame.map_.GetDimension()
 }
 
-func (liveGame *LiveGame) GetMap() commonmodel.Map {
-	return liveGame.map_
+func (liveGame *LiveGame) GetMapForPlayer(playerId playermodel.PlayerId) (commonmodel.Map, commonmodel.Range, error) {
+	camera, exists := liveGame.playerCameras[playerId]
+	if !exists {
+		return commonmodel.Map{}, commonmodel.Range{}, ErrPlayerCameraNotFound
+	}
+
+	range_ := camera.GetRangeWithDimension(liveGame.GetDimension())
+
+	offsetX := range_.GetFrom().GetX()
+	offsetY := range_.GetFrom().GetY()
+	rangeWidth := range_.GetWidth()
+	rangeHeight := range_.GetHeight()
+	unitMatrix, _ := tool.RangeMatrix(rangeWidth, rangeHeight, func(x int, y int) (commonmodel.Unit, error) {
+		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
+		return liveGame.map_.GetUnit(location), nil
+	})
+	map_ := commonmodel.NewMap(unitMatrix)
+
+	return map_, range_, nil
 }
 
 func (liveGame *LiveGame) GetMapByRange(range_ commonmodel.Range) (commonmodel.Map, error) {

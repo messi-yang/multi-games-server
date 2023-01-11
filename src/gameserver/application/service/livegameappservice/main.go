@@ -1,8 +1,6 @@
 package livegameappservice
 
 import (
-	"fmt"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
@@ -49,7 +47,7 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 		if !range_.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
-		fmt.Println(liveGame.GetPlayerCamera(playerId))
+
 		map_, err := liveGame.GetMapByRange(range_)
 		if err != nil {
 			continue

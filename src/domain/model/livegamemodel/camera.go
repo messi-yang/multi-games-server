@@ -15,3 +15,33 @@ func NewCamera(center commonmodel.Location) Camera {
 func (camera Camera) GetCenter() commonmodel.Location {
 	return camera.center
 }
+
+func (camera Camera) GetRangeWithDimension(dimension commonmodel.Dimension) commonmodel.Range {
+	fromX := camera.GetCenter().GetX() - 25
+	toX := camera.GetCenter().GetX() + 25
+	mapWidth := dimension.GetWidth()
+	if fromX < 0 {
+		toX -= fromX
+		fromX = 0
+	} else if toX > mapWidth-1 {
+		fromX -= toX - mapWidth - 1
+		toX = mapWidth - 1
+	}
+
+	fromY := camera.GetCenter().GetY() - 25
+	toY := camera.GetCenter().GetY() + 25
+	mapHeight := dimension.GetHeight()
+	if fromY < 0 {
+		toY -= fromY
+		fromY = 0
+	} else if toY > mapHeight-1 {
+		fromY -= toY - mapHeight - 1
+		toY = mapHeight - 1
+	}
+
+	from, _ := commonmodel.NewLocation(fromX, fromY)
+	to, _ := commonmodel.NewLocation(toX, toY)
+	range_, _ := commonmodel.NewRange(from, to)
+
+	return range_
+}
