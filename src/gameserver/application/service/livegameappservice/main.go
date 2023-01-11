@@ -61,6 +61,23 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 				viewmodel.NewMapVm(map_),
 			)),
 		)
+
+		camera, err := liveGame.GetPlayerCamera(playerId)
+		if err != nil {
+			continue
+		}
+		view, err := liveGame.GetPlayerView(playerId)
+		if err != nil {
+			continue
+		}
+		serve.intgrEventPublisher.Publish(
+			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
+			intgrevent.Marshal(intgrevent.NewViewChangedIntgrEvent(
+				liveGameId.ToString(),
+				playerId.ToString(),
+				viewmodel.NewCameraVm(camera),
+				viewmodel.NewViewVm(view),
+			)))
 	}
 
 	return nil

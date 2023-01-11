@@ -11,6 +11,7 @@ type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, viewVm viewmodel.ViewVm)
+	SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
 	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string)
@@ -42,6 +43,14 @@ func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerIdVm st
 	event.Payload.PlayerId = playerIdVm
 	event.Payload.Camera = cameraVm
 	event.Payload.Dimension = dimensionVm
+	event.Payload.View = viewVm
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) {
+	event := ViewUpdatedServerEvent{}
+	event.Type = ViewUpdatedServerEventType
+	event.Payload.Camera = cameraVm
 	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }

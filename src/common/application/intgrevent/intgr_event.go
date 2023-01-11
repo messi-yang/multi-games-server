@@ -11,6 +11,7 @@ const (
 	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
 	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
+	ViewChangedIntgrEventName            IntgrEventName = "VIEW_CHANGED"
 	RangeObservedIntgrEventName          IntgrEventName = "RANGE_OBSERVED"
 	ObservedRangeUpdatedIntgrEventName   IntgrEventName = "OBSERVED_RANGE_UPDATED"
 	ObserveRangeRequestedIntgrEventName  IntgrEventName = "OBSERVE_RANGE_REQUESTED"
@@ -81,6 +82,24 @@ func NewGameJoinedIntgrEvent(liveGameId string, playerId string, cameraVm viewmo
 		PlayerId:   playerId,
 		Camera:     cameraVm,
 		Dimension:  dimensionVm,
+		View:       viewVm,
+	}
+}
+
+type ViewChangedIntgrEvent struct {
+	Name       IntgrEventName     `json:"name"`
+	LiveGameId string             `json:"liveGameId"`
+	PlayerId   string             `json:"playerId"`
+	Camera     viewmodel.CameraVm `json:"camera"`
+	View       viewmodel.ViewVm   `json:"view"`
+}
+
+func NewViewChangedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
+	return GameJoinedIntgrEvent{
+		Name:       ViewChangedIntgrEventName,
+		LiveGameId: liveGameId,
+		PlayerId:   playerId,
+		Camera:     cameraVm,
 		View:       viewVm,
 	}
 }
