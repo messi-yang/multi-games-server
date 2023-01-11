@@ -86,6 +86,10 @@ func (liveGame *LiveGame) SetPlayerView(playerId playermodel.PlayerId, view View
 	liveGame.playerViews[playerId] = view
 }
 
+func (liveGame *LiveGame) removePlayerView(playerId playermodel.PlayerId) {
+	delete(liveGame.playerViews, playerId)
+}
+
 func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, error) {
 	view, exists := liveGame.playerViews[playerId]
 	if exists {
@@ -110,6 +114,7 @@ func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 
 func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
 	liveGame.removeObservedRange(playerId)
+	liveGame.removePlayerView(playerId)
 	delete(liveGame.playerIds, playerId)
 }
 
