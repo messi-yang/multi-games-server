@@ -25,7 +25,7 @@ type BuildItemRequestedIntgrEvent struct {
 	Name       IntgrEventName       `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
 	Location   viewmodel.LocationVm `json:"location"`
-	ItemId     string               `json:"locations"`
+	ItemId     string               `json:"itemId"`
 }
 
 func NewBuildItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedIntgrEvent {
