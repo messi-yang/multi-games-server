@@ -15,14 +15,14 @@ var (
 	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
-	ErrPlayerViewNotFound            = errors.New("ErrPlayerViewNotFound")
+	ErrPlayerCameraNotFound          = errors.New("ErrPlayerCameraNotFound")
 )
 
 type LiveGame struct {
 	id             LiveGameId
 	map_           commonmodel.Map
 	playerIds      map[playermodel.PlayerId]bool
-	playerViews    map[playermodel.PlayerId]View
+	playerCameras  map[playermodel.PlayerId]Camera
 	observedRanges map[playermodel.PlayerId]commonmodel.Range
 }
 
@@ -31,7 +31,7 @@ func NewLiveGame(id LiveGameId, map_ commonmodel.Map) LiveGame {
 		id:             id,
 		map_:           map_,
 		playerIds:      make(map[playermodel.PlayerId]bool),
-		playerViews:    make(map[playermodel.PlayerId]View),
+		playerCameras:  make(map[playermodel.PlayerId]Camera),
 		observedRanges: make(map[playermodel.PlayerId]commonmodel.Range),
 	}
 }
@@ -82,20 +82,20 @@ func (liveGame *LiveGame) removeObservedRange(playerId playermodel.PlayerId) {
 	delete(liveGame.observedRanges, playerId)
 }
 
-func (liveGame *LiveGame) SetPlayerView(playerId playermodel.PlayerId, view View) {
-	liveGame.playerViews[playerId] = view
+func (liveGame *LiveGame) SetPlayerCamera(playerId playermodel.PlayerId, camera Camera) {
+	liveGame.playerCameras[playerId] = camera
 }
 
-func (liveGame *LiveGame) removePlayerView(playerId playermodel.PlayerId) {
-	delete(liveGame.playerViews, playerId)
+func (liveGame *LiveGame) removePlayerCamera(playerId playermodel.PlayerId) {
+	delete(liveGame.playerCameras, playerId)
 }
 
-func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, error) {
-	view, exists := liveGame.playerViews[playerId]
+func (liveGame *LiveGame) GetPlayerCamera(playerId playermodel.PlayerId) (Camera, error) {
+	camera, exists := liveGame.playerCameras[playerId]
 	if exists {
-		return View{}, ErrPlayerViewNotFound
+		return Camera{}, ErrPlayerCameraNotFound
 	}
-	return view, nil
+	return camera, nil
 }
 
 func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
@@ -107,14 +107,14 @@ func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 	liveGame.playerIds[playerId] = true
 
 	originLocation, _ := commonmodel.NewLocation(0, 0)
-	liveGame.SetPlayerView(playerId, NewView(originLocation))
+	liveGame.SetPlayerCamera(playerId, NewCamera(originLocation))
 
 	return nil
 }
 
 func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
 	liveGame.removeObservedRange(playerId)
-	liveGame.removePlayerView(playerId)
+	liveGame.removePlayerCamera(playerId)
 	delete(liveGame.playerIds, playerId)
 }
 

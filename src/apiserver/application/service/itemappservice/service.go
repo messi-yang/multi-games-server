@@ -20,8 +20,8 @@ func New(itemRepo itemmodel.Repo) Service {
 
 func (serve *serve) GetAllItems(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
-	itemViewModels := lo.Map(items, func(item itemmodel.Item, _ int) viewmodel.ItemVm {
+	itemCameraModels := lo.Map(items, func(item itemmodel.Item, _ int) viewmodel.ItemVm {
 		return viewmodel.NewItemVm(item)
 	})
-	presenter.OnSuccess(itemViewModels)
+	presenter.OnSuccess(itemCameraModels)
 }

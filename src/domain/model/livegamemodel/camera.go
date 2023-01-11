@@ -2,16 +2,16 @@ package livegamemodel
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 
-type View struct {
+type Camera struct {
 	center commonmodel.Location
 }
 
-func NewView(center commonmodel.Location) View {
-	return View{
+func NewCamera(center commonmodel.Location) Camera {
+	return Camera{
 		center: center,
 	}
 }
 
-func (view View) GetCenter() commonmodel.Location {
-	return view.center
+func (camera Camera) GetCenter() commonmodel.Location {
+	return camera.center
 }

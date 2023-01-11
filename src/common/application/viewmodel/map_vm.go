@@ -8,10 +8,10 @@ import (
 type MapVm [][]UnitVm
 
 func NewMapVm(map_ commonmodel.Map) MapVm {
-	mapViewModel, _ := tool.MapMatrix(map_.GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (UnitVm, error) {
+	mapCameraModel, _ := tool.MapMatrix(map_.GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (UnitVm, error) {
 		return NewUnitVm(unit), nil
 	})
-	return mapViewModel
+	return mapCameraModel
 }
 
 func (dto MapVm) ToValueObject() (commonmodel.Map, error) {

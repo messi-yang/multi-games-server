@@ -2,12 +2,12 @@ package viewmodel
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 
-type ViewVm struct {
+type CameraVm struct {
 	Center LocationVm `json:"center"`
 }
 
-func NewViewVm(view livegamemodel.View) ViewVm {
-	return ViewVm{
-		Center: NewLocationVm(view.GetCenter()),
+func NewCameraVm(camera livegamemodel.Camera) CameraVm {
+	return CameraVm{
+		Center: NewLocationVm(camera.GetCenter()),
 	}
 }
