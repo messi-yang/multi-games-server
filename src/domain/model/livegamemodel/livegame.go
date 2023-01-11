@@ -101,7 +101,7 @@ func (liveGame *LiveGame) removeObservedRange(playerId playermodel.PlayerId) {
 	delete(liveGame.observedRanges, playerId)
 }
 
-func (liveGame *LiveGame) SetPlayerCamera(playerId playermodel.PlayerId, camera Camera) {
+func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, camera Camera) {
 	liveGame.playerCameras[playerId] = camera
 }
 
@@ -126,7 +126,7 @@ func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 	liveGame.playerIds[playerId] = true
 
 	originLocation, _ := commonmodel.NewLocation(0, 0)
-	liveGame.SetPlayerCamera(playerId, NewCamera(originLocation))
+	liveGame.ChangePlayerCamera(playerId, NewCamera(originLocation))
 
 	return nil
 }
