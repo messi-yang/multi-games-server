@@ -92,7 +92,7 @@ func (liveGame *LiveGame) removePlayerCamera(playerId playermodel.PlayerId) {
 
 func (liveGame *LiveGame) GetPlayerCamera(playerId playermodel.PlayerId) (Camera, error) {
 	camera, exists := liveGame.playerCameras[playerId]
-	if exists {
+	if !exists {
 		return Camera{}, ErrPlayerCameraNotFound
 	}
 	return camera, nil
