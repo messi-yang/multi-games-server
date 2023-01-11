@@ -10,7 +10,7 @@ import (
 type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
-	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
+	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, viewVm viewmodel.ViewVm)
 	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string)
@@ -36,14 +36,13 @@ func (serve *serve) SendErroredServerEvent(presenter Presenter, clientMessage st
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm) {
+func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, viewVm viewmodel.ViewVm) {
 	event := GameJoinedServerEvent{}
 	event.Type = GameJoinedServerEventType
 	event.Payload.PlayerId = playerIdVm
 	event.Payload.Camera = cameraVm
 	event.Payload.Dimension = dimensionVm
-	event.Payload.Range = rangeVm
-	event.Payload.Map = mapVm
+	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }
 

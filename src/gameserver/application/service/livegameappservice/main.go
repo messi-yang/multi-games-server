@@ -164,7 +164,7 @@ func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	camera, _ := liveGame.GetPlayerCamera(playerId)
-	map_, range_, _ := liveGame.GetMapForPlayer(playerId)
+	view, _ := liveGame.GetPlayerView(playerId)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		intgrevent.Marshal(
@@ -172,8 +172,7 @@ func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) 
 				liveGameIdVm, playerIdVm,
 				viewmodel.NewCameraVm(camera),
 				viewmodel.NewDimensionVm(liveGame.GetDimension()),
-				viewmodel.NewRangeVm(range_),
-				viewmodel.NewMapVm(map_),
+				viewmodel.NewViewVm(view),
 			),
 		),
 	)
