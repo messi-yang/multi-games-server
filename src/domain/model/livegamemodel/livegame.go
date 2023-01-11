@@ -54,9 +54,9 @@ func (liveGame *LiveGame) GetMapByRange(range_ commonmodel.Range) (commonmodel.M
 	}
 	offsetX := range_.GetFrom().GetX()
 	offsetY := range_.GetFrom().GetY()
-	range_Width := range_.GetWidth()
-	range_Height := range_.GetHeight()
-	unitMatrix, _ := tool.RangeMatrix(range_Width, range_Height, func(x int, y int) (commonmodel.Unit, error) {
+	rangeWidth := range_.GetWidth()
+	rangeHeight := range_.GetHeight()
+	unitMatrix, _ := tool.RangeMatrix(rangeWidth, rangeHeight, func(x int, y int) (commonmodel.Unit, error) {
 		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
 		return liveGame.map_.GetUnit(location), nil
 	})
