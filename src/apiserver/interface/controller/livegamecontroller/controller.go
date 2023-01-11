@@ -74,6 +74,12 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 					return
 				}
 				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.PlayerId, event.Camera, event.Dimension, event.View)
+			case intgrevent.CameraChangedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.CameraChangedIntgrEvent](message)
+				if err != nil {
+					return
+				}
+				controller.liveGameAppService.SendCameraChangedServerEvent(socketPresenter, event.Camera, event.View)
 			case intgrevent.ViewChangedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.ViewChangedIntgrEvent](message)
 				if err != nil {
@@ -134,6 +140,13 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				}
 
 				controller.liveGameAppService.RequestToObserveRange(liveGameId, playerId, command.Payload.Range)
+			case livegameappservice.ChangeCameraClientEventType:
+				command, err := livegameappservice.ParseClientEvent[livegameappservice.ChangeCameraClientEvent](message)
+				if err != nil {
+					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
+					continue
+				}
+				controller.liveGameAppService.RequestToChangeCamera(liveGameId, playerId, command.Payload.Camera)
 			case livegameappservice.BuildItemClientEventType:
 				command, err := livegameappservice.ParseClientEvent[livegameappservice.BuildItemClientEvent](message)
 				if err != nil {

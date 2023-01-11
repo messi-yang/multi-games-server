@@ -7,10 +7,12 @@ import (
 type IntgrEventName string
 
 const (
+	ChangeCameraRequestedIntgrEventName  IntgrEventName = "CHANGE_CAMERA_REQUESTED"
 	JoinLiveGameRequestedIntgrEventName  IntgrEventName = "ADD_PLAYER_REQUESTED"
 	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
 	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
+	CameraChangedIntgrEventName          IntgrEventName = "CAMERA_CHANGED"
 	ViewChangedIntgrEventName            IntgrEventName = "VIEW_CHANGED"
 	RangeObservedIntgrEventName          IntgrEventName = "RANGE_OBSERVED"
 	ObservedRangeUpdatedIntgrEventName   IntgrEventName = "OBSERVED_RANGE_UPDATED"
@@ -20,6 +22,21 @@ const (
 
 type GenericIntgrEvent struct {
 	Name IntgrEventName `json:"name"`
+}
+type ChangeCameraRequestedIntgrEvent struct {
+	Name       IntgrEventName     `json:"name"`
+	LiveGameId string             `json:"liveGameId"`
+	PlayerId   string             `json:"playerId"`
+	Camera     viewmodel.CameraVm `json:"camera"`
+}
+
+func NewChangeCameraRequestedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) ChangeCameraRequestedIntgrEvent {
+	return ChangeCameraRequestedIntgrEvent{
+		Name:       ChangeCameraRequestedIntgrEventName,
+		LiveGameId: liveGameId,
+		PlayerId:   playerId,
+		Camera:     cameraVm,
+	}
 }
 
 type BuildItemRequestedIntgrEvent struct {
@@ -82,6 +99,24 @@ func NewGameJoinedIntgrEvent(liveGameId string, playerId string, cameraVm viewmo
 		PlayerId:   playerId,
 		Camera:     cameraVm,
 		Dimension:  dimensionVm,
+		View:       viewVm,
+	}
+}
+
+type CameraChangedIntgrEvent struct {
+	Name       IntgrEventName     `json:"name"`
+	LiveGameId string             `json:"liveGameId"`
+	PlayerId   string             `json:"playerId"`
+	Camera     viewmodel.CameraVm `json:"camera"`
+	View       viewmodel.ViewVm   `json:"view"`
+}
+
+func NewCameraChangedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) CameraChangedIntgrEvent {
+	return CameraChangedIntgrEvent{
+		Name:       CameraChangedIntgrEventName,
+		LiveGameId: liveGameId,
+		PlayerId:   playerId,
+		Camera:     cameraVm,
 		View:       viewVm,
 	}
 }

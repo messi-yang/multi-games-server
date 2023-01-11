@@ -11,6 +11,7 @@ type ServerEventType string
 const (
 	ErroredServerEventType              ServerEventType = "ERRORED"
 	GameJoinedServerEventType           ServerEventType = "GAME_JOINED"
+	CameraChangedServerEventType        ServerEventType = "CAMERA_CHANGED"
 	ViewUpdatedServerEventType          ServerEventType = "VIEW_UPDATED"
 	ItemsUpdatedServerEventType         ServerEventType = "ITEMS_UPDATED"
 	RangeObservedServerEventType        ServerEventType = "RANGE_OBSERVED"
@@ -35,6 +36,14 @@ type GameJoinedServerEvent struct {
 		Camera    viewmodel.CameraVm    `json:"camera"`
 		Dimension viewmodel.DimensionVm `json:"dimension"`
 		View      viewmodel.ViewVm      `json:"view"`
+	} `json:"payload"`
+}
+
+type CameraChangedServerEvent struct {
+	Type    ServerEventType `json:"type"`
+	Payload struct {
+		Camera viewmodel.CameraVm `json:"camera"`
+		View   viewmodel.ViewVm   `json:"view"`
 	} `json:"payload"`
 }
 

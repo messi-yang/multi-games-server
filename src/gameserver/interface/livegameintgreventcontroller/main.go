@@ -16,6 +16,12 @@ func New(liveGameAppService livegameappservice.Service) {
 			}
 
 			switch intgrEvent.Name {
+			case intgrevent.ChangeCameraRequestedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ChangeCameraRequestedIntgrEvent](message)
+				if err != nil {
+					return
+				}
+				liveGameAppService.ChangePlayerCameraLiveGame(event.LiveGameId, event.PlayerId, event.Camera)
 			case intgrevent.JoinLiveGameRequestedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.JoinLiveGameRequestedIntgrEvent](message)
 				if err != nil {

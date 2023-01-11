@@ -101,8 +101,14 @@ func (liveGame *LiveGame) removeObservedRange(playerId playermodel.PlayerId) {
 	delete(liveGame.observedRanges, playerId)
 }
 
-func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, camera Camera) {
+func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, camera Camera) error {
+	_, exists := liveGame.playerIds[playerId]
+	if !exists {
+		return ErrPlayerNotFound
+	}
+
 	liveGame.playerCameras[playerId] = camera
+	return nil
 }
 
 func (liveGame *LiveGame) removePlayerCamera(playerId playermodel.PlayerId) {

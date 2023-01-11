@@ -12,6 +12,7 @@ import (
 
 type Service interface {
 	CreateLiveGame(gameIdVm string)
+	ChangePlayerCameraLiveGame(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	BuildItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm)
 	AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string)
@@ -81,6 +82,43 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 	}
 
 	return nil
+}
+
+func (serve *serve) ChangePlayerCameraLiveGame(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
+	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
+	if err != nil {
+		return
+	}
+	playerId, err := playermodel.NewPlayerId(playerIdVm)
+	if err != nil {
+		return
+	}
+	camera, err := cameraVm.ToValueObject()
+	if err != nil {
+		return
+	}
+
+	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
+	defer unlocker()
+
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+	if err != nil {
+		return
+	}
+
+	if err = liveGame.ChangePlayerCamera(playerId, camera); err != nil {
+		return
+	}
+
+	serve.liveGameRepo.Update(liveGameId, liveGame)
+
+	view, _ := liveGame.GetPlayerView(playerId)
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
+		intgrevent.Marshal(
+			intgrevent.NewCameraChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera), viewmodel.NewViewVm(view)),
+		),
+	)
 }
 
 func (serve *serve) CreateLiveGame(gameIdVm string) {

@@ -11,10 +11,12 @@ type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, viewVm viewmodel.ViewVm)
+	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
 	SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
 	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string)
+	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	RequestToObserveRange(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm)
 	RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
@@ -43,6 +45,14 @@ func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerIdVm st
 	event.Payload.PlayerId = playerIdVm
 	event.Payload.Camera = cameraVm
 	event.Payload.Dimension = dimensionVm
+	event.Payload.View = viewVm
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) {
+	event := CameraChangedServerEvent{}
+	event.Type = CameraChangedServerEventType
+	event.Payload.Camera = cameraVm
 	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }
@@ -87,6 +97,13 @@ func (serve *serve) RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
 		intgrevent.Marshal(intgrevent.NewJoinLiveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
+	)
+}
+
+func (serve *serve) RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameAdminChannel(),
+		intgrevent.Marshal(intgrevent.NewChangeCameraRequestedIntgrEvent(liveGameIdVm, playerIdVm, cameraVm)),
 	)
 }
 
