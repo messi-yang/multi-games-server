@@ -13,7 +13,7 @@ type Service interface {
 	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, viewVm viewmodel.ViewVm)
 	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
 	SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
-	RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string)
+	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
 	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
@@ -74,10 +74,10 @@ func (serve *serve) QueryItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string) {
+func (serve *serve) RequestToJoinGame(liveGameIdVm string, playerIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewJoinLiveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
+		intgrevent.Marshal(intgrevent.NewJoinGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
 	)
 }
 

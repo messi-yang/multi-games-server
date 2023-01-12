@@ -8,7 +8,7 @@ type IntgrEventName string
 
 const (
 	ChangeCameraRequestedIntgrEventName  IntgrEventName = "CHANGE_CAMERA_REQUESTED"
-	JoinLiveGameRequestedIntgrEventName  IntgrEventName = "ADD_PLAYER_REQUESTED"
+	JoinGameRequestedIntgrEventName      IntgrEventName = "JOIN_GAME_REQUESTED"
 	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
 	LeaveLiveGameRequestedIntgrEventName IntgrEventName = "REMOVE_PLAYER_REQUESTED"
@@ -52,15 +52,15 @@ func NewBuildItemRequestedIntgrEvent(liveGameId string, locationVm viewmodel.Loc
 	}
 }
 
-type JoinLiveGameRequestedIntgrEvent struct {
+type JoinGameRequestedIntgrEvent struct {
 	Name       IntgrEventName `json:"name"`
 	LiveGameId string         `json:"liveGameId"`
 	PlayerId   string         `json:"playerId"`
 }
 
-func NewJoinLiveGameRequestedIntgrEvent(liveGameId string, playerId string) JoinLiveGameRequestedIntgrEvent {
-	return JoinLiveGameRequestedIntgrEvent{
-		Name:       JoinLiveGameRequestedIntgrEventName,
+func NewJoinGameRequestedIntgrEvent(liveGameId string, playerId string) JoinGameRequestedIntgrEvent {
+	return JoinGameRequestedIntgrEvent{
+		Name:       JoinGameRequestedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}

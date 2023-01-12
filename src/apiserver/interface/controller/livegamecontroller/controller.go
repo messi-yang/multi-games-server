@@ -91,7 +91,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 		})
 	defer intgrEventSubscriberUnsubscriber()
 
-	controller.liveGameAppService.RequestToJoinLiveGame(liveGameId, playerId)
+	controller.liveGameAppService.RequestToJoinGame(liveGameId, playerId)
 
 	go func() {
 		defer func() {
