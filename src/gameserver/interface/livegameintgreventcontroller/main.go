@@ -40,12 +40,6 @@ func New(liveGameAppService livegameappservice.Service) {
 					return
 				}
 				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
-			case intgrevent.ObserveRangeRequestedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ObserveRangeRequestedIntgrEvent](message)
-				if err != nil {
-					return
-				}
-				liveGameAppService.AddObservedRangeToLiveGame(event.LiveGameId, event.PlayerId, event.Range)
 			case intgrevent.LeaveLiveGameRequestedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.LeaveLiveGameRequestedIntgrEvent](message)
 				if err != nil {

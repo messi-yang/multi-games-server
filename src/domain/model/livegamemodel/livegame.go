@@ -19,20 +19,18 @@ var (
 )
 
 type LiveGame struct {
-	id             LiveGameId
-	map_           commonmodel.Map
-	playerIds      map[playermodel.PlayerId]bool
-	playerCameras  map[playermodel.PlayerId]Camera
-	observedRanges map[playermodel.PlayerId]commonmodel.Range
+	id            LiveGameId
+	map_          commonmodel.Map
+	playerIds     map[playermodel.PlayerId]bool
+	playerCameras map[playermodel.PlayerId]Camera
 }
 
 func NewLiveGame(id LiveGameId, map_ commonmodel.Map) LiveGame {
 	return LiveGame{
-		id:             id,
-		map_:           map_,
-		playerIds:      make(map[playermodel.PlayerId]bool),
-		playerCameras:  make(map[playermodel.PlayerId]Camera),
-		observedRanges: make(map[playermodel.PlayerId]commonmodel.Range),
+		id:            id,
+		map_:          map_,
+		playerIds:     make(map[playermodel.PlayerId]bool),
+		playerCameras: make(map[playermodel.PlayerId]Camera),
 	}
 }
 
@@ -67,38 +65,8 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 	return view, nil
 }
 
-func (liveGame *LiveGame) GetMapByRange(range_ commonmodel.Range) (commonmodel.Map, error) {
-	if !liveGame.GetDimension().IncludesRange(range_) {
-		return commonmodel.Map{}, ErrRangeExceedsMap
-	}
-	offsetX := range_.GetFrom().GetX()
-	offsetY := range_.GetFrom().GetY()
-	rangeWidth := range_.GetWidth()
-	rangeHeight := range_.GetHeight()
-	unitMatrix, _ := tool.RangeMatrix(rangeWidth, rangeHeight, func(x int, y int) (commonmodel.Unit, error) {
-		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
-		return liveGame.map_.GetUnit(location), nil
-	})
-	map_ := commonmodel.NewMap(unitMatrix)
-
-	return map_, nil
-}
-
-func (liveGame *LiveGame) GetObservedRanges() map[playermodel.PlayerId]commonmodel.Range {
-	return liveGame.observedRanges
-}
-
-func (liveGame *LiveGame) AddObservedRange(playerId playermodel.PlayerId, range_ commonmodel.Range) error {
-	_, exists := liveGame.playerIds[playerId]
-	if !exists {
-		return ErrPlayerNotFound
-	}
-	liveGame.observedRanges[playerId] = range_
-	return nil
-}
-
-func (liveGame *LiveGame) removeObservedRange(playerId playermodel.PlayerId) {
-	delete(liveGame.observedRanges, playerId)
+func (liveGame *LiveGame) GetPlayerCameras() map[playermodel.PlayerId]Camera {
+	return liveGame.playerCameras
 }
 
 func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, camera Camera) error {
@@ -138,7 +106,6 @@ func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 }
 
 func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
-	liveGame.removeObservedRange(playerId)
 	liveGame.removePlayerCamera(playerId)
 	delete(liveGame.playerIds, playerId)
 }

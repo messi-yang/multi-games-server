@@ -13,7 +13,6 @@ const (
 	NilClientEventType          ClientEventType = ""
 	PingClientEventType         ClientEventType = "PING"
 	ChangeCameraClientEventType ClientEventType = "CHANGE_CAMERA"
-	ObserveRangeClientEventType ClientEventType = "OBSERVE_RANGE"
 	BuildItemClientEventType    ClientEventType = "BUILD_ITEM"
 	DestroyItemClientEventType  ClientEventType = "DESTROY_ITEM"
 )
@@ -67,13 +66,5 @@ type DestroyItemClientEvent struct {
 	Payload struct {
 		Location   viewmodel.LocationVm `json:"location"`
 		ActionedAt time.Time            `json:"actionedAt"`
-	} `json:"payload"`
-}
-
-type ObserveRangeClientEvent struct {
-	Type    ClientEventType `json:"type"`
-	Payload struct {
-		Range      viewmodel.RangeVm `json:"range"`
-		ActionedAt time.Time         `json:"actionedAt"`
 	} `json:"payload"`
 }

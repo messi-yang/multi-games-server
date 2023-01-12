@@ -13,11 +13,8 @@ type Service interface {
 	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, dimensionVm viewmodel.DimensionVm, viewVm viewmodel.ViewVm)
 	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
 	SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
-	SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
-	SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm)
 	RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string)
 	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
-	RequestToObserveRange(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm)
 	RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
 	RequestToLeaveLiveGame(liveGameIdVm string, playerIdVm string)
@@ -77,22 +74,6 @@ func (serve *serve) QueryItems(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendObservedRangeUpdatedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm) {
-	event := ObservedRangeUpdatedServerEvent{}
-	event.Type = ObservedRangeUpdatedServerEventType
-	event.Payload.Range = rangeVm
-	event.Payload.Map = mapVm
-	presenter.OnSuccess(event)
-}
-
-func (serve *serve) SendRangeObservedServerEvent(presenter Presenter, rangeVm viewmodel.RangeVm, mapVm viewmodel.MapVm) {
-	event := RangeObservedServerEvent{}
-	event.Type = RangeObservedServerEventType
-	event.Payload.Range = rangeVm
-	event.Payload.Map = mapVm
-	presenter.OnSuccess(event)
-}
-
 func (serve *serve) RequestToJoinLiveGame(liveGameIdVm string, playerIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
@@ -104,13 +85,6 @@ func (serve *serve) RequestToChangeCamera(liveGameIdVm string, playerIdVm string
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
 		intgrevent.Marshal(intgrevent.NewChangeCameraRequestedIntgrEvent(liveGameIdVm, playerIdVm, cameraVm)),
-	)
-}
-
-func (serve *serve) RequestToObserveRange(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm) {
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewObserveRangeRequestedIntgrEvent(liveGameIdVm, playerIdVm, rangeVm)),
 	)
 }
 

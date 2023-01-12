@@ -17,7 +17,6 @@ type Service interface {
 	DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm)
 	AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string)
 	RemovePlayerFromLiveGame(liveGameIdVm string, playerIdVm string)
-	AddObservedRangeToLiveGame(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm)
 }
 
 type serve struct {
@@ -44,24 +43,11 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 		return err
 	}
 
-	for playerId, range_ := range liveGame.GetObservedRanges() {
+	for playerId, camera := range liveGame.GetPlayerCameras() {
+		range_ := camera.GetRangeWithDimension(liveGame.GetDimension())
 		if !range_.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
-
-		map_, err := liveGame.GetMapByRange(range_)
-		if err != nil {
-			continue
-		}
-		serve.intgrEventPublisher.Publish(
-			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			intgrevent.Marshal(intgrevent.NewObservedRangeUpdatedIntgrEvent(
-				liveGameId.ToString(),
-				playerId.ToString(),
-				viewmodel.NewRangeVm(range_),
-				viewmodel.NewMapVm(map_),
-			)),
-		)
 
 		camera, err := liveGame.GetPlayerCamera(playerId)
 		if err != nil {
@@ -253,44 +239,4 @@ func (serve *serve) RemovePlayerFromLiveGame(liveGameIdVm string, playerIdVm str
 
 	liveGame.RemovePlayer(playerId)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-}
-
-func (serve *serve) AddObservedRangeToLiveGame(liveGameIdVm string, playerIdVm string, rangeVm viewmodel.RangeVm) {
-	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := playermodel.NewPlayerId(playerIdVm)
-	if err != nil {
-		return
-	}
-	range_, err := rangeVm.ToValueObject()
-	if err != nil {
-		return
-	}
-
-	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
-	defer unlocker()
-
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
-	if err != nil {
-		return
-	}
-
-	if err = liveGame.AddObservedRange(playerId, range_); err != nil {
-		return
-	}
-
-	map_, err := liveGame.GetMapByRange(range_)
-	if err != nil {
-		return
-	}
-
-	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
-		intgrevent.Marshal(
-			intgrevent.NewRangeObservedIntgrEvent(liveGameIdVm, playerIdVm, rangeVm, viewmodel.NewMapVm(map_)),
-		),
-	)
 }

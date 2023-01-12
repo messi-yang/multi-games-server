@@ -5,8 +5,8 @@ import (
 )
 
 type ViewVm struct {
-	Range RangeVm
-	Map   MapVm
+	Range RangeVm `json:"range"`
+	Map   MapVm   `json:"map"`
 }
 
 func NewViewVm(view livegamemodel.View) ViewVm {
