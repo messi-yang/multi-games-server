@@ -40,8 +40,8 @@ func New(liveGameAppService livegameappservice.Service) {
 					return
 				}
 				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
-			case intgrevent.LeaveLiveGameRequestedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.LeaveLiveGameRequestedIntgrEvent](message)
+			case intgrevent.LeaveGameRequestedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.LeaveGameRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}

@@ -151,7 +151,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.liveGameAppService.RequestToLeaveLiveGame(liveGameId, playerId)
+		controller.liveGameAppService.RequestToLeaveGame(liveGameId, playerId)
 		return
 	}
 }

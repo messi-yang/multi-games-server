@@ -17,7 +17,7 @@ type Service interface {
 	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
-	RequestToLeaveLiveGame(liveGameIdVm string, playerIdVm string)
+	RequestToLeaveGame(liveGameIdVm string, playerIdVm string)
 }
 
 type serve struct {
@@ -102,9 +102,9 @@ func (serve *serve) RequestToDestroyItem(liveGameIdVm string, locationVm viewmod
 	)
 }
 
-func (serve *serve) RequestToLeaveLiveGame(liveGameIdVm string, playerIdVm string) {
+func (serve *serve) RequestToLeaveGame(liveGameIdVm string, playerIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewLeaveLiveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
+		intgrevent.Marshal(intgrevent.NewLeaveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
 	)
 }

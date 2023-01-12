@@ -7,14 +7,14 @@ import (
 type IntgrEventName string
 
 const (
-	ChangeCameraRequestedIntgrEventName  IntgrEventName = "CHANGE_CAMERA_REQUESTED"
-	JoinGameRequestedIntgrEventName      IntgrEventName = "JOIN_GAME_REQUESTED"
-	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
-	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
-	LeaveLiveGameRequestedIntgrEventName IntgrEventName = "LEAVE_GAME_REQUESTED"
-	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
-	CameraChangedIntgrEventName          IntgrEventName = "CAMERA_CHANGED"
-	ViewUpdatedIntgrEventName            IntgrEventName = "VIEW_UPDATED"
+	ChangeCameraRequestedIntgrEventName IntgrEventName = "CHANGE_CAMERA_REQUESTED"
+	JoinGameRequestedIntgrEventName     IntgrEventName = "JOIN_GAME_REQUESTED"
+	BuildItemRequestedIntgrEventName    IntgrEventName = "BUILD_ITEM_REQUESTED"
+	DestroyItemRequestedIntgrEventName  IntgrEventName = "DESTROY_ITEM_REQUESTED"
+	LeaveGameRequestedIntgrEventName    IntgrEventName = "LEAVE_GAME_REQUESTED"
+	GameJoinedIntgrEventName            IntgrEventName = "GAME_JOINED"
+	CameraChangedIntgrEventName         IntgrEventName = "CAMERA_CHANGED"
+	ViewUpdatedIntgrEventName           IntgrEventName = "VIEW_UPDATED"
 )
 
 type GenericIntgrEvent struct {
@@ -136,15 +136,15 @@ func NewViewUpdatedIntgrEvent(liveGameId string, playerId string, cameraVm viewm
 	}
 }
 
-type LeaveLiveGameRequestedIntgrEvent struct {
+type LeaveGameRequestedIntgrEvent struct {
 	Name       IntgrEventName `json:"name"`
 	LiveGameId string         `json:"liveGameId"`
 	PlayerId   string         `json:"playerId"`
 }
 
-func NewLeaveLiveGameRequestedIntgrEvent(liveGameId string, playerId string) LeaveLiveGameRequestedIntgrEvent {
-	return LeaveLiveGameRequestedIntgrEvent{
-		Name:       LeaveLiveGameRequestedIntgrEventName,
+func NewLeaveGameRequestedIntgrEvent(liveGameId string, playerId string) LeaveGameRequestedIntgrEvent {
+	return LeaveGameRequestedIntgrEvent{
+		Name:       LeaveGameRequestedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}
