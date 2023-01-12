@@ -11,7 +11,7 @@ const (
 	JoinGameRequestedIntgrEventName      IntgrEventName = "JOIN_GAME_REQUESTED"
 	BuildItemRequestedIntgrEventName     IntgrEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedIntgrEventName   IntgrEventName = "DESTROY_ITEM_REQUESTED"
-	LeaveLiveGameRequestedIntgrEventName IntgrEventName = "REMOVE_PLAYER_REQUESTED"
+	LeaveLiveGameRequestedIntgrEventName IntgrEventName = "LEAVE_GAME_REQUESTED"
 	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
 	CameraChangedIntgrEventName          IntgrEventName = "CAMERA_CHANGED"
 	ViewUpdatedIntgrEventName            IntgrEventName = "VIEW_UPDATED"
