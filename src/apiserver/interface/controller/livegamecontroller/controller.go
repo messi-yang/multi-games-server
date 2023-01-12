@@ -80,8 +80,8 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 					return
 				}
 				controller.liveGameAppService.SendCameraChangedServerEvent(socketPresenter, event.Camera, event.View)
-			case intgrevent.ViewChangedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ViewChangedIntgrEvent](message)
+			case intgrevent.ViewUpdatedIntgrEventName:
+				event, err := intgrevent.Unmarshal[intgrevent.ViewUpdatedIntgrEvent](message)
 				if err != nil {
 					return
 				}

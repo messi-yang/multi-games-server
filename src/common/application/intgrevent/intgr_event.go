@@ -14,7 +14,7 @@ const (
 	LeaveLiveGameRequestedIntgrEventName IntgrEventName = "REMOVE_PLAYER_REQUESTED"
 	GameJoinedIntgrEventName             IntgrEventName = "GAME_JOINED"
 	CameraChangedIntgrEventName          IntgrEventName = "CAMERA_CHANGED"
-	ViewChangedIntgrEventName            IntgrEventName = "VIEW_CHANGED"
+	ViewUpdatedIntgrEventName            IntgrEventName = "VIEW_UPDATED"
 )
 
 type GenericIntgrEvent struct {
@@ -118,7 +118,7 @@ func NewCameraChangedIntgrEvent(liveGameId string, playerId string, cameraVm vie
 	}
 }
 
-type ViewChangedIntgrEvent struct {
+type ViewUpdatedIntgrEvent struct {
 	Name       IntgrEventName     `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
@@ -126,9 +126,9 @@ type ViewChangedIntgrEvent struct {
 	View       viewmodel.ViewVm   `json:"view"`
 }
 
-func NewViewChangedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
+func NewViewUpdatedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
 	return GameJoinedIntgrEvent{
-		Name:       ViewChangedIntgrEventName,
+		Name:       ViewUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Camera:     cameraVm,

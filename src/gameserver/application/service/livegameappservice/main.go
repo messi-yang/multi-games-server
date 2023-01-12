@@ -59,7 +59,7 @@ func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamem
 		}
 		serve.intgrEventPublisher.Publish(
 			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			intgrevent.Marshal(intgrevent.NewViewChangedIntgrEvent(
+			intgrevent.Marshal(intgrevent.NewViewUpdatedIntgrEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
 				viewmodel.NewCameraVm(camera),
