@@ -6,52 +6,52 @@ import (
 	"github.com/samber/lo"
 )
 
-type ErrInvalidRange struct {
+type ErrInvalidBound struct {
 	from Location
 	to   Location
 }
 
-func (e *ErrInvalidRange) Error() string {
+func (e *ErrInvalidBound) Error() string {
 	return fmt.Sprintf("from location (%+v) cannot exceed to location (%+v)", e.from, e.to)
 }
 
-type Range struct {
+type Bound struct {
 	from Location
 	to   Location
 }
 
-func NewRange(from Location, to Location) (Range, error) {
+func NewBound(from Location, to Location) (Bound, error) {
 	if from.x > to.x || from.y > to.y {
-		return Range{}, &ErrInvalidRange{from: from, to: to}
+		return Bound{}, &ErrInvalidBound{from: from, to: to}
 	}
 
-	return Range{
+	return Bound{
 		from: from,
 		to:   to,
 	}, nil
 }
 
-func (a Range) GetFrom() Location {
+func (a Bound) GetFrom() Location {
 	return a.from
 }
 
-func (a Range) GetTo() Location {
+func (a Bound) GetTo() Location {
 	return a.to
 }
 
-func (a Range) GetWidth() int {
+func (a Bound) GetWidth() int {
 	return a.to.x - a.from.x + 1
 }
 
-func (a Range) GetHeight() int {
+func (a Bound) GetHeight() int {
 	return a.to.y - a.from.y + 1
 }
 
-func (a Range) IncludesLocation(location Location) bool {
+func (a Bound) IncludesLocation(location Location) bool {
 	return location.x >= a.from.x && location.x <= a.to.x && location.y >= a.from.y && location.y <= a.to.y
 }
 
-func (a Range) IncludesAnyLocations(locations []Location) bool {
+func (a Bound) IncludesAnyLocations(locations []Location) bool {
 	return lo.ContainsBy(locations, func(location Location) bool {
 		return a.IncludesLocation(location)
 	})

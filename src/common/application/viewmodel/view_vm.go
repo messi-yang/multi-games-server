@@ -5,13 +5,13 @@ import (
 )
 
 type ViewVm struct {
-	Range RangeVm `json:"range"`
+	Bound BoundVm `json:"bound"`
 	Map   MapVm   `json:"map"`
 }
 
 func NewViewVm(view livegamemodel.View) ViewVm {
 	return ViewVm{
-		Range: NewRangeVm(view.GetRange()),
+		Bound: NewBoundVm(view.GetBound()),
 		Map:   NewMapVm(view.GetMap()),
 	}
 }

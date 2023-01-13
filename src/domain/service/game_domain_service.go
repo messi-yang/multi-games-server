@@ -21,7 +21,7 @@ func NewGameDomainService(gameRepo gamemodel.GameRepo) GameDomainService {
 }
 
 func (serve *gameDomainServe) CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error) {
-	unitMatrix, _ := tool.RangeMatrix(dimension.GetWidth(), dimension.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
+	unitMatrix, _ := tool.BoundMatrix(dimension.GetWidth(), dimension.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
 		itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
 		return commonmodel.NewUnit(itemId), nil
 	})

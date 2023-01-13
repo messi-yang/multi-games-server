@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	ErrRangeExceedsMap               = errors.New("map range should contain valid from and to locations and it should never exceed dimension")
+	ErrBoundExceedsMap               = errors.New("map bound should contain valid from and to locations and it should never exceed dimension")
 	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
@@ -48,19 +48,19 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 		return View{}, ErrPlayerCameraNotFound
 	}
 
-	range_ := camera.GetRangeWithDimension(liveGame.GetDimension())
+	bound_ := camera.GetBoundWithDimension(liveGame.GetDimension())
 
-	offsetX := range_.GetFrom().GetX()
-	offsetY := range_.GetFrom().GetY()
-	rangeWidth := range_.GetWidth()
-	rangeHeight := range_.GetHeight()
-	unitMatrix, _ := tool.RangeMatrix(rangeWidth, rangeHeight, func(x int, y int) (commonmodel.Unit, error) {
+	offsetX := bound_.GetFrom().GetX()
+	offsetY := bound_.GetFrom().GetY()
+	boundWidth := bound_.GetWidth()
+	boundHeight := bound_.GetHeight()
+	unitMatrix, _ := tool.BoundMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.Unit, error) {
 		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
 		return liveGame.map_.GetUnit(location), nil
 	})
 	map_ := commonmodel.NewMap(unitMatrix)
 
-	view := NewView(map_, range_)
+	view := NewView(map_, bound_)
 
 	return view, nil
 }

@@ -37,17 +37,17 @@ func (ms Dimension) GetHeight() int {
 	return ms.height
 }
 
-func (ms Dimension) IncludesRange(range_ Range) bool {
-	if range_.from.x < 0 || range_.from.x >= ms.width {
+func (ms Dimension) IncludesBound(bound_ Bound) bool {
+	if bound_.from.x < 0 || bound_.from.x >= ms.width {
 		return false
 	}
-	if range_.to.x < 0 || range_.to.x >= ms.width {
+	if bound_.to.x < 0 || bound_.to.x >= ms.width {
 		return false
 	}
-	if range_.from.y < 0 || range_.from.y >= ms.height {
+	if bound_.from.y < 0 || bound_.from.y >= ms.height {
 		return false
 	}
-	if range_.to.y < 0 || range_.to.y >= ms.height {
+	if bound_.to.y < 0 || bound_.to.y >= ms.height {
 		return false
 	}
 	return true

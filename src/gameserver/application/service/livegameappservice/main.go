@@ -37,15 +37,15 @@ func New(
 	}
 }
 
-func (serve *serve) publishObservedRangeUpdatedServerEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
+func (serve *serve) publishObservedBoundUpdatedServerEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
 	for playerId, camera := range liveGame.GetPlayerCameras() {
-		range_ := camera.GetRangeWithDimension(liveGame.GetDimension())
-		if !range_.IncludesAnyLocations([]commonmodel.Location{location}) {
+		bound_ := camera.GetBoundWithDimension(liveGame.GetDimension())
+		if !bound_.IncludesAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
 
@@ -153,7 +153,7 @@ func (serve *serve) BuildItemInLiveGame(liveGameIdVm string, locationVm viewmode
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
-	serve.publishObservedRangeUpdatedServerEvents(liveGameId, location)
+	serve.publishObservedBoundUpdatedServerEvents(liveGameId, location)
 }
 
 func (serve *serve) DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm) {
@@ -180,7 +180,7 @@ func (serve *serve) DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmo
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.publishObservedRangeUpdatedServerEvents(liveGameId, location)
+	serve.publishObservedBoundUpdatedServerEvents(liveGameId, location)
 }
 
 func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) {
