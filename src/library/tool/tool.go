@@ -16,7 +16,7 @@ func MapMatrix[T any, M any](inputMatrix [][]T, transformer func(x int, y int, o
 	return outputMatrix, nil
 }
 
-func BoundMatrix[T any](width int, height int, creator func(x int, y int) (T, error)) ([][]T, error) {
+func RangeMatrix[T any](width int, height int, creator func(x int, y int) (T, error)) ([][]T, error) {
 	outputMatrix := make([][]T, 0)
 
 	for x := 0; x < width; x += 1 {

@@ -54,7 +54,7 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 	offsetY := bound_.GetFrom().GetY()
 	boundWidth := bound_.GetWidth()
 	boundHeight := bound_.GetHeight()
-	unitMatrix, _ := tool.BoundMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.Unit, error) {
+	unitMatrix, _ := tool.RangeMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.Unit, error) {
 		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
 		return liveGame.map_.GetUnit(location), nil
 	})
