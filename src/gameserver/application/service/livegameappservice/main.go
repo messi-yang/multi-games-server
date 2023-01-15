@@ -135,7 +135,7 @@ func (serve *serve) BuildItemInLiveGame(liveGameIdVm string, locationVm viewmode
 	if err != nil {
 		return
 	}
-	location, err := locationVm.ToValueObject()
+	location, err := commonmodel.NewLocation(locationVm.X, locationVm.Y)
 	if err != nil {
 		return
 	}
@@ -163,7 +163,7 @@ func (serve *serve) DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmo
 	if err != nil {
 		return
 	}
-	location, err := locationVm.ToValueObject()
+	location, err := commonmodel.NewLocation(locationVm.X, locationVm.Y)
 	if err != nil {
 		return
 	}

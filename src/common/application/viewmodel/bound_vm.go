@@ -17,19 +17,19 @@ func NewBoundVm(bound commonmodel.Bound) BoundVm {
 }
 
 func (dto BoundVm) ToValueObject() (commonmodel.Bound, error) {
-	fromLocationVm, err := dto.From.ToValueObject()
+	from, err := commonmodel.NewLocation(dto.From.X, dto.From.Y)
 	if err != nil {
 		return commonmodel.Bound{}, err
 	}
 
-	toLocationVm, err := dto.To.ToValueObject()
+	to, err := commonmodel.NewLocation(dto.To.X, dto.To.Y)
 	if err != nil {
 		return commonmodel.Bound{}, err
 	}
 
 	bound, err := commonmodel.NewBound(
-		fromLocationVm,
-		toLocationVm,
+		from,
+		to,
 	)
 	if err != nil {
 		return commonmodel.Bound{}, err

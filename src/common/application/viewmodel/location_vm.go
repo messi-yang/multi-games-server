@@ -13,7 +13,3 @@ func NewLocationVm(location commonmodel.Location) LocationVm {
 		Y: location.GetY(),
 	}
 }
-
-func (dto LocationVm) ToValueObject() (commonmodel.Location, error) {
-	return commonmodel.NewLocation(dto.X, dto.Y)
-}
