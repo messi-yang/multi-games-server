@@ -13,7 +13,3 @@ func NewSizeVm(size commonmodel.Size) SizeVm {
 		Height: size.GetHeight(),
 	}
 }
-
-func (dto SizeVm) ToValueObject() (commonmodel.Size, error) {
-	return commonmodel.NewSize(dto.Width, dto.Height)
-}
