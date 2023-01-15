@@ -20,12 +20,12 @@ var (
 
 type LiveGame struct {
 	id            LiveGameId
-	map_          commonmodel.Map
+	map_          Map
 	playerIds     map[playermodel.PlayerId]bool
 	playerCameras map[playermodel.PlayerId]Camera
 }
 
-func NewLiveGame(id LiveGameId, map_ commonmodel.Map) LiveGame {
+func NewLiveGame(id LiveGameId, map_ Map) LiveGame {
 	return LiveGame{
 		id:            id,
 		map_:          map_,

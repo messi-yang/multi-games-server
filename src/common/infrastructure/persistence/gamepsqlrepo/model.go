@@ -25,7 +25,7 @@ func (GamePsqlModel) TableName() string {
 	return "games"
 }
 
-func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) commonmodel.Map {
+func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) gamemodel.Map {
 	unitMatrix := make([][]commonmodel.Unit, 0)
 	for colIdx, unitModelCol := range mapPsqlModel {
 		unitMatrix = append(unitMatrix, []commonmodel.Unit{})
@@ -34,10 +34,10 @@ func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) commonmodel.Map {
 			unitMatrix[colIdx] = append(unitMatrix[colIdx], commonmodel.NewUnit(itemId))
 		}
 	}
-	return commonmodel.NewMap(unitMatrix)
+	return gamemodel.NewMap(unitMatrix)
 }
 
-func convertMapToMapPsqlModel(map_ commonmodel.Map) [][]UnitPsqlModel {
+func convertMapToMapPsqlModel(map_ gamemodel.Map) [][]UnitPsqlModel {
 	mapPsqlModel := make([][]UnitPsqlModel, 0)
 	for unitColIdx, unitCol := range map_.GetUnitMatrix() {
 		mapPsqlModel = append(mapPsqlModel, []UnitPsqlModel{})

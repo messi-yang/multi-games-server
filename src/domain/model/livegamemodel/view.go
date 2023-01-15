@@ -3,18 +3,18 @@ package livegamemodel
 import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 
 type View struct {
-	map_  commonmodel.Map
+	map_  Map
 	bound commonmodel.Bound
 }
 
-func NewView(map_ commonmodel.Map, bound commonmodel.Bound) View {
+func NewView(map_ Map, bound commonmodel.Bound) View {
 	return View{
 		map_:  map_,
 		bound: bound,
 	}
 }
 
-func (view View) GetMap() commonmodel.Map {
+func (view View) GetMap() Map {
 	return view.map_
 }
 

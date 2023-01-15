@@ -7,10 +7,10 @@ import (
 type Game struct {
 	id      GameId
 	mapSize commonmodel.Size
-	map_    commonmodel.Map
+	map_    Map
 }
 
-func NewGame(id GameId, map_ commonmodel.Map) Game {
+func NewGame(id GameId, map_ Map) Game {
 	return Game{
 		id:      id,
 		mapSize: map_.GetSize(),
@@ -22,7 +22,7 @@ func (game *Game) GetId() GameId {
 	return game.id
 }
 
-func (game *Game) GetMap() commonmodel.Map {
+func (game *Game) GetMap() Map {
 	return game.map_
 }
 
