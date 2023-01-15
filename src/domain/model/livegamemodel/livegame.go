@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 var (
@@ -65,8 +66,18 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 	return view, nil
 }
 
-func (liveGame *LiveGame) GetPlayerCameras() map[playermodel.PlayerId]Camera {
-	return liveGame.playerCameras
+func (liveGame *LiveGame) GetPlayerIds() []playermodel.PlayerId {
+	return lo.Keys(liveGame.playerCameras)
+}
+
+func (liveGame *LiveGame) CanPlayerSeeAnyLocations(playerId playermodel.PlayerId, locations []commonmodel.Location) bool {
+	camera, exists := liveGame.playerCameras[playerId]
+	if !exists {
+		return false
+	}
+
+	bound := camera.GetBoundWithMapSize(liveGame.GetMapSize())
+	return bound.CoverAnyLocations(locations)
 }
 
 func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, camera Camera) error {
