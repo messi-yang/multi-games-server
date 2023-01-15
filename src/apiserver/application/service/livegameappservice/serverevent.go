@@ -30,7 +30,7 @@ type GameJoinedServerEvent struct {
 	Payload struct {
 		PlayerId string             `json:"playerId"`
 		Camera   viewmodel.CameraVm `json:"camera"`
-		Size     viewmodel.SizeVm   `json:"size"`
+		MapSize  viewmodel.SizeVm   `json:"mapSize"`
 		View     viewmodel.ViewVm   `json:"view"`
 	} `json:"payload"`
 }

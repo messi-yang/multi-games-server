@@ -85,17 +85,17 @@ type GameJoinedIntgrEvent struct {
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
-	Size       viewmodel.SizeVm   `json:"size"`
+	MapSize    viewmodel.SizeVm   `json:"mapSize"`
 	View       viewmodel.ViewVm   `json:"view"`
 }
 
-func NewGameJoinedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, sizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
+func NewGameJoinedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
 	return GameJoinedIntgrEvent{
 		Name:       GameJoinedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Camera:     cameraVm,
-		Size:       sizeVm,
+		MapSize:    mapSize,
 		View:       viewVm,
 	}
 }

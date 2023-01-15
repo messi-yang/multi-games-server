@@ -48,7 +48,7 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 		return View{}, ErrPlayerCameraNotFound
 	}
 
-	bound := camera.GetBoundWithSize(liveGame.GetSize())
+	bound := camera.GetBoundWithMapSize(liveGame.GetSize())
 
 	offsetX := bound.GetFrom().GetX()
 	offsetY := bound.GetFrom().GetY()
