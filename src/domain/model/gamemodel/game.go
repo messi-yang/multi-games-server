@@ -5,16 +5,16 @@ import (
 )
 
 type Game struct {
-	id        GameId
-	dimension commonmodel.Dimension
-	map_      commonmodel.Map
+	id   GameId
+	size commonmodel.Size
+	map_ commonmodel.Map
 }
 
 func NewGame(id GameId, map_ commonmodel.Map) Game {
 	return Game{
-		id:        id,
-		dimension: map_.GetDimension(),
-		map_:      map_,
+		id:   id,
+		size: map_.GetSize(),
+		map_: map_,
 	}
 }
 
@@ -26,6 +26,6 @@ func (game *Game) GetMap() commonmodel.Map {
 	return game.map_
 }
 
-func (game *Game) GetDimension() commonmodel.Dimension {
-	return game.dimension
+func (game *Game) GetSize() commonmodel.Size {
+	return game.size
 }

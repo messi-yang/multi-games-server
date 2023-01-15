@@ -73,7 +73,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.PlayerId, event.Camera, event.Dimension, event.View)
+				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.PlayerId, event.Camera, event.Size, event.View)
 			case intgrevent.CameraChangedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.CameraChangedIntgrEvent](message)
 				if err != nil {

@@ -16,10 +16,10 @@ func (camera Camera) GetCenter() commonmodel.Location {
 	return camera.center
 }
 
-func (camera Camera) GetBoundWithDimension(dimension commonmodel.Dimension) commonmodel.Bound {
+func (camera Camera) GetBoundWithSize(size commonmodel.Size) commonmodel.Bound {
 	fromX := camera.GetCenter().GetX() - 25
 	toX := camera.GetCenter().GetX() + 25
-	mapWidth := dimension.GetWidth()
+	mapWidth := size.GetWidth()
 	if fromX < 0 {
 		toX -= fromX
 		fromX = 0
@@ -30,7 +30,7 @@ func (camera Camera) GetBoundWithDimension(dimension commonmodel.Dimension) comm
 
 	fromY := camera.GetCenter().GetY() - 25
 	toY := camera.GetCenter().GetY() + 25
-	mapHeight := dimension.GetHeight()
+	mapHeight := size.GetHeight()
 	if fromY < 0 {
 		toY -= fromY
 		fromY = 0

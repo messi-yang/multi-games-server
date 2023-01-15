@@ -9,7 +9,7 @@ import (
 )
 
 type GameDomainService interface {
-	CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error)
+	CreateGame(size commonmodel.Size) (gamemodel.GameId, error)
 }
 
 type gameDomainServe struct {
@@ -20,8 +20,8 @@ func NewGameDomainService(gameRepo gamemodel.GameRepo) GameDomainService {
 	return &gameDomainServe{gameRepo: gameRepo}
 }
 
-func (serve *gameDomainServe) CreateGame(dimension commonmodel.Dimension) (gamemodel.GameId, error) {
-	unitMatrix, _ := tool.RangeMatrix(dimension.GetWidth(), dimension.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
+func (serve *gameDomainServe) CreateGame(size commonmodel.Size) (gamemodel.GameId, error) {
+	unitMatrix, _ := tool.RangeMatrix(size.GetWidth(), size.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
 		itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
 		return commonmodel.NewUnit(itemId), nil
 	})

@@ -33,8 +33,8 @@ func Start() {
 	if len(games) > 0 {
 		liveGameAppService.CreateLiveGame(games[0].GetId().ToString())
 	} else {
-		dimension, _ := commonmodel.NewDimension(200, 200)
-		gameId, _ := gameDomainService.CreateGame(dimension)
+		size, _ := commonmodel.NewSize(200, 200)
+		gameId, _ := gameDomainService.CreateGame(size)
 		livegamemodel.NewLiveGameId(gameId.ToString())
 	}
 

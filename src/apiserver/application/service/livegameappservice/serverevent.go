@@ -28,10 +28,10 @@ type ErroredServerEvent struct {
 type GameJoinedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		PlayerId  string                `json:"playerId"`
-		Camera    viewmodel.CameraVm    `json:"camera"`
-		Dimension viewmodel.DimensionVm `json:"dimension"`
-		View      viewmodel.ViewVm      `json:"view"`
+		PlayerId string             `json:"playerId"`
+		Camera   viewmodel.CameraVm `json:"camera"`
+		Size     viewmodel.SizeVm   `json:"size"`
+		View     viewmodel.ViewVm   `json:"view"`
 	} `json:"payload"`
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	ErrBoundExceedsMap               = errors.New("map bound should contain valid from and to locations and it should never exceed dimension")
+	ErrBoundExceedsMap               = errors.New("map bound should contain valid from and to locations and it should never exceed size")
 	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
@@ -38,8 +38,8 @@ func (liveGame *LiveGame) GetId() LiveGameId {
 	return liveGame.id
 }
 
-func (liveGame *LiveGame) GetDimension() commonmodel.Dimension {
-	return liveGame.map_.GetDimension()
+func (liveGame *LiveGame) GetSize() commonmodel.Size {
+	return liveGame.map_.GetSize()
 }
 
 func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, error) {
@@ -48,7 +48,7 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 		return View{}, ErrPlayerCameraNotFound
 	}
 
-	bound_ := camera.GetBoundWithDimension(liveGame.GetDimension())
+	bound_ := camera.GetBoundWithSize(liveGame.GetSize())
 
 	offsetX := bound_.GetFrom().GetX()
 	offsetY := bound_.GetFrom().GetY()
@@ -111,7 +111,7 @@ func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
 }
 
 func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmodel.ItemId) error {
-	if !liveGame.GetDimension().IncludesLocation(location) {
+	if !liveGame.GetSize().IncludesLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
@@ -123,7 +123,7 @@ func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmo
 }
 
 func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
-	if !liveGame.GetDimension().IncludesLocation(location) {
+	if !liveGame.GetSize().IncludesLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
