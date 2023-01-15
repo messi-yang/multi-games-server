@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -49,18 +48,8 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 		return View{}, ErrPlayerCameraNotFound
 	}
 
-	bound := camera.GetBoundWithMapSize(liveGame.GetMapSize())
-
-	offsetX := bound.GetFrom().GetX()
-	offsetY := bound.GetFrom().GetY()
-	boundWidth := bound.GetWidth()
-	boundHeight := bound.GetHeight()
-	unitMatrix, _ := tool.RangeMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.Unit, error) {
-		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
-		return liveGame.map_.GetUnit(location), nil
-	})
-	map_ := commonmodel.NewMap(unitMatrix)
-
+	bound := camera.GetViwBoundInMap(liveGame.GetMapSize())
+	map_ := liveGame.map_.GetMapInBound(bound)
 	view := NewView(map_, bound)
 
 	return view, nil
@@ -76,7 +65,7 @@ func (liveGame *LiveGame) CanPlayerSeeAnyLocations(playerId playermodel.PlayerId
 		return false
 	}
 
-	bound := camera.GetBoundWithMapSize(liveGame.GetMapSize())
+	bound := camera.GetViwBoundInMap(liveGame.GetMapSize())
 	return bound.CoverAnyLocations(locations)
 }
 
