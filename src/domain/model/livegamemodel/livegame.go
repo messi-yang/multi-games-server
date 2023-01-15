@@ -48,9 +48,7 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 		return View{}, ErrPlayerCameraNotFound
 	}
 
-	bound := camera.GetViwBoundInMap(liveGame.GetMapSize())
-	map_ := liveGame.map_.GetMapInBound(bound)
-	view := NewView(map_, bound)
+	view := liveGame.map_.GetViewOfCamera(camera)
 
 	return view, nil
 }
@@ -65,7 +63,7 @@ func (liveGame *LiveGame) CanPlayerSeeAnyLocations(playerId playermodel.PlayerId
 		return false
 	}
 
-	bound := camera.GetViwBoundInMap(liveGame.GetMapSize())
+	bound := liveGame.map_.GetViwBoundOfCamera(camera)
 	return bound.CoverAnyLocations(locations)
 }
 
