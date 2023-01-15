@@ -53,7 +53,7 @@ func (ms Size) IncludesBound(bound Bound) bool {
 	return true
 }
 
-func (ms Size) IncludesLocation(location Location) bool {
+func (ms Size) CoverLocation(location Location) bool {
 	includesAll := true
 	if location.x >= ms.width || location.y >= ms.height {
 		includesAll = false

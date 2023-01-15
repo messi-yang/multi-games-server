@@ -47,12 +47,12 @@ func (a Bound) GetHeight() int {
 	return a.to.y - a.from.y + 1
 }
 
-func (a Bound) IncludesLocation(location Location) bool {
+func (a Bound) CoverLocation(location Location) bool {
 	return location.x >= a.from.x && location.x <= a.to.x && location.y >= a.from.y && location.y <= a.to.y
 }
 
-func (a Bound) IncludesAnyLocations(locations []Location) bool {
+func (a Bound) CoverAnyLocations(locations []Location) bool {
 	return lo.ContainsBy(locations, func(location Location) bool {
-		return a.IncludesLocation(location)
+		return a.CoverLocation(location)
 	})
 }

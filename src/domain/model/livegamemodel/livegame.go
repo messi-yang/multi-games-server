@@ -111,7 +111,7 @@ func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
 }
 
 func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmodel.ItemId) error {
-	if !liveGame.GetSize().IncludesLocation(location) {
+	if !liveGame.GetSize().CoverLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
@@ -123,7 +123,7 @@ func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmo
 }
 
 func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
-	if !liveGame.GetSize().IncludesLocation(location) {
+	if !liveGame.GetSize().CoverLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
