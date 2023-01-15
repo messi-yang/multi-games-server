@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -34,6 +35,54 @@ func NewLiveGame(id LiveGameId, map_ Map) LiveGame {
 	}
 }
 
+func (liveGame *LiveGame) getViewBoundOfCamera(camera Camera) Bound {
+	fromX := camera.GetCenter().GetX() - 25
+	toX := camera.GetCenter().GetX() + 25
+	mapSize := liveGame.GetMapSize()
+	mapWidth := mapSize.GetWidth()
+	if fromX < 0 {
+		toX -= fromX
+		fromX = 0
+	} else if toX > mapWidth-1 {
+		fromX -= toX - mapWidth - 1
+		toX = mapWidth - 1
+	}
+
+	fromY := camera.GetCenter().GetY() - 25
+	toY := camera.GetCenter().GetY() + 25
+	mapHeight := mapSize.GetHeight()
+	if fromY < 0 {
+		toY -= fromY
+		fromY = 0
+	} else if toY > mapHeight-1 {
+		fromY -= toY - mapHeight - 1
+		toY = mapHeight - 1
+	}
+
+	from, _ := commonmodel.NewLocation(fromX, fromY)
+	to, _ := commonmodel.NewLocation(toX, toY)
+	bound, _ := NewBound(from, to)
+
+	return bound
+}
+
+func (liveGame *LiveGame) getViewOfCamera(camera Camera) View {
+	bound := liveGame.getViewBoundOfCamera(camera)
+	offsetX := bound.GetFrom().GetX()
+	offsetY := bound.GetFrom().GetY()
+	boundWidth := bound.GetWidth()
+	boundHeight := bound.GetHeight()
+	unitMatrix, _ := tool.RangeMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.Unit, error) {
+		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
+		return liveGame.map_.GetUnit(location), nil
+	})
+	return NewView(NewMap(unitMatrix), bound)
+}
+
+func (liveGame *LiveGame) removePlayerCamera(playerId playermodel.PlayerId) {
+	delete(liveGame.playerCameras, playerId)
+}
+
 func (liveGame *LiveGame) GetId() LiveGameId {
 	return liveGame.id
 }
@@ -42,19 +91,19 @@ func (liveGame *LiveGame) GetMapSize() commonmodel.Size {
 	return liveGame.map_.GetSize()
 }
 
+func (liveGame *LiveGame) GetPlayerIds() []playermodel.PlayerId {
+	return lo.Keys(liveGame.playerCameras)
+}
+
 func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, error) {
 	camera, exists := liveGame.playerCameras[playerId]
 	if !exists {
 		return View{}, ErrPlayerCameraNotFound
 	}
 
-	view := liveGame.map_.GetViewOfCamera(camera)
+	view := liveGame.getViewOfCamera(camera)
 
 	return view, nil
-}
-
-func (liveGame *LiveGame) GetPlayerIds() []playermodel.PlayerId {
-	return lo.Keys(liveGame.playerCameras)
 }
 
 func (liveGame *LiveGame) CanPlayerSeeAnyLocations(playerId playermodel.PlayerId, locations []commonmodel.Location) bool {
@@ -63,7 +112,7 @@ func (liveGame *LiveGame) CanPlayerSeeAnyLocations(playerId playermodel.PlayerId
 		return false
 	}
 
-	bound := liveGame.map_.GetViwBoundOfCamera(camera)
+	bound := liveGame.getViewBoundOfCamera(camera)
 	return bound.CoverAnyLocations(locations)
 }
 
@@ -75,10 +124,6 @@ func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, came
 
 	liveGame.playerCameras[playerId] = camera
 	return nil
-}
-
-func (liveGame *LiveGame) removePlayerCamera(playerId playermodel.PlayerId) {
-	delete(liveGame.playerCameras, playerId)
 }
 
 func (liveGame *LiveGame) GetPlayerCamera(playerId playermodel.PlayerId) (Camera, error) {
