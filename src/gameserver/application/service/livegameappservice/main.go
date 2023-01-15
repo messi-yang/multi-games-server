@@ -44,7 +44,7 @@ func (serve *serve) publishObservedBoundUpdatedServerEvents(liveGameId livegamem
 	}
 
 	for playerId, camera := range liveGame.GetPlayerCameras() {
-		bound := camera.GetBoundWithMapSize(liveGame.GetSize())
+		bound := camera.GetBoundWithMapSize(liveGame.GetMapSize())
 		if !bound.CoverAnyLocations([]commonmodel.Location{location}) {
 			continue
 		}
@@ -212,7 +212,7 @@ func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) 
 			intgrevent.NewGameJoinedIntgrEvent(
 				liveGameIdVm, playerIdVm,
 				viewmodel.NewCameraVm(camera),
-				viewmodel.NewSizeVm(liveGame.GetSize()),
+				viewmodel.NewSizeVm(liveGame.GetMapSize()),
 				viewmodel.NewViewVm(view),
 			),
 		),
