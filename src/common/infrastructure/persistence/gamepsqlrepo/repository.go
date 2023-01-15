@@ -42,14 +42,14 @@ func (m *repo) GetAll() ([]gamemodel.Game, error) {
 	return gameAggregates, nil
 }
 
-func (m *repo) Add(game gamemodel.Game) (gamemodel.GameId, error) {
+func (m *repo) Add(game gamemodel.Game) error {
 	gameModel := NewGamePsqlModel(game)
 	res := m.gormDb.Create(&gameModel)
 	if res.Error != nil {
-		return gamemodel.GameId{}, res.Error
+		return res.Error
 	}
 
-	return game.GetId(), nil
+	return nil
 }
 
 func (m *repo) ReadLockAccess(gameId gamemodel.GameId) (func(), error) {

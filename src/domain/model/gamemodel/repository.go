@@ -1,7 +1,7 @@
 package gamemodel
 
 type GameRepo interface {
-	Add(Game) (GameId, error)
+	Add(Game) error
 	Get(GameId) (Game, error)
 	Update(GameId, Game) error
 	GetAll() ([]Game, error)
