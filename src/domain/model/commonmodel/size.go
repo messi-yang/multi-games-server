@@ -37,22 +37,6 @@ func (ms Size) GetHeight() int {
 	return ms.height
 }
 
-func (ms Size) IncludesBound(bound Bound) bool {
-	if bound.from.x < 0 || bound.from.x >= ms.width {
-		return false
-	}
-	if bound.to.x < 0 || bound.to.x >= ms.width {
-		return false
-	}
-	if bound.from.y < 0 || bound.from.y >= ms.height {
-		return false
-	}
-	if bound.to.y < 0 || bound.to.y >= ms.height {
-		return false
-	}
-	return true
-}
-
 func (ms Size) CoverLocation(location Location) bool {
 	includesAll := true
 	if location.x >= ms.width || location.y >= ms.height {

@@ -16,7 +16,7 @@ func (camera Camera) GetCenter() commonmodel.Location {
 	return camera.center
 }
 
-func (camera Camera) GetViwBoundInMap(mapSize commonmodel.Size) commonmodel.Bound {
+func (camera Camera) GetViwBoundInMap(mapSize commonmodel.Size) Bound {
 	fromX := camera.GetCenter().GetX() - 25
 	toX := camera.GetCenter().GetX() + 25
 	mapWidth := mapSize.GetWidth()
@@ -41,7 +41,7 @@ func (camera Camera) GetViwBoundInMap(mapSize commonmodel.Size) commonmodel.Boun
 
 	from, _ := commonmodel.NewLocation(fromX, fromY)
 	to, _ := commonmodel.NewLocation(toX, toY)
-	bound, _ := commonmodel.NewBound(from, to)
+	bound, _ := NewBound(from, to)
 
 	return bound
 }

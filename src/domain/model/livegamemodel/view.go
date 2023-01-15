@@ -1,13 +1,11 @@
 package livegamemodel
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
-
 type View struct {
 	map_  Map
-	bound commonmodel.Bound
+	bound Bound
 }
 
-func NewView(map_ Map, bound commonmodel.Bound) View {
+func NewView(map_ Map, bound Bound) View {
 	return View{
 		map_:  map_,
 		bound: bound,
@@ -18,6 +16,6 @@ func (view View) GetMap() Map {
 	return view.map_
 }
 
-func (view View) GetBound() commonmodel.Bound {
+func (view View) GetBound() Bound {
 	return view.bound
 }

@@ -24,7 +24,7 @@ func (_map Map) GetUnitMatrix() [][]commonmodel.Unit {
 	return _map.unitMatrix
 }
 
-func (_map Map) GetMapInBound(bound commonmodel.Bound) Map {
+func (_map Map) GetMapInBound(bound Bound) Map {
 	offsetX := bound.GetFrom().GetX()
 	offsetY := bound.GetFrom().GetY()
 	boundWidth := bound.GetWidth()
