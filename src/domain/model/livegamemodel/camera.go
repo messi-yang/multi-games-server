@@ -41,7 +41,7 @@ func (camera Camera) GetBoundWithSize(size commonmodel.Size) commonmodel.Bound {
 
 	from, _ := commonmodel.NewLocation(fromX, fromY)
 	to, _ := commonmodel.NewLocation(toX, toY)
-	bound_, _ := commonmodel.NewBound(from, to)
+	bound, _ := commonmodel.NewBound(from, to)
 
-	return bound_
+	return bound
 }

@@ -48,19 +48,19 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 		return View{}, ErrPlayerCameraNotFound
 	}
 
-	bound_ := camera.GetBoundWithSize(liveGame.GetSize())
+	bound := camera.GetBoundWithSize(liveGame.GetSize())
 
-	offsetX := bound_.GetFrom().GetX()
-	offsetY := bound_.GetFrom().GetY()
-	boundWidth := bound_.GetWidth()
-	boundHeight := bound_.GetHeight()
+	offsetX := bound.GetFrom().GetX()
+	offsetY := bound.GetFrom().GetY()
+	boundWidth := bound.GetWidth()
+	boundHeight := bound.GetHeight()
 	unitMatrix, _ := tool.RangeMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.Unit, error) {
 		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
 		return liveGame.map_.GetUnit(location), nil
 	})
 	map_ := commonmodel.NewMap(unitMatrix)
 
-	view := NewView(map_, bound_)
+	view := NewView(map_, bound)
 
 	return view, nil
 }

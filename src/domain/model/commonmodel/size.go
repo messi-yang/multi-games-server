@@ -37,17 +37,17 @@ func (ms Size) GetHeight() int {
 	return ms.height
 }
 
-func (ms Size) IncludesBound(bound_ Bound) bool {
-	if bound_.from.x < 0 || bound_.from.x >= ms.width {
+func (ms Size) IncludesBound(bound Bound) bool {
+	if bound.from.x < 0 || bound.from.x >= ms.width {
 		return false
 	}
-	if bound_.to.x < 0 || bound_.to.x >= ms.width {
+	if bound.to.x < 0 || bound.to.x >= ms.width {
 		return false
 	}
-	if bound_.from.y < 0 || bound_.from.y >= ms.height {
+	if bound.from.y < 0 || bound.from.y >= ms.height {
 		return false
 	}
-	if bound_.to.y < 0 || bound_.to.y >= ms.height {
+	if bound.to.y < 0 || bound.to.y >= ms.height {
 		return false
 	}
 	return true

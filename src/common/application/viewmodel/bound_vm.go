@@ -9,10 +9,10 @@ type BoundVm struct {
 	To   LocationVm `json:"to"`
 }
 
-func NewBoundVm(bound_ commonmodel.Bound) BoundVm {
+func NewBoundVm(bound commonmodel.Bound) BoundVm {
 	return BoundVm{
-		From: NewLocationVm(bound_.GetFrom()),
-		To:   NewLocationVm(bound_.GetTo()),
+		From: NewLocationVm(bound.GetFrom()),
+		To:   NewLocationVm(bound.GetTo()),
 	}
 }
 
@@ -27,7 +27,7 @@ func (dto BoundVm) ToValueObject() (commonmodel.Bound, error) {
 		return commonmodel.Bound{}, err
 	}
 
-	bound_, err := commonmodel.NewBound(
+	bound, err := commonmodel.NewBound(
 		fromLocationVm,
 		toLocationVm,
 	)
@@ -35,5 +35,5 @@ func (dto BoundVm) ToValueObject() (commonmodel.Bound, error) {
 		return commonmodel.Bound{}, err
 	}
 
-	return bound_, nil
+	return bound, nil
 }
