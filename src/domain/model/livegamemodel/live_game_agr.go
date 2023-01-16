@@ -18,42 +18,42 @@ var (
 	ErrPlayerCameraNotFound          = errors.New("ErrPlayerCameraNotFound")
 )
 
-type LiveGame struct {
-	id            LiveGameId
-	map_          Map
-	playerIds     map[playermodel.PlayerId]bool
-	playerCameras map[playermodel.PlayerId]Camera
+type LiveGameAgr struct {
+	id            LiveGameIdVo
+	map_          MapVo
+	playerIds     map[playermodel.PlayerIdVo]bool
+	playerCameras map[playermodel.PlayerIdVo]CameraVo
 }
 
-func NewLiveGame(id LiveGameId, map_ Map) LiveGame {
-	return LiveGame{
+func NewLiveGameAgr(id LiveGameIdVo, map_ MapVo) LiveGameAgr {
+	return LiveGameAgr{
 		id:            id,
 		map_:          map_,
-		playerIds:     make(map[playermodel.PlayerId]bool),
-		playerCameras: make(map[playermodel.PlayerId]Camera),
+		playerIds:     make(map[playermodel.PlayerIdVo]bool),
+		playerCameras: make(map[playermodel.PlayerIdVo]CameraVo),
 	}
 }
 
-func (liveGame *LiveGame) removePlayerCamera(playerId playermodel.PlayerId) {
+func (liveGame *LiveGameAgr) removePlayerCamera(playerId playermodel.PlayerIdVo) {
 	delete(liveGame.playerCameras, playerId)
 }
 
-func (liveGame *LiveGame) GetId() LiveGameId {
+func (liveGame *LiveGameAgr) GetId() LiveGameIdVo {
 	return liveGame.id
 }
 
-func (liveGame *LiveGame) GetMapSize() commonmodel.Size {
+func (liveGame *LiveGameAgr) GetMapSize() commonmodel.SizeVo {
 	return liveGame.map_.GetSize()
 }
 
-func (liveGame *LiveGame) GetPlayerIds() []playermodel.PlayerId {
+func (liveGame *LiveGameAgr) GetPlayerIds() []playermodel.PlayerIdVo {
 	return lo.Keys(liveGame.playerCameras)
 }
 
-func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, error) {
+func (liveGame *LiveGameAgr) GetPlayerView(playerId playermodel.PlayerIdVo) (ViewVo, error) {
 	camera, exists := liveGame.playerCameras[playerId]
 	if !exists {
-		return View{}, ErrPlayerCameraNotFound
+		return ViewVo{}, ErrPlayerCameraNotFound
 	}
 
 	view := liveGame.map_.GetViewWithCamera(camera)
@@ -61,7 +61,7 @@ func (liveGame *LiveGame) GetPlayerView(playerId playermodel.PlayerId) (View, er
 	return view, nil
 }
 
-func (liveGame *LiveGame) CanPlayerSeeAnyLocations(playerId playermodel.PlayerId, locations []commonmodel.Location) bool {
+func (liveGame *LiveGameAgr) CanPlayerSeeAnyLocations(playerId playermodel.PlayerIdVo, locations []commonmodel.LocationVo) bool {
 	camera, exists := liveGame.playerCameras[playerId]
 	if !exists {
 		return false
@@ -71,7 +71,7 @@ func (liveGame *LiveGame) CanPlayerSeeAnyLocations(playerId playermodel.PlayerId
 	return bound.CoverAnyLocations(locations)
 }
 
-func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, camera Camera) error {
+func (liveGame *LiveGameAgr) ChangePlayerCamera(playerId playermodel.PlayerIdVo, camera CameraVo) error {
 	_, exists := liveGame.playerIds[playerId]
 	if !exists {
 		return ErrPlayerNotFound
@@ -81,15 +81,15 @@ func (liveGame *LiveGame) ChangePlayerCamera(playerId playermodel.PlayerId, came
 	return nil
 }
 
-func (liveGame *LiveGame) GetPlayerCamera(playerId playermodel.PlayerId) (Camera, error) {
+func (liveGame *LiveGameAgr) GetPlayerCamera(playerId playermodel.PlayerIdVo) (CameraVo, error) {
 	camera, exists := liveGame.playerCameras[playerId]
 	if !exists {
-		return Camera{}, ErrPlayerCameraNotFound
+		return CameraVo{}, ErrPlayerCameraNotFound
 	}
 	return camera, nil
 }
 
-func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
+func (liveGame *LiveGameAgr) AddPlayer(playerId playermodel.PlayerIdVo) error {
 	_, exists := liveGame.playerIds[playerId]
 	if exists {
 		return ErrPlayerAlreadyExists
@@ -97,18 +97,18 @@ func (liveGame *LiveGame) AddPlayer(playerId playermodel.PlayerId) error {
 
 	liveGame.playerIds[playerId] = true
 
-	originLocation, _ := commonmodel.NewLocation(0, 0)
-	liveGame.ChangePlayerCamera(playerId, NewCamera(originLocation))
+	originLocation, _ := commonmodel.NewLocationVo(0, 0)
+	liveGame.ChangePlayerCamera(playerId, NewCameraVo(originLocation))
 
 	return nil
 }
 
-func (liveGame *LiveGame) RemovePlayer(playerId playermodel.PlayerId) {
+func (liveGame *LiveGameAgr) RemovePlayer(playerId playermodel.PlayerIdVo) {
 	liveGame.removePlayerCamera(playerId)
 	delete(liveGame.playerIds, playerId)
 }
 
-func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmodel.ItemId) error {
+func (liveGame *LiveGameAgr) BuildItem(location commonmodel.LocationVo, itemId itemmodel.ItemIdVo) error {
 	if !liveGame.GetMapSize().CoverLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
@@ -120,13 +120,13 @@ func (liveGame *LiveGame) BuildItem(location commonmodel.Location, itemId itemmo
 	return nil
 }
 
-func (liveGame *LiveGame) DestroyItem(location commonmodel.Location) error {
+func (liveGame *LiveGameAgr) DestroyItem(location commonmodel.LocationVo) error {
 	if !liveGame.GetMapSize().CoverLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
 	unit := liveGame.map_.GetUnit(location)
-	itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
+	itemId, _ := itemmodel.NewItemIdVo(uuid.Nil.String())
 	newUnit := unit.SetItemId(itemId)
 	liveGame.map_.ReplaceUnitAt(location, newUnit)
 

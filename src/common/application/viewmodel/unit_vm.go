@@ -9,7 +9,7 @@ type UnitVm struct {
 	ItemId *string `json:"itemId"`
 }
 
-func NewUnitVm(unit commonmodel.Unit) UnitVm {
+func NewUnitVm(unit commonmodel.UnitVo) UnitVm {
 	var itemId *string = lo.Ternary(unit.GetItemId().IsEmpty(), nil, lo.ToPtr(unit.GetItemId().ToString()))
 	return UnitVm{
 		ItemId: itemId,

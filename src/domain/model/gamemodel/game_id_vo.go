@@ -2,21 +2,21 @@ package gamemodel
 
 import "github.com/google/uuid"
 
-type GameId struct {
+type GameIdVo struct {
 	id uuid.UUID
 }
 
-func NewGameId(uuidStr string) (GameId, error) {
+func NewGameIdVo(uuidStr string) (GameIdVo, error) {
 	id, err := uuid.Parse(uuidStr)
 	if err != nil {
-		return GameId{}, err
+		return GameIdVo{}, err
 	}
 
-	return GameId{
+	return GameIdVo{
 		id: id,
 	}, nil
 }
 
-func (gameId GameId) ToString() string {
+func (gameId GameIdVo) ToString() string {
 	return gameId.id.String()
 }

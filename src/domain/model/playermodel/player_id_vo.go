@@ -2,21 +2,21 @@ package playermodel
 
 import "github.com/google/uuid"
 
-type PlayerId struct {
+type PlayerIdVo struct {
 	id uuid.UUID
 }
 
-func NewPlayerId(uuidStr string) (PlayerId, error) {
+func NewPlayerIdVo(uuidStr string) (PlayerIdVo, error) {
 	id, err := uuid.Parse(uuidStr)
 	if err != nil {
-		return PlayerId{}, err
+		return PlayerIdVo{}, err
 	}
 
-	return PlayerId{
+	return PlayerIdVo{
 		id: id,
 	}, nil
 }
 
-func (playerId PlayerId) ToString() string {
+func (playerId PlayerIdVo) ToString() string {
 	return playerId.id.String()
 }

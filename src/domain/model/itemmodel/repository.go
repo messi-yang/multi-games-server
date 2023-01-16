@@ -1,5 +1,5 @@
 package itemmodel
 
 type Repo interface {
-	GetAllItems() []Item
+	GetAllItems() []ItemAgr
 }

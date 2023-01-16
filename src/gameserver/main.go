@@ -33,9 +33,9 @@ func Start() {
 	if len(games) > 0 {
 		liveGameAppService.CreateLiveGame(games[0].GetId().ToString())
 	} else {
-		mapSize, _ := commonmodel.NewSize(200, 200)
+		mapSize, _ := commonmodel.NewSizeVo(200, 200)
 		gameId, _ := gameDomainService.CreateGame(mapSize)
-		livegamemodel.NewLiveGameId(gameId.ToString())
+		livegamemodel.NewLiveGameIdVo(gameId.ToString())
 	}
 
 	livegameintgreventcontroller.New(liveGameAppService)

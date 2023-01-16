@@ -7,7 +7,7 @@ type LocationVm struct {
 	Y int `json:"y"`
 }
 
-func NewLocationVm(location commonmodel.Location) LocationVm {
+func NewLocationVm(location commonmodel.LocationVo) LocationVm {
 	return LocationVm{
 		X: location.GetX(),
 		Y: location.GetY(),

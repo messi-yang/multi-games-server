@@ -1,11 +1,11 @@
 package livegamemodel
 
 type Repo interface {
-	Add(LiveGame) error
-	Get(LiveGameId) (LiveGame, error)
-	Update(LiveGameId, LiveGame) error
-	GetAll() []LiveGame
+	Add(LiveGameAgr) error
+	Get(LiveGameIdVo) (LiveGameAgr, error)
+	Update(LiveGameIdVo, LiveGameAgr) error
+	GetAll() []LiveGameAgr
 
-	ReadLockAccess(LiveGameId) (rUnlocker func())
-	LockAccess(LiveGameId) (unlocker func())
+	ReadLockAccess(LiveGameIdVo) (rUnlocker func())
+	LockAccess(LiveGameIdVo) (unlocker func())
 }

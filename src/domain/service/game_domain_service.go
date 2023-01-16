@@ -9,7 +9,7 @@ import (
 )
 
 type GameDomainService interface {
-	CreateGame(mapSize commonmodel.Size) (gamemodel.GameId, error)
+	CreateGame(mapSize commonmodel.SizeVo) (gamemodel.GameIdVo, error)
 }
 
 type gameDomainServe struct {
@@ -20,17 +20,17 @@ func NewGameDomainService(gameRepo gamemodel.GameRepo) GameDomainService {
 	return &gameDomainServe{gameRepo: gameRepo}
 }
 
-func (serve *gameDomainServe) CreateGame(mapSize commonmodel.Size) (gamemodel.GameId, error) {
-	unitMatrix, _ := tool.RangeMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) (commonmodel.Unit, error) {
-		itemId, _ := itemmodel.NewItemId(uuid.Nil.String())
-		return commonmodel.NewUnit(itemId), nil
+func (serve *gameDomainServe) CreateGame(mapSize commonmodel.SizeVo) (gamemodel.GameIdVo, error) {
+	unitMatrix, _ := tool.RangeMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) (commonmodel.UnitVo, error) {
+		itemId, _ := itemmodel.NewItemIdVo(uuid.Nil.String())
+		return commonmodel.NewUnitVo(itemId), nil
 	})
-	map_ := gamemodel.NewMap(unitMatrix)
-	newGameId, _ := gamemodel.NewGameId(uuid.New().String())
-	newGame := gamemodel.NewGame(newGameId, map_)
+	map_ := gamemodel.NewMapVo(unitMatrix)
+	newGameId, _ := gamemodel.NewGameIdVo(uuid.New().String())
+	newGame := gamemodel.NewGameAgr(newGameId, map_)
 	err := serve.gameRepo.Add(newGame)
 	if err != nil {
-		return gamemodel.GameId{}, err
+		return gamemodel.GameIdVo{}, err
 	}
 
 	return newGameId, nil

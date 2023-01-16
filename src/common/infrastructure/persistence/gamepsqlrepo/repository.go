@@ -14,35 +14,35 @@ func New(gormDb *gorm.DB) gamemodel.GameRepo {
 	return &repo{gormDb: gormDb}
 }
 
-func (m *repo) Get(id gamemodel.GameId) (gamemodel.Game, error) {
+func (m *repo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgr, error) {
 	gameModel := GamePsqlModel{Id: id.ToString()}
 	result := m.gormDb.First(&gameModel)
 	if result.Error != nil {
-		return gamemodel.Game{}, result.Error
+		return gamemodel.GameAgr{}, result.Error
 	}
 
 	return gameModel.ToAggregate(), nil
 }
 
-func (m *repo) Update(id gamemodel.GameId, game gamemodel.Game) error {
+func (m *repo) Update(id gamemodel.GameIdVo, game gamemodel.GameAgr) error {
 	return nil
 }
 
-func (m *repo) GetAll() ([]gamemodel.Game, error) {
+func (m *repo) GetAll() ([]gamemodel.GameAgr, error) {
 	var gamePsqlModels []GamePsqlModel
 	result := m.gormDb.Find(&gamePsqlModels)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	gameAggregates := lo.Map(gamePsqlModels, func(model GamePsqlModel, _ int) gamemodel.Game {
+	gameAggregates := lo.Map(gamePsqlModels, func(model GamePsqlModel, _ int) gamemodel.GameAgr {
 		return model.ToAggregate()
 	})
 
 	return gameAggregates, nil
 }
 
-func (m *repo) Add(game gamemodel.Game) error {
+func (m *repo) Add(game gamemodel.GameAgr) error {
 	gameModel := NewGamePsqlModel(game)
 	res := m.gormDb.Create(&gameModel)
 	if res.Error != nil {
@@ -52,10 +52,10 @@ func (m *repo) Add(game gamemodel.Game) error {
 	return nil
 }
 
-func (m *repo) ReadLockAccess(gameId gamemodel.GameId) (func(), error) {
+func (m *repo) ReadLockAccess(gameId gamemodel.GameIdVo) (func(), error) {
 	return func() {}, nil
 }
 
-func (m *repo) LockAccess(gameId gamemodel.GameId) (func(), error) {
+func (m *repo) LockAccess(gameId gamemodel.GameIdVo) (func(), error) {
 	return func() {}, nil
 }

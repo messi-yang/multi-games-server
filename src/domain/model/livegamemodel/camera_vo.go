@@ -2,21 +2,21 @@ package livegamemodel
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 
-type Camera struct {
-	center commonmodel.Location
+type CameraVo struct {
+	center commonmodel.LocationVo
 }
 
-func NewCamera(center commonmodel.Location) Camera {
-	return Camera{
+func NewCameraVo(center commonmodel.LocationVo) CameraVo {
+	return CameraVo{
 		center: center,
 	}
 }
 
-func (camera Camera) GetCenter() commonmodel.Location {
+func (camera CameraVo) GetCenter() commonmodel.LocationVo {
 	return camera.center
 }
 
-func (camera Camera) GetViewBoundInMap(mapSize commonmodel.Size) Bound {
+func (camera CameraVo) GetViewBoundInMap(mapSize commonmodel.SizeVo) BoundVo {
 	fromX := camera.GetCenter().GetX() - 25
 	toX := camera.GetCenter().GetX() + 25
 	mapWidth := mapSize.GetWidth()
@@ -39,9 +39,9 @@ func (camera Camera) GetViewBoundInMap(mapSize commonmodel.Size) Bound {
 		toY = mapHeight - 1
 	}
 
-	from, _ := commonmodel.NewLocation(fromX, fromY)
-	to, _ := commonmodel.NewLocation(toX, toY)
-	bound, _ := NewBound(from, to)
+	from, _ := commonmodel.NewLocationVo(fromX, fromY)
+	to, _ := commonmodel.NewLocationVo(toX, toY)
+	bound, _ := NewBoundVo(from, to)
 
 	return bound
 }

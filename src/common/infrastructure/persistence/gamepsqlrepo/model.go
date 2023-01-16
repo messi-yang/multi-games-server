@@ -25,19 +25,19 @@ func (GamePsqlModel) TableName() string {
 	return "games"
 }
 
-func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) gamemodel.Map {
-	unitMatrix := make([][]commonmodel.Unit, 0)
+func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) gamemodel.MapVo {
+	unitMatrix := make([][]commonmodel.UnitVo, 0)
 	for colIdx, unitModelCol := range mapPsqlModel {
-		unitMatrix = append(unitMatrix, []commonmodel.Unit{})
+		unitMatrix = append(unitMatrix, []commonmodel.UnitVo{})
 		for _, unit := range unitModelCol {
-			itemId, _ := itemmodel.NewItemId(unit.ItemId)
-			unitMatrix[colIdx] = append(unitMatrix[colIdx], commonmodel.NewUnit(itemId))
+			itemId, _ := itemmodel.NewItemIdVo(unit.ItemId)
+			unitMatrix[colIdx] = append(unitMatrix[colIdx], commonmodel.NewUnitVo(itemId))
 		}
 	}
-	return gamemodel.NewMap(unitMatrix)
+	return gamemodel.NewMapVo(unitMatrix)
 }
 
-func convertMapToMapPsqlModel(map_ gamemodel.Map) [][]UnitPsqlModel {
+func convertMapToMapPsqlModel(map_ gamemodel.MapVo) [][]UnitPsqlModel {
 	mapPsqlModel := make([][]UnitPsqlModel, 0)
 	for unitColIdx, unitCol := range map_.GetUnitMatrix() {
 		mapPsqlModel = append(mapPsqlModel, []UnitPsqlModel{})
@@ -50,7 +50,7 @@ func convertMapToMapPsqlModel(map_ gamemodel.Map) [][]UnitPsqlModel {
 	return mapPsqlModel
 }
 
-func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
+func NewGamePsqlModel(game gamemodel.GameAgr) GamePsqlModel {
 	return GamePsqlModel{
 		Id:      game.GetId().ToString(),
 		Width:   game.GetMapSize().GetWidth(),
@@ -59,7 +59,7 @@ func NewGamePsqlModel(game gamemodel.Game) GamePsqlModel {
 	}
 }
 
-func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.Game {
-	gameId, _ := gamemodel.NewGameId(gamePostgresModel.Id)
-	return gamemodel.NewGame(gameId, convertMapPsqlModelToMap(gamePostgresModel.UnitMap))
+func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.GameAgr {
+	gameId, _ := gamemodel.NewGameIdVo(gamePostgresModel.Id)
+	return gamemodel.NewGameAgr(gameId, convertMapPsqlModelToMap(gamePostgresModel.UnitMap))
 }

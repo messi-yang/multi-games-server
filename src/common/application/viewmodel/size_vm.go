@@ -7,7 +7,7 @@ type SizeVm struct {
 	Height int `json:"height"`
 }
 
-func NewSizeVm(size commonmodel.Size) SizeVm {
+func NewSizeVm(size commonmodel.SizeVo) SizeVm {
 	return SizeVm{
 		Width:  size.GetWidth(),
 		Height: size.GetHeight(),

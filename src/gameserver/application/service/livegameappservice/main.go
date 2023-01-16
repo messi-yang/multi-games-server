@@ -37,14 +37,14 @@ func New(
 	}
 }
 
-func (serve *serve) publishObservedBoundUpdatedServerEvents(liveGameId livegamemodel.LiveGameId, location commonmodel.Location) error {
+func (serve *serve) publishObservedBoundUpdatedServerEvents(liveGameId livegamemodel.LiveGameIdVo, location commonmodel.LocationVo) error {
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
 
 	for _, playerId := range liveGame.GetPlayerIds() {
-		if !liveGame.CanPlayerSeeAnyLocations(playerId, []commonmodel.Location{location}) {
+		if !liveGame.CanPlayerSeeAnyLocations(playerId, []commonmodel.LocationVo{location}) {
 			continue
 		}
 
@@ -71,11 +71,11 @@ func (serve *serve) publishObservedBoundUpdatedServerEvents(liveGameId livegamem
 }
 
 func (serve *serve) ChangePlayerCameraLiveGame(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
-	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
+	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
 	}
-	playerId, err := playermodel.NewPlayerId(playerIdVm)
+	playerId, err := playermodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
 		return
 	}
@@ -108,7 +108,7 @@ func (serve *serve) ChangePlayerCameraLiveGame(liveGameIdVm string, playerIdVm s
 }
 
 func (serve *serve) CreateLiveGame(gameIdVm string) {
-	gameId, err := gamemodel.NewGameId(gameIdVm)
+	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
 	}
@@ -118,24 +118,24 @@ func (serve *serve) CreateLiveGame(gameIdVm string) {
 		return
 	}
 
-	liveGameId, _ := livegamemodel.NewLiveGameId(gameId.ToString())
+	liveGameId, _ := livegamemodel.NewLiveGameIdVo(gameId.ToString())
 
-	liveGameMap := livegamemodel.NewMap(game.GetMap().GetUnitMatrix())
-	newLiveGame := livegamemodel.NewLiveGame(liveGameId, liveGameMap)
+	liveGameMap := livegamemodel.NewMapVo(game.GetMap().GetUnitMatrix())
+	newLiveGame := livegamemodel.NewLiveGameAgr(liveGameId, liveGameMap)
 
 	serve.liveGameRepo.Add(newLiveGame)
 }
 
 func (serve *serve) BuildItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
-	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
+	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
 	}
-	itemId, err := itemmodel.NewItemId(itemIdVm)
+	itemId, err := itemmodel.NewItemIdVo(itemIdVm)
 	if err != nil {
 		return
 	}
-	location, err := commonmodel.NewLocation(locationVm.X, locationVm.Y)
+	location, err := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
 	if err != nil {
 		return
 	}
@@ -159,11 +159,11 @@ func (serve *serve) BuildItemInLiveGame(liveGameIdVm string, locationVm viewmode
 }
 
 func (serve *serve) DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm) {
-	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
+	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
 	}
-	location, err := commonmodel.NewLocation(locationVm.X, locationVm.Y)
+	location, err := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
 	if err != nil {
 		return
 	}
@@ -186,11 +186,11 @@ func (serve *serve) DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmo
 }
 
 func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) {
-	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
+	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
 	}
-	playerId, err := playermodel.NewPlayerId(playerIdVm)
+	playerId, err := playermodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
 		return
 	}
@@ -222,11 +222,11 @@ func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) 
 }
 
 func (serve *serve) RemovePlayerFromLiveGame(liveGameIdVm string, playerIdVm string) {
-	liveGameId, err := livegamemodel.NewLiveGameId(liveGameIdVm)
+	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
 	}
-	playerId, err := playermodel.NewPlayerId(playerIdVm)
+	playerId, err := playermodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
 		return
 	}

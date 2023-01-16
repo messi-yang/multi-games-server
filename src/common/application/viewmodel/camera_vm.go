@@ -9,16 +9,16 @@ type CameraVm struct {
 	Center LocationVm `json:"center"`
 }
 
-func NewCameraVm(camera livegamemodel.Camera) CameraVm {
+func NewCameraVm(camera livegamemodel.CameraVo) CameraVm {
 	return CameraVm{
 		Center: NewLocationVm(camera.GetCenter()),
 	}
 }
 
-func (camera CameraVm) ToValueObject() (livegamemodel.Camera, error) {
-	location, err := commonmodel.NewLocation(camera.Center.X, camera.Center.Y)
+func (camera CameraVm) ToValueObject() (livegamemodel.CameraVo, error) {
+	location, err := commonmodel.NewLocationVo(camera.Center.X, camera.Center.Y)
 	if err != nil {
-		return livegamemodel.Camera{}, err
+		return livegamemodel.CameraVo{}, err
 	}
-	return livegamemodel.NewCamera(location), nil
+	return livegamemodel.NewCameraVo(location), nil
 }

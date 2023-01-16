@@ -11,8 +11,8 @@ type ViewVm struct {
 	Map   [][]UnitVm `json:"map"`
 }
 
-func NewViewVm(view livegamemodel.View) ViewVm {
-	unitVmMatrix, _ := tool.MapMatrix(view.GetMap().GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.Unit) (UnitVm, error) {
+func NewViewVm(view livegamemodel.ViewVo) ViewVm {
+	unitVmMatrix, _ := tool.MapMatrix(view.GetMap().GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.UnitVo) (UnitVm, error) {
 		return NewUnitVm(unit), nil
 	})
 	return ViewVm{

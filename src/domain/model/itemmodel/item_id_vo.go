@@ -2,25 +2,25 @@ package itemmodel
 
 import "github.com/google/uuid"
 
-type ItemId struct {
+type ItemIdVo struct {
 	id uuid.UUID
 }
 
-func NewItemId(uuidStr string) (ItemId, error) {
+func NewItemIdVo(uuidStr string) (ItemIdVo, error) {
 	id, err := uuid.Parse(uuidStr)
 	if err != nil {
-		return ItemId{}, err
+		return ItemIdVo{}, err
 	}
 
-	return ItemId{
+	return ItemIdVo{
 		id: id,
 	}, nil
 }
 
-func (id ItemId) IsEmpty() bool {
+func (id ItemIdVo) IsEmpty() bool {
 	return id.id.String() == uuid.Nil.String()
 }
 
-func (id ItemId) ToString() string {
+func (id ItemIdVo) ToString() string {
 	return id.id.String()
 }
