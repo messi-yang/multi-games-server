@@ -2,6 +2,7 @@ package livegamemodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 )
 
 type Map struct {
@@ -29,4 +30,17 @@ func (map_ Map) GetUnit(location commonmodel.Location) commonmodel.Unit {
 
 func (map_ Map) ReplaceUnitAt(location commonmodel.Location, unit commonmodel.Unit) {
 	(map_.unitMatrix)[location.GetX()][location.GetY()] = unit
+}
+
+func (map_ Map) GetViewWithCamera(camera Camera) View {
+	bound := camera.GetViewBoundInMap(map_.GetSize())
+	offsetX := bound.GetFrom().GetX()
+	offsetY := bound.GetFrom().GetY()
+	boundWidth := bound.GetWidth()
+	boundHeight := bound.GetHeight()
+	unitMatrix, _ := tool.RangeMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.Unit, error) {
+		location, _ := commonmodel.NewLocation(x+offsetX, y+offsetY)
+		return map_.GetUnit(location), nil
+	})
+	return NewView(NewMap(unitMatrix), bound)
 }
