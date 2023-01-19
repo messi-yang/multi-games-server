@@ -127,8 +127,8 @@ type ViewUpdatedIntgrEvent struct {
 	View       viewmodel.ViewVm   `json:"view"`
 }
 
-func NewViewUpdatedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) GameJoinedIntgrEvent {
-	return GameJoinedIntgrEvent{
+func NewViewUpdatedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) ViewUpdatedIntgrEvent {
+	return ViewUpdatedIntgrEvent{
 		Name:       ViewUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
