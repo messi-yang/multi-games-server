@@ -17,7 +17,7 @@ func Start() {
 	gameDomainService := service.NewGameDomainService(
 		gameRepo,
 	)
-	intgrEventPublisher := redispub.NewRedisPublisher()
+	intgrEventPublisher := redispub.New()
 	liveGameAppService := livegameappservice.New(
 		liveGameRepo,
 		gameRepo,

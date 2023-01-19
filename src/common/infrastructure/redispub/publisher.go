@@ -12,7 +12,7 @@ type redisPublisher struct {
 	redisClient *redis.Client
 }
 
-func NewRedisPublisher() intgrevent.IntgrEventPublisher {
+func New() intgrevent.IntgrEventPublisher {
 	return &redisPublisher{
 		redisClient: redis.NewClient(&redis.Options{
 			Addr:        os.Getenv("REDIS_HOST"),

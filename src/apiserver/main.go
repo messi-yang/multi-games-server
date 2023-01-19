@@ -22,7 +22,7 @@ func Start() {
 	router.Use(cors.New(corsConfig))
 
 	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
-	intgrEventPublisher := redispub.NewRedisPublisher()
+	intgrEventPublisher := redispub.New()
 	itemRepo := memrepo.NewItemMemRepo()
 	liveGameAppService := livegameappservice.New(intgrEventPublisher, itemRepo)
 	itemAppService := itemappservice.New(itemRepo)
