@@ -4,8 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/playerappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/memrepo/itemmemoryrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/memrepo/playermemoryrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/playercontroller"
@@ -29,11 +28,11 @@ func Start() {
 	}
 	gameRepo := gamepsqlrepo.New(gormDb)
 	intgrEventPublisher := redisintgreventpublisher.New()
-	itemRepo := itemmemoryrepo.New()
+	itemRepo := memrepo.NewItemMemRepo()
 	liveGameAppService := livegameappservice.New(intgrEventPublisher, itemRepo)
 	itemAppService := itemappservice.New(itemRepo)
 
-	playerRepo := playermemoryrepo.New()
+	playerRepo := memrepo.NewPlayerMemRepo()
 	playerAppService := playerappservice.New(playerRepo)
 
 	itemController := itemcontroller.New(itemAppService)

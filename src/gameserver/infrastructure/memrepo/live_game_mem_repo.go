@@ -1,4 +1,4 @@
-package livegamememoryrepo
+package memrepo
 
 import (
 	"errors"
@@ -13,25 +13,25 @@ var (
 	ErrPlayerAlreadyExists = errors.New("the player with the given id alredy exists in the game room")
 )
 
-type memoryRepo struct {
+type liveGameMemRepo struct {
 	records       map[livegamemodel.LiveGameIdVo]*livegamemodel.LiveGameAgg
 	recordLockers map[livegamemodel.LiveGameIdVo]*sync.RWMutex
 }
 
-var singleton *memoryRepo
+var liveGameMemRepoSingleton *liveGameMemRepo
 
-func New() livegamemodel.Repo {
-	if singleton == nil {
-		singleton = &memoryRepo{
+func NewLiveGameMemRepo() livegamemodel.Repo {
+	if liveGameMemRepoSingleton == nil {
+		liveGameMemRepoSingleton = &liveGameMemRepo{
 			records:       make(map[livegamemodel.LiveGameIdVo]*livegamemodel.LiveGameAgg),
 			recordLockers: make(map[livegamemodel.LiveGameIdVo]*sync.RWMutex),
 		}
-		return singleton
+		return liveGameMemRepoSingleton
 	}
-	return singleton
+	return liveGameMemRepoSingleton
 }
 
-func (m *memoryRepo) Get(id livegamemodel.LiveGameIdVo) (livegamemodel.LiveGameAgg, error) {
+func (m *liveGameMemRepo) Get(id livegamemodel.LiveGameIdVo) (livegamemodel.LiveGameAgg, error) {
 	record, exists := m.records[id]
 	if !exists {
 		return livegamemodel.LiveGameAgg{}, ErrGameNotFound
@@ -40,7 +40,7 @@ func (m *memoryRepo) Get(id livegamemodel.LiveGameIdVo) (livegamemodel.LiveGameA
 	return *record, nil
 }
 
-func (m *memoryRepo) Update(id livegamemodel.LiveGameIdVo, liveGame livegamemodel.LiveGameAgg) error {
+func (m *liveGameMemRepo) Update(id livegamemodel.LiveGameIdVo, liveGame livegamemodel.LiveGameAgg) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
@@ -51,7 +51,7 @@ func (m *memoryRepo) Update(id livegamemodel.LiveGameIdVo, liveGame livegamemode
 	return nil
 }
 
-func (m *memoryRepo) GetAll() []livegamemodel.LiveGameAgg {
+func (m *liveGameMemRepo) GetAll() []livegamemodel.LiveGameAgg {
 	liveGames := make([]livegamemodel.LiveGameAgg, 0)
 	for _, record := range m.records {
 		liveGames = append(liveGames, *record)
@@ -59,13 +59,13 @@ func (m *memoryRepo) GetAll() []livegamemodel.LiveGameAgg {
 	return liveGames
 }
 
-func (m *memoryRepo) Add(liveGame livegamemodel.LiveGameAgg) error {
+func (m *liveGameMemRepo) Add(liveGame livegamemodel.LiveGameAgg) error {
 	m.records[liveGame.GetId()] = &liveGame
 
 	return nil
 }
 
-func (m *memoryRepo) ReadLockAccess(liveGameId livegamemodel.LiveGameIdVo) (unlock func()) {
+func (m *liveGameMemRepo) ReadLockAccess(liveGameId livegamemodel.LiveGameIdVo) (unlock func()) {
 	_, exists := m.recordLockers[liveGameId]
 	if !exists {
 		m.recordLockers[liveGameId] = &sync.RWMutex{}
@@ -75,7 +75,7 @@ func (m *memoryRepo) ReadLockAccess(liveGameId livegamemodel.LiveGameIdVo) (unlo
 	return m.recordLockers[liveGameId].RUnlock
 }
 
-func (m *memoryRepo) LockAccess(liveGameId livegamemodel.LiveGameIdVo) (unlock func()) {
+func (m *liveGameMemRepo) LockAccess(liveGameId livegamemodel.LiveGameIdVo) (unlock func()) {
 	_, exists := m.recordLockers[liveGameId]
 	if !exists {
 		m.recordLockers[liveGameId] = &sync.RWMutex{}

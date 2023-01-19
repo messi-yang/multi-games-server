@@ -1,4 +1,4 @@
-package itemmemoryrepo
+package memrepo
 
 import (
 	"fmt"
@@ -8,14 +8,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type memoryRepo struct {
+type itemMemRepo struct {
 	items []itemmodel.ItemAgg
 }
 
-var singleton *memoryRepo
+var itemMemRepoSingleton *itemMemRepo
 
-func New() itemmodel.Repo {
-	if singleton == nil {
+func NewItemMemRepo() itemmodel.Repo {
+	if itemMemRepoSingleton == nil {
 		stoneItemDefaultId, _ := itemmodel.NewItemIdVo("2a0c8f7f-48dc-4553-86b4-2bbc3786bb66")
 		torchItemDefaultId, _ := itemmodel.NewItemIdVo("31c8cc9e-42a3-4a42-86d2-905ca37305ba")
 
@@ -25,17 +25,17 @@ func New() itemmodel.Repo {
 
 		serverUrl := os.Getenv("SERVER_URL")
 
-		singleton = &memoryRepo{
+		itemMemRepoSingleton = &itemMemRepo{
 			items: []itemmodel.ItemAgg{
 				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", fmt.Sprintf("%s/assets/items/stone.png", serverUrl)),
 				itemmodel.NewItemAgg(torchItemDefaultId, "torch", fmt.Sprintf("%s/assets/items/torch.png", serverUrl)),
 			},
 		}
-		return singleton
+		return itemMemRepoSingleton
 	}
-	return singleton
+	return itemMemRepoSingleton
 }
 
-func (repo *memoryRepo) GetAllItems() []itemmodel.ItemAgg {
+func (repo *itemMemRepo) GetAllItems() []itemmodel.ItemAgg {
 	return repo.items
 }
