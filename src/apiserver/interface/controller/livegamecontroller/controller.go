@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipper"
@@ -69,7 +69,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 
 	go controller.liveGameAppService.SendItemsUpdatedServerEvent(socketPresenter)
 
-	intgrEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
+	intgrEventSubscriberUnsubscriber := redissub.New().Subscribe(
 		intgrevent.CreateLiveGameClientChannel(liveGameId, playerIdVm),
 		func(message []byte) {
 			intgrEvent, err := jsonmarshaller.Unmarshal[intgrevent.GenericIntgrEvent](message)

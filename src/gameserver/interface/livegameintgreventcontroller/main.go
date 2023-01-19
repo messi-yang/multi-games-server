@@ -2,13 +2,13 @@ package livegameintgreventcontroller
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 )
 
 func New(liveGameAppService livegameappservice.Service) {
-	liveGameAdminChannelUnsubscriber := redisintgreventsubscriber.New().Subscribe(
+	liveGameAdminChannelUnsubscriber := redissub.New().Subscribe(
 		intgrevent.CreateLiveGameAdminChannel(),
 		func(message []byte) {
 			intgrEvent, err := jsonmarshaller.Unmarshal[intgrevent.GenericIntgrEvent](message)
