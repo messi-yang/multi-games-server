@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 )
 
 type Service interface {
@@ -54,7 +55,7 @@ func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameId
 		}
 		serve.intgrEventPublisher.Publish(
 			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			intgrevent.Marshal(intgrevent.NewViewUpdatedIntgrEvent(
+			jsonmarshaller.Marshal(intgrevent.NewViewUpdatedIntgrEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
 				viewmodel.NewViewVm(view),
@@ -114,13 +115,13 @@ func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraV
 	view, _ := liveGame.GetPlayerView(playerId)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
-		intgrevent.Marshal(
+		jsonmarshaller.Marshal(
 			intgrevent.NewCameraChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera)),
 		),
 	)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
-		intgrevent.Marshal(intgrevent.NewViewChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
+		jsonmarshaller.Marshal(intgrevent.NewViewChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
 	)
 }
 
@@ -208,7 +209,7 @@ func (serve *serve) AddPlayer(liveGameIdVm string, playerIdVm string) {
 	view, _ := liveGame.GetPlayerView(playerId)
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
-		intgrevent.Marshal(
+		jsonmarshaller.Marshal(
 			intgrevent.NewGameJoinedIntgrEvent(
 				liveGameIdVm, playerIdVm,
 				viewmodel.NewCameraVm(camera),

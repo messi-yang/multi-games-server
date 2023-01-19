@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 	"github.com/samber/lo"
 )
 
@@ -83,34 +84,34 @@ func (serve *serve) SendItemsUpdatedServerEvent(presenter Presenter) {
 func (serve *serve) RequestToJoinGame(liveGameIdVm string, playerIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewJoinGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
+		jsonmarshaller.Marshal(intgrevent.NewJoinGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
 	)
 }
 
 func (serve *serve) RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewChangeCameraRequestedIntgrEvent(liveGameIdVm, playerIdVm, cameraVm)),
+		jsonmarshaller.Marshal(intgrevent.NewChangeCameraRequestedIntgrEvent(liveGameIdVm, playerIdVm, cameraVm)),
 	)
 }
 
 func (serve *serve) RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewBuildItemRequestedIntgrEvent(liveGameIdVm, locationVm, itemIdVm)),
+		jsonmarshaller.Marshal(intgrevent.NewBuildItemRequestedIntgrEvent(liveGameIdVm, locationVm, itemIdVm)),
 	)
 }
 
 func (serve *serve) RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewDestroyItemRequestedIntgrEvent(liveGameIdVm, locationVm)),
+		jsonmarshaller.Marshal(intgrevent.NewDestroyItemRequestedIntgrEvent(liveGameIdVm, locationVm)),
 	)
 }
 
 func (serve *serve) RequestToLeaveGame(liveGameIdVm string, playerIdVm string) {
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameAdminChannel(),
-		intgrevent.Marshal(intgrevent.NewLeaveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
+		jsonmarshaller.Marshal(intgrevent.NewLeaveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
 	)
 }

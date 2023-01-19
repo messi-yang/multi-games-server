@@ -11,6 +11,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipprovider"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -72,32 +73,32 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	intgrEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
 		intgrevent.CreateLiveGameClientChannel(liveGameId, playerIdVm),
 		func(message []byte) {
-			intgrEvent, err := intgrevent.Unmarshal[intgrevent.GenericIntgrEvent](message)
+			intgrEvent, err := jsonmarshaller.Unmarshal[intgrevent.GenericIntgrEvent](message)
 			if err != nil {
 				return
 			}
 
 			switch intgrEvent.Name {
 			case intgrevent.GameJoinedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.GameJoinedIntgrEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intgrevent.GameJoinedIntgrEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, viewmodel.NewPlayerVm(myPlayer), event.Camera, event.MapSize, event.View)
 			case intgrevent.CameraChangedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.CameraChangedIntgrEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intgrevent.CameraChangedIntgrEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendCameraChangedServerEvent(socketPresenter, event.Camera)
 			case intgrevent.ViewChangedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ViewChangedIntgrEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intgrevent.ViewChangedIntgrEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendViewChangedServerEvent(socketPresenter, event.View)
 			case intgrevent.ViewUpdatedIntgrEventName:
-				event, err := intgrevent.Unmarshal[intgrevent.ViewUpdatedIntgrEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intgrevent.ViewUpdatedIntgrEvent](message)
 				if err != nil {
 					return
 				}

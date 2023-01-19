@@ -1,4 +1,4 @@
-package intgrevent
+package jsonmarshaller
 
 import "encoding/json"
 
