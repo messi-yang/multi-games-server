@@ -1,4 +1,4 @@
-package gormdb
+package psqlrepo
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 var gormDb *gorm.DB
 
-func New() (*gorm.DB, error) {
+func NewGormDbClient() (*gorm.DB, error) {
 	if gormDb == nil {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",

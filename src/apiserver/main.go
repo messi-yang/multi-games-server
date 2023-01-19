@@ -10,7 +10,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/playercontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -22,11 +21,7 @@ func Start() {
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
 
-	gormDb, err := gormdb.New()
-	if err != nil {
-		panic(err)
-	}
-	gameRepo := psqlrepo.NewGamePsqlRepo(gormDb)
+	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
 	intgrEventPublisher := redispub.NewRedisPublisher()
 	itemRepo := memrepo.NewItemMemRepo()
 	liveGameAppService := livegameappservice.New(intgrEventPublisher, itemRepo)

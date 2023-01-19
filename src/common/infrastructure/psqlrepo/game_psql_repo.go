@@ -10,8 +10,12 @@ type gamePsqlRepo struct {
 	gormDb *gorm.DB
 }
 
-func NewGamePsqlRepo(gormDb *gorm.DB) gamemodel.GameRepo {
-	return &gamePsqlRepo{gormDb: gormDb}
+func NewGamePsqlRepo() (gamemodel.GameRepo, error) {
+	gormDb, err := NewGormDbClient()
+	if err != nil {
+		return nil, err
+	}
+	return &gamePsqlRepo{gormDb: gormDb}, nil
 }
 
 func (repo *gamePsqlRepo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {

@@ -9,15 +9,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameintgreventcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 )
 
 func Start() {
-	gormDb, err := gormdb.New()
-	if err != nil {
-		panic(err)
-	}
-	gameRepo := psqlrepo.NewGamePsqlRepo(gormDb)
+	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
 	liveGameRepo := memrepo.NewLiveGameMemRepo()
 	gameDomainService := service.NewGameDomainService(
 		gameRepo,
