@@ -10,7 +10,7 @@ import (
 type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
-	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
+	SendGameJoinedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
 	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm)
 	SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
@@ -37,10 +37,10 @@ func (serve *serve) SendErroredServerEvent(presenter Presenter, clientMessage st
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) {
+func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) {
 	event := GameJoinedServerEvent{}
 	event.Type = GameJoinedServerEventType
-	event.Payload.PlayerId = playerIdVm
+	event.Payload.Player = playerVm
 	event.Payload.Camera = cameraVm
 	event.Payload.MapSize = mapSizeVm
 	event.Payload.View = viewVm

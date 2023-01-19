@@ -6,8 +6,10 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipprovider"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -25,15 +27,18 @@ var wsupgrader = websocket.Upgrader{
 type Controller struct {
 	gameRepo           gamemodel.GameRepo
 	liveGameAppService livegameappservice.Service
+	playerRepo         playermodel.Repo
 }
 
 func NewController(
 	gameRepo gamemodel.GameRepo,
 	liveGameAppService livegameappservice.Service,
+	playerRepo playermodel.Repo,
 ) *Controller {
 	return &Controller{
 		gameRepo:           gameRepo,
 		liveGameAppService: liveGameAppService,
+		playerRepo:         playerRepo,
 	}
 }
 
@@ -53,14 +58,19 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	gameId := games[0].GetId()
 
 	liveGameId := gameId.ToString()
-	playerId := uuid.New().String()
+
+	playerIdVm := uuid.New().String()
+	playerId, _ := playermodel.NewPlayerIdVo(playerIdVm)
+	myPlayer := playermodel.NewPlayerAgg(playerId, "Hello")
+	controller.playerRepo.Add(myPlayer)
+
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
 	gzipCompressor := gzipprovider.New()
 
 	go controller.liveGameAppService.QueryItems(socketPresenter)
 
 	intgrEventSubscriberUnsubscriber := redisintgreventsubscriber.New().Subscribe(
-		intgrevent.CreateLiveGameClientChannel(liveGameId, playerId),
+		intgrevent.CreateLiveGameClientChannel(liveGameId, playerIdVm),
 		func(message []byte) {
 			intgrEvent, err := intgrevent.Unmarshal[intgrevent.GenericIntgrEvent](message)
 			if err != nil {
@@ -73,7 +83,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.PlayerId, event.Camera, event.MapSize, event.View)
+				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, viewmodel.NewPlayerVm(myPlayer), event.Camera, event.MapSize, event.View)
 			case intgrevent.CameraChangedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.CameraChangedIntgrEvent](message)
 				if err != nil {
@@ -97,7 +107,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 		})
 	defer intgrEventSubscriberUnsubscriber()
 
-	controller.liveGameAppService.RequestToJoinGame(liveGameId, playerId)
+	controller.liveGameAppService.RequestToJoinGame(liveGameId, playerIdVm)
 
 	go func() {
 		defer func() {
@@ -132,7 +142,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
-				controller.liveGameAppService.RequestToChangeCamera(liveGameId, playerId, command.Payload.Camera)
+				controller.liveGameAppService.RequestToChangeCamera(liveGameId, playerIdVm, command.Payload.Camera)
 			case livegameappservice.BuildItemClientEventType:
 				command, err := livegameappservice.ParseClientEvent[livegameappservice.BuildItemClientEvent](message)
 				if err != nil {
@@ -157,7 +167,8 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.liveGameAppService.RequestToLeaveGame(liveGameId, playerId)
+		controller.playerRepo.Remove(myPlayer.GetId())
+		controller.liveGameAppService.RequestToLeaveGame(liveGameId, playerIdVm)
 		return
 	}
 }

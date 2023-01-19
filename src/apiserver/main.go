@@ -3,9 +3,12 @@ package apiserver
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/playerappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/persistence/itemmemoryrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/persistence/playermemoryrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/playercontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
@@ -30,17 +33,23 @@ func Start() {
 	liveGameAppService := livegameappservice.New(intgrEventPublisher, itemRepo)
 	itemAppService := itemappservice.New(itemRepo)
 
+	playerRepo := playermemoryrepo.New()
+	playerAppService := playerappservice.New(playerRepo)
+
 	itemController := itemcontroller.New(itemAppService)
 	liveGameController := livegamecontroller.NewController(
 		gameRepo,
 		liveGameAppService,
+		playerRepo,
 	)
+
+	playerController := playercontroller.New(playerAppService)
 
 	router.Static("/assets", "./src/assets")
 
 	router.Group("/ws/game").GET("/", liveGameController.HandleLiveGameConnection)
-
 	router.GET("/items", itemController.HandleGetAllItems)
+	router.GET("/players", playerController.GetAllHandler)
 
 	router.Run()
 }
