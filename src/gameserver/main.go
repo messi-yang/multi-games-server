@@ -1,8 +1,8 @@
 package gameserver
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
@@ -22,7 +22,7 @@ func Start() {
 	gameDomainService := service.NewGameDomainService(
 		gameRepo,
 	)
-	intgrEventPublisher := redisintgreventpublisher.New()
+	intgrEventPublisher := redispub.NewRedisPublisher()
 	liveGameAppService := livegameappservice.New(
 		liveGameRepo,
 		gameRepo,

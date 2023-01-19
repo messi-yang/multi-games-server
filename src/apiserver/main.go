@@ -8,8 +8,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/playercontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 
 	"github.com/gin-contrib/cors"
@@ -27,7 +27,7 @@ func Start() {
 		panic(err)
 	}
 	gameRepo := psqlrepo.NewGamePsqlRepo(gormDb)
-	intgrEventPublisher := redisintgreventpublisher.New()
+	intgrEventPublisher := redispub.NewRedisPublisher()
 	itemRepo := memrepo.NewItemMemRepo()
 	liveGameAppService := livegameappservice.New(intgrEventPublisher, itemRepo)
 	itemAppService := itemappservice.New(itemRepo)

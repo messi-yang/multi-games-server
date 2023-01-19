@@ -1,22 +1,22 @@
-package redisintgreventpublisher
+package redispub
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/rediseprovider"
 )
 
-type publisher struct {
+type redisPublisher struct {
 	redisProvider *rediseprovider.Provider
 }
 
-func New() intgrevent.IntgrEventPublisher {
-	return &publisher{
+func NewRedisPublisher() intgrevent.IntgrEventPublisher {
+	return &redisPublisher{
 		redisProvider: rediseprovider.New(),
 	}
 }
 
-func (publisher *publisher) Publish(channel string, message []byte) error {
-	err := publisher.redisProvider.Publish(channel, message)
+func (redisPublisher *redisPublisher) Publish(channel string, message []byte) error {
+	err := redisPublisher.redisProvider.Publish(channel, message)
 	if err != nil {
 		return err
 	}
