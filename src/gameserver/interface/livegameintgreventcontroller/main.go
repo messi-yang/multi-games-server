@@ -21,31 +21,31 @@ func New(liveGameAppService livegameappservice.Service) {
 				if err != nil {
 					return
 				}
-				liveGameAppService.ChangePlayerCameraLiveGame(event.LiveGameId, event.PlayerId, event.Camera)
+				liveGameAppService.ChangeCamera(event.LiveGameId, event.PlayerId, event.Camera)
 			case intgrevent.JoinGameRequestedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.JoinGameRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.AddPlayerToLiveGame(event.LiveGameId, event.PlayerId)
+				liveGameAppService.AddPlayer(event.LiveGameId, event.PlayerId)
 			case intgrevent.DestroyItemRequestedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.DestroyItemRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.DestroyItemInLiveGame(event.LiveGameId, event.Location)
+				liveGameAppService.DestroyItem(event.LiveGameId, event.Location)
 			case intgrevent.BuildItemRequestedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.BuildItemRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.BuildItemInLiveGame(event.LiveGameId, event.Location, event.ItemId)
+				liveGameAppService.BuildItem(event.LiveGameId, event.Location, event.ItemId)
 			case intgrevent.LeaveGameRequestedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.LeaveGameRequestedIntgrEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.RemovePlayerFromLiveGame(event.LiveGameId, event.PlayerId)
+				liveGameAppService.RemovePlayer(event.LiveGameId, event.PlayerId)
 			}
 		})
 	defer liveGameAdminChannelUnsubscriber()

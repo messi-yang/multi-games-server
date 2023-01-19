@@ -12,11 +12,11 @@ import (
 
 type Service interface {
 	CreateLiveGame(gameIdVm string)
-	ChangePlayerCameraLiveGame(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
-	BuildItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
-	DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm)
-	AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string)
-	RemovePlayerFromLiveGame(liveGameIdVm string, playerIdVm string)
+	ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
+	BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
+	DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
+	AddPlayer(liveGameIdVm string, playerIdVm string)
+	RemovePlayer(liveGameIdVm string, playerIdVm string)
 }
 
 type serve struct {
@@ -37,7 +37,7 @@ func New(
 	}
 }
 
-func (serve *serve) publishObservedBoundUpdatedServerEvents(liveGameId livegamemodel.LiveGameIdVo, location commonmodel.LocationVo) error {
+func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameIdVo, location commonmodel.LocationVo) error {
 	liveGame, err := serve.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
@@ -70,7 +70,26 @@ func (serve *serve) publishObservedBoundUpdatedServerEvents(liveGameId livegamem
 	return nil
 }
 
-func (serve *serve) ChangePlayerCameraLiveGame(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
+func (serve *serve) CreateLiveGame(gameIdVm string) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+	if err != nil {
+		return
+	}
+
+	game, err := serve.gameRepo.Get(gameId)
+	if err != nil {
+		return
+	}
+
+	liveGameId, _ := livegamemodel.NewLiveGameIdVo(gameId.ToString())
+
+	liveGameMap := livegamemodel.NewMapVo(game.GetMap().GetUnitMatrix())
+	newLiveGame := livegamemodel.NewLiveGameAgr(liveGameId, liveGameMap)
+
+	serve.liveGameRepo.Add(newLiveGame)
+}
+
+func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -107,26 +126,7 @@ func (serve *serve) ChangePlayerCameraLiveGame(liveGameIdVm string, playerIdVm s
 	)
 }
 
-func (serve *serve) CreateLiveGame(gameIdVm string) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return
-	}
-
-	liveGameId, _ := livegamemodel.NewLiveGameIdVo(gameId.ToString())
-
-	liveGameMap := livegamemodel.NewMapVo(game.GetMap().GetUnitMatrix())
-	newLiveGame := livegamemodel.NewLiveGameAgr(liveGameId, liveGameMap)
-
-	serve.liveGameRepo.Add(newLiveGame)
-}
-
-func (serve *serve) BuildItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+func (serve *serve) BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -155,10 +155,10 @@ func (serve *serve) BuildItemInLiveGame(liveGameIdVm string, locationVm viewmode
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
-	serve.publishObservedBoundUpdatedServerEvents(liveGameId, location)
+	serve.publishViewUpdatedEvents(liveGameId, location)
 }
 
-func (serve *serve) DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmodel.LocationVm) {
+func (serve *serve) DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -182,10 +182,10 @@ func (serve *serve) DestroyItemInLiveGame(liveGameIdVm string, locationVm viewmo
 	}
 
 	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.publishObservedBoundUpdatedServerEvents(liveGameId, location)
+	serve.publishViewUpdatedEvents(liveGameId, location)
 }
 
-func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) {
+func (serve *serve) AddPlayer(liveGameIdVm string, playerIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -221,7 +221,7 @@ func (serve *serve) AddPlayerToLiveGame(liveGameIdVm string, playerIdVm string) 
 	)
 }
 
-func (serve *serve) RemovePlayerFromLiveGame(liveGameIdVm string, playerIdVm string) {
+func (serve *serve) RemovePlayer(liveGameIdVm string, playerIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
