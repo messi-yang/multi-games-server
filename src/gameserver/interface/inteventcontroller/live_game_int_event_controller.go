@@ -1,4 +1,4 @@
-package livegameinteventcontroller
+package inteventcontroller
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 )
 
-func New(liveGameAppService livegameappservice.Service) {
+func NewLiveGameIntEventController(liveGameAppService livegameappservice.Service) {
 	liveGameAdminChannelUnsubscriber := redissub.New().Subscribe(
 		intevent.CreateLiveGameAdminChannel(),
 		func(message []byte) {

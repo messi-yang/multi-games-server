@@ -8,7 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/memrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameinteventcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/inteventcontroller"
 )
 
 func Start() {
@@ -33,5 +33,5 @@ func Start() {
 		livegamemodel.NewLiveGameIdVo(gameId.ToString())
 	}
 
-	livegameinteventcontroller.New(liveGameAppService)
+	inteventcontroller.NewLiveGameIntEventController(liveGameAppService)
 }
