@@ -8,8 +8,8 @@ import (
 )
 
 type Service interface {
-	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
+	SendItemsUpdatedServerEvent(presenter Presenter)
 	SendGameJoinedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
 	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm)
 	SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
@@ -68,7 +68,7 @@ func (serve *serve) SendViewUpdatedServerEvent(presenter Presenter, viewVm viewm
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) QueryItems(presenter Presenter) {
+func (serve *serve) SendItemsUpdatedServerEvent(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
 	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
 		return viewmodel.NewItemVm(item)
