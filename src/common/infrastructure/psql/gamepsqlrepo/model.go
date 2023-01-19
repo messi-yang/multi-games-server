@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 )
 
 type UnitPsqlModel struct {
@@ -25,41 +26,26 @@ func (GamePsqlModel) TableName() string {
 	return "games"
 }
 
-func convertMapPsqlModelToMap(mapPsqlModel [][]UnitPsqlModel) gamemodel.MapVo {
-	unitMatrix := make([][]commonmodel.UnitVo, 0)
-	for colIdx, unitModelCol := range mapPsqlModel {
-		unitMatrix = append(unitMatrix, []commonmodel.UnitVo{})
-		for _, unit := range unitModelCol {
-			itemId, _ := itemmodel.NewItemIdVo(unit.ItemId)
-			unitMatrix[colIdx] = append(unitMatrix[colIdx], commonmodel.NewUnitVo(itemId))
-		}
-	}
-	return gamemodel.NewMapVo(unitMatrix)
-}
-
-func convertMapToMapPsqlModel(map_ gamemodel.MapVo) [][]UnitPsqlModel {
-	mapPsqlModel := make([][]UnitPsqlModel, 0)
-	for unitColIdx, unitCol := range map_.GetUnitMatrix() {
-		mapPsqlModel = append(mapPsqlModel, []UnitPsqlModel{})
-		for _, unit := range unitCol {
-			mapPsqlModel[unitColIdx] = append(mapPsqlModel[unitColIdx], UnitPsqlModel{
-				ItemId: unit.GetItemId().ToString(),
-			})
-		}
-	}
-	return mapPsqlModel
-}
-
 func NewGamePsqlModel(game gamemodel.GameAgg) GamePsqlModel {
+	unitPsqlModelMatrix, _ := tool.MapMatrix(game.GetMap().GetUnitMatrix(), func(_ int, _ int, unit commonmodel.UnitVo) (UnitPsqlModel, error) {
+		return UnitPsqlModel{
+			ItemId: unit.GetItemId().ToString(),
+		}, nil
+	})
+
 	return GamePsqlModel{
 		Id:      game.GetId().ToString(),
 		Width:   game.GetMapSize().GetWidth(),
 		Height:  game.GetMapSize().GetHeight(),
-		UnitMap: convertMapToMapPsqlModel(game.GetMap()),
+		UnitMap: unitPsqlModelMatrix,
 	}
 }
 
 func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.GameAgg {
 	gameId, _ := gamemodel.NewGameIdVo(gamePostgresModel.Id)
-	return gamemodel.NewGameAgg(gameId, convertMapPsqlModelToMap(gamePostgresModel.UnitMap))
+	unitMatrix, _ := tool.MapMatrix(gamePostgresModel.UnitMap, func(_ int, _ int, unitPsqlModel UnitPsqlModel) (commonmodel.UnitVo, error) {
+		itemId, _ := itemmodel.NewItemIdVo(unitPsqlModel.ItemId)
+		return commonmodel.NewUnitVo(itemId), nil
+	})
+	return gamemodel.NewGameAgg(gameId, gamemodel.NewMapVo(unitMatrix))
 }
