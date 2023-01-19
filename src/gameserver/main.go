@@ -2,12 +2,12 @@ package gameserver
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/persistence/gamepsqlrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psql/gamepsqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/persistence/livegamememoryrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/psql/livegamememoryrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameintgreventcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 )
