@@ -8,19 +8,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type GameDomainService interface {
+type GameService interface {
 	CreateGame(mapSize commonmodel.SizeVo) (gamemodel.GameIdVo, error)
 }
 
-type gameDomainServe struct {
+type gameService struct {
 	gameRepo gamemodel.GameRepo
 }
 
-func NewGameDomainService(gameRepo gamemodel.GameRepo) GameDomainService {
-	return &gameDomainServe{gameRepo: gameRepo}
+func NewGameService(gameRepo gamemodel.GameRepo) GameService {
+	return &gameService{gameRepo: gameRepo}
 }
 
-func (serve *gameDomainServe) CreateGame(mapSize commonmodel.SizeVo) (gamemodel.GameIdVo, error) {
+func (serve *gameService) CreateGame(mapSize commonmodel.SizeVo) (gamemodel.GameIdVo, error) {
 	unitMatrix, _ := tool.RangeMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) (commonmodel.UnitVo, error) {
 		itemId, _ := itemmodel.NewItemIdVo(uuid.Nil.String())
 		return commonmodel.NewUnitVo(itemId), nil

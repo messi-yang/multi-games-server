@@ -14,7 +14,7 @@ import (
 func Start() {
 	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
 	liveGameRepo := memrepo.NewLiveGameMemRepo()
-	gameDomainService := service.NewGameDomainService(
+	gameDomainService := service.NewGameService(
 		gameRepo,
 	)
 	intgrEventPublisher := redispub.New()
