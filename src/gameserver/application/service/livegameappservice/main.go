@@ -124,6 +124,10 @@ func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraV
 			intgrevent.NewCameraChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera), viewmodel.NewViewVm(view)),
 		),
 	)
+	serve.intgrEventPublisher.Publish(
+		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
+		intgrevent.Marshal(intgrevent.NewViewChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
+	)
 }
 
 func (serve *serve) BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {

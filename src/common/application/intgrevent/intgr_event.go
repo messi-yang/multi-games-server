@@ -15,6 +15,7 @@ const (
 	GameJoinedIntgrEventName            IntgrEventName = "GAME_JOINED"
 	CameraChangedIntgrEventName         IntgrEventName = "CAMERA_CHANGED"
 	ViewUpdatedIntgrEventName           IntgrEventName = "VIEW_UPDATED"
+	ViewChangedIntgrEventName           IntgrEventName = "VIEW_CHANGED"
 )
 
 type GenericIntgrEvent struct {
@@ -132,6 +133,22 @@ func NewViewUpdatedIntgrEvent(liveGameId string, playerId string, cameraVm viewm
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Camera:     cameraVm,
+		View:       viewVm,
+	}
+}
+
+type ViewChangedIntgrEvent struct {
+	Name       IntgrEventName   `json:"name"`
+	LiveGameId string           `json:"liveGameId"`
+	PlayerId   string           `json:"playerId"`
+	View       viewmodel.ViewVm `json:"view"`
+}
+
+func NewViewChangedIntgrEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewChangedIntgrEvent {
+	return ViewChangedIntgrEvent{
+		Name:       ViewChangedIntgrEventName,
+		LiveGameId: liveGameId,
+		PlayerId:   playerId,
 		View:       viewVm,
 	}
 }

@@ -12,6 +12,7 @@ type Service interface {
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
 	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
+	SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
 	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
 	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
@@ -50,6 +51,13 @@ func (serve *serve) SendCameraChangedServerEvent(presenter Presenter, cameraVm v
 	event := CameraChangedServerEvent{}
 	event.Type = CameraChangedServerEventType
 	event.Payload.Camera = cameraVm
+	event.Payload.View = viewVm
+	presenter.OnSuccess(event)
+}
+
+func (serve *serve) SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
+	event := ViewChangedServerEvent{}
+	event.Type = ViewChangedServerEventType
 	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }
