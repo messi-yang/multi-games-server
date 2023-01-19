@@ -1,7 +1,7 @@
-package livegameintgreventcontroller
+package livegameinteventcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
@@ -9,40 +9,40 @@ import (
 
 func New(liveGameAppService livegameappservice.Service) {
 	liveGameAdminChannelUnsubscriber := redissub.New().Subscribe(
-		intgrevent.CreateLiveGameAdminChannel(),
+		intevent.CreateLiveGameAdminChannel(),
 		func(message []byte) {
-			intgrEvent, err := jsonmarshaller.Unmarshal[intgrevent.GenericIntgrEvent](message)
+			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericintEvent](message)
 			if err != nil {
 				return
 			}
 
-			switch intgrEvent.Name {
-			case intgrevent.ChangeCameraRequestedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.ChangeCameraRequestedIntgrEvent](message)
+			switch intEvent.Name {
+			case intevent.ChangeCameraRequestedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.ChangeCameraRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.ChangeCamera(event.LiveGameId, event.PlayerId, event.Camera)
-			case intgrevent.JoinGameRequestedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.JoinGameRequestedIntgrEvent](message)
+			case intevent.JoinGameRequestedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.JoinGameRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.AddPlayer(event.LiveGameId, event.PlayerId)
-			case intgrevent.DestroyItemRequestedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.DestroyItemRequestedIntgrEvent](message)
+			case intevent.DestroyItemRequestedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.DestroyItemRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.DestroyItem(event.LiveGameId, event.Location)
-			case intgrevent.BuildItemRequestedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.BuildItemRequestedIntgrEvent](message)
+			case intevent.BuildItemRequestedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.BuildItemRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.BuildItem(event.LiveGameId, event.Location, event.ItemId)
-			case intgrevent.LeaveGameRequestedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.LeaveGameRequestedIntgrEvent](message)
+			case intevent.LeaveGameRequestedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.LeaveGameRequestedintEvent](message)
 				if err != nil {
 					return
 				}

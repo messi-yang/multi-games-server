@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/go-redis/redis/v9"
 )
 
@@ -12,7 +12,7 @@ type redisPublisher struct {
 	redisClient *redis.Client
 }
 
-func New() intgrevent.IntgrEventPublisher {
+func New() intevent.IntEventPublisher {
 	return &redisPublisher{
 		redisClient: redis.NewClient(&redis.Options{
 			Addr:        os.Getenv("REDIS_HOST"),

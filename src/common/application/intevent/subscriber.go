@@ -1,5 +1,5 @@
-package intgrevent
+package intevent
 
-type IntgrEventSubscriber interface {
+type IntEventSubscriber interface {
 	Subscribe(channel string, handler func([]byte)) (unsubscriber func())
 }

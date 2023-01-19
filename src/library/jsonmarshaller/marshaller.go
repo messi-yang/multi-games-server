@@ -3,13 +3,13 @@ package jsonmarshaller
 import "encoding/json"
 
 func Unmarshal[T any](bytes []byte) (T, error) {
-	var intgrEvent T
-	err := json.Unmarshal(bytes, &intgrEvent)
+	var intEvent T
+	err := json.Unmarshal(bytes, &intEvent)
 	if err != nil {
-		return intgrEvent, err
+		return intEvent, err
 	}
 
-	return intgrEvent, nil
+	return intEvent, nil
 }
 
 func Marshal(event any) []byte {

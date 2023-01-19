@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
@@ -69,35 +69,35 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 
 	go controller.liveGameAppService.SendItemsUpdatedServerEvent(socketPresenter)
 
-	intgrEventSubscriberUnsubscriber := redissub.New().Subscribe(
-		intgrevent.CreateLiveGameClientChannel(liveGameId, playerIdVm),
+	IntEventSubscriberUnsubscriber := redissub.New().Subscribe(
+		intevent.CreateLiveGameClientChannel(liveGameId, playerIdVm),
 		func(message []byte) {
-			intgrEvent, err := jsonmarshaller.Unmarshal[intgrevent.GenericIntgrEvent](message)
+			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericintEvent](message)
 			if err != nil {
 				return
 			}
 
-			switch intgrEvent.Name {
-			case intgrevent.GameJoinedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.GameJoinedIntgrEvent](message)
+			switch intEvent.Name {
+			case intevent.GameJoinedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.GameJoinedintEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, viewmodel.NewPlayerVm(myPlayer), event.Camera, event.MapSize, event.View)
-			case intgrevent.CameraChangedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.CameraChangedIntgrEvent](message)
+			case intevent.CameraChangedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.CameraChangedintEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendCameraChangedServerEvent(socketPresenter, event.Camera)
-			case intgrevent.ViewChangedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.ViewChangedIntgrEvent](message)
+			case intevent.ViewChangedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.ViewChangedintEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendViewChangedServerEvent(socketPresenter, event.View)
-			case intgrevent.ViewUpdatedIntgrEventName:
-				event, err := jsonmarshaller.Unmarshal[intgrevent.ViewUpdatedIntgrEvent](message)
+			case intevent.ViewUpdatedintEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.ViewUpdatedintEvent](message)
 				if err != nil {
 					return
 				}
@@ -105,7 +105,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			}
 
 		})
-	defer intgrEventSubscriberUnsubscriber()
+	defer IntEventSubscriberUnsubscriber()
 
 	controller.liveGameAppService.RequestToJoinGame(liveGameId, playerIdVm)
 

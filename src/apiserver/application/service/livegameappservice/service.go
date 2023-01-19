@@ -1,7 +1,7 @@
 package livegameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
@@ -23,12 +23,12 @@ type Service interface {
 }
 
 type serve struct {
-	intgrEventPublisher intgrevent.IntgrEventPublisher
-	itemRepo            itemmodel.Repo
+	IntEventPublisher intevent.IntEventPublisher
+	itemRepo          itemmodel.Repo
 }
 
-func New(intgrEventPublisher intgrevent.IntgrEventPublisher, itemRepo itemmodel.Repo) Service {
-	return &serve{intgrEventPublisher: intgrEventPublisher, itemRepo: itemRepo}
+func New(IntEventPublisher intevent.IntEventPublisher, itemRepo itemmodel.Repo) Service {
+	return &serve{IntEventPublisher: IntEventPublisher, itemRepo: itemRepo}
 }
 
 func (serve *serve) SendErroredServerEvent(presenter Presenter, clientMessage string) {
@@ -82,36 +82,36 @@ func (serve *serve) SendItemsUpdatedServerEvent(presenter Presenter) {
 }
 
 func (serve *serve) RequestToJoinGame(liveGameIdVm string, playerIdVm string) {
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intgrevent.NewJoinGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameAdminChannel(),
+		jsonmarshaller.Marshal(intevent.NewJoinGameRequestedintEvent(liveGameIdVm, playerIdVm)),
 	)
 }
 
 func (serve *serve) RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intgrevent.NewChangeCameraRequestedIntgrEvent(liveGameIdVm, playerIdVm, cameraVm)),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameAdminChannel(),
+		jsonmarshaller.Marshal(intevent.NewChangeCameraRequestedintEvent(liveGameIdVm, playerIdVm, cameraVm)),
 	)
 }
 
 func (serve *serve) RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intgrevent.NewBuildItemRequestedIntgrEvent(liveGameIdVm, locationVm, itemIdVm)),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameAdminChannel(),
+		jsonmarshaller.Marshal(intevent.NewBuildItemRequestedintEvent(liveGameIdVm, locationVm, itemIdVm)),
 	)
 }
 
 func (serve *serve) RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intgrevent.NewDestroyItemRequestedIntgrEvent(liveGameIdVm, locationVm)),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameAdminChannel(),
+		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedintEvent(liveGameIdVm, locationVm)),
 	)
 }
 
 func (serve *serve) RequestToLeaveGame(liveGameIdVm string, playerIdVm string) {
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intgrevent.NewLeaveGameRequestedIntgrEvent(liveGameIdVm, playerIdVm)),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameAdminChannel(),
+		jsonmarshaller.Marshal(intevent.NewLeaveGameRequestedintEvent(liveGameIdVm, playerIdVm)),
 	)
 }

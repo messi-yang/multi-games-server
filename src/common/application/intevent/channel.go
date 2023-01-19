@@ -1,4 +1,4 @@
-package intgrevent
+package intevent
 
 import (
 	"fmt"

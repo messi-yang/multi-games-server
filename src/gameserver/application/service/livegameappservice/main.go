@@ -1,7 +1,7 @@
 package livegameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intgrevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
@@ -21,20 +21,20 @@ type Service interface {
 }
 
 type serve struct {
-	liveGameRepo        livegamemodel.Repo
-	gameRepo            gamemodel.GameRepo
-	intgrEventPublisher intgrevent.IntgrEventPublisher
+	liveGameRepo      livegamemodel.Repo
+	gameRepo          gamemodel.GameRepo
+	IntEventPublisher intevent.IntEventPublisher
 }
 
 func New(
 	liveGameRepo livegamemodel.Repo,
 	gameRepo gamemodel.GameRepo,
-	intgrEventPublisher intgrevent.IntgrEventPublisher,
+	IntEventPublisher intevent.IntEventPublisher,
 ) *serve {
 	return &serve{
-		liveGameRepo:        liveGameRepo,
-		gameRepo:            gameRepo,
-		intgrEventPublisher: intgrEventPublisher,
+		liveGameRepo:      liveGameRepo,
+		gameRepo:          gameRepo,
+		IntEventPublisher: IntEventPublisher,
 	}
 }
 
@@ -53,9 +53,9 @@ func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameId
 		if err != nil {
 			continue
 		}
-		serve.intgrEventPublisher.Publish(
-			intgrevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
-			jsonmarshaller.Marshal(intgrevent.NewViewUpdatedIntgrEvent(
+		serve.IntEventPublisher.Publish(
+			intevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
+			jsonmarshaller.Marshal(intevent.NewViewUpdatedintEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
 				viewmodel.NewViewVm(view),
@@ -113,15 +113,15 @@ func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraV
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	view, _ := liveGame.GetPlayerView(playerId)
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		jsonmarshaller.Marshal(
-			intgrevent.NewCameraChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera)),
+			intevent.NewCameraChangedintEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera)),
 		),
 	)
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
-		jsonmarshaller.Marshal(intgrevent.NewViewChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
+		jsonmarshaller.Marshal(intevent.NewViewChangedintEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
 	)
 }
 
@@ -207,10 +207,10 @@ func (serve *serve) AddPlayer(liveGameIdVm string, playerIdVm string) {
 
 	camera, _ := liveGame.GetPlayerCamera(playerId)
 	view, _ := liveGame.GetPlayerView(playerId)
-	serve.intgrEventPublisher.Publish(
-		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
+	serve.IntEventPublisher.Publish(
+		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		jsonmarshaller.Marshal(
-			intgrevent.NewGameJoinedIntgrEvent(
+			intevent.NewGameJoinedintEvent(
 				liveGameIdVm, playerIdVm,
 				viewmodel.NewCameraVm(camera),
 				viewmodel.NewSizeVm(liveGame.GetMapSize()),
