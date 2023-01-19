@@ -70,7 +70,7 @@ func (serve *serve) SendViewUpdatedServerEvent(presenter Presenter, viewVm viewm
 
 func (serve *serve) QueryItems(presenter Presenter) {
 	items := serve.itemRepo.GetAllItems()
-	itemVms := lo.Map(items, func(item itemmodel.ItemAgr, _ int) viewmodel.ItemVm {
+	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
 		return viewmodel.NewItemVm(item)
 	})
 

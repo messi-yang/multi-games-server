@@ -50,7 +50,7 @@ func convertMapToMapPsqlModel(map_ gamemodel.MapVo) [][]UnitPsqlModel {
 	return mapPsqlModel
 }
 
-func NewGamePsqlModel(game gamemodel.GameAgr) GamePsqlModel {
+func NewGamePsqlModel(game gamemodel.GameAgg) GamePsqlModel {
 	return GamePsqlModel{
 		Id:      game.GetId().ToString(),
 		Width:   game.GetMapSize().GetWidth(),
@@ -59,7 +59,7 @@ func NewGamePsqlModel(game gamemodel.GameAgr) GamePsqlModel {
 	}
 }
 
-func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.GameAgr {
+func (gamePostgresModel GamePsqlModel) ToAggregate() gamemodel.GameAgg {
 	gameId, _ := gamemodel.NewGameIdVo(gamePostgresModel.Id)
-	return gamemodel.NewGameAgr(gameId, convertMapPsqlModelToMap(gamePostgresModel.UnitMap))
+	return gamemodel.NewGameAgg(gameId, convertMapPsqlModelToMap(gamePostgresModel.UnitMap))
 }

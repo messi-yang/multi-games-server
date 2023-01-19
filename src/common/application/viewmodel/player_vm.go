@@ -7,9 +7,9 @@ type PlayerVm struct {
 	Name string `json:"name"`
 }
 
-func NewPlayerVm(playerAgr playermodel.PlayerAgr) PlayerVm {
+func NewPlayerVm(playerAgg playermodel.PlayerAgg) PlayerVm {
 	return PlayerVm{
-		Id:   playerAgr.GetId().ToString(),
-		Name: playerAgr.GetName(),
+		Id:   playerAgg.GetId().ToString(),
+		Name: playerAgg.GetName(),
 	}
 }

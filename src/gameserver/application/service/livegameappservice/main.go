@@ -78,7 +78,7 @@ func (serve *serve) CreateLiveGame(gameIdVm string) {
 	liveGameId, _ := livegamemodel.NewLiveGameIdVo(gameId.ToString())
 
 	liveGameMap := livegamemodel.NewMapVo(game.GetMap().GetUnitMatrix())
-	newLiveGame := livegamemodel.NewLiveGameAgr(liveGameId, liveGameMap)
+	newLiveGame := livegamemodel.NewLiveGameAgg(liveGameId, liveGameMap)
 
 	serve.liveGameRepo.Add(newLiveGame)
 }

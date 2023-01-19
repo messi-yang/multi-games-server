@@ -27,7 +27,7 @@ func (serve *gameDomainServe) CreateGame(mapSize commonmodel.SizeVo) (gamemodel.
 	})
 	map_ := gamemodel.NewMapVo(unitMatrix)
 	newGameId, _ := gamemodel.NewGameIdVo(uuid.New().String())
-	newGame := gamemodel.NewGameAgr(newGameId, map_)
+	newGame := gamemodel.NewGameAgg(newGameId, map_)
 	err := serve.gameRepo.Add(newGame)
 	if err != nil {
 		return gamemodel.GameIdVo{}, err

@@ -10,7 +10,7 @@ type ItemVm struct {
 	AssetSrc string `json:"assetSrc"`
 }
 
-func NewItemVm(item itemmodel.ItemAgr) ItemVm {
+func NewItemVm(item itemmodel.ItemAgg) ItemVm {
 	return ItemVm{
 		Id:       item.GetId().ToString(),
 		Name:     item.GetName(),

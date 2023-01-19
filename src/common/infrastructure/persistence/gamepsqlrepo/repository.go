@@ -14,35 +14,35 @@ func New(gormDb *gorm.DB) gamemodel.GameRepo {
 	return &repo{gormDb: gormDb}
 }
 
-func (m *repo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgr, error) {
+func (m *repo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {
 	gameModel := GamePsqlModel{Id: id.ToString()}
 	result := m.gormDb.First(&gameModel)
 	if result.Error != nil {
-		return gamemodel.GameAgr{}, result.Error
+		return gamemodel.GameAgg{}, result.Error
 	}
 
 	return gameModel.ToAggregate(), nil
 }
 
-func (m *repo) Update(id gamemodel.GameIdVo, game gamemodel.GameAgr) error {
+func (m *repo) Update(id gamemodel.GameIdVo, game gamemodel.GameAgg) error {
 	return nil
 }
 
-func (m *repo) GetAll() ([]gamemodel.GameAgr, error) {
+func (m *repo) GetAll() ([]gamemodel.GameAgg, error) {
 	var gamePsqlModels []GamePsqlModel
 	result := m.gormDb.Find(&gamePsqlModels)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	gameAggregates := lo.Map(gamePsqlModels, func(model GamePsqlModel, _ int) gamemodel.GameAgr {
+	gameAggregates := lo.Map(gamePsqlModels, func(model GamePsqlModel, _ int) gamemodel.GameAgg {
 		return model.ToAggregate()
 	})
 
 	return gameAggregates, nil
 }
 
-func (m *repo) Add(game gamemodel.GameAgr) error {
+func (m *repo) Add(game gamemodel.GameAgg) error {
 	gameModel := NewGamePsqlModel(game)
 	res := m.gormDb.Create(&gameModel)
 	if res.Error != nil {

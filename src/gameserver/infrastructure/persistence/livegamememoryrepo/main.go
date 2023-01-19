@@ -14,7 +14,7 @@ var (
 )
 
 type memoryRepo struct {
-	records       map[livegamemodel.LiveGameIdVo]*livegamemodel.LiveGameAgr
+	records       map[livegamemodel.LiveGameIdVo]*livegamemodel.LiveGameAgg
 	recordLockers map[livegamemodel.LiveGameIdVo]*sync.RWMutex
 }
 
@@ -23,7 +23,7 @@ var singleton *memoryRepo
 func New() livegamemodel.Repo {
 	if singleton == nil {
 		singleton = &memoryRepo{
-			records:       make(map[livegamemodel.LiveGameIdVo]*livegamemodel.LiveGameAgr),
+			records:       make(map[livegamemodel.LiveGameIdVo]*livegamemodel.LiveGameAgg),
 			recordLockers: make(map[livegamemodel.LiveGameIdVo]*sync.RWMutex),
 		}
 		return singleton
@@ -31,16 +31,16 @@ func New() livegamemodel.Repo {
 	return singleton
 }
 
-func (m *memoryRepo) Get(id livegamemodel.LiveGameIdVo) (livegamemodel.LiveGameAgr, error) {
+func (m *memoryRepo) Get(id livegamemodel.LiveGameIdVo) (livegamemodel.LiveGameAgg, error) {
 	record, exists := m.records[id]
 	if !exists {
-		return livegamemodel.LiveGameAgr{}, ErrGameNotFound
+		return livegamemodel.LiveGameAgg{}, ErrGameNotFound
 	}
 
 	return *record, nil
 }
 
-func (m *memoryRepo) Update(id livegamemodel.LiveGameIdVo, liveGame livegamemodel.LiveGameAgr) error {
+func (m *memoryRepo) Update(id livegamemodel.LiveGameIdVo, liveGame livegamemodel.LiveGameAgg) error {
 	_, exists := m.records[id]
 	if !exists {
 		return ErrGameNotFound
@@ -51,15 +51,15 @@ func (m *memoryRepo) Update(id livegamemodel.LiveGameIdVo, liveGame livegamemode
 	return nil
 }
 
-func (m *memoryRepo) GetAll() []livegamemodel.LiveGameAgr {
-	liveGames := make([]livegamemodel.LiveGameAgr, 0)
+func (m *memoryRepo) GetAll() []livegamemodel.LiveGameAgg {
+	liveGames := make([]livegamemodel.LiveGameAgg, 0)
 	for _, record := range m.records {
 		liveGames = append(liveGames, *record)
 	}
 	return liveGames
 }
 
-func (m *memoryRepo) Add(liveGame livegamemodel.LiveGameAgr) error {
+func (m *memoryRepo) Add(liveGame livegamemodel.LiveGameAgg) error {
 	m.records[liveGame.GetId()] = &liveGame
 
 	return nil

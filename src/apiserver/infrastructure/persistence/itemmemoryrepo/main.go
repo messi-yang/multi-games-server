@@ -9,7 +9,7 @@ import (
 )
 
 type memoryRepo struct {
-	items []itemmodel.ItemAgr
+	items []itemmodel.ItemAgg
 }
 
 var singleton *memoryRepo
@@ -26,9 +26,9 @@ func New() itemmodel.Repo {
 		serverUrl := os.Getenv("SERVER_URL")
 
 		singleton = &memoryRepo{
-			items: []itemmodel.ItemAgr{
-				itemmodel.NewItemAgr(stoneItemDefaultId, "stone", fmt.Sprintf("%s/assets/items/stone.png", serverUrl)),
-				itemmodel.NewItemAgr(torchItemDefaultId, "torch", fmt.Sprintf("%s/assets/items/torch.png", serverUrl)),
+			items: []itemmodel.ItemAgg{
+				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", fmt.Sprintf("%s/assets/items/stone.png", serverUrl)),
+				itemmodel.NewItemAgg(torchItemDefaultId, "torch", fmt.Sprintf("%s/assets/items/torch.png", serverUrl)),
 			},
 		}
 		return singleton
@@ -36,6 +36,6 @@ func New() itemmodel.Repo {
 	return singleton
 }
 
-func (repo *memoryRepo) GetAllItems() []itemmodel.ItemAgr {
+func (repo *memoryRepo) GetAllItems() []itemmodel.ItemAgg {
 	return repo.items
 }

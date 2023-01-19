@@ -1,10 +1,10 @@
 package gamemodel
 
 type GameRepo interface {
-	Add(GameAgr) error
-	Get(GameIdVo) (GameAgr, error)
-	Update(GameIdVo, GameAgr) error
-	GetAll() ([]GameAgr, error)
+	Add(GameAgg) error
+	Get(GameIdVo) (GameAgg, error)
+	Update(GameIdVo, GameAgg) error
+	GetAll() ([]GameAgg, error)
 
 	ReadLockAccess(GameIdVo) (rUnlocker func(), err error)
 	LockAccess(GameIdVo) (unlocker func(), err error)
