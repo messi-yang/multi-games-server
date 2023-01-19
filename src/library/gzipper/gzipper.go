@@ -1,4 +1,4 @@
-package gzipprovider
+package gzipper
 
 import (
 	"bytes"
@@ -6,18 +6,7 @@ import (
 	"io/ioutil"
 )
 
-type GzipProvider interface {
-	Ungzip([]byte) ([]byte, error)
-	Gzip([]byte) ([]byte, error)
-}
-
-type provider struct{}
-
-func New() GzipProvider {
-	return &provider{}
-}
-
-func (*provider) Ungzip(data []byte) ([]byte, error) {
+func Ungzip(data []byte) ([]byte, error) {
 	gunzip, err := gzip.NewReader(bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
@@ -30,7 +19,7 @@ func (*provider) Ungzip(data []byte) ([]byte, error) {
 	return compressedData, nil
 }
 
-func (*provider) Gzip(data []byte) ([]byte, error) {
+func Gzip(data []byte) ([]byte, error) {
 	var b bytes.Buffer
 	gz := gzip.NewWriter(&b)
 	_, err := gz.Write(data)

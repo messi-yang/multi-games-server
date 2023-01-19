@@ -10,7 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/messaging/redisintgreventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipprovider"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipper"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -66,7 +66,6 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	controller.playerRepo.Add(myPlayer)
 
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
-	gzipCompressor := gzipprovider.New()
 
 	go controller.liveGameAppService.SendItemsUpdatedServerEvent(socketPresenter)
 
@@ -122,7 +121,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				return
 			}
 
-			message, err := gzipCompressor.Ungzip(compressedMessage)
+			message, err := gzipper.Ungzip(compressedMessage)
 			if err != nil {
 				controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 				continue
