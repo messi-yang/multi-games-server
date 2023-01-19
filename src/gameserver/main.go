@@ -2,7 +2,7 @@ package gameserver
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/messaging/redisintgreventpublisher"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psql/gamepsqlrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
@@ -17,7 +17,7 @@ func Start() {
 	if err != nil {
 		panic(err)
 	}
-	gameRepo := gamepsqlrepo.New(gormDb)
+	gameRepo := psqlrepo.NewGamePsqlRepo(gormDb)
 	liveGameRepo := memrepo.NewLiveGameMemRepo()
 	gameDomainService := service.NewGameDomainService(
 		gameRepo,

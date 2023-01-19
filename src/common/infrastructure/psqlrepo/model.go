@@ -1,4 +1,4 @@
-package gamepsqlrepo
+package psqlrepo
 
 import (
 	"time"

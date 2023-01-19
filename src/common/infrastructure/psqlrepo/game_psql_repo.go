@@ -1,4 +1,4 @@
-package gamepsqlrepo
+package psqlrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
@@ -6,17 +6,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type repo struct {
+type gamePsqlRepo struct {
 	gormDb *gorm.DB
 }
 
-func New(gormDb *gorm.DB) gamemodel.GameRepo {
-	return &repo{gormDb: gormDb}
+func NewGamePsqlRepo(gormDb *gorm.DB) gamemodel.GameRepo {
+	return &gamePsqlRepo{gormDb: gormDb}
 }
 
-func (m *repo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {
+func (repo *gamePsqlRepo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {
 	gameModel := GamePsqlModel{Id: id.ToString()}
-	result := m.gormDb.First(&gameModel)
+	result := repo.gormDb.First(&gameModel)
 	if result.Error != nil {
 		return gamemodel.GameAgg{}, result.Error
 	}
@@ -24,13 +24,13 @@ func (m *repo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {
 	return gameModel.ToAggregate(), nil
 }
 
-func (m *repo) Update(id gamemodel.GameIdVo, game gamemodel.GameAgg) error {
+func (repo *gamePsqlRepo) Update(id gamemodel.GameIdVo, game gamemodel.GameAgg) error {
 	return nil
 }
 
-func (m *repo) GetAll() ([]gamemodel.GameAgg, error) {
+func (repo *gamePsqlRepo) GetAll() ([]gamemodel.GameAgg, error) {
 	var gamePsqlModels []GamePsqlModel
-	result := m.gormDb.Find(&gamePsqlModels)
+	result := repo.gormDb.Find(&gamePsqlModels)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -42,9 +42,9 @@ func (m *repo) GetAll() ([]gamemodel.GameAgg, error) {
 	return gameAggregates, nil
 }
 
-func (m *repo) Add(game gamemodel.GameAgg) error {
+func (repo *gamePsqlRepo) Add(game gamemodel.GameAgg) error {
 	gameModel := NewGamePsqlModel(game)
-	res := m.gormDb.Create(&gameModel)
+	res := repo.gormDb.Create(&gameModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -52,10 +52,10 @@ func (m *repo) Add(game gamemodel.GameAgg) error {
 	return nil
 }
 
-func (m *repo) ReadLockAccess(gameId gamemodel.GameIdVo) (func(), error) {
+func (repo *gamePsqlRepo) ReadLockAccess(gameId gamemodel.GameIdVo) (func(), error) {
 	return func() {}, nil
 }
 
-func (m *repo) LockAccess(gameId gamemodel.GameIdVo) (func(), error) {
+func (repo *gamePsqlRepo) LockAccess(gameId gamemodel.GameIdVo) (func(), error) {
 	return func() {}, nil
 }
