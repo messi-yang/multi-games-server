@@ -11,9 +11,9 @@ type Service interface {
 	QueryItems(presenter Presenter)
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendGameJoinedServerEvent(presenter Presenter, playerIdVm string, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
-	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
+	SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm)
 	SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
-	SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm)
+	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
 	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
@@ -47,11 +47,10 @@ func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerIdVm st
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) {
+func (serve *serve) SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm) {
 	event := CameraChangedServerEvent{}
 	event.Type = CameraChangedServerEventType
 	event.Payload.Camera = cameraVm
-	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }
 
@@ -62,10 +61,9 @@ func (serve *serve) SendViewChangedServerEvent(presenter Presenter, viewVm viewm
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendViewUpdatedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) {
+func (serve *serve) SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
 	event := ViewUpdatedServerEvent{}
 	event.Type = ViewUpdatedServerEventType
-	event.Payload.Camera = cameraVm
 	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }

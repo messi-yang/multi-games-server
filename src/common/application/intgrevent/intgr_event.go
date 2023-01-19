@@ -106,33 +106,29 @@ type CameraChangedIntgrEvent struct {
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
-	View       viewmodel.ViewVm   `json:"view"`
 }
 
-func NewCameraChangedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) CameraChangedIntgrEvent {
+func NewCameraChangedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) CameraChangedIntgrEvent {
 	return CameraChangedIntgrEvent{
 		Name:       CameraChangedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Camera:     cameraVm,
-		View:       viewVm,
 	}
 }
 
 type ViewUpdatedIntgrEvent struct {
-	Name       IntgrEventName     `json:"name"`
-	LiveGameId string             `json:"liveGameId"`
-	PlayerId   string             `json:"playerId"`
-	Camera     viewmodel.CameraVm `json:"camera"`
-	View       viewmodel.ViewVm   `json:"view"`
+	Name       IntgrEventName   `json:"name"`
+	LiveGameId string           `json:"liveGameId"`
+	PlayerId   string           `json:"playerId"`
+	View       viewmodel.ViewVm `json:"view"`
 }
 
-func NewViewUpdatedIntgrEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, viewVm viewmodel.ViewVm) ViewUpdatedIntgrEvent {
+func NewViewUpdatedIntgrEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewUpdatedIntgrEvent {
 	return ViewUpdatedIntgrEvent{
 		Name:       ViewUpdatedIntgrEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
-		Camera:     cameraVm,
 		View:       viewVm,
 	}
 }

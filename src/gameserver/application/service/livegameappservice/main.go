@@ -48,11 +48,6 @@ func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameId
 			continue
 		}
 
-		camera, err := liveGame.GetPlayerCamera(playerId)
-		if err != nil {
-			continue
-		}
-
 		view, err := liveGame.GetPlayerView(playerId)
 		if err != nil {
 			continue
@@ -62,7 +57,6 @@ func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameId
 			intgrevent.Marshal(intgrevent.NewViewUpdatedIntgrEvent(
 				liveGameId.ToString(),
 				playerId.ToString(),
-				viewmodel.NewCameraVm(camera),
 				viewmodel.NewViewVm(view),
 			)))
 	}
@@ -121,7 +115,7 @@ func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraV
 	serve.intgrEventPublisher.Publish(
 		intgrevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		intgrevent.Marshal(
-			intgrevent.NewCameraChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera), viewmodel.NewViewVm(view)),
+			intgrevent.NewCameraChangedIntgrEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera)),
 		),
 	)
 	serve.intgrEventPublisher.Publish(

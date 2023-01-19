@@ -79,7 +79,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendCameraChangedServerEvent(socketPresenter, event.Camera, event.View)
+				controller.liveGameAppService.SendCameraChangedServerEvent(socketPresenter, event.Camera)
 			case intgrevent.ViewChangedIntgrEventName:
 				event, err := intgrevent.Unmarshal[intgrevent.ViewChangedIntgrEvent](message)
 				if err != nil {
@@ -91,7 +91,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendViewUpdatedServerEvent(socketPresenter, event.Camera, event.View)
+				controller.liveGameAppService.SendViewUpdatedServerEvent(socketPresenter, event.View)
 			}
 
 		})
