@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/psql/livegamememoryrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/memrepo/livegamememoryrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/livegameintgreventcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gormdb"
 )
