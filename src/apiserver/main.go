@@ -48,7 +48,7 @@ func Start() {
 	router.Static("/assets", "./src/assets")
 
 	router.Group("/ws/game").GET("/", liveGameController.HandleLiveGameConnection)
-	router.GET("/items", itemController.HandleGetAllItems)
+	router.GET("/items", itemController.GetAllHandler)
 	router.GET("/players", playerController.GetAllHandler)
 
 	router.Run()

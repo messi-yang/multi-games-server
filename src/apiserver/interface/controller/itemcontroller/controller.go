@@ -17,6 +17,6 @@ func New(
 	}
 }
 
-func (controller *Controller) HandleGetAllItems(c *gin.Context) {
+func (controller *Controller) GetAllHandler(c *gin.Context) {
 	controller.itemAppService.GetAllItems(newGinPresenter(c))
 }
