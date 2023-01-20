@@ -14,4 +14,5 @@ COPY . /app
 
 WORKDIR /app
 
-RUN make build
+RUN make build-api-server
+RUN make build-game-server
