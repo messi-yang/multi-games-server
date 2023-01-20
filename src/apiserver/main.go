@@ -1,4 +1,4 @@
-package apiserver
+package main
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Start() {
+func main() {
 	router := gin.Default()
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true

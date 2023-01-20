@@ -4,7 +4,7 @@ tmp_dir = "hotreload"
 
 [build]
   bin = "./hotreload/game-server"
-  cmd = "go build -o ./hotreload/game-server ."
+  cmd = "go build -o ./hotreload/game-server ./src/gameserver/main.go"
   delay = 1000
   exclude_dir = ["assets", "hotreload", "vendor", "testdata"]
   exclude_file = []

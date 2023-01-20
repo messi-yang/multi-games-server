@@ -9,22 +9,30 @@ create-migrate-db-file:
 migrate-db:
 	migrate -source file:db/migration -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}?sslmode=disable up
 
-# .PHONY: build
-build:
-	go build -o ${BUILD_FOLDER}/${BINARY_NAME}
-
-# .PHONY: game-dev
-game-server-dev:
-	air -c .air.game-server.toml
-
-# .PHONY: api-dev
+# .PHONY: api-server-dev
 api-server-dev:
 	air -c .air.api-server.toml
 
-# .PHONY: start
-start:
-	./${BUILD_FOLDER}/${BINARY_NAME}
+# .PHONY: game-server-dev
+game-server-dev:
+	air -c .air.game-server.toml
+
+# .PHONY: build-api-server
+build-api-server:
+	go build -o ./dist/api-server ./src/apiserver/main.go
+
+# .PHONY: build
+build-game-server:
+	go build -o ./dist/game-server ./src/gameserver/main.go
+
+# .PHONY: start-api-server
+start-api-server:
+	./dist/api-server
+
+# .PHONY: start-api-server
+start-game-server:
+	./dist/game-server
 
 # .PHONY: clean
-clean:
-	rm -rf ${BUILD_FOLDER}
+clean-builds:
+	rm -rf ./dist

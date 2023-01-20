@@ -1,4 +1,4 @@
-package gameserver
+package main
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
@@ -11,7 +11,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/inteventcontroller"
 )
 
-func Start() {
+func main() {
 	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
 	liveGameRepo := memrepo.NewLiveGameMemRepo()
 	gameDomainService := service.NewGameService(
