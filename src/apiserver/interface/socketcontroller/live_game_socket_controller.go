@@ -25,25 +25,25 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-type Controller struct {
+type LiveGameSocketController struct {
 	gameRepo           gamemodel.GameRepo
 	liveGameAppService appservice.LiveGameAppService
 	playerRepo         playermodel.Repo
 }
 
-func NewController(
+func NewLiveGameSocketController(
 	gameRepo gamemodel.GameRepo,
 	liveGameAppService appservice.LiveGameAppService,
 	playerRepo playermodel.Repo,
-) *Controller {
-	return &Controller{
+) *LiveGameSocketController {
+	return &LiveGameSocketController{
 		gameRepo:           gameRepo,
 		liveGameAppService: liveGameAppService,
 		playerRepo:         playerRepo,
 	}
 }
 
-func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
+func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Context) {
 	socketConn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		c.Error(err)

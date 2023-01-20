@@ -28,7 +28,7 @@ func Start() {
 	playerAppService := appservice.NewPlayerAppService(playerRepo)
 
 	itemController := httpcontroller.NewItemHttpController(itemAppService)
-	liveGameController := socketcontroller.NewController(
+	liveGameController := socketcontroller.NewLiveGameSocketController(
 		gameRepo,
 		liveGameAppService,
 		playerRepo,
