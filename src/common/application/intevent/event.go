@@ -18,7 +18,7 @@ const (
 	ViewChangedintEventName           intEventName = "VIEW_CHANGED"
 )
 
-type GenericintEvent struct {
+type GenericIntEvent struct {
 	Name intEventName `json:"name"`
 }
 type ChangeCameraRequestedintEvent struct {

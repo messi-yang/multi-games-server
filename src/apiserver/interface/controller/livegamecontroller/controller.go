@@ -72,7 +72,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 	IntEventSubscriberUnsubscriber := redissub.New().Subscribe(
 		intevent.CreateLiveGameClientChannel(liveGameId, playerIdVm),
 		func(message []byte) {
-			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericintEvent](message)
+			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericIntEvent](message)
 			if err != nil {
 				return
 			}

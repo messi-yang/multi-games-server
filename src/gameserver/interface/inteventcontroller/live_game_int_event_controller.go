@@ -11,7 +11,7 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 	liveGameAdminChannelUnsubscriber := redissub.New().Subscribe(
 		intevent.CreateLiveGameAdminChannel(),
 		func(message []byte) {
-			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericintEvent](message)
+			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericIntEvent](message)
 			if err != nil {
 				return
 			}
