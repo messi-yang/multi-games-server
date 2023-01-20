@@ -69,7 +69,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 
 	go controller.liveGameAppService.SendItemsUpdatedServerEvent(socketPresenter)
 
-	IntEventSubscriberUnsubscriber := redissub.New().Subscribe(
+	intEventUnsubscriber := redissub.New().Subscribe(
 		intevent.CreateLiveGameClientChannel(liveGameId, playerIdVm),
 		func(message []byte) {
 			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericIntEvent](message)
@@ -105,7 +105,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 			}
 
 		})
-	defer IntEventSubscriberUnsubscriber()
+	defer intEventUnsubscriber()
 
 	controller.liveGameAppService.RequestToJoinGame(liveGameId, playerIdVm)
 
