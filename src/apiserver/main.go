@@ -27,6 +27,8 @@ func main() {
 	playerRepo := memrepo.NewPlayerMemRepo()
 	playerAppService := appservice.NewPlayerAppService(playerRepo)
 
+	gameAppService := appservice.NewGameAppService(gameRepo)
+
 	itemController := httpcontroller.NewItemHttpController(itemAppService)
 	liveGameController := socketcontroller.NewLiveGameSocketController(
 		gameRepo,
@@ -36,11 +38,14 @@ func main() {
 
 	playerController := httpcontroller.NewPlayerHttpController(playerAppService)
 
+	gameController := httpcontroller.NewGameHttpController(gameAppService)
+
 	router.Static("/assets", "./src/assets")
 
 	router.Group("/ws/game").GET("/", liveGameController.HandleLiveGameConnection)
 	router.GET("/items", itemController.GetAllHandler)
 	router.GET("/players", playerController.GetAllHandler)
+	router.GET("/games", gameController.GetAllHandler)
 
 	router.Run()
 }

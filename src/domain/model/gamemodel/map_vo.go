@@ -14,11 +14,15 @@ func NewMapVo(unitMatrix [][]commonmodel.UnitVo) MapVo {
 	}
 }
 
-func (_map MapVo) GetSize() commonmodel.SizeVo {
-	size, _ := commonmodel.NewSizeVo(len(_map.unitMatrix), len(_map.unitMatrix[0]))
+func (map_ MapVo) GetSize() commonmodel.SizeVo {
+	if len(map_.unitMatrix) == 0 {
+		size, _ := commonmodel.NewSizeVo(0, 0)
+		return size
+	}
+	size, _ := commonmodel.NewSizeVo(len(map_.unitMatrix), len(map_.unitMatrix[0]))
 	return size
 }
 
-func (_map MapVo) GetUnitMatrix() [][]commonmodel.UnitVo {
-	return _map.unitMatrix
+func (map_ MapVo) GetUnitMatrix() [][]commonmodel.UnitVo {
+	return map_.unitMatrix
 }
