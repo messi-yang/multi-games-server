@@ -17,31 +17,31 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 			}
 
 			switch intEvent.Name {
-			case intevent.ChangeCameraRequestedintEventName:
+			case intevent.ChangeCameraRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.ChangeCameraRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.ChangeCamera(event.LiveGameId, event.PlayerId, event.Camera)
-			case intevent.JoinGameRequestedintEventName:
+			case intevent.JoinGameRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.JoinGameRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.AddPlayer(event.LiveGameId, event.PlayerId)
-			case intevent.DestroyItemRequestedintEventName:
+			case intevent.DestroyItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.DestroyItemRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.DestroyItem(event.LiveGameId, event.Location)
-			case intevent.BuildItemRequestedintEventName:
+			case intevent.BuildItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.BuildItemRequestedintEvent](message)
 				if err != nil {
 					return
 				}
 				liveGameAppService.BuildItem(event.LiveGameId, event.Location, event.ItemId)
-			case intevent.LeaveGameRequestedintEventName:
+			case intevent.LeaveGameRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.LeaveGameRequestedintEvent](message)
 				if err != nil {
 					return

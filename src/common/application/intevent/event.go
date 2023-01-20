@@ -4,25 +4,25 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 )
 
-type intEventName string
+type IntEventName string
 
 const (
-	ChangeCameraRequestedintEventName intEventName = "CHANGE_CAMERA_REQUESTED"
-	JoinGameRequestedintEventName     intEventName = "JOIN_GAME_REQUESTED"
-	BuildItemRequestedintEventName    intEventName = "BUILD_ITEM_REQUESTED"
-	DestroyItemRequestedintEventName  intEventName = "DESTROY_ITEM_REQUESTED"
-	LeaveGameRequestedintEventName    intEventName = "LEAVE_GAME_REQUESTED"
-	GameJoinedintEventName            intEventName = "GAME_JOINED"
-	CameraChangedintEventName         intEventName = "CAMERA_CHANGED"
-	ViewUpdatedintEventName           intEventName = "VIEW_UPDATED"
-	ViewChangedintEventName           intEventName = "VIEW_CHANGED"
+	ChangeCameraRequestedIntEventName IntEventName = "CHANGE_CAMERA_REQUESTED"
+	JoinGameRequestedIntEventName     IntEventName = "JOIN_GAME_REQUESTED"
+	BuildItemRequestedIntEventName    IntEventName = "BUILD_ITEM_REQUESTED"
+	DestroyItemRequestedIntEventName  IntEventName = "DESTROY_ITEM_REQUESTED"
+	LeaveGameRequestedIntEventName    IntEventName = "LEAVE_GAME_REQUESTED"
+	GameJoinedIntEventName            IntEventName = "GAME_JOINED"
+	CameraChangedIntEventName         IntEventName = "CAMERA_CHANGED"
+	ViewUpdatedIntEventName           IntEventName = "VIEW_UPDATED"
+	ViewChangedIntEventName           IntEventName = "VIEW_CHANGED"
 )
 
 type GenericIntEvent struct {
-	Name intEventName `json:"name"`
+	Name IntEventName `json:"name"`
 }
 type ChangeCameraRequestedintEvent struct {
-	Name       intEventName       `json:"name"`
+	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
@@ -30,7 +30,7 @@ type ChangeCameraRequestedintEvent struct {
 
 func NewChangeCameraRequestedintEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) ChangeCameraRequestedintEvent {
 	return ChangeCameraRequestedintEvent{
-		Name:       ChangeCameraRequestedintEventName,
+		Name:       ChangeCameraRequestedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Camera:     cameraVm,
@@ -38,7 +38,7 @@ func NewChangeCameraRequestedintEvent(liveGameId string, playerId string, camera
 }
 
 type BuildItemRequestedintEvent struct {
-	Name       intEventName         `json:"name"`
+	Name       IntEventName         `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
 	Location   viewmodel.LocationVm `json:"location"`
 	ItemId     string               `json:"itemId"`
@@ -46,7 +46,7 @@ type BuildItemRequestedintEvent struct {
 
 func NewBuildItemRequestedintEvent(liveGameId string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedintEvent {
 	return BuildItemRequestedintEvent{
-		Name:       BuildItemRequestedintEventName,
+		Name:       BuildItemRequestedIntEventName,
 		LiveGameId: liveGameId,
 		Location:   locationVm,
 		ItemId:     itemId,
@@ -54,35 +54,35 @@ func NewBuildItemRequestedintEvent(liveGameId string, locationVm viewmodel.Locat
 }
 
 type JoinGameRequestedintEvent struct {
-	Name       intEventName `json:"name"`
+	Name       IntEventName `json:"name"`
 	LiveGameId string       `json:"liveGameId"`
 	PlayerId   string       `json:"playerId"`
 }
 
 func NewJoinGameRequestedintEvent(liveGameId string, playerId string) JoinGameRequestedintEvent {
 	return JoinGameRequestedintEvent{
-		Name:       JoinGameRequestedintEventName,
+		Name:       JoinGameRequestedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}
 }
 
 type DestroyItemRequestedintEvent struct {
-	Name       intEventName         `json:"name"`
+	Name       IntEventName         `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
 	Location   viewmodel.LocationVm `json:"location"`
 }
 
 func NewDestroyItemRequestedintEvent(liveGameId string, locationVm viewmodel.LocationVm) DestroyItemRequestedintEvent {
 	return DestroyItemRequestedintEvent{
-		Name:       DestroyItemRequestedintEventName,
+		Name:       DestroyItemRequestedIntEventName,
 		LiveGameId: liveGameId,
 		Location:   locationVm,
 	}
 }
 
 type GameJoinedintEvent struct {
-	Name       intEventName       `json:"name"`
+	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
@@ -92,7 +92,7 @@ type GameJoinedintEvent struct {
 
 func NewGameJoinedintEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedintEvent {
 	return GameJoinedintEvent{
-		Name:       GameJoinedintEventName,
+		Name:       GameJoinedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Camera:     cameraVm,
@@ -102,7 +102,7 @@ func NewGameJoinedintEvent(liveGameId string, playerId string, cameraVm viewmode
 }
 
 type CameraChangedintEvent struct {
-	Name       intEventName       `json:"name"`
+	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
@@ -110,7 +110,7 @@ type CameraChangedintEvent struct {
 
 func NewCameraChangedintEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) CameraChangedintEvent {
 	return CameraChangedintEvent{
-		Name:       CameraChangedintEventName,
+		Name:       CameraChangedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Camera:     cameraVm,
@@ -118,7 +118,7 @@ func NewCameraChangedintEvent(liveGameId string, playerId string, cameraVm viewm
 }
 
 type ViewUpdatedintEvent struct {
-	Name       intEventName     `json:"name"`
+	Name       IntEventName     `json:"name"`
 	LiveGameId string           `json:"liveGameId"`
 	PlayerId   string           `json:"playerId"`
 	View       viewmodel.ViewVm `json:"view"`
@@ -126,7 +126,7 @@ type ViewUpdatedintEvent struct {
 
 func NewViewUpdatedintEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewUpdatedintEvent {
 	return ViewUpdatedintEvent{
-		Name:       ViewUpdatedintEventName,
+		Name:       ViewUpdatedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		View:       viewVm,
@@ -134,7 +134,7 @@ func NewViewUpdatedintEvent(liveGameId string, playerId string, viewVm viewmodel
 }
 
 type ViewChangedintEvent struct {
-	Name       intEventName     `json:"name"`
+	Name       IntEventName     `json:"name"`
 	LiveGameId string           `json:"liveGameId"`
 	PlayerId   string           `json:"playerId"`
 	View       viewmodel.ViewVm `json:"view"`
@@ -142,7 +142,7 @@ type ViewChangedintEvent struct {
 
 func NewViewChangedintEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewChangedintEvent {
 	return ViewChangedintEvent{
-		Name:       ViewChangedintEventName,
+		Name:       ViewChangedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		View:       viewVm,
@@ -150,14 +150,14 @@ func NewViewChangedintEvent(liveGameId string, playerId string, viewVm viewmodel
 }
 
 type LeaveGameRequestedintEvent struct {
-	Name       intEventName `json:"name"`
+	Name       IntEventName `json:"name"`
 	LiveGameId string       `json:"liveGameId"`
 	PlayerId   string       `json:"playerId"`
 }
 
 func NewLeaveGameRequestedintEvent(liveGameId string, playerId string) LeaveGameRequestedintEvent {
 	return LeaveGameRequestedintEvent{
-		Name:       LeaveGameRequestedintEventName,
+		Name:       LeaveGameRequestedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}
