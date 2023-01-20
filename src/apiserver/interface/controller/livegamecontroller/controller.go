@@ -127,24 +127,24 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				continue
 			}
 
-			commandType, err := livegameappservice.ParseClientEventType(message)
+			genericClientEvent, err := jsonmarshaller.Unmarshal[livegameappservice.GenericClientEvent](message)
 			if err != nil {
 				controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 				continue
 			}
 
-			switch commandType {
+			switch genericClientEvent.Type {
 			case livegameappservice.PingClientEventType:
 				continue
 			case livegameappservice.ChangeCameraClientEventType:
-				command, err := livegameappservice.ParseClientEvent[livegameappservice.ChangeCameraClientEvent](message)
+				command, err := jsonmarshaller.Unmarshal[livegameappservice.ChangeCameraClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 				controller.liveGameAppService.RequestToChangeCamera(liveGameId, playerIdVm, command.Payload.Camera)
 			case livegameappservice.BuildItemClientEventType:
-				command, err := livegameappservice.ParseClientEvent[livegameappservice.BuildItemClientEvent](message)
+				command, err := jsonmarshaller.Unmarshal[livegameappservice.BuildItemClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
@@ -152,7 +152,7 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 
 				controller.liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Location, command.Payload.ItemId)
 			case livegameappservice.DestroyItemClientEventType:
-				command, err := livegameappservice.ParseClientEvent[livegameappservice.DestroyItemClientEvent](message)
+				command, err := jsonmarshaller.Unmarshal[livegameappservice.DestroyItemClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue

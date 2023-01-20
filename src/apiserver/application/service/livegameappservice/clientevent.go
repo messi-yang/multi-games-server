@@ -1,7 +1,6 @@
 package livegameappservice
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
@@ -10,7 +9,6 @@ import (
 type ClientEventType string
 
 const (
-	NilClientEventType          ClientEventType = ""
 	PingClientEventType         ClientEventType = "PING"
 	ChangeCameraClientEventType ClientEventType = "CHANGE_CAMERA"
 	BuildItemClientEventType    ClientEventType = "BUILD_ITEM"
@@ -19,26 +17,6 @@ const (
 
 type GenericClientEvent struct {
 	Type ClientEventType `json:"type"`
-}
-
-func ParseClientEventType(message []byte) (ClientEventType, error) {
-	var clientEvent GenericClientEvent
-	err := json.Unmarshal(message, &clientEvent)
-	if err != nil {
-		return NilClientEventType, err
-	}
-
-	return clientEvent.Type, nil
-}
-
-func ParseClientEvent[T any](message []byte) (T, error) {
-	var clientEvent T
-	err := json.Unmarshal(message, &clientEvent)
-	if err != nil {
-		return clientEvent, err
-	}
-
-	return clientEvent, nil
 }
 
 type PingClientEvent struct {
