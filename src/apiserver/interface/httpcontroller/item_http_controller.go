@@ -5,18 +5,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ItemController struct {
+type ItemHttpController struct {
 	itemAppService itemappservice.Service
 }
 
-func NewItemController(
+func NewItemHttpController(
 	itemAppService itemappservice.Service,
-) *ItemController {
-	return &ItemController{
+) *ItemHttpController {
+	return &ItemHttpController{
 		itemAppService: itemAppService,
 	}
 }
 
-func (controller *ItemController) GetAllHandler(c *gin.Context) {
+func (controller *ItemHttpController) GetAllHandler(c *gin.Context) {
 	controller.itemAppService.GetAllItems(NewHttpPresenter(c))
 }

@@ -29,14 +29,14 @@ func Start() {
 	playerRepo := memrepo.NewPlayerMemRepo()
 	playerAppService := playerappservice.New(playerRepo)
 
-	itemController := httpcontroller.NewItemController(itemAppService)
+	itemController := httpcontroller.NewItemHttpController(itemAppService)
 	liveGameController := livegamecontroller.NewController(
 		gameRepo,
 		liveGameAppService,
 		playerRepo,
 	)
 
-	playerController := httpcontroller.NewPlayerController(playerAppService)
+	playerController := httpcontroller.NewPlayerHttpController(playerAppService)
 
 	router.Static("/assets", "./src/assets")
 

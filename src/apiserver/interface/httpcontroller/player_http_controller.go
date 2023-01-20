@@ -5,18 +5,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PlayerController struct {
+type PlayerHttpController struct {
 	playerAppService playerappservice.Service
 }
 
-func NewPlayerController(
+func NewPlayerHttpController(
 	playerAppService playerappservice.Service,
-) *PlayerController {
-	return &PlayerController{
+) *PlayerHttpController {
+	return &PlayerHttpController{
 		playerAppService: playerAppService,
 	}
 }
 
-func (controller *PlayerController) GetAllHandler(c *gin.Context) {
+func (controller *PlayerHttpController) GetAllHandler(c *gin.Context) {
 	controller.playerAppService.GetAllPlayers(NewHttpPresenter(c))
 }
