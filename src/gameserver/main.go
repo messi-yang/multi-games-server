@@ -17,11 +17,11 @@ func main() {
 	gameDomainService := service.NewGameService(
 		gameRepo,
 	)
-	IntEventPublisher := redispub.New()
+	intEventPublisher := redispub.New()
 	liveGameAppService := appservice.NewLiveGameAppService(
 		liveGameRepo,
 		gameRepo,
-		IntEventPublisher,
+		intEventPublisher,
 	)
 
 	games, _ := gameRepo.GetAll()
