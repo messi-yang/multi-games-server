@@ -5,9 +5,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/playerappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/memrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/itemcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/playercontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/httpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
 
@@ -30,14 +29,14 @@ func Start() {
 	playerRepo := memrepo.NewPlayerMemRepo()
 	playerAppService := playerappservice.New(playerRepo)
 
-	itemController := itemcontroller.New(itemAppService)
+	itemController := httpcontroller.NewItemController(itemAppService)
 	liveGameController := livegamecontroller.NewController(
 		gameRepo,
 		liveGameAppService,
 		playerRepo,
 	)
 
-	playerController := playercontroller.New(playerAppService)
+	playerController := httpcontroller.NewPlayerController(playerAppService)
 
 	router.Static("/assets", "./src/assets")
 

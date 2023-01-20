@@ -1,22 +1,22 @@
-package itemcontroller
+package httpcontroller
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
 	"github.com/gin-gonic/gin"
 )
 
-type Controller struct {
+type ItemController struct {
 	itemAppService itemappservice.Service
 }
 
-func New(
+func NewItemController(
 	itemAppService itemappservice.Service,
-) *Controller {
-	return &Controller{
+) *ItemController {
+	return &ItemController{
 		itemAppService: itemAppService,
 	}
 }
 
-func (controller *Controller) GetAllHandler(c *gin.Context) {
-	controller.itemAppService.GetAllItems(newGinPresenter(c))
+func (controller *ItemController) GetAllHandler(c *gin.Context) {
+	controller.itemAppService.GetAllItems(NewHttpPresenter(c))
 }

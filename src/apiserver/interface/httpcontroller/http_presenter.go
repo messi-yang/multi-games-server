@@ -1,4 +1,4 @@
-package itemcontroller
+package httpcontroller
 
 import (
 	"net/http"
@@ -7,16 +7,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ginPresenter struct {
+type httpPresenter struct {
 	c *gin.Context
 }
 
-func newGinPresenter(c *gin.Context) itemappservice.Presenter {
-	return ginPresenter{
+func NewHttpPresenter(c *gin.Context) itemappservice.Presenter {
+	return httpPresenter{
 		c: c,
 	}
 }
 
-func (p ginPresenter) OnSuccess(jsonObj any) {
+func (p httpPresenter) OnSuccess(jsonObj any) {
 	p.c.JSON(http.StatusOK, jsonObj)
 }
