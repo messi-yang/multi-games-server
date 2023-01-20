@@ -3,8 +3,8 @@ testdata_dir = "testdata"
 tmp_dir = "hotreload"
 
 [build]
-  bin = "./hotreload/main"
-  cmd = "go build -o ./hotreload/main ."
+  bin = "./hotreload/game-server"
+  cmd = "go build -o ./hotreload/game-server ."
   delay = 1000
   exclude_dir = ["assets", "hotreload", "vendor", "testdata"]
   exclude_file = []

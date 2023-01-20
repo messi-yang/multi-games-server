@@ -41,7 +41,7 @@ services:
       - .:/app
     working_dir:
       /app
-    command: make dev
+    command: make game-server-dev
   apiserver:
     build: .
     environment:
@@ -63,4 +63,4 @@ services:
       - .:/app
     working_dir:
       /app
-    command: make dev
+    command: make api-server-dev

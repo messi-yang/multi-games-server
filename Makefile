@@ -13,9 +13,13 @@ migrate-db:
 build:
 	go build -o ${BUILD_FOLDER}/${BINARY_NAME}
 
-# .PHONY: dev
-dev:
-	air
+# .PHONY: game-dev
+game-server-dev:
+	air -c .air.game-server.toml
+
+# .PHONY: api-dev
+api-server-dev:
+	air -c .air.api-server.toml
 
 # .PHONY: start
 start:
