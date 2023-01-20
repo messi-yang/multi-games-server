@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/service/livegameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/infrastructure/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/gameserver/interface/inteventcontroller"
 )
@@ -18,7 +18,7 @@ func Start() {
 		gameRepo,
 	)
 	IntEventPublisher := redispub.New()
-	liveGameAppService := livegameappservice.New(
+	liveGameAppService := appservice.NewLiveGameAppService(
 		liveGameRepo,
 		gameRepo,
 		IntEventPublisher,

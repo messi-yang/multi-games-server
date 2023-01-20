@@ -1,4 +1,4 @@
-package livegameappservice
+package appservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
@@ -11,7 +11,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 )
 
-type Service interface {
+type LiveGameAppService interface {
 	CreateLiveGame(gameIdVm string)
 	ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
@@ -20,26 +20,26 @@ type Service interface {
 	RemovePlayer(liveGameIdVm string, playerIdVm string)
 }
 
-type serve struct {
+type liveGameAppServe struct {
 	liveGameRepo      livegamemodel.Repo
 	gameRepo          gamemodel.GameRepo
 	IntEventPublisher intevent.IntEventPublisher
 }
 
-func New(
+func NewLiveGameAppService(
 	liveGameRepo livegamemodel.Repo,
 	gameRepo gamemodel.GameRepo,
 	IntEventPublisher intevent.IntEventPublisher,
-) *serve {
-	return &serve{
+) LiveGameAppService {
+	return &liveGameAppServe{
 		liveGameRepo:      liveGameRepo,
 		gameRepo:          gameRepo,
 		IntEventPublisher: IntEventPublisher,
 	}
 }
 
-func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameIdVo, location commonmodel.LocationVo) error {
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+func (liveGameAppServe *liveGameAppServe) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameIdVo, location commonmodel.LocationVo) error {
+	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameId
 		if err != nil {
 			continue
 		}
-		serve.IntEventPublisher.Publish(
+		liveGameAppServe.IntEventPublisher.Publish(
 			intevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
 			jsonmarshaller.Marshal(intevent.NewViewUpdatedintEvent(
 				liveGameId.ToString(),
@@ -65,13 +65,13 @@ func (serve *serve) publishViewUpdatedEvents(liveGameId livegamemodel.LiveGameId
 	return nil
 }
 
-func (serve *serve) CreateLiveGame(gameIdVm string) {
+func (liveGameAppServe *liveGameAppServe) CreateLiveGame(gameIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
 	}
 
-	game, err := serve.gameRepo.Get(gameId)
+	game, err := liveGameAppServe.gameRepo.Get(gameId)
 	if err != nil {
 		return
 	}
@@ -81,10 +81,10 @@ func (serve *serve) CreateLiveGame(gameIdVm string) {
 	liveGameMap := livegamemodel.NewMapVo(game.GetMap().GetUnitMatrix())
 	newLiveGame := livegamemodel.NewLiveGameAgg(liveGameId, liveGameMap)
 
-	serve.liveGameRepo.Add(newLiveGame)
+	liveGameAppServe.liveGameRepo.Add(newLiveGame)
 }
 
-func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
+func (liveGameAppServe *liveGameAppServe) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -98,10 +98,10 @@ func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraV
 		return
 	}
 
-	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
+	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return
 	}
@@ -110,22 +110,22 @@ func (serve *serve) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraV
 		return
 	}
 
-	serve.liveGameRepo.Update(liveGameId, liveGame)
+	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
 	view, _ := liveGame.GetPlayerView(playerId)
-	serve.IntEventPublisher.Publish(
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		jsonmarshaller.Marshal(
 			intevent.NewCameraChangedintEvent(liveGameIdVm, playerIdVm, viewmodel.NewCameraVm(camera)),
 		),
 	)
-	serve.IntEventPublisher.Publish(
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		jsonmarshaller.Marshal(intevent.NewViewChangedintEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
 	)
 }
 
-func (serve *serve) BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -139,10 +139,10 @@ func (serve *serve) BuildItem(liveGameIdVm string, locationVm viewmodel.Location
 		return
 	}
 
-	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
+	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return
 	}
@@ -152,12 +152,12 @@ func (serve *serve) BuildItem(liveGameIdVm string, locationVm viewmodel.Location
 		return
 	}
 
-	serve.liveGameRepo.Update(liveGameId, liveGame)
+	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
-	serve.publishViewUpdatedEvents(liveGameId, location)
+	liveGameAppServe.publishViewUpdatedEvents(liveGameId, location)
 }
 
-func (serve *serve) DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
+func (liveGameAppServe *liveGameAppServe) DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -167,10 +167,10 @@ func (serve *serve) DestroyItem(liveGameIdVm string, locationVm viewmodel.Locati
 		return
 	}
 
-	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
+	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return
 	}
@@ -180,11 +180,11 @@ func (serve *serve) DestroyItem(liveGameIdVm string, locationVm viewmodel.Locati
 		return
 	}
 
-	serve.liveGameRepo.Update(liveGameId, liveGame)
-	serve.publishViewUpdatedEvents(liveGameId, location)
+	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
+	liveGameAppServe.publishViewUpdatedEvents(liveGameId, location)
 }
 
-func (serve *serve) AddPlayer(liveGameIdVm string, playerIdVm string) {
+func (liveGameAppServe *liveGameAppServe) AddPlayer(liveGameIdVm string, playerIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -194,20 +194,20 @@ func (serve *serve) AddPlayer(liveGameIdVm string, playerIdVm string) {
 		return
 	}
 
-	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
+	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return
 	}
 
 	liveGame.AddPlayer(playerId)
-	serve.liveGameRepo.Update(liveGameId, liveGame)
+	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
 	camera, _ := liveGame.GetPlayerCamera(playerId)
 	view, _ := liveGame.GetPlayerView(playerId)
-	serve.IntEventPublisher.Publish(
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		jsonmarshaller.Marshal(
 			intevent.NewGameJoinedintEvent(
@@ -220,7 +220,7 @@ func (serve *serve) AddPlayer(liveGameIdVm string, playerIdVm string) {
 	)
 }
 
-func (serve *serve) RemovePlayer(liveGameIdVm string, playerIdVm string) {
+func (liveGameAppServe *liveGameAppServe) RemovePlayer(liveGameIdVm string, playerIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -230,14 +230,14 @@ func (serve *serve) RemovePlayer(liveGameIdVm string, playerIdVm string) {
 		return
 	}
 
-	unlocker := serve.liveGameRepo.LockAccess(liveGameId)
+	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return
 	}
 
 	liveGame.RemovePlayer(playerId)
-	serve.liveGameRepo.Update(liveGameId, liveGame)
+	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 }
