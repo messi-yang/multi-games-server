@@ -1,4 +1,4 @@
-package livegamecontroller
+package socketcontroller
 
 import (
 	"net/http"

@@ -5,8 +5,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/playerappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/memrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/controller/livegamecontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/httpcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/socketcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
 
@@ -30,7 +30,7 @@ func Start() {
 	playerAppService := playerappservice.New(playerRepo)
 
 	itemController := httpcontroller.NewItemHttpController(itemAppService)
-	liveGameController := livegamecontroller.NewController(
+	liveGameController := socketcontroller.NewController(
 		gameRepo,
 		liveGameAppService,
 		playerRepo,
