@@ -1,16 +1,16 @@
 package httpcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/playerappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
 	"github.com/gin-gonic/gin"
 )
 
 type PlayerHttpController struct {
-	playerAppService playerappservice.Service
+	playerAppService appservice.PlayerAppService
 }
 
 func NewPlayerHttpController(
-	playerAppService playerappservice.Service,
+	playerAppService appservice.PlayerAppService,
 ) *PlayerHttpController {
 	return &PlayerHttpController{
 		playerAppService: playerAppService,

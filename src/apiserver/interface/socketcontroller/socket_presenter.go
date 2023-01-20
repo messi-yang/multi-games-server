@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipper"
 	"github.com/gorilla/websocket"
 )
@@ -14,7 +14,7 @@ type socketPresenter struct {
 	socketConnLock *sync.RWMutex
 }
 
-func newSocketPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) livegameappservice.Presenter {
+func newSocketPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) appservice.Presenter {
 	return &socketPresenter{socketConn: socketConn, socketConnLock: socketConnLock}
 }
 

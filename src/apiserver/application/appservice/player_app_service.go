@@ -1,4 +1,4 @@
-package playerappservice
+package appservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
@@ -6,20 +6,20 @@ import (
 	"github.com/samber/lo"
 )
 
-type Service interface {
+type PlayerAppService interface {
 	GetAllPlayers(presenter Presenter)
 }
 
-type serve struct {
+type playerAppServe struct {
 	playerRepo playermodel.Repo
 }
 
-func New(playerRepo playermodel.Repo) Service {
-	return &serve{playerRepo: playerRepo}
+func NewPlayerAppService(playerRepo playermodel.Repo) PlayerAppService {
+	return &playerAppServe{playerRepo: playerRepo}
 }
 
-func (serve *serve) GetAllPlayers(presenter Presenter) {
-	players := serve.playerRepo.GetAll()
+func (playerAppServe *playerAppServe) GetAllPlayers(presenter Presenter) {
+	players := playerAppServe.playerRepo.GetAll()
 	itemCameraModels := lo.Map(players, func(player playermodel.PlayerAgg, _ int) viewmodel.PlayerVm {
 		return viewmodel.NewPlayerVm(player)
 	})

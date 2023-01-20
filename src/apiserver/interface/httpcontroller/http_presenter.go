@@ -3,7 +3,7 @@ package httpcontroller
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/itemappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +11,7 @@ type httpPresenter struct {
 	c *gin.Context
 }
 
-func NewHttpPresenter(c *gin.Context) itemappservice.Presenter {
+func NewHttpPresenter(c *gin.Context) appservice.Presenter {
 	return httpPresenter{
 		c: c,
 	}

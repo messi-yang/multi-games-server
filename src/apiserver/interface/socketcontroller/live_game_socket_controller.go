@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/service/livegameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
@@ -27,13 +27,13 @@ var wsupgrader = websocket.Upgrader{
 
 type Controller struct {
 	gameRepo           gamemodel.GameRepo
-	liveGameAppService livegameappservice.Service
+	liveGameAppService appservice.LiveGameAppService
 	playerRepo         playermodel.Repo
 }
 
 func NewController(
 	gameRepo gamemodel.GameRepo,
-	liveGameAppService livegameappservice.Service,
+	liveGameAppService appservice.LiveGameAppService,
 	playerRepo playermodel.Repo,
 ) *Controller {
 	return &Controller{
@@ -127,32 +127,32 @@ func (controller *Controller) HandleLiveGameConnection(c *gin.Context) {
 				continue
 			}
 
-			genericClientEvent, err := jsonmarshaller.Unmarshal[livegameappservice.GenericClientEvent](message)
+			genericClientEvent, err := jsonmarshaller.Unmarshal[appservice.GenericClientEvent](message)
 			if err != nil {
 				controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 				continue
 			}
 
 			switch genericClientEvent.Type {
-			case livegameappservice.PingClientEventType:
+			case appservice.PingClientEventType:
 				continue
-			case livegameappservice.ChangeCameraClientEventType:
-				command, err := jsonmarshaller.Unmarshal[livegameappservice.ChangeCameraClientEvent](message)
+			case appservice.ChangeCameraClientEventType:
+				command, err := jsonmarshaller.Unmarshal[appservice.ChangeCameraClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 				controller.liveGameAppService.RequestToChangeCamera(liveGameId, playerIdVm, command.Payload.Camera)
-			case livegameappservice.BuildItemClientEventType:
-				command, err := jsonmarshaller.Unmarshal[livegameappservice.BuildItemClientEvent](message)
+			case appservice.BuildItemClientEventType:
+				command, err := jsonmarshaller.Unmarshal[appservice.BuildItemClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 
 				controller.liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Location, command.Payload.ItemId)
-			case livegameappservice.DestroyItemClientEventType:
-				command, err := jsonmarshaller.Unmarshal[livegameappservice.DestroyItemClientEvent](message)
+			case appservice.DestroyItemClientEventType:
+				command, err := jsonmarshaller.Unmarshal[appservice.DestroyItemClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue

@@ -1,4 +1,4 @@
-package livegameappservice
+package appservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 )
 
-type Service interface {
+type LiveGameAppService interface {
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendItemsUpdatedServerEvent(presenter Presenter)
 	SendGameJoinedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
@@ -22,23 +22,23 @@ type Service interface {
 	RequestToLeaveGame(liveGameIdVm string, playerIdVm string)
 }
 
-type serve struct {
+type liveGameAppServe struct {
 	IntEventPublisher intevent.IntEventPublisher
 	itemRepo          itemmodel.Repo
 }
 
-func New(IntEventPublisher intevent.IntEventPublisher, itemRepo itemmodel.Repo) Service {
-	return &serve{IntEventPublisher: IntEventPublisher, itemRepo: itemRepo}
+func NewLiveGameAppService(IntEventPublisher intevent.IntEventPublisher, itemRepo itemmodel.Repo) LiveGameAppService {
+	return &liveGameAppServe{IntEventPublisher: IntEventPublisher, itemRepo: itemRepo}
 }
 
-func (serve *serve) SendErroredServerEvent(presenter Presenter, clientMessage string) {
+func (liveGameAppServe *liveGameAppServe) SendErroredServerEvent(presenter Presenter, clientMessage string) {
 	event := ErroredServerEvent{}
 	event.Type = ErroredServerEventType
 	event.Payload.ClientMessage = clientMessage
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) {
+func (liveGameAppServe *liveGameAppServe) SendGameJoinedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) {
 	event := GameJoinedServerEvent{}
 	event.Type = GameJoinedServerEventType
 	event.Payload.Player = playerVm
@@ -48,29 +48,29 @@ func (serve *serve) SendGameJoinedServerEvent(presenter Presenter, playerVm view
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm) {
+func (liveGameAppServe *liveGameAppServe) SendCameraChangedServerEvent(presenter Presenter, cameraVm viewmodel.CameraVm) {
 	event := CameraChangedServerEvent{}
 	event.Type = CameraChangedServerEventType
 	event.Payload.Camera = cameraVm
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
+func (liveGameAppServe *liveGameAppServe) SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
 	event := ViewChangedServerEvent{}
 	event.Type = ViewChangedServerEventType
 	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
+func (liveGameAppServe *liveGameAppServe) SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
 	event := ViewUpdatedServerEvent{}
 	event.Type = ViewUpdatedServerEventType
 	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) SendItemsUpdatedServerEvent(presenter Presenter) {
-	items := serve.itemRepo.GetAllItems()
+func (liveGameAppServe *liveGameAppServe) SendItemsUpdatedServerEvent(presenter Presenter) {
+	items := liveGameAppServe.itemRepo.GetAllItems()
 	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
 		return viewmodel.NewItemVm(item)
 	})
@@ -81,36 +81,36 @@ func (serve *serve) SendItemsUpdatedServerEvent(presenter Presenter) {
 	presenter.OnSuccess(event)
 }
 
-func (serve *serve) RequestToJoinGame(liveGameIdVm string, playerIdVm string) {
-	serve.IntEventPublisher.Publish(
+func (liveGameAppServe *liveGameAppServe) RequestToJoinGame(liveGameIdVm string, playerIdVm string) {
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewJoinGameRequestedintEvent(liveGameIdVm, playerIdVm)),
 	)
 }
 
-func (serve *serve) RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
-	serve.IntEventPublisher.Publish(
+func (liveGameAppServe *liveGameAppServe) RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewChangeCameraRequestedintEvent(liveGameIdVm, playerIdVm, cameraVm)),
 	)
 }
 
-func (serve *serve) RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
-	serve.IntEventPublisher.Publish(
+func (liveGameAppServe *liveGameAppServe) RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewBuildItemRequestedintEvent(liveGameIdVm, locationVm, itemIdVm)),
 	)
 }
 
-func (serve *serve) RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
-	serve.IntEventPublisher.Publish(
+func (liveGameAppServe *liveGameAppServe) RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedintEvent(liveGameIdVm, locationVm)),
 	)
 }
 
-func (serve *serve) RequestToLeaveGame(liveGameIdVm string, playerIdVm string) {
-	serve.IntEventPublisher.Publish(
+func (liveGameAppServe *liveGameAppServe) RequestToLeaveGame(liveGameIdVm string, playerIdVm string) {
+	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewLeaveGameRequestedintEvent(liveGameIdVm, playerIdVm)),
 	)
