@@ -1,8 +1,6 @@
 package psqlrepo
 
 import (
-	"fmt"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -40,8 +38,6 @@ func (repo *gamePsqlRepo) GetAll() ([]gamemodel.GameAgg, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
-	fmt.Println(gamePsqlModels)
 
 	gameAggregates := lo.Map(gamePsqlModels, func(model GamePsqlModel, _ int) gamemodel.GameAgg {
 		return model.ToAggregate()
