@@ -116,22 +116,6 @@ func NewPlayerUpdatedIntEvent(liveGameId string, playerVm viewmodel.PlayerVm) Pl
 	}
 }
 
-type CameraChangedIntEvent struct {
-	Name       IntEventName       `json:"name"`
-	LiveGameId string             `json:"liveGameId"`
-	PlayerId   string             `json:"playerId"`
-	Camera     viewmodel.CameraVm `json:"camera"`
-}
-
-func NewCameraChangedIntEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) CameraChangedIntEvent {
-	return CameraChangedIntEvent{
-		Name:       CameraChangedIntEventName,
-		LiveGameId: liveGameId,
-		PlayerId:   playerId,
-		Camera:     cameraVm,
-	}
-}
-
 type ViewUpdatedIntEvent struct {
 	Name       IntEventName     `json:"name"`
 	LiveGameId string           `json:"liveGameId"`
