@@ -115,7 +115,7 @@ func (liveGame *LiveGameAgg) BuildItem(location commonmodel.LocationVo, itemId i
 
 	unit := liveGame.map_.GetUnit(location)
 	newUnit := unit.SetItemId(itemId)
-	liveGame.map_.ReplaceUnitAt(location, newUnit)
+	liveGame.map_.UpdateUnit(location, newUnit)
 
 	return nil
 }
@@ -128,7 +128,7 @@ func (liveGame *LiveGameAgg) DestroyItem(location commonmodel.LocationVo) error 
 	unit := liveGame.map_.GetUnit(location)
 	itemId, _ := itemmodel.NewItemIdVo(uuid.Nil.String())
 	newUnit := unit.SetItemId(itemId)
-	liveGame.map_.ReplaceUnitAt(location, newUnit)
+	liveGame.map_.UpdateUnit(location, newUnit)
 
 	return nil
 }

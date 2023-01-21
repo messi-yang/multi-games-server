@@ -28,7 +28,7 @@ func (map_ MapVo) GetUnit(location commonmodel.LocationVo) commonmodel.UnitVo {
 	return (map_.unitMatrix)[location.GetX()][location.GetY()]
 }
 
-func (map_ MapVo) ReplaceUnitAt(location commonmodel.LocationVo, unit commonmodel.UnitVo) {
+func (map_ MapVo) UpdateUnit(location commonmodel.LocationVo, unit commonmodel.UnitVo) {
 	(map_.unitMatrix)[location.GetX()][location.GetY()] = unit
 }
 
