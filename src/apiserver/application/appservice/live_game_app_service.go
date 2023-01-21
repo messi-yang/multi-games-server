@@ -84,34 +84,34 @@ func (liveGameAppServe *liveGameAppServe) SendItemsUpdatedServerEvent(presenter 
 func (liveGameAppServe *liveGameAppServe) RequestToJoinGame(liveGameIdVm string, playerIdVm string) {
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewJoinGameRequestedintEvent(liveGameIdVm, playerIdVm)),
+		jsonmarshaller.Marshal(intevent.NewJoinGameRequestedIntEvent(liveGameIdVm, playerIdVm)),
 	)
 }
 
 func (liveGameAppServe *liveGameAppServe) RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewChangeCameraRequestedintEvent(liveGameIdVm, playerIdVm, cameraVm)),
+		jsonmarshaller.Marshal(intevent.NewChangeCameraRequestedIntEvent(liveGameIdVm, playerIdVm, cameraVm)),
 	)
 }
 
 func (liveGameAppServe *liveGameAppServe) RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewBuildItemRequestedintEvent(liveGameIdVm, locationVm, itemIdVm)),
+		jsonmarshaller.Marshal(intevent.NewBuildItemRequestedIntEvent(liveGameIdVm, locationVm, itemIdVm)),
 	)
 }
 
 func (liveGameAppServe *liveGameAppServe) RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedintEvent(liveGameIdVm, locationVm)),
+		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedIntEvent(liveGameIdVm, locationVm)),
 	)
 }
 
 func (liveGameAppServe *liveGameAppServe) RequestToLeaveGame(liveGameIdVm string, playerIdVm string) {
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewLeaveGameRequestedintEvent(liveGameIdVm, playerIdVm)),
+		jsonmarshaller.Marshal(intevent.NewLeaveGameRequestedIntEvent(liveGameIdVm, playerIdVm)),
 	)
 }

@@ -21,15 +21,15 @@ const (
 type GenericIntEvent struct {
 	Name IntEventName `json:"name"`
 }
-type ChangeCameraRequestedintEvent struct {
+type ChangeCameraRequestedIntEvent struct {
 	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
 }
 
-func NewChangeCameraRequestedintEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) ChangeCameraRequestedintEvent {
-	return ChangeCameraRequestedintEvent{
+func NewChangeCameraRequestedIntEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) ChangeCameraRequestedIntEvent {
+	return ChangeCameraRequestedIntEvent{
 		Name:       ChangeCameraRequestedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
@@ -37,15 +37,15 @@ func NewChangeCameraRequestedintEvent(liveGameId string, playerId string, camera
 	}
 }
 
-type BuildItemRequestedintEvent struct {
+type BuildItemRequestedIntEvent struct {
 	Name       IntEventName         `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
 	Location   viewmodel.LocationVm `json:"location"`
 	ItemId     string               `json:"itemId"`
 }
 
-func NewBuildItemRequestedintEvent(liveGameId string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedintEvent {
-	return BuildItemRequestedintEvent{
+func NewBuildItemRequestedIntEvent(liveGameId string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedIntEvent {
+	return BuildItemRequestedIntEvent{
 		Name:       BuildItemRequestedIntEventName,
 		LiveGameId: liveGameId,
 		Location:   locationVm,
@@ -53,35 +53,35 @@ func NewBuildItemRequestedintEvent(liveGameId string, locationVm viewmodel.Locat
 	}
 }
 
-type JoinGameRequestedintEvent struct {
+type JoinGameRequestedIntEvent struct {
 	Name       IntEventName `json:"name"`
 	LiveGameId string       `json:"liveGameId"`
 	PlayerId   string       `json:"playerId"`
 }
 
-func NewJoinGameRequestedintEvent(liveGameId string, playerId string) JoinGameRequestedintEvent {
-	return JoinGameRequestedintEvent{
+func NewJoinGameRequestedIntEvent(liveGameId string, playerId string) JoinGameRequestedIntEvent {
+	return JoinGameRequestedIntEvent{
 		Name:       JoinGameRequestedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 	}
 }
 
-type DestroyItemRequestedintEvent struct {
+type DestroyItemRequestedIntEvent struct {
 	Name       IntEventName         `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
 	Location   viewmodel.LocationVm `json:"location"`
 }
 
-func NewDestroyItemRequestedintEvent(liveGameId string, locationVm viewmodel.LocationVm) DestroyItemRequestedintEvent {
-	return DestroyItemRequestedintEvent{
+func NewDestroyItemRequestedIntEvent(liveGameId string, locationVm viewmodel.LocationVm) DestroyItemRequestedIntEvent {
+	return DestroyItemRequestedIntEvent{
 		Name:       DestroyItemRequestedIntEventName,
 		LiveGameId: liveGameId,
 		Location:   locationVm,
 	}
 }
 
-type GameJoinedintEvent struct {
+type GameJoinedIntEvent struct {
 	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	Player     viewmodel.PlayerVm `json:"playerId"`
@@ -90,8 +90,8 @@ type GameJoinedintEvent struct {
 	View       viewmodel.ViewVm   `json:"view"`
 }
 
-func NewGameJoinedintEvent(liveGameId string, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedintEvent {
-	return GameJoinedintEvent{
+func NewGameJoinedIntEvent(liveGameId string, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedIntEvent {
+	return GameJoinedIntEvent{
 		Name:       GameJoinedIntEventName,
 		LiveGameId: liveGameId,
 		Player:     playerVm,
@@ -101,15 +101,15 @@ func NewGameJoinedintEvent(liveGameId string, playerVm viewmodel.PlayerVm, camer
 	}
 }
 
-type CameraChangedintEvent struct {
+type CameraChangedIntEvent struct {
 	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	PlayerId   string             `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
 }
 
-func NewCameraChangedintEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) CameraChangedintEvent {
-	return CameraChangedintEvent{
+func NewCameraChangedIntEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) CameraChangedIntEvent {
+	return CameraChangedIntEvent{
 		Name:       CameraChangedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
@@ -117,15 +117,15 @@ func NewCameraChangedintEvent(liveGameId string, playerId string, cameraVm viewm
 	}
 }
 
-type ViewUpdatedintEvent struct {
+type ViewUpdatedIntEvent struct {
 	Name       IntEventName     `json:"name"`
 	LiveGameId string           `json:"liveGameId"`
 	PlayerId   string           `json:"playerId"`
 	View       viewmodel.ViewVm `json:"view"`
 }
 
-func NewViewUpdatedintEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewUpdatedintEvent {
-	return ViewUpdatedintEvent{
+func NewViewUpdatedIntEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewUpdatedIntEvent {
+	return ViewUpdatedIntEvent{
 		Name:       ViewUpdatedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
@@ -133,15 +133,15 @@ func NewViewUpdatedintEvent(liveGameId string, playerId string, viewVm viewmodel
 	}
 }
 
-type ViewChangedintEvent struct {
+type ViewChangedIntEvent struct {
 	Name       IntEventName     `json:"name"`
 	LiveGameId string           `json:"liveGameId"`
 	PlayerId   string           `json:"playerId"`
 	View       viewmodel.ViewVm `json:"view"`
 }
 
-func NewViewChangedintEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewChangedintEvent {
-	return ViewChangedintEvent{
+func NewViewChangedIntEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewChangedIntEvent {
+	return ViewChangedIntEvent{
 		Name:       ViewChangedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
@@ -149,14 +149,14 @@ func NewViewChangedintEvent(liveGameId string, playerId string, viewVm viewmodel
 	}
 }
 
-type LeaveGameRequestedintEvent struct {
+type LeaveGameRequestedIntEvent struct {
 	Name       IntEventName `json:"name"`
 	LiveGameId string       `json:"liveGameId"`
 	PlayerId   string       `json:"playerId"`
 }
 
-func NewLeaveGameRequestedintEvent(liveGameId string, playerId string) LeaveGameRequestedintEvent {
-	return LeaveGameRequestedintEvent{
+func NewLeaveGameRequestedIntEvent(liveGameId string, playerId string) LeaveGameRequestedIntEvent {
+	return LeaveGameRequestedIntEvent{
 		Name:       LeaveGameRequestedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,

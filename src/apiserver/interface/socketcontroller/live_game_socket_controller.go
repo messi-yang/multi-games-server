@@ -71,25 +71,25 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 
 			switch intEvent.Name {
 			case intevent.GameJoinedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.GameJoinedintEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intevent.GameJoinedIntEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.Player, event.Camera, event.MapSize, event.View)
 			case intevent.CameraChangedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.CameraChangedintEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intevent.CameraChangedIntEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendCameraChangedServerEvent(socketPresenter, event.Camera)
 			case intevent.ViewChangedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.ViewChangedintEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intevent.ViewChangedIntEvent](message)
 				if err != nil {
 					return
 				}
 				controller.liveGameAppService.SendViewChangedServerEvent(socketPresenter, event.View)
 			case intevent.ViewUpdatedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.ViewUpdatedintEvent](message)
+				event, err := jsonmarshaller.Unmarshal[intevent.ViewUpdatedIntEvent](message)
 				if err != nil {
 					return
 				}
