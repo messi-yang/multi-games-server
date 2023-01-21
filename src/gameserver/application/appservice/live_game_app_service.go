@@ -201,8 +201,7 @@ func (liveGameAppServe *liveGameAppServe) JoinGame(liveGameIdVm string, playerId
 		return
 	}
 
-	newPlayer := livegamemodel.NewPlayerEntity(playerId, "Hello")
-	err = liveGame.AddPlayer(newPlayer)
+	err = liveGame.AddPlayer(playerId)
 	if err != nil {
 		return
 	}
