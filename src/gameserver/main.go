@@ -26,7 +26,7 @@ func main() {
 
 	games, _ := gameRepo.GetAll()
 	if len(games) > 0 {
-		liveGameAppService.CreateLiveGame(games[0].GetId().ToString())
+		liveGameAppService.LoadGame(games[0].GetId().ToString())
 	} else {
 		mapSize, _ := commonmodel.NewSizeVo(200, 200)
 		gameId, _ := gameDomainService.CreateGame(mapSize)

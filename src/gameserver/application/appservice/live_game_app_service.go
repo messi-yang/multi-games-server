@@ -11,7 +11,7 @@ import (
 )
 
 type LiveGameAppService interface {
-	CreateLiveGame(gameIdVm string)
+	LoadGame(gameIdVm string)
 	ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
@@ -64,7 +64,7 @@ func (liveGameAppServe *liveGameAppServe) publishViewUpdatedEvents(liveGameId li
 	return nil
 }
 
-func (liveGameAppServe *liveGameAppServe) CreateLiveGame(gameIdVm string) {
+func (liveGameAppServe *liveGameAppServe) LoadGame(gameIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
