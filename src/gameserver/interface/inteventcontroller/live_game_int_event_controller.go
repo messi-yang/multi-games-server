@@ -28,7 +28,7 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 				if err != nil {
 					return
 				}
-				liveGameAppService.AddPlayer(event.LiveGameId, event.PlayerId)
+				liveGameAppService.JoinGame(event.LiveGameId, event.PlayerId)
 			case intevent.DestroyItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.DestroyItemRequestedIntEvent](message)
 				if err != nil {
@@ -46,7 +46,7 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 				if err != nil {
 					return
 				}
-				liveGameAppService.RemovePlayer(event.LiveGameId, event.PlayerId)
+				liveGameAppService.LeaveGame(event.LiveGameId, event.PlayerId)
 			}
 		})
 	defer liveGameAdminChannelUnsubscriber()
