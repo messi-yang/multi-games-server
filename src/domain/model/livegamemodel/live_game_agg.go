@@ -5,7 +5,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -25,14 +24,16 @@ type playerStatus struct {
 type LiveGameAgg struct {
 	id             LiveGameIdVo
 	map_           MapVo
-	playerStatuses map[playermodel.PlayerIdVo]playerStatus
+	players        map[PlayerIdVo]PlayerEntity
+	playerStatuses map[PlayerIdVo]playerStatus
 }
 
 func NewLiveGameAgg(id LiveGameIdVo, map_ MapVo) LiveGameAgg {
 	return LiveGameAgg{
 		id:             id,
 		map_:           map_,
-		playerStatuses: make(map[playermodel.PlayerIdVo]playerStatus),
+		players:        make(map[PlayerIdVo]PlayerEntity),
+		playerStatuses: make(map[PlayerIdVo]playerStatus),
 	}
 }
 
@@ -44,11 +45,11 @@ func (liveGame *LiveGameAgg) GetMapSize() commonmodel.SizeVo {
 	return liveGame.map_.GetSize()
 }
 
-func (liveGame *LiveGameAgg) GetPlayerIds() []playermodel.PlayerIdVo {
+func (liveGame *LiveGameAgg) GetPlayerIds() []PlayerIdVo {
 	return lo.Keys(liveGame.playerStatuses)
 }
 
-func (liveGame *LiveGameAgg) GetPlayerView(playerId playermodel.PlayerIdVo) (ViewVo, error) {
+func (liveGame *LiveGameAgg) GetPlayerView(playerId PlayerIdVo) (ViewVo, error) {
 	playerStatus, exists := liveGame.playerStatuses[playerId]
 	if !exists {
 		return ViewVo{}, ErrPlayerCameraNotFound
@@ -59,7 +60,7 @@ func (liveGame *LiveGameAgg) GetPlayerView(playerId playermodel.PlayerIdVo) (Vie
 	return view, nil
 }
 
-func (liveGame *LiveGameAgg) CanPlayerSeeAnyLocations(playerId playermodel.PlayerIdVo, locations []commonmodel.LocationVo) bool {
+func (liveGame *LiveGameAgg) CanPlayerSeeAnyLocations(playerId PlayerIdVo, locations []commonmodel.LocationVo) bool {
 	playerStatus, exists := liveGame.playerStatuses[playerId]
 	if !exists {
 		return false
@@ -69,7 +70,7 @@ func (liveGame *LiveGameAgg) CanPlayerSeeAnyLocations(playerId playermodel.Playe
 	return bound.CoverAnyLocations(locations)
 }
 
-func (liveGame *LiveGameAgg) ChangePlayerCamera(playerId playermodel.PlayerIdVo, camera CameraVo) error {
+func (liveGame *LiveGameAgg) ChangePlayerCamera(playerId PlayerIdVo, camera CameraVo) error {
 	playerStatus, exists := liveGame.playerStatuses[playerId]
 	if !exists {
 		return ErrPlayerNotFound
@@ -80,7 +81,7 @@ func (liveGame *LiveGameAgg) ChangePlayerCamera(playerId playermodel.PlayerIdVo,
 	return nil
 }
 
-func (liveGame *LiveGameAgg) GetPlayerCamera(playerId playermodel.PlayerIdVo) (CameraVo, error) {
+func (liveGame *LiveGameAgg) GetPlayerCamera(playerId PlayerIdVo) (CameraVo, error) {
 	playerStatus, exists := liveGame.playerStatuses[playerId]
 	if !exists {
 		return CameraVo{}, ErrPlayerCameraNotFound
@@ -88,11 +89,14 @@ func (liveGame *LiveGameAgg) GetPlayerCamera(playerId playermodel.PlayerIdVo) (C
 	return playerStatus.camera, nil
 }
 
-func (liveGame *LiveGameAgg) AddPlayer(playerId playermodel.PlayerIdVo) error {
-	_, exists := liveGame.playerStatuses[playerId]
+func (liveGame *LiveGameAgg) AddPlayer(player PlayerEntity) error {
+	_, exists := liveGame.players[player.GetId()]
 	if exists {
 		return ErrPlayerAlreadyExists
 	}
+	playerId := player.GetId()
+
+	liveGame.players[playerId] = player
 
 	originLocation, _ := commonmodel.NewLocationVo(0, 0)
 	liveGame.playerStatuses[playerId] = playerStatus{
@@ -102,7 +106,16 @@ func (liveGame *LiveGameAgg) AddPlayer(playerId playermodel.PlayerIdVo) error {
 	return nil
 }
 
-func (liveGame *LiveGameAgg) RemovePlayer(playerId playermodel.PlayerIdVo) {
+func (liveGame *LiveGameAgg) GetPlayer(playerId PlayerIdVo) (PlayerEntity, error) {
+	player, exists := liveGame.players[playerId]
+	if !exists {
+		return PlayerEntity{}, ErrPlayerNotFound
+	}
+	return player, nil
+}
+
+func (liveGame *LiveGameAgg) RemovePlayer(playerId PlayerIdVo) {
+	delete(liveGame.players, playerId)
 	delete(liveGame.playerStatuses, playerId)
 }
 

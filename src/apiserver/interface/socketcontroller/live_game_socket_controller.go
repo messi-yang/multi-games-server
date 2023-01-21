@@ -6,10 +6,8 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipper"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 	"github.com/gin-gonic/gin"
@@ -28,18 +26,15 @@ var wsupgrader = websocket.Upgrader{
 type LiveGameSocketController struct {
 	gameRepo           gamemodel.GameRepo
 	liveGameAppService appservice.LiveGameAppService
-	playerRepo         playermodel.Repo
 }
 
 func NewLiveGameSocketController(
 	gameRepo gamemodel.GameRepo,
 	liveGameAppService appservice.LiveGameAppService,
-	playerRepo playermodel.Repo,
 ) *LiveGameSocketController {
 	return &LiveGameSocketController{
 		gameRepo:           gameRepo,
 		liveGameAppService: liveGameAppService,
-		playerRepo:         playerRepo,
 	}
 }
 
@@ -61,9 +56,6 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 	liveGameId := gameId.ToString()
 
 	playerIdVm := uuid.New().String()
-	playerId, _ := playermodel.NewPlayerIdVo(playerIdVm)
-	myPlayer := playermodel.NewPlayerAgg(playerId, "Hello")
-	controller.playerRepo.Add(myPlayer)
 
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
 
@@ -83,7 +75,7 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, viewmodel.NewPlayerVm(myPlayer), event.Camera, event.MapSize, event.View)
+				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.Player, event.Camera, event.MapSize, event.View)
 			case intevent.CameraChangedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.CameraChangedintEvent](message)
 				if err != nil {
@@ -167,7 +159,6 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 	for {
 		<-closeConnFlag
 
-		controller.playerRepo.Remove(myPlayer.GetId())
 		controller.liveGameAppService.RequestToLeaveGame(liveGameId, playerIdVm)
 		return
 	}

@@ -7,7 +7,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 )
 
@@ -89,7 +88,7 @@ func (liveGameAppServe *liveGameAppServe) ChangeCamera(liveGameIdVm string, play
 	if err != nil {
 		return
 	}
-	playerId, err := playermodel.NewPlayerIdVo(playerIdVm)
+	playerId, err := livegamemodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
 		return
 	}
@@ -189,7 +188,7 @@ func (liveGameAppServe *liveGameAppServe) AddPlayer(liveGameIdVm string, playerI
 	if err != nil {
 		return
 	}
-	playerId, err := playermodel.NewPlayerIdVo(playerIdVm)
+	playerId, err := livegamemodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
 		return
 	}
@@ -202,16 +201,23 @@ func (liveGameAppServe *liveGameAppServe) AddPlayer(liveGameIdVm string, playerI
 		return
 	}
 
-	liveGame.AddPlayer(playerId)
+	newPlayer := livegamemodel.NewPlayerEntity(playerId, "Hello")
+	err = liveGame.AddPlayer(newPlayer)
+	if err != nil {
+		return
+	}
+
 	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
+	player, _ := liveGame.GetPlayer(playerId)
 	camera, _ := liveGame.GetPlayerCamera(playerId)
 	view, _ := liveGame.GetPlayerView(playerId)
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
 		jsonmarshaller.Marshal(
 			intevent.NewGameJoinedintEvent(
-				liveGameIdVm, playerIdVm,
+				liveGameIdVm,
+				viewmodel.NewPlayerVm(player),
 				viewmodel.NewCameraVm(camera),
 				viewmodel.NewSizeVm(liveGame.GetMapSize()),
 				viewmodel.NewViewVm(view),
@@ -225,7 +231,7 @@ func (liveGameAppServe *liveGameAppServe) RemovePlayer(liveGameIdVm string, play
 	if err != nil {
 		return
 	}
-	playerId, err := playermodel.NewPlayerIdVo(playerIdVm)
+	playerId, err := livegamemodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
 		return
 	}

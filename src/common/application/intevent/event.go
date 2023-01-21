@@ -84,17 +84,17 @@ func NewDestroyItemRequestedintEvent(liveGameId string, locationVm viewmodel.Loc
 type GameJoinedintEvent struct {
 	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
-	PlayerId   string             `json:"playerId"`
+	Player     viewmodel.PlayerVm `json:"playerId"`
 	Camera     viewmodel.CameraVm `json:"camera"`
 	MapSize    viewmodel.SizeVm   `json:"mapSize"`
 	View       viewmodel.ViewVm   `json:"view"`
 }
 
-func NewGameJoinedintEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedintEvent {
+func NewGameJoinedintEvent(liveGameId string, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedintEvent {
 	return GameJoinedintEvent{
 		Name:       GameJoinedIntEventName,
 		LiveGameId: liveGameId,
-		PlayerId:   playerId,
+		Player:     playerVm,
 		Camera:     cameraVm,
 		MapSize:    mapSize,
 		View:       viewVm,

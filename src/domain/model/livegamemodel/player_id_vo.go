@@ -1,4 +1,4 @@
-package playermodel
+package livegamemodel
 
 import "github.com/google/uuid"
 
