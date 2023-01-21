@@ -13,6 +13,7 @@ const (
 	DestroyItemRequestedIntEventName  IntEventName = "DESTROY_ITEM_REQUESTED"
 	LeaveGameRequestedIntEventName    IntEventName = "LEAVE_GAME_REQUESTED"
 	GameJoinedIntEventName            IntEventName = "GAME_JOINED"
+	PlayerUpdatedIntEventName         IntEventName = "PLAYER_UPDATED"
 	CameraChangedIntEventName         IntEventName = "CAMERA_CHANGED"
 	ViewUpdatedIntEventName           IntEventName = "VIEW_UPDATED"
 	ViewChangedIntEventName           IntEventName = "VIEW_CHANGED"
@@ -98,6 +99,20 @@ func NewGameJoinedIntEvent(liveGameId string, playerVm viewmodel.PlayerVm, camer
 		Camera:     cameraVm,
 		MapSize:    mapSize,
 		View:       viewVm,
+	}
+}
+
+type PlayerUpdatedIntEvent struct {
+	Name       IntEventName       `json:"name"`
+	LiveGameId string             `json:"liveGameId"`
+	Player     viewmodel.PlayerVm `json:"player"`
+}
+
+func NewPlayerUpdatedIntEvent(liveGameId string, playerVm viewmodel.PlayerVm) PlayerUpdatedIntEvent {
+	return PlayerUpdatedIntEvent{
+		Name:       PlayerUpdatedIntEventName,
+		LiveGameId: liveGameId,
+		Player:     playerVm,
 	}
 }
 
