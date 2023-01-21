@@ -92,7 +92,8 @@ func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 	cameraCenter, _ := commonmodel.NewLocationVo(0, 0)
 	camera := NewCameraVo(cameraCenter)
 
-	newPlayer := NewPlayerEntity(playerId, "Hello World", camera)
+	playerLocation, _ := commonmodel.NewLocationVo(0, 0)
+	newPlayer := NewPlayerEntity(playerId, "Hello World", camera, playerLocation)
 
 	liveGame.players[playerId] = newPlayer
 
