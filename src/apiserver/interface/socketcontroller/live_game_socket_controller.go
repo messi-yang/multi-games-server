@@ -75,7 +75,7 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.Player, event.Camera, event.MapSize, event.View)
+				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.Player, event.MapSize, event.View)
 			case intevent.PlayerUpdatedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.PlayerUpdatedIntEvent](message)
 				if err != nil {

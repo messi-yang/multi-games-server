@@ -14,7 +14,6 @@ const (
 	LeaveGameRequestedIntEventName    IntEventName = "LEAVE_GAME_REQUESTED"
 	GameJoinedIntEventName            IntEventName = "GAME_JOINED"
 	PlayerUpdatedIntEventName         IntEventName = "PLAYER_UPDATED"
-	CameraChangedIntEventName         IntEventName = "CAMERA_CHANGED"
 	ViewUpdatedIntEventName           IntEventName = "VIEW_UPDATED"
 	ViewChangedIntEventName           IntEventName = "VIEW_CHANGED"
 )
@@ -86,17 +85,15 @@ type GameJoinedIntEvent struct {
 	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
 	Player     viewmodel.PlayerVm `json:"playerId"`
-	Camera     viewmodel.CameraVm `json:"camera"`
 	MapSize    viewmodel.SizeVm   `json:"mapSize"`
 	View       viewmodel.ViewVm   `json:"view"`
 }
 
-func NewGameJoinedIntEvent(liveGameId string, playerVm viewmodel.PlayerVm, cameraVm viewmodel.CameraVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedIntEvent {
+func NewGameJoinedIntEvent(liveGameId string, playerVm viewmodel.PlayerVm, mapSize viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedIntEvent {
 	return GameJoinedIntEvent{
 		Name:       GameJoinedIntEventName,
 		LiveGameId: liveGameId,
 		Player:     playerVm,
-		Camera:     cameraVm,
 		MapSize:    mapSize,
 		View:       viewVm,
 	}

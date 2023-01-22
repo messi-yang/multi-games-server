@@ -75,14 +75,6 @@ func (liveGame *LiveGameAgg) ChangePlayerCamera(playerId PlayerIdVo, camera Came
 	return nil
 }
 
-func (liveGame *LiveGameAgg) GetPlayerCamera(playerId PlayerIdVo) (CameraVo, error) {
-	player, exists := liveGame.players[playerId]
-	if !exists {
-		return CameraVo{}, ErrPlayerCameraNotFound
-	}
-	return player.camera, nil
-}
-
 func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 	_, exists := liveGame.players[playerId]
 	if exists {

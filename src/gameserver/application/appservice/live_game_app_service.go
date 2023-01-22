@@ -211,7 +211,6 @@ func (liveGameAppServe *liveGameAppServe) JoinGame(liveGameIdVm string, playerId
 	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
 	player, _ := liveGame.GetPlayer(playerId)
-	camera, _ := liveGame.GetPlayerCamera(playerId)
 	view, _ := liveGame.GetPlayerView(playerId)
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
@@ -219,7 +218,6 @@ func (liveGameAppServe *liveGameAppServe) JoinGame(liveGameIdVm string, playerId
 			intevent.NewGameJoinedIntEvent(
 				liveGameIdVm,
 				viewmodel.NewPlayerVm(player),
-				viewmodel.NewCameraVm(camera),
 				viewmodel.NewSizeVm(liveGame.GetMapSize()),
 				viewmodel.NewViewVm(view),
 			),
