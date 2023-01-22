@@ -77,7 +77,17 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 				if err != nil {
 					return
 				}
-				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, event.Player, event.MapSize, event.View)
+				myPlayerVm, exists := lo.Find(event.Players, func(playerVm viewmodel.PlayerVm) bool {
+					return playerVm.Id == playerIdVm
+				})
+				if !exists {
+					return
+				}
+
+				otherPlayerVms := lo.Filter(event.Players, func(playerVm viewmodel.PlayerVm, _ int) bool {
+					return playerVm.Id != playerIdVm
+				})
+				controller.liveGameAppService.SendGameJoinedServerEvent(socketPresenter, myPlayerVm, otherPlayerVms, event.Player, event.MapSize, event.View)
 			case intevent.PlayerUpdatedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.PlayerUpdatedIntEvent](message)
 				if err != nil {
