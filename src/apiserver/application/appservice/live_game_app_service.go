@@ -12,7 +12,6 @@ type LiveGameAppService interface {
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendItemsUpdatedServerEvent(presenter Presenter)
 	SendGameJoinedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm, playerVm viewmodel.PlayerVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
-	SendPlayerUpdatedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm)
 	SendPlayersUpdatedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm)
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
@@ -46,13 +45,6 @@ func (liveGameAppServe *liveGameAppServe) SendGameJoinedServerEvent(presenter Pr
 	event.Payload.Player = playerVm
 	event.Payload.MapSize = mapSizeVm
 	event.Payload.View = viewVm
-	presenter.OnSuccess(event)
-}
-
-func (liveGameAppServe *liveGameAppServe) SendPlayerUpdatedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm) {
-	event := PlayerUpdatedServerEvent{}
-	event.Type = PlayerUpdatedServerEventType
-	event.Payload.Player = playerVm
 	presenter.OnSuccess(event)
 }
 

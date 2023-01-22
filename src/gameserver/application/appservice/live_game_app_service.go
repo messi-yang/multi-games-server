@@ -176,14 +176,6 @@ func (liveGameAppServe *liveGameAppServe) ChangeCamera(liveGameIdVm string, play
 
 	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
-	player, _ := liveGame.GetPlayer(playerId)
-	liveGameAppServe.IntEventPublisher.Publish(
-		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
-		jsonmarshaller.Marshal(
-			intevent.NewPlayerUpdatedIntEvent(liveGameIdVm, viewmodel.NewPlayerVm(player)),
-		),
-	)
-
 	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIds())
 
 	view, _ := liveGame.GetPlayerView(playerId)
