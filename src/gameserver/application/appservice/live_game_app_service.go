@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
+	"github.com/samber/lo"
 )
 
 type LiveGameAppService interface {
@@ -64,6 +65,24 @@ func (liveGameAppServe *liveGameAppServe) publishViewUpdatedEvents(liveGameId li
 	return nil
 }
 
+func (liveGameAppServe *liveGameAppServe) publishPlayersUpdatedEvents(
+	liveGameId livegamemodel.LiveGameIdVo,
+	players []livegamemodel.PlayerEntity,
+	toPlayerIds []livegamemodel.PlayerIdVo,
+) {
+	playerVms := lo.Map(players, func(player livegamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
+		return viewmodel.NewPlayerVm(player)
+	})
+	lo.ForEach(toPlayerIds, func(playerId livegamemodel.PlayerIdVo, _ int) {
+		liveGameAppServe.IntEventPublisher.Publish(
+			intevent.CreateLiveGameClientChannel(liveGameId.ToString(), playerId.ToString()),
+			jsonmarshaller.Marshal(intevent.NewPlayersUpdatedIntEvent(
+				liveGameId.ToString(),
+				playerVms,
+			)))
+	})
+}
+
 func (liveGameAppServe *liveGameAppServe) LoadGame(gameIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
@@ -118,6 +137,8 @@ func (liveGameAppServe *liveGameAppServe) ChangeCamera(liveGameIdVm string, play
 			intevent.NewPlayerUpdatedIntEvent(liveGameIdVm, viewmodel.NewPlayerVm(player)),
 		),
 	)
+
+	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIds())
 
 	view, _ := liveGame.GetPlayerView(playerId)
 	liveGameAppServe.IntEventPublisher.Publish(
@@ -223,6 +244,7 @@ func (liveGameAppServe *liveGameAppServe) JoinGame(liveGameIdVm string, playerId
 			),
 		),
 	)
+	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIdsExcept(playerId))
 }
 
 func (liveGameAppServe *liveGameAppServe) LeaveGame(liveGameIdVm string, playerIdVm string) {
@@ -245,4 +267,5 @@ func (liveGameAppServe *liveGameAppServe) LeaveGame(liveGameIdVm string, playerI
 
 	liveGame.RemovePlayer(playerId)
 	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
+	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIdsExcept(playerId))
 }

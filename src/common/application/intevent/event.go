@@ -14,6 +14,7 @@ const (
 	LeaveGameRequestedIntEventName    IntEventName = "LEAVE_GAME_REQUESTED"
 	GameJoinedIntEventName            IntEventName = "GAME_JOINED"
 	PlayerUpdatedIntEventName         IntEventName = "PLAYER_UPDATED"
+	PlayersUpdatedIntEventName        IntEventName = "PLAYERS_UPDATED"
 	ViewUpdatedIntEventName           IntEventName = "VIEW_UPDATED"
 )
 
@@ -109,6 +110,20 @@ func NewPlayerUpdatedIntEvent(liveGameId string, playerVm viewmodel.PlayerVm) Pl
 		Name:       PlayerUpdatedIntEventName,
 		LiveGameId: liveGameId,
 		Player:     playerVm,
+	}
+}
+
+type PlayersUpdatedIntEvent struct {
+	Name       IntEventName         `json:"name"`
+	LiveGameId string               `json:"liveGameId"`
+	Players    []viewmodel.PlayerVm `json:"players"`
+}
+
+func NewPlayersUpdatedIntEvent(liveGameId string, playerVms []viewmodel.PlayerVm) PlayersUpdatedIntEvent {
+	return PlayersUpdatedIntEvent{
+		Name:       PlayersUpdatedIntEventName,
+		LiveGameId: liveGameId,
+		Players:    playerVms,
 	}
 }
 

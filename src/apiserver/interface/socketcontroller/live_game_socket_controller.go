@@ -6,6 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipper"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/samber/lo"
 )
 
 var wsupgrader = websocket.Upgrader{
@@ -82,6 +84,22 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 					return
 				}
 				controller.liveGameAppService.SendPlayerUpdatedServerEvent(socketPresenter, event.Player)
+			case intevent.PlayersUpdatedIntEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.PlayersUpdatedIntEvent](message)
+				if err != nil {
+					return
+				}
+				myPlayerVm, exists := lo.Find(event.Players, func(playerVm viewmodel.PlayerVm) bool {
+					return playerVm.Id == playerIdVm
+				})
+				if !exists {
+					return
+				}
+
+				otherPlayerVms := lo.Filter(event.Players, func(playerVm viewmodel.PlayerVm, _ int) bool {
+					return playerVm.Id != playerIdVm
+				})
+				controller.liveGameAppService.SendPlayersUpdatedServerEvent(socketPresenter, myPlayerVm, otherPlayerVms)
 			case intevent.ViewUpdatedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.ViewUpdatedIntEvent](message)
 				if err != nil {

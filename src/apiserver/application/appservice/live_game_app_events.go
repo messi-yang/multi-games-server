@@ -50,11 +50,12 @@ type DestroyItemClientEvent struct {
 type ServerEventType string
 
 const (
-	ErroredServerEventType       ServerEventType = "ERRORED"
-	GameJoinedServerEventType    ServerEventType = "GAME_JOINED"
-	PlayerUpdatedServerEventType ServerEventType = "PLAYER_UPDATED"
-	ViewUpdatedServerEventType   ServerEventType = "VIEW_UPDATED"
-	ItemsUpdatedServerEventType  ServerEventType = "ITEMS_UPDATED"
+	ErroredServerEventType        ServerEventType = "ERRORED"
+	GameJoinedServerEventType     ServerEventType = "GAME_JOINED"
+	PlayerUpdatedServerEventType  ServerEventType = "PLAYER_UPDATED"
+	PlayersUpdatedServerEventType ServerEventType = "PLAYERS_UPDATED"
+	ViewUpdatedServerEventType    ServerEventType = "VIEW_UPDATED"
+	ItemsUpdatedServerEventType   ServerEventType = "ITEMS_UPDATED"
 )
 
 type GenericServerEvent struct {
@@ -81,6 +82,14 @@ type PlayerUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
 		Player viewmodel.PlayerVm `json:"player"`
+	} `json:"payload"`
+}
+
+type PlayersUpdatedServerEvent struct {
+	Type    ServerEventType `json:"type"`
+	Payload struct {
+		MyPlayer     viewmodel.PlayerVm   `json:"myPlayer"`
+		OtherPlayers []viewmodel.PlayerVm `json:"otherPlayers"`
 	} `json:"payload"`
 }
 

@@ -43,6 +43,13 @@ func (liveGame *LiveGameAgg) GetPlayerIds() []PlayerIdVo {
 	return lo.Keys(liveGame.players)
 }
 
+func (liveGame *LiveGameAgg) GetPlayerIdsExcept(playerId PlayerIdVo) []PlayerIdVo {
+	playerIds := lo.Keys(liveGame.players)
+	return lo.Filter(playerIds, func(pId PlayerIdVo, _ int) bool {
+		return !pId.isEqual(playerId)
+	})
+}
+
 func (liveGame *LiveGameAgg) GetPlayerView(playerId PlayerIdVo) (ViewVo, error) {
 	player, exists := liveGame.players[playerId]
 	if !exists {
@@ -98,6 +105,10 @@ func (liveGame *LiveGameAgg) GetPlayer(playerId PlayerIdVo) (PlayerEntity, error
 		return PlayerEntity{}, ErrPlayerNotFound
 	}
 	return player, nil
+}
+
+func (liveGame *LiveGameAgg) GetPlayers() []PlayerEntity {
+	return lo.Values(liveGame.players)
 }
 
 func (liveGame *LiveGameAgg) RemovePlayer(playerId PlayerIdVo) {
