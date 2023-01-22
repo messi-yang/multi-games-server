@@ -15,7 +15,6 @@ const (
 	GameJoinedIntEventName            IntEventName = "GAME_JOINED"
 	PlayerUpdatedIntEventName         IntEventName = "PLAYER_UPDATED"
 	ViewUpdatedIntEventName           IntEventName = "VIEW_UPDATED"
-	ViewChangedIntEventName           IntEventName = "VIEW_CHANGED"
 )
 
 type GenericIntEvent struct {
@@ -123,22 +122,6 @@ type ViewUpdatedIntEvent struct {
 func NewViewUpdatedIntEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewUpdatedIntEvent {
 	return ViewUpdatedIntEvent{
 		Name:       ViewUpdatedIntEventName,
-		LiveGameId: liveGameId,
-		PlayerId:   playerId,
-		View:       viewVm,
-	}
-}
-
-type ViewChangedIntEvent struct {
-	Name       IntEventName     `json:"name"`
-	LiveGameId string           `json:"liveGameId"`
-	PlayerId   string           `json:"playerId"`
-	View       viewmodel.ViewVm `json:"view"`
-}
-
-func NewViewChangedIntEvent(liveGameId string, playerId string, viewVm viewmodel.ViewVm) ViewChangedIntEvent {
-	return ViewChangedIntEvent{
-		Name:       ViewChangedIntEventName,
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		View:       viewVm,

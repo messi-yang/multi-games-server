@@ -13,7 +13,6 @@ type LiveGameAppService interface {
 	SendItemsUpdatedServerEvent(presenter Presenter)
 	SendGameJoinedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
 	SendPlayerUpdatedServerEvent(presenter Presenter, playerVm viewmodel.PlayerVm)
-	SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
 	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
@@ -51,13 +50,6 @@ func (liveGameAppServe *liveGameAppServe) SendPlayerUpdatedServerEvent(presenter
 	event := PlayerUpdatedServerEvent{}
 	event.Type = PlayerUpdatedServerEventType
 	event.Payload.Player = playerVm
-	presenter.OnSuccess(event)
-}
-
-func (liveGameAppServe *liveGameAppServe) SendViewChangedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
-	event := ViewChangedServerEvent{}
-	event.Type = ViewChangedServerEventType
-	event.Payload.View = viewVm
 	presenter.OnSuccess(event)
 }
 

@@ -53,7 +53,6 @@ const (
 	ErroredServerEventType       ServerEventType = "ERRORED"
 	GameJoinedServerEventType    ServerEventType = "GAME_JOINED"
 	PlayerUpdatedServerEventType ServerEventType = "PLAYER_UPDATED"
-	ViewChangedServerEventType   ServerEventType = "VIEW_CHANGED"
 	ViewUpdatedServerEventType   ServerEventType = "VIEW_UPDATED"
 	ItemsUpdatedServerEventType  ServerEventType = "ITEMS_UPDATED"
 )
@@ -82,13 +81,6 @@ type PlayerUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
 		Player viewmodel.PlayerVm `json:"player"`
-	} `json:"payload"`
-}
-
-type ViewChangedServerEvent struct {
-	Type    ServerEventType `json:"type"`
-	Payload struct {
-		View viewmodel.ViewVm `json:"view"`
 	} `json:"payload"`
 }
 
