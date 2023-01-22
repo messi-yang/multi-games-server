@@ -99,14 +99,6 @@ func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 	return nil
 }
 
-func (liveGame *LiveGameAgg) GetPlayer(playerId PlayerIdVo) (PlayerEntity, error) {
-	player, exists := liveGame.players[playerId]
-	if !exists {
-		return PlayerEntity{}, ErrPlayerNotFound
-	}
-	return player, nil
-}
-
 func (liveGame *LiveGameAgg) GetPlayers() []PlayerEntity {
 	return lo.Values(liveGame.players)
 }

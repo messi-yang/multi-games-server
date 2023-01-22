@@ -11,7 +11,7 @@ import (
 type LiveGameAppService interface {
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendItemsUpdatedServerEvent(presenter Presenter)
-	SendGameJoinedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm, playerVm viewmodel.PlayerVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
+	SendGameJoinedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm)
 	SendPlayersUpdatedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm)
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
@@ -37,12 +37,11 @@ func (liveGameAppServe *liveGameAppServe) SendErroredServerEvent(presenter Prese
 	presenter.OnSuccess(event)
 }
 
-func (liveGameAppServe *liveGameAppServe) SendGameJoinedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm, playerVm viewmodel.PlayerVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) {
+func (liveGameAppServe *liveGameAppServe) SendGameJoinedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) {
 	event := GameJoinedServerEvent{}
 	event.Type = GameJoinedServerEventType
 	event.Payload.MyPlayer = myPlayerVm
 	event.Payload.OtherPlayers = otherPlayerVms
-	event.Payload.Player = playerVm
 	event.Payload.MapSize = mapSizeVm
 	event.Payload.View = viewVm
 	presenter.OnSuccess(event)

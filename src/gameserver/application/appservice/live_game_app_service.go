@@ -127,7 +127,6 @@ func (liveGameAppServe *liveGameAppServe) JoinGame(liveGameIdVm string, playerId
 
 	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
-	player, _ := liveGame.GetPlayer(playerId)
 	players := liveGame.GetPlayers()
 	playerVms := lo.Map(players, func(p livegamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
 		return viewmodel.NewPlayerVm(p)
@@ -138,7 +137,6 @@ func (liveGameAppServe *liveGameAppServe) JoinGame(liveGameIdVm string, playerId
 		jsonmarshaller.Marshal(
 			intevent.NewGameJoinedIntEvent(
 				liveGameIdVm,
-				viewmodel.NewPlayerVm(player),
 				playerVms,
 				viewmodel.NewSizeVm(liveGame.GetMapSize()),
 				viewmodel.NewViewVm(view),
