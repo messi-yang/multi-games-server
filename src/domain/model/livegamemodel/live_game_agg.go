@@ -10,11 +10,9 @@ import (
 )
 
 var (
-	ErrBoundExceedsMap               = errors.New("map bound should contain valid from and to locations and it should never exceed size")
 	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
-	ErrPlayerCameraNotFound          = errors.New("ErrPlayerCameraNotFound")
 )
 
 type LiveGameAgg struct {
@@ -53,7 +51,7 @@ func (liveGame *LiveGameAgg) GetPlayerIdsExcept(playerId PlayerIdVo) []PlayerIdV
 func (liveGame *LiveGameAgg) GetPlayerView(playerId PlayerIdVo) (ViewVo, error) {
 	player, exists := liveGame.players[playerId]
 	if !exists {
-		return ViewVo{}, ErrPlayerCameraNotFound
+		return ViewVo{}, ErrPlayerNotFound
 	}
 
 	view := liveGame.map_.GetViewWithCamera(player.camera)
