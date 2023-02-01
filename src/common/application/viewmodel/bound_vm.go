@@ -18,15 +18,9 @@ func NewBoundVm(bound livegamemodel.BoundVo) BoundVm {
 }
 
 func (dto BoundVm) ToValueObject() (livegamemodel.BoundVo, error) {
-	from, err := commonmodel.NewLocationVo(dto.From.X, dto.From.Y)
-	if err != nil {
-		return livegamemodel.BoundVo{}, err
-	}
+	from := commonmodel.NewLocationVo(dto.From.X, dto.From.Y)
 
-	to, err := commonmodel.NewLocationVo(dto.To.X, dto.To.Y)
-	if err != nil {
-		return livegamemodel.BoundVo{}, err
-	}
+	to := commonmodel.NewLocationVo(dto.To.X, dto.To.Y)
 
 	bound, err := livegamemodel.NewBoundVo(
 		from,

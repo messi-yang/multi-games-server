@@ -39,7 +39,7 @@ func (map_ MapVo) GetViewWithCamera(camera CameraVo) ViewVo {
 	boundWidth := bound.GetWidth()
 	boundHeight := bound.GetHeight()
 	unitMatrix, _ := tool.RangeMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.UnitVo, error) {
-		location, _ := commonmodel.NewLocationVo(x+offsetX, y+offsetY)
+		location := commonmodel.NewLocationVo(x+offsetX, y+offsetY)
 		return map_.GetUnit(location), nil
 	})
 	return NewViewVo(NewMapVo(unitMatrix), bound)

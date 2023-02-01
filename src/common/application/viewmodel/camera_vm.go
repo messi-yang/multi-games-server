@@ -16,9 +16,6 @@ func NewCameraVm(camera livegamemodel.CameraVo) CameraVm {
 }
 
 func (camera CameraVm) ToValueObject() (livegamemodel.CameraVo, error) {
-	location, err := commonmodel.NewLocationVo(camera.Center.X, camera.Center.Y)
-	if err != nil {
-		return livegamemodel.CameraVo{}, err
-	}
+	location := commonmodel.NewLocationVo(camera.Center.X, camera.Center.Y)
 	return livegamemodel.NewCameraVo(location), nil
 }

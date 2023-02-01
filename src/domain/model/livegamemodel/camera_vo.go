@@ -39,8 +39,8 @@ func (camera CameraVo) GetViewBoundInMap(mapSize commonmodel.SizeVo) BoundVo {
 		toY = mapHeight - 1
 	}
 
-	from, _ := commonmodel.NewLocationVo(fromX, fromY)
-	to, _ := commonmodel.NewLocationVo(toX, toY)
+	from := commonmodel.NewLocationVo(fromX, fromY)
+	to := commonmodel.NewLocationVo(toX, toY)
 	bound, _ := NewBoundVo(from, to)
 
 	return bound

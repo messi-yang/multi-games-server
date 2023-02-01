@@ -192,10 +192,7 @@ func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, locatio
 	if err != nil {
 		return
 	}
-	location, err := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
-	if err != nil {
-		return
-	}
+	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
 
 	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
@@ -220,10 +217,7 @@ func (liveGameAppServe *liveGameAppServe) DestroyItem(liveGameIdVm string, locat
 	if err != nil {
 		return
 	}
-	location, err := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
-	if err != nil {
-		return
-	}
+	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
 
 	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
