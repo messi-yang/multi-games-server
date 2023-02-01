@@ -106,7 +106,7 @@ func (liveGame *LiveGameAgg) RemovePlayer(playerId PlayerIdVo) {
 }
 
 func (liveGame *LiveGameAgg) BuildItem(location commonmodel.LocationVo, itemId itemmodel.ItemIdVo) error {
-	if !liveGame.GetMapSize().CoverLocation(location) {
+	if !liveGame.GetMapSize().CoversLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 
@@ -118,7 +118,7 @@ func (liveGame *LiveGameAgg) BuildItem(location commonmodel.LocationVo, itemId i
 }
 
 func (liveGame *LiveGameAgg) DestroyItem(location commonmodel.LocationVo) error {
-	if !liveGame.GetMapSize().CoverLocation(location) {
+	if !liveGame.GetMapSize().CoversLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
 	}
 

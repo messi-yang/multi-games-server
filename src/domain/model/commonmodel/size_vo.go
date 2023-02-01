@@ -37,7 +37,7 @@ func (size SizeVo) GetHeight() int {
 	return size.height
 }
 
-func (size SizeVo) CoverLocation(location LocationVo) bool {
+func (size SizeVo) CoversLocation(location LocationVo) bool {
 	includesAll := true
 	if location.x >= size.width || location.y >= size.height {
 		includesAll = false

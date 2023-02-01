@@ -48,12 +48,12 @@ func (bound BoundVo) GetHeight() int {
 	return bound.to.GetY() - bound.from.GetY() + 1
 }
 
-func (bound BoundVo) CoverLocation(location commonmodel.LocationVo) bool {
+func (bound BoundVo) CoversLocation(location commonmodel.LocationVo) bool {
 	return location.GetX() >= bound.from.GetX() && location.GetX() <= bound.to.GetX() && location.GetY() >= bound.from.GetY() && location.GetY() <= bound.to.GetY()
 }
 
 func (bound BoundVo) CoverAnyLocations(locations []commonmodel.LocationVo) bool {
 	return lo.ContainsBy(locations, func(location commonmodel.LocationVo) bool {
-		return bound.CoverLocation(location)
+		return bound.CoversLocation(location)
 	})
 }
