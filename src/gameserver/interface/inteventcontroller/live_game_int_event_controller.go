@@ -29,6 +29,12 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 					return
 				}
 				liveGameAppService.JoinGame(event.LiveGameId, event.PlayerId)
+			case intevent.MoveRequestedIntEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.MoveRequestedIntEvent](message)
+				if err != nil {
+					return
+				}
+				liveGameAppService.MovePlayer(event.LiveGameId, event.PlayerId, event.Direction)
 			case intevent.DestroyItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.DestroyItemRequestedIntEvent](message)
 				if err != nil {

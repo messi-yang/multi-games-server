@@ -1,6 +1,7 @@
 package socketcontroller
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -141,9 +142,18 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 				continue
 			}
 
+			fmt.Println(genericClientEvent)
+
 			switch genericClientEvent.Type {
 			case appservice.PingClientEventType:
 				continue
+			case appservice.MoveClientEventType:
+				command, err := jsonmarshaller.Unmarshal[appservice.MoveClientEvent](message)
+				if err != nil {
+					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
+					continue
+				}
+				controller.liveGameAppService.RequestToMove(liveGameId, playerIdVm, command.Payload.Direction)
 			case appservice.ChangeCameraClientEventType:
 				command, err := jsonmarshaller.Unmarshal[appservice.ChangeCameraClientEvent](message)
 				if err != nil {

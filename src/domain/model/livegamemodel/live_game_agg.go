@@ -97,6 +97,31 @@ func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 	return nil
 }
 
+func (liveGame *LiveGameAgg) MovePlayer(playerId PlayerIdVo, direction DirectionVo) error {
+	player, exists := liveGame.players[playerId]
+	if !exists {
+		return ErrPlayerNotFound
+	}
+
+	newLocation := player.location
+	if direction.IsUp() {
+		newLocation = newLocation.Shift(0, -1)
+	} else if direction.IsRight() {
+		newLocation = newLocation.Shift(1, 0)
+	} else if direction.IsDown() {
+		newLocation = newLocation.Shift(0, 1)
+	} else if direction.IsLeft() {
+		newLocation = newLocation.Shift(-1, 0)
+	}
+
+	if liveGame.map_.GetSize().CoversLocation(newLocation) {
+		player.location = newLocation
+	}
+	liveGame.players[playerId] = player
+
+	return nil
+}
+
 func (liveGame *LiveGameAgg) GetPlayers() []PlayerEntity {
 	return lo.Values(liveGame.players)
 }

@@ -10,6 +10,7 @@ type ClientEventType string
 
 const (
 	PingClientEventType         ClientEventType = "PING"
+	MoveClientEventType         ClientEventType = "MOVE"
 	ChangeCameraClientEventType ClientEventType = "CHANGE_CAMERA"
 	BuildItemClientEventType    ClientEventType = "BUILD_ITEM"
 	DestroyItemClientEventType  ClientEventType = "DESTROY_ITEM"
@@ -21,6 +22,13 @@ type GenericClientEvent struct {
 
 type PingClientEvent struct {
 	Type ClientEventType `json:"type"`
+}
+
+type MoveClientEvent struct {
+	Type    ClientEventType `json:"type"`
+	Payload struct {
+		Direction int8 `json:"direction"`
+	} `json:"payload"`
 }
 
 type ChangeCameraClientEvent struct {

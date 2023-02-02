@@ -19,3 +19,7 @@ func (c LocationVo) GetX() int {
 func (c LocationVo) GetY() int {
 	return c.y
 }
+
+func (c LocationVo) Shift(x int, y int) LocationVo {
+	return NewLocationVo(c.x+x, c.y+y)
+}

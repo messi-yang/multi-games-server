@@ -13,10 +13,11 @@ import (
 
 type LiveGameAppService interface {
 	LoadGame(gameIdVm string)
+	JoinGame(liveGameIdVm string, playerIdVm string)
+	MovePlayer(liveGameIdVm string, playerIdVm string, directionVm int8)
 	ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
-	JoinGame(liveGameIdVm string, playerIdVm string)
 	LeaveGame(liveGameIdVm string, playerIdVm string)
 }
 
@@ -144,6 +145,36 @@ func (liveGameAppServe *liveGameAppServe) JoinGame(liveGameIdVm string, playerId
 		),
 	)
 	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIdsExcept(playerId))
+}
+
+func (liveGameAppServe *liveGameAppServe) MovePlayer(liveGameIdVm string, playerIdVm string, directionVm int8) {
+	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
+	if err != nil {
+		return
+	}
+	playerId, err := livegamemodel.NewPlayerIdVo(playerIdVm)
+	if err != nil {
+		return
+	}
+	direction, err := livegamemodel.NewDirectionVo(directionVm)
+	if err != nil {
+		return
+	}
+
+	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
+	defer unlocker()
+
+	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
+	if err != nil {
+		return
+	}
+
+	if err = liveGame.MovePlayer(playerId, direction); err != nil {
+		return
+	}
+
+	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
+	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIds())
 }
 
 func (liveGameAppServe *liveGameAppServe) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {

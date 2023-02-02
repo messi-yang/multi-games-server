@@ -8,6 +8,7 @@ type IntEventName string
 
 const (
 	JoinGameRequestedIntEventName     IntEventName = "JOIN_GAME_REQUESTED"
+	MoveRequestedIntEventName         IntEventName = "MOVE_REQUESTED"
 	ChangeCameraRequestedIntEventName IntEventName = "CHANGE_CAMERA_REQUESTED"
 	BuildItemRequestedIntEventName    IntEventName = "BUILD_ITEM_REQUESTED"
 	DestroyItemRequestedIntEventName  IntEventName = "DESTROY_ITEM_REQUESTED"
@@ -20,6 +21,37 @@ const (
 type GenericIntEvent struct {
 	Name IntEventName `json:"name"`
 }
+
+type JoinGameRequestedIntEvent struct {
+	Name       IntEventName `json:"name"`
+	LiveGameId string       `json:"liveGameId"`
+	PlayerId   string       `json:"playerId"`
+}
+
+func NewJoinGameRequestedIntEvent(liveGameId string, playerId string) JoinGameRequestedIntEvent {
+	return JoinGameRequestedIntEvent{
+		Name:       JoinGameRequestedIntEventName,
+		LiveGameId: liveGameId,
+		PlayerId:   playerId,
+	}
+}
+
+type MoveRequestedIntEvent struct {
+	Name       IntEventName `json:"name"`
+	LiveGameId string       `json:"liveGameId"`
+	PlayerId   string       `json:"playerId"`
+	Direction  int8         `json:"direction"`
+}
+
+func NewMoveRequestedIntEvent(liveGameId string, playerId string, direction int8) MoveRequestedIntEvent {
+	return MoveRequestedIntEvent{
+		Name:       MoveRequestedIntEventName,
+		LiveGameId: liveGameId,
+		PlayerId:   playerId,
+		Direction:  direction,
+	}
+}
+
 type ChangeCameraRequestedIntEvent struct {
 	Name       IntEventName       `json:"name"`
 	LiveGameId string             `json:"liveGameId"`
@@ -49,20 +81,6 @@ func NewBuildItemRequestedIntEvent(liveGameId string, locationVm viewmodel.Locat
 		LiveGameId: liveGameId,
 		Location:   locationVm,
 		ItemId:     itemId,
-	}
-}
-
-type JoinGameRequestedIntEvent struct {
-	Name       IntEventName `json:"name"`
-	LiveGameId string       `json:"liveGameId"`
-	PlayerId   string       `json:"playerId"`
-}
-
-func NewJoinGameRequestedIntEvent(liveGameId string, playerId string) JoinGameRequestedIntEvent {
-	return JoinGameRequestedIntEvent{
-		Name:       JoinGameRequestedIntEventName,
-		LiveGameId: liveGameId,
-		PlayerId:   playerId,
 	}
 }
 

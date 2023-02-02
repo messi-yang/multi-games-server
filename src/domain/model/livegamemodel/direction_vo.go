@@ -21,6 +21,10 @@ func NewDirectionVo(direction int8) (DirectionVo, error) {
 	return DirectionVo(direction), nil
 }
 
+func (direction DirectionVo) ToInt8() int8 {
+	return int8(direction)
+}
+
 func (direction DirectionVo) IsUp() bool {
 	return direction == 0
 }
