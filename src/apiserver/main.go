@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/application/appservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/infrastructure/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/httpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/socketcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/commonmemrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
 
@@ -20,7 +20,7 @@ func main() {
 
 	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
 	intEventPublisher := redispub.New()
-	itemRepo := memrepo.NewItemMemRepo()
+	itemRepo := commonmemrepo.NewItemMemRepo()
 	liveGameAppService := appservice.NewLiveGameAppService(intEventPublisher, itemRepo)
 	itemAppService := appservice.NewItemAppService(itemRepo)
 

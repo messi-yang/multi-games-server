@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 	"github.com/samber/lo"
 )
@@ -24,17 +25,22 @@ type LiveGameAppService interface {
 type liveGameAppServe struct {
 	liveGameRepo      livegamemodel.Repo
 	gameRepo          gamemodel.GameRepo
+	itemRepo          itemmodel.Repo
+	liveGameService   service.LiveGameService
 	IntEventPublisher intevent.IntEventPublisher
 }
 
 func NewLiveGameAppService(
 	liveGameRepo livegamemodel.Repo,
 	gameRepo gamemodel.GameRepo,
+	itemRepo itemmodel.Repo,
 	IntEventPublisher intevent.IntEventPublisher,
 ) LiveGameAppService {
 	return &liveGameAppServe{
 		liveGameRepo:      liveGameRepo,
 		gameRepo:          gameRepo,
+		itemRepo:          itemRepo,
+		liveGameService:   service.NewLiveGameService(liveGameRepo, itemRepo),
 		IntEventPublisher: IntEventPublisher,
 	}
 }
@@ -164,16 +170,16 @@ func (liveGameAppServe *liveGameAppServe) MovePlayer(liveGameIdVm string, player
 	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
+	err = liveGameAppServe.liveGameService.MovePlayer(liveGameId, playerId, direction)
+	if err != nil {
+		return
+	}
+
 	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
 	if err != nil {
 		return
 	}
 
-	if err = liveGame.MovePlayer(playerId, direction); err != nil {
-		return
-	}
-
-	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIds())
 }
 

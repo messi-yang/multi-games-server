@@ -38,6 +38,6 @@ func (p *PlayerEntity) GetLocation() commonmodel.LocationVo {
 	return p.location
 }
 
-func (p *PlayerEntity) ChangeLocation() commonmodel.LocationVo {
-	return p.location
+func (p *PlayerEntity) ChangeLocation(location commonmodel.LocationVo) {
+	p.location = location
 }

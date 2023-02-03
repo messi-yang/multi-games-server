@@ -37,6 +37,10 @@ func (liveGame *LiveGameAgg) GetMapSize() commonmodel.SizeVo {
 	return liveGame.map_.GetSize()
 }
 
+func (liveGame *LiveGameAgg) GetUnit(location commonmodel.LocationVo) commonmodel.UnitVo {
+	return liveGame.map_.GetUnit(location)
+}
+
 func (liveGame *LiveGameAgg) GetPlayerIds() []PlayerIdVo {
 	return lo.Keys(liveGame.players)
 }
@@ -97,33 +101,25 @@ func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 	return nil
 }
 
-func (liveGame *LiveGameAgg) MovePlayer(playerId PlayerIdVo, direction DirectionVo) error {
-	player, exists := liveGame.players[playerId]
+func (liveGame *LiveGameAgg) UpdatePlayer(player PlayerEntity) error {
+	_, exists := liveGame.players[player.id]
 	if !exists {
 		return ErrPlayerNotFound
 	}
-
-	newLocation := player.location
-	if direction.IsUp() {
-		newLocation = newLocation.Shift(0, -1)
-	} else if direction.IsRight() {
-		newLocation = newLocation.Shift(1, 0)
-	} else if direction.IsDown() {
-		newLocation = newLocation.Shift(0, 1)
-	} else if direction.IsLeft() {
-		newLocation = newLocation.Shift(-1, 0)
-	}
-
-	if liveGame.map_.GetSize().CoversLocation(newLocation) {
-		player.location = newLocation
-	}
-	liveGame.players[playerId] = player
-
+	liveGame.players[player.id] = player
 	return nil
 }
 
 func (liveGame *LiveGameAgg) GetPlayers() []PlayerEntity {
 	return lo.Values(liveGame.players)
+}
+
+func (liveGame *LiveGameAgg) GetPlayer(playerId PlayerIdVo) (PlayerEntity, error) {
+	player, exists := liveGame.players[playerId]
+	if !exists {
+		return PlayerEntity{}, ErrPlayerNotFound
+	}
+	return player, nil
 }
 
 func (liveGame *LiveGameAgg) RemovePlayer(playerId PlayerIdVo) {

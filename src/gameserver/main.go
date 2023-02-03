@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/commonmemrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
@@ -13,6 +14,7 @@ import (
 
 func main() {
 	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
+	itemRepo := commonmemrepo.NewItemMemRepo()
 	liveGameRepo := memrepo.NewLiveGameMemRepo()
 	gameDomainService := service.NewGameService(
 		gameRepo,
@@ -21,6 +23,7 @@ func main() {
 	liveGameAppService := appservice.NewLiveGameAppService(
 		liveGameRepo,
 		gameRepo,
+		itemRepo,
 		intEventPublisher,
 	)
 

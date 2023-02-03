@@ -1,16 +1,18 @@
 package itemmodel
 
 type ItemAgg struct {
-	id       ItemIdVo
-	name     string
-	assetSrc string
+	id          ItemIdVo
+	name        string
+	traversable bool
+	assetSrc    string
 }
 
-func NewItemAgg(id ItemIdVo, name string, assetSrc string) ItemAgg {
+func NewItemAgg(id ItemIdVo, name string, traversable bool, assetSrc string) ItemAgg {
 	return ItemAgg{
-		id:       id,
-		name:     name,
-		assetSrc: assetSrc,
+		id:          id,
+		name:        name,
+		traversable: traversable,
+		assetSrc:    assetSrc,
 	}
 }
 
@@ -20,6 +22,10 @@ func (item *ItemAgg) GetId() ItemIdVo {
 
 func (item *ItemAgg) GetName() string {
 	return item.name
+}
+
+func (item *ItemAgg) IsTraversable() bool {
+	return item.traversable
 }
 
 func (item *ItemAgg) GetAssetSrc() string {

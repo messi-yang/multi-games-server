@@ -1,11 +1,13 @@
-package memrepo
+package commonmemrepo
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type itemMemRepo struct {
@@ -27,8 +29,8 @@ func NewItemMemRepo() itemmodel.Repo {
 
 		itemMemRepoSingleton = &itemMemRepo{
 			items: []itemmodel.ItemAgg{
-				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", fmt.Sprintf("%s/assets/items/stone.png", serverUrl)),
-				itemmodel.NewItemAgg(torchItemDefaultId, "torch", fmt.Sprintf("%s/assets/items/torch.png", serverUrl)),
+				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/assets/items/stone.png", serverUrl)),
+				itemmodel.NewItemAgg(torchItemDefaultId, "torch", true, fmt.Sprintf("%s/assets/items/torch.png", serverUrl)),
 			},
 		}
 		return itemMemRepoSingleton
@@ -38,4 +40,14 @@ func NewItemMemRepo() itemmodel.Repo {
 
 func (repo *itemMemRepo) GetAllItems() []itemmodel.ItemAgg {
 	return repo.items
+}
+
+func (repo *itemMemRepo) Get(itemId itemmodel.ItemIdVo) (itemmodel.ItemAgg, error) {
+	item, found := lo.Find(repo.items, func(item itemmodel.ItemAgg) bool {
+		return item.GetId().IsEqual(itemId)
+	})
+	if !found {
+		return itemmodel.ItemAgg{}, errors.New("item with given id not found")
+	}
+	return item, nil
 }

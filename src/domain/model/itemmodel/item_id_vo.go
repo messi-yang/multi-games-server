@@ -17,6 +17,10 @@ func NewItemIdVo(uuidStr string) (ItemIdVo, error) {
 	}, nil
 }
 
+func (id ItemIdVo) IsEqual(anotherItem ItemIdVo) bool {
+	return id.id.String() == anotherItem.ToString()
+}
+
 func (id ItemIdVo) IsEmpty() bool {
 	return id.id.String() == uuid.Nil.String()
 }
