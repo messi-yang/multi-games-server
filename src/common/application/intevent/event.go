@@ -71,14 +71,16 @@ func NewChangeCameraRequestedIntEvent(liveGameId string, playerId string, camera
 type BuildItemRequestedIntEvent struct {
 	Name       IntEventName         `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
+	PlayerId   string               `json:"playerId"`
 	Location   viewmodel.LocationVm `json:"location"`
 	ItemId     string               `json:"itemId"`
 }
 
-func NewBuildItemRequestedIntEvent(liveGameId string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedIntEvent {
+func NewBuildItemRequestedIntEvent(liveGameId string, playerIdVm string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedIntEvent {
 	return BuildItemRequestedIntEvent{
 		Name:       BuildItemRequestedIntEventName,
 		LiveGameId: liveGameId,
+		PlayerId:   playerIdVm,
 		Location:   locationVm,
 		ItemId:     itemId,
 	}
@@ -87,13 +89,15 @@ func NewBuildItemRequestedIntEvent(liveGameId string, locationVm viewmodel.Locat
 type DestroyItemRequestedIntEvent struct {
 	Name       IntEventName         `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
+	PlayerId   string               `json:"playerId"`
 	Location   viewmodel.LocationVm `json:"location"`
 }
 
-func NewDestroyItemRequestedIntEvent(liveGameId string, locationVm viewmodel.LocationVm) DestroyItemRequestedIntEvent {
+func NewDestroyItemRequestedIntEvent(liveGameId string, playerIdVm string, locationVm viewmodel.LocationVm) DestroyItemRequestedIntEvent {
 	return DestroyItemRequestedIntEvent{
 		Name:       DestroyItemRequestedIntEventName,
 		LiveGameId: liveGameId,
+		PlayerId:   playerIdVm,
 		Location:   locationVm,
 	}
 }

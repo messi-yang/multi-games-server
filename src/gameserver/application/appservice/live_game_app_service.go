@@ -17,8 +17,8 @@ type LiveGameAppService interface {
 	JoinGame(liveGameIdVm string, playerIdVm string)
 	MovePlayer(liveGameIdVm string, playerIdVm string, directionVm int8)
 	ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
-	BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
-	DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
+	BuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
+	DestroyItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 	LeaveGame(liveGameIdVm string, playerIdVm string)
 }
 
@@ -220,7 +220,7 @@ func (liveGameAppServe *liveGameAppServe) ChangeCamera(liveGameIdVm string, play
 	)
 }
 
-func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return
@@ -249,7 +249,7 @@ func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, locatio
 	liveGameAppServe.publishViewUpdatedEvents(liveGameId, location)
 }
 
-func (liveGameAppServe *liveGameAppServe) DestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
+func (liveGameAppServe *liveGameAppServe) DestroyItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
 	if err != nil {
 		return

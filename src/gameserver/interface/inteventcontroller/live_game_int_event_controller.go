@@ -40,13 +40,13 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 				if err != nil {
 					return
 				}
-				liveGameAppService.DestroyItem(event.LiveGameId, event.Location)
+				liveGameAppService.DestroyItem(event.LiveGameId, event.PlayerId, event.Location)
 			case intevent.BuildItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.BuildItemRequestedIntEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.BuildItem(event.LiveGameId, event.Location, event.ItemId)
+				liveGameAppService.BuildItem(event.LiveGameId, event.PlayerId, event.Location, event.ItemId)
 			case intevent.LeaveGameRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.LeaveGameRequestedIntEvent](message)
 				if err != nil {

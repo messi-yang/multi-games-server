@@ -17,8 +17,8 @@ type LiveGameAppService interface {
 	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
 	RequestToMove(liveGameIdVm string, playerIdVm string, directionVm int8)
 	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
-	RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
-	RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm)
+	RequestToBuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
+	RequestToDestroyItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 	RequestToLeaveGame(liveGameIdVm string, playerIdVm string)
 }
 
@@ -96,17 +96,17 @@ func (liveGameAppServe *liveGameAppServe) RequestToChangeCamera(liveGameIdVm str
 	)
 }
 
-func (liveGameAppServe *liveGameAppServe) RequestToBuildItem(liveGameIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+func (liveGameAppServe *liveGameAppServe) RequestToBuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewBuildItemRequestedIntEvent(liveGameIdVm, locationVm, itemIdVm)),
+		jsonmarshaller.Marshal(intevent.NewBuildItemRequestedIntEvent(liveGameIdVm, playerIdVm, locationVm, itemIdVm)),
 	)
 }
 
-func (liveGameAppServe *liveGameAppServe) RequestToDestroyItem(liveGameIdVm string, locationVm viewmodel.LocationVm) {
+func (liveGameAppServe *liveGameAppServe) RequestToDestroyItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedIntEvent(liveGameIdVm, locationVm)),
+		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedIntEvent(liveGameIdVm, playerIdVm, locationVm)),
 	)
 }
 

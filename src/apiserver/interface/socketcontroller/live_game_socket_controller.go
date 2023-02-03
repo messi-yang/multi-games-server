@@ -168,7 +168,7 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 					continue
 				}
 
-				controller.liveGameAppService.RequestToBuildItem(liveGameId, command.Payload.Location, command.Payload.ItemId)
+				controller.liveGameAppService.RequestToBuildItem(liveGameId, playerIdVm, command.Payload.Location, command.Payload.ItemId)
 			case appservice.DestroyItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[appservice.DestroyItemClientEvent](message)
 				if err != nil {
@@ -176,7 +176,7 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 					continue
 				}
 
-				controller.liveGameAppService.RequestToDestroyItem(liveGameId, command.Payload.Location)
+				controller.liveGameAppService.RequestToDestroyItem(liveGameId, playerIdVm, command.Payload.Location)
 			default:
 			}
 		}
