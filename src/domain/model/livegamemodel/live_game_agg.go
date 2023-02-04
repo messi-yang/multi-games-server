@@ -94,6 +94,9 @@ func (liveGame *LiveGameAgg) GetPlayerView(playerId PlayerIdVo) (ViewVo, error) 
 	bound := liveGame.getPlayerViewBound(player)
 	view := liveGame.map_.GetViewInBound(bound)
 
+	player.SetLastGotViewAt(player.GetLocation())
+	liveGame.UpdatePlayer(player)
+
 	return view, nil
 }
 

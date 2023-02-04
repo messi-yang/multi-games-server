@@ -192,11 +192,14 @@ func (liveGameAppServe *liveGameAppServe) MovePlayer(liveGameIdVm string, player
 	}
 
 	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIds())
-	view, _ := liveGame.GetPlayerView(playerId)
-	liveGameAppServe.IntEventPublisher.Publish(
-		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
-		jsonmarshaller.Marshal(intevent.NewViewUpdatedIntEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
-	)
+	player, _ := liveGame.GetPlayer(playerId)
+	if player.IsNewViewNeeded() {
+		view, _ := liveGame.GetPlayerView(playerId)
+		liveGameAppServe.IntEventPublisher.Publish(
+			intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),
+			jsonmarshaller.Marshal(intevent.NewViewUpdatedIntEvent(liveGameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
+		)
+	}
 }
 
 func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {

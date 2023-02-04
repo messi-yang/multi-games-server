@@ -54,7 +54,7 @@ func (serve *liveGameServe) MovePlayer(liveGameId livegamemodel.LiveGameIdVo, pl
 		}
 	}
 
-	player.ChangeLocation(newLocation)
+	player.SetLocation(newLocation)
 	liveGame.UpdatePlayer(player)
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
