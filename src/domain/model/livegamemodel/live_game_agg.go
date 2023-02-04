@@ -43,6 +43,15 @@ func (liveGame *LiveGameAgg) GetUnit(location commonmodel.LocationVo) commonmode
 	return liveGame.map_.GetUnit(location)
 }
 
+func (liveGame *LiveGameAgg) SetUnit(location commonmodel.LocationVo, unit commonmodel.UnitVo) error {
+	if !liveGame.GetMapSize().CoversLocation(location) {
+		return ErrSomeLocationsNotIncludedInMap
+	}
+	liveGame.map_.UpdateUnit(location, unit)
+
+	return nil
+}
+
 func (liveGame *LiveGameAgg) GetPlayerIds() []PlayerIdVo {
 	return lo.Keys(liveGame.players)
 }
@@ -121,7 +130,7 @@ func (liveGame *LiveGameAgg) updatePlayerLocations() {
 	liveGame.playerLocations = playerLocations
 }
 
-func (liveGame *LiveGameAgg) doesLocationHavePlayer(location commonmodel.LocationVo) bool {
+func (liveGame *LiveGameAgg) DoesLocationHavePlayer(location commonmodel.LocationVo) bool {
 	found := liveGame.playerLocations[location]
 	return found
 }
@@ -166,21 +175,6 @@ func (liveGame *LiveGameAgg) GetPlayer(playerId PlayerIdVo) (PlayerEntity, error
 func (liveGame *LiveGameAgg) RemovePlayer(playerId PlayerIdVo) {
 	delete(liveGame.players, playerId)
 	liveGame.updatePlayerLocations()
-}
-
-func (liveGame *LiveGameAgg) BuildItem(location commonmodel.LocationVo, itemId itemmodel.ItemIdVo) error {
-	if !liveGame.GetMapSize().CoversLocation(location) {
-		return ErrSomeLocationsNotIncludedInMap
-	}
-	if liveGame.doesLocationHavePlayer(location) {
-		return ErrLocationHasPlayer
-	}
-
-	unit := liveGame.map_.GetUnit(location)
-	newUnit := unit.SetItemId(itemId)
-	liveGame.map_.UpdateUnit(location, newUnit)
-
-	return nil
 }
 
 func (liveGame *LiveGameAgg) DestroyItem(location commonmodel.LocationVo) error {

@@ -9,7 +9,7 @@ type IntEventName string
 const (
 	JoinGameRequestedIntEventName    IntEventName = "JOIN_GAME_REQUESTED"
 	MoveRequestedIntEventName        IntEventName = "MOVE_REQUESTED"
-	BuildItemRequestedIntEventName   IntEventName = "BUILD_ITEM_REQUESTED"
+	PlaceItemRequestedIntEventName   IntEventName = "PLACE_ITEM_REQUESTED"
 	DestroyItemRequestedIntEventName IntEventName = "DESTROY_ITEM_REQUESTED"
 	LeaveGameRequestedIntEventName   IntEventName = "LEAVE_GAME_REQUESTED"
 	GameJoinedIntEventName           IntEventName = "GAME_JOINED"
@@ -51,7 +51,7 @@ func NewMoveRequestedIntEvent(liveGameIdVm string, playerIdVm string, direction 
 	}
 }
 
-type BuildItemRequestedIntEvent struct {
+type PlaceItemRequestedIntEvent struct {
 	Name       IntEventName         `json:"name"`
 	LiveGameId string               `json:"liveGameId"`
 	PlayerId   string               `json:"playerId"`
@@ -59,9 +59,9 @@ type BuildItemRequestedIntEvent struct {
 	ItemId     string               `json:"itemId"`
 }
 
-func NewBuildItemRequestedIntEvent(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemId string) BuildItemRequestedIntEvent {
-	return BuildItemRequestedIntEvent{
-		Name:       BuildItemRequestedIntEventName,
+func NewPlaceItemRequestedIntEvent(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemId string) PlaceItemRequestedIntEvent {
+	return PlaceItemRequestedIntEvent{
+		Name:       PlaceItemRequestedIntEventName,
 		LiveGameId: liveGameIdVm,
 		PlayerId:   playerIdVm,
 		Location:   locationVm,

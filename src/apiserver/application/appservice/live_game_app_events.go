@@ -11,7 +11,7 @@ type ClientEventType string
 const (
 	PingClientEventType        ClientEventType = "PING"
 	MoveClientEventType        ClientEventType = "MOVE"
-	BuildItemClientEventType   ClientEventType = "BUILD_ITEM"
+	PlaceItemClientEventType   ClientEventType = "PLACE_ITEM"
 	DestroyItemClientEventType ClientEventType = "DESTROY_ITEM"
 )
 
@@ -30,7 +30,7 @@ type MoveClientEvent struct {
 	} `json:"payload"`
 }
 
-type BuildItemClientEvent struct {
+type PlaceItemClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
 		Location   viewmodel.LocationVm `json:"location"`

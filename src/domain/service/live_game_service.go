@@ -3,12 +3,14 @@ package service
 import (
 	"errors"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 )
 
 type LiveGameService interface {
 	MovePlayer(liveGameId livegamemodel.LiveGameIdVo, playerId livegamemodel.PlayerIdVo, direction livegamemodel.DirectionVo) error
+	PlaceItem(liveGameId livegamemodel.LiveGameIdVo, playerId livegamemodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error
 }
 
 type liveGameServe struct {
@@ -56,6 +58,36 @@ func (serve *liveGameServe) MovePlayer(liveGameId livegamemodel.LiveGameIdVo, pl
 
 	player.SetLocation(newLocation)
 	liveGame.UpdatePlayer(player)
+	serve.liveGameRepo.Update(liveGameId, liveGame)
+
+	return nil
+}
+
+func (serve *liveGameServe) PlaceItem(liveGameId livegamemodel.LiveGameIdVo, playerId livegamemodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error {
+	liveGame, err := serve.liveGameRepo.Get(liveGameId)
+	if err != nil {
+		return err
+	}
+
+	item, err := serve.itemRepo.Get(itemId)
+	if err != nil {
+		return err
+	}
+
+	if !liveGame.GetMapSize().CoversLocation(location) {
+		return errors.New("location is not included in map")
+	}
+	if !item.IsTraversable() && liveGame.DoesLocationHavePlayer(location) {
+		return errors.New("cannot place non-traversable item on a location with players")
+	}
+
+	unit := liveGame.GetUnit(location)
+	newUnit := unit.SetItemId(itemId)
+	err = liveGame.SetUnit(location, newUnit)
+	if err != nil {
+		return err
+	}
+
 	serve.liveGameRepo.Update(liveGameId, liveGame)
 
 	return nil

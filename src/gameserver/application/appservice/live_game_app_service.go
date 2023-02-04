@@ -19,7 +19,7 @@ type LiveGameAppService interface {
 	LoadGame(gameIdVm string)
 	JoinGame(liveGameIdVm string, playerIdVm string)
 	MovePlayer(liveGameIdVm string, playerIdVm string, directionVm int8)
-	BuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
+	PlaceItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	DestroyItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 	LeaveGame(liveGameIdVm string, playerIdVm string)
 }
@@ -202,8 +202,12 @@ func (liveGameAppServe *liveGameAppServe) MovePlayer(liveGameIdVm string, player
 	}
 }
 
-func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+func (liveGameAppServe *liveGameAppServe) PlaceItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
 	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
+	if err != nil {
+		return
+	}
+	playerId, err := livegamemodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
 		return
 	}
@@ -216,17 +220,10 @@ func (liveGameAppServe *liveGameAppServe) BuildItem(liveGameIdVm string, playerI
 	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
 	defer unlocker()
 
-	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
+	err = liveGameAppServe.liveGameService.PlaceItem(liveGameId, playerId, itemId, location)
 	if err != nil {
 		return
 	}
-
-	err = liveGame.BuildItem(location, itemId)
-	if err != nil {
-		return
-	}
-
-	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
 
 	liveGameAppServe.publishViewUpdatedEvents(liveGameId, location)
 }

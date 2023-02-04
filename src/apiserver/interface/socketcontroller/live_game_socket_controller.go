@@ -151,14 +151,14 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 					continue
 				}
 				controller.liveGameAppService.RequestToMove(liveGameId, playerIdVm, command.Payload.Direction)
-			case appservice.BuildItemClientEventType:
-				command, err := jsonmarshaller.Unmarshal[appservice.BuildItemClientEvent](message)
+			case appservice.PlaceItemClientEventType:
+				command, err := jsonmarshaller.Unmarshal[appservice.PlaceItemClientEvent](message)
 				if err != nil {
 					controller.liveGameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 
-				controller.liveGameAppService.RequestToBuildItem(liveGameId, playerIdVm, command.Payload.Location, command.Payload.ItemId)
+				controller.liveGameAppService.RequestToPlaceItem(liveGameId, playerIdVm, command.Payload.Location, command.Payload.ItemId)
 			case appservice.DestroyItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[appservice.DestroyItemClientEvent](message)
 				if err != nil {
