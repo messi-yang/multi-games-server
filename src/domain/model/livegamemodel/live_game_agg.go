@@ -11,14 +11,16 @@ import (
 
 var (
 	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
+	ErrLocationHasPlayer             = errors.New("the location has player")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
 
 type LiveGameAgg struct {
-	id      LiveGameIdVo
-	map_    MapVo
-	players map[PlayerIdVo]PlayerEntity
+	id              LiveGameIdVo
+	map_            MapVo
+	players         map[PlayerIdVo]PlayerEntity
+	playerLocations map[commonmodel.LocationVo]bool
 }
 
 func NewLiveGameAgg(id LiveGameIdVo, map_ MapVo) LiveGameAgg {
@@ -110,6 +112,20 @@ func (liveGame *LiveGameAgg) CanPlayerSeeAnyLocations(playerId PlayerIdVo, locat
 	return bound.CoverAnyLocations(locations)
 }
 
+func (liveGame *LiveGameAgg) updatePlayerLocations() {
+	players := liveGame.GetPlayers()
+	playerLocations := make(map[commonmodel.LocationVo]bool)
+	lo.ForEach(players, func(player PlayerEntity, _ int) {
+		playerLocations[player.GetLocation()] = true
+	})
+	liveGame.playerLocations = playerLocations
+}
+
+func (liveGame *LiveGameAgg) doesLocationHavePlayer(location commonmodel.LocationVo) bool {
+	found := liveGame.playerLocations[location]
+	return found
+}
+
 func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 	_, exists := liveGame.players[playerId]
 	if exists {
@@ -120,6 +136,7 @@ func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 	newPlayer := NewPlayerEntity(playerId, "Hello World", playerLocation)
 
 	liveGame.players[playerId] = newPlayer
+	liveGame.updatePlayerLocations()
 
 	return nil
 }
@@ -130,6 +147,7 @@ func (liveGame *LiveGameAgg) UpdatePlayer(player PlayerEntity) error {
 		return ErrPlayerNotFound
 	}
 	liveGame.players[player.id] = player
+	liveGame.updatePlayerLocations()
 	return nil
 }
 
@@ -147,11 +165,15 @@ func (liveGame *LiveGameAgg) GetPlayer(playerId PlayerIdVo) (PlayerEntity, error
 
 func (liveGame *LiveGameAgg) RemovePlayer(playerId PlayerIdVo) {
 	delete(liveGame.players, playerId)
+	liveGame.updatePlayerLocations()
 }
 
 func (liveGame *LiveGameAgg) BuildItem(location commonmodel.LocationVo, itemId itemmodel.ItemIdVo) error {
 	if !liveGame.GetMapSize().CoversLocation(location) {
 		return ErrSomeLocationsNotIncludedInMap
+	}
+	if liveGame.doesLocationHavePlayer(location) {
+		return ErrLocationHasPlayer
 	}
 
 	unit := liveGame.map_.GetUnit(location)
