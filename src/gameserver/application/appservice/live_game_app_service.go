@@ -1,6 +1,8 @@
 package appservice
 
 import (
+	"math/rand"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
@@ -9,6 +11,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
 	"github.com/samber/lo"
 )
 
@@ -16,7 +19,6 @@ type LiveGameAppService interface {
 	LoadGame(gameIdVm string)
 	JoinGame(liveGameIdVm string, playerIdVm string)
 	MovePlayer(liveGameIdVm string, playerIdVm string, directionVm int8)
-	ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	BuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	DestroyItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 	LeaveGame(liveGameIdVm string, playerIdVm string)
@@ -103,7 +105,16 @@ func (liveGameAppServe *liveGameAppServe) LoadGame(gameIdVm string) {
 
 	liveGameId, _ := livegamemodel.NewLiveGameIdVo(gameId.ToString())
 
-	liveGameMap := livegamemodel.NewMapVo(game.GetMap().GetUnitMatrix())
+	items := liveGameAppServe.itemRepo.GetAll()
+	unitMatrix, _ := tool.MapMatrix(game.GetMap().GetUnitMatrix(), func(_ int, _ int, unit commonmodel.UnitVo) (commonmodel.UnitVo, error) {
+		randomInt := rand.Intn(100)
+		if randomInt < 2 {
+			return commonmodel.NewUnitVo(items[randomInt].GetId()), nil
+		} else {
+			return commonmodel.NewUnitVo(unit.GetItemId()), nil
+		}
+	})
+	liveGameMap := livegamemodel.NewMapVo(unitMatrix)
 	newLiveGame := livegamemodel.NewLiveGameAgg(liveGameId, liveGameMap)
 
 	liveGameAppServe.liveGameRepo.Add(newLiveGame)
@@ -181,38 +192,6 @@ func (liveGameAppServe *liveGameAppServe) MovePlayer(liveGameIdVm string, player
 	}
 
 	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIds())
-}
-
-func (liveGameAppServe *liveGameAppServe) ChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
-	liveGameId, err := livegamemodel.NewLiveGameIdVo(liveGameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := livegamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-	camera, err := cameraVm.ToValueObject()
-	if err != nil {
-		return
-	}
-
-	unlocker := liveGameAppServe.liveGameRepo.LockAccess(liveGameId)
-	defer unlocker()
-
-	liveGame, err := liveGameAppServe.liveGameRepo.Get(liveGameId)
-	if err != nil {
-		return
-	}
-
-	if err = liveGame.ChangePlayerCamera(playerId, camera); err != nil {
-		return
-	}
-
-	liveGameAppServe.liveGameRepo.Update(liveGameId, liveGame)
-
-	liveGameAppServe.publishPlayersUpdatedEvents(liveGameId, liveGame.GetPlayers(), liveGame.GetPlayerIds())
-
 	view, _ := liveGame.GetPlayerView(playerId)
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameClientChannel(liveGameIdVm, playerIdVm),

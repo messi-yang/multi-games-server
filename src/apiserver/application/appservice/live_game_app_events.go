@@ -9,11 +9,10 @@ import (
 type ClientEventType string
 
 const (
-	PingClientEventType         ClientEventType = "PING"
-	MoveClientEventType         ClientEventType = "MOVE"
-	ChangeCameraClientEventType ClientEventType = "CHANGE_CAMERA"
-	BuildItemClientEventType    ClientEventType = "BUILD_ITEM"
-	DestroyItemClientEventType  ClientEventType = "DESTROY_ITEM"
+	PingClientEventType        ClientEventType = "PING"
+	MoveClientEventType        ClientEventType = "MOVE"
+	BuildItemClientEventType   ClientEventType = "BUILD_ITEM"
+	DestroyItemClientEventType ClientEventType = "DESTROY_ITEM"
 )
 
 type GenericClientEvent struct {
@@ -28,13 +27,6 @@ type MoveClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
 		Direction int8 `json:"direction"`
-	} `json:"payload"`
-}
-
-type ChangeCameraClientEvent struct {
-	Type    ClientEventType `json:"type"`
-	Payload struct {
-		Camera viewmodel.CameraVm `json:"camera"`
 	} `json:"payload"`
 }
 
@@ -97,8 +89,7 @@ type PlayersUpdatedServerEvent struct {
 type ViewUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		Camera viewmodel.CameraVm `json:"camera"`
-		View   viewmodel.ViewVm   `json:"view"`
+		View viewmodel.ViewVm `json:"view"`
 	} `json:"payload"`
 }
 

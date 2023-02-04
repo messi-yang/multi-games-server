@@ -17,12 +17,6 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 			}
 
 			switch intEvent.Name {
-			case intevent.ChangeCameraRequestedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.ChangeCameraRequestedIntEvent](message)
-				if err != nil {
-					return
-				}
-				liveGameAppService.ChangeCamera(event.LiveGameId, event.PlayerId, event.Camera)
 			case intevent.JoinGameRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.JoinGameRequestedIntEvent](message)
 				if err != nil {

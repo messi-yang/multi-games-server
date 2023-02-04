@@ -7,15 +7,14 @@ import (
 type IntEventName string
 
 const (
-	JoinGameRequestedIntEventName     IntEventName = "JOIN_GAME_REQUESTED"
-	MoveRequestedIntEventName         IntEventName = "MOVE_REQUESTED"
-	ChangeCameraRequestedIntEventName IntEventName = "CHANGE_CAMERA_REQUESTED"
-	BuildItemRequestedIntEventName    IntEventName = "BUILD_ITEM_REQUESTED"
-	DestroyItemRequestedIntEventName  IntEventName = "DESTROY_ITEM_REQUESTED"
-	LeaveGameRequestedIntEventName    IntEventName = "LEAVE_GAME_REQUESTED"
-	GameJoinedIntEventName            IntEventName = "GAME_JOINED"
-	PlayersUpdatedIntEventName        IntEventName = "PLAYERS_UPDATED"
-	ViewUpdatedIntEventName           IntEventName = "VIEW_UPDATED"
+	JoinGameRequestedIntEventName    IntEventName = "JOIN_GAME_REQUESTED"
+	MoveRequestedIntEventName        IntEventName = "MOVE_REQUESTED"
+	BuildItemRequestedIntEventName   IntEventName = "BUILD_ITEM_REQUESTED"
+	DestroyItemRequestedIntEventName IntEventName = "DESTROY_ITEM_REQUESTED"
+	LeaveGameRequestedIntEventName   IntEventName = "LEAVE_GAME_REQUESTED"
+	GameJoinedIntEventName           IntEventName = "GAME_JOINED"
+	PlayersUpdatedIntEventName       IntEventName = "PLAYERS_UPDATED"
+	ViewUpdatedIntEventName          IntEventName = "VIEW_UPDATED"
 )
 
 type GenericIntEvent struct {
@@ -49,22 +48,6 @@ func NewMoveRequestedIntEvent(liveGameId string, playerId string, direction int8
 		LiveGameId: liveGameId,
 		PlayerId:   playerId,
 		Direction:  direction,
-	}
-}
-
-type ChangeCameraRequestedIntEvent struct {
-	Name       IntEventName       `json:"name"`
-	LiveGameId string             `json:"liveGameId"`
-	PlayerId   string             `json:"playerId"`
-	Camera     viewmodel.CameraVm `json:"camera"`
-}
-
-func NewChangeCameraRequestedIntEvent(liveGameId string, playerId string, cameraVm viewmodel.CameraVm) ChangeCameraRequestedIntEvent {
-	return ChangeCameraRequestedIntEvent{
-		Name:       ChangeCameraRequestedIntEventName,
-		LiveGameId: liveGameId,
-		PlayerId:   playerId,
-		Camera:     cameraVm,
 	}
 }
 

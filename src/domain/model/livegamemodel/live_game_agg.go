@@ -52,13 +52,47 @@ func (liveGame *LiveGameAgg) GetPlayerIdsExcept(playerId PlayerIdVo) []PlayerIdV
 	})
 }
 
+func (liveGame *LiveGameAgg) getPlayerViewBound(player PlayerEntity) BoundVo {
+	playerLocation := player.GetLocation()
+	mapSize := liveGame.map_.GetSize()
+
+	fromX := playerLocation.GetX() - 25
+	toX := playerLocation.GetX() + 25
+	mapWidth := mapSize.GetWidth()
+	if fromX < 0 {
+		toX -= fromX
+		fromX = 0
+	} else if toX > mapWidth-1 {
+		fromX -= toX - mapWidth - 1
+		toX = mapWidth - 1
+	}
+
+	fromY := playerLocation.GetY() - 25
+	toY := playerLocation.GetY() + 25
+	mapHeight := mapSize.GetHeight()
+	if fromY < 0 {
+		toY -= fromY
+		fromY = 0
+	} else if toY > mapHeight-1 {
+		fromY -= toY - mapHeight - 1
+		toY = mapHeight - 1
+	}
+
+	from := commonmodel.NewLocationVo(fromX, fromY)
+	to := commonmodel.NewLocationVo(toX, toY)
+	bound, _ := NewBoundVo(from, to)
+
+	return bound
+}
+
 func (liveGame *LiveGameAgg) GetPlayerView(playerId PlayerIdVo) (ViewVo, error) {
 	player, exists := liveGame.players[playerId]
 	if !exists {
 		return ViewVo{}, ErrPlayerNotFound
 	}
 
-	view := liveGame.map_.GetViewWithCamera(player.camera)
+	bound := liveGame.getPlayerViewBound(player)
+	view := liveGame.map_.GetViewInBound(bound)
 
 	return view, nil
 }
@@ -69,19 +103,8 @@ func (liveGame *LiveGameAgg) CanPlayerSeeAnyLocations(playerId PlayerIdVo, locat
 		return false
 	}
 
-	bound := player.camera.GetViewBoundInMap(liveGame.map_.GetSize())
+	bound := liveGame.getPlayerViewBound(player)
 	return bound.CoverAnyLocations(locations)
-}
-
-func (liveGame *LiveGameAgg) ChangePlayerCamera(playerId PlayerIdVo, camera CameraVo) error {
-	player, exists := liveGame.players[playerId]
-	if !exists {
-		return ErrPlayerNotFound
-	}
-
-	player.camera = camera
-	liveGame.players[playerId] = player
-	return nil
 }
 
 func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
@@ -90,11 +113,8 @@ func (liveGame *LiveGameAgg) AddPlayer(playerId PlayerIdVo) error {
 		return ErrPlayerAlreadyExists
 	}
 
-	cameraCenter := commonmodel.NewLocationVo(0, 0)
-	camera := NewCameraVo(cameraCenter)
-
 	playerLocation := commonmodel.NewLocationVo(0, 0)
-	newPlayer := NewPlayerEntity(playerId, "Hello World", camera, playerLocation)
+	newPlayer := NewPlayerEntity(playerId, "Hello World", playerLocation)
 
 	liveGame.players[playerId] = newPlayer
 

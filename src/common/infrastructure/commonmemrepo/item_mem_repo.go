@@ -38,7 +38,7 @@ func NewItemMemRepo() itemmodel.Repo {
 	return itemMemRepoSingleton
 }
 
-func (repo *itemMemRepo) GetAllItems() []itemmodel.ItemAgg {
+func (repo *itemMemRepo) GetAll() []itemmodel.ItemAgg {
 	return repo.items
 }
 

@@ -19,9 +19,9 @@ func NewItemAppService(itemRepo itemmodel.Repo) ItemAppService {
 }
 
 func (itemAppServe *itemAppServe) GetAllItems(presenter Presenter) {
-	items := itemAppServe.itemRepo.GetAllItems()
-	itemCameraModels := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
+	items := itemAppServe.itemRepo.GetAll()
+	itemModels := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
 		return viewmodel.NewItemVm(item)
 	})
-	presenter.OnSuccess(itemCameraModels)
+	presenter.OnSuccess(itemModels)
 }

@@ -32,8 +32,7 @@ func (map_ MapVo) UpdateUnit(location commonmodel.LocationVo, unit commonmodel.U
 	(map_.unitMatrix)[location.GetX()][location.GetY()] = unit
 }
 
-func (map_ MapVo) GetViewWithCamera(camera CameraVo) ViewVo {
-	bound := camera.GetViewBoundInMap(map_.GetSize())
+func (map_ MapVo) GetViewInBound(bound BoundVo) ViewVo {
 	offsetX := bound.GetFrom().GetX()
 	offsetY := bound.GetFrom().GetY()
 	boundWidth := bound.GetWidth()

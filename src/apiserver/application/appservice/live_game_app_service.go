@@ -16,7 +16,6 @@ type LiveGameAppService interface {
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	RequestToJoinGame(liveGameIdVm string, playerIdVm string)
 	RequestToMove(liveGameIdVm string, playerIdVm string, directionVm int8)
-	RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm)
 	RequestToBuildItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
 	RequestToDestroyItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 	RequestToLeaveGame(liveGameIdVm string, playerIdVm string)
@@ -64,7 +63,7 @@ func (liveGameAppServe *liveGameAppServe) SendViewUpdatedServerEvent(presenter P
 }
 
 func (liveGameAppServe *liveGameAppServe) SendItemsUpdatedServerEvent(presenter Presenter) {
-	items := liveGameAppServe.itemRepo.GetAllItems()
+	items := liveGameAppServe.itemRepo.GetAll()
 	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
 		return viewmodel.NewItemVm(item)
 	})
@@ -86,13 +85,6 @@ func (liveGameAppServe *liveGameAppServe) RequestToMove(liveGameIdVm string, pla
 	liveGameAppServe.IntEventPublisher.Publish(
 		intevent.CreateLiveGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewMoveRequestedIntEvent(liveGameIdVm, playerIdVm, directionVm)),
-	)
-}
-
-func (liveGameAppServe *liveGameAppServe) RequestToChangeCamera(liveGameIdVm string, playerIdVm string, cameraVm viewmodel.CameraVm) {
-	liveGameAppServe.IntEventPublisher.Publish(
-		intevent.CreateLiveGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewChangeCameraRequestedIntEvent(liveGameIdVm, playerIdVm, cameraVm)),
 	)
 }
 
