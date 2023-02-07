@@ -5,7 +5,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/httpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/apiserver/interface/socketcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/commonmemrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/psqlrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/infrastructure/redispub"
 
 	"github.com/gin-contrib/cors"
@@ -18,27 +17,20 @@ func main() {
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
 
-	gameRepo, _ := psqlrepo.NewGamePsqlRepo()
 	intEventPublisher := redispub.New()
 	itemRepo := commonmemrepo.NewItemMemRepo()
 	liveGameAppService := appservice.NewLiveGameAppService(intEventPublisher, itemRepo)
 	itemAppService := appservice.NewItemAppService(itemRepo)
 
-	gameAppService := appservice.NewGameAppService(gameRepo)
-
 	itemController := httpcontroller.NewItemHttpController(itemAppService)
 	liveGameController := socketcontroller.NewLiveGameSocketController(
-		gameRepo,
 		liveGameAppService,
 	)
-
-	gameController := httpcontroller.NewGameHttpController(gameAppService)
 
 	router.Static("/assets", "./src/assets")
 
 	router.Group("/ws/game").GET("/", liveGameController.HandleLiveGameConnection)
 	router.GET("/items", itemController.GetAllHandler)
-	router.GET("/games", gameController.GetAllHandler)
 
 	router.Run()
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/interface/redissub"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/gzipper"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 	"github.com/gin-gonic/gin"
@@ -26,16 +25,13 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type LiveGameSocketController struct {
-	gameRepo           gamemodel.GameRepo
 	liveGameAppService appservice.LiveGameAppService
 }
 
 func NewLiveGameSocketController(
-	gameRepo gamemodel.GameRepo,
 	liveGameAppService appservice.LiveGameAppService,
 ) *LiveGameSocketController {
 	return &LiveGameSocketController{
-		gameRepo:           gameRepo,
 		liveGameAppService: liveGameAppService,
 	}
 }
@@ -49,13 +45,7 @@ func (controller *LiveGameSocketController) HandleLiveGameConnection(c *gin.Cont
 	defer socketConn.Close()
 	closeConnFlag := make(chan bool)
 
-	games, err := controller.gameRepo.GetAll()
-	if err != nil {
-		return
-	}
-	gameId := games[0].GetId()
-
-	liveGameId := gameId.ToString()
+	liveGameId := "20716447-6514-4eac-bd05-e558ca72bf3c"
 
 	playerIdVm := uuid.New().String()
 

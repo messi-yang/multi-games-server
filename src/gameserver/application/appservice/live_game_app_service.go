@@ -6,17 +6,17 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/common/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
+	"github.com/gofrs/uuid"
 	"github.com/samber/lo"
 )
 
 type LiveGameAppService interface {
-	LoadGame(gameIdVm string)
+	LoadGame(mapSizVm viewmodel.SizeVm, gameIdVm string)
 	JoinGame(liveGameIdVm string, playerIdVm string)
 	MovePlayer(liveGameIdVm string, playerIdVm string, directionVm int8)
 	PlaceItem(liveGameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
@@ -26,7 +26,6 @@ type LiveGameAppService interface {
 
 type liveGameAppServe struct {
 	liveGameRepo      livegamemodel.Repo
-	gameRepo          gamemodel.GameRepo
 	itemRepo          itemmodel.Repo
 	liveGameService   service.LiveGameService
 	IntEventPublisher intevent.IntEventPublisher
@@ -34,13 +33,11 @@ type liveGameAppServe struct {
 
 func NewLiveGameAppService(
 	liveGameRepo livegamemodel.Repo,
-	gameRepo gamemodel.GameRepo,
 	itemRepo itemmodel.Repo,
 	IntEventPublisher intevent.IntEventPublisher,
 ) LiveGameAppService {
 	return &liveGameAppServe{
 		liveGameRepo:      liveGameRepo,
-		gameRepo:          gameRepo,
 		itemRepo:          itemRepo,
 		liveGameService:   service.NewLiveGameService(liveGameRepo, itemRepo),
 		IntEventPublisher: IntEventPublisher,
@@ -92,28 +89,26 @@ func (liveGameAppServe *liveGameAppServe) publishPlayersUpdatedEvents(
 	})
 }
 
-func (liveGameAppServe *liveGameAppServe) LoadGame(gameIdVm string) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+func (liveGameAppServe *liveGameAppServe) LoadGame(mapSizeVm viewmodel.SizeVm, gameIdVm string) {
+	gameId, err := livegamemodel.NewLiveGameIdVo(gameIdVm)
 	if err != nil {
 		return
 	}
 
-	game, err := liveGameAppServe.gameRepo.Get(gameId)
-	if err != nil {
-		return
-	}
-
-	liveGameId, _ := livegamemodel.NewLiveGameIdVo(gameId.ToString())
+	mapSize, _ := commonmodel.NewSizeVo(mapSizeVm.Width, mapSizeVm.Height)
 
 	items := liveGameAppServe.itemRepo.GetAll()
-	unitMatrix, _ := tool.MapMatrix(game.GetMap().GetUnitMatrix(), func(_ int, _ int, unit commonmodel.UnitVo) (commonmodel.UnitVo, error) {
+	unitMatrix, _ := tool.RangeMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) (commonmodel.UnitVo, error) {
+		itemId, _ := itemmodel.NewItemIdVo(uuid.Nil.String())
 		randomInt := rand.Intn(100)
 		if randomInt < 2 {
 			return commonmodel.NewUnitVo(items[randomInt].GetId()), nil
-		} else {
-			return commonmodel.NewUnitVo(unit.GetItemId()), nil
 		}
+		return commonmodel.NewUnitVo(itemId), nil
 	})
+
+	liveGameId, _ := livegamemodel.NewLiveGameIdVo(gameId.ToString())
+
 	liveGameMap := livegamemodel.NewMapVo(unitMatrix)
 	newLiveGame := livegamemodel.NewLiveGameAgg(liveGameId, liveGameMap)
 
