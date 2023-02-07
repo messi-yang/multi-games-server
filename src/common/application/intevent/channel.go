@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-func CreateLiveGameAdminChannel() string {
-	return "LIVE_GAME_ADMIN"
+func CreateGameAdminChannel() string {
+	return "GAME_ADMIN"
 }
 
-func CreateLiveGameClientChannel(liveGameId string, playerId string) string {
-	return fmt.Sprintf("LIVE_GAME_%s_CLIENT_PLAYER_%s", liveGameId, playerId)
+func CreateGameClientChannel(gameId string, playerId string) string {
+	return fmt.Sprintf("GAME_%s_CLIENT_PLAYER_%s", gameId, playerId)
 }

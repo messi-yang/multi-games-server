@@ -1,4 +1,4 @@
-package livegamemodel
+package gamemodel
 
 type ViewVo struct {
 	map_  MapVo

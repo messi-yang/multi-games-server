@@ -1,8 +1,10 @@
-package livegamemodel
+package gamemodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
+	"github.com/google/uuid"
 )
 
 type MapVo struct {
@@ -39,6 +41,10 @@ func (map_ MapVo) GetViewInBound(bound BoundVo) ViewVo {
 	boundHeight := bound.GetHeight()
 	unitMatrix, _ := tool.RangeMatrix(boundWidth, boundHeight, func(x int, y int) (commonmodel.UnitVo, error) {
 		location := commonmodel.NewLocationVo(x+offsetX, y+offsetY)
+		if location.HasNegativeAxis() {
+			emptyItemId, _ := itemmodel.NewItemIdVo(uuid.Nil.String())
+			return commonmodel.NewUnitVo(emptyItemId), nil
+		}
 		return map_.GetUnit(location), nil
 	})
 	return NewViewVo(NewMapVo(unitMatrix), bound)

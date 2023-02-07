@@ -1,4 +1,4 @@
-package livegamemodel
+package gamemodel
 
 import (
 	"fmt"

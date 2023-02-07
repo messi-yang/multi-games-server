@@ -7,9 +7,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/jsonmarshaller"
 )
 
-func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppService) {
-	liveGameAdminChannelUnsubscriber := redissub.New().Subscribe(
-		intevent.CreateLiveGameAdminChannel(),
+func NewGameIntEventController(gameAppService appservice.GameAppService) {
+	gameAdminChannelUnsubscriber := redissub.New().Subscribe(
+		intevent.CreateGameAdminChannel(),
 		func(message []byte) {
 			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericIntEvent](message)
 			if err != nil {
@@ -22,34 +22,34 @@ func NewLiveGameIntEventController(liveGameAppService appservice.LiveGameAppServ
 				if err != nil {
 					return
 				}
-				liveGameAppService.JoinGame(event.LiveGameId, event.PlayerId)
+				gameAppService.JoinGame(event.GameId, event.PlayerId)
 			case intevent.MoveRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.MoveRequestedIntEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.MovePlayer(event.LiveGameId, event.PlayerId, event.Direction)
+				gameAppService.MovePlayer(event.GameId, event.PlayerId, event.Direction)
 			case intevent.DestroyItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.DestroyItemRequestedIntEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.DestroyItem(event.LiveGameId, event.PlayerId, event.Location)
+				gameAppService.DestroyItem(event.GameId, event.PlayerId, event.Location)
 			case intevent.PlaceItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.PlaceItemRequestedIntEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.PlaceItem(event.LiveGameId, event.PlayerId, event.Location, event.ItemId)
+				gameAppService.PlaceItem(event.GameId, event.PlayerId, event.Location, event.ItemId)
 			case intevent.LeaveGameRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.LeaveGameRequestedIntEvent](message)
 				if err != nil {
 					return
 				}
-				liveGameAppService.LeaveGame(event.LiveGameId, event.PlayerId)
+				gameAppService.LeaveGame(event.GameId, event.PlayerId)
 			}
 		})
-	defer liveGameAdminChannelUnsubscriber()
+	defer gameAdminChannelUnsubscriber()
 
 	closeConnFlag := make(chan bool)
 	for {

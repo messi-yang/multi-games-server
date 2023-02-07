@@ -1,6 +1,6 @@
 package viewmodel
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/livegamemodel"
+import "github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 
 type PlayerVm struct {
 	Id       string     `json:"id"`
@@ -8,7 +8,7 @@ type PlayerVm struct {
 	Location LocationVm `json:"location"`
 }
 
-func NewPlayerVm(player livegamemodel.PlayerEntity) PlayerVm {
+func NewPlayerVm(player gamemodel.PlayerEntity) PlayerVm {
 	return PlayerVm{
 		Id:       player.GetId().ToString(),
 		Name:     player.GetName(),

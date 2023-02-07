@@ -19,17 +19,17 @@ func main() {
 
 	intEventPublisher := redispub.New()
 	itemRepo := commonmemrepo.NewItemMemRepo()
-	liveGameAppService := appservice.NewLiveGameAppService(intEventPublisher, itemRepo)
+	gameAppService := appservice.NewGameAppService(intEventPublisher, itemRepo)
 	itemAppService := appservice.NewItemAppService(itemRepo)
 
 	itemController := httpcontroller.NewItemHttpController(itemAppService)
-	liveGameController := socketcontroller.NewLiveGameSocketController(
-		liveGameAppService,
+	gameController := socketcontroller.NewGameSocketController(
+		gameAppService,
 	)
 
 	router.Static("/assets", "./src/assets")
 
-	router.Group("/ws/game").GET("/", liveGameController.HandleLiveGameConnection)
+	router.Group("/ws/game").GET("/", gameController.HandleGameConnection)
 	router.GET("/items", itemController.GetAllHandler)
 
 	router.Run()

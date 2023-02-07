@@ -12,16 +12,16 @@ import (
 
 func main() {
 	itemRepo := commonmemrepo.NewItemMemRepo()
-	liveGameRepo := memrepo.NewLiveGameMemRepo()
+	gameRepo := memrepo.NewGameMemRepo()
 	intEventPublisher := redispub.New()
-	liveGameAppService := appservice.NewLiveGameAppService(
-		liveGameRepo,
+	gameAppService := appservice.NewGameAppService(
+		gameRepo,
 		itemRepo,
 		intEventPublisher,
 	)
 
 	mapSize, _ := commonmodel.NewSizeVo(200, 200)
-	liveGameAppService.LoadGame(viewmodel.NewSizeVm(mapSize), "20716447-6514-4eac-bd05-e558ca72bf3c")
+	gameAppService.LoadGame(viewmodel.NewSizeVm(mapSize), "20716447-6514-4eac-bd05-e558ca72bf3c")
 
-	inteventcontroller.NewLiveGameIntEventController(liveGameAppService)
+	inteventcontroller.NewGameIntEventController(gameAppService)
 }
