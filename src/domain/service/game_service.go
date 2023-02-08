@@ -47,14 +47,12 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel
 		newLocation = newLocation.Shift(-1, 0)
 	}
 
-	unit, _ := serve.unitRepo.GetUnit(gameId, newLocation)
+	unit, err := serve.unitRepo.GetUnit(gameId, newLocation)
 	if err == nil {
 		itemId := unit.GetItemId()
-		if !itemId.IsEmpty() {
-			item, _ := serve.itemRepo.Get(itemId)
-			if !item.IsTraversable() {
-				return errors.New("this item is not traversable")
-			}
+		item, _ := serve.itemRepo.Get(itemId)
+		if !item.IsTraversable() {
+			return errors.New("this item is not traversable")
 		}
 	}
 

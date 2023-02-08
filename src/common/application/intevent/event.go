@@ -56,16 +56,16 @@ type PlaceItemRequestedIntEvent struct {
 	GameId   string               `json:"gameId"`
 	PlayerId string               `json:"playerId"`
 	Location viewmodel.LocationVm `json:"location"`
-	ItemId   string               `json:"itemId"`
+	ItemId   int16                `json:"itemId"`
 }
 
-func NewPlaceItemRequestedIntEvent(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemId string) PlaceItemRequestedIntEvent {
+func NewPlaceItemRequestedIntEvent(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) PlaceItemRequestedIntEvent {
 	return PlaceItemRequestedIntEvent{
 		Name:     PlaceItemRequestedIntEventName,
 		GameId:   gameIdVm,
 		PlayerId: playerIdVm,
 		Location: locationVm,
-		ItemId:   itemId,
+		ItemId:   itemIdVm,
 	}
 }
 

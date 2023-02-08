@@ -19,7 +19,7 @@ type GameAppService interface {
 	LoadGame(mapSizVm viewmodel.SizeVm, gameIdVm string)
 	JoinGame(gameIdVm string, playerIdVm string)
 	MovePlayer(gameIdVm string, playerIdVm string, directionVm int8)
-	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
+	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
 	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 	LeaveGame(gameIdVm string, playerIdVm string)
 }
@@ -208,7 +208,7 @@ func (gameAppServe *gameAppServe) MovePlayer(gameIdVm string, playerIdVm string,
 	)
 }
 
-func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -217,10 +217,7 @@ func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, 
 	if err != nil {
 		return
 	}
-	itemId, err := itemmodel.NewItemIdVo(itemIdVm)
-	if err != nil {
-		return
-	}
+	itemId := itemmodel.NewItemIdVo(itemIdVm)
 	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
 
 	unlocker := gameAppServe.gameRepo.LockAccess(gameId)

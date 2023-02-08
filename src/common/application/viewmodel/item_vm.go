@@ -5,7 +5,7 @@ import (
 )
 
 type ItemVm struct {
-	Id          string `json:"id"`
+	Id          int16  `json:"id"`
 	Name        string `json:"name"`
 	Traversable bool   `json:"traversable"`
 	AssetSrc    string `json:"assetSrc"`
@@ -13,7 +13,7 @@ type ItemVm struct {
 
 func NewItemVm(item itemmodel.ItemAgg) ItemVm {
 	return ItemVm{
-		Id:          item.GetId().ToString(),
+		Id:          item.GetId().ToInt16(),
 		Name:        item.GetName(),
 		Traversable: item.IsTraversable(),
 		AssetSrc:    item.GetAssetSrc(),

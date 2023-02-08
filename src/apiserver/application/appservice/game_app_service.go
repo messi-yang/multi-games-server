@@ -16,7 +16,7 @@ type GameAppService interface {
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	RequestToJoinGame(gameIdVm string, playerIdVm string)
 	RequestToMove(gameIdVm string, playerIdVm string, directionVm int8)
-	RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string)
+	RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
 	RequestToDestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 	RequestToLeaveGame(gameIdVm string, playerIdVm string)
 }
@@ -88,7 +88,7 @@ func (gameAppServe *gameAppServe) RequestToMove(gameIdVm string, playerIdVm stri
 	)
 }
 
-func (gameAppServe *gameAppServe) RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm string) {
+func (gameAppServe *gameAppServe) RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
 	gameAppServe.IntEventPublisher.Publish(
 		intevent.CreateGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewPlaceItemRequestedIntEvent(gameIdVm, playerIdVm, locationVm, itemIdVm)),

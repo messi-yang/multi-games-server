@@ -34,7 +34,7 @@ type PlaceItemClientEvent struct {
 	Type    ClientEventType `json:"type"`
 	Payload struct {
 		Location   viewmodel.LocationVm `json:"location"`
-		ItemId     string               `json:"itemId"`
+		ItemId     int16                `json:"itemId"`
 		ActionedAt time.Time            `json:"actionedAt"`
 	} `json:"payload"`
 }

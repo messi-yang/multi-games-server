@@ -5,13 +5,13 @@ import (
 )
 
 type UnitVm struct {
-	ItemId   string     `json:"itemId"`
+	ItemId   int16      `json:"itemId"`
 	Location LocationVm `json:"location"`
 }
 
 func NewUnitVm(unit unitmodel.UnitAgg) UnitVm {
 	return UnitVm{
-		ItemId:   unit.GetItemId().ToString(),
+		ItemId:   unit.GetItemId().ToInt16(),
 		Location: NewLocationVm(unit.GetLocation()),
 	}
 }

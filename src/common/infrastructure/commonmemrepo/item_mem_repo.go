@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -18,12 +17,8 @@ var itemMemRepoSingleton *itemMemRepo
 
 func NewItemMemRepo() itemmodel.Repo {
 	if itemMemRepoSingleton == nil {
-		stoneItemDefaultId, _ := itemmodel.NewItemIdVo("2a0c8f7f-48dc-4553-86b4-2bbc3786bb66")
-		torchItemDefaultId, _ := itemmodel.NewItemIdVo("31c8cc9e-42a3-4a42-86d2-905ca37305ba")
-
-		fmt.Println(uuid.New())
-		fmt.Println(uuid.New())
-		fmt.Println(uuid.New())
+		stoneItemDefaultId := itemmodel.NewItemIdVo(0)
+		torchItemDefaultId := itemmodel.NewItemIdVo(1)
 
 		serverUrl := os.Getenv("SERVER_URL")
 
