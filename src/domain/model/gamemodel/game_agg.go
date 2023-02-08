@@ -4,8 +4,6 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -18,15 +16,13 @@ var (
 
 type GameAgg struct {
 	id              GameIdVo
-	map_            MapVo
 	players         map[PlayerIdVo]PlayerEntity
 	playerLocations map[commonmodel.LocationVo]bool
 }
 
-func NewGameAgg(id GameIdVo, map_ MapVo) GameAgg {
+func NewGameAgg(id GameIdVo) GameAgg {
 	return GameAgg{
 		id:      id,
-		map_:    map_,
 		players: make(map[PlayerIdVo]PlayerEntity),
 	}
 }
@@ -36,20 +32,8 @@ func (game *GameAgg) GetId() GameIdVo {
 }
 
 func (game *GameAgg) GetMapSize() commonmodel.SizeVo {
-	return game.map_.GetSize()
-}
-
-func (game *GameAgg) GetUnit(location commonmodel.LocationVo) commonmodel.UnitVo {
-	return game.map_.GetUnit(location)
-}
-
-func (game *GameAgg) SetUnit(location commonmodel.LocationVo, unit commonmodel.UnitVo) error {
-	if !game.GetMapSize().CoversLocation(location) {
-		return ErrSomeLocationsNotIncludedInMap
-	}
-	game.map_.UpdateUnit(location, unit)
-
-	return nil
+	size, _ := commonmodel.NewSizeVo(200, 200)
+	return size
 }
 
 func (game *GameAgg) GetPlayerIds() []PlayerIdVo {
@@ -63,7 +47,12 @@ func (game *GameAgg) GetPlayerIdsExcept(playerId PlayerIdVo) []PlayerIdVo {
 	})
 }
 
-func (game *GameAgg) getPlayerViewBound(player PlayerEntity) BoundVo {
+func (game *GameAgg) GetPlayerViewBound(playerId PlayerIdVo) (commonmodel.BoundVo, error) {
+	player, exists := game.players[playerId]
+	if !exists {
+		return commonmodel.BoundVo{}, ErrPlayerNotFound
+	}
+
 	playerLocation := player.GetLocation()
 
 	fromX := playerLocation.GetX() - 25
@@ -74,33 +63,18 @@ func (game *GameAgg) getPlayerViewBound(player PlayerEntity) BoundVo {
 
 	from := commonmodel.NewLocationVo(fromX, fromY)
 	to := commonmodel.NewLocationVo(toX, toY)
-	bound, _ := NewBoundVo(from, to)
+	bound, _ := commonmodel.NewBoundVo(from, to)
 
-	return bound
-}
-
-func (game *GameAgg) GetPlayerView(playerId PlayerIdVo) (ViewVo, error) {
-	player, exists := game.players[playerId]
-	if !exists {
-		return ViewVo{}, ErrPlayerNotFound
-	}
-
-	bound := game.getPlayerViewBound(player)
-	view := game.map_.GetViewInBound(bound)
-
-	player.SetLastGotViewAt(player.GetLocation())
-	game.UpdatePlayer(player)
-
-	return view, nil
+	return bound, nil
 }
 
 func (game *GameAgg) CanPlayerSeeAnyLocations(playerId PlayerIdVo, locations []commonmodel.LocationVo) bool {
-	player, exists := game.players[playerId]
+	_, exists := game.players[playerId]
 	if !exists {
 		return false
 	}
 
-	bound := game.getPlayerViewBound(player)
+	bound, _ := game.GetPlayerViewBound(playerId)
 	return bound.CoverAnyLocations(locations)
 }
 
@@ -158,17 +132,4 @@ func (game *GameAgg) GetPlayer(playerId PlayerIdVo) (PlayerEntity, error) {
 func (game *GameAgg) RemovePlayer(playerId PlayerIdVo) {
 	delete(game.players, playerId)
 	game.updatePlayerLocations()
-}
-
-func (game *GameAgg) DestroyItem(location commonmodel.LocationVo) error {
-	if !game.GetMapSize().CoversLocation(location) {
-		return ErrSomeLocationsNotIncludedInMap
-	}
-
-	unit := game.map_.GetUnit(location)
-	itemId, _ := itemmodel.NewItemIdVo(uuid.Nil.String())
-	newUnit := unit.SetItemId(itemId)
-	game.map_.UpdateUnit(location, newUnit)
-
-	return nil
 }

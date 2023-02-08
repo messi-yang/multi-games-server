@@ -31,3 +31,11 @@ func RangeMatrix[T any](width int, height int, creator func(x int, y int) (T, er
 	}
 	return outputMatrix, nil
 }
+
+func ForMatrix(width int, height int, callback func(x int, y int)) {
+	for x := 0; x < width; x += 1 {
+		for y := 0; y < height; y += 1 {
+			callback(x, y)
+		}
+	}
+}

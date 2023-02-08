@@ -6,20 +6,23 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/unitmodel"
 )
 
 type GameService interface {
 	MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, direction gamemodel.DirectionVo) error
 	PlaceItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error
+	DestroyItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, location commonmodel.LocationVo) error
 }
 
 type gameServe struct {
 	gameRepo gamemodel.Repo
+	unitRepo unitmodel.Repo
 	itemRepo itemmodel.Repo
 }
 
-func NewGameService(gameRepo gamemodel.Repo, itemRepo itemmodel.Repo) GameService {
-	return &gameServe{gameRepo: gameRepo, itemRepo: itemRepo}
+func NewGameService(gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameService {
+	return &gameServe{gameRepo: gameRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
 func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, direction gamemodel.DirectionVo) error {
@@ -44,13 +47,16 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel
 		newLocation = newLocation.Shift(-1, 0)
 	}
 
-	// itemId := game.GetUnit(newLocation).GetItemId()
-	// if !itemId.IsEmpty() {
-	// 	item, _ := serve.itemRepo.Get(itemId)
-	// 	if !item.IsTraversable() {
-	// 		return errors.New("this item is not traversable")
-	// 	}
-	// }
+	unit, _ := serve.unitRepo.GetUnit(gameId, newLocation)
+	if err == nil {
+		itemId := unit.GetItemId()
+		if !itemId.IsEmpty() {
+			item, _ := serve.itemRepo.Get(itemId)
+			if !item.IsTraversable() {
+				return errors.New("this item is not traversable")
+			}
+		}
+	}
 
 	player.SetLocation(newLocation)
 	game.UpdatePlayer(player)
@@ -70,21 +76,20 @@ func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId gamemodel.
 		return err
 	}
 
-	if !game.GetMapSize().CoversLocation(location) {
-		return errors.New("location is not included in map")
-	}
 	if !item.IsTraversable() && game.DoesLocationHavePlayer(location) {
 		return errors.New("cannot place non-traversable item on a location with players")
 	}
 
-	unit := game.GetUnit(location)
-	newUnit := unit.SetItemId(itemId)
-	err = game.SetUnit(location, newUnit)
+	serve.unitRepo.UpdateUnit(unitmodel.NewUnitAgg(gameId, location, itemId))
+	return nil
+}
+
+func (serve *gameServe) DestroyItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, location commonmodel.LocationVo) error {
+	_, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return err
 	}
 
-	serve.gameRepo.Update(gameId, game)
-
+	serve.unitRepo.DeleteUnit(gameId, location)
 	return nil
 }

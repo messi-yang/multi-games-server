@@ -13,9 +13,11 @@ import (
 func main() {
 	itemRepo := commonmemrepo.NewItemMemRepo()
 	gameRepo := memrepo.NewGameMemRepo()
+	unitRepo := memrepo.NewUnitMemRepo()
 	intEventPublisher := redispub.New()
 	gameAppService := appservice.NewGameAppService(
 		gameRepo,
+		unitRepo,
 		itemRepo,
 		intEventPublisher,
 	)

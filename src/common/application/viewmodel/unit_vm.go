@@ -1,17 +1,17 @@
 package viewmodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
-	"github.com/samber/lo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/unitmodel"
 )
 
 type UnitVm struct {
-	ItemId *string `json:"itemId"`
+	ItemId   string     `json:"itemId"`
+	Location LocationVm `json:"location"`
 }
 
-func NewUnitVm(unit commonmodel.UnitVo) UnitVm {
-	var itemId *string = lo.Ternary(unit.GetItemId().IsEmpty(), nil, lo.ToPtr(unit.GetItemId().ToString()))
+func NewUnitVm(unit unitmodel.UnitAgg) UnitVm {
 	return UnitVm{
-		ItemId: itemId,
+		ItemId:   unit.GetItemId().ToString(),
+		Location: NewLocationVm(unit.GetLocation()),
 	}
 }

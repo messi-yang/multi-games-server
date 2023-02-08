@@ -2,7 +2,6 @@ package viewmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
 )
 
 type BoundVm struct {
@@ -10,24 +9,24 @@ type BoundVm struct {
 	To   LocationVm `json:"to"`
 }
 
-func NewBoundVm(bound gamemodel.BoundVo) BoundVm {
+func NewBoundVm(bound commonmodel.BoundVo) BoundVm {
 	return BoundVm{
 		From: NewLocationVm(bound.GetFrom()),
 		To:   NewLocationVm(bound.GetTo()),
 	}
 }
 
-func (dto BoundVm) ToValueObject() (gamemodel.BoundVo, error) {
+func (dto BoundVm) ToValueObject() (commonmodel.BoundVo, error) {
 	from := commonmodel.NewLocationVo(dto.From.X, dto.From.Y)
 
 	to := commonmodel.NewLocationVo(dto.To.X, dto.To.Y)
 
-	bound, err := gamemodel.NewBoundVo(
+	bound, err := commonmodel.NewBoundVo(
 		from,
 		to,
 	)
 	if err != nil {
-		return gamemodel.BoundVo{}, err
+		return commonmodel.BoundVo{}, err
 	}
 
 	return bound, nil

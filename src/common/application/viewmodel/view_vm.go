@@ -1,22 +1,21 @@
 package viewmodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/gamemodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/src/library/tool"
+	"github.com/dum-dum-genius/game-of-liberty-computer/src/domain/model/unitmodel"
+	"github.com/samber/lo"
 )
 
 type ViewVm struct {
-	Bound BoundVm    `json:"bound"`
-	Map   [][]UnitVm `json:"map"`
+	Bound BoundVm  `json:"bound"`
+	Units []UnitVm `json:"units"`
 }
 
-func NewViewVm(view gamemodel.ViewVo) ViewVm {
-	unitVmMatrix, _ := tool.MapMatrix(view.GetMap().GetUnitMatrix(), func(colIdx int, rowIdx int, unit commonmodel.UnitVo) (UnitVm, error) {
-		return NewUnitVm(unit), nil
+func NewViewVm(view unitmodel.ViewVo) ViewVm {
+	unitVms := lo.Map(view.GetUnits(), func(unit unitmodel.UnitAgg, _ int) UnitVm {
+		return NewUnitVm(unit)
 	})
 	return ViewVm{
 		Bound: NewBoundVm(view.GetBound()),
-		Map:   unitVmMatrix,
+		Units: unitVms,
 	}
 }
