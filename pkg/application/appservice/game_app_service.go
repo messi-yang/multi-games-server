@@ -1,12 +1,16 @@
 package appservice
 
 import (
+	"math/rand"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/jsonmarshaller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/tool"
 	"github.com/samber/lo"
 )
 
@@ -15,6 +19,7 @@ type GameAppService interface {
 	SendItemsUpdatedServerEvent(presenter Presenter)
 	SendPlayersUpdatedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm)
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
+	LoadGame(gameIdVm string)
 	JoinGame(presenter Presenter, gameIdVm string, playerIdVm string)
 	RequestToMove(gameIdVm string, playerIdVm string, directionVm int8)
 	RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
@@ -65,6 +70,29 @@ func (gameAppServe *gameAppServe) SendItemsUpdatedServerEvent(presenter Presente
 	event.Type = ItemsUpdatedServerEventType
 	event.Payload.Items = itemVms
 	presenter.OnSuccess(event)
+}
+
+func (gameAppServe *gameAppServe) LoadGame(gameIdVm string) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+	if err != nil {
+		return
+	}
+
+	mapSize, _ := commonmodel.NewSizeVo(200, 200)
+
+	items := gameAppServe.itemRepo.GetAll()
+	tool.ForMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) {
+		randomInt := rand.Intn(17)
+		location := commonmodel.NewLocationVo(x, y)
+		if randomInt < 2 {
+			newUnit := unitmodel.NewUnitAgg(gameId, location, items[randomInt].GetId())
+			gameAppServe.unitRepo.UpdateUnit(newUnit)
+		}
+	})
+
+	newGame := gamemodel.NewGameAgg(gameId)
+
+	gameAppServe.gameRepo.Add(newGame)
 }
 
 func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string, playerIdVm string) {

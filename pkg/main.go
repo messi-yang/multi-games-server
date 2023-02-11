@@ -3,8 +3,6 @@ package main
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/newappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/redispub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/httpcontroller"
@@ -41,8 +39,7 @@ func main() {
 		gameAppService,
 	)
 
-	mapSize, _ := commonmodel.NewSizeVo(200, 200)
-	newGameAppService.LoadGame(viewmodel.NewSizeVm(mapSize), "20716447-6514-4eac-bd05-e558ca72bf3c")
+	gameAppService.LoadGame("20716447-6514-4eac-bd05-e558ca72bf3c")
 
 	go inteventcontroller.NewGameIntEventController(newGameAppService)
 

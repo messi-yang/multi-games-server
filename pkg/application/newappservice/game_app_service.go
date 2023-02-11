@@ -1,8 +1,6 @@
 package newappservice
 
 import (
-	"math/rand"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
@@ -11,12 +9,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/jsonmarshaller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/tool"
 	"github.com/samber/lo"
 )
 
 type GameAppService interface {
-	LoadGame(mapSizVm viewmodel.SizeVm, gameIdVm string)
 	MovePlayer(gameIdVm string, playerIdVm string, directionVm int8)
 	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
 	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
@@ -91,29 +87,6 @@ func (gameAppServe *gameAppServe) publishPlayersUpdatedEvents(
 				playerVms,
 			)))
 	})
-}
-
-func (gameAppServe *gameAppServe) LoadGame(mapSizeVm viewmodel.SizeVm, gameIdVm string) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-
-	mapSize, _ := commonmodel.NewSizeVo(mapSizeVm.Width, mapSizeVm.Height)
-
-	items := gameAppServe.itemRepo.GetAll()
-	tool.ForMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) {
-		randomInt := rand.Intn(17)
-		location := commonmodel.NewLocationVo(x, y)
-		if randomInt < 2 {
-			newUnit := unitmodel.NewUnitAgg(gameId, location, items[randomInt].GetId())
-			gameAppServe.unitRepo.UpdateUnit(newUnit)
-		}
-	})
-
-	newGame := gamemodel.NewGameAgg(gameId)
-
-	gameAppServe.gameRepo.Add(newGame)
 }
 
 func (gameAppServe *gameAppServe) MovePlayer(gameIdVm string, playerIdVm string, directionVm int8) {
