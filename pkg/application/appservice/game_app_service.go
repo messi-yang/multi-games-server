@@ -17,7 +17,6 @@ import (
 
 type GameAppService interface {
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
-	SendItemsUpdatedServerEvent(presenter Presenter)
 	SendPlayersUpdatedServerEvent(presenter Presenter, playerVms []viewmodel.PlayerVm)
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	LoadGame(gameIdVm string)
@@ -114,18 +113,6 @@ func (gameAppServe *gameAppServe) SendViewUpdatedServerEvent(presenter Presenter
 	presenter.OnSuccess(event)
 }
 
-func (gameAppServe *gameAppServe) SendItemsUpdatedServerEvent(presenter Presenter) {
-	items := gameAppServe.itemRepo.GetAll()
-	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
-		return viewmodel.NewItemVm(item)
-	})
-
-	event := ItemsUpdatedServerEvent{}
-	event.Type = ItemsUpdatedServerEventType
-	event.Payload.Items = itemVms
-	presenter.OnSuccess(event)
-}
-
 func (gameAppServe *gameAppServe) LoadGame(gameIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
@@ -174,6 +161,11 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 
 	gameAppServe.gameRepo.Update(gameId, game)
 
+	items := gameAppServe.itemRepo.GetAll()
+	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
+		return viewmodel.NewItemVm(item)
+	})
+
 	players := game.GetPlayers()
 	playerVms := lo.Map(players, func(p gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
 		return viewmodel.NewPlayerVm(p)
@@ -187,6 +179,7 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 
 	event := GameJoinedServerEvent{}
 	event.Type = GameJoinedServerEventType
+	event.Payload.Items = itemVms
 	event.Payload.PlayerId = playerIdVm
 	event.Payload.Players = playerVms
 	event.Payload.MapSize = viewmodel.NewSizeVm(game.GetMapSize())

@@ -49,8 +49,6 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
 
-	go controller.gameAppService.SendItemsUpdatedServerEvent(socketPresenter)
-
 	intEventUnsubscriber := redissub.New().Subscribe(
 		intevent.CreateGameClientChannel(gameIdVm, playerIdVm),
 		func(message []byte) {

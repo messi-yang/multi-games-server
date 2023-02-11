@@ -54,7 +54,6 @@ const (
 	GameJoinedServerEventType     ServerEventType = "GAME_JOINED"
 	PlayersUpdatedServerEventType ServerEventType = "PLAYERS_UPDATED"
 	ViewUpdatedServerEventType    ServerEventType = "VIEW_UPDATED"
-	ItemsUpdatedServerEventType   ServerEventType = "ITEMS_UPDATED"
 )
 
 type GenericServerEvent struct {
@@ -75,6 +74,7 @@ type GameJoinedServerEvent struct {
 		Players  []viewmodel.PlayerVm `json:"players"`
 		MapSize  viewmodel.SizeVm     `json:"mapSize"`
 		View     viewmodel.ViewVm     `json:"view"`
+		Items    []viewmodel.ItemVm   `json:"items"`
 	} `json:"payload"`
 }
 
@@ -89,12 +89,5 @@ type ViewUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
 		View viewmodel.ViewVm `json:"view"`
-	} `json:"payload"`
-}
-
-type ItemsUpdatedServerEvent struct {
-	Type    ServerEventType `json:"type"`
-	Payload struct {
-		Items []viewmodel.ItemVm `json:"items"`
 	} `json:"payload"`
 }
