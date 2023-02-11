@@ -22,26 +22,7 @@ services:
       POSTGRES_DB: game
     networks:
       - base
-  gameserver:
-    build: .
-    environment:
-      - REDIS_HOST=redis:6379
-      - REDIS_PASSWORD=password
-      - POSTGRES_HOST=postgres
-      - POSTGRES_USER=gamer
-      - POSTGRES_PASSWORD=gamer
-      - POSTGRES_DB=game
-    depends_on:
-      - redis
-      - postgres
-    networks:
-      - base
-    volumes:
-      - .:/app
-    working_dir:
-      /app
-    command: make game-server-dev
-  apiserver:
+  web:
     build: .
     environment:
       - SERVER_URL=http://localhost:8080
@@ -54,11 +35,12 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - gameserver
+      - redis
+      - postgres
     networks:
       - base
     volumes:
       - .:/app
     working_dir:
       /app
-    command: make api-server-dev
+    command: make dev

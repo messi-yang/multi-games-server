@@ -17,11 +17,11 @@ docker-compose up
 ### Create new migration db file
 
 ```bash
-docker compose exec gameserver make create-migrate-db-file FILE_NAME=${file_name_in_snake_case}
+docker compose exec web make create-migrate-db-file FILE_NAME=${file_name_in_snake_case}
 ```
 
 ### Migration db according to migration db files
 
 ```bash
-docker compose exec gameserver make migrate-db
+docker compose exec web make migrate-db
 ```
