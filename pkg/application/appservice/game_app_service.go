@@ -38,6 +38,24 @@ func NewGameAppService(IntEventPublisher intevent.IntEventPublisher, gameRepo ga
 	return &gameAppServe{IntEventPublisher: IntEventPublisher, gameRepo: gameRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
+func (gameAppServe *gameAppServe) publishPlayersUpdatedEvents(
+	gameId gamemodel.GameIdVo,
+	players []gamemodel.PlayerEntity,
+	toPlayerIds []gamemodel.PlayerIdVo,
+) {
+	playerVms := lo.Map(players, func(player gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
+		return viewmodel.NewPlayerVm(player)
+	})
+	lo.ForEach(toPlayerIds, func(playerId gamemodel.PlayerIdVo, _ int) {
+		gameAppServe.IntEventPublisher.Publish(
+			intevent.CreateGameClientChannel(gameId.ToString(), playerId.ToString()),
+			jsonmarshaller.Marshal(intevent.NewPlayersUpdatedIntEvent(
+				gameId.ToString(),
+				playerVms,
+			)))
+	})
+}
+
 func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter Presenter, clientMessage string) {
 	event := ErroredServerEvent{}
 	event.Type = ErroredServerEventType
@@ -148,6 +166,8 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 	event.Payload.MapSize = viewmodel.NewSizeVm(game.GetMapSize())
 	event.Payload.View = viewmodel.NewViewVm(view)
 	presenter.OnSuccess(event)
+
+	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
 }
 
 func (gameAppServe *gameAppServe) RequestToMove(gameIdVm string, playerIdVm string, directionVm int8) {
