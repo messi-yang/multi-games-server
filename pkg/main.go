@@ -27,7 +27,7 @@ func main() {
 	gameRepo := memrepo.NewGameMemRepo()
 	unitRepo := memrepo.NewUnitMemRepo()
 
-	gameAppService := appservice.NewGameAppService(intEventPublisher, itemRepo)
+	gameAppService := appservice.NewGameAppService(intEventPublisher, gameRepo, unitRepo, itemRepo)
 	newGameAppService := newappservice.NewGameAppService(
 		gameRepo,
 		unitRepo,

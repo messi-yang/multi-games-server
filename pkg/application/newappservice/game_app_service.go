@@ -17,7 +17,6 @@ import (
 
 type GameAppService interface {
 	LoadGame(mapSizVm viewmodel.SizeVm, gameIdVm string)
-	JoinGame(gameIdVm string, playerIdVm string)
 	MovePlayer(gameIdVm string, playerIdVm string, directionVm int8)
 	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
 	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
@@ -115,56 +114,6 @@ func (gameAppServe *gameAppServe) LoadGame(mapSizeVm viewmodel.SizeVm, gameIdVm 
 	newGame := gamemodel.NewGameAgg(gameId)
 
 	gameAppServe.gameRepo.Add(newGame)
-}
-
-func (gameAppServe *gameAppServe) JoinGame(gameIdVm string, playerIdVm string) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-
-	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
-	defer unlocker()
-
-	game, err := gameAppServe.gameRepo.Get(gameId)
-	if err != nil {
-		return
-	}
-
-	err = game.AddPlayer(playerId)
-	if err != nil {
-		return
-	}
-
-	gameAppServe.gameRepo.Update(gameId, game)
-
-	players := game.GetPlayers()
-	playerVms := lo.Map(players, func(p gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
-		return viewmodel.NewPlayerVm(p)
-	})
-
-	// Delete this section later
-	bound, _ := game.GetPlayerViewBound(playerId)
-	units := gameAppServe.unitRepo.GetUnits(gameId, bound)
-	view := unitmodel.NewViewVo(bound, units)
-	// Delete this section later
-
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameClientChannel(gameIdVm, playerIdVm),
-		jsonmarshaller.Marshal(
-			intevent.NewGameJoinedIntEvent(
-				gameIdVm,
-				playerVms,
-				viewmodel.NewSizeVm(game.GetMapSize()),
-				viewmodel.NewViewVm(view),
-			),
-		),
-	)
-	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
 }
 
 func (gameAppServe *gameAppServe) MovePlayer(gameIdVm string, playerIdVm string, directionVm int8) {

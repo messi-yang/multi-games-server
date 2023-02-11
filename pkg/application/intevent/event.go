@@ -7,32 +7,16 @@ import (
 type IntEventName string
 
 const (
-	JoinGameRequestedIntEventName    IntEventName = "JOIN_GAME_REQUESTED"
 	MoveRequestedIntEventName        IntEventName = "MOVE_REQUESTED"
 	PlaceItemRequestedIntEventName   IntEventName = "PLACE_ITEM_REQUESTED"
 	DestroyItemRequestedIntEventName IntEventName = "DESTROY_ITEM_REQUESTED"
 	LeaveGameRequestedIntEventName   IntEventName = "LEAVE_GAME_REQUESTED"
-	GameJoinedIntEventName           IntEventName = "GAME_JOINED"
 	PlayersUpdatedIntEventName       IntEventName = "PLAYERS_UPDATED"
 	ViewUpdatedIntEventName          IntEventName = "VIEW_UPDATED"
 )
 
 type GenericIntEvent struct {
 	Name IntEventName `json:"name"`
-}
-
-type JoinGameRequestedIntEvent struct {
-	Name     IntEventName `json:"name"`
-	GameId   string       `json:"gameId"`
-	PlayerId string       `json:"playerId"`
-}
-
-func NewJoinGameRequestedIntEvent(gameIdVm string, playerIdVm string) JoinGameRequestedIntEvent {
-	return JoinGameRequestedIntEvent{
-		Name:     JoinGameRequestedIntEventName,
-		GameId:   gameIdVm,
-		PlayerId: playerIdVm,
-	}
 }
 
 type MoveRequestedIntEvent struct {
@@ -82,24 +66,6 @@ func NewDestroyItemRequestedIntEvent(gameIdVm string, playerIdVm string, locatio
 		GameId:   gameIdVm,
 		PlayerId: playerIdVm,
 		Location: locationVm,
-	}
-}
-
-type GameJoinedIntEvent struct {
-	Name    IntEventName         `json:"name"`
-	GameId  string               `json:"gameId"`
-	Players []viewmodel.PlayerVm `json:"players"`
-	MapSize viewmodel.SizeVm     `json:"mapSize"`
-	View    viewmodel.ViewVm     `json:"view"`
-}
-
-func NewGameJoinedIntEvent(gameIdVm string, playerVms []viewmodel.PlayerVm, mapSizeVm viewmodel.SizeVm, viewVm viewmodel.ViewVm) GameJoinedIntEvent {
-	return GameJoinedIntEvent{
-		Name:    GameJoinedIntEventName,
-		GameId:  gameIdVm,
-		Players: playerVms,
-		MapSize: mapSizeVm,
-		View:    viewVm,
 	}
 }
 

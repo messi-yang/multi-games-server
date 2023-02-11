@@ -45,7 +45,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	defer socketConn.Close()
 	closeConnFlag := make(chan bool)
 
-	gameId := "20716447-6514-4eac-bd05-e558ca72bf3c"
+	gameIdVm := "20716447-6514-4eac-bd05-e558ca72bf3c"
 
 	playerIdVm := uuid.New().String()
 
@@ -54,7 +54,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	go controller.gameAppService.SendItemsUpdatedServerEvent(socketPresenter)
 
 	intEventUnsubscriber := redissub.New().Subscribe(
-		intevent.CreateGameClientChannel(gameId, playerIdVm),
+		intevent.CreateGameClientChannel(gameIdVm, playerIdVm),
 		func(message []byte) {
 			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericIntEvent](message)
 			if err != nil {
@@ -62,22 +62,6 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 			}
 
 			switch intEvent.Name {
-			case intevent.GameJoinedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.GameJoinedIntEvent](message)
-				if err != nil {
-					return
-				}
-				myPlayerVm, exists := lo.Find(event.Players, func(playerVm viewmodel.PlayerVm) bool {
-					return playerVm.Id == playerIdVm
-				})
-				if !exists {
-					return
-				}
-
-				otherPlayerVms := lo.Filter(event.Players, func(playerVm viewmodel.PlayerVm, _ int) bool {
-					return playerVm.Id != playerIdVm
-				})
-				controller.gameAppService.SendGameJoinedServerEvent(socketPresenter, myPlayerVm, otherPlayerVms, event.MapSize, event.View)
 			case intevent.PlayersUpdatedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.PlayersUpdatedIntEvent](message)
 				if err != nil {
@@ -105,7 +89,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 		})
 	defer intEventUnsubscriber()
 
-	controller.gameAppService.RequestToJoinGame(gameId, playerIdVm)
+	controller.gameAppService.JoinGame(socketPresenter, gameIdVm, playerIdVm)
 
 	go func() {
 		defer func() {
@@ -140,7 +124,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
-				controller.gameAppService.RequestToMove(gameId, playerIdVm, command.Payload.Direction)
+				controller.gameAppService.RequestToMove(gameIdVm, playerIdVm, command.Payload.Direction)
 			case appservice.PlaceItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[appservice.PlaceItemClientEvent](message)
 				if err != nil {
@@ -148,7 +132,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.gameAppService.RequestToPlaceItem(gameId, playerIdVm, command.Payload.Location, command.Payload.ItemId)
+				controller.gameAppService.RequestToPlaceItem(gameIdVm, playerIdVm, command.Payload.Location, command.Payload.ItemId)
 			case appservice.DestroyItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[appservice.DestroyItemClientEvent](message)
 				if err != nil {
@@ -156,7 +140,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.gameAppService.RequestToDestroyItem(gameId, playerIdVm, command.Payload.Location)
+				controller.gameAppService.RequestToDestroyItem(gameIdVm, playerIdVm, command.Payload.Location)
 			default:
 			}
 		}
@@ -165,7 +149,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.gameAppService.RequestToLeaveGame(gameId, playerIdVm)
+		controller.gameAppService.RequestToLeaveGame(gameIdVm, playerIdVm)
 		return
 	}
 }

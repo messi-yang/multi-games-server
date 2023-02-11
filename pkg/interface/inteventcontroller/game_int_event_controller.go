@@ -17,12 +17,6 @@ func NewGameIntEventController(newGameAppService newappservice.GameAppService) {
 			}
 
 			switch intEvent.Name {
-			case intevent.JoinGameRequestedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.JoinGameRequestedIntEvent](message)
-				if err != nil {
-					return
-				}
-				newGameAppService.JoinGame(event.GameId, event.PlayerId)
 			case intevent.MoveRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.MoveRequestedIntEvent](message)
 				if err != nil {
