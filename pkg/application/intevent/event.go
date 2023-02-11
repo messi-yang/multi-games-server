@@ -7,48 +7,12 @@ import (
 type IntEventName string
 
 const (
-	PlaceItemRequestedIntEventName   IntEventName = "PLACE_ITEM_REQUESTED"
-	DestroyItemRequestedIntEventName IntEventName = "DESTROY_ITEM_REQUESTED"
-	PlayersUpdatedIntEventName       IntEventName = "PLAYERS_UPDATED"
-	ViewUpdatedIntEventName          IntEventName = "VIEW_UPDATED"
+	PlayersUpdatedIntEventName IntEventName = "PLAYERS_UPDATED"
+	ViewUpdatedIntEventName    IntEventName = "VIEW_UPDATED"
 )
 
 type GenericIntEvent struct {
 	Name IntEventName `json:"name"`
-}
-
-type PlaceItemRequestedIntEvent struct {
-	Name     IntEventName         `json:"name"`
-	GameId   string               `json:"gameId"`
-	PlayerId string               `json:"playerId"`
-	Location viewmodel.LocationVm `json:"location"`
-	ItemId   int16                `json:"itemId"`
-}
-
-func NewPlaceItemRequestedIntEvent(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) PlaceItemRequestedIntEvent {
-	return PlaceItemRequestedIntEvent{
-		Name:     PlaceItemRequestedIntEventName,
-		GameId:   gameIdVm,
-		PlayerId: playerIdVm,
-		Location: locationVm,
-		ItemId:   itemIdVm,
-	}
-}
-
-type DestroyItemRequestedIntEvent struct {
-	Name     IntEventName         `json:"name"`
-	GameId   string               `json:"gameId"`
-	PlayerId string               `json:"playerId"`
-	Location viewmodel.LocationVm `json:"location"`
-}
-
-func NewDestroyItemRequestedIntEvent(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) DestroyItemRequestedIntEvent {
-	return DestroyItemRequestedIntEvent{
-		Name:     DestroyItemRequestedIntEventName,
-		GameId:   gameIdVm,
-		PlayerId: playerIdVm,
-		Location: locationVm,
-	}
 }
 
 type PlayersUpdatedIntEvent struct {
