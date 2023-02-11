@@ -16,23 +16,7 @@ func MapMatrix[T any, M any](inputMatrix [][]T, transformer func(x int, y int, o
 	return outputMatrix, nil
 }
 
-func RangeMatrix[T any](width int, height int, creator func(x int, y int) (T, error)) ([][]T, error) {
-	outputMatrix := make([][]T, 0)
-
-	for x := 0; x < width; x += 1 {
-		outputMatrix = append(outputMatrix, make([]T, 0))
-		for y := 0; y < height; y += 1 {
-			newObj, err := creator(x, y)
-			if err != nil {
-				return nil, err
-			}
-			outputMatrix[x] = append(outputMatrix[x], newObj)
-		}
-	}
-	return outputMatrix, nil
-}
-
-func ForMatrix(width int, height int, callback func(x int, y int)) {
+func RangeMatrix(width int, height int, callback func(x int, y int)) {
 	for x := 0; x < width; x += 1 {
 		for y := 0; y < height; y += 1 {
 			callback(x, y)

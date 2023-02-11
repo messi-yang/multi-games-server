@@ -31,11 +31,6 @@ func (game *GameAgg) GetId() GameIdVo {
 	return game.id
 }
 
-func (game *GameAgg) GetMapSize() commonmodel.SizeVo {
-	size, _ := commonmodel.NewSizeVo(200, 200)
-	return size
-}
-
 func (game *GameAgg) GetPlayerIds() []PlayerIdVo {
 	return lo.Keys(game.players)
 }

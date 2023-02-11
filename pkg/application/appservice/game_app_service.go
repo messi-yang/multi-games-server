@@ -119,10 +119,8 @@ func (gameAppServe *gameAppServe) LoadGame(gameIdVm string) {
 		return
 	}
 
-	mapSize, _ := commonmodel.NewSizeVo(200, 200)
-
 	items := gameAppServe.itemRepo.GetAll()
-	tool.ForMatrix(mapSize.GetWidth(), mapSize.GetHeight(), func(x int, y int) {
+	tool.RangeMatrix(200, 200, func(x int, y int) {
 		randomInt := rand.Intn(17)
 		location := commonmodel.NewLocationVo(x, y)
 		if randomInt < 2 {
@@ -182,7 +180,6 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 	event.Payload.Items = itemVms
 	event.Payload.PlayerId = playerIdVm
 	event.Payload.Players = playerVms
-	event.Payload.MapSize = viewmodel.NewSizeVm(game.GetMapSize())
 	event.Payload.View = viewmodel.NewViewVm(view)
 	presenter.OnSuccess(event)
 

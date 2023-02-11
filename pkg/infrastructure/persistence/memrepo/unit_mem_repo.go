@@ -42,7 +42,7 @@ func (m *unitMemRepo) GetUnit(gameId gamemodel.GameIdVo, location commonmodel.Lo
 
 func (m *unitMemRepo) GetUnits(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) []unitmodel.UnitAgg {
 	units := make([]unitmodel.UnitAgg, 0)
-	tool.ForMatrix(bound.GetWidth(), bound.GetHeight(), func(x int, y int) {
+	tool.RangeMatrix(bound.GetWidth(), bound.GetHeight(), func(x int, y int) {
 		location := commonmodel.NewLocationVo(x+bound.GetFrom().GetX(), y+bound.GetFrom().GetY())
 		unit, exists := m.unitRecords[gameId][location]
 		if exists {

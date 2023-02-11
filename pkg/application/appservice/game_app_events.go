@@ -72,7 +72,6 @@ type GameJoinedServerEvent struct {
 	Payload struct {
 		PlayerId string               `json:"playerId"`
 		Players  []viewmodel.PlayerVm `json:"players"`
-		MapSize  viewmodel.SizeVm     `json:"mapSize"`
 		View     viewmodel.ViewVm     `json:"view"`
 		Items    []viewmodel.ItemVm   `json:"items"`
 	} `json:"payload"`
