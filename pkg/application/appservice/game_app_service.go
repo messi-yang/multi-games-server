@@ -9,6 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/jsonmarshaller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/tool"
 	"github.com/samber/lo"
@@ -21,10 +22,10 @@ type GameAppService interface {
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	LoadGame(gameIdVm string)
 	JoinGame(presenter Presenter, gameIdVm string, playerIdVm string)
-	RequestToMove(gameIdVm string, playerIdVm string, directionVm int8)
+	MovePlayer(gameIdVm string, playerIdVm string, directionVm int8)
+	LeaveGame(gameIdVm string, playerIdVm string)
 	RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
 	RequestToDestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
-	RequestToLeaveGame(gameIdVm string, playerIdVm string)
 }
 
 type gameAppServe struct {
@@ -32,10 +33,17 @@ type gameAppServe struct {
 	gameRepo          gamemodel.Repo
 	unitRepo          unitmodel.Repo
 	itemRepo          itemmodel.Repo
+	gameService       service.GameService
 }
 
 func NewGameAppService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameAppService {
-	return &gameAppServe{IntEventPublisher: IntEventPublisher, gameRepo: gameRepo, unitRepo: unitRepo, itemRepo: itemRepo}
+	return &gameAppServe{
+		IntEventPublisher: IntEventPublisher,
+		gameRepo:          gameRepo,
+		unitRepo:          unitRepo,
+		itemRepo:          itemRepo,
+		gameService:       service.NewGameService(gameRepo, unitRepo, itemRepo),
+	}
 }
 
 func (gameAppServe *gameAppServe) publishPlayersUpdatedEvents(
@@ -170,11 +178,68 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
 }
 
-func (gameAppServe *gameAppServe) RequestToMove(gameIdVm string, playerIdVm string, directionVm int8) {
+func (gameAppServe *gameAppServe) MovePlayer(gameIdVm string, playerIdVm string, directionVm int8) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+	if err != nil {
+		return
+	}
+	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
+	if err != nil {
+		return
+	}
+	direction, err := gamemodel.NewDirectionVo(directionVm)
+	if err != nil {
+		return
+	}
+
+	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	err = gameAppServe.gameService.MovePlayer(gameId, playerId, direction)
+	if err != nil {
+		return
+	}
+
+	game, err := gameAppServe.gameRepo.Get(gameId)
+	if err != nil {
+		return
+	}
+
+	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIds())
+
+	// Delete this section later
+	bound, _ := game.GetPlayerViewBound(playerId)
+	units := gameAppServe.unitRepo.GetUnits(gameId, bound)
+	view := unitmodel.NewViewVo(bound, units)
+	// Delete this section later
+
 	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewMoveRequestedIntEvent(gameIdVm, playerIdVm, directionVm)),
+		intevent.CreateGameClientChannel(gameIdVm, playerIdVm),
+		jsonmarshaller.Marshal(intevent.NewViewUpdatedIntEvent(gameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
 	)
+}
+
+func (gameAppServe *gameAppServe) LeaveGame(gameIdVm string, playerIdVm string) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+	if err != nil {
+		return
+	}
+	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
+	if err != nil {
+		return
+	}
+
+	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	game, err := gameAppServe.gameRepo.Get(gameId)
+	if err != nil {
+		return
+	}
+
+	game.RemovePlayer(playerId)
+	gameAppServe.gameRepo.Update(gameId, game)
+	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
 }
 
 func (gameAppServe *gameAppServe) RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
@@ -188,12 +253,5 @@ func (gameAppServe *gameAppServe) RequestToDestroyItem(gameIdVm string, playerId
 	gameAppServe.IntEventPublisher.Publish(
 		intevent.CreateGameAdminChannel(),
 		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedIntEvent(gameIdVm, playerIdVm, locationVm)),
-	)
-}
-
-func (gameAppServe *gameAppServe) RequestToLeaveGame(gameIdVm string, playerIdVm string) {
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewLeaveGameRequestedIntEvent(gameIdVm, playerIdVm)),
 	)
 }

@@ -124,7 +124,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
-				controller.gameAppService.RequestToMove(gameIdVm, playerIdVm, command.Payload.Direction)
+				controller.gameAppService.MovePlayer(gameIdVm, playerIdVm, command.Payload.Direction)
 			case appservice.PlaceItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[appservice.PlaceItemClientEvent](message)
 				if err != nil {
@@ -149,7 +149,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.gameAppService.RequestToLeaveGame(gameIdVm, playerIdVm)
+		controller.gameAppService.LeaveGame(gameIdVm, playerIdVm)
 		return
 	}
 }

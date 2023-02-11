@@ -17,12 +17,6 @@ func NewGameIntEventController(newGameAppService newappservice.GameAppService) {
 			}
 
 			switch intEvent.Name {
-			case intevent.MoveRequestedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.MoveRequestedIntEvent](message)
-				if err != nil {
-					return
-				}
-				newGameAppService.MovePlayer(event.GameId, event.PlayerId, event.Direction)
 			case intevent.DestroyItemRequestedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.DestroyItemRequestedIntEvent](message)
 				if err != nil {
@@ -35,12 +29,6 @@ func NewGameIntEventController(newGameAppService newappservice.GameAppService) {
 					return
 				}
 				newGameAppService.PlaceItem(event.GameId, event.PlayerId, event.Location, event.ItemId)
-			case intevent.LeaveGameRequestedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.LeaveGameRequestedIntEvent](message)
-				if err != nil {
-					return
-				}
-				newGameAppService.LeaveGame(event.GameId, event.PlayerId)
 			}
 		})
 	defer gameAdminChannelUnsubscriber()

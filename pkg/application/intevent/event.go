@@ -7,32 +7,14 @@ import (
 type IntEventName string
 
 const (
-	MoveRequestedIntEventName        IntEventName = "MOVE_REQUESTED"
 	PlaceItemRequestedIntEventName   IntEventName = "PLACE_ITEM_REQUESTED"
 	DestroyItemRequestedIntEventName IntEventName = "DESTROY_ITEM_REQUESTED"
-	LeaveGameRequestedIntEventName   IntEventName = "LEAVE_GAME_REQUESTED"
 	PlayersUpdatedIntEventName       IntEventName = "PLAYERS_UPDATED"
 	ViewUpdatedIntEventName          IntEventName = "VIEW_UPDATED"
 )
 
 type GenericIntEvent struct {
 	Name IntEventName `json:"name"`
-}
-
-type MoveRequestedIntEvent struct {
-	Name      IntEventName `json:"name"`
-	GameId    string       `json:"gameId"`
-	PlayerId  string       `json:"playerId"`
-	Direction int8         `json:"direction"`
-}
-
-func NewMoveRequestedIntEvent(gameIdVm string, playerIdVm string, direction int8) MoveRequestedIntEvent {
-	return MoveRequestedIntEvent{
-		Name:      MoveRequestedIntEventName,
-		GameId:    gameIdVm,
-		PlayerId:  playerIdVm,
-		Direction: direction,
-	}
 }
 
 type PlaceItemRequestedIntEvent struct {
@@ -96,19 +78,5 @@ func NewViewUpdatedIntEvent(gameIdVm string, playerIdVm string, viewVm viewmodel
 		GameId:   gameIdVm,
 		PlayerId: playerIdVm,
 		View:     viewVm,
-	}
-}
-
-type LeaveGameRequestedIntEvent struct {
-	Name     IntEventName `json:"name"`
-	GameId   string       `json:"gameId"`
-	PlayerId string       `json:"playerId"`
-}
-
-func NewLeaveGameRequestedIntEvent(gameIdVm string, playerIdVm string) LeaveGameRequestedIntEvent {
-	return LeaveGameRequestedIntEvent{
-		Name:     LeaveGameRequestedIntEventName,
-		GameId:   gameIdVm,
-		PlayerId: playerIdVm,
 	}
 }
