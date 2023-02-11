@@ -4,10 +4,10 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/tool"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/tool"
 )
 
 var (

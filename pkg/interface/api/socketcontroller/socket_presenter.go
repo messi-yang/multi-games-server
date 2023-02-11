@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/appservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/gzipper"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/gzipper"
 	"github.com/gorilla/websocket"
 )
 

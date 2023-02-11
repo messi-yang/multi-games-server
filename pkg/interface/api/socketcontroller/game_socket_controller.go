@@ -6,9 +6,9 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/appservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/redissub"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/gzipper"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/library/jsonmarshaller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/gzipper"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redissub"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
