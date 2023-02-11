@@ -18,7 +18,7 @@ import (
 type GameAppService interface {
 	SendErroredServerEvent(presenter Presenter, clientMessage string)
 	SendItemsUpdatedServerEvent(presenter Presenter)
-	SendPlayersUpdatedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm)
+	SendPlayersUpdatedServerEvent(presenter Presenter, playerVms []viewmodel.PlayerVm)
 	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
 	LoadGame(gameIdVm string)
 	JoinGame(presenter Presenter, gameIdVm string, playerIdVm string)
@@ -100,11 +100,10 @@ func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter Presenter, cl
 	presenter.OnSuccess(event)
 }
 
-func (gameAppServe *gameAppServe) SendPlayersUpdatedServerEvent(presenter Presenter, myPlayerVm viewmodel.PlayerVm, otherPlayerVms []viewmodel.PlayerVm) {
+func (gameAppServe *gameAppServe) SendPlayersUpdatedServerEvent(presenter Presenter, playerVms []viewmodel.PlayerVm) {
 	event := PlayersUpdatedServerEvent{}
 	event.Type = PlayersUpdatedServerEventType
-	event.Payload.MyPlayer = myPlayerVm
-	event.Payload.OtherPlayers = otherPlayerVms
+	event.Payload.Players = playerVms
 	presenter.OnSuccess(event)
 }
 
@@ -179,16 +178,6 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 	playerVms := lo.Map(players, func(p gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
 		return viewmodel.NewPlayerVm(p)
 	})
-	myPlayerVm, exists := lo.Find(playerVms, func(playerVm viewmodel.PlayerVm) bool {
-		return playerVm.Id == playerIdVm
-	})
-	if !exists {
-		return
-	}
-
-	otherPlayerVms := lo.Filter(playerVms, func(playerVm viewmodel.PlayerVm, _ int) bool {
-		return playerVm.Id != playerIdVm
-	})
 
 	// Delete this section later
 	bound, _ := game.GetPlayerViewBound(playerId)
@@ -198,8 +187,8 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 
 	event := GameJoinedServerEvent{}
 	event.Type = GameJoinedServerEventType
-	event.Payload.MyPlayer = myPlayerVm
-	event.Payload.OtherPlayers = otherPlayerVms
+	event.Payload.PlayerId = playerIdVm
+	event.Payload.Players = playerVms
 	event.Payload.MapSize = viewmodel.NewSizeVm(game.GetMapSize())
 	event.Payload.View = viewmodel.NewViewVm(view)
 	presenter.OnSuccess(event)

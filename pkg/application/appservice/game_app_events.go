@@ -71,18 +71,17 @@ type ErroredServerEvent struct {
 type GameJoinedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MyPlayer     viewmodel.PlayerVm   `json:"myPlayer"`
-		OtherPlayers []viewmodel.PlayerVm `json:"otherPlayers"`
-		MapSize      viewmodel.SizeVm     `json:"mapSize"`
-		View         viewmodel.ViewVm     `json:"view"`
+		PlayerId string               `json:"playerId"`
+		Players  []viewmodel.PlayerVm `json:"players"`
+		MapSize  viewmodel.SizeVm     `json:"mapSize"`
+		View     viewmodel.ViewVm     `json:"view"`
 	} `json:"payload"`
 }
 
 type PlayersUpdatedServerEvent struct {
 	Type    ServerEventType `json:"type"`
 	Payload struct {
-		MyPlayer     viewmodel.PlayerVm   `json:"myPlayer"`
-		OtherPlayers []viewmodel.PlayerVm `json:"otherPlayers"`
+		Players []viewmodel.PlayerVm `json:"players"`
 	} `json:"payload"`
 }
 
