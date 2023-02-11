@@ -2,11 +2,8 @@ package main
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/appservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/newappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/redispub"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/httpcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/inteventcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/socketcontroller"
 
 	"github.com/gin-contrib/cors"
@@ -26,26 +23,14 @@ func main() {
 	unitRepo := memrepo.NewUnitMemRepo()
 
 	gameAppService := appservice.NewGameAppService(intEventPublisher, gameRepo, unitRepo, itemRepo)
-	newGameAppService := newappservice.NewGameAppService(
-		gameRepo,
-		unitRepo,
-		itemRepo,
-		intEventPublisher,
-	)
-	itemAppService := appservice.NewItemAppService(itemRepo)
-
-	itemController := httpcontroller.NewItemHttpController(itemAppService)
 	gameController := socketcontroller.NewGameSocketController(
 		gameAppService,
 	)
 
 	gameAppService.LoadGame("20716447-6514-4eac-bd05-e558ca72bf3c")
 
-	go inteventcontroller.NewGameIntEventController(newGameAppService)
-
 	router.Static("/assets", "./pkg/assets")
 	router.Group("/ws/game").GET("/", gameController.HandleGameConnection)
-	router.GET("/items", itemController.GetAllHandler)
 	router.Run()
 
 }

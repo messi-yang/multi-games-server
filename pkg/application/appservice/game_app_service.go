@@ -24,8 +24,8 @@ type GameAppService interface {
 	JoinGame(presenter Presenter, gameIdVm string, playerIdVm string)
 	MovePlayer(gameIdVm string, playerIdVm string, directionVm int8)
 	LeaveGame(gameIdVm string, playerIdVm string)
-	RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
-	RequestToDestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
+	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
+	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 }
 
 type gameAppServe struct {
@@ -62,6 +62,35 @@ func (gameAppServe *gameAppServe) publishPlayersUpdatedEvents(
 				playerVms,
 			)))
 	})
+}
+
+func (gameAppServe *gameAppServe) publishViewUpdatedEvents(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) error {
+	game, err := gameAppServe.gameRepo.Get(gameId)
+	if err != nil {
+		return err
+	}
+
+	for _, playerId := range game.GetPlayerIds() {
+		if !game.CanPlayerSeeAnyLocations(playerId, []commonmodel.LocationVo{location}) {
+			continue
+		}
+
+		// Delete this section later
+		bound, _ := game.GetPlayerViewBound(playerId)
+		units := gameAppServe.unitRepo.GetUnits(gameId, bound)
+		view := unitmodel.NewViewVo(bound, units)
+		// Delete this section later
+
+		gameAppServe.IntEventPublisher.Publish(
+			intevent.CreateGameClientChannel(gameId.ToString(), playerId.ToString()),
+			jsonmarshaller.Marshal(intevent.NewViewUpdatedIntEvent(
+				gameId.ToString(),
+				playerId.ToString(),
+				viewmodel.NewViewVm(view),
+			)))
+	}
+
+	return nil
 }
 
 func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter Presenter, clientMessage string) {
@@ -242,16 +271,44 @@ func (gameAppServe *gameAppServe) LeaveGame(gameIdVm string, playerIdVm string) 
 	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
 }
 
-func (gameAppServe *gameAppServe) RequestToPlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewPlaceItemRequestedIntEvent(gameIdVm, playerIdVm, locationVm, itemIdVm)),
-	)
+func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+	if err != nil {
+		return
+	}
+	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
+	if err != nil {
+		return
+	}
+	itemId := itemmodel.NewItemIdVo(itemIdVm)
+	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
+
+	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	err = gameAppServe.gameService.PlaceItem(gameId, playerId, itemId, location)
+	if err != nil {
+		return
+	}
+
+	gameAppServe.publishViewUpdatedEvents(gameId, location)
 }
 
-func (gameAppServe *gameAppServe) RequestToDestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameAdminChannel(),
-		jsonmarshaller.Marshal(intevent.NewDestroyItemRequestedIntEvent(gameIdVm, playerIdVm, locationVm)),
-	)
+func (gameAppServe *gameAppServe) DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+	if err != nil {
+		return
+	}
+	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
+	if err != nil {
+		return
+	}
+	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
+
+	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	gameAppServe.gameService.DestroyItem(gameId, playerId, location)
+
+	gameAppServe.publishViewUpdatedEvents(gameId, location)
 }
