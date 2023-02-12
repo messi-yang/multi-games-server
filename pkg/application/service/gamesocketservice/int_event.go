@@ -36,15 +36,15 @@ func NewPlayerUpdatedIntEvent(gameIdVm string, playerIdVm string) PlayerUpdatedI
 }
 
 type UnitUpdatedIntEvent struct {
-	Name   GameSocketIntEventName `json:"name"`
-	GameId string                 `json:"gameId"`
-	Unit   viewmodel.UnitVm       `json:"unit"`
+	Name     GameSocketIntEventName `json:"name"`
+	GameId   string                 `json:"gameId"`
+	Location viewmodel.LocationVm   `json:"location"`
 }
 
-func NewUnitUpdatedIntEvent(gameIdVm string, unitVm viewmodel.UnitVm) UnitUpdatedIntEvent {
+func NewUnitUpdatedIntEvent(gameIdVm string, locationVm viewmodel.LocationVm) UnitUpdatedIntEvent {
 	return UnitUpdatedIntEvent{
-		Name:   UnitUpdatedGameSocketIntEventName,
-		GameId: gameIdVm,
-		Unit:   unitVm,
+		Name:     UnitUpdatedGameSocketIntEventName,
+		GameId:   gameIdVm,
+		Location: locationVm,
 	}
 }

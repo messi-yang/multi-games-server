@@ -84,7 +84,7 @@ func (serve *serve) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, 
 	if err != nil {
 		return
 	}
-	location := commonmodel.NewLocationVo(intEvent.Unit.Location.X, intEvent.Unit.Location.Y)
+	location := commonmodel.NewLocationVo(intEvent.Location.X, intEvent.Location.Y)
 	if !game.CanPlayerSeeAnyLocations(playerId, []commonmodel.LocationVo{location}) {
 		return
 	}
@@ -274,12 +274,11 @@ func (serve *serve) PlaceItem(gameIdVm string, playerIdVm string, locationVm vie
 		return
 	}
 
-	unit, _ := serve.unitRepo.GetUnit(gameId, location)
 	serve.IntEventPublisher.Publish(
 		CreateGameIntEventChannel(gameIdVm),
 		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
 			gameIdVm,
-			viewmodel.NewUnitVm(unit),
+			locationVm,
 		)))
 }
 
@@ -299,11 +298,10 @@ func (serve *serve) DestroyItem(gameIdVm string, playerIdVm string, locationVm v
 
 	serve.gameService.DestroyItem(gameId, playerId, location)
 
-	unit, _ := serve.unitRepo.GetUnit(gameId, location)
 	serve.IntEventPublisher.Publish(
 		CreateGameIntEventChannel(gameIdVm),
 		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
 			gameIdVm,
-			viewmodel.NewUnitVm(unit),
+			locationVm,
 		)))
 }
