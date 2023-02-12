@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redispub"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/intevent/redisinteventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/api/gamesocketapi"
 
@@ -16,7 +16,7 @@ func main() {
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
 
-	intEventPublisher := redispub.New()
+	intEventPublisher := redisinteventpublisher.New()
 
 	itemRepo := memrepo.NewItemMemRepo()
 	gameRepo := memrepo.NewGameMemRepo()

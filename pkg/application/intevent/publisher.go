@@ -1,5 +1,5 @@
 package intevent
 
 type IntEventPublisher interface {
-	Publish(channel string, message []byte) error
+	Publish(channel string, event IntEvent) error
 }

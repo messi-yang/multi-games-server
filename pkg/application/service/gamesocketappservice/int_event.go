@@ -2,43 +2,24 @@ package gamesocketappservice
 
 import (
 	"fmt"
+
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
 )
 
-func CreateGamePlayerChannel(gameIdDto string, playerIdDto string) string {
-	return fmt.Sprintf("GAME_%s_PLAYER_%s", gameIdDto, playerIdDto)
+type PlayersUpdatedIntEvent struct{}
+
+func NewPlayersUpdatedIntEventChannel(gameIdDto string, playerIdDto string) string {
+	return fmt.Sprintf("GAME_%s_PLAYER_%s_PLAYERS_UPDATED", gameIdDto, playerIdDto)
+}
+func (event PlayersUpdatedIntEvent) Marshal() []byte {
+	return json.Marshal(event)
 }
 
-type GameSocketIntEventName string
+type ViewUpdatedIntEvent struct{}
 
-const (
-	PlayersUpdatedGameSocketIntEventName GameSocketIntEventName = "PLAYERS_UPDATED"
-	ViewUpdatedGameSocketIntEventName    GameSocketIntEventName = "VIEW_UPDATED"
-)
-
-type GameSocketIntEvent struct {
-	Name GameSocketIntEventName `json:"name"`
+func NewViewUpdatedIntEventChannel(gameIdDto string, playerIdDto string) string {
+	return fmt.Sprintf("GAME_%s_PLAYER_%s_VIEW_UPDATED", gameIdDto, playerIdDto)
 }
-
-type PlayersUpdatedIntEvent struct {
-	Name   GameSocketIntEventName `json:"name"`
-	GameId string                 `json:"gameId"`
-}
-
-func NewPlayersUpdatedIntEvent(gameIdDto string) PlayersUpdatedIntEvent {
-	return PlayersUpdatedIntEvent{
-		Name:   PlayersUpdatedGameSocketIntEventName,
-		GameId: gameIdDto,
-	}
-}
-
-type ViewUpdatedIntEvent struct {
-	Name   GameSocketIntEventName `json:"name"`
-	GameId string                 `json:"gameId"`
-}
-
-func NewViewUpdatedIntEvent(gameIdDto string) ViewUpdatedIntEvent {
-	return ViewUpdatedIntEvent{
-		Name:   ViewUpdatedGameSocketIntEventName,
-		GameId: gameIdDto,
-	}
+func (event ViewUpdatedIntEvent) Marshal() []byte {
+	return json.Marshal(event)
 }

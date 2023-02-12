@@ -1,5 +1,5 @@
 package intevent
 
-type IntEventSubscriber interface {
-	Subscribe(channel string, handler func([]byte)) (unsubscriber func())
+type IntEventSubscriber[T IntEvent] interface {
+	Subscribe(channel string, handler func(T)) (unsubscriber func())
 }

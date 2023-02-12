@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/gzip"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redissub"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/intevent/redisinteventsubscriber"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -48,37 +48,23 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 
 	socketPresenter := newPresenter(socketConn, &sync.RWMutex{})
 
-	intEventUnsubscriber := redissub.New().Subscribe(
-		gamesocketappservice.CreateGamePlayerChannel(gameIdDto, playerIdDto),
-		func(message []byte) {
-			intEvent, err := json.Unmarshal[gamesocketappservice.GameSocketIntEvent](message)
-			if err != nil {
-				return
-			}
+	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent]().Subscribe(
+		gamesocketappservice.NewPlayersUpdatedIntEventChannel(gameIdDto, playerIdDto),
+		func(intEvent gamesocketappservice.PlayersUpdatedIntEvent) {
+			query, _ := gamesocketappservice.NewGetPlayersQuery(gameIdDto, playerIdDto)
+			controller.gameAppService.GetPlayers(socketPresenter, query)
+		},
+	)
+	defer playersUpdatedIntEventUnsubscriber()
 
-			switch intEvent.Name {
-			case gamesocketappservice.PlayersUpdatedGameSocketIntEventName:
-				event, _ := json.Unmarshal[gamesocketappservice.PlayersUpdatedIntEvent](message)
-
-				query, err := gamesocketappservice.NewGetPlayersQuery(event.GameId, playerIdDto)
-				if err != nil {
-					return
-				}
-
-				controller.gameAppService.GetPlayers(socketPresenter, query)
-			case gamesocketappservice.ViewUpdatedGameSocketIntEventName:
-				event, _ := json.Unmarshal[gamesocketappservice.ViewUpdatedIntEvent](message)
-
-				query, err := gamesocketappservice.NewGetViewQuery(event.GameId, playerIdDto)
-				if err != nil {
-					return
-				}
-
-				controller.gameAppService.GetView(socketPresenter, query)
-			}
-
-		})
-	defer intEventUnsubscriber()
+	viewUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.ViewUpdatedIntEvent]().Subscribe(
+		gamesocketappservice.NewViewUpdatedIntEventChannel(gameIdDto, playerIdDto),
+		func(intEvent gamesocketappservice.ViewUpdatedIntEvent) {
+			query, _ := gamesocketappservice.NewGetViewQuery(gameIdDto, playerIdDto)
+			controller.gameAppService.GetView(socketPresenter, query)
+		},
+	)
+	defer viewUpdatedIntEventTypeUnsubscriber()
 
 	command, err := gamesocketappservice.NewAddPlayerCommand(gameIdDto, playerIdDto)
 	if err != nil {
