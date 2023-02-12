@@ -12,7 +12,7 @@ type GameSocketIntEventName string
 
 const (
 	PlayersUpdatedGameSocketIntEventName GameSocketIntEventName = "PLAYERS_UPDATED"
-	ViewUpdatedGameSocketIntEventName    GameSocketIntEventName = "UNIT_UPDATED"
+	ViewUpdatedGameSocketIntEventName    GameSocketIntEventName = "VIEW_UPDATED"
 )
 
 type GameSocketIntEvent struct {
