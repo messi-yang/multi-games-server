@@ -1,4 +1,4 @@
-package gamesocketservice
+package gamesocketappservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"

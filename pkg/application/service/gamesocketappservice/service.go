@@ -1,4 +1,4 @@
-package gamesocketservice
+package gamesocketappservice
 
 import (
 	"math/rand"
@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/tool"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/socketservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
@@ -18,11 +17,11 @@ import (
 
 type Service interface {
 	CreateGame(gameIdVm string)
-	GetError(presenter socketservice.Presenter, errorMessage string)
-	GetPlayers(presenter socketservice.Presenter, query GetPlayersQuery) error
-	GetView(presenter socketservice.Presenter, query GetViewQuery) error
-	AddPlayer(presenter socketservice.Presenter, command AddPlayerCommand) error
-	MovePlayer(presenter socketservice.Presenter, command MovePlayerCommand) error
+	GetError(presenter Presenter, errorMessage string)
+	GetPlayers(presenter Presenter, query GetPlayersQuery) error
+	GetView(presenter Presenter, query GetViewQuery) error
+	AddPlayer(presenter Presenter, command AddPlayerCommand) error
+	MovePlayer(presenter Presenter, command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
 	PlaceItem(command PlaceItemCommand) error
 	DestroyItem(command DestroyItemCommand) error
@@ -46,7 +45,7 @@ func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel
 	}
 }
 
-func (serve *serve) GetError(presenter socketservice.Presenter, errorMessage string) {
+func (serve *serve) GetError(presenter Presenter, errorMessage string) {
 	presenter.OnMessage(ErroredResponseDto{
 		Type:          ErroredResponseDtoType,
 		ClientMessage: errorMessage,
@@ -87,7 +86,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId gam
 	})
 }
 
-func (serve *serve) GetPlayers(presenter socketservice.Presenter, query GetPlayersQuery) error {
+func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error {
 	unlocker := serve.gameRepo.LockAccess(query.GameId)
 	defer unlocker()
 
@@ -107,7 +106,7 @@ func (serve *serve) GetPlayers(presenter socketservice.Presenter, query GetPlaye
 	return nil
 }
 
-func (serve *serve) GetView(presenter socketservice.Presenter, query GetViewQuery) error {
+func (serve *serve) GetView(presenter Presenter, query GetViewQuery) error {
 	unlocker := serve.gameRepo.LockAccess(query.GameId)
 	defer unlocker()
 
@@ -151,7 +150,7 @@ func (serve *serve) CreateGame(gameIdVm string) {
 	serve.gameRepo.Add(newGame)
 }
 
-func (serve *serve) AddPlayer(presenter socketservice.Presenter, command AddPlayerCommand) error {
+func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) error {
 	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
@@ -194,7 +193,7 @@ func (serve *serve) AddPlayer(presenter socketservice.Presenter, command AddPlay
 	return nil
 }
 
-func (serve *serve) MovePlayer(presenter socketservice.Presenter, command MovePlayerCommand) error {
+func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) error {
 	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 

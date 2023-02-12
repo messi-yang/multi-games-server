@@ -1,24 +1,24 @@
-package socketcontroller
+package gamesocketapi
 
 import (
 	"encoding/json"
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/gzipper"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/socketservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
 	"github.com/gorilla/websocket"
 )
 
-type socketPresenter struct {
+type presenter struct {
 	socketConn     *websocket.Conn
 	socketConnLock *sync.RWMutex
 }
 
-func newSocketPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) socketservice.Presenter {
-	return &socketPresenter{socketConn: socketConn, socketConnLock: socketConnLock}
+func newPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) gamesocketappservice.Presenter {
+	return &presenter{socketConn: socketConn, socketConnLock: socketConnLock}
 }
 
-func (presenter *socketPresenter) OnMessage(jsonObj any) {
+func (presenter *presenter) OnMessage(jsonObj any) {
 	presenter.socketConnLock.Lock()
 	defer presenter.socketConnLock.Unlock()
 

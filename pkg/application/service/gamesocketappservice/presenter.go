@@ -1,4 +1,4 @@
-package socketservice
+package gamesocketappservice
 
 type Presenter interface {
 	OnMessage(jsonObj any)
