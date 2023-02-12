@@ -10,7 +10,9 @@ import (
 )
 
 type GameService interface {
+	AddPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error
 	MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, direction gamemodel.DirectionVo) error
+	RemovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error
 	PlaceItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error
 	DestroyItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, location commonmodel.LocationVo) error
 }
@@ -23,6 +25,22 @@ type gameServe struct {
 
 func NewGameService(gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameService {
 	return &gameServe{gameRepo: gameRepo, unitRepo: unitRepo, itemRepo: itemRepo}
+}
+
+func (serve *gameServe) AddPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error {
+	game, err := serve.gameRepo.Get(gameId)
+	if err != nil {
+		return err
+	}
+
+	err = game.AddPlayer(playerId)
+	if err != nil {
+		return err
+	}
+
+	serve.gameRepo.Update(gameId, game)
+
+	return nil
 }
 
 func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, direction gamemodel.DirectionVo) error {
@@ -58,6 +76,18 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel
 
 	player.SetLocation(newLocation)
 	game.UpdatePlayer(player)
+	serve.gameRepo.Update(gameId, game)
+
+	return nil
+}
+
+func (serve *gameServe) RemovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error {
+	game, err := serve.gameRepo.Get(gameId)
+	if err != nil {
+		return err
+	}
+
+	game.RemovePlayer(playerId)
 	serve.gameRepo.Update(gameId, game)
 
 	return nil

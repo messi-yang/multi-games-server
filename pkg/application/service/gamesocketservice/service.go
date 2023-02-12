@@ -127,17 +127,15 @@ func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, command AddPl
 	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
+	err := serve.gameService.AddPlayer(command.GameId, command.PlayerId)
+	if err != nil {
+		return err
+	}
+
 	game, err := serve.gameRepo.Get(command.GameId)
 	if err != nil {
 		return err
 	}
-
-	err = game.AddPlayer(command.PlayerId)
-	if err != nil {
-		return err
-	}
-
-	serve.gameRepo.Update(command.GameId, game)
 
 	items := serve.itemRepo.GetAll()
 	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
@@ -212,13 +210,10 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
-	game, err := serve.gameRepo.Get(command.GameId)
+	err := serve.gameService.RemovePlayer(command.GameId, command.PlayerId)
 	if err != nil {
 		return err
 	}
-
-	game.RemovePlayer(command.PlayerId)
-	serve.gameRepo.Update(command.GameId, game)
 
 	serve.IntEventPublisher.Publish(
 		CreateGameIntEventChannel(command.GameId.ToString()),
