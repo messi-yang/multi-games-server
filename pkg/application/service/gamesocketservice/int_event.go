@@ -10,40 +10,40 @@ func CreateGameIntEventChannel(gameId string) string {
 	return fmt.Sprintf("GAME_%s", gameId)
 }
 
-type IntEventName string
+type GameSocketIntEventName string
 
 const (
-	PlayerUpdatedIntEventName IntEventName = "PLAYER_UPDATED"
-	UnitUpdatedIntEventName   IntEventName = "UNIT_UPDATED"
+	PlayerUpdatedGameSocketIntEventName GameSocketIntEventName = "PLAYER_UPDATED"
+	UnitUpdatedGameSocketIntEventName   GameSocketIntEventName = "UNIT_UPDATED"
 )
 
-type GenericIntEvent struct {
-	Name IntEventName `json:"name"`
+type GameSocketIntEvent struct {
+	Name GameSocketIntEventName `json:"name"`
 }
 
 type PlayerUpdatedIntEvent struct {
-	Name     IntEventName `json:"name"`
-	GameId   string       `json:"gameId"`
-	PlayerId string       `json:"playerId"`
+	Name     GameSocketIntEventName `json:"name"`
+	GameId   string                 `json:"gameId"`
+	PlayerId string                 `json:"playerId"`
 }
 
 func NewPlayerUpdatedIntEvent(gameIdVm string, playerIdVm string) PlayerUpdatedIntEvent {
 	return PlayerUpdatedIntEvent{
-		Name:     PlayerUpdatedIntEventName,
+		Name:     PlayerUpdatedGameSocketIntEventName,
 		GameId:   gameIdVm,
 		PlayerId: playerIdVm,
 	}
 }
 
 type UnitUpdatedIntEvent struct {
-	Name   IntEventName     `json:"name"`
-	GameId string           `json:"gameId"`
-	Unit   viewmodel.UnitVm `json:"unit"`
+	Name   GameSocketIntEventName `json:"name"`
+	GameId string                 `json:"gameId"`
+	Unit   viewmodel.UnitVm       `json:"unit"`
 }
 
 func NewUnitUpdatedIntEvent(gameIdVm string, unitVm viewmodel.UnitVm) UnitUpdatedIntEvent {
 	return UnitUpdatedIntEvent{
-		Name:   UnitUpdatedIntEventName,
+		Name:   UnitUpdatedGameSocketIntEventName,
 		GameId: gameIdVm,
 		Unit:   unitVm,
 	}

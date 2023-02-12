@@ -276,9 +276,9 @@ func (serve *serve) PlaceItem(gameIdVm string, playerIdVm string, locationVm vie
 
 	unit, _ := serve.unitRepo.GetUnit(gameId, location)
 	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(gameId.ToString()),
+		CreateGameIntEventChannel(gameIdVm),
 		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
-			gameId.ToString(),
+			gameIdVm,
 			viewmodel.NewUnitVm(unit),
 		)))
 }
@@ -301,9 +301,9 @@ func (serve *serve) DestroyItem(gameIdVm string, playerIdVm string, locationVm v
 
 	unit, _ := serve.unitRepo.GetUnit(gameId, location)
 	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(gameId.ToString()),
+		CreateGameIntEventChannel(gameIdVm),
 		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
-			gameId.ToString(),
+			gameIdVm,
 			viewmodel.NewUnitVm(unit),
 		)))
 }

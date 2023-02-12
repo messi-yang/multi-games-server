@@ -51,20 +51,20 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	intEventUnsubscriber := redissub.New().Subscribe(
 		gamesocketservice.CreateGameIntEventChannel(gameIdVm),
 		func(message []byte) {
-			intEvent, err := jsonmarshaller.Unmarshal[gamesocketservice.GenericIntEvent](message)
+			intEvent, err := jsonmarshaller.Unmarshal[gamesocketservice.GameSocketIntEvent](message)
 			if err != nil {
 				return
 			}
 
 			switch intEvent.Name {
-			case gamesocketservice.PlayerUpdatedIntEventName:
+			case gamesocketservice.PlayerUpdatedGameSocketIntEventName:
 				event, err := jsonmarshaller.Unmarshal[gamesocketservice.PlayerUpdatedIntEvent](message)
 				if err != nil {
 					return
 				}
 
 				controller.gameAppService.HandlePlayerUpdatedEvent(socketPresenter, event)
-			case gamesocketservice.UnitUpdatedIntEventName:
+			case gamesocketservice.UnitUpdatedGameSocketIntEventName:
 				event, err := jsonmarshaller.Unmarshal[gamesocketservice.UnitUpdatedIntEvent](message)
 				if err != nil {
 					return
