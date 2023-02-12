@@ -1,8 +1,14 @@
-package intevent
+package gamesocketservice
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
 )
+
+func CreateGameIntEventChannel(gameId string) string {
+	return fmt.Sprintf("GAME_%s", gameId)
+}
 
 type IntEventName string
 

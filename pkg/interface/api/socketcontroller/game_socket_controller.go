@@ -4,10 +4,9 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/appservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/gzipper"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redissub"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -23,11 +22,11 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type GameSocketController struct {
-	gameAppService appservice.GameAppService
+	gameAppService gamesocketservice.Service
 }
 
 func NewGameSocketController(
-	gameAppService appservice.GameAppService,
+	gameAppService gamesocketservice.Service,
 ) *GameSocketController {
 	return &GameSocketController{
 		gameAppService: gameAppService,
@@ -50,23 +49,23 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
 
 	intEventUnsubscriber := redissub.New().Subscribe(
-		intevent.CreateGameChannel(gameIdVm),
+		gamesocketservice.CreateGameIntEventChannel(gameIdVm),
 		func(message []byte) {
-			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericIntEvent](message)
+			intEvent, err := jsonmarshaller.Unmarshal[gamesocketservice.GenericIntEvent](message)
 			if err != nil {
 				return
 			}
 
 			switch intEvent.Name {
-			case intevent.PlayerUpdatedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.PlayerUpdatedIntEvent](message)
+			case gamesocketservice.PlayerUpdatedIntEventName:
+				event, err := jsonmarshaller.Unmarshal[gamesocketservice.PlayerUpdatedIntEvent](message)
 				if err != nil {
 					return
 				}
 
 				controller.gameAppService.HandlePlayerUpdatedEvent(socketPresenter, event)
-			case intevent.UnitUpdatedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.UnitUpdatedIntEvent](message)
+			case gamesocketservice.UnitUpdatedIntEventName:
+				event, err := jsonmarshaller.Unmarshal[gamesocketservice.UnitUpdatedIntEvent](message)
 				if err != nil {
 					return
 				}
@@ -96,32 +95,32 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 				continue
 			}
 
-			genericClientEvent, err := jsonmarshaller.Unmarshal[appservice.GenericClientEvent](message)
+			genericClientEvent, err := jsonmarshaller.Unmarshal[gamesocketservice.GenericClientEvent](message)
 			if err != nil {
 				controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 				continue
 			}
 
 			switch genericClientEvent.Type {
-			case appservice.PingClientEventType:
+			case gamesocketservice.PingClientEventType:
 				continue
-			case appservice.MoveClientEventType:
-				command, err := jsonmarshaller.Unmarshal[appservice.MoveClientEvent](message)
+			case gamesocketservice.MoveClientEventType:
+				command, err := jsonmarshaller.Unmarshal[gamesocketservice.MoveClientEvent](message)
 				if err != nil {
 					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 				controller.gameAppService.MovePlayer(socketPresenter, gameIdVm, playerIdVm, command.Payload.Direction)
-			case appservice.PlaceItemClientEventType:
-				command, err := jsonmarshaller.Unmarshal[appservice.PlaceItemClientEvent](message)
+			case gamesocketservice.PlaceItemClientEventType:
+				command, err := jsonmarshaller.Unmarshal[gamesocketservice.PlaceItemClientEvent](message)
 				if err != nil {
 					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
 
 				controller.gameAppService.PlaceItem(gameIdVm, playerIdVm, command.Payload.Location, command.Payload.ItemId)
-			case appservice.DestroyItemClientEventType:
-				command, err := jsonmarshaller.Unmarshal[appservice.DestroyItemClientEvent](message)
+			case gamesocketservice.DestroyItemClientEventType:
+				command, err := jsonmarshaller.Unmarshal[gamesocketservice.DestroyItemClientEvent](message)
 				if err != nil {
 					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue

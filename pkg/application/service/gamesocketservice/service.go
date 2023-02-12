@@ -1,4 +1,4 @@
-package appservice
+package gamesocketservice
 
 import (
 	"math/rand"
@@ -16,10 +16,10 @@ import (
 	"github.com/samber/lo"
 )
 
-type GameAppService interface {
+type Service interface {
 	SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string)
-	HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayerUpdatedIntEvent)
-	HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent intevent.UnitUpdatedIntEvent)
+	HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent PlayerUpdatedIntEvent)
+	HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent UnitUpdatedIntEvent)
 	LoadGame(gameIdVm string)
 	AddPlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string)
 	MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8)
@@ -28,7 +28,7 @@ type GameAppService interface {
 	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 }
 
-type gameAppServe struct {
+type serve struct {
 	IntEventPublisher intevent.IntEventPublisher
 	gameRepo          gamemodel.Repo
 	unitRepo          unitmodel.Repo
@@ -36,8 +36,8 @@ type gameAppServe struct {
 	gameService       service.GameService
 }
 
-func NewGameAppService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameAppService {
-	return &gameAppServe{
+func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
+	return &serve{
 		IntEventPublisher: IntEventPublisher,
 		gameRepo:          gameRepo,
 		unitRepo:          unitRepo,
@@ -46,19 +46,19 @@ func NewGameAppService(IntEventPublisher intevent.IntEventPublisher, gameRepo ga
 	}
 }
 
-func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string) {
+func (serve *serve) SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string) {
 	event := ErroredServerEvent{}
 	event.Type = ErroredServerEventType
 	event.Payload.ClientMessage = clientMessage
 	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayerUpdatedIntEvent) {
+func (serve *serve) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent PlayerUpdatedIntEvent) {
 	gameId, err := gamemodel.NewGameIdVo(intEvent.GameId)
 	if err != nil {
 		return
 	}
-	game, err := gameAppServe.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return
 	}
@@ -71,7 +71,7 @@ func (gameAppServe *gameAppServe) HandlePlayerUpdatedEvent(presenter presenter.S
 	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent intevent.UnitUpdatedIntEvent) {
+func (serve *serve) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent UnitUpdatedIntEvent) {
 	gameId, err := gamemodel.NewGameIdVo(intEvent.GameId)
 	if err != nil {
 		return
@@ -80,7 +80,7 @@ func (gameAppServe *gameAppServe) HandleUnitUpdatedEvent(presenter presenter.Soc
 	if err != nil {
 		return
 	}
-	game, err := gameAppServe.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return
 	}
@@ -91,7 +91,7 @@ func (gameAppServe *gameAppServe) HandleUnitUpdatedEvent(presenter presenter.Soc
 
 	// Delete this section later
 	bound, _ := game.GetPlayerViewBound(playerId)
-	units := gameAppServe.unitRepo.GetUnits(gameId, bound)
+	units := serve.unitRepo.GetUnits(gameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
@@ -101,28 +101,28 @@ func (gameAppServe *gameAppServe) HandleUnitUpdatedEvent(presenter presenter.Soc
 	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) LoadGame(gameIdVm string) {
+func (serve *serve) LoadGame(gameIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
 	}
 
-	items := gameAppServe.itemRepo.GetAll()
+	items := serve.itemRepo.GetAll()
 	tool.RangeMatrix(200, 200, func(x int, y int) {
 		randomInt := rand.Intn(17)
 		location := commonmodel.NewLocationVo(x, y)
 		if randomInt < 2 {
 			newUnit := unitmodel.NewUnitAgg(gameId, location, items[randomInt].GetId())
-			gameAppServe.unitRepo.UpdateUnit(newUnit)
+			serve.unitRepo.UpdateUnit(newUnit)
 		}
 	})
 
 	newGame := gamemodel.NewGameAgg(gameId)
 
-	gameAppServe.gameRepo.Add(newGame)
+	serve.gameRepo.Add(newGame)
 }
 
-func (gameAppServe *gameAppServe) AddPlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string) {
+func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -132,10 +132,10 @@ func (gameAppServe *gameAppServe) AddPlayer(presenter presenter.SocketPresenter,
 		return
 	}
 
-	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	game, err := gameAppServe.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return
 	}
@@ -145,9 +145,9 @@ func (gameAppServe *gameAppServe) AddPlayer(presenter presenter.SocketPresenter,
 		return
 	}
 
-	gameAppServe.gameRepo.Update(gameId, game)
+	serve.gameRepo.Update(gameId, game)
 
-	items := gameAppServe.itemRepo.GetAll()
+	items := serve.itemRepo.GetAll()
 	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
 		return viewmodel.NewItemVm(item)
 	})
@@ -159,7 +159,7 @@ func (gameAppServe *gameAppServe) AddPlayer(presenter presenter.SocketPresenter,
 
 	// Delete this section later
 	bound, _ := game.GetPlayerViewBound(playerId)
-	units := gameAppServe.unitRepo.GetUnits(gameId, bound)
+	units := serve.unitRepo.GetUnits(gameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
@@ -171,15 +171,15 @@ func (gameAppServe *gameAppServe) AddPlayer(presenter presenter.SocketPresenter,
 	event.Payload.View = viewmodel.NewViewVm(view)
 	presenter.OnMessage(event)
 
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameChannel(gameIdVm),
-		jsonmarshaller.Marshal(intevent.NewPlayerUpdatedIntEvent(
+	serve.IntEventPublisher.Publish(
+		CreateGameIntEventChannel(gameIdVm),
+		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
 			gameIdVm,
 			playerIdVm,
 		)))
 }
 
-func (gameAppServe *gameAppServe) MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8) {
+func (serve *serve) MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -193,29 +193,29 @@ func (gameAppServe *gameAppServe) MovePlayer(presenter presenter.SocketPresenter
 		return
 	}
 
-	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	err = gameAppServe.gameService.MovePlayer(gameId, playerId, direction)
+	err = serve.gameService.MovePlayer(gameId, playerId, direction)
 	if err != nil {
 		return
 	}
 
-	game, err := gameAppServe.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return
 	}
 
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameChannel(gameIdVm),
-		jsonmarshaller.Marshal(intevent.NewPlayerUpdatedIntEvent(
+	serve.IntEventPublisher.Publish(
+		CreateGameIntEventChannel(gameIdVm),
+		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
 			gameIdVm,
 			playerIdVm,
 		)))
 
 	// Delete this section later
 	bound, _ := game.GetPlayerViewBound(playerId)
-	units := gameAppServe.unitRepo.GetUnits(gameId, bound)
+	units := serve.unitRepo.GetUnits(gameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
@@ -225,7 +225,7 @@ func (gameAppServe *gameAppServe) MovePlayer(presenter presenter.SocketPresenter
 	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) RemovePlayer(gameIdVm string, playerIdVm string) {
+func (serve *serve) RemovePlayer(gameIdVm string, playerIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -235,26 +235,26 @@ func (gameAppServe *gameAppServe) RemovePlayer(gameIdVm string, playerIdVm strin
 		return
 	}
 
-	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	game, err := gameAppServe.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return
 	}
 
 	game.RemovePlayer(playerId)
-	gameAppServe.gameRepo.Update(gameId, game)
+	serve.gameRepo.Update(gameId, game)
 
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameChannel(gameIdVm),
-		jsonmarshaller.Marshal(intevent.NewPlayerUpdatedIntEvent(
+	serve.IntEventPublisher.Publish(
+		CreateGameIntEventChannel(gameIdVm),
+		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
 			gameIdVm,
 			playerIdVm,
 		)))
 }
 
-func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
+func (serve *serve) PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -266,24 +266,24 @@ func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, 
 	itemId := itemmodel.NewItemIdVo(itemIdVm)
 	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
 
-	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	err = gameAppServe.gameService.PlaceItem(gameId, playerId, itemId, location)
+	err = serve.gameService.PlaceItem(gameId, playerId, itemId, location)
 	if err != nil {
 		return
 	}
 
-	unit, _ := gameAppServe.unitRepo.GetUnit(gameId, location)
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameChannel(gameId.ToString()),
-		jsonmarshaller.Marshal(intevent.NewUnitUpdatedIntEvent(
+	unit, _ := serve.unitRepo.GetUnit(gameId, location)
+	serve.IntEventPublisher.Publish(
+		CreateGameIntEventChannel(gameId.ToString()),
+		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
 			gameId.ToString(),
 			viewmodel.NewUnitVm(unit),
 		)))
 }
 
-func (gameAppServe *gameAppServe) DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
+func (serve *serve) DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -294,15 +294,15 @@ func (gameAppServe *gameAppServe) DestroyItem(gameIdVm string, playerIdVm string
 	}
 	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
 
-	unlocker := gameAppServe.gameRepo.LockAccess(gameId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	gameAppServe.gameService.DestroyItem(gameId, playerId, location)
+	serve.gameService.DestroyItem(gameId, playerId, location)
 
-	unit, _ := gameAppServe.unitRepo.GetUnit(gameId, location)
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameChannel(gameId.ToString()),
-		jsonmarshaller.Marshal(intevent.NewUnitUpdatedIntEvent(
+	unit, _ := serve.unitRepo.GetUnit(gameId, location)
+	serve.IntEventPublisher.Publish(
+		CreateGameIntEventChannel(gameId.ToString()),
+		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
 			gameId.ToString(),
 			viewmodel.NewUnitVm(unit),
 		)))

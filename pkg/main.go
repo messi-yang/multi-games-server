@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/appservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redispub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/api/socketcontroller"
@@ -22,7 +22,7 @@ func main() {
 	gameRepo := memrepo.NewGameMemRepo()
 	unitRepo := memrepo.NewUnitMemRepo()
 
-	gameAppService := appservice.NewGameAppService(intEventPublisher, gameRepo, unitRepo, itemRepo)
+	gameAppService := gamesocketservice.NewService(intEventPublisher, gameRepo, unitRepo, itemRepo)
 	gameController := socketcontroller.NewGameSocketController(gameAppService)
 
 	gameAppService.LoadGame("20716447-6514-4eac-bd05-e558ca72bf3c")
