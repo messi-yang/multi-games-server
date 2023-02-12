@@ -18,11 +18,11 @@ import (
 
 type GameAppService interface {
 	SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string)
-	HandlePlayersUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayersUpdatedIntEvent)
-	HandleViewUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.ViewUpdatedIntEvent)
+	HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayerUpdatedIntEvent)
+	HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent intevent.UnitUpdatedIntEvent)
 	LoadGame(gameIdVm string)
 	JoinGame(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string)
-	MovePlayer(gameIdVm string, playerIdVm string, directionVm int8)
+	MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8)
 	LeaveGame(gameIdVm string, playerIdVm string)
 	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
 	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
@@ -46,53 +46,6 @@ func NewGameAppService(IntEventPublisher intevent.IntEventPublisher, gameRepo ga
 	}
 }
 
-func (gameAppServe *gameAppServe) publishPlayersUpdatedEvents(
-	gameId gamemodel.GameIdVo,
-	players []gamemodel.PlayerEntity,
-	toPlayerIds []gamemodel.PlayerIdVo,
-) {
-	playerVms := lo.Map(players, func(player gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
-		return viewmodel.NewPlayerVm(player)
-	})
-	lo.ForEach(toPlayerIds, func(playerId gamemodel.PlayerIdVo, _ int) {
-		gameAppServe.IntEventPublisher.Publish(
-			intevent.CreateGameClientChannel(gameId.ToString(), playerId.ToString()),
-			jsonmarshaller.Marshal(intevent.NewPlayersUpdatedIntEvent(
-				gameId.ToString(),
-				playerVms,
-			)))
-	})
-}
-
-func (gameAppServe *gameAppServe) publishViewUpdatedEvents(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) error {
-	game, err := gameAppServe.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-
-	for _, playerId := range game.GetPlayerIds() {
-		if !game.CanPlayerSeeAnyLocations(playerId, []commonmodel.LocationVo{location}) {
-			continue
-		}
-
-		// Delete this section later
-		bound, _ := game.GetPlayerViewBound(playerId)
-		units := gameAppServe.unitRepo.GetUnits(gameId, bound)
-		view := unitmodel.NewViewVo(bound, units)
-		// Delete this section later
-
-		gameAppServe.IntEventPublisher.Publish(
-			intevent.CreateGameClientChannel(gameId.ToString(), playerId.ToString()),
-			jsonmarshaller.Marshal(intevent.NewViewUpdatedIntEvent(
-				gameId.ToString(),
-				playerId.ToString(),
-				viewmodel.NewViewVm(view),
-			)))
-	}
-
-	return nil
-}
-
 func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string) {
 	event := ErroredServerEvent{}
 	event.Type = ErroredServerEventType
@@ -100,17 +53,51 @@ func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter presenter.Soc
 	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) HandlePlayersUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayersUpdatedIntEvent) {
+func (gameAppServe *gameAppServe) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayerUpdatedIntEvent) {
+	gameId, err := gamemodel.NewGameIdVo(intEvent.GameId)
+	if err != nil {
+		return
+	}
+	game, err := gameAppServe.gameRepo.Get(gameId)
+	if err != nil {
+		return
+	}
+	players := game.GetPlayers()
 	event := PlayersUpdatedServerEvent{}
 	event.Type = PlayersUpdatedServerEventType
-	event.Payload.Players = intEvent.Players
+	event.Payload.Players = lo.Map(players, func(player gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
+		return viewmodel.NewPlayerVm(player)
+	})
 	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) HandleViewUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.ViewUpdatedIntEvent) {
+func (gameAppServe *gameAppServe) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent intevent.UnitUpdatedIntEvent) {
+	gameId, err := gamemodel.NewGameIdVo(intEvent.GameId)
+	if err != nil {
+		return
+	}
+	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
+	if err != nil {
+		return
+	}
+	game, err := gameAppServe.gameRepo.Get(gameId)
+	if err != nil {
+		return
+	}
+	location := commonmodel.NewLocationVo(intEvent.Unit.Location.X, intEvent.Unit.Location.Y)
+	if !game.CanPlayerSeeAnyLocations(playerId, []commonmodel.LocationVo{location}) {
+		return
+	}
+
+	// Delete this section later
+	bound, _ := game.GetPlayerViewBound(playerId)
+	units := gameAppServe.unitRepo.GetUnits(gameId, bound)
+	view := unitmodel.NewViewVo(bound, units)
+	// Delete this section later
+
 	event := ViewUpdatedServerEvent{}
 	event.Type = ViewUpdatedServerEventType
-	event.Payload.View = intEvent.View
+	event.Payload.View = viewmodel.NewViewVm(view)
 	presenter.OnMessage(event)
 }
 
@@ -184,10 +171,15 @@ func (gameAppServe *gameAppServe) JoinGame(presenter presenter.SocketPresenter, 
 	event.Payload.View = viewmodel.NewViewVm(view)
 	presenter.OnMessage(event)
 
-	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
+	gameAppServe.IntEventPublisher.Publish(
+		intevent.CreateGameChannel(gameIdVm),
+		jsonmarshaller.Marshal(intevent.NewPlayerUpdatedIntEvent(
+			gameIdVm,
+			playerIdVm,
+		)))
 }
 
-func (gameAppServe *gameAppServe) MovePlayer(gameIdVm string, playerIdVm string, directionVm int8) {
+func (gameAppServe *gameAppServe) MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -214,7 +206,12 @@ func (gameAppServe *gameAppServe) MovePlayer(gameIdVm string, playerIdVm string,
 		return
 	}
 
-	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIds())
+	gameAppServe.IntEventPublisher.Publish(
+		intevent.CreateGameChannel(gameIdVm),
+		jsonmarshaller.Marshal(intevent.NewPlayerUpdatedIntEvent(
+			gameIdVm,
+			playerIdVm,
+		)))
 
 	// Delete this section later
 	bound, _ := game.GetPlayerViewBound(playerId)
@@ -222,10 +219,10 @@ func (gameAppServe *gameAppServe) MovePlayer(gameIdVm string, playerIdVm string,
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
-	gameAppServe.IntEventPublisher.Publish(
-		intevent.CreateGameClientChannel(gameIdVm, playerIdVm),
-		jsonmarshaller.Marshal(intevent.NewViewUpdatedIntEvent(gameIdVm, playerIdVm, viewmodel.NewViewVm(view))),
-	)
+	event := ViewUpdatedServerEvent{}
+	event.Type = ViewUpdatedServerEventType
+	event.Payload.View = viewmodel.NewViewVm(view)
+	presenter.OnMessage(event)
 }
 
 func (gameAppServe *gameAppServe) LeaveGame(gameIdVm string, playerIdVm string) {
@@ -248,7 +245,13 @@ func (gameAppServe *gameAppServe) LeaveGame(gameIdVm string, playerIdVm string) 
 
 	game.RemovePlayer(playerId)
 	gameAppServe.gameRepo.Update(gameId, game)
-	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
+
+	gameAppServe.IntEventPublisher.Publish(
+		intevent.CreateGameChannel(gameIdVm),
+		jsonmarshaller.Marshal(intevent.NewPlayerUpdatedIntEvent(
+			gameIdVm,
+			playerIdVm,
+		)))
 }
 
 func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
@@ -271,7 +274,13 @@ func (gameAppServe *gameAppServe) PlaceItem(gameIdVm string, playerIdVm string, 
 		return
 	}
 
-	gameAppServe.publishViewUpdatedEvents(gameId, location)
+	unit, _ := gameAppServe.unitRepo.GetUnit(gameId, location)
+	gameAppServe.IntEventPublisher.Publish(
+		intevent.CreateGameChannel(gameId.ToString()),
+		jsonmarshaller.Marshal(intevent.NewUnitUpdatedIntEvent(
+			gameId.ToString(),
+			viewmodel.NewUnitVm(unit),
+		)))
 }
 
 func (gameAppServe *gameAppServe) DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
@@ -290,5 +299,11 @@ func (gameAppServe *gameAppServe) DestroyItem(gameIdVm string, playerIdVm string
 
 	gameAppServe.gameService.DestroyItem(gameId, playerId, location)
 
-	gameAppServe.publishViewUpdatedEvents(gameId, location)
+	unit, _ := gameAppServe.unitRepo.GetUnit(gameId, location)
+	gameAppServe.IntEventPublisher.Publish(
+		intevent.CreateGameChannel(gameId.ToString()),
+		jsonmarshaller.Marshal(intevent.NewUnitUpdatedIntEvent(
+			gameId.ToString(),
+			viewmodel.NewUnitVm(unit),
+		)))
 }

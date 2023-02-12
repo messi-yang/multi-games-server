@@ -50,7 +50,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	socketPresenter := newSocketPresenter(socketConn, &sync.RWMutex{})
 
 	intEventUnsubscriber := redissub.New().Subscribe(
-		intevent.CreateGameClientChannel(gameIdVm, playerIdVm),
+		intevent.CreateGameChannel(gameIdVm),
 		func(message []byte) {
 			intEvent, err := jsonmarshaller.Unmarshal[intevent.GenericIntEvent](message)
 			if err != nil {
@@ -58,19 +58,19 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 			}
 
 			switch intEvent.Name {
-			case intevent.PlayersUpdatedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.PlayersUpdatedIntEvent](message)
+			case intevent.PlayerUpdatedIntEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.PlayerUpdatedIntEvent](message)
 				if err != nil {
 					return
 				}
 
-				controller.gameAppService.HandlePlayersUpdatedEvent(socketPresenter, event)
-			case intevent.ViewUpdatedIntEventName:
-				event, err := jsonmarshaller.Unmarshal[intevent.ViewUpdatedIntEvent](message)
+				controller.gameAppService.HandlePlayerUpdatedEvent(socketPresenter, event)
+			case intevent.UnitUpdatedIntEventName:
+				event, err := jsonmarshaller.Unmarshal[intevent.UnitUpdatedIntEvent](message)
 				if err != nil {
 					return
 				}
-				controller.gameAppService.HandleViewUpdatedEvent(socketPresenter, event)
+				controller.gameAppService.HandleUnitUpdatedEvent(socketPresenter, playerIdVm, event)
 			}
 
 		})
@@ -111,7 +111,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
-				controller.gameAppService.MovePlayer(gameIdVm, playerIdVm, command.Payload.Direction)
+				controller.gameAppService.MovePlayer(socketPresenter, gameIdVm, playerIdVm, command.Payload.Direction)
 			case appservice.PlaceItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[appservice.PlaceItemClientEvent](message)
 				if err != nil {
