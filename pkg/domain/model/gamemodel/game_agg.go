@@ -31,17 +31,6 @@ func (game *GameAgg) GetId() GameIdVo {
 	return game.id
 }
 
-func (game *GameAgg) GetPlayerIds() []PlayerIdVo {
-	return lo.Keys(game.players)
-}
-
-func (game *GameAgg) GetPlayerIdsExcept(playerId PlayerIdVo) []PlayerIdVo {
-	playerIds := lo.Keys(game.players)
-	return lo.Filter(playerIds, func(pId PlayerIdVo, _ int) bool {
-		return !pId.isEqual(playerId)
-	})
-}
-
 func (game *GameAgg) GetPlayerViewBound(playerId PlayerIdVo) (commonmodel.BoundVo, error) {
 	player, exists := game.players[playerId]
 	if !exists {
