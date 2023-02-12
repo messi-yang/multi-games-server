@@ -23,22 +23,22 @@ func NewGetPlayersQuery(gameIdVm string, playerIdVm string) (GetPlayersQuery, er
 	}, nil
 }
 
-type GetPlayerViewQuery struct {
+type GetViewQuery struct {
 	GameId   gamemodel.GameIdVo
 	PlayerId gamemodel.PlayerIdVo
 }
 
-func NewGetPlayerViewQuery(gameIdVm string, playerIdVm string) (GetPlayerViewQuery, error) {
+func NewGetViewQuery(gameIdVm string, playerIdVm string) (GetViewQuery, error) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
-		return GetPlayerViewQuery{}, err
+		return GetViewQuery{}, err
 	}
 	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
 	if err != nil {
-		return GetPlayerViewQuery{}, err
+		return GetViewQuery{}, err
 	}
 
-	return GetPlayerViewQuery{
+	return GetViewQuery{
 		GameId:   gameId,
 		PlayerId: playerId,
 	}, nil

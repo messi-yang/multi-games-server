@@ -58,10 +58,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 
 			switch intEvent.Name {
 			case gamesocketservice.PlayersUpdatedGameSocketIntEventName:
-				event, err := jsonmarshaller.Unmarshal[gamesocketservice.PlayersUpdatedIntEvent](message)
-				if err != nil {
-					return
-				}
+				event, _ := jsonmarshaller.Unmarshal[gamesocketservice.PlayersUpdatedIntEvent](message)
 
 				query, err := gamesocketservice.NewGetPlayersQuery(event.GameId, playerIdVm)
 				if err != nil {
@@ -70,17 +67,14 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 
 				controller.gameAppService.GetPlayers(socketPresenter, query)
 			case gamesocketservice.ViewUpdatedGameSocketIntEventName:
-				event, err := jsonmarshaller.Unmarshal[gamesocketservice.ViewUpdatedIntEvent](message)
+				event, _ := jsonmarshaller.Unmarshal[gamesocketservice.ViewUpdatedIntEvent](message)
+
+				query, err := gamesocketservice.NewGetViewQuery(event.GameId, playerIdVm)
 				if err != nil {
 					return
 				}
 
-				query, err := gamesocketservice.NewGetPlayerViewQuery(event.GameId, playerIdVm)
-				if err != nil {
-					return
-				}
-
-				controller.gameAppService.GetPlayerView(socketPresenter, query)
+				controller.gameAppService.GetView(socketPresenter, query)
 			}
 
 		})

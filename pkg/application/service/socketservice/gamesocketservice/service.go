@@ -20,7 +20,7 @@ type Service interface {
 	CreateGame(gameIdVm string)
 	GetError(presenter socketservice.Presenter, errorMessage string)
 	GetPlayers(presenter socketservice.Presenter, query GetPlayersQuery) error
-	GetPlayerView(presenter socketservice.Presenter, query GetPlayerViewQuery) error
+	GetView(presenter socketservice.Presenter, query GetViewQuery) error
 	AddPlayer(presenter socketservice.Presenter, command AddPlayerCommand) error
 	MovePlayer(presenter socketservice.Presenter, command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
@@ -107,7 +107,7 @@ func (serve *serve) GetPlayers(presenter socketservice.Presenter, query GetPlaye
 	return nil
 }
 
-func (serve *serve) GetPlayerView(presenter socketservice.Presenter, query GetPlayerViewQuery) error {
+func (serve *serve) GetView(presenter socketservice.Presenter, query GetViewQuery) error {
 	unlocker := serve.gameRepo.LockAccess(query.GameId)
 	defer unlocker()
 
