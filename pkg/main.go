@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/socketservice/gamesocketservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redispub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/api/socketcontroller"

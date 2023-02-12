@@ -6,7 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/gzipper"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/socketservice/gamesocketservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redissub"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

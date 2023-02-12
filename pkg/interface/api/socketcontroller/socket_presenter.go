@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/gzipper"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/presenter"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/socketservice"
 	"github.com/gorilla/websocket"
 )
 
@@ -14,7 +14,7 @@ type socketPresenter struct {
 	socketConnLock *sync.RWMutex
 }
 
-func newSocketPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) presenter.SocketPresenter {
+func newSocketPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) socketservice.Presenter {
 	return &socketPresenter{socketConn: socketConn, socketConnLock: socketConnLock}
 }
 
