@@ -2,49 +2,43 @@ package gamesocketservice
 
 import (
 	"fmt"
-
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
 )
 
-func CreateGameIntEventChannel(gameId string) string {
-	return fmt.Sprintf("GAME_%s", gameId)
+func CreateGamePlayerChannel(gameIdVm string, playerIdVm string) string {
+	return fmt.Sprintf("GAME_%s_PLAYER_%s", gameIdVm, playerIdVm)
 }
 
 type GameSocketIntEventName string
 
 const (
-	PlayerUpdatedGameSocketIntEventName GameSocketIntEventName = "PLAYER_UPDATED"
-	UnitUpdatedGameSocketIntEventName   GameSocketIntEventName = "UNIT_UPDATED"
+	PlayersUpdatedGameSocketIntEventName GameSocketIntEventName = "PLAYERS_UPDATED"
+	ViewUpdatedGameSocketIntEventName    GameSocketIntEventName = "UNIT_UPDATED"
 )
 
 type GameSocketIntEvent struct {
 	Name GameSocketIntEventName `json:"name"`
 }
 
-type PlayerUpdatedIntEvent struct {
-	Name     GameSocketIntEventName `json:"name"`
-	GameId   string                 `json:"gameId"`
-	PlayerId string                 `json:"playerId"`
+type PlayersUpdatedIntEvent struct {
+	Name   GameSocketIntEventName `json:"name"`
+	GameId string                 `json:"gameId"`
 }
 
-func NewPlayerUpdatedIntEvent(gameIdVm string, playerIdVm string) PlayerUpdatedIntEvent {
-	return PlayerUpdatedIntEvent{
-		Name:     PlayerUpdatedGameSocketIntEventName,
-		GameId:   gameIdVm,
-		PlayerId: playerIdVm,
+func NewPlayersUpdatedIntEvent(gameIdVm string) PlayersUpdatedIntEvent {
+	return PlayersUpdatedIntEvent{
+		Name:   PlayersUpdatedGameSocketIntEventName,
+		GameId: gameIdVm,
 	}
 }
 
-type UnitUpdatedIntEvent struct {
-	Name     GameSocketIntEventName `json:"name"`
-	GameId   string                 `json:"gameId"`
-	Location viewmodel.LocationVm   `json:"location"`
+type ViewUpdatedIntEvent struct {
+	Name   GameSocketIntEventName `json:"name"`
+	GameId string                 `json:"gameId"`
 }
 
-func NewUnitUpdatedIntEvent(gameIdVm string, locationVm viewmodel.LocationVm) UnitUpdatedIntEvent {
-	return UnitUpdatedIntEvent{
-		Name:     UnitUpdatedGameSocketIntEventName,
-		GameId:   gameIdVm,
-		Location: locationVm,
+func NewViewUpdatedIntEvent(gameIdVm string) ViewUpdatedIntEvent {
+	return ViewUpdatedIntEvent{
+		Name:   ViewUpdatedGameSocketIntEventName,
+		GameId: gameIdVm,
 	}
 }

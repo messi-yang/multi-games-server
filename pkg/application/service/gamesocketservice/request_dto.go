@@ -15,7 +15,7 @@ const (
 	DestroyItemRequestDtoType RequestDtoType = "DESTROY_ITEM"
 )
 
-type RequestDto struct {
+type GenericRequestDto struct {
 	Type RequestDtoType `json:"type"`
 }
 

@@ -17,10 +17,10 @@ import (
 )
 
 type Service interface {
-	SendErroredResponseDto(presenter presenter.SocketPresenter, clientMessage string)
-	HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent PlayerUpdatedIntEvent)
-	HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent UnitUpdatedIntEvent)
-	LoadGame(gameIdVm string)
+	CreateGame(gameIdVm string)
+	GetError(presenter presenter.SocketPresenter, errorMessage string)
+	GetPlayers(presenter presenter.SocketPresenter, query GetPlayersQuery) error
+	GetPlayerView(presenter presenter.SocketPresenter, query GetPlayerViewQuery) error
 	AddPlayer(presenter presenter.SocketPresenter, command AddPlayerCommand) error
 	MovePlayer(presenter presenter.SocketPresenter, command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
@@ -46,21 +46,54 @@ func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel
 	}
 }
 
-func (serve *serve) SendErroredResponseDto(presenter presenter.SocketPresenter, clientMessage string) {
+func (serve *serve) GetError(presenter presenter.SocketPresenter, errorMessage string) {
 	presenter.OnMessage(ErroredResponseDto{
 		Type:          ErroredResponseDtoType,
-		ClientMessage: clientMessage,
+		ClientMessage: errorMessage,
 	})
 }
 
-func (serve *serve) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent PlayerUpdatedIntEvent) {
-	gameId, err := gamemodel.NewGameIdVo(intEvent.GameId)
+func (serve *serve) publishViewUpdatedEventTo(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) {
+	serve.IntEventPublisher.Publish(
+		CreateGamePlayerChannel(gameId.ToString(), playerId.ToString()),
+		jsonmarshaller.Marshal(NewViewUpdatedIntEvent(
+			gameId.ToString(),
+		)))
+}
+
+func (serve *serve) publishViewUpdatedEventToNearbyPlayersOfLocation(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) {
+	players, err := serve.gameService.GetNearbyPlayersOfLocation(gameId, location)
 	if err != nil {
 		return
 	}
-	game, err := serve.gameRepo.Get(gameId)
+
+	lo.ForEach(players, func(player gamemodel.PlayerEntity, _ int) {
+		serve.publishViewUpdatedEventTo(gameId, player.GetId())
+	})
+}
+
+func (serve *serve) publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) {
+	players, err := serve.gameService.GetNearbyPlayersOfPlayer(gameId, playerId)
 	if err != nil {
 		return
+	}
+
+	lo.ForEach(players, func(player gamemodel.PlayerEntity, _ int) {
+		serve.IntEventPublisher.Publish(
+			CreateGamePlayerChannel(gameId.ToString(), player.GetId().ToString()),
+			jsonmarshaller.Marshal(NewPlayersUpdatedIntEvent(
+				gameId.ToString(),
+			)))
+	})
+}
+
+func (serve *serve) GetPlayers(presenter presenter.SocketPresenter, query GetPlayersQuery) error {
+	unlocker := serve.gameRepo.LockAccess(query.GameId)
+	defer unlocker()
+
+	game, err := serve.gameRepo.Get(query.GameId)
+	if err != nil {
+		return err
 	}
 	players := game.GetPlayers()
 
@@ -70,29 +103,22 @@ func (serve *serve) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter
 			return viewmodel.NewPlayerVm(player)
 		}),
 	})
+
+	return nil
 }
 
-func (serve *serve) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent UnitUpdatedIntEvent) {
-	gameId, err := gamemodel.NewGameIdVo(intEvent.GameId)
+func (serve *serve) GetPlayerView(presenter presenter.SocketPresenter, query GetPlayerViewQuery) error {
+	unlocker := serve.gameRepo.LockAccess(query.GameId)
+	defer unlocker()
+
+	game, err := serve.gameRepo.Get(query.GameId)
 	if err != nil {
-		return
-	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return
-	}
-	location := commonmodel.NewLocationVo(intEvent.Location.X, intEvent.Location.Y)
-	if !game.CanPlayerSeeAnyLocations(playerId, []commonmodel.LocationVo{location}) {
-		return
+		return err
 	}
 
 	// Delete this section later
-	bound, _ := game.GetPlayerViewBound(playerId)
-	units := serve.unitRepo.GetUnits(gameId, bound)
+	bound, _ := game.GetPlayerViewBound(query.PlayerId)
+	units := serve.unitRepo.GetUnits(query.GameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
@@ -100,9 +126,11 @@ func (serve *serve) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, 
 		Type: ViewUpdatedResponseDtoType,
 		View: viewmodel.NewViewVm(view),
 	})
+
+	return nil
 }
 
-func (serve *serve) LoadGame(gameIdVm string) {
+func (serve *serve) CreateGame(gameIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -161,12 +189,7 @@ func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, command AddPl
 		View:     viewmodel.NewViewVm(view),
 	})
 
-	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(command.GameId.ToString()),
-		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
-			command.GameId.ToString(),
-			command.PlayerId.ToString(),
-		)))
+	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(command.GameId, command.PlayerId)
 
 	return nil
 }
@@ -180,28 +203,8 @@ func (serve *serve) MovePlayer(presenter presenter.SocketPresenter, command Move
 		return err
 	}
 
-	game, err := serve.gameRepo.Get(command.GameId)
-	if err != nil {
-		return err
-	}
-
-	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(command.GameId.ToString()),
-		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
-			command.GameId.ToString(),
-			command.PlayerId.ToString(),
-		)))
-
-	// Delete this section later
-	bound, _ := game.GetPlayerViewBound(command.PlayerId)
-	units := serve.unitRepo.GetUnits(command.GameId, bound)
-	view := unitmodel.NewViewVo(bound, units)
-	// Delete this section later
-
-	presenter.OnMessage(ViewUpdatedResponseDto{
-		Type: ViewUpdatedResponseDtoType,
-		View: viewmodel.NewViewVm(view),
-	})
+	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(command.GameId, command.PlayerId)
+	serve.publishViewUpdatedEventTo(command.GameId, command.PlayerId)
 
 	return nil
 }
@@ -215,12 +218,7 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 		return err
 	}
 
-	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(command.GameId.ToString()),
-		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
-			command.GameId.ToString(),
-			command.PlayerId.ToString(),
-		)))
+	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(command.GameId, command.PlayerId)
 
 	return nil
 }
@@ -234,12 +232,7 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 		return err
 	}
 
-	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(command.GameId.ToString()),
-		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
-			command.GameId.ToString(),
-			viewmodel.NewLocationVm(command.Location),
-		)))
+	serve.publishViewUpdatedEventToNearbyPlayersOfLocation(command.GameId, command.Location)
 
 	return nil
 }
@@ -253,12 +246,7 @@ func (serve *serve) DestroyItem(command DestroyItemCommand) error {
 		return err
 	}
 
-	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(command.GameId.ToString()),
-		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
-			command.GameId.ToString(),
-			viewmodel.NewLocationVm(command.Location),
-		)))
+	serve.publishViewUpdatedEventToNearbyPlayersOfLocation(command.GameId, command.Location)
 
 	return nil
 }

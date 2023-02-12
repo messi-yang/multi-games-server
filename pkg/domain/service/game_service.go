@@ -7,9 +7,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
+	"github.com/samber/lo"
 )
 
 type GameService interface {
+	GetNearbyPlayersOfLocation(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) ([]gamemodel.PlayerEntity, error)
+	GetNearbyPlayersOfPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) ([]gamemodel.PlayerEntity, error)
 	AddPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error
 	MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, direction gamemodel.DirectionVo) error
 	RemovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error
@@ -25,6 +28,28 @@ type gameServe struct {
 
 func NewGameService(gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameService {
 	return &gameServe{gameRepo: gameRepo, unitRepo: unitRepo, itemRepo: itemRepo}
+}
+
+func (serve *gameServe) GetNearbyPlayersOfLocation(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) ([]gamemodel.PlayerEntity, error) {
+	game, err := serve.gameRepo.Get(gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	players := lo.Filter(game.GetPlayers(), func(player gamemodel.PlayerEntity, _ int) bool {
+		return game.CanPlayerSeeAnyLocations(player.GetId(), []commonmodel.LocationVo{location})
+	})
+
+	return players, nil
+}
+
+func (serve *gameServe) GetNearbyPlayersOfPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) ([]gamemodel.PlayerEntity, error) {
+	game, err := serve.gameRepo.Get(gameId)
+	if err != nil {
+		return nil, err
+	}
+
+	return game.GetPlayers(), nil
 }
 
 func (serve *gameServe) AddPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error {

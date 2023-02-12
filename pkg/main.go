@@ -25,7 +25,7 @@ func main() {
 	gameAppService := gamesocketservice.NewService(intEventPublisher, gameRepo, unitRepo, itemRepo)
 	gameController := socketcontroller.NewGameSocketController(gameAppService)
 
-	gameAppService.LoadGame("20716447-6514-4eac-bd05-e558ca72bf3c")
+	gameAppService.CreateGame("20716447-6514-4eac-bd05-e558ca72bf3c")
 
 	router.Static("/assets", "./pkg/interface/assets")
 	router.Group("/ws/game").GET("/", gameController.HandleGameConnection)
