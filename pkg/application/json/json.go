@@ -1,4 +1,4 @@
-package jsonmarshaller
+package json
 
 import "encoding/json"
 

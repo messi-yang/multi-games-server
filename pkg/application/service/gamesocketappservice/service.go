@@ -5,8 +5,8 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/tool"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/tool"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
@@ -55,7 +55,7 @@ func (serve *serve) GetError(presenter Presenter, errorMessage string) {
 func (serve *serve) publishViewUpdatedEventTo(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) {
 	serve.IntEventPublisher.Publish(
 		CreateGamePlayerChannel(gameId.ToString(), playerId.ToString()),
-		jsonmarshaller.Marshal(NewViewUpdatedIntEvent(
+		json.Marshal(NewViewUpdatedIntEvent(
 			gameId.ToString(),
 		)))
 }
@@ -80,7 +80,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId gam
 	lo.ForEach(players, func(player gamemodel.PlayerEntity, _ int) {
 		serve.IntEventPublisher.Publish(
 			CreateGamePlayerChannel(gameId.ToString(), player.GetId().ToString()),
-			jsonmarshaller.Marshal(NewPlayersUpdatedIntEvent(
+			json.Marshal(NewPlayersUpdatedIntEvent(
 				gameId.ToString(),
 			)))
 	})

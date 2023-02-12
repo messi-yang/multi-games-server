@@ -1,4 +1,4 @@
-package gzipper
+package gzip
 
 import (
 	"bytes"

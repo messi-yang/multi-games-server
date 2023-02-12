@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/gzipper"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/gzip"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redissub"
 	"github.com/gin-gonic/gin"
@@ -51,14 +51,14 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	intEventUnsubscriber := redissub.New().Subscribe(
 		gamesocketappservice.CreateGamePlayerChannel(gameIdDto, playerIdDto),
 		func(message []byte) {
-			intEvent, err := jsonmarshaller.Unmarshal[gamesocketappservice.GameSocketIntEvent](message)
+			intEvent, err := json.Unmarshal[gamesocketappservice.GameSocketIntEvent](message)
 			if err != nil {
 				return
 			}
 
 			switch intEvent.Name {
 			case gamesocketappservice.PlayersUpdatedGameSocketIntEventName:
-				event, _ := jsonmarshaller.Unmarshal[gamesocketappservice.PlayersUpdatedIntEvent](message)
+				event, _ := json.Unmarshal[gamesocketappservice.PlayersUpdatedIntEvent](message)
 
 				query, err := gamesocketappservice.NewGetPlayersQuery(event.GameId, playerIdDto)
 				if err != nil {
@@ -67,7 +67,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 
 				controller.gameAppService.GetPlayers(socketPresenter, query)
 			case gamesocketappservice.ViewUpdatedGameSocketIntEventName:
-				event, _ := jsonmarshaller.Unmarshal[gamesocketappservice.ViewUpdatedIntEvent](message)
+				event, _ := json.Unmarshal[gamesocketappservice.ViewUpdatedIntEvent](message)
 
 				query, err := gamesocketappservice.NewGetViewQuery(event.GameId, playerIdDto)
 				if err != nil {
@@ -98,13 +98,13 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 				return
 			}
 
-			message, err := gzipper.Ungzip(compressedMessage)
+			message, err := gzip.Ungzip(compressedMessage)
 			if err != nil {
 				controller.gameAppService.GetError(socketPresenter, err.Error())
 				continue
 			}
 
-			genericRequestDto, err := jsonmarshaller.Unmarshal[gamesocketappservice.GenericRequestDto](message)
+			genericRequestDto, err := json.Unmarshal[gamesocketappservice.GenericRequestDto](message)
 			if err != nil {
 				controller.gameAppService.GetError(socketPresenter, err.Error())
 				continue
@@ -114,7 +114,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.PingRequestDtoType:
 				continue
 			case gamesocketappservice.MoveRequestDtoType:
-				requestDto, err := jsonmarshaller.Unmarshal[gamesocketappservice.MoveRequestDto](message)
+				requestDto, err := json.Unmarshal[gamesocketappservice.MoveRequestDto](message)
 				if err != nil {
 					controller.gameAppService.GetError(socketPresenter, err.Error())
 					continue
@@ -128,7 +128,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 
 				controller.gameAppService.MovePlayer(socketPresenter, command)
 			case gamesocketappservice.PlaceItemRequestDtoType:
-				requestDto, err := jsonmarshaller.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
+				requestDto, err := json.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
 				if err != nil {
 					controller.gameAppService.GetError(socketPresenter, err.Error())
 					continue
@@ -142,7 +142,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 
 				controller.gameAppService.PlaceItem(command)
 			case gamesocketappservice.DestroyItemRequestDtoType:
-				requestDto, err := jsonmarshaller.Unmarshal[gamesocketappservice.DestroyItemRequestDto](message)
+				requestDto, err := json.Unmarshal[gamesocketappservice.DestroyItemRequestDto](message)
 				if err != nil {
 					controller.gameAppService.GetError(socketPresenter, err.Error())
 					continue
