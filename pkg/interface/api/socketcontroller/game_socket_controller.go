@@ -110,7 +110,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
 					continue
 				}
-				controller.gameAppService.MovePlayer(socketPresenter, gameIdVm, playerIdVm, command.Payload.Direction)
+				controller.gameAppService.MovePlayer(socketPresenter, gameIdVm, playerIdVm, command.Direction)
 			case gamesocketservice.PlaceItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[gamesocketservice.PlaceItemClientEvent](message)
 				if err != nil {
@@ -118,7 +118,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.gameAppService.PlaceItem(gameIdVm, playerIdVm, command.Payload.Location, command.Payload.ItemId)
+				controller.gameAppService.PlaceItem(gameIdVm, playerIdVm, command.Location, command.ItemId)
 			case gamesocketservice.DestroyItemClientEventType:
 				command, err := jsonmarshaller.Unmarshal[gamesocketservice.DestroyItemClientEvent](message)
 				if err != nil {
@@ -126,7 +126,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.gameAppService.DestroyItem(gameIdVm, playerIdVm, command.Payload.Location)
+				controller.gameAppService.DestroyItem(gameIdVm, playerIdVm, command.Location)
 			default:
 			}
 		}

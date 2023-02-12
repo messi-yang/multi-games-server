@@ -18,32 +18,24 @@ type GenericServerEvent struct {
 }
 
 type ErroredServerEvent struct {
-	Type    ServerEventType `json:"type"`
-	Payload struct {
-		ClientMessage string `json:"clientMessage"`
-	} `json:"payload"`
+	Type          ServerEventType `json:"type"`
+	ClientMessage string          `json:"clientMessage"`
 }
 
 type GameJoinedServerEvent struct {
-	Type    ServerEventType `json:"type"`
-	Payload struct {
-		PlayerId string               `json:"playerId"`
-		Players  []viewmodel.PlayerVm `json:"players"`
-		View     viewmodel.ViewVm     `json:"view"`
-		Items    []viewmodel.ItemVm   `json:"items"`
-	} `json:"payload"`
+	Type     ServerEventType      `json:"type"`
+	PlayerId string               `json:"playerId"`
+	Players  []viewmodel.PlayerVm `json:"players"`
+	View     viewmodel.ViewVm     `json:"view"`
+	Items    []viewmodel.ItemVm   `json:"items"`
 }
 
 type PlayersUpdatedServerEvent struct {
-	Type    ServerEventType `json:"type"`
-	Payload struct {
-		Players []viewmodel.PlayerVm `json:"players"`
-	} `json:"payload"`
+	Type    ServerEventType      `json:"type"`
+	Players []viewmodel.PlayerVm `json:"players"`
 }
 
 type ViewUpdatedServerEvent struct {
-	Type    ServerEventType `json:"type"`
-	Payload struct {
-		View viewmodel.ViewVm `json:"view"`
-	} `json:"payload"`
+	Type ServerEventType  `json:"type"`
+	View viewmodel.ViewVm `json:"view"`
 }

@@ -24,25 +24,19 @@ type PingClientEvent struct {
 }
 
 type MoveClientEvent struct {
-	Type    ClientEventType `json:"type"`
-	Payload struct {
-		Direction int8 `json:"direction"`
-	} `json:"payload"`
+	Type      ClientEventType `json:"type"`
+	Direction int8            `json:"direction"`
 }
 
 type PlaceItemClientEvent struct {
-	Type    ClientEventType `json:"type"`
-	Payload struct {
-		Location   viewmodel.LocationVm `json:"location"`
-		ItemId     int16                `json:"itemId"`
-		ActionedAt time.Time            `json:"actionedAt"`
-	} `json:"payload"`
+	Type       ClientEventType      `json:"type"`
+	Location   viewmodel.LocationVm `json:"location"`
+	ItemId     int16                `json:"itemId"`
+	ActionedAt time.Time            `json:"actionedAt"`
 }
 
 type DestroyItemClientEvent struct {
-	Type    ClientEventType `json:"type"`
-	Payload struct {
-		Location   viewmodel.LocationVm `json:"location"`
-		ActionedAt time.Time            `json:"actionedAt"`
-	} `json:"payload"`
+	Type       ClientEventType      `json:"type"`
+	Location   viewmodel.LocationVm `json:"location"`
+	ActionedAt time.Time            `json:"actionedAt"`
 }

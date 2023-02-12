@@ -47,10 +47,10 @@ func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel
 }
 
 func (serve *serve) SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string) {
-	event := ErroredServerEvent{}
-	event.Type = ErroredServerEventType
-	event.Payload.ClientMessage = clientMessage
-	presenter.OnMessage(event)
+	presenter.OnMessage(ErroredServerEvent{
+		Type:          ErroredServerEventType,
+		ClientMessage: clientMessage,
+	})
 }
 
 func (serve *serve) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent PlayerUpdatedIntEvent) {
@@ -63,12 +63,13 @@ func (serve *serve) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter
 		return
 	}
 	players := game.GetPlayers()
-	event := PlayersUpdatedServerEvent{}
-	event.Type = PlayersUpdatedServerEventType
-	event.Payload.Players = lo.Map(players, func(player gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
-		return viewmodel.NewPlayerVm(player)
+
+	presenter.OnMessage(PlayersUpdatedServerEvent{
+		Type: PlayersUpdatedServerEventType,
+		Players: lo.Map(players, func(player gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
+			return viewmodel.NewPlayerVm(player)
+		}),
 	})
-	presenter.OnMessage(event)
 }
 
 func (serve *serve) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent UnitUpdatedIntEvent) {
@@ -95,10 +96,10 @@ func (serve *serve) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, 
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
-	event := ViewUpdatedServerEvent{}
-	event.Type = ViewUpdatedServerEventType
-	event.Payload.View = viewmodel.NewViewVm(view)
-	presenter.OnMessage(event)
+	presenter.OnMessage(ViewUpdatedServerEvent{
+		Type: ViewUpdatedServerEventType,
+		View: viewmodel.NewViewVm(view),
+	})
 }
 
 func (serve *serve) LoadGame(gameIdVm string) {
@@ -163,13 +164,13 @@ func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, gameIdVm stri
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
-	event := GameJoinedServerEvent{}
-	event.Type = GameJoinedServerEventType
-	event.Payload.Items = itemVms
-	event.Payload.PlayerId = playerIdVm
-	event.Payload.Players = playerVms
-	event.Payload.View = viewmodel.NewViewVm(view)
-	presenter.OnMessage(event)
+	presenter.OnMessage(GameJoinedServerEvent{
+		Type:     GameJoinedServerEventType,
+		Items:    itemVms,
+		PlayerId: playerIdVm,
+		Players:  playerVms,
+		View:     viewmodel.NewViewVm(view),
+	})
 
 	serve.IntEventPublisher.Publish(
 		CreateGameIntEventChannel(gameIdVm),
@@ -219,10 +220,10 @@ func (serve *serve) MovePlayer(presenter presenter.SocketPresenter, gameIdVm str
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
-	event := ViewUpdatedServerEvent{}
-	event.Type = ViewUpdatedServerEventType
-	event.Payload.View = viewmodel.NewViewVm(view)
-	presenter.OnMessage(event)
+	presenter.OnMessage(ViewUpdatedServerEvent{
+		Type: ViewUpdatedServerEventType,
+		View: viewmodel.NewViewVm(view),
+	})
 }
 
 func (serve *serve) RemovePlayer(gameIdVm string, playerIdVm string) {
