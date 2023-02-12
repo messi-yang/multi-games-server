@@ -4,8 +4,8 @@ import (
 	"fmt"
 )
 
-func CreateGamePlayerChannel(gameIdVm string, playerIdVm string) string {
-	return fmt.Sprintf("GAME_%s_PLAYER_%s", gameIdVm, playerIdVm)
+func CreateGamePlayerChannel(gameIdDto string, playerIdDto string) string {
+	return fmt.Sprintf("GAME_%s_PLAYER_%s", gameIdDto, playerIdDto)
 }
 
 type GameSocketIntEventName string
@@ -24,10 +24,10 @@ type PlayersUpdatedIntEvent struct {
 	GameId string                 `json:"gameId"`
 }
 
-func NewPlayersUpdatedIntEvent(gameIdVm string) PlayersUpdatedIntEvent {
+func NewPlayersUpdatedIntEvent(gameIdDto string) PlayersUpdatedIntEvent {
 	return PlayersUpdatedIntEvent{
 		Name:   PlayersUpdatedGameSocketIntEventName,
-		GameId: gameIdVm,
+		GameId: gameIdDto,
 	}
 }
 
@@ -36,9 +36,9 @@ type ViewUpdatedIntEvent struct {
 	GameId string                 `json:"gameId"`
 }
 
-func NewViewUpdatedIntEvent(gameIdVm string) ViewUpdatedIntEvent {
+func NewViewUpdatedIntEvent(gameIdDto string) ViewUpdatedIntEvent {
 	return ViewUpdatedIntEvent{
 		Name:   ViewUpdatedGameSocketIntEventName,
-		GameId: gameIdVm,
+		GameId: gameIdDto,
 	}
 }

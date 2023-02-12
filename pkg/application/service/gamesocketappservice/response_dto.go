@@ -1,7 +1,7 @@
 package gamesocketappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 )
 
 type ResponseDtoType string
@@ -19,19 +19,19 @@ type ErroredResponseDto struct {
 }
 
 type GameJoinedResponseDto struct {
-	Type     ResponseDtoType      `json:"type"`
-	PlayerId string               `json:"playerId"`
-	Players  []viewmodel.PlayerVm `json:"players"`
-	View     viewmodel.ViewVm     `json:"view"`
-	Items    []viewmodel.ItemVm   `json:"items"`
+	Type     ResponseDtoType `json:"type"`
+	PlayerId string          `json:"playerId"`
+	Players  []dto.PlayerDto `json:"players"`
+	View     dto.ViewDto     `json:"view"`
+	Items    []dto.ItemDto   `json:"items"`
 }
 
 type PlayersUpdatedResponseDto struct {
-	Type    ResponseDtoType      `json:"type"`
-	Players []viewmodel.PlayerVm `json:"players"`
+	Type    ResponseDtoType `json:"type"`
+	Players []dto.PlayerDto `json:"players"`
 }
 
 type ViewUpdatedResponseDto struct {
-	Type ResponseDtoType  `json:"type"`
-	View viewmodel.ViewVm `json:"view"`
+	Type ResponseDtoType `json:"type"`
+	View dto.ViewDto     `json:"view"`
 }

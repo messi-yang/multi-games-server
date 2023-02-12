@@ -42,14 +42,14 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	defer socketConn.Close()
 	closeConnFlag := make(chan bool)
 
-	gameIdVm := "20716447-6514-4eac-bd05-e558ca72bf3c"
+	gameIdDto := "20716447-6514-4eac-bd05-e558ca72bf3c"
 
-	playerIdVm := uuid.New().String()
+	playerIdDto := uuid.New().String()
 
 	socketPresenter := newPresenter(socketConn, &sync.RWMutex{})
 
 	intEventUnsubscriber := redissub.New().Subscribe(
-		gamesocketappservice.CreateGamePlayerChannel(gameIdVm, playerIdVm),
+		gamesocketappservice.CreateGamePlayerChannel(gameIdDto, playerIdDto),
 		func(message []byte) {
 			intEvent, err := jsonmarshaller.Unmarshal[gamesocketappservice.GameSocketIntEvent](message)
 			if err != nil {
@@ -60,7 +60,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.PlayersUpdatedGameSocketIntEventName:
 				event, _ := jsonmarshaller.Unmarshal[gamesocketappservice.PlayersUpdatedIntEvent](message)
 
-				query, err := gamesocketappservice.NewGetPlayersQuery(event.GameId, playerIdVm)
+				query, err := gamesocketappservice.NewGetPlayersQuery(event.GameId, playerIdDto)
 				if err != nil {
 					return
 				}
@@ -69,7 +69,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.ViewUpdatedGameSocketIntEventName:
 				event, _ := jsonmarshaller.Unmarshal[gamesocketappservice.ViewUpdatedIntEvent](message)
 
-				query, err := gamesocketappservice.NewGetViewQuery(event.GameId, playerIdVm)
+				query, err := gamesocketappservice.NewGetViewQuery(event.GameId, playerIdDto)
 				if err != nil {
 					return
 				}
@@ -80,7 +80,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 		})
 	defer intEventUnsubscriber()
 
-	command, err := gamesocketappservice.NewAddPlayerCommand(gameIdVm, playerIdVm)
+	command, err := gamesocketappservice.NewAddPlayerCommand(gameIdDto, playerIdDto)
 	if err != nil {
 		return
 	}
@@ -120,7 +120,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				command, err := gamesocketappservice.NewMovePlayerCommand(gameIdVm, playerIdVm, requestDto.Direction)
+				command, err := gamesocketappservice.NewMovePlayerCommand(gameIdDto, playerIdDto, requestDto.Direction)
 				if err != nil {
 					controller.gameAppService.GetError(socketPresenter, err.Error())
 					continue
@@ -134,7 +134,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				command, err := gamesocketappservice.NewPlaceItemCommand(gameIdVm, playerIdVm, requestDto.Location, requestDto.ItemId)
+				command, err := gamesocketappservice.NewPlaceItemCommand(gameIdDto, playerIdDto, requestDto.Location, requestDto.ItemId)
 				if err != nil {
 					controller.gameAppService.GetError(socketPresenter, err.Error())
 					continue
@@ -148,7 +148,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				command, err := gamesocketappservice.NewDestroyItemCommand(gameIdVm, playerIdVm, requestDto.Location)
+				command, err := gamesocketappservice.NewDestroyItemCommand(gameIdDto, playerIdDto, requestDto.Location)
 				if err != nil {
 					controller.gameAppService.GetError(socketPresenter, err.Error())
 					continue
@@ -163,7 +163,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		command, _ := gamesocketappservice.NewRemovePlayerCommand(gameIdVm, playerIdVm)
+		command, _ := gamesocketappservice.NewRemovePlayerCommand(gameIdDto, playerIdDto)
 		controller.gameAppService.RemovePlayer(command)
 		return
 	}

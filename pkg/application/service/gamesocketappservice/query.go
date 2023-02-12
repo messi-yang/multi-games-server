@@ -7,12 +7,12 @@ type GetPlayersQuery struct {
 	PlayerId gamemodel.PlayerIdVo
 }
 
-func NewGetPlayersQuery(gameIdVm string, playerIdVm string) (GetPlayersQuery, error) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+func NewGetPlayersQuery(gameIdDto string, playerIdDto string) (GetPlayersQuery, error) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdDto)
 	if err != nil {
 		return GetPlayersQuery{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
+	playerId, err := gamemodel.NewPlayerIdVo(playerIdDto)
 	if err != nil {
 		return GetPlayersQuery{}, err
 	}
@@ -28,12 +28,12 @@ type GetViewQuery struct {
 	PlayerId gamemodel.PlayerIdVo
 }
 
-func NewGetViewQuery(gameIdVm string, playerIdVm string) (GetViewQuery, error) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+func NewGetViewQuery(gameIdDto string, playerIdDto string) (GetViewQuery, error) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdDto)
 	if err != nil {
 		return GetViewQuery{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
+	playerId, err := gamemodel.NewPlayerIdVo(playerIdDto)
 	if err != nil {
 		return GetViewQuery{}, err
 	}

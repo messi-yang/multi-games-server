@@ -3,7 +3,7 @@ package gamesocketappservice
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 )
 
 type RequestDtoType string
@@ -25,14 +25,14 @@ type MoveRequestDto struct {
 }
 
 type PlaceItemRequestDto struct {
-	Type       RequestDtoType       `json:"type"`
-	Location   viewmodel.LocationVm `json:"location"`
-	ItemId     int16                `json:"itemId"`
-	ActionedAt time.Time            `json:"actionedAt"`
+	Type       RequestDtoType  `json:"type"`
+	Location   dto.LocationDto `json:"location"`
+	ItemId     int16           `json:"itemId"`
+	ActionedAt time.Time       `json:"actionedAt"`
 }
 
 type DestroyItemRequestDto struct {
-	Type       RequestDtoType       `json:"type"`
-	Location   viewmodel.LocationVm `json:"location"`
-	ActionedAt time.Time            `json:"actionedAt"`
+	Type       RequestDtoType  `json:"type"`
+	Location   dto.LocationDto `json:"location"`
+	ActionedAt time.Time       `json:"actionedAt"`
 }

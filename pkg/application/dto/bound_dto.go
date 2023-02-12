@@ -1,22 +1,22 @@
-package viewmodel
+package dto
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 )
 
-type BoundVm struct {
-	From LocationVm `json:"from"`
-	To   LocationVm `json:"to"`
+type BoundDto struct {
+	From LocationDto `json:"from"`
+	To   LocationDto `json:"to"`
 }
 
-func NewBoundVm(bound commonmodel.BoundVo) BoundVm {
-	return BoundVm{
-		From: NewLocationVm(bound.GetFrom()),
-		To:   NewLocationVm(bound.GetTo()),
+func NewBoundDto(bound commonmodel.BoundVo) BoundDto {
+	return BoundDto{
+		From: NewLocationDto(bound.GetFrom()),
+		To:   NewLocationDto(bound.GetTo()),
 	}
 }
 
-func (dto BoundVm) ToValueObject() (commonmodel.BoundVo, error) {
+func (dto BoundDto) ToValueObject() (commonmodel.BoundVo, error) {
 	from := commonmodel.NewLocationVo(dto.From.X, dto.From.Y)
 
 	to := commonmodel.NewLocationVo(dto.To.X, dto.To.Y)

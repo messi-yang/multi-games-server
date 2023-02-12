@@ -3,10 +3,10 @@ package gamesocketappservice
 import (
 	"math/rand"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/tool"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
@@ -16,7 +16,7 @@ import (
 )
 
 type Service interface {
-	CreateGame(gameIdVm string)
+	CreateGame(gameIdDto string)
 	GetError(presenter Presenter, errorMessage string)
 	GetPlayers(presenter Presenter, query GetPlayersQuery) error
 	GetView(presenter Presenter, query GetViewQuery) error
@@ -98,8 +98,8 @@ func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error
 
 	presenter.OnMessage(PlayersUpdatedResponseDto{
 		Type: PlayersUpdatedResponseDtoType,
-		Players: lo.Map(players, func(player gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
-			return viewmodel.NewPlayerVm(player)
+		Players: lo.Map(players, func(player gamemodel.PlayerEntity, _ int) dto.PlayerDto {
+			return dto.NewPlayerDto(player)
 		}),
 	})
 
@@ -123,14 +123,14 @@ func (serve *serve) GetView(presenter Presenter, query GetViewQuery) error {
 
 	presenter.OnMessage(ViewUpdatedResponseDto{
 		Type: ViewUpdatedResponseDtoType,
-		View: viewmodel.NewViewVm(view),
+		View: dto.NewViewDto(view),
 	})
 
 	return nil
 }
 
-func (serve *serve) CreateGame(gameIdVm string) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
+func (serve *serve) CreateGame(gameIdDto string) {
+	gameId, err := gamemodel.NewGameIdVo(gameIdDto)
 	if err != nil {
 		return
 	}
@@ -165,13 +165,13 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	}
 
 	items := serve.itemRepo.GetAll()
-	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
-		return viewmodel.NewItemVm(item)
+	itemDtos := lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemDto {
+		return dto.NewItemDto(item)
 	})
 
 	players := game.GetPlayers()
-	playerVms := lo.Map(players, func(p gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
-		return viewmodel.NewPlayerVm(p)
+	playerDtos := lo.Map(players, func(p gamemodel.PlayerEntity, _ int) dto.PlayerDto {
+		return dto.NewPlayerDto(p)
 	})
 
 	// Delete this section later
@@ -182,10 +182,10 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:     GameJoinedResponseDtoType,
-		Items:    itemVms,
+		Items:    itemDtos,
 		PlayerId: command.PlayerId.ToString(),
-		Players:  playerVms,
-		View:     viewmodel.NewViewVm(view),
+		Players:  playerDtos,
+		View:     dto.NewViewDto(view),
 	})
 
 	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(command.GameId, command.PlayerId)
