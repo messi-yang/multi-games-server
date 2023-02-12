@@ -76,7 +76,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 		})
 	defer intEventUnsubscriber()
 
-	controller.gameAppService.JoinGame(socketPresenter, gameIdVm, playerIdVm)
+	controller.gameAppService.AddPlayer(socketPresenter, gameIdVm, playerIdVm)
 
 	go func() {
 		defer func() {
@@ -136,7 +136,7 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.gameAppService.LeaveGame(gameIdVm, playerIdVm)
+		controller.gameAppService.RemovePlayer(gameIdVm, playerIdVm)
 		return
 	}
 }

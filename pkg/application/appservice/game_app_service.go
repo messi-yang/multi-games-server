@@ -21,9 +21,9 @@ type GameAppService interface {
 	HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayerUpdatedIntEvent)
 	HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent intevent.UnitUpdatedIntEvent)
 	LoadGame(gameIdVm string)
-	JoinGame(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string)
+	AddPlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string)
 	MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8)
-	LeaveGame(gameIdVm string, playerIdVm string)
+	RemovePlayer(gameIdVm string, playerIdVm string)
 	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
 	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
 }
@@ -122,7 +122,7 @@ func (gameAppServe *gameAppServe) LoadGame(gameIdVm string) {
 	gameAppServe.gameRepo.Add(newGame)
 }
 
-func (gameAppServe *gameAppServe) JoinGame(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string) {
+func (gameAppServe *gameAppServe) AddPlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -225,7 +225,7 @@ func (gameAppServe *gameAppServe) MovePlayer(presenter presenter.SocketPresenter
 	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) LeaveGame(gameIdVm string, playerIdVm string) {
+func (gameAppServe *gameAppServe) RemovePlayer(gameIdVm string, playerIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
