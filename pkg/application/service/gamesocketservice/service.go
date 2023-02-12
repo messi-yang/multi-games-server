@@ -21,11 +21,11 @@ type Service interface {
 	HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent PlayerUpdatedIntEvent)
 	HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent UnitUpdatedIntEvent)
 	LoadGame(gameIdVm string)
-	AddPlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string)
-	MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8)
-	RemovePlayer(gameIdVm string, playerIdVm string)
-	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
-	DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm)
+	AddPlayer(presenter presenter.SocketPresenter, command AddPlayerCommand) error
+	MovePlayer(presenter presenter.SocketPresenter, command MovePlayerCommand) error
+	RemovePlayer(command RemovePlayerCommand) error
+	PlaceItem(command PlaceItemCommand) error
+	DestroyItem(command DestroyItemCommand) error
 }
 
 type serve struct {
@@ -123,30 +123,21 @@ func (serve *serve) LoadGame(gameIdVm string) {
 	serve.gameRepo.Add(newGame)
 }
 
-func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-
-	unlocker := serve.gameRepo.LockAccess(gameId)
+func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, command AddPlayerCommand) error {
+	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
-	game, err := serve.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(command.GameId)
 	if err != nil {
-		return
+		return err
 	}
 
-	err = game.AddPlayer(playerId)
+	err = game.AddPlayer(command.PlayerId)
 	if err != nil {
-		return
+		return err
 	}
 
-	serve.gameRepo.Update(gameId, game)
+	serve.gameRepo.Update(command.GameId, game)
 
 	items := serve.itemRepo.GetAll()
 	itemVms := lo.Map(items, func(item itemmodel.ItemAgg, _ int) viewmodel.ItemVm {
@@ -159,64 +150,53 @@ func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, gameIdVm stri
 	})
 
 	// Delete this section later
-	bound, _ := game.GetPlayerViewBound(playerId)
-	units := serve.unitRepo.GetUnits(gameId, bound)
+	bound, _ := game.GetPlayerViewBound(command.PlayerId)
+	units := serve.unitRepo.GetUnits(command.GameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:     GameJoinedResponseDtoType,
 		Items:    itemVms,
-		PlayerId: playerIdVm,
+		PlayerId: command.PlayerId.ToString(),
 		Players:  playerVms,
 		View:     viewmodel.NewViewVm(view),
 	})
 
 	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(gameIdVm),
+		CreateGameIntEventChannel(command.GameId.ToString()),
 		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
-			gameIdVm,
-			playerIdVm,
+			command.GameId.ToString(),
+			command.PlayerId.ToString(),
 		)))
+
+	return nil
 }
 
-func (serve *serve) MovePlayer(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string, directionVm int8) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-	direction, err := gamemodel.NewDirectionVo(directionVm)
-	if err != nil {
-		return
-	}
-
-	unlocker := serve.gameRepo.LockAccess(gameId)
+func (serve *serve) MovePlayer(presenter presenter.SocketPresenter, command MovePlayerCommand) error {
+	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
-	err = serve.gameService.MovePlayer(gameId, playerId, direction)
+	err := serve.gameService.MovePlayer(command.GameId, command.PlayerId, command.Direction)
 	if err != nil {
-		return
+		return err
 	}
 
-	game, err := serve.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(command.GameId)
 	if err != nil {
-		return
+		return err
 	}
 
 	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(gameIdVm),
+		CreateGameIntEventChannel(command.GameId.ToString()),
 		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
-			gameIdVm,
-			playerIdVm,
+			command.GameId.ToString(),
+			command.PlayerId.ToString(),
 		)))
 
 	// Delete this section later
-	bound, _ := game.GetPlayerViewBound(playerId)
-	units := serve.unitRepo.GetUnits(gameId, bound)
+	bound, _ := game.GetPlayerViewBound(command.PlayerId)
+	units := serve.unitRepo.GetUnits(command.GameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
@@ -224,85 +204,66 @@ func (serve *serve) MovePlayer(presenter presenter.SocketPresenter, gameIdVm str
 		Type: ViewUpdatedResponseDtoType,
 		View: viewmodel.NewViewVm(view),
 	})
+
+	return nil
 }
 
-func (serve *serve) RemovePlayer(gameIdVm string, playerIdVm string) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-
-	unlocker := serve.gameRepo.LockAccess(gameId)
+func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
+	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
-	game, err := serve.gameRepo.Get(gameId)
+	game, err := serve.gameRepo.Get(command.GameId)
 	if err != nil {
-		return
+		return err
 	}
 
-	game.RemovePlayer(playerId)
-	serve.gameRepo.Update(gameId, game)
+	game.RemovePlayer(command.PlayerId)
+	serve.gameRepo.Update(command.GameId, game)
 
 	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(gameIdVm),
+		CreateGameIntEventChannel(command.GameId.ToString()),
 		jsonmarshaller.Marshal(NewPlayerUpdatedIntEvent(
-			gameIdVm,
-			playerIdVm,
+			command.GameId.ToString(),
+			command.PlayerId.ToString(),
 		)))
+
+	return nil
 }
 
-func (serve *serve) PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-	itemId := itemmodel.NewItemIdVo(itemIdVm)
-	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
-
-	unlocker := serve.gameRepo.LockAccess(gameId)
+func (serve *serve) PlaceItem(command PlaceItemCommand) error {
+	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
-	err = serve.gameService.PlaceItem(gameId, playerId, itemId, location)
+	err := serve.gameService.PlaceItem(command.GameId, command.PlayerId, command.ItemId, command.Location)
 	if err != nil {
-		return
+		return err
 	}
 
 	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(gameIdVm),
+		CreateGameIntEventChannel(command.GameId.ToString()),
 		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
-			gameIdVm,
-			locationVm,
+			command.GameId.ToString(),
+			viewmodel.NewLocationVm(command.Location),
 		)))
+
+	return nil
 }
 
-func (serve *serve) DestroyItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
-	if err != nil {
-		return
-	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdVm)
-	if err != nil {
-		return
-	}
-	location := commonmodel.NewLocationVo(locationVm.X, locationVm.Y)
-
-	unlocker := serve.gameRepo.LockAccess(gameId)
+func (serve *serve) DestroyItem(command DestroyItemCommand) error {
+	unlocker := serve.gameRepo.LockAccess(command.GameId)
 	defer unlocker()
 
-	serve.gameService.DestroyItem(gameId, playerId, location)
+	err := serve.gameService.DestroyItem(command.GameId, command.PlayerId, command.Location)
+	if err != nil {
+		return err
+	}
 
 	serve.IntEventPublisher.Publish(
-		CreateGameIntEventChannel(gameIdVm),
+		CreateGameIntEventChannel(command.GameId.ToString()),
 		jsonmarshaller.Marshal(NewUnitUpdatedIntEvent(
-			gameIdVm,
-			locationVm,
+			command.GameId.ToString(),
+			viewmodel.NewLocationVm(command.Location),
 		)))
+
+	return nil
 }

@@ -75,7 +75,11 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 		})
 	defer intEventUnsubscriber()
 
-	controller.gameAppService.AddPlayer(socketPresenter, gameIdVm, playerIdVm)
+	command, err := gamesocketservice.NewAddPlayerCommand(gameIdVm, playerIdVm)
+	if err != nil {
+		return
+	}
+	controller.gameAppService.AddPlayer(socketPresenter, command)
 
 	go func() {
 		defer func() {
@@ -110,7 +114,14 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
 					continue
 				}
-				controller.gameAppService.MovePlayer(socketPresenter, gameIdVm, playerIdVm, requestDto.Direction)
+
+				command, err := gamesocketservice.NewMovePlayerCommand(gameIdVm, playerIdVm, requestDto.Direction)
+				if err != nil {
+					controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
+					continue
+				}
+
+				controller.gameAppService.MovePlayer(socketPresenter, command)
 			case gamesocketservice.PlaceItemRequestDtoType:
 				requestDto, err := jsonmarshaller.Unmarshal[gamesocketservice.PlaceItemRequestDto](message)
 				if err != nil {
@@ -118,7 +129,13 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.gameAppService.PlaceItem(gameIdVm, playerIdVm, requestDto.Location, requestDto.ItemId)
+				command, err := gamesocketservice.NewPlaceItemCommand(gameIdVm, playerIdVm, requestDto.Location, requestDto.ItemId)
+				if err != nil {
+					controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
+					continue
+				}
+
+				controller.gameAppService.PlaceItem(command)
 			case gamesocketservice.DestroyItemRequestDtoType:
 				requestDto, err := jsonmarshaller.Unmarshal[gamesocketservice.DestroyItemRequestDto](message)
 				if err != nil {
@@ -126,7 +143,13 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				controller.gameAppService.DestroyItem(gameIdVm, playerIdVm, requestDto.Location)
+				command, err := gamesocketservice.NewDestroyItemCommand(gameIdVm, playerIdVm, requestDto.Location)
+				if err != nil {
+					controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
+					continue
+				}
+
+				controller.gameAppService.DestroyItem(command)
 			default:
 			}
 		}
@@ -135,7 +158,8 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.gameAppService.RemovePlayer(gameIdVm, playerIdVm)
+		command, _ := gamesocketservice.NewRemovePlayerCommand(gameIdVm, playerIdVm)
+		controller.gameAppService.RemovePlayer(command)
 		return
 	}
 }
