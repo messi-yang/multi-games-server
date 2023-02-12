@@ -85,48 +85,48 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 		for {
 			_, compressedMessage, err := socketConn.ReadMessage()
 			if err != nil {
-				controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
+				controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
 				return
 			}
 
 			message, err := gzipper.Ungzip(compressedMessage)
 			if err != nil {
-				controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
+				controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
 				continue
 			}
 
-			genericClientEvent, err := jsonmarshaller.Unmarshal[gamesocketservice.GenericClientEvent](message)
+			genericRequestDto, err := jsonmarshaller.Unmarshal[gamesocketservice.RequestDto](message)
 			if err != nil {
-				controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
+				controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
 				continue
 			}
 
-			switch genericClientEvent.Type {
-			case gamesocketservice.PingClientEventType:
+			switch genericRequestDto.Type {
+			case gamesocketservice.PingRequestDtoType:
 				continue
-			case gamesocketservice.MoveClientEventType:
-				command, err := jsonmarshaller.Unmarshal[gamesocketservice.MoveClientEvent](message)
+			case gamesocketservice.MoveRequestDtoType:
+				requestDto, err := jsonmarshaller.Unmarshal[gamesocketservice.MoveRequestDto](message)
 				if err != nil {
-					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
+					controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
 					continue
 				}
-				controller.gameAppService.MovePlayer(socketPresenter, gameIdVm, playerIdVm, command.Direction)
-			case gamesocketservice.PlaceItemClientEventType:
-				command, err := jsonmarshaller.Unmarshal[gamesocketservice.PlaceItemClientEvent](message)
+				controller.gameAppService.MovePlayer(socketPresenter, gameIdVm, playerIdVm, requestDto.Direction)
+			case gamesocketservice.PlaceItemRequestDtoType:
+				requestDto, err := jsonmarshaller.Unmarshal[gamesocketservice.PlaceItemRequestDto](message)
 				if err != nil {
-					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
-					continue
-				}
-
-				controller.gameAppService.PlaceItem(gameIdVm, playerIdVm, command.Location, command.ItemId)
-			case gamesocketservice.DestroyItemClientEventType:
-				command, err := jsonmarshaller.Unmarshal[gamesocketservice.DestroyItemClientEvent](message)
-				if err != nil {
-					controller.gameAppService.SendErroredServerEvent(socketPresenter, err.Error())
+					controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
 					continue
 				}
 
-				controller.gameAppService.DestroyItem(gameIdVm, playerIdVm, command.Location)
+				controller.gameAppService.PlaceItem(gameIdVm, playerIdVm, requestDto.Location, requestDto.ItemId)
+			case gamesocketservice.DestroyItemRequestDtoType:
+				requestDto, err := jsonmarshaller.Unmarshal[gamesocketservice.DestroyItemRequestDto](message)
+				if err != nil {
+					controller.gameAppService.SendErroredResponseDto(socketPresenter, err.Error())
+					continue
+				}
+
+				controller.gameAppService.DestroyItem(gameIdVm, playerIdVm, requestDto.Location)
 			default:
 			}
 		}

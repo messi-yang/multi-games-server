@@ -17,7 +17,7 @@ import (
 )
 
 type Service interface {
-	SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string)
+	SendErroredResponseDto(presenter presenter.SocketPresenter, clientMessage string)
 	HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter, intEvent PlayerUpdatedIntEvent)
 	HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, playerIdVm string, intEvent UnitUpdatedIntEvent)
 	LoadGame(gameIdVm string)
@@ -46,9 +46,9 @@ func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel
 	}
 }
 
-func (serve *serve) SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string) {
-	presenter.OnMessage(ErroredServerEvent{
-		Type:          ErroredServerEventType,
+func (serve *serve) SendErroredResponseDto(presenter presenter.SocketPresenter, clientMessage string) {
+	presenter.OnMessage(ErroredResponseDto{
+		Type:          ErroredResponseDtoType,
 		ClientMessage: clientMessage,
 	})
 }
@@ -64,8 +64,8 @@ func (serve *serve) HandlePlayerUpdatedEvent(presenter presenter.SocketPresenter
 	}
 	players := game.GetPlayers()
 
-	presenter.OnMessage(PlayersUpdatedServerEvent{
-		Type: PlayersUpdatedServerEventType,
+	presenter.OnMessage(PlayersUpdatedResponseDto{
+		Type: PlayersUpdatedResponseDtoType,
 		Players: lo.Map(players, func(player gamemodel.PlayerEntity, _ int) viewmodel.PlayerVm {
 			return viewmodel.NewPlayerVm(player)
 		}),
@@ -96,8 +96,8 @@ func (serve *serve) HandleUnitUpdatedEvent(presenter presenter.SocketPresenter, 
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
-	presenter.OnMessage(ViewUpdatedServerEvent{
-		Type: ViewUpdatedServerEventType,
+	presenter.OnMessage(ViewUpdatedResponseDto{
+		Type: ViewUpdatedResponseDtoType,
 		View: viewmodel.NewViewVm(view),
 	})
 }
@@ -164,8 +164,8 @@ func (serve *serve) AddPlayer(presenter presenter.SocketPresenter, gameIdVm stri
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
-	presenter.OnMessage(GameJoinedServerEvent{
-		Type:     GameJoinedServerEventType,
+	presenter.OnMessage(GameJoinedResponseDto{
+		Type:     GameJoinedResponseDtoType,
 		Items:    itemVms,
 		PlayerId: playerIdVm,
 		Players:  playerVms,
@@ -220,8 +220,8 @@ func (serve *serve) MovePlayer(presenter presenter.SocketPresenter, gameIdVm str
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
-	presenter.OnMessage(ViewUpdatedServerEvent{
-		Type: ViewUpdatedServerEventType,
+	presenter.OnMessage(ViewUpdatedResponseDto{
+		Type: ViewUpdatedResponseDtoType,
 		View: viewmodel.NewViewVm(view),
 	})
 }
