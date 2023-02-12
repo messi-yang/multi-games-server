@@ -64,13 +64,13 @@ func (controller *GameSocketController) HandleGameConnection(c *gin.Context) {
 					return
 				}
 
-				controller.gameAppService.SendPlayersUpdatedServerEvent(socketPresenter, event.Players)
+				controller.gameAppService.HandlePlayersUpdatedEvent(socketPresenter, event)
 			case intevent.ViewUpdatedIntEventName:
 				event, err := jsonmarshaller.Unmarshal[intevent.ViewUpdatedIntEvent](message)
 				if err != nil {
 					return
 				}
-				controller.gameAppService.SendViewUpdatedServerEvent(socketPresenter, event.View)
+				controller.gameAppService.HandleViewUpdatedEvent(socketPresenter, event)
 			}
 
 		})

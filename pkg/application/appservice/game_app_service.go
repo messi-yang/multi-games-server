@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/jsonmarshaller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/library/tool"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/presenter"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/viewmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
@@ -16,11 +17,11 @@ import (
 )
 
 type GameAppService interface {
-	SendErroredServerEvent(presenter Presenter, clientMessage string)
-	SendPlayersUpdatedServerEvent(presenter Presenter, playerVms []viewmodel.PlayerVm)
-	SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm)
+	SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string)
+	HandlePlayersUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayersUpdatedIntEvent)
+	HandleViewUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.ViewUpdatedIntEvent)
 	LoadGame(gameIdVm string)
-	JoinGame(presenter Presenter, gameIdVm string, playerIdVm string)
+	JoinGame(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string)
 	MovePlayer(gameIdVm string, playerIdVm string, directionVm int8)
 	LeaveGame(gameIdVm string, playerIdVm string)
 	PlaceItem(gameIdVm string, playerIdVm string, locationVm viewmodel.LocationVm, itemIdVm int16)
@@ -92,25 +93,25 @@ func (gameAppServe *gameAppServe) publishViewUpdatedEvents(gameId gamemodel.Game
 	return nil
 }
 
-func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter Presenter, clientMessage string) {
+func (gameAppServe *gameAppServe) SendErroredServerEvent(presenter presenter.SocketPresenter, clientMessage string) {
 	event := ErroredServerEvent{}
 	event.Type = ErroredServerEventType
 	event.Payload.ClientMessage = clientMessage
-	presenter.OnSuccess(event)
+	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) SendPlayersUpdatedServerEvent(presenter Presenter, playerVms []viewmodel.PlayerVm) {
+func (gameAppServe *gameAppServe) HandlePlayersUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.PlayersUpdatedIntEvent) {
 	event := PlayersUpdatedServerEvent{}
 	event.Type = PlayersUpdatedServerEventType
-	event.Payload.Players = playerVms
-	presenter.OnSuccess(event)
+	event.Payload.Players = intEvent.Players
+	presenter.OnMessage(event)
 }
 
-func (gameAppServe *gameAppServe) SendViewUpdatedServerEvent(presenter Presenter, viewVm viewmodel.ViewVm) {
+func (gameAppServe *gameAppServe) HandleViewUpdatedEvent(presenter presenter.SocketPresenter, intEvent intevent.ViewUpdatedIntEvent) {
 	event := ViewUpdatedServerEvent{}
 	event.Type = ViewUpdatedServerEventType
-	event.Payload.View = viewVm
-	presenter.OnSuccess(event)
+	event.Payload.View = intEvent.View
+	presenter.OnMessage(event)
 }
 
 func (gameAppServe *gameAppServe) LoadGame(gameIdVm string) {
@@ -134,7 +135,7 @@ func (gameAppServe *gameAppServe) LoadGame(gameIdVm string) {
 	gameAppServe.gameRepo.Add(newGame)
 }
 
-func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string, playerIdVm string) {
+func (gameAppServe *gameAppServe) JoinGame(presenter presenter.SocketPresenter, gameIdVm string, playerIdVm string) {
 	gameId, err := gamemodel.NewGameIdVo(gameIdVm)
 	if err != nil {
 		return
@@ -181,7 +182,7 @@ func (gameAppServe *gameAppServe) JoinGame(presenter Presenter, gameIdVm string,
 	event.Payload.PlayerId = playerIdVm
 	event.Payload.Players = playerVms
 	event.Payload.View = viewmodel.NewViewVm(view)
-	presenter.OnSuccess(event)
+	presenter.OnMessage(event)
 
 	gameAppServe.publishPlayersUpdatedEvents(gameId, game.GetPlayers(), game.GetPlayerIdsExcept(playerId))
 }
