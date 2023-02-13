@@ -51,8 +51,10 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent]().Subscribe(
 		gamesocketappservice.NewPlayersUpdatedIntEventChannel(gameIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.PlayersUpdatedIntEvent) {
-			query, _ := gamesocketappservice.NewGetPlayersQuery(gameIdDto, playerIdDto)
-			controller.gameAppService.GetPlayers(socketPresenter, query)
+			controller.gameAppService.GetPlayers(socketPresenter, gamesocketappservice.GetPlayersQuery{
+				GameId:   gameIdDto,
+				PlayerId: playerIdDto,
+			})
 		},
 	)
 	defer playersUpdatedIntEventUnsubscriber()
@@ -60,17 +62,21 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	viewUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.ViewUpdatedIntEvent]().Subscribe(
 		gamesocketappservice.NewViewUpdatedIntEventChannel(gameIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.ViewUpdatedIntEvent) {
-			query, _ := gamesocketappservice.NewGetViewQuery(gameIdDto, playerIdDto)
-			controller.gameAppService.GetView(socketPresenter, query)
+			controller.gameAppService.GetView(socketPresenter, gamesocketappservice.GetViewQuery{
+				GameId:   gameIdDto,
+				PlayerId: playerIdDto,
+			})
 		},
 	)
 	defer viewUpdatedIntEventTypeUnsubscriber()
 
-	command, err := gamesocketappservice.NewAddPlayerCommand(gameIdDto, playerIdDto)
+	err = controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
+		GameId:   gameIdDto,
+		PlayerId: playerIdDto,
+	})
 	if err != nil {
 		return
 	}
-	controller.gameAppService.AddPlayer(socketPresenter, command)
 
 	go func() {
 		defer func() {
@@ -106,13 +112,11 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				command, err := gamesocketappservice.NewMovePlayerCommand(gameIdDto, playerIdDto, requestDto.Direction)
-				if err != nil {
-					controller.gameAppService.GetError(socketPresenter, err.Error())
-					continue
-				}
-
-				controller.gameAppService.MovePlayer(socketPresenter, command)
+				controller.gameAppService.MovePlayer(socketPresenter, gamesocketappservice.MovePlayerCommand{
+					GameId:    gameIdDto,
+					PlayerId:  playerIdDto,
+					Direction: requestDto.Direction,
+				})
 			case gamesocketappservice.PlaceItemRequestDtoType:
 				requestDto, err := json.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
 				if err != nil {
@@ -120,13 +124,12 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				command, err := gamesocketappservice.NewPlaceItemCommand(gameIdDto, playerIdDto, requestDto.Location, requestDto.ItemId)
-				if err != nil {
-					controller.gameAppService.GetError(socketPresenter, err.Error())
-					continue
-				}
-
-				controller.gameAppService.PlaceItem(command)
+				controller.gameAppService.PlaceItem(gamesocketappservice.PlaceItemCommand{
+					GameId:   gameIdDto,
+					PlayerId: playerIdDto,
+					Location: requestDto.Location,
+					ItemId:   requestDto.ItemId,
+				})
 			case gamesocketappservice.DestroyItemRequestDtoType:
 				requestDto, err := json.Unmarshal[gamesocketappservice.DestroyItemRequestDto](message)
 				if err != nil {
@@ -134,13 +137,11 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					continue
 				}
 
-				command, err := gamesocketappservice.NewDestroyItemCommand(gameIdDto, playerIdDto, requestDto.Location)
-				if err != nil {
-					controller.gameAppService.GetError(socketPresenter, err.Error())
-					continue
-				}
-
-				controller.gameAppService.DestroyItem(command)
+				controller.gameAppService.DestroyItem(gamesocketappservice.DestroyItemCommand{
+					GameId:   gameIdDto,
+					PlayerId: playerIdDto,
+					Location: requestDto.Location,
+				})
 			default:
 			}
 		}
@@ -149,8 +150,10 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		command, _ := gamesocketappservice.NewRemovePlayerCommand(gameIdDto, playerIdDto)
-		controller.gameAppService.RemovePlayer(command)
+		controller.gameAppService.RemovePlayer(gamesocketappservice.RemovePlayerCommand{
+			GameId:   gameIdDto,
+			PlayerId: playerIdDto,
+		})
 		return
 	}
 }

@@ -84,10 +84,15 @@ func (serve *serve) publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId gam
 }
 
 func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error {
-	unlocker := serve.gameRepo.LockAccess(query.GameId)
+	gameId, _, err := query.Validate()
+	if err != nil {
+		return err
+	}
+
+	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	game, err := serve.gameRepo.Get(query.GameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return err
 	}
@@ -104,17 +109,22 @@ func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error
 }
 
 func (serve *serve) GetView(presenter Presenter, query GetViewQuery) error {
-	unlocker := serve.gameRepo.LockAccess(query.GameId)
+	gameId, playerId, err := query.Validate()
+	if err != nil {
+		return err
+	}
+
+	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	game, err := serve.gameRepo.Get(query.GameId)
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return err
 	}
 
 	// Delete this section later
-	bound, _ := game.GetPlayerViewBound(query.PlayerId)
-	units := serve.unitRepo.GetUnits(query.GameId, bound)
+	bound, _ := game.GetPlayerViewBound(playerId)
+	units := serve.unitRepo.GetUnits(gameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
@@ -148,15 +158,20 @@ func (serve *serve) CreateGame(gameIdDto string) {
 }
 
 func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) error {
-	unlocker := serve.gameRepo.LockAccess(command.GameId)
-	defer unlocker()
-
-	err := serve.gameService.AddPlayer(command.GameId, command.PlayerId)
+	gameId, playerId, err := command.Validate()
 	if err != nil {
 		return err
 	}
 
-	game, err := serve.gameRepo.Get(command.GameId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	err = serve.gameService.AddPlayer(gameId, playerId)
+	if err != nil {
+		return err
+	}
+
+	game, err := serve.gameRepo.Get(gameId)
 	if err != nil {
 		return err
 	}
@@ -172,77 +187,97 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	})
 
 	// Delete this section later
-	bound, _ := game.GetPlayerViewBound(command.PlayerId)
-	units := serve.unitRepo.GetUnits(command.GameId, bound)
+	bound, _ := game.GetPlayerViewBound(playerId)
+	units := serve.unitRepo.GetUnits(gameId, bound)
 	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:     GameJoinedResponseDtoType,
 		Items:    itemDtos,
-		PlayerId: command.PlayerId.ToString(),
+		PlayerId: playerId.ToString(),
 		Players:  playerDtos,
 		View:     dto.NewViewDto(view),
 	})
 
-	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(command.GameId, command.PlayerId)
+	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId, playerId)
 
 	return nil
 }
 
 func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) error {
-	unlocker := serve.gameRepo.LockAccess(command.GameId)
-	defer unlocker()
-
-	err := serve.gameService.MovePlayer(command.GameId, command.PlayerId, command.Direction)
+	gameId, playerId, direction, err := command.Validate()
 	if err != nil {
 		return err
 	}
 
-	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(command.GameId, command.PlayerId)
-	serve.publishViewUpdatedEventTo(command.GameId, command.PlayerId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	err = serve.gameService.MovePlayer(gameId, playerId, direction)
+	if err != nil {
+		return err
+	}
+
+	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId, playerId)
+	serve.publishViewUpdatedEventTo(gameId, playerId)
 
 	return nil
 }
 
 func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
-	unlocker := serve.gameRepo.LockAccess(command.GameId)
-	defer unlocker()
-
-	err := serve.gameService.RemovePlayer(command.GameId, command.PlayerId)
+	gameId, playerId, err := command.Validate()
 	if err != nil {
 		return err
 	}
 
-	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(command.GameId, command.PlayerId)
+	unlocker := serve.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	err = serve.gameService.RemovePlayer(gameId, playerId)
+	if err != nil {
+		return err
+	}
+
+	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId, playerId)
 
 	return nil
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	unlocker := serve.gameRepo.LockAccess(command.GameId)
-	defer unlocker()
-
-	err := serve.gameService.PlaceItem(command.GameId, command.PlayerId, command.ItemId, command.Location)
+	gameId, playerId, itemId, location, err := command.Validate()
 	if err != nil {
 		return err
 	}
 
-	serve.publishViewUpdatedEventToNearbyPlayersOfLocation(command.GameId, command.Location)
+	unlocker := serve.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	err = serve.gameService.PlaceItem(gameId, playerId, itemId, location)
+	if err != nil {
+		return err
+	}
+
+	serve.publishViewUpdatedEventToNearbyPlayersOfLocation(gameId, location)
 
 	return nil
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {
-	unlocker := serve.gameRepo.LockAccess(command.GameId)
-	defer unlocker()
-
-	err := serve.gameService.DestroyItem(command.GameId, command.PlayerId, command.Location)
+	gameId, playerId, location, err := command.Validate()
 	if err != nil {
 		return err
 	}
 
-	serve.publishViewUpdatedEventToNearbyPlayersOfLocation(command.GameId, command.Location)
+	unlocker := serve.gameRepo.LockAccess(gameId)
+	defer unlocker()
+
+	err = serve.gameService.DestroyItem(gameId, playerId, location)
+	if err != nil {
+		return err
+	}
+
+	serve.publishViewUpdatedEventToNearbyPlayersOfLocation(gameId, location)
 
 	return nil
 }

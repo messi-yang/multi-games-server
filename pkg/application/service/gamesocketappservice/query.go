@@ -3,43 +3,37 @@ package gamesocketappservice
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 
 type GetPlayersQuery struct {
-	GameId   gamemodel.GameIdVo
-	PlayerId gamemodel.PlayerIdVo
+	GameId   string
+	PlayerId string
 }
 
-func NewGetPlayersQuery(gameIdDto string, playerIdDto string) (GetPlayersQuery, error) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdDto)
+func (query GetPlayersQuery) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
+	gameId, err := gamemodel.NewGameIdVo(query.GameId)
 	if err != nil {
-		return GetPlayersQuery{}, err
+		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdDto)
+	playerId, err := gamemodel.NewPlayerIdVo(query.PlayerId)
 	if err != nil {
-		return GetPlayersQuery{}, err
+		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
 	}
 
-	return GetPlayersQuery{
-		GameId:   gameId,
-		PlayerId: playerId,
-	}, nil
+	return gameId, playerId, nil
 }
 
 type GetViewQuery struct {
-	GameId   gamemodel.GameIdVo
-	PlayerId gamemodel.PlayerIdVo
+	GameId   string
+	PlayerId string
 }
 
-func NewGetViewQuery(gameIdDto string, playerIdDto string) (GetViewQuery, error) {
-	gameId, err := gamemodel.NewGameIdVo(gameIdDto)
+func (query GetViewQuery) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
+	gameId, err := gamemodel.NewGameIdVo(query.GameId)
 	if err != nil {
-		return GetViewQuery{}, err
+		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(playerIdDto)
+	playerId, err := gamemodel.NewPlayerIdVo(query.PlayerId)
 	if err != nil {
-		return GetViewQuery{}, err
+		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
 	}
 
-	return GetViewQuery{
-		GameId:   gameId,
-		PlayerId: playerId,
-	}, nil
+	return gameId, playerId, nil
 }
