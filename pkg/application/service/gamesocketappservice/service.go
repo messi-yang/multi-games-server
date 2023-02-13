@@ -181,7 +181,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		return dto.NewItemDto(item)
 	})
 
-	players := game.GetPlayers()
+	players, _ := serve.gameService.GetNearbyPlayersOfPlayer(gameId, playerId)
 	playerDtos := lo.Map(players, func(p gamemodel.PlayerEntity, _ int) dto.PlayerDto {
 		return dto.NewPlayerDto(p)
 	})
