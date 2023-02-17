@@ -24,7 +24,7 @@ func (command PlaceItemCommand) Validate() (gamemodel.GameIdVo, gamemodel.Player
 		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, commonmodel.LocationVo{}, err
 	}
 	itemId := itemmodel.NewItemIdVo(command.ItemId)
-	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Y)
+	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Z)
 
 	return gameId, playerId, itemId, location, nil
 }
@@ -44,7 +44,7 @@ func (command DestroyItemCommand) Validate() (gamemodel.GameIdVo, gamemodel.Play
 	if err != nil {
 		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, commonmodel.LocationVo{}, err
 	}
-	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Y)
+	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Z)
 
 	return gameId, playerId, location, nil
 }

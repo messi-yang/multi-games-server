@@ -4,12 +4,12 @@ import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/comm
 
 type LocationDto struct {
 	X int `json:"x"`
-	Y int `json:"y"`
+	Z int `json:"z"`
 }
 
 func NewLocationDto(location commonmodel.LocationVo) LocationDto {
 	return LocationDto{
 		X: location.GetX(),
-		Y: location.GetY(),
+		Z: location.GetZ(),
 	}
 }

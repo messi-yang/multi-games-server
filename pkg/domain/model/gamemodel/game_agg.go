@@ -42,8 +42,8 @@ func (game *GameAgg) GetPlayerViewBound(playerId PlayerIdVo) (commonmodel.BoundV
 	fromX := playerLocation.GetX() - 25
 	toX := playerLocation.GetX() + 25
 
-	fromY := playerLocation.GetY() - 25
-	toY := playerLocation.GetY() + 25
+	fromY := playerLocation.GetZ() - 25
+	toY := playerLocation.GetZ() + 25
 
 	from := commonmodel.NewLocationVo(fromX, fromY)
 	to := commonmodel.NewLocationVo(toX, toY)

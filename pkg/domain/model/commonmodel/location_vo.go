@@ -2,13 +2,13 @@ package commonmodel
 
 type LocationVo struct {
 	x int
-	y int
+	z int
 }
 
-func NewLocationVo(x int, y int) LocationVo {
+func NewLocationVo(x int, z int) LocationVo {
 	return LocationVo{
 		x: x,
-		y: y,
+		z: z,
 	}
 }
 
@@ -16,14 +16,14 @@ func (c LocationVo) GetX() int {
 	return c.x
 }
 
-func (c LocationVo) GetY() int {
-	return c.y
+func (c LocationVo) GetZ() int {
+	return c.z
 }
 
 func (c LocationVo) HasNegativeAxis() bool {
-	return c.x < 0 || c.y < 0
+	return c.x < 0 || c.z < 0
 }
 
-func (c LocationVo) Shift(x int, y int) LocationVo {
-	return NewLocationVo(c.x+x, c.y+y)
+func (c LocationVo) Shift(x int, z int) LocationVo {
+	return NewLocationVo(c.x+x, c.z+z)
 }

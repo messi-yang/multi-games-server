@@ -143,9 +143,9 @@ func (serve *serve) CreateGame(gameIdDto string) {
 	}
 
 	items := serve.itemRepo.GetAll()
-	tool.RangeMatrix(200, 200, func(x int, y int) {
+	tool.RangeMatrix(200, 200, func(x int, z int) {
 		randomInt := rand.Intn(17)
-		location := commonmodel.NewLocationVo(x, y)
+		location := commonmodel.NewLocationVo(x, z)
 		if randomInt < 2 {
 			newUnit := unitmodel.NewUnitAgg(gameId, location, items[randomInt].GetId())
 			serve.unitRepo.UpdateUnit(newUnit)

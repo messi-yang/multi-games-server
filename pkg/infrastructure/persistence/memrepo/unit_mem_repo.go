@@ -42,8 +42,8 @@ func (m *unitMemRepo) GetUnit(gameId gamemodel.GameIdVo, location commonmodel.Lo
 
 func (m *unitMemRepo) GetUnits(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) []unitmodel.UnitAgg {
 	units := make([]unitmodel.UnitAgg, 0)
-	tool.RangeMatrix(bound.GetWidth(), bound.GetHeight(), func(x int, y int) {
-		location := commonmodel.NewLocationVo(x+bound.GetFrom().GetX(), y+bound.GetFrom().GetY())
+	tool.RangeMatrix(bound.GetWidth(), bound.GetHeight(), func(x int, z int) {
+		location := commonmodel.NewLocationVo(x+bound.GetFrom().GetX(), z+bound.GetFrom().GetZ())
 		unit, exists := m.unitRecords[gameId][location]
 		if exists {
 			units = append(units, unit)

@@ -21,7 +21,7 @@ type BoundVo struct {
 }
 
 func NewBoundVo(from LocationVo, to LocationVo) (BoundVo, error) {
-	if from.GetX() > to.GetX() || from.GetY() > to.GetY() {
+	if from.GetX() > to.GetX() || from.GetZ() > to.GetZ() {
 		return BoundVo{}, &ErrInvalidBoundVo{from: from, to: to}
 	}
 
@@ -44,11 +44,11 @@ func (bound BoundVo) GetWidth() int {
 }
 
 func (bound BoundVo) GetHeight() int {
-	return bound.to.GetY() - bound.from.GetY() + 1
+	return bound.to.GetZ() - bound.from.GetZ() + 1
 }
 
 func (bound BoundVo) CoversLocation(location LocationVo) bool {
-	return location.GetX() >= bound.from.GetX() && location.GetX() <= bound.to.GetX() && location.GetY() >= bound.from.GetY() && location.GetY() <= bound.to.GetY()
+	return location.GetX() >= bound.from.GetX() && location.GetX() <= bound.to.GetX() && location.GetZ() >= bound.from.GetZ() && location.GetZ() <= bound.to.GetZ()
 }
 
 func (bound BoundVo) CoverAnyLocations(locations []LocationVo) bool {

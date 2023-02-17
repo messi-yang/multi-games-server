@@ -17,9 +17,9 @@ func NewBoundDto(bound commonmodel.BoundVo) BoundDto {
 }
 
 func (dto BoundDto) ToValueObject() (commonmodel.BoundVo, error) {
-	from := commonmodel.NewLocationVo(dto.From.X, dto.From.Y)
+	from := commonmodel.NewLocationVo(dto.From.X, dto.From.Z)
 
-	to := commonmodel.NewLocationVo(dto.To.X, dto.To.Y)
+	to := commonmodel.NewLocationVo(dto.To.X, dto.To.Z)
 
 	bound, err := commonmodel.NewBoundVo(
 		from,
