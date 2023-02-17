@@ -24,8 +24,8 @@ func NewItemMemRepo() itemmodel.Repo {
 
 		itemMemRepoSingleton = &itemMemRepo{
 			items: []itemmodel.ItemAgg{
-				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/assets/items/stone.png", serverUrl)),
-				itemmodel.NewItemAgg(torchItemDefaultId, "torch", true, fmt.Sprintf("%s/assets/items/torch.png", serverUrl)),
+				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/assets/items/stone.png", serverUrl), "/items/stone.gltf"),
+				itemmodel.NewItemAgg(torchItemDefaultId, "torch", true, fmt.Sprintf("%s/assets/items/torch.png", serverUrl), "/items/torch.gltf"),
 			},
 		}
 		return itemMemRepoSingleton

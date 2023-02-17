@@ -9,6 +9,7 @@ type ItemDto struct {
 	Name        string `json:"name"`
 	Traversable bool   `json:"traversable"`
 	AssetSrc    string `json:"assetSrc"`
+	ModelSrc    string `json:"modelSrc"`
 }
 
 func NewItemDto(item itemmodel.ItemAgg) ItemDto {
@@ -17,5 +18,6 @@ func NewItemDto(item itemmodel.ItemAgg) ItemDto {
 		Name:        item.GetName(),
 		Traversable: item.IsTraversable(),
 		AssetSrc:    item.GetAssetSrc(),
+		ModelSrc:    item.GetModelSrc(),
 	}
 }

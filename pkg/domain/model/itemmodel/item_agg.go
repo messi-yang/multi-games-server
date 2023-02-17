@@ -5,14 +5,16 @@ type ItemAgg struct {
 	name        string
 	traversable bool
 	assetSrc    string
+	modelSrc    string
 }
 
-func NewItemAgg(id ItemIdVo, name string, traversable bool, assetSrc string) ItemAgg {
+func NewItemAgg(id ItemIdVo, name string, traversable bool, assetSrc string, modelSrc string) ItemAgg {
 	return ItemAgg{
 		id:          id,
 		name:        name,
 		traversable: traversable,
 		assetSrc:    assetSrc,
+		modelSrc:    modelSrc,
 	}
 }
 
@@ -30,4 +32,8 @@ func (item *ItemAgg) IsTraversable() bool {
 
 func (item *ItemAgg) GetAssetSrc() string {
 	return item.assetSrc
+}
+
+func (item *ItemAgg) GetModelSrc() string {
+	return item.modelSrc
 }
