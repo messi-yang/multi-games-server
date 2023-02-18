@@ -17,8 +17,8 @@ var itemMemRepoSingleton *itemMemRepo
 
 func NewItemMemRepo() itemmodel.Repo {
 	if itemMemRepoSingleton == nil {
-		stoneItemDefaultId := itemmodel.NewItemIdVo(0)
-		torchItemDefaultId := itemmodel.NewItemIdVo(1)
+		stoneItemDefaultId := itemmodel.NewItemIdVo(1)
+		torchItemDefaultId := itemmodel.NewItemIdVo(2)
 
 		serverUrl := os.Getenv("SERVER_URL")
 
