@@ -2,7 +2,6 @@ package memrepo
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/tool"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
@@ -15,8 +14,7 @@ var (
 )
 
 type unitMemRepo struct {
-	unitRecords   map[gamemodel.GameIdVo]map[commonmodel.LocationVo]unitmodel.UnitAgg
-	recordLockers map[gamemodel.GameIdVo]*sync.RWMutex
+	units map[gamemodel.GameIdVo]map[commonmodel.LocationVo]unitmodel.UnitAgg
 }
 
 var unitMemRepoSingleton *unitMemRepo
@@ -24,27 +22,26 @@ var unitMemRepoSingleton *unitMemRepo
 func NewUnitMemRepo() unitmodel.Repo {
 	if unitMemRepoSingleton == nil {
 		unitMemRepoSingleton = &unitMemRepo{
-			unitRecords:   make(map[gamemodel.GameIdVo]map[commonmodel.LocationVo]unitmodel.UnitAgg),
-			recordLockers: make(map[gamemodel.GameIdVo]*sync.RWMutex),
+			units: make(map[gamemodel.GameIdVo]map[commonmodel.LocationVo]unitmodel.UnitAgg),
 		}
 		return unitMemRepoSingleton
 	}
 	return unitMemRepoSingleton
 }
 
-func (m *unitMemRepo) GetAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (unitmodel.UnitAgg, bool) {
-	unit, exists := m.unitRecords[gameId][location]
+func (m *unitMemRepo) GetUnitAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (unitmodel.UnitAgg, bool) {
+	unit, exists := m.units[gameId][location]
 	if !exists {
 		return unitmodel.UnitAgg{}, false
 	}
 	return unit, true
 }
 
-func (m *unitMemRepo) GetUnits(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) []unitmodel.UnitAgg {
+func (m *unitMemRepo) GetUnitsInBound(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) []unitmodel.UnitAgg {
 	units := make([]unitmodel.UnitAgg, 0)
 	tool.RangeMatrix(bound.GetWidth(), bound.GetHeight(), func(x int, z int) {
 		location := commonmodel.NewLocationVo(x+bound.GetFrom().GetX(), z+bound.GetFrom().GetZ())
-		unit, exists := m.unitRecords[gameId][location]
+		unit, exists := m.units[gameId][location]
 		if exists {
 			units = append(units, unit)
 		}
@@ -52,18 +49,18 @@ func (m *unitMemRepo) GetUnits(gameId gamemodel.GameIdVo, bound commonmodel.Boun
 	return units
 }
 
-func (m *unitMemRepo) UpdateUnit(unit unitmodel.UnitAgg) {
-	_, exists := m.unitRecords[unit.GetGameId()]
+func (m *unitMemRepo) Update(unit unitmodel.UnitAgg) {
+	_, exists := m.units[unit.GetGameId()]
 	if !exists {
-		m.unitRecords[unit.GetGameId()] = make(map[commonmodel.LocationVo]unitmodel.UnitAgg)
+		m.units[unit.GetGameId()] = make(map[commonmodel.LocationVo]unitmodel.UnitAgg)
 	}
-	m.unitRecords[unit.GetGameId()][unit.GetLocation()] = unit
+	m.units[unit.GetGameId()][unit.GetLocation()] = unit
 }
 
-func (m *unitMemRepo) DeleteUnit(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) {
-	_, exists := m.unitRecords[gameId]
+func (m *unitMemRepo) Delete(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) {
+	_, exists := m.units[gameId]
 	if !exists {
 		return
 	}
-	delete(m.unitRecords[gameId], location)
+	delete(m.units[gameId], location)
 }

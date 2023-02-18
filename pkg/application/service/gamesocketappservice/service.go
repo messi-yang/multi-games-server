@@ -19,7 +19,7 @@ type Service interface {
 	CreateGame(gameIdDto string)
 	GetError(presenter Presenter, errorMessage string)
 	GetPlayers(presenter Presenter, query GetPlayersQuery) error
-	GetUnitsAroundPlayer(presenter Presenter, query GetUnitsAroundPlayerQuery) error
+	GetUnitsInBoundAroundPlayer(presenter Presenter, query GetUnitsInBoundAroundPlayerQuery) error
 	AddPlayer(presenter Presenter, command AddPlayerCommand) error
 	MovePlayer(presenter Presenter, command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
@@ -106,7 +106,7 @@ func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error
 	return nil
 }
 
-func (serve *serve) GetUnitsAroundPlayer(presenter Presenter, query GetUnitsAroundPlayerQuery) error {
+func (serve *serve) GetUnitsInBoundAroundPlayer(presenter Presenter, query GetUnitsInBoundAroundPlayerQuery) error {
 	gameId, playerId, err := query.Validate()
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func (serve *serve) GetUnitsAroundPlayer(presenter Presenter, query GetUnitsArou
 	}
 
 	bound := player.GetVisionBound()
-	units := serve.unitRepo.GetUnits(gameId, bound)
+	units := serve.unitRepo.GetUnitsInBound(gameId, bound)
 
 	presenter.OnMessage(UnitsUpdatedResponseDto{
 		Type:  UnitsUpdatedResponseDtoType,
@@ -146,7 +146,7 @@ func (serve *serve) CreateGame(gameIdDto string) {
 		location := commonmodel.NewLocationVo(x, z)
 		if randomInt < 2 {
 			newUnit := unitmodel.NewUnitAgg(gameId, location, items[randomInt].GetId())
-			serve.unitRepo.UpdateUnit(newUnit)
+			serve.unitRepo.Update(newUnit)
 		}
 	})
 
@@ -183,7 +183,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	})
 
 	bound := newPlayer.GetVisionBound()
-	units := serve.unitRepo.GetUnits(gameId, bound)
+	units := serve.unitRepo.GetUnitsInBound(gameId, bound)
 
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:     GameJoinedResponseDtoType,

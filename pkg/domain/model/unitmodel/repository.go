@@ -6,8 +6,8 @@ import (
 )
 
 type Repo interface {
-	GetAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (UnitAgg, bool)
-	GetUnits(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) []UnitAgg
-	UpdateUnit(unit UnitAgg)
-	DeleteUnit(gameId gamemodel.GameIdVo, location commonmodel.LocationVo)
+	GetUnitAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (UnitAgg, bool)
+	GetUnitsInBound(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) []UnitAgg
+	Update(unit UnitAgg)
+	Delete(gameId gamemodel.GameIdVo, location commonmodel.LocationVo)
 }

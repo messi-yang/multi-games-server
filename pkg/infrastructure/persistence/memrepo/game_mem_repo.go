@@ -14,8 +14,8 @@ var (
 )
 
 type gameMemRepo struct {
-	records       map[gamemodel.GameIdVo]*gamemodel.GameAgg
-	recordLockers map[gamemodel.GameIdVo]*sync.RWMutex
+	games   map[gamemodel.GameIdVo]*gamemodel.GameAgg
+	lockers map[gamemodel.GameIdVo]*sync.RWMutex
 }
 
 var gameMemRepoSingleton *gameMemRepo
@@ -23,8 +23,8 @@ var gameMemRepoSingleton *gameMemRepo
 func NewGameMemRepo() gamemodel.Repo {
 	if gameMemRepoSingleton == nil {
 		gameMemRepoSingleton = &gameMemRepo{
-			records:       make(map[gamemodel.GameIdVo]*gamemodel.GameAgg),
-			recordLockers: make(map[gamemodel.GameIdVo]*sync.RWMutex),
+			games:   make(map[gamemodel.GameIdVo]*gamemodel.GameAgg),
+			lockers: make(map[gamemodel.GameIdVo]*sync.RWMutex),
 		}
 		return gameMemRepoSingleton
 	}
@@ -32,7 +32,7 @@ func NewGameMemRepo() gamemodel.Repo {
 }
 
 func (m *gameMemRepo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {
-	record, exists := m.records[id]
+	record, exists := m.games[id]
 	if !exists {
 		return gamemodel.GameAgg{}, ErrGameNotFound
 	}
@@ -41,46 +41,46 @@ func (m *gameMemRepo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {
 }
 
 func (m *gameMemRepo) Update(id gamemodel.GameIdVo, game gamemodel.GameAgg) error {
-	_, exists := m.records[id]
+	_, exists := m.games[id]
 	if !exists {
 		return ErrGameNotFound
 	}
 
-	m.records[id] = &game
+	m.games[id] = &game
 
 	return nil
 }
 
 func (m *gameMemRepo) GetAll() []gamemodel.GameAgg {
 	games := make([]gamemodel.GameAgg, 0)
-	for _, record := range m.records {
+	for _, record := range m.games {
 		games = append(games, *record)
 	}
 	return games
 }
 
 func (m *gameMemRepo) Add(game gamemodel.GameAgg) error {
-	m.records[game.GetId()] = &game
+	m.games[game.GetId()] = &game
 
 	return nil
 }
 
 func (m *gameMemRepo) ReadLockAccess(gameId gamemodel.GameIdVo) (unlock func()) {
-	_, exists := m.recordLockers[gameId]
+	_, exists := m.lockers[gameId]
 	if !exists {
-		m.recordLockers[gameId] = &sync.RWMutex{}
+		m.lockers[gameId] = &sync.RWMutex{}
 	}
 
-	m.recordLockers[gameId].RLock()
-	return m.recordLockers[gameId].RUnlock
+	m.lockers[gameId].RLock()
+	return m.lockers[gameId].RUnlock
 }
 
 func (m *gameMemRepo) LockAccess(gameId gamemodel.GameIdVo) (unlock func()) {
-	_, exists := m.recordLockers[gameId]
+	_, exists := m.lockers[gameId]
 	if !exists {
-		m.recordLockers[gameId] = &sync.RWMutex{}
+		m.lockers[gameId] = &sync.RWMutex{}
 	}
 
-	m.recordLockers[gameId].Lock()
-	return m.recordLockers[gameId].Unlock
+	m.lockers[gameId].Lock()
+	return m.lockers[gameId].Unlock
 }

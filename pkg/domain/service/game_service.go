@@ -50,7 +50,7 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 		newLocation = newLocation.Shift(-1, 0)
 	}
 
-	unit, unitFound := serve.unitRepo.GetAt(gameId, newLocation)
+	unit, unitFound := serve.unitRepo.GetUnitAt(gameId, newLocation)
 	if unitFound {
 		itemId := unit.GetItemId()
 		item, _ := serve.itemRepo.Get(itemId)
@@ -79,11 +79,11 @@ func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId playermode
 		return errors.New("cannot place non-traversable item on a location with players")
 	}
 
-	serve.unitRepo.UpdateUnit(unitmodel.NewUnitAgg(gameId, location, itemId))
+	serve.unitRepo.Update(unitmodel.NewUnitAgg(gameId, location, itemId))
 	return nil
 }
 
 func (serve *gameServe) DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, location commonmodel.LocationVo) error {
-	serve.unitRepo.DeleteUnit(gameId, location)
+	serve.unitRepo.Delete(gameId, location)
 	return nil
 }
