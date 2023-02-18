@@ -11,7 +11,7 @@ import (
 )
 
 type GameService interface {
-	MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction gamemodel.DirectionVo) error
+	MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction playermodel.DirectionVo) error
 	PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error
 	DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, location commonmodel.LocationVo) error
 }
@@ -27,10 +27,16 @@ func NewGameService(gameRepo gamemodel.Repo, playerRepo playermodel.Repo, unitRe
 	return &gameServe{gameRepo: gameRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
-func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction gamemodel.DirectionVo) error {
+func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction playermodel.DirectionVo) error {
 	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
+	}
+
+	if !direction.IsEqual(player.GetDirection()) {
+		player.SetDirection(direction)
+		serve.playerRepo.Update(player)
+		return nil
 	}
 
 	newLocation := player.GetLocation()
@@ -44,16 +50,18 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 		newLocation = newLocation.Shift(-1, 0)
 	}
 
-	unit, err := serve.unitRepo.GetUnit(gameId, newLocation)
-	if err == nil {
+	unit, unitFound := serve.unitRepo.GetAt(gameId, newLocation)
+	if unitFound {
 		itemId := unit.GetItemId()
 		item, _ := serve.itemRepo.Get(itemId)
-		if !item.IsTraversable() {
-			return errors.New("this item is not traversable")
+		if item.IsTraversable() {
+			player.SetLocation(newLocation)
 		}
+	} else {
+		player.SetLocation(newLocation)
 	}
 
-	player.SetLocation(newLocation)
+	player.SetDirection(direction)
 	serve.playerRepo.Update(player)
 
 	return nil

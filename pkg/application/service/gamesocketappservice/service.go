@@ -164,7 +164,8 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	newPlayer := playermodel.NewPlayerAgg(playerId, gameId, "Hello", commonmodel.NewLocationVo(0, 0))
+	direction, _ := playermodel.NewDirectionVo(2)
+	newPlayer := playermodel.NewPlayerAgg(playerId, gameId, "Hello", commonmodel.NewLocationVo(0, 0), direction)
 
 	err = serve.playerRepo.Add(newPlayer)
 	if err != nil {

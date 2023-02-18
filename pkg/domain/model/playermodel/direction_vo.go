@@ -25,6 +25,10 @@ func (direction DirectionVo) ToInt8() int8 {
 	return int8(direction)
 }
 
+func (direction DirectionVo) IsEqual(otherDirection DirectionVo) bool {
+	return direction == otherDirection
+}
+
 func (direction DirectionVo) IsUp() bool {
 	return direction == 0
 }

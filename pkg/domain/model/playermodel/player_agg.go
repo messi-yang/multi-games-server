@@ -6,18 +6,20 @@ import (
 )
 
 type PlayerAgg struct {
-	id       PlayerIdVo
-	gameId   gamemodel.GameIdVo
-	name     string
-	location commonmodel.LocationVo
+	id        PlayerIdVo
+	gameId    gamemodel.GameIdVo
+	name      string
+	location  commonmodel.LocationVo
+	direction DirectionVo
 }
 
-func NewPlayerAgg(id PlayerIdVo, gameId gamemodel.GameIdVo, name string, location commonmodel.LocationVo) PlayerAgg {
+func NewPlayerAgg(id PlayerIdVo, gameId gamemodel.GameIdVo, name string, location commonmodel.LocationVo, direction DirectionVo) PlayerAgg {
 	return PlayerAgg{
-		id:       id,
-		gameId:   gameId,
-		name:     name,
-		location: location,
+		id:        id,
+		gameId:    gameId,
+		name:      name,
+		location:  location,
+		direction: direction,
 	}
 }
 
@@ -39,6 +41,14 @@ func (p *PlayerAgg) GetLocation() commonmodel.LocationVo {
 
 func (p *PlayerAgg) SetLocation(location commonmodel.LocationVo) {
 	p.location = location
+}
+
+func (p *PlayerAgg) GetDirection() DirectionVo {
+	return p.direction
+}
+
+func (p *PlayerAgg) SetDirection(direction DirectionVo) {
+	p.direction = direction
 }
 
 func (p *PlayerAgg) GetVisionBound() commonmodel.BoundVo {

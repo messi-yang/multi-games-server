@@ -74,7 +74,7 @@ type MovePlayerCommand struct {
 	Direction int8
 }
 
-func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, gamemodel.DirectionVo, error) {
+func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, playermodel.DirectionVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
 		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
@@ -83,7 +83,7 @@ func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.Pla
 	if err != nil {
 		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}
-	direction, err := gamemodel.NewDirectionVo(command.Direction)
+	direction, err := playermodel.NewDirectionVo(command.Direction)
 	if err != nil {
 		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}

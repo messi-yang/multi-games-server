@@ -32,12 +32,12 @@ func NewUnitMemRepo() unitmodel.Repo {
 	return unitMemRepoSingleton
 }
 
-func (m *unitMemRepo) GetUnit(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (unitmodel.UnitAgg, error) {
+func (m *unitMemRepo) GetAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (unitmodel.UnitAgg, bool) {
 	unit, exists := m.unitRecords[gameId][location]
 	if !exists {
-		return unitmodel.UnitAgg{}, ErrUnitNotFound
+		return unitmodel.UnitAgg{}, false
 	}
-	return unit, nil
+	return unit, true
 }
 
 func (m *unitMemRepo) GetUnits(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) []unitmodel.UnitAgg {
