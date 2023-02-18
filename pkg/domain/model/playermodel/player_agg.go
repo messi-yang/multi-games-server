@@ -44,11 +44,11 @@ func (p *PlayerAgg) SetLocation(location commonmodel.LocationVo) {
 func (p *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
 	playerLocation := p.GetLocation()
 
-	fromX := playerLocation.GetX() - 25
-	toX := playerLocation.GetX() + 25
+	fromX := playerLocation.GetX() - 35
+	toX := playerLocation.GetX() + 35
 
-	fromY := playerLocation.GetZ() - 25
-	toY := playerLocation.GetZ() + 25
+	fromY := playerLocation.GetZ() - 35
+	toY := playerLocation.GetZ() + 35
 
 	from := commonmodel.NewLocationVo(fromX, fromY)
 	to := commonmodel.NewLocationVo(toX, toY)
