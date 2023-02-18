@@ -125,12 +125,14 @@ func (serve *serve) GetView(presenter Presenter, query GetViewQuery) error {
 	// Delete this section later
 	bound, _ := game.GetPlayerViewBound(playerId)
 	units := serve.unitRepo.GetUnits(gameId, bound)
-	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
 	presenter.OnMessage(ViewUpdatedResponseDto{
-		Type: ViewUpdatedResponseDtoType,
-		View: dto.NewViewDto(view),
+		Type:  ViewUpdatedResponseDtoType,
+		Bound: dto.NewBoundDto(bound),
+		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
+			return dto.NewUnitDto(unit)
+		}),
 	})
 
 	return nil
@@ -189,7 +191,6 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	// Delete this section later
 	bound, _ := game.GetPlayerViewBound(playerId)
 	units := serve.unitRepo.GetUnits(gameId, bound)
-	view := unitmodel.NewViewVo(bound, units)
 	// Delete this section later
 
 	presenter.OnMessage(GameJoinedResponseDto{
@@ -197,7 +198,10 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		Items:    itemDtos,
 		PlayerId: playerId.ToString(),
 		Players:  playerDtos,
-		View:     dto.NewViewDto(view),
+		Bound:    dto.NewBoundDto(bound),
+		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
+			return dto.NewUnitDto(unit)
+		}),
 	})
 
 	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId, playerId)
