@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/samber/lo"
 )
@@ -21,13 +22,14 @@ type GameService interface {
 }
 
 type gameServe struct {
-	gameRepo gamemodel.Repo
-	unitRepo unitmodel.Repo
-	itemRepo itemmodel.Repo
+	gameRepo   gamemodel.Repo
+	playerRepo playermodel.Repo
+	unitRepo   unitmodel.Repo
+	itemRepo   itemmodel.Repo
 }
 
-func NewGameService(gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameService {
-	return &gameServe{gameRepo: gameRepo, unitRepo: unitRepo, itemRepo: itemRepo}
+func NewGameService(gameRepo gamemodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameService {
+	return &gameServe{gameRepo: gameRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
 func (serve *gameServe) GetNearbyPlayersOfLocation(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) ([]gamemodel.PlayerEntity, error) {

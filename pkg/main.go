@@ -19,10 +19,11 @@ func main() {
 	intEventPublisher := redisinteventpublisher.New()
 
 	itemRepo := memrepo.NewItemMemRepo()
+	playerRepo := memrepo.NewPlayerMemRepo()
 	gameRepo := memrepo.NewGameMemRepo()
 	unitRepo := memrepo.NewUnitMemRepo()
 
-	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, gameRepo, unitRepo, itemRepo)
+	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, gameRepo, playerRepo, unitRepo, itemRepo)
 	gameSocketApiController := gamesocketapi.NewController(gameSocketAppService)
 
 	gameSocketAppService.CreateGame("20716447-6514-4eac-bd05-e558ca72bf3c")

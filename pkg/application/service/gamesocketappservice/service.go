@@ -9,6 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
 	"github.com/samber/lo"
@@ -29,18 +30,20 @@ type Service interface {
 type serve struct {
 	IntEventPublisher intevent.IntEventPublisher
 	gameRepo          gamemodel.Repo
+	playerRepo        playermodel.Repo
 	unitRepo          unitmodel.Repo
 	itemRepo          itemmodel.Repo
 	gameService       service.GameService
 }
 
-func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
+func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
 	return &serve{
 		IntEventPublisher: IntEventPublisher,
 		gameRepo:          gameRepo,
+		playerRepo:        playerRepo,
 		unitRepo:          unitRepo,
 		itemRepo:          itemRepo,
-		gameService:       service.NewGameService(gameRepo, unitRepo, itemRepo),
+		gameService:       service.NewGameService(gameRepo, playerRepo, unitRepo, itemRepo),
 	}
 }
 

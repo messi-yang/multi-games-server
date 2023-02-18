@@ -12,6 +12,10 @@ func NewLocationVo(x int, z int) LocationVo {
 	}
 }
 
+func (c LocationVo) IsEqual(location LocationVo) bool {
+	return c.x == location.x && c.z == location.z
+}
+
 func (c LocationVo) GetX() int {
 	return c.x
 }
