@@ -59,16 +59,16 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	)
 	defer playersUpdatedIntEventUnsubscriber()
 
-	viewUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.ViewUpdatedIntEvent]().Subscribe(
-		gamesocketappservice.NewViewUpdatedIntEventChannel(gameIdDto, playerIdDto),
-		func(intEvent gamesocketappservice.ViewUpdatedIntEvent) {
-			controller.gameAppService.GetView(socketPresenter, gamesocketappservice.GetViewQuery{
+	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent]().Subscribe(
+		gamesocketappservice.NewUnitsUpdatedIntEventChannel(gameIdDto, playerIdDto),
+		func(intEvent gamesocketappservice.UnitsUpdatedIntEvent) {
+			controller.gameAppService.GetUnitsNearPlayer(socketPresenter, gamesocketappservice.GetUnitsNearPlayerQuery{
 				GameId:   gameIdDto,
 				PlayerId: playerIdDto,
 			})
 		},
 	)
-	defer viewUpdatedIntEventTypeUnsubscriber()
+	defer unitsUpdatedIntEventTypeUnsubscriber()
 
 	err = controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
 		GameId:   gameIdDto,

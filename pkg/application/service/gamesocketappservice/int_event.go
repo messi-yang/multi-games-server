@@ -10,8 +10,8 @@ func NewPlayersUpdatedIntEventChannel(gameIdDto string, playerIdDto string) stri
 	return fmt.Sprintf("GAME_%s_PLAYER_%s_PLAYERS_UPDATED", gameIdDto, playerIdDto)
 }
 
-type ViewUpdatedIntEvent struct{}
+type UnitsUpdatedIntEvent struct{}
 
-func NewViewUpdatedIntEventChannel(gameIdDto string, playerIdDto string) string {
-	return fmt.Sprintf("GAME_%s_PLAYER_%s_VIEW_UPDATED", gameIdDto, playerIdDto)
+func NewUnitsUpdatedIntEventChannel(gameIdDto string, playerIdDto string) string {
+	return fmt.Sprintf("GAME_%s_PLAYER_%s_UNITS_UPDATED", gameIdDto, playerIdDto)
 }

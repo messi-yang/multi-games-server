@@ -31,7 +31,7 @@ func (game *GameAgg) GetId() GameIdVo {
 	return game.id
 }
 
-func (game *GameAgg) GetPlayerViewBound(playerId PlayerIdVo) (commonmodel.BoundVo, error) {
+func (game *GameAgg) GetPlayerBound(playerId PlayerIdVo) (commonmodel.BoundVo, error) {
 	player, exists := game.players[playerId]
 	if !exists {
 		return commonmodel.BoundVo{}, ErrPlayerNotFound
@@ -58,7 +58,7 @@ func (game *GameAgg) CanPlayerSeeAnyLocations(playerId PlayerIdVo, locations []c
 		return false
 	}
 
-	bound, _ := game.GetPlayerViewBound(playerId)
+	bound, _ := game.GetPlayerBound(playerId)
 	return bound.CoverAnyLocations(locations)
 }
 

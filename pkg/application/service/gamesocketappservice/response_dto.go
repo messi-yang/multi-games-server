@@ -10,7 +10,7 @@ const (
 	ErroredResponseDtoType        ResponseDtoType = "ERRORED"
 	GameJoinedResponseDtoType     ResponseDtoType = "GAME_JOINED"
 	PlayersUpdatedResponseDtoType ResponseDtoType = "PLAYERS_UPDATED"
-	ViewUpdatedResponseDtoType    ResponseDtoType = "VIEW_UPDATED"
+	UnitsUpdatedResponseDtoType   ResponseDtoType = "UNITS_UPDATED"
 )
 
 type ErroredResponseDto struct {
@@ -32,7 +32,7 @@ type PlayersUpdatedResponseDto struct {
 	Players []dto.PlayerDto `json:"players"`
 }
 
-type ViewUpdatedResponseDto struct {
+type UnitsUpdatedResponseDto struct {
 	Type  ResponseDtoType `json:"type"`
 	Bound dto.BoundDto    `json:"bound"`
 	Units []dto.UnitDto   `json:"units"`

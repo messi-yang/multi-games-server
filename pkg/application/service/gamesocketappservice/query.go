@@ -20,12 +20,12 @@ func (query GetPlayersQuery) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdV
 	return gameId, playerId, nil
 }
 
-type GetViewQuery struct {
+type GetUnitsNearPlayerQuery struct {
 	GameId   string
 	PlayerId string
 }
 
-func (query GetViewQuery) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
+func (query GetUnitsNearPlayerQuery) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(query.GameId)
 	if err != nil {
 		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
