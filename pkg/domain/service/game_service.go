@@ -8,17 +8,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
-	"github.com/samber/lo"
 )
 
 type GameService interface {
-	GetNearbyPlayersOfLocation(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) ([]gamemodel.PlayerEntity, error)
-	GetNearbyPlayersOfPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) ([]gamemodel.PlayerEntity, error)
-	AddPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error
-	MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, direction gamemodel.DirectionVo) error
-	RemovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error
-	PlaceItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error
-	DestroyItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, location commonmodel.LocationVo) error
+	MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction gamemodel.DirectionVo) error
+	PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error
+	DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, location commonmodel.LocationVo) error
 }
 
 type gameServe struct {
@@ -32,51 +27,8 @@ func NewGameService(gameRepo gamemodel.Repo, playerRepo playermodel.Repo, unitRe
 	return &gameServe{gameRepo: gameRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
-func (serve *gameServe) GetNearbyPlayersOfLocation(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) ([]gamemodel.PlayerEntity, error) {
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return nil, err
-	}
-
-	players := lo.Filter(game.GetPlayers(), func(player gamemodel.PlayerEntity, _ int) bool {
-		return game.CanPlayerSeeAnyLocations(player.GetId(), []commonmodel.LocationVo{location})
-	})
-
-	return players, nil
-}
-
-func (serve *gameServe) GetNearbyPlayersOfPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) ([]gamemodel.PlayerEntity, error) {
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return nil, err
-	}
-
-	return game.GetPlayers(), nil
-}
-
-func (serve *gameServe) AddPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error {
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-
-	err = game.AddPlayer(playerId)
-	if err != nil {
-		return err
-	}
-
-	serve.gameRepo.Update(gameId, game)
-
-	return nil
-}
-
-func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, direction gamemodel.DirectionVo) error {
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-
-	player, err := game.GetPlayer(playerId)
+func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction gamemodel.DirectionVo) error {
+	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
 	}
@@ -102,36 +54,20 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel
 	}
 
 	player.SetLocation(newLocation)
-	game.UpdatePlayer(player)
-	serve.gameRepo.Update(gameId, game)
+	serve.playerRepo.Update(player)
 
 	return nil
 }
 
-func (serve *gameServe) RemovePlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) error {
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-
-	game.RemovePlayer(playerId)
-	serve.gameRepo.Update(gameId, game)
-
-	return nil
-}
-
-func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error {
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-
+func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error {
 	item, err := serve.itemRepo.Get(itemId)
 	if err != nil {
 		return err
 	}
 
-	if !item.IsTraversable() && game.DoesLocationHavePlayer(location) {
+	_, playerFound := serve.playerRepo.GetPlayerAt(gameId, location)
+
+	if !item.IsTraversable() && playerFound {
 		return errors.New("cannot place non-traversable item on a location with players")
 	}
 
@@ -139,12 +75,7 @@ func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId gamemodel.
 	return nil
 }
 
-func (serve *gameServe) DestroyItem(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo, location commonmodel.LocationVo) error {
-	_, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-
+func (serve *gameServe) DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, location commonmodel.LocationVo) error {
 	serve.unitRepo.DeleteUnit(gameId, location)
 	return nil
 }

@@ -19,7 +19,7 @@ type Service interface {
 	CreateGame(gameIdDto string)
 	GetError(presenter Presenter, errorMessage string)
 	GetPlayers(presenter Presenter, query GetPlayersQuery) error
-	GetUnitsNearPlayer(presenter Presenter, query GetUnitsNearPlayerQuery) error
+	GetUnitsAroundPlayer(presenter Presenter, query GetUnitsAroundPlayerQuery) error
 	AddPlayer(presenter Presenter, command AddPlayerCommand) error
 	MovePlayer(presenter Presenter, command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
@@ -54,31 +54,30 @@ func (serve *serve) GetError(presenter Presenter, errorMessage string) {
 	})
 }
 
-func (serve *serve) publishUnitsUpdatedEventTo(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) {
+func (serve *serve) publishUnitsUpdatedEventTo(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo) {
 	serve.IntEventPublisher.Publish(
 		NewUnitsUpdatedIntEventChannel(gameId.ToString(), playerId.ToString()),
 		UnitsUpdatedIntEvent{},
 	)
 }
 
-func (serve *serve) publishUnitsUpdatedEventToNearbyPlayersOfLocation(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) {
-	players, err := serve.gameService.GetNearbyPlayersOfLocation(gameId, location)
-	if err != nil {
-		return
-	}
+func (serve *serve) publishUnitsUpdatedEventToNearPlayers(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) {
+	players := serve.playerRepo.GetPlayersAround(gameId, location)
 
-	lo.ForEach(players, func(player gamemodel.PlayerEntity, _ int) {
+	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
 		serve.publishUnitsUpdatedEventTo(gameId, player.GetId())
 	})
 }
 
-func (serve *serve) publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId gamemodel.GameIdVo, playerId gamemodel.PlayerIdVo) {
-	players, err := serve.gameService.GetNearbyPlayersOfPlayer(gameId, playerId)
+func (serve *serve) publishPlayersUpdatedEventToNearPlayers(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo) {
+	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return
 	}
 
-	lo.ForEach(players, func(player gamemodel.PlayerEntity, _ int) {
+	players := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
+
+	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
 		serve.IntEventPublisher.Publish(
 			NewPlayersUpdatedIntEventChannel(gameId.ToString(), player.GetId().ToString()),
 			PlayersUpdatedIntEvent{},
@@ -95,15 +94,11 @@ func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	game, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-	players := game.GetPlayers()
+	players := serve.playerRepo.GetAll(gameId)
 
 	presenter.OnMessage(PlayersUpdatedResponseDto{
 		Type: PlayersUpdatedResponseDtoType,
-		Players: lo.Map(players, func(player gamemodel.PlayerEntity, _ int) dto.PlayerDto {
+		Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerDto {
 			return dto.NewPlayerDto(player)
 		}),
 	})
@@ -111,7 +106,7 @@ func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error
 	return nil
 }
 
-func (serve *serve) GetUnitsNearPlayer(presenter Presenter, query GetUnitsNearPlayerQuery) error {
+func (serve *serve) GetUnitsAroundPlayer(presenter Presenter, query GetUnitsAroundPlayerQuery) error {
 	gameId, playerId, err := query.Validate()
 	if err != nil {
 		return err
@@ -120,15 +115,13 @@ func (serve *serve) GetUnitsNearPlayer(presenter Presenter, query GetUnitsNearPl
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	game, err := serve.gameRepo.Get(gameId)
+	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
 	}
 
-	// Delete this section later
-	bound, _ := game.GetPlayerBound(playerId)
+	bound := player.GetVisionBound()
 	units := serve.unitRepo.GetUnits(gameId, bound)
-	// Delete this section later
 
 	presenter.OnMessage(UnitsUpdatedResponseDto{
 		Type:  UnitsUpdatedResponseDtoType,
@@ -171,12 +164,9 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	err = serve.gameService.AddPlayer(gameId, playerId)
-	if err != nil {
-		return err
-	}
+	newPlayer := playermodel.NewPlayerAgg(playerId, gameId, "Hello", commonmodel.NewLocationVo(0, 0))
 
-	game, err := serve.gameRepo.Get(gameId)
+	err = serve.playerRepo.Add(newPlayer)
 	if err != nil {
 		return err
 	}
@@ -186,15 +176,13 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		return dto.NewItemDto(item)
 	})
 
-	players, _ := serve.gameService.GetNearbyPlayersOfPlayer(gameId, playerId)
-	playerDtos := lo.Map(players, func(p gamemodel.PlayerEntity, _ int) dto.PlayerDto {
+	players := serve.playerRepo.GetPlayersAround(gameId, newPlayer.GetLocation())
+	playerDtos := lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerDto {
 		return dto.NewPlayerDto(p)
 	})
 
-	// Delete this section later
-	bound, _ := game.GetPlayerBound(playerId)
+	bound := newPlayer.GetVisionBound()
 	units := serve.unitRepo.GetUnits(gameId, bound)
-	// Delete this section later
 
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:     GameJoinedResponseDtoType,
@@ -207,7 +195,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		}),
 	})
 
-	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId, playerId)
+	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
 
 	return nil
 }
@@ -226,7 +214,7 @@ func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) e
 		return err
 	}
 
-	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId, playerId)
+	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
 	serve.publishUnitsUpdatedEventTo(gameId, playerId)
 
 	return nil
@@ -241,12 +229,9 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	err = serve.gameService.RemovePlayer(gameId, playerId)
-	if err != nil {
-		return err
-	}
+	serve.playerRepo.Delete(playerId)
 
-	serve.publishPlayersUpdatedEventToNearbyPlayersOfPlayer(gameId, playerId)
+	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
 
 	return nil
 }
@@ -265,7 +250,7 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 		return err
 	}
 
-	serve.publishUnitsUpdatedEventToNearbyPlayersOfLocation(gameId, location)
+	serve.publishUnitsUpdatedEventToNearPlayers(gameId, location)
 
 	return nil
 }
@@ -284,7 +269,7 @@ func (serve *serve) DestroyItem(command DestroyItemCommand) error {
 		return err
 	}
 
-	serve.publishUnitsUpdatedEventToNearbyPlayersOfLocation(gameId, location)
+	serve.publishUnitsUpdatedEventToNearPlayers(gameId, location)
 
 	return nil
 }

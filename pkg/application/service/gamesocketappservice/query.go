@@ -1,38 +1,41 @@
 package gamesocketappservice
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
+)
 
 type GetPlayersQuery struct {
 	GameId   string
 	PlayerId string
 }
 
-func (query GetPlayersQuery) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
+func (query GetPlayersQuery) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(query.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(query.PlayerId)
+	playerId, err := playermodel.NewPlayerIdVo(query.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 
 	return gameId, playerId, nil
 }
 
-type GetUnitsNearPlayerQuery struct {
+type GetUnitsAroundPlayerQuery struct {
 	GameId   string
 	PlayerId string
 }
 
-func (query GetUnitsNearPlayerQuery) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
+func (query GetUnitsAroundPlayerQuery) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(query.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(query.PlayerId)
+	playerId, err := playermodel.NewPlayerIdVo(query.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 
 	return gameId, playerId, nil

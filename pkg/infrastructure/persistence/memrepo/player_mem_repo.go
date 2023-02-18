@@ -2,6 +2,7 @@ package memrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/samber/lo"
 )
@@ -29,6 +30,7 @@ func (repo *playerMemRepo) Add(newPlayer playermodel.PlayerAgg) error {
 	})
 	return nil
 }
+
 func (repo *playerMemRepo) Get(playerId playermodel.PlayerIdVo) (playermodel.PlayerAgg, error) {
 	foundPlayer, found := lo.Find(repo.players, func(player playermodel.PlayerAgg) bool {
 		return player.GetId().IsEqual(playerId)
@@ -38,17 +40,25 @@ func (repo *playerMemRepo) Get(playerId playermodel.PlayerIdVo) (playermodel.Pla
 	}
 	return foundPlayer, nil
 }
-func (repo *playerMemRepo) GetPlayerAt(location commonmodel.LocationVo) (playermodel.PlayerAgg, error) {
+
+func (repo *playerMemRepo) GetPlayerAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (playermodel.PlayerAgg, bool) {
 	foundPlayer, found := lo.Find(repo.players, func(player playermodel.PlayerAgg) bool {
-		return player.GetLocation().IsEqual(location)
+		return player.GetGameId().IsEqual(gameId) && player.GetLocation().IsEqual(location)
 	})
 	if !found {
-		return playermodel.PlayerAgg{}, playermodel.ErrPlayerNotFound
+		return playermodel.PlayerAgg{}, found
 	}
-	return foundPlayer, nil
+	return foundPlayer, true
 }
+
+func (repo *playerMemRepo) GetPlayersAround(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) []playermodel.PlayerAgg {
+	return lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
+		return player.GetGameId().IsEqual(gameId) && player.CanSeeAnyLocations([]commonmodel.LocationVo{location})
+	})
+}
+
 func (repo *playerMemRepo) Update(updatedPlayer playermodel.PlayerAgg) error {
-	lo.Map(repo.players, func(player playermodel.PlayerAgg, _ int) playermodel.PlayerAgg {
+	repo.players = lo.Map(repo.players, func(player playermodel.PlayerAgg, _ int) playermodel.PlayerAgg {
 		if player.GetId().IsEqual(updatedPlayer.GetId()) {
 			return updatedPlayer
 		}
@@ -56,17 +66,15 @@ func (repo *playerMemRepo) Update(updatedPlayer playermodel.PlayerAgg) error {
 	})
 	return nil
 }
-func (repo *playerMemRepo) GetAll() []playermodel.PlayerAgg {
-	return repo.players
+
+func (repo *playerMemRepo) GetAll(gameId gamemodel.GameIdVo) []playermodel.PlayerAgg {
+	return lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
+		return player.GetGameId().IsEqual(gameId)
+	})
 }
+
 func (repo *playerMemRepo) Delete(playerId playermodel.PlayerIdVo) {
 	repo.players = lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
 		return !player.GetId().IsEqual(playerId)
 	})
-}
-func (repo *playerMemRepo) ReadLockAccess(playermodel.PlayerIdVo) (rUnlocker func()) {
-	return nil
-}
-func (repo *playerMemRepo) LockAccess(playermodel.PlayerIdVo) (unlocker func()) {
-	return nil
 }

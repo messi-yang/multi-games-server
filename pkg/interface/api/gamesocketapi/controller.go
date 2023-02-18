@@ -62,7 +62,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent]().Subscribe(
 		gamesocketappservice.NewUnitsUpdatedIntEventChannel(gameIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.UnitsUpdatedIntEvent) {
-			controller.gameAppService.GetUnitsNearPlayer(socketPresenter, gamesocketappservice.GetUnitsNearPlayerQuery{
+			controller.gameAppService.GetUnitsAroundPlayer(socketPresenter, gamesocketappservice.GetUnitsAroundPlayerQuery{
 				GameId:   gameIdDto,
 				PlayerId: playerIdDto,
 			})

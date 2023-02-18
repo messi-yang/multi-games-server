@@ -17,6 +17,10 @@ func NewGameIdVo(uuidStr string) (GameIdVo, error) {
 	}, nil
 }
 
+func (gameId GameIdVo) IsEqual(otherGameId GameIdVo) bool {
+	return gameId.id == otherGameId.id
+}
+
 func (gameId GameIdVo) ToString() string {
 	return gameId.id.String()
 }

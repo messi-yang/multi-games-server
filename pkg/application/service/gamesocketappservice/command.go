@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 )
 
 type PlaceItemCommand struct {
@@ -14,14 +15,14 @@ type PlaceItemCommand struct {
 	ItemId   int16
 }
 
-func (command PlaceItemCommand) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, itemmodel.ItemIdVo, commonmodel.LocationVo, error) {
+func (command PlaceItemCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo, commonmodel.LocationVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, commonmodel.LocationVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(command.PlayerId)
+	playerId, err := playermodel.NewPlayerIdVo(command.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, commonmodel.LocationVo{}, err
 	}
 	itemId := itemmodel.NewItemIdVo(command.ItemId)
 	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Z)
@@ -35,14 +36,14 @@ type DestroyItemCommand struct {
 	Location dto.LocationDto
 }
 
-func (command DestroyItemCommand) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, commonmodel.LocationVo, error) {
+func (command DestroyItemCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, commonmodel.LocationVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, commonmodel.LocationVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(command.PlayerId)
+	playerId, err := playermodel.NewPlayerIdVo(command.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, commonmodel.LocationVo{}, err
 	}
 	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Z)
 
@@ -54,14 +55,14 @@ type AddPlayerCommand struct {
 	PlayerId string
 }
 
-func (command AddPlayerCommand) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
+func (command AddPlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(command.PlayerId)
+	playerId, err := playermodel.NewPlayerIdVo(command.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 
 	return gameId, playerId, nil
@@ -73,18 +74,18 @@ type MovePlayerCommand struct {
 	Direction int8
 }
 
-func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, gamemodel.DirectionVo, error) {
+func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, gamemodel.DirectionVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, 0, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(command.PlayerId)
+	playerId, err := playermodel.NewPlayerIdVo(command.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, 0, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}
 	direction, err := gamemodel.NewDirectionVo(command.Direction)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, 0, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}
 
 	return gameId, playerId, direction, nil
@@ -95,14 +96,14 @@ type RemovePlayerCommand struct {
 	PlayerId string
 }
 
-func (command RemovePlayerCommand) Validate() (gamemodel.GameIdVo, gamemodel.PlayerIdVo, error) {
+func (command RemovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
-	playerId, err := gamemodel.NewPlayerIdVo(command.PlayerId)
+	playerId, err := playermodel.NewPlayerIdVo(command.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, gamemodel.PlayerIdVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 
 	return gameId, playerId, nil

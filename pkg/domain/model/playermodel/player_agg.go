@@ -41,7 +41,7 @@ func (p *PlayerAgg) SetLocation(location commonmodel.LocationVo) {
 	p.location = location
 }
 
-func (p *PlayerAgg) GetVisionBound(playerId PlayerIdVo) (commonmodel.BoundVo, error) {
+func (p *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
 	playerLocation := p.GetLocation()
 
 	fromX := playerLocation.GetX() - 25
@@ -54,5 +54,10 @@ func (p *PlayerAgg) GetVisionBound(playerId PlayerIdVo) (commonmodel.BoundVo, er
 	to := commonmodel.NewLocationVo(toX, toY)
 	bound, _ := commonmodel.NewBoundVo(from, to)
 
-	return bound, nil
+	return bound
+}
+
+func (p *PlayerAgg) CanSeeAnyLocations(locations []commonmodel.LocationVo) bool {
+	bound := p.GetVisionBound()
+	return bound.CoverAnyLocations(locations)
 }

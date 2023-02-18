@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 )
 
 var (
@@ -13,11 +14,9 @@ var (
 type Repo interface {
 	Add(PlayerAgg) error
 	Get(PlayerIdVo) (PlayerAgg, error)
-	GetPlayerAt(commonmodel.LocationVo) (PlayerAgg, error)
+	GetPlayerAt(gamemodel.GameIdVo, commonmodel.LocationVo) (PlayerAgg, bool)
+	GetPlayersAround(gamemodel.GameIdVo, commonmodel.LocationVo) []PlayerAgg
 	Update(PlayerAgg) error
-	GetAll() []PlayerAgg
+	GetAll(gamemodel.GameIdVo) []PlayerAgg
 	Delete(PlayerIdVo)
-
-	ReadLockAccess(PlayerIdVo) (rUnlocker func())
-	LockAccess(PlayerIdVo) (unlocker func())
 }

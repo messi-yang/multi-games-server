@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 
 type PlayerDto struct {
 	Id       string      `json:"id"`
@@ -8,7 +8,7 @@ type PlayerDto struct {
 	Location LocationDto `json:"location"`
 }
 
-func NewPlayerDto(player gamemodel.PlayerEntity) PlayerDto {
+func NewPlayerDto(player playermodel.PlayerAgg) PlayerDto {
 	return PlayerDto{
 		Id:       player.GetId().ToString(),
 		Name:     player.GetName(),
