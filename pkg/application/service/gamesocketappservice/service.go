@@ -19,7 +19,7 @@ type Service interface {
 	CreateGame(gameIdDto string)
 	GetError(presenter Presenter, errorMessage string)
 	GetPlayers(presenter Presenter, query GetPlayersQuery) error
-	GetUnitsInBoundAroundPlayer(presenter Presenter, query GetUnitsInBoundAroundPlayerQuery) error
+	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
 	AddPlayer(presenter Presenter, command AddPlayerCommand) error
 	MovePlayer(presenter Presenter, command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
@@ -106,7 +106,7 @@ func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error
 	return nil
 }
 
-func (serve *serve) GetUnitsInBoundAroundPlayer(presenter Presenter, query GetUnitsInBoundAroundPlayerQuery) error {
+func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error {
 	gameId, playerId, err := query.Validate()
 	if err != nil {
 		return err
@@ -120,12 +120,12 @@ func (serve *serve) GetUnitsInBoundAroundPlayer(presenter Presenter, query GetUn
 		return err
 	}
 
-	bound := player.GetVisionBound()
-	units := serve.unitRepo.GetUnitsInBound(gameId, bound)
+	playerVisionBound := player.GetVisionBound()
+	units := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
 
 	presenter.OnMessage(UnitsUpdatedResponseDto{
 		Type:  UnitsUpdatedResponseDtoType,
-		Bound: dto.NewBoundDto(bound),
+		Bound: dto.NewBoundDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
 			return dto.NewUnitDto(unit)
 		}),
@@ -182,15 +182,15 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		return dto.NewPlayerDto(p)
 	})
 
-	bound := newPlayer.GetVisionBound()
-	units := serve.unitRepo.GetUnitsInBound(gameId, bound)
+	playerVisionBound := newPlayer.GetVisionBound()
+	units := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
 
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:     GameJoinedResponseDtoType,
 		Items:    itemDtos,
 		PlayerId: playerId.ToString(),
 		Players:  playerDtos,
-		Bound:    dto.NewBoundDto(bound),
+		Bound:    dto.NewBoundDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
 			return dto.NewUnitDto(unit)
 		}),
