@@ -19,6 +19,7 @@ func NewItemMemRepo() itemmodel.Repo {
 	if itemMemRepoSingleton == nil {
 		stoneItemDefaultId := itemmodel.NewItemIdVo(1)
 		torchItemDefaultId := itemmodel.NewItemIdVo(2)
+		treeItemDefaultId := itemmodel.NewItemIdVo(3)
 
 		serverUrl := os.Getenv("SERVER_URL")
 
@@ -26,6 +27,7 @@ func NewItemMemRepo() itemmodel.Repo {
 			items: []itemmodel.ItemAgg{
 				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/assets/items/stone.png", serverUrl), "/items/stone.gltf"),
 				itemmodel.NewItemAgg(torchItemDefaultId, "torch", true, fmt.Sprintf("%s/assets/items/torch.png", serverUrl), "/items/torch.gltf"),
+				itemmodel.NewItemAgg(treeItemDefaultId, "tree", false, fmt.Sprintf("%s/assets/items/tree.png", serverUrl), "/items/tree.gltf"),
 			},
 		}
 		return itemMemRepoSingleton
