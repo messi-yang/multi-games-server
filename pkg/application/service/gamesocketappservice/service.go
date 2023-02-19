@@ -164,7 +164,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	direction, _ := playermodel.NewDirectionVo(2)
+	direction, _ := commonmodel.NewDirectionVo(2)
 	newPlayer := playermodel.NewPlayerAgg(playerId, gameId, "Hello", commonmodel.NewLocationVo(0, 0), direction)
 
 	err = serve.playerRepo.Add(newPlayer)
@@ -238,7 +238,7 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	gameId, playerId, itemId, location, err := command.Validate()
+	gameId, playerId, itemId, err := command.Validate()
 	if err != nil {
 		return err
 	}
@@ -246,12 +246,17 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	err = serve.gameService.PlaceItem(gameId, playerId, itemId, location)
+	err = serve.gameService.PlaceItem(gameId, playerId, itemId)
 	if err != nil {
 		return err
 	}
 
-	serve.publishUnitsUpdatedEventToNearPlayers(gameId, location)
+	player, err := serve.playerRepo.Get(playerId)
+	if err != nil {
+		return err
+	}
+
+	serve.publishUnitsUpdatedEventToNearPlayers(gameId, player.GetLocation())
 
 	return nil
 }

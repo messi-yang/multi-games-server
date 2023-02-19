@@ -127,7 +127,6 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 				controller.gameAppService.PlaceItem(gamesocketappservice.PlaceItemCommand{
 					GameId:   gameIdDto,
 					PlayerId: playerIdDto,
-					Location: requestDto.Location,
 					ItemId:   requestDto.ItemId,
 				})
 			case gamesocketappservice.DestroyItemRequestDtoType:

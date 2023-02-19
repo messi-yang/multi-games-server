@@ -11,23 +11,21 @@ import (
 type PlaceItemCommand struct {
 	GameId   string
 	PlayerId string
-	Location dto.LocationDto
 	ItemId   int16
 }
 
-func (command PlaceItemCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo, commonmodel.LocationVo, error) {
+func (command PlaceItemCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, err
 	}
 	playerId, err := playermodel.NewPlayerIdVo(command.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, err
 	}
 	itemId := itemmodel.NewItemIdVo(command.ItemId)
-	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Z)
 
-	return gameId, playerId, itemId, location, nil
+	return gameId, playerId, itemId, nil
 }
 
 type DestroyItemCommand struct {
@@ -74,7 +72,7 @@ type MovePlayerCommand struct {
 	Direction int8
 }
 
-func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, playermodel.DirectionVo, error) {
+func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
 		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
@@ -83,7 +81,7 @@ func (command MovePlayerCommand) Validate() (gamemodel.GameIdVo, playermodel.Pla
 	if err != nil {
 		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}
-	direction, err := playermodel.NewDirectionVo(command.Direction)
+	direction, err := commonmodel.NewDirectionVo(command.Direction)
 	if err != nil {
 		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}

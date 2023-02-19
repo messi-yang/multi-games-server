@@ -1,4 +1,4 @@
-package playermodel
+package commonmodel
 
 import (
 	"errors"

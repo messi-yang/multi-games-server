@@ -11,8 +11,8 @@ import (
 )
 
 type GameService interface {
-	MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction playermodel.DirectionVo) error
-	PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error
+	MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error
+	PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error
 	DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, location commonmodel.LocationVo) error
 }
 
@@ -27,7 +27,7 @@ func NewGameService(gameRepo gamemodel.Repo, playerRepo playermodel.Repo, unitRe
 	return &gameServe{gameRepo: gameRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
-func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction playermodel.DirectionVo) error {
+func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error {
 	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
@@ -39,26 +39,17 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 		return nil
 	}
 
-	newLocation := player.GetLocation()
-	if direction.IsUp() {
-		newLocation = newLocation.Shift(0, -1)
-	} else if direction.IsRight() {
-		newLocation = newLocation.Shift(1, 0)
-	} else if direction.IsDown() {
-		newLocation = newLocation.Shift(0, 1)
-	} else if direction.IsLeft() {
-		newLocation = newLocation.Shift(-1, 0)
-	}
+	targetLocation := player.GetLocation().MoveToward(direction, 1)
 
-	unit, unitFound := serve.unitRepo.GetUnitAt(gameId, newLocation)
+	unit, unitFound := serve.unitRepo.GetUnitAt(gameId, targetLocation)
 	if unitFound {
 		itemId := unit.GetItemId()
 		item, _ := serve.itemRepo.Get(itemId)
 		if item.IsTraversable() {
-			player.SetLocation(newLocation)
+			player.SetLocation(targetLocation)
 		}
 	} else {
-		player.SetLocation(newLocation)
+		player.SetLocation(targetLocation)
 	}
 
 	player.SetDirection(direction)
@@ -67,19 +58,26 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 	return nil
 }
 
-func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, location commonmodel.LocationVo) error {
+func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error {
 	item, err := serve.itemRepo.Get(itemId)
 	if err != nil {
 		return err
 	}
 
-	_, playerFound := serve.playerRepo.GetPlayerAt(gameId, location)
+	player, err := serve.playerRepo.Get(playerId)
+	if err != nil {
+		return err
+	}
 
-	if !item.IsTraversable() && playerFound {
+	targetLocation := player.GetLocation().MoveToward(player.GetDirection(), 1)
+
+	_, anyPlayerAtTargetLocation := serve.playerRepo.GetPlayerAt(gameId, targetLocation)
+
+	if !item.IsTraversable() && anyPlayerAtTargetLocation {
 		return errors.New("cannot place non-traversable item on a location with players")
 	}
 
-	serve.unitRepo.Update(unitmodel.NewUnitAgg(gameId, location, itemId))
+	serve.unitRepo.Update(unitmodel.NewUnitAgg(gameId, targetLocation, itemId))
 	return nil
 }
 

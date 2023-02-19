@@ -25,10 +25,8 @@ type MoveRequestDto struct {
 }
 
 type PlaceItemRequestDto struct {
-	Type       RequestDtoType  `json:"type"`
-	Location   dto.LocationDto `json:"location"`
-	ItemId     int16           `json:"itemId"`
-	ActionedAt time.Time       `json:"actionedAt"`
+	Type   RequestDtoType `json:"type"`
+	ItemId int16          `json:"itemId"`
 }
 
 type DestroyItemRequestDto struct {

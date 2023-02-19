@@ -10,10 +10,10 @@ type PlayerAgg struct {
 	gameId    gamemodel.GameIdVo
 	name      string
 	location  commonmodel.LocationVo
-	direction DirectionVo
+	direction commonmodel.DirectionVo
 }
 
-func NewPlayerAgg(id PlayerIdVo, gameId gamemodel.GameIdVo, name string, location commonmodel.LocationVo, direction DirectionVo) PlayerAgg {
+func NewPlayerAgg(id PlayerIdVo, gameId gamemodel.GameIdVo, name string, location commonmodel.LocationVo, direction commonmodel.DirectionVo) PlayerAgg {
 	return PlayerAgg{
 		id:        id,
 		gameId:    gameId,
@@ -43,11 +43,11 @@ func (p *PlayerAgg) SetLocation(location commonmodel.LocationVo) {
 	p.location = location
 }
 
-func (p *PlayerAgg) GetDirection() DirectionVo {
+func (p *PlayerAgg) GetDirection() commonmodel.DirectionVo {
 	return p.direction
 }
 
-func (p *PlayerAgg) SetDirection(direction DirectionVo) {
+func (p *PlayerAgg) SetDirection(direction commonmodel.DirectionVo) {
 	p.direction = direction
 }
 
