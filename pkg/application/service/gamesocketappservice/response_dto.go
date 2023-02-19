@@ -19,12 +19,12 @@ type ErroredResponseDto struct {
 }
 
 type GameJoinedResponseDto struct {
-	Type     ResponseDtoType `json:"type"`
-	PlayerId string          `json:"playerId"`
-	Players  []dto.PlayerDto `json:"players"`
-	Bound    dto.BoundDto    `json:"bound"`
-	Units    []dto.UnitDto   `json:"units"`
-	Items    []dto.ItemDto   `json:"items"`
+	Type        ResponseDtoType `json:"type"`
+	PlayerId    string          `json:"playerId"`
+	Players     []dto.PlayerDto `json:"players"`
+	VisionBound dto.BoundDto    `json:"visionBound"`
+	Units       []dto.UnitDto   `json:"units"`
+	Items       []dto.ItemDto   `json:"items"`
 }
 
 type PlayersUpdatedResponseDto struct {
@@ -33,7 +33,7 @@ type PlayersUpdatedResponseDto struct {
 }
 
 type UnitsUpdatedResponseDto struct {
-	Type  ResponseDtoType `json:"type"`
-	Bound dto.BoundDto    `json:"bound"`
-	Units []dto.UnitDto   `json:"units"`
+	Type        ResponseDtoType `json:"type"`
+	VisionBound dto.BoundDto    `json:"visionBound"`
+	Units       []dto.UnitDto   `json:"units"`
 }

@@ -124,8 +124,8 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	units := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
 
 	presenter.OnMessage(UnitsUpdatedResponseDto{
-		Type:  UnitsUpdatedResponseDtoType,
-		Bound: dto.NewBoundDto(playerVisionBound),
+		Type:        UnitsUpdatedResponseDtoType,
+		VisionBound: dto.NewBoundDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
 			return dto.NewUnitDto(unit)
 		}),
@@ -186,11 +186,11 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	units := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
 
 	presenter.OnMessage(GameJoinedResponseDto{
-		Type:     GameJoinedResponseDtoType,
-		Items:    itemDtos,
-		PlayerId: playerId.ToString(),
-		Players:  playerDtos,
-		Bound:    dto.NewBoundDto(playerVisionBound),
+		Type:        GameJoinedResponseDtoType,
+		Items:       itemDtos,
+		PlayerId:    playerId.ToString(),
+		Players:     playerDtos,
+		VisionBound: dto.NewBoundDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
 			return dto.NewUnitDto(unit)
 		}),
