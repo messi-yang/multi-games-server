@@ -262,7 +262,7 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {
-	gameId, playerId, location, err := command.Validate()
+	gameId, playerId, err := command.Validate()
 	if err != nil {
 		return err
 	}
@@ -270,12 +270,17 @@ func (serve *serve) DestroyItem(command DestroyItemCommand) error {
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	err = serve.gameService.DestroyItem(gameId, playerId, location)
+	err = serve.gameService.DestroyItem(gameId, playerId)
 	if err != nil {
 		return err
 	}
 
-	serve.publishUnitsUpdatedEventToNearPlayers(gameId, location)
+	player, err := serve.playerRepo.Get(playerId)
+	if err != nil {
+		return err
+	}
+
+	serve.publishUnitsUpdatedEventToNearPlayers(gameId, player.GetLocation())
 
 	return nil
 }

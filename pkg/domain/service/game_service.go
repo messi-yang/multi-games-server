@@ -13,7 +13,7 @@ import (
 type GameService interface {
 	MovePlayer(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error
 	PlaceItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error
-	DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, location commonmodel.LocationVo) error
+	DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo) error
 }
 
 type gameServe struct {
@@ -81,7 +81,14 @@ func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId playermode
 	return nil
 }
 
-func (serve *gameServe) DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo, location commonmodel.LocationVo) error {
-	serve.unitRepo.Delete(gameId, location)
+func (serve *gameServe) DestroyItem(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo) error {
+	player, err := serve.playerRepo.Get(playerId)
+	if err != nil {
+		return err
+	}
+
+	targetLocation := player.GetLocation().MoveToward(player.GetDirection(), 1)
+	serve.unitRepo.Delete(gameId, targetLocation)
+
 	return nil
 }

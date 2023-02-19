@@ -1,11 +1,5 @@
 package gamesocketappservice
 
-import (
-	"time"
-
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
-)
-
 type RequestDtoType string
 
 const (
@@ -30,7 +24,5 @@ type PlaceItemRequestDto struct {
 }
 
 type DestroyItemRequestDto struct {
-	Type       RequestDtoType  `json:"type"`
-	Location   dto.LocationDto `json:"location"`
-	ActionedAt time.Time       `json:"actionedAt"`
+	Type RequestDtoType `json:"type"`
 }

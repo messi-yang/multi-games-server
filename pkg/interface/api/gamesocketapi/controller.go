@@ -130,16 +130,9 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					ItemId:   requestDto.ItemId,
 				})
 			case gamesocketappservice.DestroyItemRequestDtoType:
-				requestDto, err := json.Unmarshal[gamesocketappservice.DestroyItemRequestDto](message)
-				if err != nil {
-					controller.gameAppService.GetError(socketPresenter, err.Error())
-					continue
-				}
-
 				controller.gameAppService.DestroyItem(gamesocketappservice.DestroyItemCommand{
 					GameId:   gameIdDto,
 					PlayerId: playerIdDto,
-					Location: requestDto.Location,
 				})
 			default:
 			}

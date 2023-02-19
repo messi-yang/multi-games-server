@@ -1,7 +1,6 @@
 package gamesocketappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
@@ -31,21 +30,19 @@ func (command PlaceItemCommand) Validate() (gamemodel.GameIdVo, playermodel.Play
 type DestroyItemCommand struct {
 	GameId   string
 	PlayerId string
-	Location dto.LocationDto
 }
 
-func (command DestroyItemCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, commonmodel.LocationVo, error) {
+func (command DestroyItemCommand) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, error) {
 	gameId, err := gamemodel.NewGameIdVo(command.GameId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 	playerId, err := playermodel.NewPlayerIdVo(command.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, commonmodel.LocationVo{}, err
+		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
 	}
-	location := commonmodel.NewLocationVo(command.Location.X, command.Location.Z)
 
-	return gameId, playerId, location, nil
+	return gameId, playerId, nil
 }
 
 type AddPlayerCommand struct {
