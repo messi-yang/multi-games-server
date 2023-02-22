@@ -18,7 +18,7 @@ import (
 type Service interface {
 	CreateGame(gameIdDto string)
 	GetError(presenter Presenter, errorMessage string)
-	GetPlayers(presenter Presenter, query GetPlayersQuery) error
+	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error
 	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
 	AddPlayer(presenter Presenter, command AddPlayerCommand) error
 	MovePlayer(presenter Presenter, command MovePlayerCommand) error
@@ -85,8 +85,8 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(gameId gamemodel.Gam
 	})
 }
 
-func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error {
-	gameId, _, err := query.Validate()
+func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error {
+	gameId, playerId, err := query.Validate()
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,11 @@ func (serve *serve) GetPlayers(presenter Presenter, query GetPlayersQuery) error
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	players := serve.playerRepo.GetAll(gameId)
+	player, err := serve.playerRepo.Get(playerId)
+	if err != nil {
+		return err
+	}
+	players := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
 
 	presenter.OnMessage(PlayersUpdatedResponseDto{
 		Type: PlayersUpdatedResponseDtoType,
