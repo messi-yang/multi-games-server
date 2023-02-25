@@ -41,20 +41,21 @@ func (repo *playerMemRepo) Get(playerId playermodel.PlayerIdVo) (playermodel.Pla
 	return foundPlayer, nil
 }
 
-func (repo *playerMemRepo) GetPlayerAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (playermodel.PlayerAgg, bool) {
+func (repo *playerMemRepo) GetPlayerAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (playermodel.PlayerAgg, bool, error) {
 	foundPlayer, found := lo.Find(repo.players, func(player playermodel.PlayerAgg) bool {
 		return player.GetGameId().IsEqual(gameId) && player.GetLocation().IsEqual(location)
 	})
 	if !found {
-		return playermodel.PlayerAgg{}, found
+		return playermodel.PlayerAgg{}, false, nil
 	}
-	return foundPlayer, true
+	return foundPlayer, true, nil
 }
 
-func (repo *playerMemRepo) GetPlayersAround(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) []playermodel.PlayerAgg {
+func (repo *playerMemRepo) GetPlayersAround(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) ([]playermodel.PlayerAgg, error) {
 	return lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
 		return player.GetGameId().IsEqual(gameId) && player.CanSeeAnyLocations([]commonmodel.LocationVo{location})
-	})
+	}), nil
+	return nil, nil
 }
 
 func (repo *playerMemRepo) Update(updatedPlayer playermodel.PlayerAgg) error {
@@ -73,8 +74,9 @@ func (repo *playerMemRepo) GetAll(gameId gamemodel.GameIdVo) []playermodel.Playe
 	})
 }
 
-func (repo *playerMemRepo) Delete(playerId playermodel.PlayerIdVo) {
+func (repo *playerMemRepo) Delete(playerId playermodel.PlayerIdVo) error {
 	repo.players = lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
 		return !player.GetId().IsEqual(playerId)
 	})
+	return nil
 }

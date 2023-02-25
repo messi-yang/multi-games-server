@@ -1,0 +1,113 @@
+package cassandra
+
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
+	"github.com/gocql/gocql"
+	"github.com/samber/lo"
+)
+
+type unitRepo struct {
+	session *gocql.Session
+}
+
+var unitRepoSingleton *unitRepo
+
+func NewUnitRepo() (unitmodel.Repo, error) {
+	if unitRepoSingleton == nil {
+		newSession, err := newSession()
+		if err != nil {
+			return nil, err
+		}
+		unitRepoSingleton = &unitRepo{
+			session: newSession,
+		}
+		return unitRepoSingleton, nil
+	}
+	return unitRepoSingleton, nil
+}
+
+func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
+	if err := repo.session.Query(
+		"INSERT INTO units (game_id, pos_x, pos_z, item_id) VALUES (?, ?, ?, ?)",
+		unit.GetGameId().ToString(),
+		unit.GetLocation().GetX(),
+		unit.GetLocation().GetZ(),
+		unit.GetItemId().ToInt16(),
+	).Exec(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *unitRepo) GetUnitAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (unitmodel.UnitAgg, bool, error) {
+	iter := repo.session.Query(
+		"SELECT * FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ? LIMIT 1",
+		gameId.ToString(),
+		location.GetX(),
+		location.GetZ(),
+	).Iter()
+	var unit *unitmodel.UnitAgg = nil
+	var rawGameId gocql.UUID
+	var rawPosX int
+	var rawPosZ int
+	var rawItemId int16
+	for iter.Scan(&rawGameId, &rawPosX, &rawPosZ, &rawItemId) {
+		parsedGameId, _ := gamemodel.NewGameIdVo(rawGameId.String())
+		location := commonmodel.NewLocationVo(rawPosX, rawPosZ)
+		itemId := itemmodel.NewItemIdVo(rawItemId)
+		unitFound := unitmodel.NewUnitAgg(parsedGameId, location, itemId)
+		unit = &unitFound
+	}
+	if err := iter.Close(); err != nil {
+		return unitmodel.UnitAgg{}, false, err
+	}
+	if unit == nil {
+		return unitmodel.UnitAgg{}, false, nil
+	}
+	return *unit, true, nil
+}
+
+func (repo *unitRepo) GetUnitsInBound(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) ([]unitmodel.UnitAgg, error) {
+	fromX := bound.GetFrom().GetX()
+	toX := bound.GetTo().GetX()
+	fromZ := bound.GetFrom().GetZ()
+	toZ := bound.GetTo().GetZ()
+	xLocations := lo.RangeFrom(fromX, toX-fromX+1)
+	iter := repo.session.Query(
+		"SELECT game_id, pos_x, pos_z, item_id FROM units WHERE game_id = ? AND pos_x IN ? AND pos_z >= ? AND pos_z <= ?",
+		gameId.ToString(),
+		xLocations,
+		fromZ,
+		toZ,
+	).Iter()
+	var units []unitmodel.UnitAgg = make([]unitmodel.UnitAgg, 0)
+	var rawGameId gocql.UUID
+	var rawPosX int
+	var rawPosZ int
+	var rawItemId int16
+	for iter.Scan(&rawGameId, &rawPosX, &rawPosZ, &rawItemId) {
+		parsedGameId, _ := gamemodel.NewGameIdVo(rawGameId.String())
+		location := commonmodel.NewLocationVo(rawPosX, rawPosZ)
+		itemId := itemmodel.NewItemIdVo(rawItemId)
+		units = append(units, unitmodel.NewUnitAgg(parsedGameId, location, itemId))
+	}
+	if err := iter.Close(); err != nil {
+		return units, err
+	}
+	return units, nil
+}
+
+func (repo *unitRepo) Delete(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) error {
+	if err := repo.session.Query(
+		"DELETE FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ?",
+		gameId.ToString(),
+		location.GetX(),
+		location.GetZ(),
+	).Exec(); err != nil {
+		return err
+	}
+	return nil
+}

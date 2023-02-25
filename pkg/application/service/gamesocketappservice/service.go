@@ -16,7 +16,7 @@ import (
 )
 
 type Service interface {
-	CreateGame(gameIdDto string)
+	CreateGame(gameIdDto string) error
 	GetError(presenter Presenter, errorMessage string)
 	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error
 	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
@@ -61,11 +61,19 @@ func (serve *serve) publishUnitsUpdatedEventTo(gameId gamemodel.GameIdVo, player
 	)
 }
 
-func (serve *serve) publishUnitsUpdatedEventToNearPlayers(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) {
-	players := serve.playerRepo.GetPlayersAround(gameId, location)
+func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.PlayerIdVo) {
+	player, err := serve.playerRepo.Get(playerId)
+	if err != nil {
+		return
+	}
+
+	players, err := serve.playerRepo.GetPlayersAround(player.GetGameId(), player.GetLocation())
+	if err != nil {
+		return
+	}
 
 	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
-		serve.publishUnitsUpdatedEventTo(gameId, player.GetId())
+		serve.publishUnitsUpdatedEventTo(player.GetGameId(), player.GetId())
 	})
 }
 
@@ -75,7 +83,10 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(gameId gamemodel.Gam
 		return
 	}
 
-	players := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
+	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
+	if err != nil {
+		return
+	}
 
 	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
 		serve.IntEventPublisher.Publish(
@@ -98,7 +109,10 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 	if err != nil {
 		return err
 	}
-	players := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
+	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
+	if err != nil {
+		return err
+	}
 
 	presenter.OnMessage(PlayersUpdatedResponseDto{
 		Type: PlayersUpdatedResponseDtoType,
@@ -125,7 +139,10 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	}
 
 	playerVisionBound := player.GetVisionBound()
-	units := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
+	units, err := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
+	if err != nil {
+		return err
+	}
 
 	presenter.OnMessage(UnitsUpdatedResponseDto{
 		Type:        UnitsUpdatedResponseDtoType,
@@ -138,25 +155,38 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	return nil
 }
 
-func (serve *serve) CreateGame(gameIdDto string) {
+func (serve *serve) CreateGame(gameIdDto string) error {
 	gameId, err := gamemodel.NewGameIdVo(gameIdDto)
 	if err != nil {
-		return
+		return err
+	}
+
+	_, gameFound, err := serve.gameRepo.Get(gameId)
+	if err != nil {
+		return err
+	}
+	if gameFound {
+		return nil
 	}
 
 	items := serve.itemRepo.GetAll()
-	tool.RangeMatrix(1000, 1000, func(x int, z int) {
+	tool.RangeMatrix(100, 100, func(x int, z int) {
 		randomInt := rand.Intn(100)
-		location := commonmodel.NewLocationVo(x-500, z-500)
+		location := commonmodel.NewLocationVo(x-50, z-50)
 		if randomInt < 3 {
 			newUnit := unitmodel.NewUnitAgg(gameId, location, items[randomInt].GetId())
-			serve.unitRepo.Update(newUnit)
+			serve.unitRepo.Add(newUnit)
 		}
 	})
 
 	newGame := gamemodel.NewGameAgg(gameId)
 
-	serve.gameRepo.Add(newGame)
+	err = serve.gameRepo.Add(newGame)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) error {
@@ -181,13 +211,20 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		return dto.NewItemDto(item)
 	})
 
-	players := serve.playerRepo.GetPlayersAround(gameId, newPlayer.GetLocation())
+	players, err := serve.playerRepo.GetPlayersAround(gameId, newPlayer.GetLocation())
+	if err != nil {
+		return err
+	}
+
 	playerDtos := lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerDto {
 		return dto.NewPlayerDto(p)
 	})
 
 	playerVisionBound := newPlayer.GetVisionBound()
-	units := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
+	units, err := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
+	if err != nil {
+		return err
+	}
 
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:        GameJoinedResponseDtoType,
@@ -234,7 +271,10 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 	unlocker := serve.gameRepo.LockAccess(gameId)
 	defer unlocker()
 
-	serve.playerRepo.Delete(playerId)
+	err = serve.playerRepo.Delete(playerId)
+	if err != nil {
+		return err
+	}
 
 	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
 
@@ -255,12 +295,7 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 		return err
 	}
 
-	player, err := serve.playerRepo.Get(playerId)
-	if err != nil {
-		return err
-	}
-
-	serve.publishUnitsUpdatedEventToNearPlayers(gameId, player.GetLocation())
+	serve.publishUnitsUpdatedEventToNearPlayers(playerId)
 
 	return nil
 }
@@ -279,12 +314,7 @@ func (serve *serve) DestroyItem(command DestroyItemCommand) error {
 		return err
 	}
 
-	player, err := serve.playerRepo.Get(playerId)
-	if err != nil {
-		return err
-	}
-
-	serve.publishUnitsUpdatedEventToNearPlayers(gameId, player.GetLocation())
+	serve.publishUnitsUpdatedEventToNearPlayers(playerId)
 
 	return nil
 }

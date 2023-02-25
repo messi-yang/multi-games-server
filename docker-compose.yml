@@ -2,6 +2,8 @@ version: "3.9"
 networks:
   base:
     driver: bridge
+volumes:
+  cassandra:
 services:
   redis:
     image: 'bitnami/redis:latest'
@@ -12,35 +14,43 @@ services:
       - REDIS_PASSWORD=password
     networks:
       - base
-  postgres:
-    image: postgres:15-alpine
+  cassandra:
+    image: cassandra:4.0
     ports:
-      - '5432:5432'
-    environment:
-      POSTGRES_USER: gamer
-      POSTGRES_PASSWORD: gamer
-      POSTGRES_DB: game
+      - 9042:9042
+    volumes:
+      - cassandra:/var/lib/cassandra
+    restart: always
     networks:
       - base
+  # postgres:
+  #   image: postgres:15-alpine
+  #   ports:
+  #     - '5432:5432'
+  #   environment:
+  #     POSTGRES_USER: gamer
+  #     POSTGRES_PASSWORD: gamer
+  #     POSTGRES_DB: game
+  #   networks:
+  #     - base
   web:
     build: .
     environment:
       - SERVER_URL=http://localhost:8080
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=password
-      - POSTGRES_HOST=postgres
-      - POSTGRES_USER=gamer
-      - POSTGRES_PASSWORD=gamer
-      - POSTGRES_DB=game
+      - CASSANDRA_HOST=cassandra
+      - CASSANDRA_PORT=9042
+      - CASSANDRA_KEYSPACE=main
     ports:
       - 8080:8080
     depends_on:
       - redis
-      - postgres
+      - cassandra
     networks:
       - base
     volumes:
       - .:/app
     working_dir:
       /app
-    command: make dev
+    command: sh -c './scripts/check_cassandra.sh && make dev'

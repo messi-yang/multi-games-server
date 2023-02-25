@@ -35,13 +35,20 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 
 	if !direction.IsEqual(player.GetDirection()) {
 		player.SetDirection(direction)
-		serve.playerRepo.Update(player)
+		err = serve.playerRepo.Update(player)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
 	targetLocation := player.GetLocation().MoveToward(direction, 1)
 
-	unit, unitFound := serve.unitRepo.GetUnitAt(gameId, targetLocation)
+	unit, unitFound, err := serve.unitRepo.GetUnitAt(gameId, targetLocation)
+	if err != nil {
+		return err
+	}
+
 	if unitFound {
 		itemId := unit.GetItemId()
 		item, _ := serve.itemRepo.Get(itemId)
@@ -53,7 +60,10 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 	}
 
 	player.SetDirection(direction)
-	serve.playerRepo.Update(player)
+	err = serve.playerRepo.Update(player)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -71,13 +81,22 @@ func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId playermode
 
 	targetLocation := player.GetLocation().MoveToward(player.GetDirection(), 1)
 
-	_, anyPlayerAtTargetLocation := serve.playerRepo.GetPlayerAt(gameId, targetLocation)
+	_, anyPlayerAtTargetLocation, err := serve.playerRepo.GetPlayerAt(gameId, targetLocation)
+	if err != nil {
+		return err
+	}
 
 	if !item.IsTraversable() && anyPlayerAtTargetLocation {
 		return errors.New("cannot place non-traversable item on a location with players")
 	}
 
-	serve.unitRepo.Update(unitmodel.NewUnitAgg(gameId, targetLocation, itemId))
+	_, _, err = serve.unitRepo.GetUnitAt(gameId, targetLocation)
+	if err != nil {
+		return err
+	}
+
+	serve.unitRepo.Add(unitmodel.NewUnitAgg(gameId, targetLocation, itemId))
+
 	return nil
 }
 

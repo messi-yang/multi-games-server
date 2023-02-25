@@ -8,20 +8,40 @@ We follow [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_des
 
 ## Development
 
-### Start dev server with hotreload
+### Local Development
 
 ```bash
 docker-compose up
 ```
 
-### Create new migration db file
+## Database
+
+### Initialize Cassandra
+
+Most of cases you don't have to run this, it is handled in `/scripts/check_cassandra.sh` script.
 
 ```bash
-docker compose exec web make create-migrate-db-file FILE_NAME=${file_name_in_snake_case}
+docker compose exec web make init-cassandra
 ```
 
-### Migration db according to migration db files
+### Connect to Cassandra
+
+Connect to cassandra database.
 
 ```bash
-docker compose exec web make migrate-db
+docker compose exec web make connect-cassandra
+```
+
+### Plan New Cassandra Migration
+
+Create new Cassandra migration file, do not forget to run the `start-cassandra-migrate` below to do the migration after the file is completed.
+
+```bash
+docker compose exec web make create-cassandra-migrate-file FILE_NAME=${file_name_in_snake_case}
+```
+
+### Start Migrating Cassandra
+
+```bash
+docker compose exec web make start-cassandra-migrate
 ```

@@ -1,1 +1,0 @@
-ALTER TABLE games RENAME COLUMN unit_block TO unit_map;

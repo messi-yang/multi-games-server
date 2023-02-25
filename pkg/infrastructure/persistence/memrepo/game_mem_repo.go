@@ -31,32 +31,32 @@ func NewGameMemRepo() gamemodel.Repo {
 	return gameMemRepoSingleton
 }
 
-func (m *gameMemRepo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, error) {
+func (m *gameMemRepo) Get(id gamemodel.GameIdVo) (gamemodel.GameAgg, bool, error) {
 	record, exists := m.games[id]
 	if !exists {
-		return gamemodel.GameAgg{}, ErrGameNotFound
+		return gamemodel.GameAgg{}, false, nil
 	}
 
-	return *record, nil
+	return *record, true, nil
 }
 
-func (m *gameMemRepo) Update(id gamemodel.GameIdVo, game gamemodel.GameAgg) error {
-	_, exists := m.games[id]
+func (m *gameMemRepo) Update(game gamemodel.GameAgg) error {
+	_, exists := m.games[game.GetId()]
 	if !exists {
 		return ErrGameNotFound
 	}
 
-	m.games[id] = &game
+	m.games[game.GetId()] = &game
 
 	return nil
 }
 
-func (m *gameMemRepo) GetAll() []gamemodel.GameAgg {
+func (m *gameMemRepo) GetAll() ([]gamemodel.GameAgg, error) {
 	games := make([]gamemodel.GameAgg, 0)
 	for _, record := range m.games {
 		games = append(games, *record)
 	}
-	return games
+	return games, nil
 }
 
 func (m *gameMemRepo) Add(game gamemodel.GameAgg) error {

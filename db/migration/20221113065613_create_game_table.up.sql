@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS games (
-   id VARCHAR (36) PRIMARY KEY UNIQUE NOT NULL,
-   width INT NOT NULL,
-   height INT NOT NULL,
-   unit_block JSONB NOT NULL,
-   created_at TIMESTAMPTZ NOT NULL,
-   updated_at TIMESTAMPTZ NOT NULL
-);

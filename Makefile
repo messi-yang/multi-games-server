@@ -1,13 +1,25 @@
 BUILD_FOLDER=dist
 BINARY_NAME=game-of-liberty
 
-# .PHONY: create-db-migrate
-create-migrate-db-file:
-	migrate create -ext sql -dir db/migration $(FILE_NAME)
+# .PHONY: init-cassandra
+init-cassandra:
+	cqlsh ${CASSANDRA_HOST} -f ./db/cassandra/init.cql
 
-# .PHONY: db-migrate
-migrate-db:
-	migrate -source file:db/migration -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}?sslmode=disable up
+# .PHONY: connect-cassandra
+connect-cassandra:
+	cqlsh ${CASSANDRA_HOST}
+
+# .PHONY: create-cassandra-migrate-file
+create-cassandra-migrate-file:
+	migrate create -ext sql -dir db/cassandra/migrations ${FILE_NAME}
+
+# .PHONY: start-cassandra-migrate
+start-cassandra-migrate:
+	migrate -source="file:db/cassandra/migrations" -database="cassandra://${CASSANDRA_HOST}:${CASSANDRA_PORT}/${CASSANDRA_KEYSPACE}?x-multi-statement=true" up
+
+# .PHONY: revert-cassandra-migrate
+revert-cassandra-migrate:
+	migrate -source="file:db/cassandra/migrations" -database="cassandra://${CASSANDRA_HOST}:${CASSANDRA_PORT}/${CASSANDRA_KEYSPACE}?x-multi-statement=true" down
 
 # .PHONY: dev
 dev:
@@ -21,6 +33,6 @@ build:
 start:
 	./dist/main
 
-# .PHONY: clean
-clean-builds:
+# .PHONY: clean-build
+clean-build:
 	rm -rf ./dist
