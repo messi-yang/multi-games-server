@@ -7,20 +7,20 @@ import (
 )
 
 type ErrInvalidBoundVo struct {
-	from LocationVo
-	to   LocationVo
+	from PositionVo
+	to   PositionVo
 }
 
 func (e *ErrInvalidBoundVo) Error() string {
-	return fmt.Sprintf("from location (%+v) cannot exceed to location (%+v)", e.from, e.to)
+	return fmt.Sprintf("from position (%+v) cannot exceed to position (%+v)", e.from, e.to)
 }
 
 type BoundVo struct {
-	from LocationVo
-	to   LocationVo
+	from PositionVo
+	to   PositionVo
 }
 
-func NewBoundVo(from LocationVo, to LocationVo) (BoundVo, error) {
+func NewBoundVo(from PositionVo, to PositionVo) (BoundVo, error) {
 	if from.GetX() > to.GetX() || from.GetZ() > to.GetZ() {
 		return BoundVo{}, &ErrInvalidBoundVo{from: from, to: to}
 	}
@@ -31,11 +31,11 @@ func NewBoundVo(from LocationVo, to LocationVo) (BoundVo, error) {
 	}, nil
 }
 
-func (bound BoundVo) GetFrom() LocationVo {
+func (bound BoundVo) GetFrom() PositionVo {
 	return bound.from
 }
 
-func (bound BoundVo) GetTo() LocationVo {
+func (bound BoundVo) GetTo() PositionVo {
 	return bound.to
 }
 
@@ -47,12 +47,12 @@ func (bound BoundVo) GetHeight() int {
 	return bound.to.GetZ() - bound.from.GetZ() + 1
 }
 
-func (bound BoundVo) CoversLocation(location LocationVo) bool {
-	return location.GetX() >= bound.from.GetX() && location.GetX() <= bound.to.GetX() && location.GetZ() >= bound.from.GetZ() && location.GetZ() <= bound.to.GetZ()
+func (bound BoundVo) CoversPosition(position PositionVo) bool {
+	return position.GetX() >= bound.from.GetX() && position.GetX() <= bound.to.GetX() && position.GetZ() >= bound.from.GetZ() && position.GetZ() <= bound.to.GetZ()
 }
 
-func (bound BoundVo) CoverAnyLocations(locations []LocationVo) bool {
-	return lo.ContainsBy(locations, func(location LocationVo) bool {
-		return bound.CoversLocation(location)
+func (bound BoundVo) CoverAnyPositions(positions []PositionVo) bool {
+	return lo.ContainsBy(positions, func(position PositionVo) bool {
+		return bound.CoversPosition(position)
 	})
 }

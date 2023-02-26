@@ -67,7 +67,7 @@ func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.P
 		return
 	}
 
-	players, err := serve.playerRepo.GetPlayersAround(player.GetGameId(), player.GetLocation())
+	players, err := serve.playerRepo.GetPlayersAround(player.GetGameId(), player.GetPosition())
 	if err != nil {
 		return
 	}
@@ -83,7 +83,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(gameId gamemodel.Gam
 		return
 	}
 
-	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
+	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetPosition())
 	if err != nil {
 		return
 	}
@@ -109,7 +109,7 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 	if err != nil {
 		return err
 	}
-	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetLocation())
+	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetPosition())
 	if err != nil {
 		return err
 	}
@@ -172,9 +172,9 @@ func (serve *serve) CreateGame(gameIdDto string) error {
 	items := serve.itemRepo.GetAll()
 	tool.RangeMatrix(100, 100, func(x int, z int) {
 		randomInt := rand.Intn(100)
-		location := commonmodel.NewLocationVo(x-50, z-50)
+		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {
-			newUnit := unitmodel.NewUnitAgg(gameId, location, items[randomInt].GetId())
+			newUnit := unitmodel.NewUnitAgg(gameId, position, items[randomInt].GetId())
 			serve.unitRepo.Add(newUnit)
 		}
 	})
@@ -199,7 +199,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	defer unlocker()
 
 	direction, _ := commonmodel.NewDirectionVo(2)
-	newPlayer := playermodel.NewPlayerAgg(playerId, gameId, "Hello", commonmodel.NewLocationVo(0, 0), direction)
+	newPlayer := playermodel.NewPlayerAgg(playerId, gameId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
 
 	err = serve.playerRepo.Add(newPlayer)
 	if err != nil {
@@ -211,7 +211,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		return dto.NewItemDto(item)
 	})
 
-	players, err := serve.playerRepo.GetPlayersAround(gameId, newPlayer.GetLocation())
+	players, err := serve.playerRepo.GetPlayersAround(gameId, newPlayer.GetPosition())
 	if err != nil {
 		return err
 	}

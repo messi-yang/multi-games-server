@@ -5,21 +5,21 @@ import (
 )
 
 type BoundDto struct {
-	From LocationDto `json:"from"`
-	To   LocationDto `json:"to"`
+	From PositionDto `json:"from"`
+	To   PositionDto `json:"to"`
 }
 
 func NewBoundDto(bound commonmodel.BoundVo) BoundDto {
 	return BoundDto{
-		From: NewLocationDto(bound.GetFrom()),
-		To:   NewLocationDto(bound.GetTo()),
+		From: NewPositionDto(bound.GetFrom()),
+		To:   NewPositionDto(bound.GetTo()),
 	}
 }
 
 func (dto BoundDto) ToValueObject() (commonmodel.BoundVo, error) {
-	from := commonmodel.NewLocationVo(dto.From.X, dto.From.Z)
+	from := commonmodel.NewPositionVo(dto.From.X, dto.From.Z)
 
-	to := commonmodel.NewLocationVo(dto.To.X, dto.To.Z)
+	to := commonmodel.NewPositionVo(dto.To.X, dto.To.Z)
 
 	bound, err := commonmodel.NewBoundVo(
 		from,

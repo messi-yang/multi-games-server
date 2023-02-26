@@ -42,9 +42,9 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 		return nil
 	}
 
-	targetLocation := player.GetLocation().MoveToward(direction, 1)
+	targetPosition := player.GetPosition().MoveToward(direction, 1)
 
-	unit, unitFound, err := serve.unitRepo.GetUnitAt(gameId, targetLocation)
+	unit, unitFound, err := serve.unitRepo.GetUnitAt(gameId, targetPosition)
 	if err != nil {
 		return err
 	}
@@ -53,10 +53,10 @@ func (serve *gameServe) MovePlayer(gameId gamemodel.GameIdVo, playerId playermod
 		itemId := unit.GetItemId()
 		item, _ := serve.itemRepo.Get(itemId)
 		if item.IsTraversable() {
-			player.SetLocation(targetLocation)
+			player.SetPosition(targetPosition)
 		}
 	} else {
-		player.SetLocation(targetLocation)
+		player.SetPosition(targetPosition)
 	}
 
 	player.SetDirection(direction)
@@ -79,23 +79,23 @@ func (serve *gameServe) PlaceItem(gameId gamemodel.GameIdVo, playerId playermode
 		return err
 	}
 
-	targetLocation := player.GetLocation().MoveToward(player.GetDirection(), 1)
+	targetPosition := player.GetPosition().MoveToward(player.GetDirection(), 1)
 
-	_, anyPlayerAtTargetLocation, err := serve.playerRepo.GetPlayerAt(gameId, targetLocation)
+	_, anyPlayerAtTargetPosition, err := serve.playerRepo.GetPlayerAt(gameId, targetPosition)
 	if err != nil {
 		return err
 	}
 
-	if !item.IsTraversable() && anyPlayerAtTargetLocation {
-		return errors.New("cannot place non-traversable item on a location with players")
+	if !item.IsTraversable() && anyPlayerAtTargetPosition {
+		return errors.New("cannot place non-traversable item on a position with players")
 	}
 
-	_, _, err = serve.unitRepo.GetUnitAt(gameId, targetLocation)
+	_, _, err = serve.unitRepo.GetUnitAt(gameId, targetPosition)
 	if err != nil {
 		return err
 	}
 
-	serve.unitRepo.Add(unitmodel.NewUnitAgg(gameId, targetLocation, itemId))
+	serve.unitRepo.Add(unitmodel.NewUnitAgg(gameId, targetPosition, itemId))
 
 	return nil
 }
@@ -106,8 +106,8 @@ func (serve *gameServe) DestroyItem(gameId gamemodel.GameIdVo, playerId playermo
 		return err
 	}
 
-	targetLocation := player.GetLocation().MoveToward(player.GetDirection(), 1)
-	serve.unitRepo.Delete(gameId, targetLocation)
+	targetPosition := player.GetPosition().MoveToward(player.GetDirection(), 1)
+	serve.unitRepo.Delete(gameId, targetPosition)
 
 	return nil
 }

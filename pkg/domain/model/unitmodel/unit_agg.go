@@ -8,24 +8,24 @@ import (
 
 type UnitAgg struct {
 	gameId   gamemodel.GameIdVo
-	location commonmodel.LocationVo
+	position commonmodel.PositionVo
 	itemId   itemmodel.ItemIdVo
 }
 
 func NewUnitAgg(
 	gameId gamemodel.GameIdVo,
-	location commonmodel.LocationVo,
+	position commonmodel.PositionVo,
 	itemId itemmodel.ItemIdVo,
 ) UnitAgg {
-	return UnitAgg{gameId: gameId, location: location, itemId: itemId}
+	return UnitAgg{gameId: gameId, position: position, itemId: itemId}
 }
 
 func (ua *UnitAgg) GetGameId() gamemodel.GameIdVo {
 	return ua.gameId
 }
 
-func (ua *UnitAgg) GetLocation() commonmodel.LocationVo {
-	return ua.location
+func (ua *UnitAgg) GetPosition() commonmodel.PositionVo {
+	return ua.position
 }
 
 func (ua *UnitAgg) GetItemId() itemmodel.ItemIdVo {

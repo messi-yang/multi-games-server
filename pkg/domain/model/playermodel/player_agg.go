@@ -9,16 +9,16 @@ type PlayerAgg struct {
 	id        PlayerIdVo
 	gameId    gamemodel.GameIdVo
 	name      string
-	location  commonmodel.LocationVo
+	position  commonmodel.PositionVo
 	direction commonmodel.DirectionVo
 }
 
-func NewPlayerAgg(id PlayerIdVo, gameId gamemodel.GameIdVo, name string, location commonmodel.LocationVo, direction commonmodel.DirectionVo) PlayerAgg {
+func NewPlayerAgg(id PlayerIdVo, gameId gamemodel.GameIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo) PlayerAgg {
 	return PlayerAgg{
 		id:        id,
 		gameId:    gameId,
 		name:      name,
-		location:  location,
+		position:  position,
 		direction: direction,
 	}
 }
@@ -35,12 +35,12 @@ func (p *PlayerAgg) GetName() string {
 	return p.name
 }
 
-func (p *PlayerAgg) GetLocation() commonmodel.LocationVo {
-	return p.location
+func (p *PlayerAgg) GetPosition() commonmodel.PositionVo {
+	return p.position
 }
 
-func (p *PlayerAgg) SetLocation(location commonmodel.LocationVo) {
-	p.location = location
+func (p *PlayerAgg) SetPosition(position commonmodel.PositionVo) {
+	p.position = position
 }
 
 func (p *PlayerAgg) GetDirection() commonmodel.DirectionVo {
@@ -52,22 +52,22 @@ func (p *PlayerAgg) SetDirection(direction commonmodel.DirectionVo) {
 }
 
 func (p *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
-	playerLocation := p.GetLocation()
+	playerPosition := p.GetPosition()
 
-	fromX := playerLocation.GetX() - 35
-	toX := playerLocation.GetX() + 35
+	fromX := playerPosition.GetX() - 35
+	toX := playerPosition.GetX() + 35
 
-	fromY := playerLocation.GetZ() - 35
-	toY := playerLocation.GetZ() + 35
+	fromY := playerPosition.GetZ() - 35
+	toY := playerPosition.GetZ() + 35
 
-	from := commonmodel.NewLocationVo(fromX, fromY)
-	to := commonmodel.NewLocationVo(toX, toY)
+	from := commonmodel.NewPositionVo(fromX, fromY)
+	to := commonmodel.NewPositionVo(toX, toY)
 	bound, _ := commonmodel.NewBoundVo(from, to)
 
 	return bound
 }
 
-func (p *PlayerAgg) CanSeeAnyLocations(locations []commonmodel.LocationVo) bool {
+func (p *PlayerAgg) CanSeeAnyPositions(positions []commonmodel.PositionVo) bool {
 	bound := p.GetVisionBound()
-	return bound.CoverAnyLocations(locations)
+	return bound.CoverAnyPositions(positions)
 }

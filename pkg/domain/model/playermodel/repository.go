@@ -14,8 +14,8 @@ var (
 type Repo interface {
 	Add(PlayerAgg) error
 	Get(PlayerIdVo) (PlayerAgg, error)
-	GetPlayerAt(gamemodel.GameIdVo, commonmodel.LocationVo) (PlayerAgg, bool, error)
-	GetPlayersAround(gamemodel.GameIdVo, commonmodel.LocationVo) ([]PlayerAgg, error)
+	GetPlayerAt(gamemodel.GameIdVo, commonmodel.PositionVo) (PlayerAgg, bool, error)
+	GetPlayersAround(gamemodel.GameIdVo, commonmodel.PositionVo) ([]PlayerAgg, error)
 	Update(PlayerAgg) error
 	Delete(PlayerIdVo) error
 }

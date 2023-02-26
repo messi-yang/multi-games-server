@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	ErrSomeLocationsNotIncludedInMap = errors.New("some locations are not included in the unit map")
-	ErrLocationHasPlayer             = errors.New("the location has player")
+	ErrSomePositionsNotIncludedInMap = errors.New("some positions are not included in the unit map")
+	ErrPositionHasPlayer             = errors.New("the position has player")
 	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )

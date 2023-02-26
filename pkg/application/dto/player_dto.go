@@ -5,7 +5,7 @@ import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/play
 type PlayerDto struct {
 	Id        string      `json:"id"`
 	Name      string      `json:"name"`
-	Location  LocationDto `json:"location"`
+	Position  PositionDto `json:"position"`
 	Direction int8        `json:"direction"`
 }
 
@@ -13,7 +13,7 @@ func NewPlayerDto(player playermodel.PlayerAgg) PlayerDto {
 	return PlayerDto{
 		Id:        player.GetId().ToString(),
 		Name:      player.GetName(),
-		Location:  NewLocationDto(player.GetLocation()),
+		Position:  NewPositionDto(player.GetPosition()),
 		Direction: player.GetDirection().ToInt8(),
 	}
 }

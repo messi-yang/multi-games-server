@@ -6,12 +6,12 @@ import (
 
 type UnitDto struct {
 	ItemId   int16       `json:"itemId"`
-	Location LocationDto `json:"location"`
+	Position PositionDto `json:"position"`
 }
 
 func NewUnitDto(unit unitmodel.UnitAgg) UnitDto {
 	return UnitDto{
 		ItemId:   unit.GetItemId().ToInt16(),
-		Location: NewLocationDto(unit.GetLocation()),
+		Position: NewPositionDto(unit.GetPosition()),
 	}
 }

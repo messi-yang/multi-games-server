@@ -33,8 +33,8 @@ func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	if err := repo.session.Query(
 		"INSERT INTO units (game_id, pos_x, pos_z, item_id) VALUES (?, ?, ?, ?)",
 		unit.GetGameId().ToString(),
-		unit.GetLocation().GetX(),
-		unit.GetLocation().GetZ(),
+		unit.GetPosition().GetX(),
+		unit.GetPosition().GetZ(),
 		unit.GetItemId().ToInt16(),
 	).Exec(); err != nil {
 		return err
@@ -42,12 +42,12 @@ func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	return nil
 }
 
-func (repo *unitRepo) GetUnitAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (unitmodel.UnitAgg, bool, error) {
+func (repo *unitRepo) GetUnitAt(gameId gamemodel.GameIdVo, position commonmodel.PositionVo) (unitmodel.UnitAgg, bool, error) {
 	iter := repo.session.Query(
 		"SELECT * FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ? LIMIT 1",
 		gameId.ToString(),
-		location.GetX(),
-		location.GetZ(),
+		position.GetX(),
+		position.GetZ(),
 	).Iter()
 	var unit *unitmodel.UnitAgg = nil
 	var rawGameId gocql.UUID
@@ -56,9 +56,9 @@ func (repo *unitRepo) GetUnitAt(gameId gamemodel.GameIdVo, location commonmodel.
 	var rawItemId int16
 	for iter.Scan(&rawGameId, &rawPosX, &rawPosZ, &rawItemId) {
 		parsedGameId, _ := gamemodel.NewGameIdVo(rawGameId.String())
-		location := commonmodel.NewLocationVo(rawPosX, rawPosZ)
+		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
 		itemId := itemmodel.NewItemIdVo(rawItemId)
-		unitFound := unitmodel.NewUnitAgg(parsedGameId, location, itemId)
+		unitFound := unitmodel.NewUnitAgg(parsedGameId, position, itemId)
 		unit = &unitFound
 	}
 	if err := iter.Close(); err != nil {
@@ -75,11 +75,11 @@ func (repo *unitRepo) GetUnitsInBound(gameId gamemodel.GameIdVo, bound commonmod
 	toX := bound.GetTo().GetX()
 	fromZ := bound.GetFrom().GetZ()
 	toZ := bound.GetTo().GetZ()
-	xLocations := lo.RangeFrom(fromX, toX-fromX+1)
+	xPositions := lo.RangeFrom(fromX, toX-fromX+1)
 	iter := repo.session.Query(
 		"SELECT game_id, pos_x, pos_z, item_id FROM units WHERE game_id = ? AND pos_x IN ? AND pos_z >= ? AND pos_z <= ?",
 		gameId.ToString(),
-		xLocations,
+		xPositions,
 		fromZ,
 		toZ,
 	).Iter()
@@ -90,9 +90,9 @@ func (repo *unitRepo) GetUnitsInBound(gameId gamemodel.GameIdVo, bound commonmod
 	var rawItemId int16
 	for iter.Scan(&rawGameId, &rawPosX, &rawPosZ, &rawItemId) {
 		parsedGameId, _ := gamemodel.NewGameIdVo(rawGameId.String())
-		location := commonmodel.NewLocationVo(rawPosX, rawPosZ)
+		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
 		itemId := itemmodel.NewItemIdVo(rawItemId)
-		units = append(units, unitmodel.NewUnitAgg(parsedGameId, location, itemId))
+		units = append(units, unitmodel.NewUnitAgg(parsedGameId, position, itemId))
 	}
 	if err := iter.Close(); err != nil {
 		return units, err
@@ -100,12 +100,12 @@ func (repo *unitRepo) GetUnitsInBound(gameId gamemodel.GameIdVo, bound commonmod
 	return units, nil
 }
 
-func (repo *unitRepo) Delete(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) error {
+func (repo *unitRepo) Delete(gameId gamemodel.GameIdVo, position commonmodel.PositionVo) error {
 	if err := repo.session.Query(
 		"DELETE FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ?",
 		gameId.ToString(),
-		location.GetX(),
-		location.GetZ(),
+		position.GetX(),
+		position.GetZ(),
 	).Exec(); err != nil {
 		return err
 	}

@@ -41,9 +41,9 @@ func (repo *playerMemRepo) Get(playerId playermodel.PlayerIdVo) (playermodel.Pla
 	return foundPlayer, nil
 }
 
-func (repo *playerMemRepo) GetPlayerAt(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) (playermodel.PlayerAgg, bool, error) {
+func (repo *playerMemRepo) GetPlayerAt(gameId gamemodel.GameIdVo, position commonmodel.PositionVo) (playermodel.PlayerAgg, bool, error) {
 	foundPlayer, found := lo.Find(repo.players, func(player playermodel.PlayerAgg) bool {
-		return player.GetGameId().IsEqual(gameId) && player.GetLocation().IsEqual(location)
+		return player.GetGameId().IsEqual(gameId) && player.GetPosition().IsEqual(position)
 	})
 	if !found {
 		return playermodel.PlayerAgg{}, false, nil
@@ -51,9 +51,9 @@ func (repo *playerMemRepo) GetPlayerAt(gameId gamemodel.GameIdVo, location commo
 	return foundPlayer, true, nil
 }
 
-func (repo *playerMemRepo) GetPlayersAround(gameId gamemodel.GameIdVo, location commonmodel.LocationVo) ([]playermodel.PlayerAgg, error) {
+func (repo *playerMemRepo) GetPlayersAround(gameId gamemodel.GameIdVo, position commonmodel.PositionVo) ([]playermodel.PlayerAgg, error) {
 	return lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
-		return player.GetGameId().IsEqual(gameId) && player.CanSeeAnyLocations([]commonmodel.LocationVo{location})
+		return player.GetGameId().IsEqual(gameId) && player.CanSeeAnyPositions([]commonmodel.PositionVo{position})
 	}), nil
 	return nil, nil
 }
