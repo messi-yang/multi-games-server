@@ -85,17 +85,17 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 		for {
 			_, compressedMessage, err := socketConn.ReadMessage()
 			if err != nil {
-				disconnect()
+				return
 			}
 
 			message, err := gzip.Ungzip(compressedMessage)
 			if err != nil {
-				disconnect()
+				return
 			}
 
 			genericRequestDto, err := json.Unmarshal[gamesocketappservice.GenericRequestDto](message)
 			if err != nil {
-				disconnect()
+				return
 			}
 
 			switch genericRequestDto.Type {
@@ -104,7 +104,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.MoveRequestDtoType:
 				requestDto, err := json.Unmarshal[gamesocketappservice.MoveRequestDto](message)
 				if err != nil {
-					disconnect()
+					return
 				}
 
 				controller.gameAppService.MovePlayer(socketPresenter, gamesocketappservice.MovePlayerCommand{
@@ -115,7 +115,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.PlaceItemRequestDtoType:
 				requestDto, err := json.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
 				if err != nil {
-					disconnect()
+					return
 				}
 
 				controller.gameAppService.PlaceItem(socketPresenter, gamesocketappservice.PlaceItemCommand{
