@@ -1,6 +1,3 @@
-BUILD_FOLDER=dist
-BINARY_NAME=game-of-liberty
-
 # .PHONY: init-cassandra
 init-cassandra:
 	cqlsh ${CASSANDRA_HOST} -f ./db/cassandra/init.cql
