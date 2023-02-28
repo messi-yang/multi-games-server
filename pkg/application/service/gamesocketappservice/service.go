@@ -7,18 +7,18 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/tool"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
 type Service interface {
-	CreateGame(userIdDto string) error
+	CreateWorld(userIdDto string) error
 	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery)
 	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery)
 	AddPlayer(presenter Presenter, command AddPlayerCommand)
@@ -30,21 +30,21 @@ type Service interface {
 
 type serve struct {
 	IntEventPublisher intevent.IntEventPublisher
-	gameRepo          gamemodel.Repo
+	worldRepo         worldmodel.Repo
 	playerRepo        playermodel.Repo
 	unitRepo          unitmodel.Repo
 	itemRepo          itemmodel.Repo
 	gameService       service.GameService
 }
 
-func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
+func NewService(IntEventPublisher intevent.IntEventPublisher, worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
 	return &serve{
 		IntEventPublisher: IntEventPublisher,
-		gameRepo:          gameRepo,
+		worldRepo:         worldRepo,
 		playerRepo:        playerRepo,
 		unitRepo:          unitRepo,
 		itemRepo:          itemRepo,
-		gameService:       service.NewGameService(gameRepo, playerRepo, unitRepo, itemRepo),
+		gameService:       service.NewGameService(worldRepo, playerRepo, unitRepo, itemRepo),
 	}
 }
 
@@ -55,9 +55,9 @@ func (serve *serve) presentError(presenter Presenter, err error) {
 	})
 }
 
-func (serve *serve) publishUnitsUpdatedEventTo(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo) {
+func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) {
 	serve.IntEventPublisher.Publish(
-		NewUnitsUpdatedIntEventChannel(gameId.ToString(), playerId.ToString()),
+		NewUnitsUpdatedIntEventChannel(worldId.ToString(), playerId.ToString()),
 		UnitsUpdatedIntEvent{},
 	)
 }
@@ -68,49 +68,49 @@ func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.P
 		return
 	}
 
-	players, err := serve.playerRepo.GetPlayersAround(player.GetGameId(), player.GetPosition())
+	players, err := serve.playerRepo.GetPlayersAround(player.GetWorldId(), player.GetPosition())
 	if err != nil {
 		return
 	}
 
 	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
-		serve.publishUnitsUpdatedEventTo(player.GetGameId(), player.GetId())
+		serve.publishUnitsUpdatedEventTo(player.GetWorldId(), player.GetId())
 	})
 }
 
-func (serve *serve) publishPlayersUpdatedEventToNearPlayers(gameId gamemodel.GameIdVo, playerId playermodel.PlayerIdVo) {
+func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) {
 	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return
 	}
 
-	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetPosition())
+	players, err := serve.playerRepo.GetPlayersAround(worldId, player.GetPosition())
 	if err != nil {
 		return
 	}
 
 	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
 		serve.IntEventPublisher.Publish(
-			NewPlayersUpdatedIntEventChannel(gameId.ToString(), player.GetId().ToString()),
+			NewPlayersUpdatedIntEventChannel(worldId.ToString(), player.GetId().ToString()),
 			PlayersUpdatedIntEvent{},
 		)
 	})
 }
 
 func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) {
-	gameId, playerId, err := query.Validate()
+	worldId, playerId, err := query.Validate()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.gameRepo.LockAccess(gameId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
 	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
-	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetPosition())
+	players, err := serve.playerRepo.GetPlayersAround(worldId, player.GetPosition())
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -124,12 +124,12 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 }
 
 func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) {
-	gameId, playerId, err := query.Validate()
+	worldId, playerId, err := query.Validate()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.gameRepo.LockAccess(gameId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
 	player, err := serve.playerRepo.Get(playerId)
@@ -138,7 +138,7 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	}
 
 	playerVisionBound := player.GetVisionBound()
-	units, err := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
+	units, err := serve.unitRepo.GetUnitsInBound(worldId, playerVisionBound)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -152,16 +152,16 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	})
 }
 
-func (serve *serve) CreateGame(userIdDto string) error {
+func (serve *serve) CreateWorld(userIdDto string) error {
 	userId, err := usermodel.ParseUserIdVo(userIdDto)
 	if err != nil {
 		return err
 	}
 
-	gameId, _ := gamemodel.NewGameIdVo(uuid.New().String())
+	worldId, _ := worldmodel.NewWorldIdVo(uuid.New().String())
 
-	game, _ := serve.gameRepo.GetByUserId(userId)
-	if game != nil {
+	world, _ := serve.worldRepo.GetByUserId(userId)
+	if world != nil {
 		return nil
 	}
 
@@ -170,14 +170,14 @@ func (serve *serve) CreateGame(userIdDto string) error {
 		randomInt := rand.Intn(100)
 		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {
-			newUnit := unitmodel.NewUnitAgg(gameId, position, items[randomInt].GetId())
+			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId())
 			serve.unitRepo.Add(newUnit)
 		}
 	})
 
-	newGame := gamemodel.NewGameAgg(gameId, userId)
+	newWorld := worldmodel.NewWorldAgg(worldId, userId)
 
-	err = serve.gameRepo.Add(newGame)
+	err = serve.worldRepo.Add(newWorld)
 	if err != nil {
 		return err
 	}
@@ -186,16 +186,16 @@ func (serve *serve) CreateGame(userIdDto string) error {
 }
 
 func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
-	gameId, playerId, err := command.Validate()
+	worldId, playerId, err := command.Validate()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.gameRepo.LockAccess(gameId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
 	direction, _ := commonmodel.NewDirectionVo(2)
-	newPlayer := playermodel.NewPlayerAgg(playerId, gameId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
+	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
 
 	err = serve.playerRepo.Add(newPlayer)
 	if err != nil {
@@ -207,7 +207,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		return dto.NewItemDto(item)
 	})
 
-	players, err := serve.playerRepo.GetPlayersAround(gameId, newPlayer.GetPosition())
+	players, err := serve.playerRepo.GetPlayersAround(worldId, newPlayer.GetPosition())
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -217,7 +217,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 	})
 
 	playerVisionBound := newPlayer.GetVisionBound()
-	units, err := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
+	units, err := serve.unitRepo.GetUnitsInBound(worldId, playerVisionBound)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -233,34 +233,34 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		}),
 	})
 
-	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
+	serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
 }
 
 func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) {
-	gameId, playerId, direction, err := command.Validate()
+	worldId, playerId, direction, err := command.Validate()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.gameRepo.LockAccess(gameId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	err = serve.gameService.MovePlayer(gameId, playerId, direction)
+	err = serve.gameService.MovePlayer(worldId, playerId, direction)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
-	serve.publishUnitsUpdatedEventTo(gameId, playerId)
+	serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	serve.publishUnitsUpdatedEventTo(worldId, playerId)
 }
 
 func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerCommand) {
-	gameId, playerId, err := command.Validate()
+	worldId, playerId, err := command.Validate()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.gameRepo.LockAccess(gameId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
 	err = serve.playerRepo.Delete(playerId)
@@ -268,19 +268,19 @@ func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerComman
 		serve.presentError(presenter, err)
 	}
 
-	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
+	serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
 }
 
 func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) {
-	gameId, playerId, itemId, err := command.Validate()
+	worldId, playerId, itemId, err := command.Validate()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.gameRepo.LockAccess(gameId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	err = serve.gameService.PlaceItem(gameId, playerId, itemId)
+	err = serve.gameService.PlaceItem(worldId, playerId, itemId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -289,15 +289,15 @@ func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) {
 }
 
 func (serve *serve) DestroyItem(presenter Presenter, command DestroyItemCommand) {
-	gameId, playerId, err := command.Validate()
+	worldId, playerId, err := command.Validate()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.gameRepo.LockAccess(gameId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	err = serve.gameService.DestroyItem(gameId, playerId)
+	err = serve.gameService.DestroyItem(worldId, playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}

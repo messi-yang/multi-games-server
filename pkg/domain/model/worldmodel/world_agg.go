@@ -1,4 +1,4 @@
-package gamemodel
+package worldmodel
 
 import (
 	"errors"
@@ -13,28 +13,28 @@ var (
 	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
 
-type GameAgg struct {
-	id     GameIdVo
+type WorldAgg struct {
+	id     WorldIdVo
 	userId usermodel.UserIdVo
 	name   string
 }
 
-func NewGameAgg(id GameIdVo, userId usermodel.UserIdVo) GameAgg {
-	return GameAgg{
+func NewWorldAgg(id WorldIdVo, userId usermodel.UserIdVo) WorldAgg {
+	return WorldAgg{
 		id:     id,
 		userId: userId,
 		name:   "Hello World",
 	}
 }
 
-func (game *GameAgg) GetId() GameIdVo {
-	return game.id
+func (agg *WorldAgg) GetId() WorldIdVo {
+	return agg.id
 }
 
-func (game *GameAgg) GetUserId() usermodel.UserIdVo {
-	return game.userId
+func (agg *WorldAgg) GetUserId() usermodel.UserIdVo {
+	return agg.userId
 }
 
-func (game *GameAgg) GetName() string {
-	return game.name
+func (agg *WorldAgg) GetName() string {
+	return agg.name
 }

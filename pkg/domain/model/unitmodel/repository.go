@@ -2,12 +2,12 @@ package unitmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
 type Repo interface {
 	Add(unit UnitAgg) error
-	GetUnitAt(gameId gamemodel.GameIdVo, position commonmodel.PositionVo) (UnitAgg, bool, error)
-	GetUnitsInBound(gameId gamemodel.GameIdVo, bound commonmodel.BoundVo) ([]UnitAgg, error)
-	Delete(gameId gamemodel.GameIdVo, position commonmodel.PositionVo) error
+	GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (UnitAgg, bool, error)
+	GetUnitsInBound(worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo) ([]UnitAgg, error)
+	Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error
 }

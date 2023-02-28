@@ -46,17 +46,17 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 		closeConnFlag <- true
 	}
 
-	gameIdDto := c.Request.URL.Query().Get("id")
+	worldIdDto := c.Request.URL.Query().Get("id")
 
 	playerIdDto := uuid.New().String()
 
 	socketPresenter := newPresenter(socketConn, &sync.RWMutex{})
 
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent]().Subscribe(
-		gamesocketappservice.NewPlayersUpdatedIntEventChannel(gameIdDto, playerIdDto),
+		gamesocketappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.PlayersUpdatedIntEvent) {
 			controller.gameAppService.GetPlayersAroundPlayer(socketPresenter, gamesocketappservice.GetPlayersQuery{
-				GameId:   gameIdDto,
+				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
 		},
@@ -64,10 +64,10 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	defer playersUpdatedIntEventUnsubscriber()
 
 	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent]().Subscribe(
-		gamesocketappservice.NewUnitsUpdatedIntEventChannel(gameIdDto, playerIdDto),
+		gamesocketappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.UnitsUpdatedIntEvent) {
 			controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
-				GameId:   gameIdDto,
+				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
 		},
@@ -75,7 +75,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	defer unitsUpdatedIntEventTypeUnsubscriber()
 
 	controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
-		GameId:   gameIdDto,
+		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
 
@@ -108,7 +108,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 				}
 
 				controller.gameAppService.MovePlayer(socketPresenter, gamesocketappservice.MovePlayerCommand{
-					GameId:    gameIdDto,
+					WorldId:   worldIdDto,
 					PlayerId:  playerIdDto,
 					Direction: requestDto.Direction,
 				})
@@ -119,13 +119,13 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 				}
 
 				controller.gameAppService.PlaceItem(socketPresenter, gamesocketappservice.PlaceItemCommand{
-					GameId:   gameIdDto,
+					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 					ItemId:   requestDto.ItemId,
 				})
 			case gamesocketappservice.DestroyItemRequestDtoType:
 				controller.gameAppService.DestroyItem(socketPresenter, gamesocketappservice.DestroyItemCommand{
-					GameId:   gameIdDto,
+					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 				})
 			default:
@@ -137,7 +137,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 		<-closeConnFlag
 
 		controller.gameAppService.RemovePlayer(socketPresenter, gamesocketappservice.RemovePlayerCommand{
-			GameId:   gameIdDto,
+			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		})
 		return

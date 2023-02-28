@@ -1,42 +1,42 @@
 package gamesocketappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
 type GetPlayersQuery struct {
-	GameId   string
+	WorldId  string
 	PlayerId string
 }
 
-func (query GetPlayersQuery) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, error) {
-	gameId, err := gamemodel.NewGameIdVo(query.GameId)
+func (query GetPlayersQuery) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
+	worldId, err := worldmodel.NewWorldIdVo(query.WorldId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 	playerId, err := playermodel.NewPlayerIdVo(query.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 
-	return gameId, playerId, nil
+	return worldId, playerId, nil
 }
 
 type GetUnitsVisibleByPlayerQuery struct {
-	GameId   string
+	WorldId  string
 	PlayerId string
 }
 
-func (query GetUnitsVisibleByPlayerQuery) Validate() (gamemodel.GameIdVo, playermodel.PlayerIdVo, error) {
-	gameId, err := gamemodel.NewGameIdVo(query.GameId)
+func (query GetUnitsVisibleByPlayerQuery) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
+	worldId, err := worldmodel.NewWorldIdVo(query.WorldId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 	playerId, err := playermodel.NewPlayerIdVo(query.PlayerId)
 	if err != nil {
-		return gamemodel.GameIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}
 
-	return gameId, playerId, nil
+	return worldId, playerId, nil
 }

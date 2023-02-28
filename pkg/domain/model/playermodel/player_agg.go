@@ -2,21 +2,21 @@ package playermodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
 type PlayerAgg struct {
 	id        PlayerIdVo
-	gameId    gamemodel.GameIdVo
+	worldId   worldmodel.WorldIdVo
 	name      string
 	position  commonmodel.PositionVo
 	direction commonmodel.DirectionVo
 }
 
-func NewPlayerAgg(id PlayerIdVo, gameId gamemodel.GameIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo) PlayerAgg {
+func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo) PlayerAgg {
 	return PlayerAgg{
 		id:        id,
-		gameId:    gameId,
+		worldId:   worldId,
 		name:      name,
 		position:  position,
 		direction: direction,
@@ -27,8 +27,8 @@ func (p *PlayerAgg) GetId() PlayerIdVo {
 	return p.id
 }
 
-func (p *PlayerAgg) GetGameId() gamemodel.GameIdVo {
-	return p.gameId
+func (p *PlayerAgg) GetWorldId() worldmodel.WorldIdVo {
+	return p.worldId
 }
 
 func (p *PlayerAgg) GetName() string {

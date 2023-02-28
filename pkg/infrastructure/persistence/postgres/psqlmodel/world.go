@@ -3,7 +3,7 @@ package psqlmodel
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/google/uuid"
 )
 
@@ -20,14 +20,14 @@ func (WorldModel) TableName() string {
 	return "worlds"
 }
 
-func NewWorldModel(game gamemodel.GameAgg) WorldModel {
+func NewWorldModel(world worldmodel.WorldAgg) WorldModel {
 	return WorldModel{
-		Id:     game.GetId().Uuid(),
-		UserId: game.GetUserId().Uuid(),
-		Name:   game.GetName(),
+		Id:     world.GetId().Uuid(),
+		UserId: world.GetUserId().Uuid(),
+		Name:   world.GetName(),
 	}
 }
 
-func (gamePostgresModel WorldModel) ToAggregate() gamemodel.GameAgg {
-	return gamemodel.GameAgg{}
+func (worldPostgresModel WorldModel) ToAggregate() worldmodel.WorldAgg {
+	return worldmodel.WorldAgg{}
 }

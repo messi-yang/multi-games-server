@@ -25,7 +25,7 @@ func main() {
 
 	itemRepo := memrepo.NewItemMemRepo()
 	playerRepo := memrepo.NewPlayerMemRepo()
-	gameRepo, err := postgres.NewGameRepo()
+	worldRepo, err := postgres.NewWorldRepo()
 	if err != nil {
 		panic(err)
 	}
@@ -44,10 +44,10 @@ func main() {
 		// panic(err)
 	}
 
-	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, gameRepo, playerRepo, unitRepo, itemRepo)
+	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepo, playerRepo, unitRepo, itemRepo)
 	gameSocketApiController := gamesocketapi.NewController(gameSocketAppService)
 
-	err = gameSocketAppService.CreateGame(userId.String())
+	err = gameSocketAppService.CreateWorld(userId.String())
 	if err != nil {
 		fmt.Println(err)
 	}

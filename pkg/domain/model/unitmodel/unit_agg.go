@@ -2,26 +2,26 @@ package unitmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/gamemodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
 type UnitAgg struct {
-	gameId   gamemodel.GameIdVo
+	worldId  worldmodel.WorldIdVo
 	position commonmodel.PositionVo
 	itemId   itemmodel.ItemIdVo
 }
 
 func NewUnitAgg(
-	gameId gamemodel.GameIdVo,
+	worldId worldmodel.WorldIdVo,
 	position commonmodel.PositionVo,
 	itemId itemmodel.ItemIdVo,
 ) UnitAgg {
-	return UnitAgg{gameId: gameId, position: position, itemId: itemId}
+	return UnitAgg{worldId: worldId, position: position, itemId: itemId}
 }
 
-func (ua *UnitAgg) GetGameId() gamemodel.GameIdVo {
-	return ua.gameId
+func (ua *UnitAgg) GetWorldId() worldmodel.WorldIdVo {
+	return ua.worldId
 }
 
 func (ua *UnitAgg) GetPosition() commonmodel.PositionVo {
