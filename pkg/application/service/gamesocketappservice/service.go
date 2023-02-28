@@ -19,14 +19,13 @@ import (
 
 type Service interface {
 	CreateGame(userIdDto string) error
-	GetError(presenter Presenter, errorMessage string)
-	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error
-	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
-	AddPlayer(presenter Presenter, command AddPlayerCommand) error
-	MovePlayer(presenter Presenter, command MovePlayerCommand) error
-	RemovePlayer(command RemovePlayerCommand) error
-	PlaceItem(command PlaceItemCommand) error
-	DestroyItem(command DestroyItemCommand) error
+	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery)
+	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery)
+	AddPlayer(presenter Presenter, command AddPlayerCommand)
+	MovePlayer(presenter Presenter, command MovePlayerCommand)
+	RemovePlayer(presenter Presenter, command RemovePlayerCommand)
+	PlaceItem(presenter Presenter, command PlaceItemCommand)
+	DestroyItem(presenter Presenter, command DestroyItemCommand)
 }
 
 type serve struct {
@@ -49,10 +48,10 @@ func NewService(IntEventPublisher intevent.IntEventPublisher, gameRepo gamemodel
 	}
 }
 
-func (serve *serve) GetError(presenter Presenter, errorMessage string) {
+func (serve *serve) presentError(presenter Presenter, err error) {
 	presenter.OnMessage(ErroredResponseDto{
 		Type:          ErroredResponseDtoType,
-		ClientMessage: errorMessage,
+		ClientMessage: err.Error(),
 	})
 }
 
@@ -98,10 +97,10 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(gameId gamemodel.Gam
 	})
 }
 
-func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error {
+func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) {
 	gameId, playerId, err := query.Validate()
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	unlocker := serve.gameRepo.LockAccess(gameId)
@@ -109,11 +108,11 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 
 	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 	players, err := serve.playerRepo.GetPlayersAround(gameId, player.GetPosition())
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	presenter.OnMessage(PlayersUpdatedResponseDto{
@@ -122,14 +121,12 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 			return dto.NewPlayerDto(player)
 		}),
 	})
-
-	return nil
 }
 
-func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error {
+func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) {
 	gameId, playerId, err := query.Validate()
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	unlocker := serve.gameRepo.LockAccess(gameId)
@@ -137,13 +134,13 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 
 	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	playerVisionBound := player.GetVisionBound()
 	units, err := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	presenter.OnMessage(UnitsUpdatedResponseDto{
@@ -153,8 +150,6 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 			return dto.NewUnitDto(unit)
 		}),
 	})
-
-	return nil
 }
 
 func (serve *serve) CreateGame(userIdDto string) error {
@@ -190,10 +185,10 @@ func (serve *serve) CreateGame(userIdDto string) error {
 	return nil
 }
 
-func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) error {
+func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 	gameId, playerId, err := command.Validate()
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	unlocker := serve.gameRepo.LockAccess(gameId)
@@ -204,7 +199,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 
 	err = serve.playerRepo.Add(newPlayer)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	items := serve.itemRepo.GetAll()
@@ -214,7 +209,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 
 	players, err := serve.playerRepo.GetPlayersAround(gameId, newPlayer.GetPosition())
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	playerDtos := lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerDto {
@@ -224,7 +219,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	playerVisionBound := newPlayer.GetVisionBound()
 	units, err := serve.unitRepo.GetUnitsInBound(gameId, playerVisionBound)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	presenter.OnMessage(GameJoinedResponseDto{
@@ -239,14 +234,12 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	})
 
 	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
-
-	return nil
 }
 
-func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) error {
+func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) {
 	gameId, playerId, direction, err := command.Validate()
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	unlocker := serve.gameRepo.LockAccess(gameId)
@@ -254,19 +247,17 @@ func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) e
 
 	err = serve.gameService.MovePlayer(gameId, playerId, direction)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
 	serve.publishUnitsUpdatedEventTo(gameId, playerId)
-
-	return nil
 }
 
-func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
+func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerCommand) {
 	gameId, playerId, err := command.Validate()
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	unlocker := serve.gameRepo.LockAccess(gameId)
@@ -274,18 +265,16 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 
 	err = serve.playerRepo.Delete(playerId)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	serve.publishPlayersUpdatedEventToNearPlayers(gameId, playerId)
-
-	return nil
 }
 
-func (serve *serve) PlaceItem(command PlaceItemCommand) error {
+func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) {
 	gameId, playerId, itemId, err := command.Validate()
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	unlocker := serve.gameRepo.LockAccess(gameId)
@@ -293,18 +282,16 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 
 	err = serve.gameService.PlaceItem(gameId, playerId, itemId)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	serve.publishUnitsUpdatedEventToNearPlayers(playerId)
-
-	return nil
 }
 
-func (serve *serve) DestroyItem(command DestroyItemCommand) error {
+func (serve *serve) DestroyItem(presenter Presenter, command DestroyItemCommand) {
 	gameId, playerId, err := command.Validate()
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	unlocker := serve.gameRepo.LockAccess(gameId)
@@ -312,10 +299,8 @@ func (serve *serve) DestroyItem(command DestroyItemCommand) error {
 
 	err = serve.gameService.DestroyItem(gameId, playerId)
 	if err != nil {
-		return err
+		serve.presentError(presenter, err)
 	}
 
 	serve.publishUnitsUpdatedEventToNearPlayers(playerId)
-
-	return nil
 }

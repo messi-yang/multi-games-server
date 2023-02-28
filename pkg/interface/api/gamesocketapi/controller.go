@@ -42,6 +42,9 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	defer socketConn.Close()
 
 	closeConnFlag := make(chan bool)
+	disconnect := func() {
+		closeConnFlag <- true
+	}
 
 	gameIdDto := c.Request.URL.Query().Get("id")
 
@@ -71,36 +74,28 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	)
 	defer unitsUpdatedIntEventTypeUnsubscriber()
 
-	err = controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
+	controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
 		GameId:   gameIdDto,
 		PlayerId: playerIdDto,
 	})
-	if err != nil {
-		return
-	}
 
 	go func() {
-		defer func() {
-			closeConnFlag <- true
-		}()
+		defer disconnect()
 
 		for {
 			_, compressedMessage, err := socketConn.ReadMessage()
 			if err != nil {
-				controller.gameAppService.GetError(socketPresenter, err.Error())
-				return
+				disconnect()
 			}
 
 			message, err := gzip.Ungzip(compressedMessage)
 			if err != nil {
-				controller.gameAppService.GetError(socketPresenter, err.Error())
-				continue
+				disconnect()
 			}
 
 			genericRequestDto, err := json.Unmarshal[gamesocketappservice.GenericRequestDto](message)
 			if err != nil {
-				controller.gameAppService.GetError(socketPresenter, err.Error())
-				continue
+				disconnect()
 			}
 
 			switch genericRequestDto.Type {
@@ -109,8 +104,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.MoveRequestDtoType:
 				requestDto, err := json.Unmarshal[gamesocketappservice.MoveRequestDto](message)
 				if err != nil {
-					controller.gameAppService.GetError(socketPresenter, err.Error())
-					continue
+					disconnect()
 				}
 
 				controller.gameAppService.MovePlayer(socketPresenter, gamesocketappservice.MovePlayerCommand{
@@ -121,17 +115,16 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.PlaceItemRequestDtoType:
 				requestDto, err := json.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
 				if err != nil {
-					controller.gameAppService.GetError(socketPresenter, err.Error())
-					continue
+					disconnect()
 				}
 
-				controller.gameAppService.PlaceItem(gamesocketappservice.PlaceItemCommand{
+				controller.gameAppService.PlaceItem(socketPresenter, gamesocketappservice.PlaceItemCommand{
 					GameId:   gameIdDto,
 					PlayerId: playerIdDto,
 					ItemId:   requestDto.ItemId,
 				})
 			case gamesocketappservice.DestroyItemRequestDtoType:
-				controller.gameAppService.DestroyItem(gamesocketappservice.DestroyItemCommand{
+				controller.gameAppService.DestroyItem(socketPresenter, gamesocketappservice.DestroyItemCommand{
 					GameId:   gameIdDto,
 					PlayerId: playerIdDto,
 				})
@@ -143,7 +136,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.gameAppService.RemovePlayer(gamesocketappservice.RemovePlayerCommand{
+		controller.gameAppService.RemovePlayer(socketPresenter, gamesocketappservice.RemovePlayerCommand{
 			GameId:   gameIdDto,
 			PlayerId: playerIdDto,
 		})
