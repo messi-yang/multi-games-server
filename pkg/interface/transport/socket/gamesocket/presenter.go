@@ -1,4 +1,4 @@
-package gamesocketapi
+package gamesocket
 
 import (
 	"encoding/json"

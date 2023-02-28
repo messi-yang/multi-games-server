@@ -9,7 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/cassandra"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/api/gamesocketapi"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/socket/gamesocket"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -45,14 +45,14 @@ func main() {
 	}
 
 	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepo, playerRepo, unitRepo, itemRepo)
-	gameSocketApiController := gamesocketapi.NewController(gameSocketAppService)
+	gameSocketApiController := gamesocket.NewController(gameSocketAppService)
 
 	err = gameSocketAppService.CreateWorld(userId.String())
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	router.Static("/assets", "./pkg/interface/assets")
+	router.Static("/assets", "./pkg/interface/transport/assets")
 	router.Group("/ws/game").GET("/", gameSocketApiController.HandleGameConnection)
 	router.Run()
 
