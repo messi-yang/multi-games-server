@@ -14,7 +14,7 @@ We follow [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_des
 docker-compose up
 ```
 
-## Database
+## Cassandra Database
 
 ### Initialize Cassandra
 
@@ -34,14 +34,34 @@ docker compose exec web make connect-cassandra
 
 ### Plan New Cassandra Migration
 
-Create new Cassandra migration file, do not forget to run the `start-cassandra-migrate` below to do the migration after the file is completed.
+Create new Cassandra migration file.
+
+> do not forget to run the `cassandra-migrate-up` below to do the migration after the file is completed.
 
 ```bash
-docker compose exec web make create-cassandra-migrate-file FILE_NAME=${file_name_in_snake_case}
+docker compose exec web make plan-cassandra-migrate FILE_NAME=${file_name_in_snake_case}
 ```
 
 ### Start Migrating Cassandra
 
 ```bash
-docker compose exec web make start-cassandra-migrate
+docker compose exec web make cassandra-migrate-up
+```
+
+## Postgres Database
+
+### Plan New Postgres Migration
+
+Create new Postgres migration file.
+
+> do not forget to run the `postgres-migrate-up` below to do the migration after the file is completed.
+
+```bash
+docker compose exec web make plan-postgres-migrate FILE_NAME=${file_name_in_snake_case}
+```
+
+### Start Migrating Postgres
+
+```bash
+docker compose exec web make postgres-migrate-up
 ```

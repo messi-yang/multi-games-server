@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/intevent/redisinteventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/cassandra"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/api/gamesocketapi"
 
 	"github.com/gin-contrib/cors"
@@ -23,16 +25,29 @@ func main() {
 
 	itemRepo := memrepo.NewItemMemRepo()
 	playerRepo := memrepo.NewPlayerMemRepo()
-	gameRepo := memrepo.NewGameMemRepo()
+	gameRepo, err := postgres.NewGameRepo()
+	if err != nil {
+		panic(err)
+	}
 	unitRepo, err := cassandra.NewUnitRepo()
 	if err != nil {
 		panic(err)
+	}
+	userRepo, err := postgres.NewUserRepo()
+	if err != nil {
+		panic(err)
+	}
+	userId, _ := usermodel.ParseUserIdVo("d169faa5-c078-42c2-8a42-cd1d43558c7b")
+	newUser := usermodel.NewUnitAgg(userId, "dumdumgenius@gmail.com", "DumDumGenius")
+	err = userRepo.Add(newUser)
+	if err != nil {
+		// panic(err)
 	}
 
 	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, gameRepo, playerRepo, unitRepo, itemRepo)
 	gameSocketApiController := gamesocketapi.NewController(gameSocketAppService)
 
-	err = gameSocketAppService.CreateGame("20716447-6514-4eac-bd05-e558ca72bf3c")
+	err = gameSocketAppService.CreateGame(userId.String())
 	if err != nil {
 		fmt.Println(err)
 	}

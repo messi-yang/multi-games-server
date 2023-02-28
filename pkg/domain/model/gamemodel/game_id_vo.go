@@ -24,3 +24,7 @@ func (gameId GameIdVo) IsEqual(otherGameId GameIdVo) bool {
 func (gameId GameIdVo) ToString() string {
 	return gameId.id.String()
 }
+
+func (gameId GameIdVo) Uuid() uuid.UUID {
+	return gameId.id
+}

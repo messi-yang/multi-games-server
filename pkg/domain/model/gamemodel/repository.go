@@ -1,8 +1,11 @@
 package gamemodel
 
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
+
 type Repo interface {
 	Add(GameAgg) error
-	Get(GameIdVo) (GameAgg, bool, error)
+	Get(GameIdVo) (*GameAgg, error)
+	GetByUserId(usermodel.UserIdVo) (*GameAgg, error)
 	Update(GameAgg) error
 	GetAll() ([]GameAgg, error)
 

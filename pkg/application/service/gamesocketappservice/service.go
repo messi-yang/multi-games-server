@@ -11,12 +11,14 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
 type Service interface {
-	CreateGame(gameIdDto string) error
+	CreateGame(userIdDto string) error
 	GetError(presenter Presenter, errorMessage string)
 	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error
 	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
@@ -155,17 +157,16 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	return nil
 }
 
-func (serve *serve) CreateGame(gameIdDto string) error {
-	gameId, err := gamemodel.NewGameIdVo(gameIdDto)
+func (serve *serve) CreateGame(userIdDto string) error {
+	userId, err := usermodel.ParseUserIdVo(userIdDto)
 	if err != nil {
 		return err
 	}
 
-	_, gameFound, err := serve.gameRepo.Get(gameId)
-	if err != nil {
-		return err
-	}
-	if gameFound {
+	gameId, _ := gamemodel.NewGameIdVo(uuid.New().String())
+
+	game, _ := serve.gameRepo.GetByUserId(userId)
+	if game != nil {
 		return nil
 	}
 
@@ -179,7 +180,7 @@ func (serve *serve) CreateGame(gameIdDto string) error {
 		}
 	})
 
-	newGame := gamemodel.NewGameAgg(gameId)
+	newGame := gamemodel.NewGameAgg(gameId, userId)
 
 	err = serve.gameRepo.Add(newGame)
 	if err != nil {

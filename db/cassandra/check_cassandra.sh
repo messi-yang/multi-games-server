@@ -14,4 +14,4 @@ done
 echo "Cassandra container is ready"
 
 make init-cassandra
-make start-cassandra-migrate
+make cassandra-migrate-up

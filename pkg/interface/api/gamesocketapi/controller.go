@@ -40,9 +40,10 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 		return
 	}
 	defer socketConn.Close()
+
 	closeConnFlag := make(chan bool)
 
-	gameIdDto := "20716447-6514-4eac-bd05-e558ca72bf3c"
+	gameIdDto := c.Request.URL.Query().Get("id")
 
 	playerIdDto := uuid.New().String()
 

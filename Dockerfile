@@ -13,7 +13,7 @@ RUN apt update
 RUN apt install cassandra -y
 
 # Install "migrate" https://github.com/golang-migrate/migrate
-RUN go install -tags 'cassandra' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+RUN go install -tags 'cassandra postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 # Install "air"
 RUN go install github.com/cosmtrek/air@latest
@@ -22,7 +22,7 @@ RUN go install github.com/cosmtrek/air@latest
 COPY . /app
 COPY /scripts /app/scripts
 
-RUN chmod -R +x /app/scripts/*
+# RUN chmod -R +x /app/scripts/*
 
 WORKDIR /app
 

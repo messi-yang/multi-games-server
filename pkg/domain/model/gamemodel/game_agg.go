@@ -2,6 +2,8 @@ package gamemodel
 
 import (
 	"errors"
+
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 )
 
 var (
@@ -12,15 +14,27 @@ var (
 )
 
 type GameAgg struct {
-	id GameIdVo
+	id     GameIdVo
+	userId usermodel.UserIdVo
+	name   string
 }
 
-func NewGameAgg(id GameIdVo) GameAgg {
+func NewGameAgg(id GameIdVo, userId usermodel.UserIdVo) GameAgg {
 	return GameAgg{
-		id: id,
+		id:     id,
+		userId: userId,
+		name:   "Hello World",
 	}
 }
 
 func (game *GameAgg) GetId() GameIdVo {
 	return game.id
+}
+
+func (game *GameAgg) GetUserId() usermodel.UserIdVo {
+	return game.userId
+}
+
+func (game *GameAgg) GetName() string {
+	return game.name
 }
