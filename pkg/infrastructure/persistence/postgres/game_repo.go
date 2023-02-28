@@ -20,17 +20,6 @@ func NewGameRepo() (gamemodel.Repo, error) {
 	return &gameRepo{gormDb: gormDb}, nil
 }
 
-func (repo *gameRepo) Get(id gamemodel.GameIdVo) (*gamemodel.GameAgg, error) {
-	gameModel := psqlmodel.WorldModel{Id: id.Uuid()}
-	result := repo.gormDb.First(&gameModel)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	game := gameModel.ToAggregate()
-	return &game, nil
-}
-
 func (repo *gameRepo) GetByUserId(userId usermodel.UserIdVo) (*gamemodel.GameAgg, error) {
 	gameModel := psqlmodel.WorldModel{UserId: userId.Uuid()}
 	result := repo.gormDb.First(&gameModel)
@@ -40,10 +29,6 @@ func (repo *gameRepo) GetByUserId(userId usermodel.UserIdVo) (*gamemodel.GameAgg
 
 	game := gameModel.ToAggregate()
 	return &game, nil
-}
-
-func (repo *gameRepo) Update(game gamemodel.GameAgg) error {
-	return nil
 }
 
 func (repo *gameRepo) GetAll() ([]gamemodel.GameAgg, error) {
