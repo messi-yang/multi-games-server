@@ -20,9 +20,9 @@ RUN go install github.com/cosmtrek/air@latest
 
 
 COPY . /app
-COPY /scripts /app/scripts
 
-# RUN chmod -R +x /app/scripts/*
+RUN chmod +x /app/db/cassandra/check_cassandra.sh
+RUN chmod +x /app/db/postgres/check_postgres.sh
 
 WORKDIR /app
 
