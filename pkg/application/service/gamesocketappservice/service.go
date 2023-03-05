@@ -57,7 +57,7 @@ func (serve *serve) presentError(presenter Presenter, err error) {
 
 func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) {
 	serve.IntEventPublisher.Publish(
-		NewUnitsUpdatedIntEventChannel(worldId.ToString(), playerId.ToString()),
+		NewUnitsUpdatedIntEventChannel(worldId.String(), playerId.String()),
 		UnitsUpdatedIntEvent{},
 	)
 }
@@ -91,7 +91,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 
 	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
 		serve.IntEventPublisher.Publish(
-			NewPlayersUpdatedIntEventChannel(worldId.ToString(), player.GetId().ToString()),
+			NewPlayersUpdatedIntEventChannel(worldId.String(), player.GetId().String()),
 			PlayersUpdatedIntEvent{},
 		)
 	})
@@ -158,7 +158,7 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	worldId, _ := worldmodel.NewWorldIdVo(uuid.New().String())
+	worldId, _ := worldmodel.ParseWorldIdVo(uuid.New().String())
 
 	world, _ := serve.worldRepo.GetByUserId(userId)
 	if world != nil {
@@ -225,7 +225,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 	presenter.OnMessage(GameJoinedResponseDto{
 		Type:        GameJoinedResponseDtoType,
 		Items:       itemDtos,
-		PlayerId:    playerId.ToString(),
+		PlayerId:    playerId.String(),
 		Players:     playerDtos,
 		VisionBound: dto.NewBoundDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {

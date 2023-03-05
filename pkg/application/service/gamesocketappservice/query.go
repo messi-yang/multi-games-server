@@ -11,11 +11,11 @@ type GetPlayersQuery struct {
 }
 
 func (query GetPlayersQuery) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
-	worldId, err := worldmodel.NewWorldIdVo(query.WorldId)
+	worldId, err := worldmodel.ParseWorldIdVo(query.WorldId)
 	if err != nil {
 		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}
-	playerId, err := playermodel.NewPlayerIdVo(query.PlayerId)
+	playerId, err := playermodel.ParsePlayerIdVo(query.PlayerId)
 	if err != nil {
 		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}
@@ -29,11 +29,11 @@ type GetUnitsVisibleByPlayerQuery struct {
 }
 
 func (query GetUnitsVisibleByPlayerQuery) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
-	worldId, err := worldmodel.NewWorldIdVo(query.WorldId)
+	worldId, err := worldmodel.ParseWorldIdVo(query.WorldId)
 	if err != nil {
 		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}
-	playerId, err := playermodel.NewPlayerIdVo(query.PlayerId)
+	playerId, err := playermodel.ParsePlayerIdVo(query.PlayerId)
 	if err != nil {
 		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
 	}

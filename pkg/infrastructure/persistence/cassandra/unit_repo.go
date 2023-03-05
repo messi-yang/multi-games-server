@@ -32,7 +32,7 @@ func NewUnitRepo() (unitmodel.Repo, error) {
 func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	if err := repo.session.Query(
 		"INSERT INTO units (game_id, pos_x, pos_z, item_id) VALUES (?, ?, ?, ?)",
-		unit.GetWorldId().ToString(),
+		unit.GetWorldId().String(),
 		unit.GetPosition().GetX(),
 		unit.GetPosition().GetZ(),
 		unit.GetItemId().ToInt16(),
@@ -45,7 +45,7 @@ func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 func (repo *unitRepo) GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (unitmodel.UnitAgg, bool, error) {
 	iter := repo.session.Query(
 		"SELECT * FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ? LIMIT 1",
-		worldId.ToString(),
+		worldId.String(),
 		position.GetX(),
 		position.GetZ(),
 	).Iter()
@@ -55,7 +55,7 @@ func (repo *unitRepo) GetUnitAt(worldId worldmodel.WorldIdVo, position commonmod
 	var rawPosZ int
 	var rawItemId int16
 	for iter.Scan(&rawWorldId, &rawPosX, &rawPosZ, &rawItemId) {
-		parsedWorldId, _ := worldmodel.NewWorldIdVo(rawWorldId.String())
+		parsedWorldId, _ := worldmodel.ParseWorldIdVo(rawWorldId.String())
 		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
 		itemId := itemmodel.NewItemIdVo(rawItemId)
 		unitFound := unitmodel.NewUnitAgg(parsedWorldId, position, itemId)
@@ -78,7 +78,7 @@ func (repo *unitRepo) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound common
 	xPositions := lo.RangeFrom(fromX, toX-fromX+1)
 	iter := repo.session.Query(
 		"SELECT game_id, pos_x, pos_z, item_id FROM units WHERE game_id = ? AND pos_x IN ? AND pos_z >= ? AND pos_z <= ?",
-		worldId.ToString(),
+		worldId.String(),
 		xPositions,
 		fromZ,
 		toZ,
@@ -89,7 +89,7 @@ func (repo *unitRepo) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound common
 	var rawPosZ int
 	var rawItemId int16
 	for iter.Scan(&rawWorldId, &rawPosX, &rawPosZ, &rawItemId) {
-		parsedWorldId, _ := worldmodel.NewWorldIdVo(rawWorldId.String())
+		parsedWorldId, _ := worldmodel.ParseWorldIdVo(rawWorldId.String())
 		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
 		itemId := itemmodel.NewItemIdVo(rawItemId)
 		units = append(units, unitmodel.NewUnitAgg(parsedWorldId, position, itemId))
@@ -103,7 +103,7 @@ func (repo *unitRepo) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound common
 func (repo *unitRepo) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error {
 	if err := repo.session.Query(
 		"DELETE FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ?",
-		worldId.ToString(),
+		worldId.String(),
 		position.GetX(),
 		position.GetZ(),
 	).Exec(); err != nil {

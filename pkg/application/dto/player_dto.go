@@ -11,7 +11,7 @@ type PlayerDto struct {
 
 func NewPlayerDto(player playermodel.PlayerAgg) PlayerDto {
 	return PlayerDto{
-		Id:        player.GetId().ToString(),
+		Id:        player.GetId().String(),
 		Name:      player.GetName(),
 		Position:  NewPositionDto(player.GetPosition()),
 		Direction: player.GetDirection().ToInt8(),

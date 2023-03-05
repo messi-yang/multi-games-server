@@ -6,7 +6,7 @@ type WorldIdVo struct {
 	id uuid.UUID
 }
 
-func NewWorldIdVo(uuidStr string) (WorldIdVo, error) {
+func ParseWorldIdVo(uuidStr string) (WorldIdVo, error) {
 	id, err := uuid.Parse(uuidStr)
 	if err != nil {
 		return WorldIdVo{}, err
@@ -21,7 +21,7 @@ func (vo WorldIdVo) IsEqual(otherWorldId WorldIdVo) bool {
 	return vo.id == otherWorldId.id
 }
 
-func (vo WorldIdVo) ToString() string {
+func (vo WorldIdVo) String() string {
 	return vo.id.String()
 }
 

@@ -26,7 +26,7 @@ func NewPlayerMemRepo() playermodel.Repo {
 func (repo *playerMemRepo) Add(newPlayer playermodel.PlayerAgg) error {
 	newPlayers := append(repo.players, newPlayer)
 	repo.players = lo.UniqBy(newPlayers, func(player playermodel.PlayerAgg) string {
-		return player.GetId().ToString()
+		return player.GetId().String()
 	})
 	return nil
 }
