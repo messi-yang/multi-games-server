@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	ErrPlayerNotFound = errors.New("player with id not found")
+	ErrPlayerNotFound   = errors.New("player of the given id not found")
+	ErrSomethinHappened = errors.New("some unexpected error happened")
 )
 
 type Repo interface {
