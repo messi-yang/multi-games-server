@@ -20,7 +20,7 @@ type MoveRequestDto struct {
 
 type PlaceItemRequestDto struct {
 	Type   RequestDtoType `json:"type"`
-	ItemId int16          `json:"itemId"`
+	ItemId string         `json:"itemId"`
 }
 
 type DestroyItemRequestDto struct {

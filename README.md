@@ -48,6 +48,18 @@ docker compose exec web make plan-cassandra-migrate FILE_NAME=${file_name_in_sna
 docker compose exec web make cassandra-migrate-up
 ```
 
+### Revert Cassandra Migration by 1 Version
+
+```bash
+docker compose exec web make cassandra-migrate-down
+```
+
+### Force Cassandra to Revert to Specific Version
+
+```bash
+docker compose exec web make cassandra-migrate-force CASSANDRA_MIGRATE_VERSION=${specifi_version}
+```
+
 ## Postgres Database
 
 ### Plan New Postgres Migration

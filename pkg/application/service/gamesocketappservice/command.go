@@ -10,7 +10,7 @@ import (
 type PlaceItemCommand struct {
 	WorldId  string
 	PlayerId string
-	ItemId   int16
+	ItemId   string
 }
 
 func (command PlaceItemCommand) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo, error) {
@@ -22,7 +22,10 @@ func (command PlaceItemCommand) Validate() (worldmodel.WorldIdVo, playermodel.Pl
 	if err != nil {
 		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, err
 	}
-	itemId := itemmodel.NewItemIdVo(command.ItemId)
+	itemId, err := itemmodel.ParseItemIdVo(command.ItemId)
+	if err != nil {
+		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, err
+	}
 
 	return worldId, playerId, itemId, nil
 }

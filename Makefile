@@ -4,7 +4,7 @@ init-cassandra:
 
 # .PHONY: connect-cassandra
 connect-cassandra:
-	cqlsh ${CASSANDRA_HOST}
+	cqlsh ${CASSANDRA_HOST} ${CASSANDRA_PORT}
 
 # .PHONY: plan-cassandra-migrate
 plan-cassandra-migrate:
@@ -16,7 +16,11 @@ cassandra-migrate-up:
 
 # .PHONY: cassandra-migrate-down
 cassandra-migrate-down:
-	migrate -source="file:db/cassandra/migrations" -database="cassandra://${CASSANDRA_HOST}:${CASSANDRA_PORT}/${CASSANDRA_KEYSPACE}?x-multi-statement=true" down
+	migrate -source="file:db/cassandra/migrations" -database="cassandra://${CASSANDRA_HOST}:${CASSANDRA_PORT}/${CASSANDRA_KEYSPACE}?x-multi-statement=true" down 1
+
+# .PHONY: cassandra-migrate-force
+cassandra-migrate-force:
+	migrate -source="file:db/cassandra/migrations" -database="cassandra://${CASSANDRA_HOST}:${CASSANDRA_PORT}/${CASSANDRA_KEYSPACE}?x-multi-statement=true" force ${CASSANDRA_MIGRATE_VERSION}
 
 # .PHONY: plan-postgres-migrate
 plan-postgres-migrate:
@@ -24,7 +28,7 @@ plan-postgres-migrate:
 
 # .PHONY: postgres-migrate-up
 postgres-migrate-up:
-	migrate -source="file:db/postgres/migrations" -database="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" up
+	migrate -source="file:db/postgres/migrations" -database="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" up}
 
 # .PHONY: postgres-migrate-down
 postgres-migrate-down:

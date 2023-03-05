@@ -1,19 +1,26 @@
 package itemmodel
 
+import "github.com/google/uuid"
+
 type ItemIdVo struct {
-	id int16
+	id uuid.UUID
 }
 
-func NewItemIdVo(id int16) ItemIdVo {
+func ParseItemIdVo(uuidStr string) (ItemIdVo, error) {
+	id, err := uuid.Parse(uuidStr)
+	if err != nil {
+		return ItemIdVo{}, err
+	}
+
 	return ItemIdVo{
 		id: id,
-	}
+	}, nil
 }
 
-func (id ItemIdVo) IsEqual(anotherId ItemIdVo) bool {
-	return id.id == anotherId.id
+func (vo ItemIdVo) IsEqual(anotherVo ItemIdVo) bool {
+	return vo.id == anotherVo.id
 }
 
-func (id ItemIdVo) ToInt16() int16 {
-	return id.id
+func (vo ItemIdVo) String() string {
+	return vo.id.String()
 }

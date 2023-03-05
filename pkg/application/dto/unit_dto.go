@@ -5,13 +5,13 @@ import (
 )
 
 type UnitDto struct {
-	ItemId   int16       `json:"itemId"`
+	ItemId   string      `json:"itemId"`
 	Position PositionDto `json:"position"`
 }
 
 func NewUnitDto(unit unitmodel.UnitAgg) UnitDto {
 	return UnitDto{
-		ItemId:   unit.GetItemId().ToInt16(),
+		ItemId:   unit.GetItemId().String(),
 		Position: NewPositionDto(unit.GetPosition()),
 	}
 }

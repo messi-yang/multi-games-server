@@ -5,7 +5,7 @@ import (
 )
 
 type ItemDto struct {
-	Id          int16  `json:"id"`
+	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Traversable bool   `json:"traversable"`
 	AssetSrc    string `json:"assetSrc"`
@@ -14,7 +14,7 @@ type ItemDto struct {
 
 func NewItemDto(item itemmodel.ItemAgg) ItemDto {
 	return ItemDto{
-		Id:          item.GetId().ToInt16(),
+		Id:          item.GetId().String(),
 		Name:        item.GetName(),
 		Traversable: item.IsTraversable(),
 		AssetSrc:    item.GetAssetSrc(),

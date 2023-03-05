@@ -31,11 +31,11 @@ func NewUnitRepo() (unitmodel.Repo, error) {
 
 func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	if err := repo.session.Query(
-		"INSERT INTO units (game_id, pos_x, pos_z, item_id) VALUES (?, ?, ?, ?)",
+		"INSERT INTO units (game_id, pos_x, pos_z, item_id_v2) VALUES (?, ?, ?, ?)",
 		unit.GetWorldId().String(),
 		unit.GetPosition().GetX(),
 		unit.GetPosition().GetZ(),
-		unit.GetItemId().ToInt16(),
+		unit.GetItemId().String(),
 	).Exec(); err != nil {
 		return err
 	}
@@ -53,11 +53,11 @@ func (repo *unitRepo) GetUnitAt(worldId worldmodel.WorldIdVo, position commonmod
 	var rawWorldId gocql.UUID
 	var rawPosX int
 	var rawPosZ int
-	var rawItemId int16
+	var rawItemId gocql.UUID
 	for iter.Scan(&rawWorldId, &rawPosX, &rawPosZ, &rawItemId) {
 		parsedWorldId, _ := worldmodel.ParseWorldIdVo(rawWorldId.String())
 		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
-		itemId := itemmodel.NewItemIdVo(rawItemId)
+		itemId, _ := itemmodel.ParseItemIdVo(rawItemId.String())
 		unitFound := unitmodel.NewUnitAgg(parsedWorldId, position, itemId)
 		unit = &unitFound
 	}
@@ -77,7 +77,7 @@ func (repo *unitRepo) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound common
 	toZ := bound.GetTo().GetZ()
 	xPositions := lo.RangeFrom(fromX, toX-fromX+1)
 	iter := repo.session.Query(
-		"SELECT game_id, pos_x, pos_z, item_id FROM units WHERE game_id = ? AND pos_x IN ? AND pos_z >= ? AND pos_z <= ?",
+		"SELECT game_id, pos_x, pos_z, item_id_v2 FROM units WHERE game_id = ? AND pos_x IN ? AND pos_z >= ? AND pos_z <= ?",
 		worldId.String(),
 		xPositions,
 		fromZ,
@@ -87,11 +87,11 @@ func (repo *unitRepo) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound common
 	var rawWorldId gocql.UUID
 	var rawPosX int
 	var rawPosZ int
-	var rawItemId int16
+	var rawItemId gocql.UUID
 	for iter.Scan(&rawWorldId, &rawPosX, &rawPosZ, &rawItemId) {
 		parsedWorldId, _ := worldmodel.ParseWorldIdVo(rawWorldId.String())
 		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
-		itemId := itemmodel.NewItemIdVo(rawItemId)
+		itemId, _ := itemmodel.ParseItemIdVo(rawItemId.String())
 		units = append(units, unitmodel.NewUnitAgg(parsedWorldId, position, itemId))
 	}
 	if err := iter.Close(); err != nil {
