@@ -24,10 +24,6 @@ func (vo PositionVo) GetZ() int {
 	return vo.z
 }
 
-func (vo PositionVo) HasNegativeAxis() bool {
-	return vo.x < 0 || vo.z < 0
-}
-
 func (vo PositionVo) shift(x int, z int) PositionVo {
 	return NewPositionVo(vo.x+x, vo.z+z)
 }
