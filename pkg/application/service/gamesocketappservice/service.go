@@ -165,7 +165,11 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return nil
 	}
 
-	items := serve.itemRepo.GetAll()
+	items, err := serve.itemRepo.GetAll()
+	if err != nil {
+		return err
+	}
+
 	tool.RangeMatrix(100, 100, func(x int, z int) {
 		randomInt := rand.Intn(100)
 		position := commonmodel.NewPositionVo(x-50, z-50)
@@ -202,7 +206,11 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	items := serve.itemRepo.GetAll()
+	items, err := serve.itemRepo.GetAll()
+	if err != nil {
+		serve.presentError(presenter, err)
+	}
+
 	itemDtos := lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemDto {
 		return dto.NewItemDto(item)
 	})

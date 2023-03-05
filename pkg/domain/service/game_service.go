@@ -52,7 +52,7 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 	if unitFound {
 		itemId := unit.GetItemId()
 		item, _ := serve.itemRepo.Get(itemId)
-		if item.IsTraversable() {
+		if item.GetTraversable() {
 			player.SetPosition(targetPosition)
 		}
 	} else {
@@ -86,7 +86,7 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 		return err
 	}
 
-	if !item.IsTraversable() && anyPlayerAtTargetPosition {
+	if !item.GetTraversable() && anyPlayerAtTargetPosition {
 		return errors.New("cannot place non-traversable item on a position with players")
 	}
 

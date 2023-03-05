@@ -1,0 +1,1 @@
+ALTER TABLE items ADD COLUMN thumbnail_src VARCHAR (255) NOT NULL;

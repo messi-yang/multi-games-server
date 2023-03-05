@@ -28,11 +28,11 @@ plan-postgres-migrate:
 
 # .PHONY: postgres-migrate-up
 postgres-migrate-up:
-	migrate -source="file:db/postgres/migrations" -database="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" up}
+	migrate -source="file:db/postgres/migrations" -database="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" up
 
 # .PHONY: postgres-migrate-down
 postgres-migrate-down:
-	migrate -source="file:db/postgres/migrations" -database="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" down
+	migrate -source="file:db/postgres/migrations" -database="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" down 1
 
 # .PHONY: dev
 dev:

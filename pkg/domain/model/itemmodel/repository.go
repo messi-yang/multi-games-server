@@ -1,6 +1,6 @@
 package itemmodel
 
 type Repo interface {
-	GetAll() []ItemAgg
+	GetAll() ([]ItemAgg, error)
 	Get(itemId ItemIdVo) (ItemAgg, error)
 }

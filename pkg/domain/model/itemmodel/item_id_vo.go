@@ -17,10 +17,20 @@ func ParseItemIdVo(uuidStr string) (ItemIdVo, error) {
 	}, nil
 }
 
+func NewItemIdVo(uuid uuid.UUID) ItemIdVo {
+	return ItemIdVo{
+		id: uuid,
+	}
+}
+
 func (vo ItemIdVo) IsEqual(anotherVo ItemIdVo) bool {
 	return vo.id == anotherVo.id
 }
 
 func (vo ItemIdVo) String() string {
 	return vo.id.String()
+}
+
+func (vo ItemIdVo) Uuid() uuid.UUID {
+	return vo.id
 }

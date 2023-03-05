@@ -23,7 +23,10 @@ func main() {
 
 	intEventPublisher := redisinteventpublisher.New()
 
-	itemRepo := memrepo.NewItemMemRepo()
+	itemRepo, err := postgres.NewItemRepo()
+	if err != nil {
+		panic(err)
+	}
 	playerRepo := memrepo.NewPlayerMemRepo()
 	worldRepo, err := postgres.NewWorldRepo()
 	if err != nil {
