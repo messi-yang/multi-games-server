@@ -5,16 +5,19 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
+	"github.com/go-redis/redis/v9"
 )
 
-type subscriber[T intevent.Event] struct{}
+type subscriber[T intevent.Event] struct {
+	redisClient *redis.Client
+}
 
-func New[T intevent.Event]() intevent.Subscriber[T] {
-	return &subscriber[T]{}
+func New[T intevent.Event](redisClient *redis.Client) intevent.Subscriber[T] {
+	return &subscriber[T]{redisClient: redisClient}
 }
 
 func (subscriber *subscriber[T]) Subscribe(channel string, handler func(T)) func() {
-	pubsub := redisClient.Subscribe(context.TODO(), channel)
+	pubsub := subscriber.redisClient.Subscribe(context.TODO(), channel)
 	go func() {
 		for msg := range pubsub.Channel() {
 			intEvent, err := json.Unmarshal[T]([]byte(msg.Payload))

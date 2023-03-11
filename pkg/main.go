@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/client/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/intevent/redisinteventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/cassandra"
@@ -21,7 +22,8 @@ func main() {
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
 
-	intEventPublisher := redisinteventpublisher.New()
+	redisClient := redisclient.New()
+	intEventPublisher := redisinteventpublisher.New(redisClient)
 
 	itemRepository, err := postgres.NewItemRepository()
 	if err != nil {
@@ -48,7 +50,7 @@ func main() {
 	}
 
 	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepository, playerRepository, unitRepository, itemRepository)
-	gameSocketApiController := gamesocket.NewController(gameSocketAppService)
+	gameSocketApiController := gamesocket.NewController(gameSocketAppService, redisClient)
 
 	err = gameSocketAppService.CreateWorld(userId.String())
 	if err != nil {

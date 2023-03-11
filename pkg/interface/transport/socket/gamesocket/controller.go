@@ -9,6 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/intevent/redisinteventsubscriber"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v9"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -23,13 +24,16 @@ var wsupgrader = websocket.Upgrader{
 
 type Controller struct {
 	gameAppService gamesocketappservice.Service
+	redisClient    *redis.Client
 }
 
 func NewController(
 	gameAppService gamesocketappservice.Service,
+	redisClient *redis.Client,
 ) *Controller {
 	return &Controller{
 		gameAppService: gameAppService,
+		redisClient:    redisClient,
 	}
 }
 
@@ -52,7 +56,9 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 
 	socketPresenter := newPresenter(socketConn, &sync.RWMutex{})
 
-	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent]().Subscribe(
+	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent](
+		controller.redisClient,
+	).Subscribe(
 		gamesocketappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.PlayersUpdatedIntEvent) {
 			controller.gameAppService.GetPlayersAroundPlayer(socketPresenter, gamesocketappservice.GetPlayersQuery{
@@ -63,7 +69,9 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	)
 	defer playersUpdatedIntEventUnsubscriber()
 
-	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent]().Subscribe(
+	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent](
+		controller.redisClient,
+	).Subscribe(
 		gamesocketappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.UnitsUpdatedIntEvent) {
 			controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
