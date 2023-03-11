@@ -29,7 +29,7 @@ type Service interface {
 }
 
 type serve struct {
-	IntEventPublisher intevent.IntEventPublisher
+	IntEventPublisher intevent.Publisher
 	worldRepository   worldmodel.Repository
 	playerRepository  playermodel.Repository
 	unitRepository    unitmodel.Repository
@@ -37,7 +37,7 @@ type serve struct {
 	gameService       service.GameService
 }
 
-func NewService(IntEventPublisher intevent.IntEventPublisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+func NewService(IntEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
 	return &serve{
 		IntEventPublisher: IntEventPublisher,
 		worldRepository:   worldRepository,

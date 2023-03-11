@@ -10,11 +10,11 @@ import (
 type publisher struct {
 }
 
-func New() intevent.IntEventPublisher {
+func New() intevent.Publisher {
 	return &publisher{}
 }
 
-func (publisher *publisher) Publish(channel string, event intevent.IntEvent) error {
+func (publisher *publisher) Publish(channel string, event intevent.Event) error {
 	message := json.Marshal(event)
 	err := redisClient.Publish(context.TODO(), channel, message).Err()
 	if err != nil {

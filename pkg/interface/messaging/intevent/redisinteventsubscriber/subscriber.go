@@ -7,9 +7,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
 )
 
-type subscriber[T intevent.IntEvent] struct{}
+type subscriber[T intevent.Event] struct{}
 
-func New[T intevent.IntEvent]() intevent.IntEventSubscriber[T] {
+func New[T intevent.Event]() intevent.Subscriber[T] {
 	return &subscriber[T]{}
 }
 
