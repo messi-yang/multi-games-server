@@ -158,12 +158,12 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	worldId, _ := worldmodel.ParseWorldIdVo(uuid.New().String())
-
-	world, _ := serve.worldRepo.GetByUserId(userId)
-	if world != nil {
+	_, err = serve.worldRepo.GetByUserId(userId)
+	if err != nil {
 		return nil
 	}
+
+	worldId, _ := worldmodel.ParseWorldIdVo(uuid.New().String())
 
 	items, err := serve.itemRepo.GetAll()
 	if err != nil {
