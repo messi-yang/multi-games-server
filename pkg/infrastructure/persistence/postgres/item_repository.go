@@ -34,9 +34,9 @@ func NewItemRepository() (itemmodel.Repository, error) {
 		itemRepositorySingleton = &itemRepository{
 			gormDb: gormDb,
 			items: []itemmodel.ItemAgg{
-				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/assets/items/stone.png", serverUrl), "/items/stone.gltf"),
-				itemmodel.NewItemAgg(torchItemDefaultId, "torch", true, fmt.Sprintf("%s/assets/items/torch.png", serverUrl), "/items/torch.gltf"),
-				itemmodel.NewItemAgg(treeItemDefaultId, "tree", false, fmt.Sprintf("%s/assets/items/tree.png", serverUrl), "/items/tree.gltf"),
+				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/asset/item/stone/thumbnail.png", serverUrl), fmt.Sprintf("%s/asset/item/stone/model.gltf", serverUrl)),
+				itemmodel.NewItemAgg(torchItemDefaultId, "torch", true, fmt.Sprintf("%s/asset/item/torch/thumbnail.png", serverUrl), fmt.Sprintf("%s/asset/item/torch/model.gltf", serverUrl)),
+				itemmodel.NewItemAgg(treeItemDefaultId, "tree", false, fmt.Sprintf("%s/asset/item/tree./thumbnailpng", serverUrl), fmt.Sprintf("%s/asset/item/tree/model.gltf", serverUrl)),
 			},
 		}
 		return itemRepositorySingleton, nil
