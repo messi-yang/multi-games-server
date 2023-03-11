@@ -36,7 +36,7 @@ func NewItemRepository() (itemmodel.Repository, error) {
 			items: []itemmodel.ItemAgg{
 				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/asset/item/stone/thumbnail.png", serverUrl), fmt.Sprintf("%s/asset/item/stone/model.gltf", serverUrl)),
 				itemmodel.NewItemAgg(torchItemDefaultId, "torch", true, fmt.Sprintf("%s/asset/item/torch/thumbnail.png", serverUrl), fmt.Sprintf("%s/asset/item/torch/model.gltf", serverUrl)),
-				itemmodel.NewItemAgg(treeItemDefaultId, "tree", false, fmt.Sprintf("%s/asset/item/tree./thumbnailpng", serverUrl), fmt.Sprintf("%s/asset/item/tree/model.gltf", serverUrl)),
+				itemmodel.NewItemAgg(treeItemDefaultId, "tree", false, fmt.Sprintf("%s/asset/item/tree/thumbnail.png", serverUrl), fmt.Sprintf("%s/asset/item/tree/model.gltf", serverUrl)),
 			},
 		}
 		return itemRepositorySingleton, nil
