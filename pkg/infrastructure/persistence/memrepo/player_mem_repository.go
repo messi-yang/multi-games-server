@@ -7,23 +7,23 @@ import (
 	"github.com/samber/lo"
 )
 
-type playerMemRepo struct {
+type playerMemRepository struct {
 	players []playermodel.PlayerAgg
 }
 
-var playerMemRepoSingleton *playerMemRepo
+var playerMemRepositorySingleton *playerMemRepository
 
-func NewPlayerMemRepo() playermodel.Repo {
-	if playerMemRepoSingleton == nil {
-		playerMemRepoSingleton = &playerMemRepo{
+func NewPlayerMemRepository() playermodel.Repository {
+	if playerMemRepositorySingleton == nil {
+		playerMemRepositorySingleton = &playerMemRepository{
 			players: make([]playermodel.PlayerAgg, 0),
 		}
-		return playerMemRepoSingleton
+		return playerMemRepositorySingleton
 	}
-	return playerMemRepoSingleton
+	return playerMemRepositorySingleton
 }
 
-func (repo *playerMemRepo) Add(newPlayer playermodel.PlayerAgg) error {
+func (repo *playerMemRepository) Add(newPlayer playermodel.PlayerAgg) error {
 	newPlayers := append(repo.players, newPlayer)
 	repo.players = lo.UniqBy(newPlayers, func(player playermodel.PlayerAgg) string {
 		return player.GetId().String()
@@ -31,7 +31,7 @@ func (repo *playerMemRepo) Add(newPlayer playermodel.PlayerAgg) error {
 	return nil
 }
 
-func (repo *playerMemRepo) Get(playerId playermodel.PlayerIdVo) (playermodel.PlayerAgg, error) {
+func (repo *playerMemRepository) Get(playerId playermodel.PlayerIdVo) (playermodel.PlayerAgg, error) {
 	foundPlayer, found := lo.Find(repo.players, func(player playermodel.PlayerAgg) bool {
 		return player.GetId().IsEqual(playerId)
 	})
@@ -41,7 +41,7 @@ func (repo *playerMemRepo) Get(playerId playermodel.PlayerIdVo) (playermodel.Pla
 	return foundPlayer, nil
 }
 
-func (repo *playerMemRepo) GetPlayerAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (playermodel.PlayerAgg, bool, error) {
+func (repo *playerMemRepository) GetPlayerAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (playermodel.PlayerAgg, bool, error) {
 	foundPlayer, found := lo.Find(repo.players, func(player playermodel.PlayerAgg) bool {
 		return player.GetWorldId().IsEqual(worldId) && player.GetPosition().IsEqual(position)
 	})
@@ -51,14 +51,14 @@ func (repo *playerMemRepo) GetPlayerAt(worldId worldmodel.WorldIdVo, position co
 	return foundPlayer, true, nil
 }
 
-func (repo *playerMemRepo) GetPlayersAround(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) ([]playermodel.PlayerAgg, error) {
+func (repo *playerMemRepository) GetPlayersAround(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) ([]playermodel.PlayerAgg, error) {
 	return lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
 		return player.GetWorldId().IsEqual(worldId) && player.CanSeeAnyPositions([]commonmodel.PositionVo{position})
 	}), nil
 	return nil, nil
 }
 
-func (repo *playerMemRepo) Update(updatedPlayer playermodel.PlayerAgg) error {
+func (repo *playerMemRepository) Update(updatedPlayer playermodel.PlayerAgg) error {
 	repo.players = lo.Map(repo.players, func(player playermodel.PlayerAgg, _ int) playermodel.PlayerAgg {
 		if player.GetId().IsEqual(updatedPlayer.GetId()) {
 			return updatedPlayer
@@ -68,13 +68,13 @@ func (repo *playerMemRepo) Update(updatedPlayer playermodel.PlayerAgg) error {
 	return nil
 }
 
-func (repo *playerMemRepo) GetAll(worldId worldmodel.WorldIdVo) []playermodel.PlayerAgg {
+func (repo *playerMemRepository) GetAll(worldId worldmodel.WorldIdVo) []playermodel.PlayerAgg {
 	return lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
 		return player.GetWorldId().IsEqual(worldId)
 	})
 }
 
-func (repo *playerMemRepo) Delete(playerId playermodel.PlayerIdVo) error {
+func (repo *playerMemRepository) Delete(playerId playermodel.PlayerIdVo) error {
 	repo.players = lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
 		return !player.GetId().IsEqual(playerId)
 	})

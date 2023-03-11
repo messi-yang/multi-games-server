@@ -12,7 +12,7 @@ var (
 	ErrSomethinHappened = errors.New("some unexpected error happened")
 )
 
-type Repo interface {
+type Repository interface {
 	Add(PlayerAgg) error
 	Get(PlayerIdVo) (PlayerAgg, error)
 	GetPlayerAt(worldmodel.WorldIdVo, commonmodel.PositionVo) (PlayerAgg, bool, error)

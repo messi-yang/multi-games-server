@@ -17,25 +17,25 @@ type GameService interface {
 }
 
 type gameServe struct {
-	worldRepo  worldmodel.Repo
-	playerRepo playermodel.Repo
-	unitRepo   unitmodel.Repo
-	itemRepo   itemmodel.Repo
+	worldRepository  worldmodel.Repository
+	playerRepository playermodel.Repository
+	unitRepository   unitmodel.Repository
+	itemRepository   itemmodel.Repository
 }
 
-func NewGameService(worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) GameService {
-	return &gameServe{worldRepo: worldRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo}
+func NewGameService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) GameService {
+	return &gameServe{worldRepository: worldRepository, playerRepository: playerRepository, unitRepository: unitRepository, itemRepository: itemRepository}
 }
 
 func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error {
-	player, err := serve.playerRepo.Get(playerId)
+	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		return err
 	}
 
 	if !direction.IsEqual(player.GetDirection()) {
 		player.SetDirection(direction)
-		err = serve.playerRepo.Update(player)
+		err = serve.playerRepository.Update(player)
 		if err != nil {
 			return err
 		}
@@ -44,14 +44,14 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 
 	targetPosition := player.GetPosition().MoveToward(direction, 1)
 
-	unit, unitFound, err := serve.unitRepo.GetUnitAt(worldId, targetPosition)
+	unit, unitFound, err := serve.unitRepository.GetUnitAt(worldId, targetPosition)
 	if err != nil {
 		return err
 	}
 
 	if unitFound {
 		itemId := unit.GetItemId()
-		item, _ := serve.itemRepo.Get(itemId)
+		item, _ := serve.itemRepository.Get(itemId)
 		if item.GetTraversable() {
 			player.SetPosition(targetPosition)
 		}
@@ -60,7 +60,7 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 	}
 
 	player.SetDirection(direction)
-	err = serve.playerRepo.Update(player)
+	err = serve.playerRepository.Update(player)
 	if err != nil {
 		return err
 	}
@@ -69,19 +69,19 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 }
 
 func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error {
-	item, err := serve.itemRepo.Get(itemId)
+	item, err := serve.itemRepository.Get(itemId)
 	if err != nil {
 		return err
 	}
 
-	player, err := serve.playerRepo.Get(playerId)
+	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		return err
 	}
 
 	targetPosition := player.GetPosition().MoveToward(player.GetDirection(), 1)
 
-	_, anyPlayerAtTargetPosition, err := serve.playerRepo.GetPlayerAt(worldId, targetPosition)
+	_, anyPlayerAtTargetPosition, err := serve.playerRepository.GetPlayerAt(worldId, targetPosition)
 	if err != nil {
 		return err
 	}
@@ -90,24 +90,24 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 		return errors.New("cannot place non-traversable item on a position with players")
 	}
 
-	_, _, err = serve.unitRepo.GetUnitAt(worldId, targetPosition)
+	_, _, err = serve.unitRepository.GetUnitAt(worldId, targetPosition)
 	if err != nil {
 		return err
 	}
 
-	serve.unitRepo.Add(unitmodel.NewUnitAgg(worldId, targetPosition, itemId))
+	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, targetPosition, itemId))
 
 	return nil
 }
 
 func (serve *gameServe) DestroyItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
-	player, err := serve.playerRepo.Get(playerId)
+	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		return err
 	}
 
 	targetPosition := player.GetPosition().MoveToward(player.GetDirection(), 1)
-	serve.unitRepo.Delete(worldId, targetPosition)
+	serve.unitRepository.Delete(worldId, targetPosition)
 
 	return nil
 }

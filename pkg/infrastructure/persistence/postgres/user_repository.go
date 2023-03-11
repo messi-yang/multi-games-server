@@ -6,19 +6,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type userRepo struct {
+type userRepository struct {
 	gormDb *gorm.DB
 }
 
-func NewUserRepo() (usermodel.Repo, error) {
+func NewUserRepository() (usermodel.Repository, error) {
 	gormDb, err := NewSession()
 	if err != nil {
 		return nil, err
 	}
-	return &userRepo{gormDb: gormDb}, nil
+	return &userRepository{gormDb: gormDb}, nil
 }
 
-func (repo *userRepo) Add(user usermodel.UserAgg) error {
+func (repo *userRepository) Add(user usermodel.UserAgg) error {
 	userModel := psqlmodel.NewUserModel(user)
 	res := repo.gormDb.Create(&userModel)
 	if res.Error != nil {

@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
-type Repo interface {
+type Repository interface {
 	Add(unit UnitAgg) error
 	GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (UnitAgg, bool, error)
 	GetUnitsInBound(worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo) ([]UnitAgg, error)

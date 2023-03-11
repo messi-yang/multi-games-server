@@ -9,27 +9,27 @@ import (
 	"github.com/samber/lo"
 )
 
-type unitRepo struct {
+type unitRepository struct {
 	session *gocql.Session
 }
 
-var unitRepoSingleton *unitRepo
+var unitRepositorySingleton *unitRepository
 
-func NewUnitRepo() (unitmodel.Repo, error) {
-	if unitRepoSingleton == nil {
+func NewUnitRepository() (unitmodel.Repository, error) {
+	if unitRepositorySingleton == nil {
 		newSession, err := newSession()
 		if err != nil {
 			return nil, err
 		}
-		unitRepoSingleton = &unitRepo{
+		unitRepositorySingleton = &unitRepository{
 			session: newSession,
 		}
-		return unitRepoSingleton, nil
+		return unitRepositorySingleton, nil
 	}
-	return unitRepoSingleton, nil
+	return unitRepositorySingleton, nil
 }
 
-func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
+func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
 	if err := repo.session.Query(
 		"INSERT INTO units (game_id, pos_x, pos_z, item_id_v2) VALUES (?, ?, ?, ?)",
 		unit.GetWorldId().String(),
@@ -42,7 +42,7 @@ func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	return nil
 }
 
-func (repo *unitRepo) GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (unitmodel.UnitAgg, bool, error) {
+func (repo *unitRepository) GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (unitmodel.UnitAgg, bool, error) {
 	iter := repo.session.Query(
 		"SELECT * FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ? LIMIT 1",
 		worldId.String(),
@@ -70,7 +70,7 @@ func (repo *unitRepo) GetUnitAt(worldId worldmodel.WorldIdVo, position commonmod
 	return *unit, true, nil
 }
 
-func (repo *unitRepo) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo) ([]unitmodel.UnitAgg, error) {
+func (repo *unitRepository) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo) ([]unitmodel.UnitAgg, error) {
 	fromX := bound.GetFrom().GetX()
 	toX := bound.GetTo().GetX()
 	fromZ := bound.GetFrom().GetZ()
@@ -100,7 +100,7 @@ func (repo *unitRepo) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound common
 	return units, nil
 }
 
-func (repo *unitRepo) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error {
+func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error {
 	if err := repo.session.Query(
 		"DELETE FROM units WHERE game_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.String(),

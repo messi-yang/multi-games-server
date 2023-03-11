@@ -8,19 +8,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type worldRepo struct {
+type worldRepository struct {
 	gormDb *gorm.DB
 }
 
-func NewWorldRepo() (worldmodel.Repo, error) {
+func NewWorldRepository() (worldmodel.Repository, error) {
 	gormDb, err := NewSession()
 	if err != nil {
 		return nil, err
 	}
-	return &worldRepo{gormDb: gormDb}, nil
+	return &worldRepository{gormDb: gormDb}, nil
 }
 
-func (repo *worldRepo) GetByUserId(userId usermodel.UserIdVo) (worldmodel.WorldAgg, error) {
+func (repo *worldRepository) GetByUserId(userId usermodel.UserIdVo) (worldmodel.WorldAgg, error) {
 	worldModel := psqlmodel.WorldModel{UserId: userId.Uuid()}
 	result := repo.gormDb.First(&worldModel)
 	if result.Error != nil {
@@ -30,7 +30,7 @@ func (repo *worldRepo) GetByUserId(userId usermodel.UserIdVo) (worldmodel.WorldA
 	return worldModel.ToAggregate(), nil
 }
 
-func (repo *worldRepo) GetAll() ([]worldmodel.WorldAgg, error) {
+func (repo *worldRepository) GetAll() ([]worldmodel.WorldAgg, error) {
 	var worldModels []psqlmodel.WorldModel
 	result := repo.gormDb.Select("Id", "Width", "Height", "CreatedAt", "UpdatedAt").Find(&worldModels)
 	if result.Error != nil {
@@ -44,7 +44,7 @@ func (repo *worldRepo) GetAll() ([]worldmodel.WorldAgg, error) {
 	return worlds, nil
 }
 
-func (repo *worldRepo) Add(world worldmodel.WorldAgg) error {
+func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
 	worldModel := psqlmodel.NewWorldModel(world)
 	res := repo.gormDb.Create(&worldModel)
 	if res.Error != nil {
@@ -54,10 +54,10 @@ func (repo *worldRepo) Add(world worldmodel.WorldAgg) error {
 	return nil
 }
 
-func (repo *worldRepo) ReadLockAccess(worldId worldmodel.WorldIdVo) func() {
+func (repo *worldRepository) ReadLockAccess(worldId worldmodel.WorldIdVo) func() {
 	return func() {}
 }
 
-func (repo *worldRepo) LockAccess(worldId worldmodel.WorldIdVo) func() {
+func (repo *worldRepository) LockAccess(worldId worldmodel.WorldIdVo) func() {
 	return func() {}
 }

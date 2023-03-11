@@ -1,5 +1,5 @@
 package usermodel
 
-type Repo interface {
+type Repository interface {
 	Add(user UserAgg) error
 }

@@ -10,16 +10,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type itemRepo struct {
+type itemRepository struct {
 	gormDb *gorm.DB
 	items  []itemmodel.ItemAgg
 }
 
-var itemRepoSingleton *itemRepo
+var itemRepositorySingleton *itemRepository
 
-func NewItemRepo() (itemmodel.Repo, error) {
-	if itemRepoSingleton != nil {
-		return itemRepoSingleton, nil
+func NewItemRepository() (itemmodel.Repository, error) {
+	if itemRepositorySingleton != nil {
+		return itemRepositorySingleton, nil
 	} else {
 		gormDb, err := NewSession()
 		if err != nil {
@@ -31,7 +31,7 @@ func NewItemRepo() (itemmodel.Repo, error) {
 
 		serverUrl := os.Getenv("SERVER_URL")
 
-		itemRepoSingleton = &itemRepo{
+		itemRepositorySingleton = &itemRepository{
 			gormDb: gormDb,
 			items: []itemmodel.ItemAgg{
 				itemmodel.NewItemAgg(stoneItemDefaultId, "stone", false, fmt.Sprintf("%s/assets/items/stone.png", serverUrl), "/items/stone.gltf"),
@@ -39,15 +39,15 @@ func NewItemRepo() (itemmodel.Repo, error) {
 				itemmodel.NewItemAgg(treeItemDefaultId, "tree", false, fmt.Sprintf("%s/assets/items/tree.png", serverUrl), "/items/tree.gltf"),
 			},
 		}
-		return itemRepoSingleton, nil
+		return itemRepositorySingleton, nil
 	}
 }
 
-func (repo *itemRepo) GetAll() ([]itemmodel.ItemAgg, error) {
+func (repo *itemRepository) GetAll() ([]itemmodel.ItemAgg, error) {
 	return repo.items, nil
 }
 
-func (repo *itemRepo) Get(itemId itemmodel.ItemIdVo) (itemmodel.ItemAgg, error) {
+func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (itemmodel.ItemAgg, error) {
 	item, found := lo.Find(repo.items, func(item itemmodel.ItemAgg) bool {
 		return item.GetId().IsEqual(itemId)
 	})

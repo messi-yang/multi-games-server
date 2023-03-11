@@ -23,31 +23,31 @@ func main() {
 
 	intEventPublisher := redisinteventpublisher.New()
 
-	itemRepo, err := postgres.NewItemRepo()
+	itemRepository, err := postgres.NewItemRepository()
 	if err != nil {
 		panic(err)
 	}
-	playerRepo := memrepo.NewPlayerMemRepo()
-	worldRepo, err := postgres.NewWorldRepo()
+	playerRepository := memrepo.NewPlayerMemRepository()
+	worldRepository, err := postgres.NewWorldRepository()
 	if err != nil {
 		panic(err)
 	}
-	unitRepo, err := cassandra.NewUnitRepo()
+	unitRepository, err := cassandra.NewUnitRepository()
 	if err != nil {
 		panic(err)
 	}
-	userRepo, err := postgres.NewUserRepo()
+	userRepository, err := postgres.NewUserRepository()
 	if err != nil {
 		panic(err)
 	}
 	userId, _ := usermodel.ParseUserIdVo("d169faa5-c078-42c2-8a42-cd1d43558c7b")
 	newUser := usermodel.NewUnitAgg(userId, "dumdumgenius@gmail.com", "DumDumGenius")
-	err = userRepo.Add(newUser)
+	err = userRepository.Add(newUser)
 	if err != nil {
 		// panic(err)
 	}
 
-	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepo, playerRepo, unitRepo, itemRepo)
+	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepository, playerRepository, unitRepository, itemRepository)
 	gameSocketApiController := gamesocket.NewController(gameSocketAppService)
 
 	err = gameSocketAppService.CreateWorld(userId.String())

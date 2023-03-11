@@ -30,21 +30,21 @@ type Service interface {
 
 type serve struct {
 	IntEventPublisher intevent.IntEventPublisher
-	worldRepo         worldmodel.Repo
-	playerRepo        playermodel.Repo
-	unitRepo          unitmodel.Repo
-	itemRepo          itemmodel.Repo
+	worldRepository   worldmodel.Repository
+	playerRepository  playermodel.Repository
+	unitRepository    unitmodel.Repository
+	itemRepository    itemmodel.Repository
 	gameService       service.GameService
 }
 
-func NewService(IntEventPublisher intevent.IntEventPublisher, worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
+func NewService(IntEventPublisher intevent.IntEventPublisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
 	return &serve{
 		IntEventPublisher: IntEventPublisher,
-		worldRepo:         worldRepo,
-		playerRepo:        playerRepo,
-		unitRepo:          unitRepo,
-		itemRepo:          itemRepo,
-		gameService:       service.NewGameService(worldRepo, playerRepo, unitRepo, itemRepo),
+		worldRepository:   worldRepository,
+		playerRepository:  playerRepository,
+		unitRepository:    unitRepository,
+		itemRepository:    itemRepository,
+		gameService:       service.NewGameService(worldRepository, playerRepository, unitRepository, itemRepository),
 	}
 }
 
@@ -63,12 +63,12 @@ func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, pla
 }
 
 func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.PlayerIdVo) {
-	player, err := serve.playerRepo.Get(playerId)
+	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		return
 	}
 
-	players, err := serve.playerRepo.GetPlayersAround(player.GetWorldId(), player.GetPosition())
+	players, err := serve.playerRepository.GetPlayersAround(player.GetWorldId(), player.GetPosition())
 	if err != nil {
 		return
 	}
@@ -79,12 +79,12 @@ func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.P
 }
 
 func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) {
-	player, err := serve.playerRepo.Get(playerId)
+	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		return
 	}
 
-	players, err := serve.playerRepo.GetPlayersAround(worldId, player.GetPosition())
+	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
 	if err != nil {
 		return
 	}
@@ -103,14 +103,14 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepo.LockAccess(worldId)
+	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	player, err := serve.playerRepo.Get(playerId)
+	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
-	players, err := serve.playerRepo.GetPlayersAround(worldId, player.GetPosition())
+	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -129,16 +129,16 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepo.LockAccess(worldId)
+	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	player, err := serve.playerRepo.Get(playerId)
+	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
 	playerVisionBound := player.GetVisionBound()
-	units, err := serve.unitRepo.GetUnitsInBound(worldId, playerVisionBound)
+	units, err := serve.unitRepository.GetUnitsInBound(worldId, playerVisionBound)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -158,14 +158,14 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	_, err = serve.worldRepo.GetByUserId(userId)
+	_, err = serve.worldRepository.GetByUserId(userId)
 	if err != nil {
 		return nil
 	}
 
 	worldId, _ := worldmodel.ParseWorldIdVo(uuid.New().String())
 
-	items, err := serve.itemRepo.GetAll()
+	items, err := serve.itemRepository.GetAll()
 	if err != nil {
 		return err
 	}
@@ -175,13 +175,13 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {
 			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId())
-			serve.unitRepo.Add(newUnit)
+			serve.unitRepository.Add(newUnit)
 		}
 	})
 
 	newWorld := worldmodel.NewWorldAgg(worldId, userId)
 
-	err = serve.worldRepo.Add(newWorld)
+	err = serve.worldRepository.Add(newWorld)
 	if err != nil {
 		return err
 	}
@@ -195,18 +195,18 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepo.LockAccess(worldId)
+	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
 	direction, _ := commonmodel.NewDirectionVo(2)
 	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
 
-	err = serve.playerRepo.Add(newPlayer)
+	err = serve.playerRepository.Add(newPlayer)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
-	items, err := serve.itemRepo.GetAll()
+	items, err := serve.itemRepository.GetAll()
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -215,7 +215,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		return dto.NewItemDto(item)
 	})
 
-	players, err := serve.playerRepo.GetPlayersAround(worldId, newPlayer.GetPosition())
+	players, err := serve.playerRepository.GetPlayersAround(worldId, newPlayer.GetPosition())
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -225,7 +225,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 	})
 
 	playerVisionBound := newPlayer.GetVisionBound()
-	units, err := serve.unitRepo.GetUnitsInBound(worldId, playerVisionBound)
+	units, err := serve.unitRepository.GetUnitsInBound(worldId, playerVisionBound)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -250,7 +250,7 @@ func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepo.LockAccess(worldId)
+	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
 	err = serve.gameService.MovePlayer(worldId, playerId, direction)
@@ -268,10 +268,10 @@ func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerComman
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepo.LockAccess(worldId)
+	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	err = serve.playerRepo.Delete(playerId)
+	err = serve.playerRepository.Delete(playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -285,7 +285,7 @@ func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepo.LockAccess(worldId)
+	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
 	err = serve.gameService.PlaceItem(worldId, playerId, itemId)
@@ -302,7 +302,7 @@ func (serve *serve) DestroyItem(presenter Presenter, command DestroyItemCommand)
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepo.LockAccess(worldId)
+	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
 	err = serve.gameService.DestroyItem(worldId, playerId)

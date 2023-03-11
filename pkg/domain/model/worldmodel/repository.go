@@ -2,7 +2,7 @@ package worldmodel
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 
-type Repo interface {
+type Repository interface {
 	Add(WorldAgg) error
 	GetByUserId(usermodel.UserIdVo) (WorldAgg, error)
 	GetAll() ([]WorldAgg, error)
