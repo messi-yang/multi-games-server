@@ -6,7 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/client/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/intevent/redisinteventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redisinteventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/cassandra"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
