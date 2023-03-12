@@ -11,7 +11,9 @@ import (
 )
 
 type GameService interface {
+	AddPlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error
 	MovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error
+	RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error
 	PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error
 	DestroyItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error
 }
@@ -25,6 +27,18 @@ type gameServe struct {
 
 func NewGameService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) GameService {
 	return &gameServe{worldRepository: worldRepository, playerRepository: playerRepository, unitRepository: unitRepository, itemRepository: itemRepository}
+}
+
+func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+	direction, _ := commonmodel.NewDirectionVo(2)
+	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
+
+	err := serve.playerRepository.Add(newPlayer)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error {
@@ -65,6 +79,14 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 		return err
 	}
 
+	return nil
+}
+
+func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+	err := serve.playerRepository.Delete(playerId)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

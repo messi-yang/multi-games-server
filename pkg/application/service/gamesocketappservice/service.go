@@ -201,10 +201,12 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	direction, _ := commonmodel.NewDirectionVo(2)
-	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
+	err = serve.gameService.AddPlayer(worldId, playerId)
+	if err != nil {
+		serve.presentError(presenter, err)
+	}
 
-	err = serve.playerRepository.Add(newPlayer)
+	newPlayer, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
@@ -274,7 +276,7 @@ func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerComman
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	err = serve.playerRepository.Delete(playerId)
+	err = serve.gameService.RemovePlayer(worldId, playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
