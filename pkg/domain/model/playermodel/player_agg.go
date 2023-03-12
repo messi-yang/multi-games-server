@@ -54,11 +54,11 @@ func (p *PlayerAgg) SetDirection(direction commonmodel.DirectionVo) {
 func (p *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
 	playerPosition := p.GetPosition()
 
-	fromX := playerPosition.GetX() - 35
-	toX := playerPosition.GetX() + 35
+	fromX := playerPosition.GetX() - 25
+	toX := playerPosition.GetX() + 25
 
-	fromY := playerPosition.GetZ() - 35
-	toY := playerPosition.GetZ() + 35
+	fromY := playerPosition.GetZ() - 25
+	toY := playerPosition.GetZ() + 25
 
 	from := commonmodel.NewPositionVo(fromX, fromY)
 	to := commonmodel.NewPositionVo(toX, toY)

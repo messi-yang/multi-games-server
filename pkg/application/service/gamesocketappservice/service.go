@@ -158,8 +158,11 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	_, err = serve.worldRepository.GetByUserId(userId)
+	worldExists, err := serve.worldRepository.ExistsWithUserId(userId)
 	if err != nil {
+		return nil
+	}
+	if worldExists {
 		return nil
 	}
 
@@ -171,7 +174,7 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 	}
 
 	tool.RangeMatrix(100, 100, func(x int, z int) {
-		randomInt := rand.Intn(100)
+		randomInt := rand.Intn(40)
 		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {
 			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId())
