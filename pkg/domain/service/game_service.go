@@ -103,18 +103,13 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 
 	targetPosition := player.GetPosition().MoveToward(player.GetDirection(), 1)
 
-	_, anyPlayerAtTargetPosition, err := serve.playerRepository.GetPlayerAt(worldId, targetPosition)
+	_, playerFound, err := serve.playerRepository.GetPlayerAt(worldId, targetPosition)
 	if err != nil {
 		return err
 	}
 
-	if !item.GetTraversable() && anyPlayerAtTargetPosition {
+	if !item.GetTraversable() && playerFound {
 		return errors.New("cannot place non-traversable item on a position with players")
-	}
-
-	_, _, err = serve.unitRepository.GetUnitAt(worldId, targetPosition)
-	if err != nil {
-		return err
 	}
 
 	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, targetPosition, itemId))
