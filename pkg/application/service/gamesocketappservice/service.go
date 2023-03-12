@@ -158,11 +158,11 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	worldExists, err := serve.worldRepository.ExistsWithUserId(userId)
+	_, worldFound, err := serve.worldRepository.Get(userId)
 	if err != nil {
 		return nil
 	}
-	if worldExists {
+	if worldFound {
 		return nil
 	}
 

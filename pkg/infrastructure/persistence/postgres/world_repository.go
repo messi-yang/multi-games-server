@@ -20,17 +20,17 @@ func NewWorldRepository() (worldmodel.Repository, error) {
 	return &worldRepository{gormDb: gormDb}, nil
 }
 
-func (repo *worldRepository) ExistsWithUserId(userId usermodel.UserIdVo) (bool, error) {
+func (repo *worldRepository) Get(userId usermodel.UserIdVo) (worldmodel.WorldAgg, bool, error) {
 	worldModel := psqlmodel.WorldModel{UserId: userId.Uuid()}
 	result := repo.gormDb.First(&worldModel)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
-			return false, nil
+			return worldmodel.WorldAgg{}, false, nil
 		}
-		return false, result.Error
+		return worldmodel.WorldAgg{}, false, result.Error
 	}
 
-	return true, nil
+	return worldModel.ToAggregate(), true, nil
 }
 
 func (repo *worldRepository) GetAll() ([]worldmodel.WorldAgg, error) {
