@@ -53,8 +53,11 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 		return err
 	}
 
-	if !direction.IsEqual(player.GetDirection()) {
-		player.ChangeDirection(direction)
+	originDirection := player.GetDirection()
+
+	player.ChangeDirection(direction)
+
+	if !originDirection.IsEqual(player.GetDirection()) {
 		err = serve.playerRepository.Update(player)
 		if err != nil {
 			return err
@@ -62,24 +65,26 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 		return nil
 	}
 
-	targetPosition := player.GetPosition().MoveToward(direction, 1)
+	positionOneStepFoward := player.GetPositionOneStepFoward()
 
-	unit, unitFound, err := serve.unitRepository.GetUnitAt(worldId, targetPosition)
+	unit, unitFound, err := serve.unitRepository.GetUnitAt(worldId, positionOneStepFoward)
 	if err != nil {
 		return err
 	}
 
 	if unitFound {
 		itemId := unit.GetItemId()
-		item, _ := serve.itemRepository.Get(itemId)
+		item, err := serve.itemRepository.Get(itemId)
+		if err != nil {
+			return err
+		}
 		if item.GetTraversable() {
-			player.ChangePosition(targetPosition)
+			player.ChangePosition(positionOneStepFoward)
 		}
 	} else {
-		player.ChangePosition(targetPosition)
+		player.ChangePosition(positionOneStepFoward)
 	}
 
-	player.ChangeDirection(direction)
 	err = serve.playerRepository.Update(player)
 	if err != nil {
 		return err
@@ -113,9 +118,9 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 		return err
 	}
 
-	targetPosition := player.GetPosition().MoveToward(player.GetDirection(), 1)
+	positionOneStepFoward := player.GetPositionOneStepFoward()
 
-	_, playerFound, err := serve.playerRepository.GetPlayerAt(worldId, targetPosition)
+	_, playerFound, err := serve.playerRepository.GetPlayerAt(worldId, positionOneStepFoward)
 	if err != nil {
 		return err
 	}
@@ -124,7 +129,7 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 		return errors.New("cannot place non-traversable item on a position with players")
 	}
 
-	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, targetPosition, itemId))
+	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, positionOneStepFoward, itemId))
 
 	return nil
 }
@@ -138,8 +143,8 @@ func (serve *gameServe) DestroyItem(worldId worldmodel.WorldIdVo, playerId playe
 		return err
 	}
 
-	targetPosition := player.GetPosition().MoveToward(player.GetDirection(), 1)
-	serve.unitRepository.Delete(worldId, targetPosition)
+	positionOneStepFoward := player.GetPositionOneStepFoward()
+	serve.unitRepository.Delete(worldId, positionOneStepFoward)
 
 	return nil
 }

@@ -77,3 +77,20 @@ func (agg *PlayerAgg) CanSeeAnyPositions(positions []commonmodel.PositionVo) boo
 	bound := agg.GetVisionBound()
 	return bound.CoverAnyPositions(positions)
 }
+
+func (agg *PlayerAgg) GetPositionOneStepFoward() commonmodel.PositionVo {
+	direction := agg.direction
+	position := agg.position
+
+	if direction.IsUp() {
+		return position.Shift(0, -1)
+	} else if direction.IsRight() {
+		return position.Shift(1, 0)
+	} else if direction.IsDown() {
+		return position.Shift(0, 1)
+	} else if direction.IsLeft() {
+		return position.Shift(-1, 0)
+	} else {
+		return position.Shift(0, 1)
+	}
+}
