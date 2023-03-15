@@ -103,9 +103,6 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepository.LockAccess(worldId)
-	defer unlocker()
-
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
@@ -128,9 +125,6 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
-
-	unlocker := serve.worldRepository.LockAccess(worldId)
-	defer unlocker()
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
@@ -198,9 +192,6 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepository.LockAccess(worldId)
-	defer unlocker()
-
 	err = serve.gameService.AddPlayer(worldId, playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
@@ -255,9 +246,6 @@ func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepository.LockAccess(worldId)
-	defer unlocker()
-
 	err = serve.gameService.MovePlayer(worldId, playerId, direction)
 	if err != nil {
 		serve.presentError(presenter, err)
@@ -273,9 +261,6 @@ func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerComman
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepository.LockAccess(worldId)
-	defer unlocker()
-
 	err = serve.gameService.RemovePlayer(worldId, playerId)
 	if err != nil {
 		serve.presentError(presenter, err)
@@ -290,9 +275,6 @@ func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	unlocker := serve.worldRepository.LockAccess(worldId)
-	defer unlocker()
-
 	err = serve.gameService.PlaceItem(worldId, playerId, itemId)
 	if err != nil {
 		serve.presentError(presenter, err)
@@ -306,9 +288,6 @@ func (serve *serve) DestroyItem(presenter Presenter, command DestroyItemCommand)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
-
-	unlocker := serve.worldRepository.LockAccess(worldId)
-	defer unlocker()
 
 	err = serve.gameService.DestroyItem(worldId, playerId)
 	if err != nil {
