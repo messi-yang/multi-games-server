@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
 	"github.com/go-redis/redis/v9"
 )
 
@@ -20,7 +20,7 @@ func (subscriber *subscriber[T]) Subscribe(channel string, handler func(T)) func
 	pubsub := subscriber.redisClient.Subscribe(context.TODO(), channel)
 	go func() {
 		for msg := range pubsub.Channel() {
-			intEvent, err := json.Unmarshal[T]([]byte(msg.Payload))
+			intEvent, err := jsonutil.Unmarshal[T]([]byte(msg.Payload))
 			if err != nil {
 				continue
 			}

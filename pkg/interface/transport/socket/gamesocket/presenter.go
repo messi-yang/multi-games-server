@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/gzip"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
 	"github.com/gorilla/websocket"
 )
 
@@ -24,7 +24,7 @@ func (presenter *presenter) OnMessage(jsonObj any) {
 
 	messageJsonInBytes, _ := json.Marshal(jsonObj)
 
-	compressedMessage, _ := gzip.Gzip(messageJsonInBytes)
+	compressedMessage, _ := gziputil.Gzip(messageJsonInBytes)
 
 	presenter.socketConn.WriteMessage(2, compressedMessage)
 }

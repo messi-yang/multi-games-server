@@ -5,7 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/tool"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/commonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
@@ -173,7 +173,7 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	tool.RangeMatrix(100, 100, func(x int, z int) {
+	commonutil.RangeMatrix(100, 100, func(x int, z int) {
 		randomInt := rand.Intn(40)
 		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {

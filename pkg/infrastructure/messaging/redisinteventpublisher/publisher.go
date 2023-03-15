@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
 	"github.com/go-redis/redis/v9"
 )
 
@@ -17,7 +17,7 @@ func New(redisClient *redis.Client) intevent.Publisher {
 }
 
 func (publisher *publisher) Publish(channel string, event intevent.Event) error {
-	message := json.Marshal(event)
+	message := jsonutil.Marshal(event)
 	err := publisher.redisClient.Publish(context.TODO(), channel, message).Err()
 	if err != nil {
 		return err

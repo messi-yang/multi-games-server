@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/gzip"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/json"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redisinteventsubscriber"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
@@ -96,12 +96,12 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 				return
 			}
 
-			message, err := gzip.Ungzip(compressedMessage)
+			message, err := gziputil.Ungzip(compressedMessage)
 			if err != nil {
 				return
 			}
 
-			genericRequestDto, err := json.Unmarshal[gamesocketappservice.GenericRequestDto](message)
+			genericRequestDto, err := jsonutil.Unmarshal[gamesocketappservice.GenericRequestDto](message)
 			if err != nil {
 				return
 			}
@@ -110,7 +110,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 			case gamesocketappservice.PingRequestDtoType:
 				continue
 			case gamesocketappservice.MoveRequestDtoType:
-				requestDto, err := json.Unmarshal[gamesocketappservice.MoveRequestDto](message)
+				requestDto, err := jsonutil.Unmarshal[gamesocketappservice.MoveRequestDto](message)
 				if err != nil {
 					return
 				}
@@ -121,7 +121,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					Direction: requestDto.Direction,
 				})
 			case gamesocketappservice.PlaceItemRequestDtoType:
-				requestDto, err := json.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
+				requestDto, err := jsonutil.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
 				if err != nil {
 					return
 				}

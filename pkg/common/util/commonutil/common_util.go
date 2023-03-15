@@ -1,4 +1,4 @@
-package tool
+package commonutil
 
 func MapMatrix[T any, M any](inputMatrix [][]T, transformer func(i int, j int, obj T) (M, error)) ([][]M, error) {
 	outputMatrix := make([][]M, 0)
