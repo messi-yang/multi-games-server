@@ -11,11 +11,11 @@ import (
 )
 
 type GameService interface {
-	AddPlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error
-	MovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error
-	RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error
-	PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error
-	DestroyItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error
+	AddPlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
+	MovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) (isVisionBoundUpdated bool, err error)
+	RemovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
+	PlaceItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo) error
+	DestroyItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 }
 
 type gameServe struct {
@@ -44,13 +44,16 @@ func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playerm
 	return nil
 }
 
-func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo) error {
+func (serve *gameServe) MovePlayer(
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo,
+) (bool, error) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
+	isVisionBoundUpdated := false
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return err
+		return isVisionBoundUpdated, err
 	}
 
 	originDirection := player.GetDirection()
@@ -60,23 +63,23 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 	if !originDirection.IsEqual(player.GetDirection()) {
 		err = serve.playerRepository.Update(player)
 		if err != nil {
-			return err
+			return isVisionBoundUpdated, err
 		}
-		return nil
+		return isVisionBoundUpdated, nil
 	}
 
 	positionOneStepFoward := player.GetPositionOneStepFoward()
 
 	unit, unitFound, err := serve.unitRepository.GetUnitAt(worldId, positionOneStepFoward)
 	if err != nil {
-		return err
+		return isVisionBoundUpdated, err
 	}
 
 	if unitFound {
 		itemId := unit.GetItemId()
 		item, err := serve.itemRepository.Get(itemId)
 		if err != nil {
-			return err
+			return isVisionBoundUpdated, err
 		}
 		if item.GetTraversable() {
 			player.ChangePosition(positionOneStepFoward)
@@ -85,12 +88,17 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 		player.ChangePosition(positionOneStepFoward)
 	}
 
-	err = serve.playerRepository.Update(player)
-	if err != nil {
-		return err
+	if player.ShallUpdateVisionBound() {
+		player.UpdateVisionBound()
+		isVisionBoundUpdated = true
 	}
 
-	return nil
+	err = serve.playerRepository.Update(player)
+	if err != nil {
+		return isVisionBoundUpdated, err
+	}
+
+	return isVisionBoundUpdated, nil
 }
 
 func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {

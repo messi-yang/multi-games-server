@@ -29,7 +29,7 @@ type Service interface {
 }
 
 type serve struct {
-	IntEventPublisher intevent.Publisher
+	intEventPublisher intevent.Publisher
 	worldRepository   worldmodel.Repository
 	playerRepository  playermodel.Repository
 	unitRepository    unitmodel.Repository
@@ -37,9 +37,9 @@ type serve struct {
 	gameService       service.GameService
 }
 
-func NewService(IntEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+func NewService(intEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
 	return &serve{
-		IntEventPublisher: IntEventPublisher,
+		intEventPublisher: intEventPublisher,
 		worldRepository:   worldRepository,
 		playerRepository:  playerRepository,
 		unitRepository:    unitRepository,
@@ -56,7 +56,7 @@ func (serve *serve) presentError(presenter Presenter, err error) {
 }
 
 func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) {
-	serve.IntEventPublisher.Publish(
+	serve.intEventPublisher.Publish(
 		NewUnitsUpdatedIntEventChannel(worldId.String(), playerId.String()),
 		UnitsUpdatedIntEvent{},
 	)
@@ -90,7 +90,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 	}
 
 	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
-		serve.IntEventPublisher.Publish(
+		serve.intEventPublisher.Publish(
 			NewPlayersUpdatedIntEventChannel(worldId.String(), player.GetId().String()),
 			PlayersUpdatedIntEvent{},
 		)
@@ -246,13 +246,19 @@ func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	err = serve.gameService.MovePlayer(worldId, playerId, direction)
+	isVisionBoundUpdated, err := serve.gameService.MovePlayer(worldId, playerId, direction)
 	if err != nil {
 		serve.presentError(presenter, err)
 	}
 
 	serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
-	serve.publishUnitsUpdatedEventTo(worldId, playerId)
+
+	if isVisionBoundUpdated {
+		serve.intEventPublisher.Publish(
+			NewVisionBoundUpdatedIntEventChannel(worldId.String(), playerId.String()),
+			VisionBoundUpdatedIntEvent{},
+		)
+	}
 }
 
 func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerCommand) {

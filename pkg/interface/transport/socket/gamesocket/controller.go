@@ -82,6 +82,19 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	)
 	defer unitsUpdatedIntEventTypeUnsubscriber()
 
+	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.VisionBoundUpdatedIntEvent](
+		controller.redisClient,
+	).Subscribe(
+		gamesocketappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
+		func(intEvent gamesocketappservice.VisionBoundUpdatedIntEvent) {
+			controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
+				WorldId:  worldIdDto,
+				PlayerId: playerIdDto,
+			})
+		},
+	)
+	defer visionBoundUpdatedIntEventTypeUnsubscriber()
+
 	controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,

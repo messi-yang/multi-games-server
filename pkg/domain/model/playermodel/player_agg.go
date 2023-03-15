@@ -1,26 +1,45 @@
 package playermodel
 
 import (
+	"math"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
+func calculatePlayerVisionBound(pos commonmodel.PositionVo) commonmodel.BoundVo {
+	fromX := pos.GetX() - 30
+	toX := pos.GetX() + 30
+
+	fromY := pos.GetZ() - 30
+	toY := pos.GetZ() + 30
+
+	from := commonmodel.NewPositionVo(fromX, fromY)
+	to := commonmodel.NewPositionVo(toX, toY)
+	bound, _ := commonmodel.NewBoundVo(from, to)
+
+	return bound
+}
+
 type PlayerAgg struct {
-	id        PlayerIdVo
-	worldId   worldmodel.WorldIdVo    // The id of the world the player belongs to
-	name      string                  // The name of the player
-	position  commonmodel.PositionVo  // The current position of the player
-	direction commonmodel.DirectionVo // The direction where the player is facing
+	id          PlayerIdVo
+	worldId     worldmodel.WorldIdVo    // The id of the world the player belongs to
+	name        string                  // The name of the player
+	position    commonmodel.PositionVo  // The current position of the player
+	direction   commonmodel.DirectionVo // The direction where the player is facing
+	visionBound commonmodel.BoundVo     // The vision bound of the player
 }
 
 func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo) PlayerAgg {
-	return PlayerAgg{
-		id:        id,
-		worldId:   worldId,
-		name:      name,
-		position:  position,
-		direction: direction,
+	player := PlayerAgg{
+		id:          id,
+		worldId:     worldId,
+		name:        name,
+		position:    position,
+		direction:   direction,
+		visionBound: calculatePlayerVisionBound(position),
 	}
+	return player
 }
 
 func (agg *PlayerAgg) GetId() PlayerIdVo {
@@ -43,12 +62,6 @@ func (agg *PlayerAgg) ChangePosition(position commonmodel.PositionVo) {
 	agg.position = position
 }
 
-// 	xDistance := int(math.Abs(float64(agg.position.GetX() - agg.lastGotUnits.GetX())))
-// 	zDistance := int(math.Abs(float64(agg.position.GetZ() - agg.lastGotUnits.GetZ())))
-// 	if xDistance >= MARK_POSITION_DISTANCE || zDistance >= MARK_POSITION_DISTANCE {
-// 		agg.lastGotUnits = agg.position
-// 	}
-
 func (agg *PlayerAgg) GetDirection() commonmodel.DirectionVo {
 	return agg.direction
 }
@@ -57,20 +70,19 @@ func (agg *PlayerAgg) ChangeDirection(direction commonmodel.DirectionVo) {
 	agg.direction = direction
 }
 
+func (agg *PlayerAgg) ShallUpdateVisionBound() bool {
+	visionBoundCenterPos := agg.visionBound.GetCenterPos()
+	xDistance := int(math.Abs(float64(agg.position.GetX() - visionBoundCenterPos.GetX())))
+	zDistance := int(math.Abs(float64(agg.position.GetZ() - visionBoundCenterPos.GetZ())))
+	return xDistance >= 10 || zDistance >= 10
+}
+
+func (agg *PlayerAgg) UpdateVisionBound() {
+	agg.visionBound = calculatePlayerVisionBound(agg.GetPosition())
+}
+
 func (agg *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
-	playerPosition := agg.GetPosition()
-
-	fromX := playerPosition.GetX() - 25
-	toX := playerPosition.GetX() + 25
-
-	fromY := playerPosition.GetZ() - 25
-	toY := playerPosition.GetZ() + 25
-
-	from := commonmodel.NewPositionVo(fromX, fromY)
-	to := commonmodel.NewPositionVo(toX, toY)
-	bound, _ := commonmodel.NewBoundVo(from, to)
-
-	return bound
+	return agg.visionBound
 }
 
 func (agg *PlayerAgg) CanSeeAnyPositions(positions []commonmodel.PositionVo) bool {

@@ -47,6 +47,10 @@ func (bound BoundVo) GetHeight() int {
 	return bound.to.GetZ() - bound.from.GetZ() + 1
 }
 
+func (bound BoundVo) GetCenterPos() PositionVo {
+	return NewPositionVo((bound.from.x+bound.to.x)/2, (bound.from.z+bound.to.z)/2)
+}
+
 func (bound BoundVo) CoversPosition(position PositionVo) bool {
 	return position.GetX() >= bound.from.GetX() && position.GetX() <= bound.to.GetX() && position.GetZ() >= bound.from.GetZ() && position.GetZ() <= bound.to.GetZ()
 }
