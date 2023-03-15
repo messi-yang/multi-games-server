@@ -7,10 +7,10 @@ import (
 
 type PlayerAgg struct {
 	id        PlayerIdVo
-	worldId   worldmodel.WorldIdVo
-	name      string
-	position  commonmodel.PositionVo
-	direction commonmodel.DirectionVo
+	worldId   worldmodel.WorldIdVo    // The id of the world the player belongs to
+	name      string                  // The name of the player
+	position  commonmodel.PositionVo  // The current position of the player
+	direction commonmodel.DirectionVo // The direction where the player is facing
 }
 
 func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo) PlayerAgg {
@@ -23,36 +23,42 @@ func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, posi
 	}
 }
 
-func (p *PlayerAgg) GetId() PlayerIdVo {
-	return p.id
+func (agg *PlayerAgg) GetId() PlayerIdVo {
+	return agg.id
 }
 
-func (p *PlayerAgg) GetWorldId() worldmodel.WorldIdVo {
-	return p.worldId
+func (agg *PlayerAgg) GetWorldId() worldmodel.WorldIdVo {
+	return agg.worldId
 }
 
-func (p *PlayerAgg) GetName() string {
-	return p.name
+func (agg *PlayerAgg) GetName() string {
+	return agg.name
 }
 
-func (p *PlayerAgg) GetPosition() commonmodel.PositionVo {
-	return p.position
+func (agg *PlayerAgg) GetPosition() commonmodel.PositionVo {
+	return agg.position
 }
 
-func (p *PlayerAgg) SetPosition(position commonmodel.PositionVo) {
-	p.position = position
+func (agg *PlayerAgg) ChangePosition(position commonmodel.PositionVo) {
+	agg.position = position
 }
 
-func (p *PlayerAgg) GetDirection() commonmodel.DirectionVo {
-	return p.direction
+// 	xDistance := int(math.Abs(float64(agg.position.GetX() - agg.lastGotUnits.GetX())))
+// 	zDistance := int(math.Abs(float64(agg.position.GetZ() - agg.lastGotUnits.GetZ())))
+// 	if xDistance >= MARK_POSITION_DISTANCE || zDistance >= MARK_POSITION_DISTANCE {
+// 		agg.lastGotUnits = agg.position
+// 	}
+
+func (agg *PlayerAgg) GetDirection() commonmodel.DirectionVo {
+	return agg.direction
 }
 
-func (p *PlayerAgg) SetDirection(direction commonmodel.DirectionVo) {
-	p.direction = direction
+func (agg *PlayerAgg) ChangeDirection(direction commonmodel.DirectionVo) {
+	agg.direction = direction
 }
 
-func (p *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
-	playerPosition := p.GetPosition()
+func (agg *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
+	playerPosition := agg.GetPosition()
 
 	fromX := playerPosition.GetX() - 25
 	toX := playerPosition.GetX() + 25
@@ -67,7 +73,7 @@ func (p *PlayerAgg) GetVisionBound() commonmodel.BoundVo {
 	return bound
 }
 
-func (p *PlayerAgg) CanSeeAnyPositions(positions []commonmodel.PositionVo) bool {
-	bound := p.GetVisionBound()
+func (agg *PlayerAgg) CanSeeAnyPositions(positions []commonmodel.PositionVo) bool {
+	bound := agg.GetVisionBound()
 	return bound.CoverAnyPositions(positions)
 }

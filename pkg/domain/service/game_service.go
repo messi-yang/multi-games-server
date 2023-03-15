@@ -54,7 +54,7 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 	}
 
 	if !direction.IsEqual(player.GetDirection()) {
-		player.SetDirection(direction)
+		player.ChangeDirection(direction)
 		err = serve.playerRepository.Update(player)
 		if err != nil {
 			return err
@@ -73,13 +73,13 @@ func (serve *gameServe) MovePlayer(worldId worldmodel.WorldIdVo, playerId player
 		itemId := unit.GetItemId()
 		item, _ := serve.itemRepository.Get(itemId)
 		if item.GetTraversable() {
-			player.SetPosition(targetPosition)
+			player.ChangePosition(targetPosition)
 		}
 	} else {
-		player.SetPosition(targetPosition)
+		player.ChangePosition(targetPosition)
 	}
 
-	player.SetDirection(direction)
+	player.ChangeDirection(direction)
 	err = serve.playerRepository.Update(player)
 	if err != nil {
 		return err
