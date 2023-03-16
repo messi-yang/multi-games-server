@@ -152,7 +152,7 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	_, worldFound, err := serve.worldRepository.Get(userId)
+	_, worldFound, err := serve.worldRepository.GetWorldOfUser(userId)
 	if err != nil {
 		return nil
 	}

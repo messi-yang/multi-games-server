@@ -33,11 +33,14 @@ func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playerm
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
+	if _, err := serve.worldRepository.Get(worldId); err != nil {
+		return err
+	}
+
 	direction, _ := commonmodel.NewDirectionVo(2)
 	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
 
-	err := serve.playerRepository.Add(newPlayer)
-	if err != nil {
+	if err := serve.playerRepository.Add(newPlayer); err != nil {
 		return err
 	}
 
@@ -49,6 +52,10 @@ func (serve *gameServe) MovePlayer(
 ) (bool, error) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
+
+	if _, err := serve.worldRepository.Get(worldId); err != nil {
+		return false, err
+	}
 
 	isVisionBoundUpdated := false
 	player, err := serve.playerRepository.Get(playerId)
@@ -93,8 +100,7 @@ func (serve *gameServe) MovePlayer(
 		isVisionBoundUpdated = true
 	}
 
-	err = serve.playerRepository.Update(player)
-	if err != nil {
+	if err = serve.playerRepository.Update(player); err != nil {
 		return isVisionBoundUpdated, err
 	}
 
@@ -105,8 +111,11 @@ func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId play
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	err := serve.playerRepository.Delete(playerId)
-	if err != nil {
+	if _, err := serve.worldRepository.Get(worldId); err != nil {
+		return err
+	}
+
+	if err := serve.playerRepository.Delete(playerId); err != nil {
 		return err
 	}
 	return nil
@@ -115,6 +124,10 @@ func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId play
 func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
+
+	if _, err := serve.worldRepository.Get(worldId); err != nil {
+		return err
+	}
 
 	item, err := serve.itemRepository.Get(itemId)
 	if err != nil {
@@ -145,6 +158,10 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 func (serve *gameServe) DestroyItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
+
+	if _, err := serve.worldRepository.Get(worldId); err != nil {
+		return err
+	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
