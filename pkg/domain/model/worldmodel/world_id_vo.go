@@ -17,6 +17,12 @@ func ParseWorldIdVo(uuidStr string) (WorldIdVo, error) {
 	}, nil
 }
 
+func NewWorldIdVo(uuid uuid.UUID) WorldIdVo {
+	return WorldIdVo{
+		id: uuid,
+	}
+}
+
 func (vo WorldIdVo) IsEqual(otherWorldId WorldIdVo) bool {
 	return vo.id == otherWorldId.id
 }

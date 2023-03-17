@@ -14,6 +14,6 @@ func NewPlayerDto(player playermodel.PlayerAgg) PlayerDto {
 		Id:        player.GetId().String(),
 		Name:      player.GetName(),
 		Position:  NewPositionDto(player.GetPosition()),
-		Direction: player.GetDirection().ToInt8(),
+		Direction: player.GetDirection().Int8(),
 	}
 }

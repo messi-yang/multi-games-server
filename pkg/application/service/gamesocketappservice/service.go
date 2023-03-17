@@ -161,6 +161,12 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 	}
 
 	worldId, _ := worldmodel.ParseWorldIdVo(uuid.New().String())
+	newWorld := worldmodel.NewWorldAgg(worldId, userId)
+
+	err = serve.worldRepository.Add(newWorld)
+	if err != nil {
+		return err
+	}
 
 	items, err := serve.itemRepository.GetAll()
 	if err != nil {
@@ -171,17 +177,10 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		randomInt := rand.Intn(40)
 		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {
-			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId())
+			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirectionVo())
 			serve.unitRepository.Add(newUnit)
 		}
 	})
-
-	newWorld := worldmodel.NewWorldAgg(worldId, userId)
-
-	err = serve.worldRepository.Add(newWorld)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }

@@ -58,7 +58,7 @@ func (repo *unitRepository) GetUnitAt(worldId worldmodel.WorldIdVo, position com
 		parsedWorldId, _ := worldmodel.ParseWorldIdVo(rawWorldId.String())
 		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
 		itemId, _ := itemmodel.ParseItemIdVo(rawItemId.String())
-		unitFound := unitmodel.NewUnitAgg(parsedWorldId, position, itemId)
+		unitFound := unitmodel.NewUnitAgg(parsedWorldId, position, itemId, commonmodel.NewDownDirectionVo())
 		unit = &unitFound
 	}
 	if err := iter.Close(); err != nil {
@@ -92,7 +92,7 @@ func (repo *unitRepository) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound 
 		parsedWorldId, _ := worldmodel.ParseWorldIdVo(rawWorldId.String())
 		position := commonmodel.NewPositionVo(rawPosX, rawPosZ)
 		itemId, _ := itemmodel.ParseItemIdVo(rawItemId.String())
-		units = append(units, unitmodel.NewUnitAgg(parsedWorldId, position, itemId))
+		units = append(units, unitmodel.NewUnitAgg(parsedWorldId, position, itemId, commonmodel.NewDownDirectionVo()))
 	}
 	if err := iter.Close(); err != nil {
 		return units, err

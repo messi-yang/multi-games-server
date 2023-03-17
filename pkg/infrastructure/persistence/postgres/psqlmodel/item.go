@@ -1,6 +1,8 @@
 package psqlmodel
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
@@ -32,5 +34,12 @@ func NewItemModel(item itemmodel.ItemAgg) ItemModel {
 }
 
 func (model ItemModel) ToAggregate() itemmodel.ItemAgg {
-	return itemmodel.NewItemAgg(itemmodel.NewItemIdVo(model.Id), model.Name, model.Traversable, model.ThumbnailSrc, model.ModelSrc)
+	serverUrl := os.Getenv("SERVER_URL")
+	return itemmodel.NewItemAgg(
+		itemmodel.NewItemIdVo(model.Id),
+		model.Name,
+		model.Traversable,
+		fmt.Sprintf("%s%s", serverUrl, model.ThumbnailSrc),
+		fmt.Sprintf("%s%s", serverUrl, model.ModelSrc),
+	)
 }

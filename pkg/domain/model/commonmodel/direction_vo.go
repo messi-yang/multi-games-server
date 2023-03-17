@@ -21,7 +21,11 @@ func NewDirectionVo(direction int8) (DirectionVo, error) {
 	return DirectionVo(direction), nil
 }
 
-func (direction DirectionVo) ToInt8() int8 {
+func NewDownDirectionVo() DirectionVo {
+	return DirectionVo(2)
+}
+
+func (direction DirectionVo) Int8() int8 {
 	return int8(direction)
 }
 

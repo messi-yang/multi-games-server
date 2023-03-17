@@ -7,7 +7,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/client/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redisinteventpublisher"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/cassandra"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/socket/gamesocket"
@@ -34,7 +33,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	unitRepository, err := cassandra.NewUnitRepository()
+	unitRepository, err := postgres.NewUnitRepository()
 	if err != nil {
 		panic(err)
 	}

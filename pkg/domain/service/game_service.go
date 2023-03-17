@@ -150,7 +150,7 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 		return errors.New("cannot place non-traversable item on a position with players")
 	}
 
-	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, positionOneStepFoward, itemId))
+	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, positionOneStepFoward, itemId, commonmodel.NewDownDirectionVo()))
 
 	return nil
 }

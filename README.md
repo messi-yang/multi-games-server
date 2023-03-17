@@ -39,7 +39,7 @@ Create new Cassandra migration file.
 > do not forget to run the `cassandra-migrate-up` below to do the migration after the file is completed.
 
 ```bash
-docker compose exec web make plan-cassandra-migrate FILE_NAME=${file_name_in_snake_case}
+docker compose exec web make cassandra-plan-migrate FILE_NAME=${file_name_in_snake_case}
 ```
 
 ### Start Migrating Cassandra
@@ -69,11 +69,23 @@ Create new Postgres migration file.
 > do not forget to run the `postgres-migrate-up` below to do the migration after the file is completed.
 
 ```bash
-docker compose exec web make plan-postgres-migrate FILE_NAME=${file_name_in_snake_case}
+docker compose exec web make postgres-plan-migrate FILE_NAME=${file_name_in_snake_case}
 ```
 
 ### Start Migrating Postgres
 
 ```bash
 docker compose exec web make postgres-migrate-up
+```
+
+### Revert Postgres Migration by 1 Version
+
+```bash
+docker compose exec web make postgres-migrate-down
+```
+
+### Force Postgres to Revert to Specific Version
+
+```bash
+docker compose exec web make postgres-migrate-force POSTGRES_MIGRATE_VERSION=${specifi_version}
 ```

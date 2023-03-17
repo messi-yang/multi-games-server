@@ -7,17 +7,19 @@ import (
 )
 
 type UnitAgg struct {
-	worldId  worldmodel.WorldIdVo
-	position commonmodel.PositionVo
-	itemId   itemmodel.ItemIdVo
+	worldId   worldmodel.WorldIdVo
+	position  commonmodel.PositionVo
+	itemId    itemmodel.ItemIdVo
+	direction commonmodel.DirectionVo
 }
 
 func NewUnitAgg(
 	worldId worldmodel.WorldIdVo,
 	position commonmodel.PositionVo,
 	itemId itemmodel.ItemIdVo,
+	direction commonmodel.DirectionVo,
 ) UnitAgg {
-	return UnitAgg{worldId: worldId, position: position, itemId: itemId}
+	return UnitAgg{worldId: worldId, position: position, itemId: itemId, direction: direction}
 }
 
 func (ua *UnitAgg) GetWorldId() worldmodel.WorldIdVo {
@@ -30,4 +32,8 @@ func (ua *UnitAgg) GetPosition() commonmodel.PositionVo {
 
 func (ua *UnitAgg) GetItemId() itemmodel.ItemIdVo {
 	return ua.itemId
+}
+
+func (ua *UnitAgg) GetDirection() commonmodel.DirectionVo {
+	return ua.direction
 }
