@@ -3,7 +3,7 @@ networks:
   base:
     driver: bridge
 volumes:
-  cassandra:
+  # cassandra:
   postgres:
 services:
   redis:
@@ -15,14 +15,14 @@ services:
       - REDIS_PASSWORD=main
     networks:
       - base
-  cassandra:
-    image: cassandra:4.0
-    ports:
-      - 9042:9042
-    volumes:
-      - cassandra:/var/lib/cassandra
-    networks:
-      - base
+  # cassandra:
+  #   image: cassandra:4.0
+  #   ports:
+  #     - 9042:9042
+  #   volumes:
+  #     - cassandra:/var/lib/cassandra
+  #   networks:
+  #     - base
   postgres:
     image: postgres:15-alpine
     ports:
@@ -53,7 +53,7 @@ services:
       - 8080:8080
     depends_on:
       - redis
-      - cassandra
+      # - cassandra
       - postgres
     networks:
       - base
@@ -61,4 +61,5 @@ services:
       - .:/app
     working_dir:
       /app
-    command: sh -c './db/postgres/check_postgres.sh && ./db/cassandra/check_cassandra.sh && make dev'
+    # command: sh -c './db/postgres/check_postgres.sh && ./db/cassandra/check_cassandra.sh && make dev'
+    command: sh -c './db/postgres/check_postgres.sh && make dev'
