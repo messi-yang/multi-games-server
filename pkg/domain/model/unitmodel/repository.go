@@ -7,7 +7,7 @@ import (
 
 type Repository interface {
 	Add(unit UnitAgg) error
-	GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (UnitAgg, bool, error)
+	GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (unit UnitAgg, found bool, err error)
 	GetUnitsInBound(worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo) ([]UnitAgg, error)
 	Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error
 }

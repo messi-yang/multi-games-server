@@ -13,44 +13,51 @@ type unitRepository struct {
 	gormDb *gorm.DB
 }
 
-func NewUnitRepository() (unitmodel.Repository, error) {
+func NewUnitRepository() (repository unitmodel.Repository, err error) {
 	gormDb, err := NewSession()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return &unitRepository{gormDb: gormDb}, nil
+	repository = &unitRepository{gormDb: gormDb}
+	return
 }
 
-func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
+func (repo *unitRepository) Add(unit unitmodel.UnitAgg) (err error) {
 	unitModel := psqlmodel.NewUnitModel(unit)
 	res := repo.gormDb.Create(&unitModel)
-
 	if res.Error != nil {
-		return res.Error
+		err = res.Error
+		return
 	}
-
-	return nil
+	return
 }
 
-func (repo *unitRepository) GetUnitAt(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (unitmodel.UnitAgg, bool, error) {
-	unitModel := psqlmodel.UnitModel{}
+func (repo *unitRepository) GetUnitAt(
+	worldId worldmodel.WorldIdVo, position commonmodel.PositionVo,
+) (unit unitmodel.UnitAgg, found bool, err error) {
+	unitModels := []psqlmodel.UnitModel{}
 	result := repo.gormDb.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
 		position.GetX(),
 		position.GetZ(),
-	).First(&unitModel)
+	).Find(&unitModels)
+
 	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return unitmodel.UnitAgg{}, false, nil
-		}
-		return unitmodel.UnitAgg{}, false, result.Error
+		err = result.Error
+		return
 	}
 
-	return unitModel.ToAggregate(), true, nil
+	found = result.RowsAffected >= 1
+	if found {
+		unit = unitModels[0].ToAggregate()
+	}
+	return
 }
 
-func (repo *unitRepository) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo) ([]unitmodel.UnitAgg, error) {
+func (repo *unitRepository) GetUnitsInBound(
+	worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo,
+) (units []unitmodel.UnitAgg, err error) {
 	var unitModels []psqlmodel.UnitModel
 	result := repo.gormDb.Where(
 		"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
@@ -61,14 +68,16 @@ func (repo *unitRepository) GetUnitsInBound(worldId worldmodel.WorldIdVo, bound 
 		bound.GetTo().GetZ(),
 	).Find(&unitModels, psqlmodel.UnitModel{})
 	if result.Error != nil {
-		return nil, result.Error
+		err = result.Error
+		return
 	}
-	return lo.Map(unitModels, func(model psqlmodel.UnitModel, _ int) unitmodel.UnitAgg {
+	units = lo.Map(unitModels, func(model psqlmodel.UnitModel, _ int) unitmodel.UnitAgg {
 		return model.ToAggregate()
-	}), nil
+	})
+	return
 }
 
-func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error {
+func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (err error) {
 	result := repo.gormDb.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
@@ -76,7 +85,8 @@ func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position common
 		position.GetZ(),
 	).Delete(&psqlmodel.UnitModel{})
 	if result.Error != nil {
-		return result.Error
+		err = result.Error
+		return
 	}
-	return nil
+	return
 }
