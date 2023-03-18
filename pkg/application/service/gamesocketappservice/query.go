@@ -10,14 +10,16 @@ type GetPlayersQuery struct {
 	PlayerId string
 }
 
-func (query GetPlayersQuery) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
-	worldId, err := worldmodel.ParseWorldIdVo(query.WorldId)
+func (query GetPlayersQuery) Validate() (
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
+) {
+	worldId, err = worldmodel.ParseWorldIdVo(query.WorldId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-	playerId, err := playermodel.ParsePlayerIdVo(query.PlayerId)
+	playerId, err = playermodel.ParsePlayerIdVo(query.PlayerId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
 
 	return worldId, playerId, nil
@@ -28,14 +30,16 @@ type GetUnitsVisibleByPlayerQuery struct {
 	PlayerId string
 }
 
-func (query GetUnitsVisibleByPlayerQuery) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
-	worldId, err := worldmodel.ParseWorldIdVo(query.WorldId)
+func (query GetUnitsVisibleByPlayerQuery) Validate() (
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
+) {
+	worldId, err = worldmodel.ParseWorldIdVo(query.WorldId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-	playerId, err := playermodel.ParsePlayerIdVo(query.PlayerId)
+	playerId, err = playermodel.ParsePlayerIdVo(query.PlayerId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
 
 	return worldId, playerId, nil

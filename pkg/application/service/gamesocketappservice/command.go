@@ -13,20 +13,21 @@ type PlaceItemCommand struct {
 	ItemId   string
 }
 
-func (command PlaceItemCommand) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo, error) {
-	worldId, err := worldmodel.ParseWorldIdVo(command.WorldId)
+func (command PlaceItemCommand) Validate() (
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, err error,
+) {
+	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, err
+		return worldId, playerId, itemId, err
 	}
-	playerId, err := playermodel.ParsePlayerIdVo(command.PlayerId)
+	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, err
+		return worldId, playerId, itemId, err
 	}
-	itemId, err := itemmodel.ParseItemIdVo(command.ItemId)
+	itemId, err = itemmodel.ParseItemIdVo(command.ItemId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, itemmodel.ItemIdVo{}, err
+		return worldId, playerId, itemId, err
 	}
-
 	return worldId, playerId, itemId, nil
 }
 
@@ -35,16 +36,17 @@ type DestroyItemCommand struct {
 	PlayerId string
 }
 
-func (command DestroyItemCommand) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
-	worldId, err := worldmodel.ParseWorldIdVo(command.WorldId)
+func (command DestroyItemCommand) Validate() (
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
+) {
+	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-	playerId, err := playermodel.ParsePlayerIdVo(command.PlayerId)
+	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-
 	return worldId, playerId, nil
 }
 
@@ -53,16 +55,17 @@ type AddPlayerCommand struct {
 	PlayerId string
 }
 
-func (command AddPlayerCommand) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
-	worldId, err := worldmodel.ParseWorldIdVo(command.WorldId)
+func (command AddPlayerCommand) Validate() (
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
+) {
+	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-	playerId, err := playermodel.ParsePlayerIdVo(command.PlayerId)
+	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-
 	return worldId, playerId, nil
 }
 
@@ -72,16 +75,18 @@ type MovePlayerCommand struct {
 	Direction int8
 }
 
-func (command MovePlayerCommand) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo, error) {
-	worldId, err := worldmodel.ParseWorldIdVo(command.WorldId)
+func (command MovePlayerCommand) Validate() (
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo, err error,
+) {
+	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, 0, err
+		return worldId, playerId, direction, err
 	}
-	playerId, err := playermodel.ParsePlayerIdVo(command.PlayerId)
+	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, 0, err
+		return worldId, playerId, direction, err
 	}
-	direction := commonmodel.NewDirectionVo(command.Direction)
+	direction = commonmodel.NewDirectionVo(command.Direction)
 
 	return worldId, playerId, direction, nil
 }
@@ -91,15 +96,16 @@ type RemovePlayerCommand struct {
 	PlayerId string
 }
 
-func (command RemovePlayerCommand) Validate() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, error) {
-	worldId, err := worldmodel.ParseWorldIdVo(command.WorldId)
+func (command RemovePlayerCommand) Validate() (
+	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
+) {
+	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-	playerId, err := playermodel.ParsePlayerIdVo(command.PlayerId)
+	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
 	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, err
+		return worldId, playerId, err
 	}
-
 	return worldId, playerId, nil
 }
