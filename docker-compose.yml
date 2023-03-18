@@ -62,4 +62,4 @@ services:
     working_dir:
       /app
     # command: sh -c './db/postgres/check_postgres.sh && ./db/cassandra/check_cassandra.sh && make dev'
-    command: sh -c './db/postgres/check_postgres.sh && make dev'
+    command: sh -c './scripts/init_database.sh && make dev'

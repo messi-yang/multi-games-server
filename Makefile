@@ -38,6 +38,10 @@ postgres-migrate-down:
 postgres-migrate-force:
 	migrate -source="file:db/postgres/migrations" -database="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" force ${POSTGRES_MIGRATE_VERSION}
 
+# .PHONY: db-seed
+db-seed:
+	go run pkg/main.go seed
+
 # .PHONY: dev
 dev:
 	air -c .air.toml

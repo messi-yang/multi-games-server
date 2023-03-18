@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/client/redisclient"
@@ -9,6 +11,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redisinteventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cmd/seedcmd"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/socket/gamesocket"
 
 	"github.com/gin-contrib/cors"
@@ -16,6 +19,17 @@ import (
 )
 
 func main() {
+	flag.Parse()
+	args := flag.Args()
+	if len(args) > 0 {
+		switch args[0] {
+		case "seed":
+			seedcmd.Exec()
+			os.Exit(0)
+		}
+		return
+	}
+
 	router := gin.Default()
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true

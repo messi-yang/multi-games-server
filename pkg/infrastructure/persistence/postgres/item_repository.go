@@ -42,3 +42,12 @@ func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemA
 
 	return itemModel.ToAggregate(), nil
 }
+
+func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
+	itemModel := psqlmodel.NewItemModel(item)
+	res := repo.gormDb.Create(&itemModel)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
