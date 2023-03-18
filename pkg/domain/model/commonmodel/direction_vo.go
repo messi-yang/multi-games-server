@@ -22,7 +22,7 @@ func NewDirectionVo(direction int8) (DirectionVo, error) {
 }
 
 func NewDownDirectionVo() DirectionVo {
-	return DirectionVo(2)
+	return DirectionVo(0)
 }
 
 func (direction DirectionVo) Int8() int8 {
@@ -33,18 +33,23 @@ func (direction DirectionVo) IsEqual(otherDirection DirectionVo) bool {
 	return direction == otherDirection
 }
 
-func (direction DirectionVo) IsUp() bool {
+func (direction DirectionVo) IsDown() bool {
 	return direction == 0
+}
+
+func (direction DirectionVo) IsLeft() bool {
+	return direction == 3
+}
+
+func (direction DirectionVo) IsUp() bool {
+	return direction == 2
 }
 
 func (direction DirectionVo) IsRight() bool {
 	return direction == 1
 }
 
-func (direction DirectionVo) IsDown() bool {
-	return direction == 2
-}
-
-func (direction DirectionVo) IsLeft() bool {
-	return direction == 3
+func (direction DirectionVo) Rotate() DirectionVo {
+	newDirection, _ := NewDirectionVo((direction.Int8() + 1) % 4)
+	return newDirection
 }

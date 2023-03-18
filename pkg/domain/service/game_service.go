@@ -37,7 +37,7 @@ func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playerm
 		return err
 	}
 
-	direction, _ := commonmodel.NewDirectionVo(2)
+	direction := commonmodel.NewDownDirectionVo()
 	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
 
 	if err := serve.playerRepository.Add(newPlayer); err != nil {
@@ -121,22 +121,22 @@ func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId play
 	return nil
 }
 
-func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error {
+func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) (err error) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
-		return err
+	if _, err = serve.worldRepository.Get(worldId); err != nil {
+		return
 	}
 
 	item, err := serve.itemRepository.Get(itemId)
 	if err != nil {
-		return err
+		return
 	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return err
+		return
 	}
 
 	positionOneStepFoward := player.GetPositionOneStepFoward()
@@ -150,7 +150,8 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 		return errors.New("cannot place non-traversable item on a position with players")
 	}
 
-	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, positionOneStepFoward, itemId, commonmodel.NewDownDirectionVo()))
+	itemDirection := player.GetDirection().Rotate().Rotate()
+	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, positionOneStepFoward, itemId, itemDirection))
 
 	return nil
 }
