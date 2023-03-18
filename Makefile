@@ -2,8 +2,8 @@
 init-cassandra:
 	cqlsh ${CASSANDRA_HOST} -f ./db/cassandra/init.cql
 
-# .PHONY: connect-cassandra
-connect-cassandra:
+# .PHONY: cassandra-connect
+cassandra-connect:
 	cqlsh ${CASSANDRA_HOST} ${CASSANDRA_PORT}
 
 # .PHONY: cassandra-plan-migrate
