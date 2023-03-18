@@ -81,10 +81,7 @@ func (command MovePlayerCommand) Validate() (worldmodel.WorldIdVo, playermodel.P
 	if err != nil {
 		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, 0, err
 	}
-	direction, err := commonmodel.NewDirectionVo(command.Direction)
-	if err != nil {
-		return worldmodel.WorldIdVo{}, playermodel.PlayerIdVo{}, 0, err
-	}
+	direction := commonmodel.NewDirectionVo(command.Direction)
 
 	return worldId, playerId, direction, nil
 }

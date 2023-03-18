@@ -31,11 +31,10 @@ func NewUnitModel(unit unitmodel.UnitAgg) UnitModel {
 }
 
 func (model UnitModel) ToAggregate() unitmodel.UnitAgg {
-	direction, _ := commonmodel.NewDirectionVo(model.Direction)
 	return unitmodel.NewUnitAgg(
 		worldmodel.NewWorldIdVo(model.WorldId),
 		commonmodel.NewPositionVo(model.PosX, model.PosZ),
 		itemmodel.NewItemIdVo(model.ItemId),
-		direction,
+		commonmodel.NewDirectionVo(model.Direction),
 	)
 }

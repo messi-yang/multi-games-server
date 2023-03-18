@@ -2,8 +2,6 @@ package commonmodel
 
 import (
 	"errors"
-
-	"github.com/samber/lo"
 )
 
 var (
@@ -12,13 +10,8 @@ var (
 
 type DirectionVo int8
 
-func NewDirectionVo(direction int8) (DirectionVo, error) {
-	found := lo.IndexOf([]int8{0, 1, 2, 3}, direction)
-	if found == -1 {
-		return 0, ErrNoSuchDirection
-	}
-
-	return DirectionVo(direction), nil
+func NewDirectionVo(direction int8) DirectionVo {
+	return DirectionVo(direction % 4)
 }
 
 func NewDownDirectionVo() DirectionVo {
@@ -50,6 +43,5 @@ func (direction DirectionVo) IsRight() bool {
 }
 
 func (direction DirectionVo) Rotate() DirectionVo {
-	newDirection, _ := NewDirectionVo((direction.Int8() + 1) % 4)
-	return newDirection
+	return NewDirectionVo(direction.Int8() + 1)
 }
