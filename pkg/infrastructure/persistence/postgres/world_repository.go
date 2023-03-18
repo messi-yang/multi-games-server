@@ -15,58 +15,53 @@ type worldRepository struct {
 func NewWorldRepository() (repository worldmodel.Repository, err error) {
 	gormDb, err := NewSession()
 	if err != nil {
-		return
+		return repository, err
 	}
-	repository = &worldRepository{gormDb: gormDb}
-	return
+	return &worldRepository{gormDb: gormDb}, nil
 }
 
 func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
 	worldModel := psqlmodel.WorldModel{Id: worldId.Uuid()}
 	result := repo.gormDb.First(&worldModel)
 	if result.Error != nil {
-		err = result.Error
+		return world, result.Error
 	}
-	world = worldModel.ToAggregate()
-	return
+	return worldModel.ToAggregate(), nil
 }
 
 func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (world worldmodel.WorldAgg, found bool, err error) {
 	worldModels := []psqlmodel.WorldModel{}
 	result := repo.gormDb.Where("user_id = ?", userId.Uuid()).Find(&worldModels)
 	if result.Error != nil {
-		err = result.Error
-		return
+		return world, found, result.Error
 	}
 	found = result.RowsAffected > 0
 	if found {
 		world = worldModels[0].ToAggregate()
 	}
-	return
+	return world, found, nil
 }
 
 func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) {
 	var worldModels []psqlmodel.WorldModel
 	result := repo.gormDb.Select("Id", "Width", "Height", "CreatedAt", "UpdatedAt").Find(&worldModels)
 	if result.Error != nil {
-		err = result.Error
-		return
+		return worlds, result.Error
 	}
 
 	worlds = lo.Map(worldModels, func(model psqlmodel.WorldModel, _ int) worldmodel.WorldAgg {
 		return model.ToAggregate()
 	})
-	return
+	return worlds, nil
 }
 
-func (repo *worldRepository) Add(world worldmodel.WorldAgg) (err error) {
+func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
 	worldModel := psqlmodel.NewWorldModel(world)
 	res := repo.gormDb.Create(&worldModel)
 	if res.Error != nil {
-		err = res.Error
-		return
+		return res.Error
 	}
-	return
+	return nil
 }
 
 func (repo *worldRepository) ReadLockAccess(worldId worldmodel.WorldIdVo) func() {

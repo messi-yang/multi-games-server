@@ -8,10 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var gormDb *gorm.DB
+var gormDbSingleton *gorm.DB
 
-func NewSession() (*gorm.DB, error) {
-	if gormDb == nil {
+func NewSession() (gormDb *gorm.DB, err error) {
+	if gormDbSingleton == nil {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",
 			os.Getenv("POSTGRES_HOST"),
@@ -19,13 +19,13 @@ func NewSession() (*gorm.DB, error) {
 			os.Getenv("POSTGRES_PASSWORD"),
 			os.Getenv("POSTGRES_DB"),
 		)
-		gormDb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		gormDbSingleton, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
-			return &gorm.DB{}, err
+			return gormDb, err
 		}
 
-		return gormDb, nil
+		return gormDbSingleton, nil
 	}
 
-	return gormDb, nil
+	return gormDbSingleton, nil
 }

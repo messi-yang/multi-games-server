@@ -16,20 +16,18 @@ type unitRepository struct {
 func NewUnitRepository() (repository unitmodel.Repository, err error) {
 	gormDb, err := NewSession()
 	if err != nil {
-		return
+		return repository, err
 	}
-	repository = &unitRepository{gormDb: gormDb}
-	return
+	return &unitRepository{gormDb: gormDb}, nil
 }
 
-func (repo *unitRepository) Add(unit unitmodel.UnitAgg) (err error) {
+func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
 	unitModel := psqlmodel.NewUnitModel(unit)
 	res := repo.gormDb.Create(&unitModel)
 	if res.Error != nil {
-		err = res.Error
-		return
+		return res.Error
 	}
-	return
+	return nil
 }
 
 func (repo *unitRepository) GetUnitAt(
@@ -44,15 +42,14 @@ func (repo *unitRepository) GetUnitAt(
 	).Find(&unitModels)
 
 	if result.Error != nil {
-		err = result.Error
-		return
+		return unit, found, result.Error
 	}
 
 	found = result.RowsAffected >= 1
 	if found {
 		unit = unitModels[0].ToAggregate()
 	}
-	return
+	return unit, found, nil
 }
 
 func (repo *unitRepository) GetUnitsInBound(
@@ -68,16 +65,15 @@ func (repo *unitRepository) GetUnitsInBound(
 		bound.GetTo().GetZ(),
 	).Find(&unitModels, psqlmodel.UnitModel{})
 	if result.Error != nil {
-		err = result.Error
-		return
+		return units, result.Error
 	}
 	units = lo.Map(unitModels, func(model psqlmodel.UnitModel, _ int) unitmodel.UnitAgg {
 		return model.ToAggregate()
 	})
-	return
+	return units, nil
 }
 
-func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) (err error) {
+func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error {
 	result := repo.gormDb.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
@@ -85,8 +81,7 @@ func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position common
 		position.GetZ(),
 	).Delete(&psqlmodel.UnitModel{})
 	if result.Error != nil {
-		err = result.Error
-		return
+		return result.Error
 	}
-	return
+	return nil
 }

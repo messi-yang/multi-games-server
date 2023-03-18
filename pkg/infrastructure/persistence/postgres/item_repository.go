@@ -14,10 +14,9 @@ type itemRepository struct {
 func NewItemRepository() (repository itemmodel.Repository, err error) {
 	gormDb, err := NewSession()
 	if err != nil {
-		return
+		return repository, err
 	}
-	repository = &itemRepository{gormDb: gormDb}
-	return
+	return &itemRepository{gormDb: gormDb}, nil
 }
 
 func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
@@ -25,23 +24,21 @@ func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
 	result := repo.gormDb.Find(&itemModels)
 	if result.Error != nil {
 		err = result.Error
-		return
+		return items, err
 	}
 
 	items = lo.Map(itemModels, func(model psqlmodel.ItemModel, _ int) itemmodel.ItemAgg {
 		return model.ToAggregate()
 	})
-	return
+	return items, nil
 }
 
 func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
 	itemModel := psqlmodel.ItemModel{Id: itemId.Uuid()}
 	result := repo.gormDb.First(&itemModel)
 	if result.Error != nil {
-		err = result.Error
-		return
+		return item, result.Error
 	}
 
-	item = itemModel.ToAggregate()
-	return
+	return itemModel.ToAggregate(), nil
 }

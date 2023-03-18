@@ -13,18 +13,16 @@ type userRepository struct {
 func NewUserRepository() (repository usermodel.Repository, err error) {
 	gormDb, err := NewSession()
 	if err != nil {
-		return
+		return repository, err
 	}
-	repository = &userRepository{gormDb: gormDb}
-	return
+	return &userRepository{gormDb: gormDb}, nil
 }
 
-func (repo *userRepository) Add(user usermodel.UserAgg) (err error) {
+func (repo *userRepository) Add(user usermodel.UserAgg) error {
 	userModel := psqlmodel.NewUserModel(user)
 	res := repo.gormDb.Create(&userModel)
 	if res.Error != nil {
-		err = res.Error
-		return
+		return res.Error
 	}
-	return
+	return nil
 }
