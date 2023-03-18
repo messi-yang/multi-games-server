@@ -29,52 +29,42 @@ func NewGameService(worldRepository worldmodel.Repository, playerRepository play
 	return &gameServe{worldRepository: worldRepository, playerRepository: playerRepository, unitRepository: unitRepository, itemRepository: itemRepository}
 }
 
-func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) (err error) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err = serve.worldRepository.Get(worldId); err != nil {
 		return err
 	}
 
 	direction := commonmodel.NewDownDirectionVo()
 	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction)
 
-	if err := serve.playerRepository.Add(newPlayer); err != nil {
-		return err
-	}
-
-	return nil
+	return serve.playerRepository.Add(newPlayer)
 }
 
 func (serve *gameServe) MovePlayer(
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo,
-) (bool, error) {
+) (isVisionBoundUpdated bool, err error) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
-		return false, err
+	if _, err = serve.worldRepository.Get(worldId); err != nil {
+		return isVisionBoundUpdated, err
 	}
 
-	isVisionBoundUpdated := false
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
 		return isVisionBoundUpdated, err
 	}
 
-	originDirection := player.GetDirection()
-
-	player.ChangeDirection(direction)
-
-	if !originDirection.IsEqual(player.GetDirection()) {
+	if !direction.IsEqual(player.GetDirection()) {
+		player.ChangeDirection(direction)
 		err = serve.playerRepository.Update(player)
-		if err != nil {
-			return isVisionBoundUpdated, err
-		}
-		return isVisionBoundUpdated, nil
+		return isVisionBoundUpdated, err
 	}
 
+	player.ChangeDirection(direction)
 	positionOneStepFoward := player.GetPositionOneStepFoward()
 
 	unit, unitFound, err := serve.unitRepository.GetUnitAt(worldId, positionOneStepFoward)
@@ -100,25 +90,19 @@ func (serve *gameServe) MovePlayer(
 		isVisionBoundUpdated = true
 	}
 
-	if err = serve.playerRepository.Update(player); err != nil {
-		return isVisionBoundUpdated, err
-	}
-
-	return isVisionBoundUpdated, nil
+	err = serve.playerRepository.Update(player)
+	return isVisionBoundUpdated, err
 }
 
-func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) (err error) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err = serve.worldRepository.Get(worldId); err != nil {
 		return err
 	}
 
-	if err := serve.playerRepository.Delete(playerId); err != nil {
-		return err
-	}
-	return nil
+	return serve.playerRepository.Delete(playerId)
 }
 
 func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) (err error) {
@@ -126,17 +110,17 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 	defer unlocker()
 
 	if _, err = serve.worldRepository.Get(worldId); err != nil {
-		return
+		return err
 	}
 
 	item, err := serve.itemRepository.Get(itemId)
 	if err != nil {
-		return
+		return err
 	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return
+		return err
 	}
 
 	positionOneStepFoward := player.GetPositionOneStepFoward()
@@ -151,12 +135,10 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 	}
 
 	itemDirection := player.GetDirection().Rotate().Rotate()
-	serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, positionOneStepFoward, itemId, itemDirection))
-
-	return nil
+	return serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, positionOneStepFoward, itemId, itemDirection))
 }
 
-func (serve *gameServe) DestroyItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+func (serve *gameServe) DestroyItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) (err error) {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
@@ -170,7 +152,5 @@ func (serve *gameServe) DestroyItem(worldId worldmodel.WorldIdVo, playerId playe
 	}
 
 	positionOneStepFoward := player.GetPositionOneStepFoward()
-	serve.unitRepository.Delete(worldId, positionOneStepFoward)
-
-	return nil
+	return serve.unitRepository.Delete(worldId, positionOneStepFoward)
 }
