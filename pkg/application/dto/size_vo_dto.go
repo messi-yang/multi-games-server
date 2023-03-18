@@ -2,13 +2,13 @@ package dto
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 
-type SizeDto struct {
+type SizeVoDto struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
-func NewSizeDto(size commonmodel.SizeVo) SizeDto {
-	return SizeDto{
+func NewSizeVoDto(size commonmodel.SizeVo) SizeVoDto {
+	return SizeVoDto{
 		Width:  size.GetWidth(),
 		Height: size.GetHeight(),
 	}

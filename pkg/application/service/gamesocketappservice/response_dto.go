@@ -19,21 +19,21 @@ type ErroredResponseDto struct {
 }
 
 type GameJoinedResponseDto struct {
-	Type        ResponseDtoType `json:"type"`
-	PlayerId    string          `json:"playerId"`
-	Players     []dto.PlayerDto `json:"players"`
-	VisionBound dto.BoundDto    `json:"visionBound"`
-	Units       []dto.UnitDto   `json:"units"`
-	Items       []dto.ItemDto   `json:"items"`
+	Type        ResponseDtoType    `json:"type"`
+	PlayerId    string             `json:"playerId"`
+	Players     []dto.PlayerAggDto `json:"players"`
+	VisionBound dto.BoundVoDto     `json:"visionBound"`
+	Units       []dto.UnitVoDto    `json:"units"`
+	Items       []dto.ItemAggDto   `json:"items"`
 }
 
 type PlayersUpdatedResponseDto struct {
-	Type    ResponseDtoType `json:"type"`
-	Players []dto.PlayerDto `json:"players"`
+	Type    ResponseDtoType    `json:"type"`
+	Players []dto.PlayerAggDto `json:"players"`
 }
 
 type UnitsUpdatedResponseDto struct {
 	Type        ResponseDtoType `json:"type"`
-	VisionBound dto.BoundDto    `json:"visionBound"`
-	Units       []dto.UnitDto   `json:"units"`
+	VisionBound dto.BoundVoDto  `json:"visionBound"`
+	Units       []dto.UnitVoDto `json:"units"`
 }

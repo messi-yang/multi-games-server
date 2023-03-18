@@ -2,13 +2,13 @@ package dto
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 
-type PositionDto struct {
+type PositionVoDto struct {
 	X int `json:"x"`
 	Z int `json:"z"`
 }
 
-func NewPositionDto(position commonmodel.PositionVo) PositionDto {
-	return PositionDto{
+func NewPositionVoDto(position commonmodel.PositionVo) PositionVoDto {
+	return PositionVoDto{
 		X: position.GetX(),
 		Z: position.GetZ(),
 	}

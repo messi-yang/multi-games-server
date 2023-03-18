@@ -114,8 +114,8 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 
 	presenter.OnMessage(PlayersUpdatedResponseDto{
 		Type: PlayersUpdatedResponseDtoType,
-		Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerDto {
-			return dto.NewPlayerDto(player)
+		Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
+			return dto.NewPlayerAggDto(player)
 		}),
 	})
 }
@@ -139,9 +139,9 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 
 	presenter.OnMessage(UnitsUpdatedResponseDto{
 		Type:        UnitsUpdatedResponseDtoType,
-		VisionBound: dto.NewBoundDto(playerVisionBound),
-		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
-			return dto.NewUnitDto(unit)
+		VisionBound: dto.NewBoundVoDto(playerVisionBound),
+		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
+			return dto.NewUnitVoDto(unit)
 		}),
 	})
 }
@@ -206,8 +206,8 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	itemDtos := lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemDto {
-		return dto.NewItemDto(item)
+	itemDtos := lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemAggDto {
+		return dto.NewItemAggDto(item)
 	})
 
 	players, err := serve.playerRepository.GetPlayersAround(worldId, newPlayer.GetPosition())
@@ -215,8 +215,8 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		serve.presentError(presenter, err)
 	}
 
-	playerDtos := lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerDto {
-		return dto.NewPlayerDto(p)
+	playerDtos := lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
+		return dto.NewPlayerAggDto(p)
 	})
 
 	playerVisionBound := newPlayer.GetVisionBound()
@@ -230,9 +230,9 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 		Items:       itemDtos,
 		PlayerId:    playerId.String(),
 		Players:     playerDtos,
-		VisionBound: dto.NewBoundDto(playerVisionBound),
-		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitDto {
-			return dto.NewUnitDto(unit)
+		VisionBound: dto.NewBoundVoDto(playerVisionBound),
+		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
+			return dto.NewUnitVoDto(unit)
 		}),
 	})
 
