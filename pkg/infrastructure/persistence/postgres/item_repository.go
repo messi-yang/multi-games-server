@@ -11,34 +11,37 @@ type itemRepository struct {
 	gormDb *gorm.DB
 }
 
-func NewItemRepository() (itemmodel.Repository, error) {
+func NewItemRepository() (repository itemmodel.Repository, err error) {
 	gormDb, err := NewSession()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return &itemRepository{gormDb: gormDb}, nil
+	repository = &itemRepository{gormDb: gormDb}
+	return
 }
 
-func (repo *itemRepository) GetAll() ([]itemmodel.ItemAgg, error) {
+func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
 	var itemModels []psqlmodel.ItemModel
 	result := repo.gormDb.Find(&itemModels)
 	if result.Error != nil {
-		return nil, result.Error
+		err = result.Error
+		return
 	}
 
-	worlds := lo.Map(itemModels, func(model psqlmodel.ItemModel, _ int) itemmodel.ItemAgg {
+	items = lo.Map(itemModels, func(model psqlmodel.ItemModel, _ int) itemmodel.ItemAgg {
 		return model.ToAggregate()
 	})
-
-	return worlds, nil
+	return
 }
 
-func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (itemmodel.ItemAgg, error) {
+func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
 	itemModel := psqlmodel.ItemModel{Id: itemId.Uuid()}
 	result := repo.gormDb.First(&itemModel)
 	if result.Error != nil {
-		return itemmodel.ItemAgg{}, result.Error
+		err = result.Error
+		return
 	}
 
-	return itemModel.ToAggregate(), nil
+	item = itemModel.ToAggregate()
+	return
 }

@@ -12,59 +12,61 @@ type worldRepository struct {
 	gormDb *gorm.DB
 }
 
-func NewWorldRepository() (worldmodel.Repository, error) {
+func NewWorldRepository() (repository worldmodel.Repository, err error) {
 	gormDb, err := NewSession()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return &worldRepository{gormDb: gormDb}, nil
+	repository = &worldRepository{gormDb: gormDb}
+	return
 }
 
-func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (worldmodel.WorldAgg, error) {
+func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
 	worldModel := psqlmodel.WorldModel{Id: worldId.Uuid()}
 	result := repo.gormDb.First(&worldModel)
 	if result.Error != nil {
-		return worldmodel.WorldAgg{}, result.Error
+		err = result.Error
 	}
-
-	return worldModel.ToAggregate(), nil
+	world = worldModel.ToAggregate()
+	return
 }
 
-func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (worldmodel.WorldAgg, bool, error) {
-	worldModel := psqlmodel.WorldModel{UserId: userId.Uuid()}
-	result := repo.gormDb.First(&worldModel)
+func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (world worldmodel.WorldAgg, found bool, err error) {
+	worldModels := []psqlmodel.WorldModel{}
+	result := repo.gormDb.Where("user_id = ?", userId.Uuid()).Find(&worldModels)
 	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return worldmodel.WorldAgg{}, false, nil
-		}
-		return worldmodel.WorldAgg{}, false, result.Error
+		err = result.Error
+		return
 	}
-
-	return worldModel.ToAggregate(), true, nil
+	found = result.RowsAffected > 0
+	if found {
+		world = worldModels[0].ToAggregate()
+	}
+	return
 }
 
-func (repo *worldRepository) GetAll() ([]worldmodel.WorldAgg, error) {
+func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) {
 	var worldModels []psqlmodel.WorldModel
 	result := repo.gormDb.Select("Id", "Width", "Height", "CreatedAt", "UpdatedAt").Find(&worldModels)
 	if result.Error != nil {
-		return nil, result.Error
+		err = result.Error
+		return
 	}
 
-	worlds := lo.Map(worldModels, func(model psqlmodel.WorldModel, _ int) worldmodel.WorldAgg {
+	worlds = lo.Map(worldModels, func(model psqlmodel.WorldModel, _ int) worldmodel.WorldAgg {
 		return model.ToAggregate()
 	})
-
-	return worlds, nil
+	return
 }
 
-func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
+func (repo *worldRepository) Add(world worldmodel.WorldAgg) (err error) {
 	worldModel := psqlmodel.NewWorldModel(world)
 	res := repo.gormDb.Create(&worldModel)
 	if res.Error != nil {
-		return res.Error
+		err = res.Error
+		return
 	}
-
-	return nil
+	return
 }
 
 func (repo *worldRepository) ReadLockAccess(worldId worldmodel.WorldIdVo) func() {
