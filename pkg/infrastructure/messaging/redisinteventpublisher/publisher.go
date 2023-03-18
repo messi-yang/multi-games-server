@@ -18,9 +18,5 @@ func New(redisClient *redis.Client) intevent.Publisher {
 
 func (publisher *publisher) Publish(channel string, event intevent.Event) error {
 	message := jsonutil.Marshal(event)
-	err := publisher.redisClient.Publish(context.TODO(), channel, message).Err()
-	if err != nil {
-		return err
-	}
-	return nil
+	return publisher.redisClient.Publish(context.TODO(), channel, message).Err()
 }

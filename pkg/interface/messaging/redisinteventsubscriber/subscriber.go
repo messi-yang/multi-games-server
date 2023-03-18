@@ -16,7 +16,7 @@ func New[T intevent.Event](redisClient *redis.Client) intevent.Subscriber[T] {
 	return &subscriber[T]{redisClient: redisClient}
 }
 
-func (subscriber *subscriber[T]) Subscribe(channel string, handler func(T)) func() {
+func (subscriber *subscriber[T]) Subscribe(channel string, handler func(T)) (unsubscriber func()) {
 	pubsub := subscriber.redisClient.Subscribe(context.TODO(), channel)
 	go func() {
 		for msg := range pubsub.Channel() {
@@ -28,7 +28,8 @@ func (subscriber *subscriber[T]) Subscribe(channel string, handler func(T)) func
 		}
 	}()
 
-	return func() {
+	unsubscriber = func() {
 		pubsub.Close()
 	}
+	return unsubscriber
 }
