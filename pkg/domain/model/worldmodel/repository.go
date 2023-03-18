@@ -5,7 +5,7 @@ import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/user
 type Repository interface {
 	Add(WorldAgg) error
 	Get(WorldIdVo) (WorldAgg, error)
-	GetWorldOfUser(usermodel.UserIdVo) (WorldAgg, bool, error)
+	GetWorldOfUser(usermodel.UserIdVo) (world WorldAgg, found bool, err error)
 	GetAll() ([]WorldAgg, error)
 
 	ReadLockAccess(WorldIdVo) (rUnlocker func())

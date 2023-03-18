@@ -38,10 +38,5 @@ func (size SizeVo) GetHeight() int {
 }
 
 func (size SizeVo) CoversPosition(position PositionVo) bool {
-	includesAll := true
-	if position.x < 0 || position.x >= size.width || position.z < 0 || position.z >= size.height {
-		includesAll = false
-	}
-
-	return includesAll
+	return position.x < 0 || position.x >= size.width || position.z < 0 || position.z >= size.height
 }

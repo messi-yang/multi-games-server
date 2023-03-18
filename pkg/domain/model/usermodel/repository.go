@@ -1,5 +1,5 @@
 package usermodel
 
 type Repository interface {
-	Add(user UserAgg) error
+	Add(UserAgg) error
 }
