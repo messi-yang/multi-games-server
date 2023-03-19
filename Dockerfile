@@ -21,9 +21,6 @@ RUN go install github.com/cosmtrek/air@latest
 
 COPY . /app
 
-RUN chmod +x /app/db/cassandra/check_cassandra.sh
-RUN chmod +x /app/db/postgres/check_postgres.sh
-
 WORKDIR /app
 
 RUN make build
