@@ -51,3 +51,12 @@ func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
 	}
 	return nil
 }
+
+func (repo *itemRepository) Update(item itemmodel.ItemAgg) error {
+	itemModel := psqlmodel.NewItemModel(item)
+	res := repo.gormDb.Save(&itemModel)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
