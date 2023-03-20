@@ -36,7 +36,7 @@ func Exec() {
 		),
 		itemmodel.NewItemAgg(
 			itemmodel.NewItemIdVo(uuidutil.UnsafelyNewUuid("c0a15d4a-24b7-4a81-8a39-9bbf4c7d6ccf")),
-			"grass", false, "/asset/item/grass/thumbnail.png", "/asset/item/grass/model.gltf",
+			"grass", true, "/asset/item/grass/thumbnail.png", "/asset/item/grass/model.gltf",
 		),
 	}
 
