@@ -34,6 +34,10 @@ func Exec() {
 			itemmodel.NewItemIdVo(uuidutil.UnsafelyNewUuid("41de86e6-07a1-4a5d-ba6f-152d07f3ba1e")),
 			"fan", false, "/asset/item/fan/thumbnail.png", "/asset/item/fan/model.gltf",
 		),
+		itemmodel.NewItemAgg(
+			itemmodel.NewItemIdVo(uuidutil.UnsafelyNewUuid("c0a15d4a-24b7-4a81-8a39-9bbf4c7d6ccf")),
+			"grass", false, "/asset/item/grass/thumbnail.png", "/asset/item/grass/model.gltf",
+		),
 	}
 
 	lo.ForEach(items, func(item itemmodel.ItemAgg, _ int) {
