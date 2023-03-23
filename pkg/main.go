@@ -23,7 +23,7 @@ func main() {
 	args := flag.Args()
 	if len(args) > 0 {
 		switch args[0] {
-		case "seed":
+		case "db-seed":
 			seedcmd.Exec()
 			os.Exit(0)
 		}

@@ -40,7 +40,7 @@ postgres-migrate-force:
 
 # .PHONY: db-seed
 db-seed:
-	go run pkg/main.go seed
+	go run pkg/main.go db-seed
 
 # .PHONY: dev
 dev:
