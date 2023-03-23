@@ -19,13 +19,13 @@ import (
 
 type Service interface {
 	CreateWorld(userIdDto string) error
-	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery)
-	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery)
-	AddPlayer(presenter Presenter, command AddPlayerCommand)
-	MovePlayer(presenter Presenter, command MovePlayerCommand)
-	RemovePlayer(presenter Presenter, command RemovePlayerCommand)
-	PlaceItem(presenter Presenter, command PlaceItemCommand)
-	DestroyItem(presenter Presenter, command DestroyItemCommand)
+	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error
+	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
+	AddPlayer(presenter Presenter, command AddPlayerCommand) error
+	MovePlayer(presenter Presenter, command MovePlayerCommand) error
+	RemovePlayer(presenter Presenter, command RemovePlayerCommand) error
+	PlaceItem(presenter Presenter, command PlaceItemCommand) error
+	DestroyItem(presenter Presenter, command DestroyItemCommand) error
 }
 
 type serve struct {
@@ -48,71 +48,74 @@ func NewService(intEventPublisher intevent.Publisher, worldRepository worldmodel
 	}
 }
 
-func (serve *serve) presentError(presenter Presenter, err error) {
-	presenter.OnMessage(ErroredResponseDto{
-		Type:          ErroredResponseDtoType,
-		ClientMessage: err.Error(),
-	})
-}
-
-func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) {
-	serve.intEventPublisher.Publish(
+func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+	return serve.intEventPublisher.Publish(
 		NewUnitsUpdatedIntEventChannel(worldId.String(), playerId.String()),
 		UnitsUpdatedIntEvent{},
 	)
 }
 
-func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.PlayerIdVo) {
+func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.PlayerIdVo) error {
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return
+		return err
 	}
 
 	players, err := serve.playerRepository.GetPlayersAround(player.GetWorldId(), player.GetPosition())
 	if err != nil {
-		return
+		return err
 	}
 
-	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
-		serve.publishUnitsUpdatedEventTo(player.GetWorldId(), player.GetId())
-	})
+	for _, player := range players {
+		err = serve.publishUnitsUpdatedEventTo(player.GetWorldId(), player.GetId())
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) {
+func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return
+		return err
 	}
 
 	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
 	if err != nil {
-		return
+		return err
 	}
 
-	lo.ForEach(players, func(player playermodel.PlayerAgg, _ int) {
-		serve.intEventPublisher.Publish(
+	for _, player := range players {
+		err = serve.intEventPublisher.Publish(
 			NewPlayersUpdatedIntEventChannel(worldId.String(), player.GetId().String()),
 			PlayersUpdatedIntEvent{},
 		)
-	})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) {
+func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error {
 	worldId, playerId, err := query.Validate()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		serve.presentError(presenter, err)
-	}
-	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
-	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
-	presenter.OnMessage(PlayersUpdatedResponseDto{
+	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
+	if err != nil {
+		return err
+	}
+
+	return presenter.OnMessage(PlayersUpdatedResponseDto{
 		Type: PlayersUpdatedResponseDtoType,
 		Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
 			return dto.NewPlayerAggDto(player)
@@ -120,24 +123,24 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 	})
 }
 
-func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) {
+func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error {
 	worldId, playerId, err := query.Validate()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	playerVisionBound := player.GetVisionBound()
 	units, err := serve.unitRepository.GetUnitsInBound(worldId, playerVisionBound)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
-	presenter.OnMessage(UnitsUpdatedResponseDto{
+	return presenter.OnMessage(UnitsUpdatedResponseDto{
 		Type:        UnitsUpdatedResponseDtoType,
 		VisionBound: dto.NewBoundVoDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
@@ -173,37 +176,41 @@ func (serve *serve) CreateWorld(userIdDto string) error {
 		return err
 	}
 
-	commonutil.RangeMatrix(100, 100, func(x int, z int) {
+	commonutil.RangeMatrix(100, 100, func(x int, z int) error {
 		randomInt := rand.Intn(40)
 		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {
 			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirectionVo())
-			serve.unitRepository.Add(newUnit)
+			err = serve.unitRepository.Add(newUnit)
+			if err != nil {
+				return err
+			}
 		}
+		return nil
 	})
 
 	return nil
 }
 
-func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
+func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) error {
 	worldId, playerId, err := command.Validate()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	err = serve.gameService.AddPlayer(worldId, playerId)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	newPlayer, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	items, err := serve.itemRepository.GetAll()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	itemDtos := lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemAggDto {
@@ -212,7 +219,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 
 	players, err := serve.playerRepository.GetPlayersAround(worldId, newPlayer.GetPosition())
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	playerDtos := lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
@@ -222,10 +229,10 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 	playerVisionBound := newPlayer.GetVisionBound()
 	units, err := serve.unitRepository.GetUnitsInBound(worldId, playerVisionBound)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
-	presenter.OnMessage(GameJoinedResponseDto{
+	err = presenter.OnMessage(GameJoinedResponseDto{
 		Type:        GameJoinedResponseDtoType,
 		Items:       itemDtos,
 		PlayerId:    playerId.String(),
@@ -235,69 +242,76 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) {
 			return dto.NewUnitVoDto(unit)
 		}),
 	})
+	if err != nil {
+		return err
+	}
 
-	serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	return serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
 }
 
-func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) {
+func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) error {
 	worldId, playerId, direction, err := command.Validate()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	isVisionBoundUpdated, err := serve.gameService.MovePlayer(worldId, playerId, direction)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
-	serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	err = serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	if err != nil {
+		return err
+	}
 
 	if isVisionBoundUpdated {
-		serve.intEventPublisher.Publish(
+		return serve.intEventPublisher.Publish(
 			NewVisionBoundUpdatedIntEventChannel(worldId.String(), playerId.String()),
 			VisionBoundUpdatedIntEvent{},
 		)
 	}
+	return nil
 }
 
-func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerCommand) {
+func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerCommand) error {
 	worldId, playerId, err := command.Validate()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	err = serve.gameService.RemovePlayer(worldId, playerId)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
-	serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	return serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
 }
 
-func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) {
+func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) error {
 	worldId, playerId, itemId, err := command.Validate()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	err = serve.gameService.PlaceItem(worldId, playerId, itemId)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
-	serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	return serve.publishUnitsUpdatedEventToNearPlayers(playerId)
 }
 
-func (serve *serve) DestroyItem(presenter Presenter, command DestroyItemCommand) {
+func (serve *serve) DestroyItem(presenter Presenter, command DestroyItemCommand) error {
 	worldId, playerId, err := command.Validate()
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
 	err = serve.gameService.DestroyItem(worldId, playerId)
 	if err != nil {
-		serve.presentError(presenter, err)
+		return err
 	}
 
-	serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	return serve.publishUnitsUpdatedEventToNearPlayers(playerId)
 }

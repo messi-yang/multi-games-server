@@ -14,6 +14,12 @@ We follow [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_des
 docker-compose up
 ```
 
+### Lint Check
+
+```bash
+docker compose exec web golangci-lint run
+```
+
 ## Cassandra Database
 
 ### Initialize Cassandra

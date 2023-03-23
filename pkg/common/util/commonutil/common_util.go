@@ -16,10 +16,13 @@ func MapMatrix[T any, M any](inputMatrix [][]T, transformer func(i int, j int, o
 	return outputMatrix, nil
 }
 
-func RangeMatrix(width int, height int, callback func(i int, j int)) {
+func RangeMatrix(width int, height int, callback func(i int, j int) error) {
 	for i := 0; i < width; i += 1 {
 		for j := 0; j < height; j += 1 {
-			callback(i, j)
+			err := callback(i, j)
+			if err != nil {
+				return
+			}
 		}
 	}
 }

@@ -43,10 +43,10 @@ func Exec() {
 	lo.ForEach(items, func(item itemmodel.ItemAgg, _ int) {
 		if _, err = itemRepository.Get(item.GetId()); err != nil {
 			fmt.Printf("Add new item \"%s\"\n", item.GetName())
-			itemRepository.Add(item)
+			_ = itemRepository.Add(item)
 		} else {
 			fmt.Printf("Update existing item \"%s\"\n", item.GetName())
-			itemRepository.Update(item)
+			_ = itemRepository.Update(item)
 		}
 	})
 

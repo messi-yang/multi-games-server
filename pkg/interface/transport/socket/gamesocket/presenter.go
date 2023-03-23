@@ -18,7 +18,7 @@ func newPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) game
 	return &presenter{socketConn: socketConn, socketConnLock: socketConnLock}
 }
 
-func (presenter *presenter) OnMessage(jsonObj any) {
+func (presenter *presenter) OnMessage(jsonObj any) error {
 	presenter.socketConnLock.Lock()
 	defer presenter.socketConnLock.Unlock()
 
@@ -26,5 +26,5 @@ func (presenter *presenter) OnMessage(jsonObj any) {
 
 	compressedMessage, _ := gziputil.Gzip(messageJsonInBytes)
 
-	presenter.socketConn.WriteMessage(2, compressedMessage)
+	return presenter.socketConn.WriteMessage(2, compressedMessage)
 }

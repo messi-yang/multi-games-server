@@ -11,3 +11,5 @@ dist
 docker-compose.yml
 Dockerfile
 .dockerignore
+
+.DS_Store

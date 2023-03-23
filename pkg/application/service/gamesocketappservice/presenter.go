@@ -1,5 +1,5 @@
 package gamesocketappservice
 
 type Presenter interface {
-	OnMessage(jsonObj any)
+	OnMessage(jsonObj any) error
 }

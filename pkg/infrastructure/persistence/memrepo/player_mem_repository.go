@@ -55,7 +55,6 @@ func (repo *playerMemRepository) GetPlayersAround(worldId worldmodel.WorldIdVo, 
 	return lo.Filter(repo.players, func(player playermodel.PlayerAgg, _ int) bool {
 		return player.GetWorldId().IsEqual(worldId) && player.CanSeeAnyPositions([]commonmodel.PositionVo{position})
 	}), nil
-	return nil, nil
 }
 
 func (repo *playerMemRepository) Update(updatedPlayer playermodel.PlayerAgg) error {

@@ -59,7 +59,7 @@ func main() {
 	newUser := usermodel.NewUnitAgg(userId, "dumdumgenius@gmail.com", "DumDumGenius")
 	err = userRepository.Add(newUser)
 	if err != nil {
-		// panic(err)
+		fmt.Println(err)
 	}
 
 	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepository, playerRepository, unitRepository, itemRepository)
