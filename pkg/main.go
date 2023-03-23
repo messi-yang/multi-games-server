@@ -72,6 +72,8 @@ func main() {
 
 	router.Static("/asset", "./pkg/interface/transport/asset")
 	router.Group("/ws/game").GET("/", gameSocketApiController.HandleGameConnection)
-	router.Run()
-
+	err = router.Run()
+	if err != nil {
+		panic(err)
+	}
 }

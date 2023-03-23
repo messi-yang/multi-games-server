@@ -40,7 +40,6 @@ func NewController(
 func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	socketConn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		c.Error(err)
 		return
 	}
 	defer socketConn.Close()
@@ -61,10 +60,13 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	).Subscribe(
 		gamesocketappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.PlayersUpdatedIntEvent) {
-			controller.gameAppService.GetPlayersAroundPlayer(socketPresenter, gamesocketappservice.GetPlayersQuery{
+			err = controller.gameAppService.GetPlayersAroundPlayer(socketPresenter, gamesocketappservice.GetPlayersQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
+			if err != nil {
+				disconnect()
+			}
 		},
 	)
 	defer playersUpdatedIntEventUnsubscriber()
@@ -74,10 +76,13 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	).Subscribe(
 		gamesocketappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.UnitsUpdatedIntEvent) {
-			controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
+			err = controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
+			if err != nil {
+				disconnect()
+			}
 		},
 	)
 	defer unitsUpdatedIntEventTypeUnsubscriber()
@@ -87,18 +92,24 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	).Subscribe(
 		gamesocketappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.VisionBoundUpdatedIntEvent) {
-			controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
+			err = controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
+			if err != nil {
+				disconnect()
+			}
 		},
 	)
 	defer visionBoundUpdatedIntEventTypeUnsubscriber()
 
-	controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
+	err = controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
+	if err != nil {
+		return
+	}
 
 	go func() {
 		defer disconnect()
@@ -128,27 +139,36 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					return
 				}
 
-				controller.gameAppService.MovePlayer(socketPresenter, gamesocketappservice.MovePlayerCommand{
+				err = controller.gameAppService.MovePlayer(socketPresenter, gamesocketappservice.MovePlayerCommand{
 					WorldId:   worldIdDto,
 					PlayerId:  playerIdDto,
 					Direction: requestDto.Direction,
 				})
+				if err != nil {
+					return
+				}
 			case gamesocketappservice.PlaceItemRequestDtoType:
 				requestDto, err := jsonutil.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
 				if err != nil {
 					return
 				}
 
-				controller.gameAppService.PlaceItem(socketPresenter, gamesocketappservice.PlaceItemCommand{
+				err = controller.gameAppService.PlaceItem(socketPresenter, gamesocketappservice.PlaceItemCommand{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 					ItemId:   requestDto.ItemId,
 				})
+				if err != nil {
+					return
+				}
 			case gamesocketappservice.DestroyItemRequestDtoType:
-				controller.gameAppService.DestroyItem(socketPresenter, gamesocketappservice.DestroyItemCommand{
+				err = controller.gameAppService.DestroyItem(socketPresenter, gamesocketappservice.DestroyItemCommand{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 				})
+				if err != nil {
+					return
+				}
 			default:
 			}
 		}
@@ -157,7 +177,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		controller.gameAppService.RemovePlayer(socketPresenter, gamesocketappservice.RemovePlayerCommand{
+		_ = controller.gameAppService.RemovePlayer(socketPresenter, gamesocketappservice.RemovePlayerCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		})

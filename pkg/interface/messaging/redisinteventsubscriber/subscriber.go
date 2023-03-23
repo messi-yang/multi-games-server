@@ -22,7 +22,7 @@ func (subscriber *subscriber[T]) Subscribe(channel string, handler func(T)) (uns
 		for msg := range pubsub.Channel() {
 			intEvent, err := jsonutil.Unmarshal[T]([]byte(msg.Payload))
 			if err != nil {
-				continue
+				return
 			}
 			handler(intEvent)
 		}

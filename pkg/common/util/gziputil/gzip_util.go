@@ -3,7 +3,7 @@ package gziputil
 import (
 	"bytes"
 	"compress/gzip"
-	"io/ioutil"
+	"io"
 )
 
 func Ungzip(data []byte) ([]byte, error) {
@@ -12,7 +12,7 @@ func Ungzip(data []byte) ([]byte, error) {
 		return nil, err
 	}
 	defer gunzip.Close()
-	compressedData, err := ioutil.ReadAll(gunzip)
+	compressedData, err := io.ReadAll(gunzip)
 	if err != nil {
 		return nil, err
 	}

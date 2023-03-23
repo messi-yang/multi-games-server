@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/uuidutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
-	"github.com/samber/lo"
 )
 
 func Exec() {
@@ -14,7 +13,7 @@ func Exec() {
 
 	itemRepository, err := postgres.NewItemRepository()
 	if err != nil {
-		return
+		panic(err)
 	}
 
 	items := []itemmodel.ItemAgg{
@@ -40,15 +39,21 @@ func Exec() {
 		),
 	}
 
-	lo.ForEach(items, func(item itemmodel.ItemAgg, _ int) {
+	for _, item := range items {
 		if _, err = itemRepository.Get(item.GetId()); err != nil {
 			fmt.Printf("Add new item \"%s\"\n", item.GetName())
-			_ = itemRepository.Add(item)
+			err = itemRepository.Add(item)
+			if err != nil {
+				panic(err)
+			}
 		} else {
 			fmt.Printf("Update existing item \"%s\"\n", item.GetName())
-			_ = itemRepository.Update(item)
+			err = itemRepository.Update(item)
+			if err != nil {
+				panic(err)
+			}
 		}
-	})
+	}
 
 	fmt.Println("Finished seeding Postgres database")
 }
