@@ -65,7 +65,6 @@ func main() {
 
 	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepository, playerRepository, unitRepository, itemRepository)
 	gameSocketApiController := gamesocket.NewController(gameSocketAppService, redisClient)
-	worldController := worldhttpcontroller.New()
 
 	err = gameSocketAppService.CreateWorld(userId.String())
 	if err != nil {
@@ -74,7 +73,8 @@ func main() {
 
 	router.Static("/asset", "./pkg/interface/transport/asset")
 	router.Group("/ws/game").GET("/", gameSocketApiController.HandleGameConnection)
-	router.GET("/api/worlds", worldController.QueryHandler)
+
+	worldhttpcontroller.SetRouter(router.Group("/api/worlds"))
 	err = router.Run()
 	if err != nil {
 		panic(err)

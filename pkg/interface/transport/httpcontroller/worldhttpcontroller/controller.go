@@ -7,17 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Controller struct{}
-
-func New() *Controller {
-	return &Controller{}
-}
-
-func (controller *Controller) QueryHandler(c *gin.Context) {
+func QueryHandler(c *gin.Context) {
 	presenter := httpcontroller.NewPresenter(c)
 	worldRepository, err := postgres.NewWorldRepository()
 	if err != nil {
 		presenter.OnError(err)
+		return
 	}
 	worldAppService := worldappservice.NewService(worldRepository, presenter)
 
