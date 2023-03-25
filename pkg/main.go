@@ -12,6 +12,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cmd/seedcmd"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/httpcontroller/worldhttpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/socket/gamesocket"
 
 	"github.com/gin-contrib/cors"
@@ -64,6 +65,7 @@ func main() {
 
 	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepository, playerRepository, unitRepository, itemRepository)
 	gameSocketApiController := gamesocket.NewController(gameSocketAppService, redisClient)
+	worldController := worldhttpcontroller.New()
 
 	err = gameSocketAppService.CreateWorld(userId.String())
 	if err != nil {
@@ -72,6 +74,7 @@ func main() {
 
 	router.Static("/asset", "./pkg/interface/transport/asset")
 	router.Group("/ws/game").GET("/", gameSocketApiController.HandleGameConnection)
+	router.GET("/api/worlds", worldController.QueryHandler)
 	err = router.Run()
 	if err != nil {
 		panic(err)

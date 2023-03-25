@@ -44,7 +44,7 @@ func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (world wo
 
 func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) {
 	var worldModels []psqlmodel.WorldModel
-	result := repo.gormDb.Select("Id", "Width", "Height", "CreatedAt", "UpdatedAt").Find(&worldModels)
+	result := repo.gormDb.Find(&worldModels).Limit(10)
 	if result.Error != nil {
 		return worlds, result.Error
 	}
