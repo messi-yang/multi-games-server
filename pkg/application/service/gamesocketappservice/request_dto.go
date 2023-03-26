@@ -1,5 +1,7 @@
 package gamesocketappservice
 
+import "github.com/google/uuid"
+
 type RequestDtoType string
 
 const (
@@ -20,7 +22,7 @@ type MoveRequestDto struct {
 
 type PlaceItemRequestDto struct {
 	Type   RequestDtoType `json:"type"`
-	ItemId string         `json:"itemId"`
+	ItemId uuid.UUID      `json:"itemId"`
 }
 
 type DestroyItemRequestDto struct {

@@ -1,9 +1,12 @@
 package dto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
+	"github.com/google/uuid"
+)
 
 type PlayerAggDto struct {
-	Id        string        `json:"id"`
+	Id        uuid.UUID     `json:"id"`
 	Name      string        `json:"name"`
 	Position  PositionVoDto `json:"position"`
 	Direction int8          `json:"direction"`
@@ -11,7 +14,7 @@ type PlayerAggDto struct {
 
 func NewPlayerAggDto(player playermodel.PlayerAgg) PlayerAggDto {
 	return PlayerAggDto{
-		Id:        player.GetId().String(),
+		Id:        player.GetId().Uuid(),
 		Name:      player.GetName(),
 		Position:  NewPositionVoDto(player.GetPosition()),
 		Direction: player.GetDirection().Int8(),

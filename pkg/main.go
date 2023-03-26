@@ -10,6 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cmd/seedcmd"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api/gameapi"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api/worldapi"
+	"github.com/google/uuid"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -36,7 +37,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	userId, _ := usermodel.ParseUserIdVo("d169faa5-c078-42c2-8a42-cd1d43558c7b")
+	userIdDto, _ := uuid.Parse("d169faa5-c078-42c2-8a42-cd1d43558c7b")
+
+	userId := usermodel.NewUserIdVo(userIdDto)
 	newUser := usermodel.NewUnitAgg(userId, "dumdumgenius@gmail.com", "DumDumGenius")
 	err = userRepository.Add(newUser)
 	if err != nil {

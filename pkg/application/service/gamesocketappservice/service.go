@@ -43,7 +43,7 @@ func NewService(intEventPublisher intevent.Publisher, worldRepository worldmodel
 
 func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
 	return serve.intEventPublisher.Publish(
-		NewUnitsUpdatedIntEventChannel(worldId.String(), playerId.String()),
+		NewUnitsUpdatedIntEventChannel(worldId.Uuid(), playerId.Uuid()),
 		UnitsUpdatedIntEvent{},
 	)
 }
@@ -82,7 +82,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 
 	for _, player := range players {
 		err = serve.intEventPublisher.Publish(
-			NewPlayersUpdatedIntEventChannel(worldId.String(), player.GetId().String()),
+			NewPlayersUpdatedIntEventChannel(worldId.Uuid(), player.GetId().Uuid()),
 			PlayersUpdatedIntEvent{},
 		)
 		if err != nil {
@@ -185,7 +185,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	err = presenter.OnMessage(GameJoinedResponseDto{
 		Type:        GameJoinedResponseDtoType,
 		Items:       itemDtos,
-		PlayerId:    playerId.String(),
+		PlayerId:    playerId.Uuid(),
 		Players:     playerDtos,
 		VisionBound: dto.NewBoundVoDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
@@ -217,7 +217,7 @@ func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) e
 
 	if isVisionBoundUpdated {
 		return serve.intEventPublisher.Publish(
-			NewVisionBoundUpdatedIntEventChannel(worldId.String(), playerId.String()),
+			NewVisionBoundUpdatedIntEventChannel(worldId.Uuid(), playerId.Uuid()),
 			VisionBoundUpdatedIntEvent{},
 		)
 	}

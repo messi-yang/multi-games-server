@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -25,8 +26,8 @@ func NewPlayerMemRepository() playermodel.Repository {
 
 func (repo *playerMemRepository) Add(newPlayer playermodel.PlayerAgg) error {
 	newPlayers := append(repo.players, newPlayer)
-	repo.players = lo.UniqBy(newPlayers, func(player playermodel.PlayerAgg) string {
-		return player.GetId().String()
+	repo.players = lo.UniqBy(newPlayers, func(player playermodel.PlayerAgg) uuid.UUID {
+		return player.GetId().Uuid()
 	})
 	return nil
 }

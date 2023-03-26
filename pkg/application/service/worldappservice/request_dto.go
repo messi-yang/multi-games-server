@@ -1,5 +1,7 @@
 package worldappservice
 
+import "github.com/google/uuid"
+
 type CreateWorldRequestDto = struct {
-	UserId string `json:"userId"`
+	UserId uuid.UUID `json:"userId"`
 }

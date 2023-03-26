@@ -16,7 +16,7 @@ import (
 
 type Service interface {
 	QueryWorlds()
-	CreateWorld(userIdDto string)
+	CreateWorld(userIdDto uuid.UUID)
 }
 
 type serve struct {
@@ -48,17 +48,13 @@ func (serve *serve) QueryWorlds() {
 	serve.presenter.OnSuccess(responseDto)
 }
 
-func (serve *serve) CreateWorld(userIdDto string) {
-	userId, err := usermodel.ParseUserIdVo(userIdDto)
-	if err != nil {
-		serve.presenter.OnError(err)
-		return
-	}
+func (serve *serve) CreateWorld(userIdDto uuid.UUID) {
+	userId := usermodel.NewUserIdVo(userIdDto)
 
 	worldId := worldmodel.NewWorldIdVo(uuid.New())
 	newWorld := worldmodel.NewWorldAgg(worldId, userId)
 
-	err = serve.worldRepository.Add(newWorld)
+	err := serve.worldRepository.Add(newWorld)
 	if err != nil {
 		serve.presenter.OnError(err)
 		return

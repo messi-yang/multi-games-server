@@ -2,6 +2,7 @@ package gamesocketappservice
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
+	"github.com/google/uuid"
 )
 
 type ResponseDtoType string
@@ -20,7 +21,7 @@ type ErroredResponseDto struct {
 
 type GameJoinedResponseDto struct {
 	Type        ResponseDtoType    `json:"type"`
-	PlayerId    string             `json:"playerId"`
+	PlayerId    uuid.UUID          `json:"playerId"`
 	Players     []dto.PlayerAggDto `json:"players"`
 	VisionBound dto.BoundVoDto     `json:"visionBound"`
 	Units       []dto.UnitVoDto    `json:"units"`

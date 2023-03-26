@@ -5,107 +5,75 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
+	"github.com/google/uuid"
 )
 
 type PlaceItemCommand struct {
-	WorldId  string
-	PlayerId string
-	ItemId   string
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
+	ItemId   uuid.UUID
 }
 
 func (command PlaceItemCommand) Validate() (
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, err error,
 ) {
-	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
-	if err != nil {
-		return worldId, playerId, itemId, err
-	}
-	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
-	if err != nil {
-		return worldId, playerId, itemId, err
-	}
-	itemId, err = itemmodel.ParseItemIdVo(command.ItemId)
-	if err != nil {
-		return worldId, playerId, itemId, err
-	}
+	worldId = worldmodel.NewWorldIdVo(command.WorldId)
+	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
+	itemId = itemmodel.NewItemIdVo(command.ItemId)
 	return worldId, playerId, itemId, nil
 }
 
 type DestroyItemCommand struct {
-	WorldId  string
-	PlayerId string
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }
 
 func (command DestroyItemCommand) Validate() (
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
 ) {
-	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
-	if err != nil {
-		return worldId, playerId, err
-	}
-	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
-	if err != nil {
-		return worldId, playerId, err
-	}
+	worldId = worldmodel.NewWorldIdVo(command.WorldId)
+	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
 	return worldId, playerId, nil
 }
 
 type AddPlayerCommand struct {
-	WorldId  string
-	PlayerId string
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }
 
 func (command AddPlayerCommand) Validate() (
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
 ) {
-	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
-	if err != nil {
-		return worldId, playerId, err
-	}
-	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
-	if err != nil {
-		return worldId, playerId, err
-	}
+	worldId = worldmodel.NewWorldIdVo(command.WorldId)
+	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
 	return worldId, playerId, nil
 }
 
 type MovePlayerCommand struct {
-	WorldId   string
-	PlayerId  string
+	WorldId   uuid.UUID
+	PlayerId  uuid.UUID
 	Direction int8
 }
 
 func (command MovePlayerCommand) Validate() (
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo, err error,
 ) {
-	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
-	if err != nil {
-		return worldId, playerId, direction, err
-	}
-	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
-	if err != nil {
-		return worldId, playerId, direction, err
-	}
+	worldId = worldmodel.NewWorldIdVo(command.WorldId)
+	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
 	direction = commonmodel.NewDirectionVo(command.Direction)
 
 	return worldId, playerId, direction, nil
 }
 
 type RemovePlayerCommand struct {
-	WorldId  string
-	PlayerId string
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }
 
 func (command RemovePlayerCommand) Validate() (
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
 ) {
-	worldId, err = worldmodel.ParseWorldIdVo(command.WorldId)
-	if err != nil {
-		return worldId, playerId, err
-	}
-	playerId, err = playermodel.ParsePlayerIdVo(command.PlayerId)
-	if err != nil {
-		return worldId, playerId, err
-	}
+	worldId = worldmodel.NewWorldIdVo(command.WorldId)
+	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
 	return worldId, playerId, nil
 }

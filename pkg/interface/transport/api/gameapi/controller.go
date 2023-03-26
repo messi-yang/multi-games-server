@@ -50,9 +50,12 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 		closeConnFlag <- true
 	}
 
-	worldIdDto := c.Request.URL.Query().Get("id")
+	worldIdDto, err := uuid.Parse(c.Request.URL.Query().Get("id"))
+	if err != nil {
+		return
+	}
 
-	playerIdDto := uuid.New().String()
+	playerIdDto := uuid.New()
 
 	socketPresenter := api.NewSocketPresenter(socketConn, &sync.RWMutex{})
 

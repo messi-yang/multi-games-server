@@ -6,21 +6,16 @@ type PlayerIdVo struct {
 	id uuid.UUID
 }
 
-func ParsePlayerIdVo(uuidStr string) (PlayerIdVo, error) {
-	id, err := uuid.Parse(uuidStr)
-	if err != nil {
-		return PlayerIdVo{}, err
-	}
-
+func NewPlayerIdVo(uuid uuid.UUID) PlayerIdVo {
 	return PlayerIdVo{
-		id: id,
-	}, nil
+		id: uuid,
+	}
 }
 
 func (playerId PlayerIdVo) IsEqual(otherPlayerId PlayerIdVo) bool {
-	return playerId.String() == otherPlayerId.String()
+	return playerId.id == otherPlayerId.id
 }
 
-func (playerId PlayerIdVo) String() string {
-	return playerId.id.String()
+func (playerId PlayerIdVo) Uuid() uuid.UUID {
+	return playerId.id
 }

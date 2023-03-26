@@ -6,17 +6,6 @@ type WorldIdVo struct {
 	id uuid.UUID
 }
 
-func ParseWorldIdVo(uuidStr string) (WorldIdVo, error) {
-	id, err := uuid.Parse(uuidStr)
-	if err != nil {
-		return WorldIdVo{}, err
-	}
-
-	return WorldIdVo{
-		id: id,
-	}, nil
-}
-
 func NewWorldIdVo(uuid uuid.UUID) WorldIdVo {
 	return WorldIdVo{
 		id: uuid,
@@ -25,10 +14,6 @@ func NewWorldIdVo(uuid uuid.UUID) WorldIdVo {
 
 func (vo WorldIdVo) IsEqual(otherWorldId WorldIdVo) bool {
 	return vo.id == otherWorldId.id
-}
-
-func (vo WorldIdVo) String() string {
-	return vo.id.String()
 }
 
 func (vo WorldIdVo) Uuid() uuid.UUID {
