@@ -3,7 +3,6 @@ package worldappservice
 import (
 	"math/rand"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/commonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
@@ -11,44 +10,37 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 type Service interface {
-	QueryWorlds()
-	CreateWorld(userIdDto uuid.UUID)
+	QueryWorlds(worldsTransformer func([]worldmodel.WorldAgg), errorTransformer func(error))
+	CreateWorld(userIdDto uuid.UUID, worldTransformer func(worldmodel.WorldAgg), errorTransformer func(error))
 }
 
 type serve struct {
 	worldRepository worldmodel.Repository
 	unitRepository  unitmodel.Repository
 	itemRepository  itemmodel.Repository
-	presenter       Presenter
 }
 
-func NewService(worldRepository worldmodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository, presenter Presenter) Service {
+func NewService(worldRepository worldmodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
 	return &serve{
 		worldRepository: worldRepository,
 		unitRepository:  unitRepository,
 		itemRepository:  itemRepository,
-		presenter:       presenter,
 	}
 }
 
-func (serve *serve) QueryWorlds() {
+func (serve *serve) QueryWorlds(worldsTransformer func([]worldmodel.WorldAgg), errorTransformer func(error)) {
 	worlds, err := serve.worldRepository.GetAll()
 	if err != nil {
-		serve.presenter.OnError(err)
+		errorTransformer(err)
 		return
 	}
-	worldDtos := lo.Map(worlds, func(world worldmodel.WorldAgg, _ int) dto.WorldAggDto {
-		return dto.NewWorldAggDto(world)
-	})
-	responseDto := QueryWorldsResponseDto(worldDtos)
-	serve.presenter.OnSuccess(responseDto)
+	worldsTransformer(worlds)
 }
 
-func (serve *serve) CreateWorld(userIdDto uuid.UUID) {
+func (serve *serve) CreateWorld(userIdDto uuid.UUID, worldTransformer func(worldmodel.WorldAgg), errorTransformer func(error)) {
 	userId := usermodel.NewUserIdVo(userIdDto)
 
 	worldId := worldmodel.NewWorldIdVo(uuid.New())
@@ -56,13 +48,13 @@ func (serve *serve) CreateWorld(userIdDto uuid.UUID) {
 
 	err := serve.worldRepository.Add(newWorld)
 	if err != nil {
-		serve.presenter.OnError(err)
+		errorTransformer(err)
 		return
 	}
 
 	items, err := serve.itemRepository.GetAll()
 	if err != nil {
-		serve.presenter.OnError(err)
+		errorTransformer(err)
 		return
 	}
 
@@ -79,6 +71,5 @@ func (serve *serve) CreateWorld(userIdDto uuid.UUID) {
 		return nil
 	})
 
-	newWorldDto := dto.NewWorldAggDto(newWorld)
-	serve.presenter.OnSuccess(CreateWorldResponseDto(newWorldDto))
+	worldTransformer(newWorld)
 }

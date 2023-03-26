@@ -1,36 +1,55 @@
 package worldapi
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/worldappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api"
+	"net/http"
+
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 )
 
 func queryWorldHandler(c *gin.Context) {
-	httpPresenter := api.NewHttpPresenter(c)
-	worldAppService, err := newWorldAppService(httpPresenter)
+	worldAppService, err := newWorldAppService()
 	if err != nil {
-		httpPresenter.OnError(err)
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	worldAppService.QueryWorlds()
+	worldAppService.QueryWorlds(
+		func(worlds []worldmodel.WorldAgg) {
+			worldDtos := lo.Map(worlds, func(world worldmodel.WorldAgg, _ int) dto.WorldAggDto {
+				return dto.NewWorldAggDto(world)
+			})
+			c.JSON(http.StatusOK, queryWorldsResponseDto(worldDtos))
+		},
+		func(err error) {
+			c.JSON(http.StatusBadRequest, err.Error())
+		},
+	)
 }
 
 func createWorldHandler(c *gin.Context) {
-	httpPresenter := api.NewHttpPresenter(c)
-
-	var requestDto worldappservice.CreateWorldRequestDto
-	if err := c.BindJSON(&requestDto); err != nil {
-		httpPresenter.OnError(err)
-		return
-	}
-
-	worldAppService, err := newWorldAppService(httpPresenter)
+	worldAppService, err := newWorldAppService()
 	if err != nil {
-		httpPresenter.OnError(err)
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	worldAppService.CreateWorld(requestDto.UserId)
+	var requestDto createWorldRequestDto
+	if err := c.BindJSON(&requestDto); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	worldAppService.CreateWorld(
+		requestDto.UserId,
+		func(world worldmodel.WorldAgg) {
+			worldDto := dto.NewWorldAggDto(world)
+			c.JSON(http.StatusOK, createWorldResponseDto(worldDto))
+		},
+		func(err error) {
+			c.JSON(http.StatusBadRequest, err.Error())
+		},
+	)
 }
