@@ -1,4 +1,4 @@
-package worldappservice
+package worldapiservice
 
 type Presenter interface {
 	OnSuccess(jsonObj any)
