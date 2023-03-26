@@ -28,5 +28,5 @@ func NewUserModel(user usermodel.UserAgg) UserModel {
 }
 
 func (model UserModel) ToAggregate() usermodel.UserAgg {
-	return usermodel.NewUnitAgg(usermodel.NewUserIdVo(model.Id), model.EmailAddress, model.Username)
+	return usermodel.NewUserAgg(usermodel.NewUserIdVo(model.Id), model.EmailAddress, model.Username)
 }

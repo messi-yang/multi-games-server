@@ -40,7 +40,7 @@ func main() {
 	userIdDto, _ := uuid.Parse("d169faa5-c078-42c2-8a42-cd1d43558c7b")
 
 	userId := usermodel.NewUserIdVo(userIdDto)
-	newUser := usermodel.NewUnitAgg(userId, "dumdumgenius@gmail.com", "DumDumGenius")
+	newUser := usermodel.NewUserAgg(userId, "dumdumgenius@gmail.com", "DumDumGenius")
 	err = userRepository.Add(newUser)
 	if err != nil {
 		fmt.Println(err)

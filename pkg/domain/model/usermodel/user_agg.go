@@ -6,7 +6,7 @@ type UserAgg struct {
 	username     string
 }
 
-func NewUnitAgg(
+func NewUserAgg(
 	id UserIdVo,
 	emailAddress string,
 	username string,
