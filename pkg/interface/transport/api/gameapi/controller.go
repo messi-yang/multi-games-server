@@ -10,7 +10,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redisinteventsubscriber"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v9"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -23,48 +22,34 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
-type Controller struct {
-	gameAppService gamesocketappservice.Service
-	redisClient    *redis.Client
-}
-
-func NewController(
-	gameAppService gamesocketappservice.Service,
-	redisClient *redis.Client,
-) *Controller {
-	return &Controller{
-		gameAppService: gameAppService,
-		redisClient:    redisClient,
+func gameConnectionHandler(c *gin.Context) {
+	worldIdDto, err := uuid.Parse(c.Request.URL.Query().Get("id"))
+	if err != nil {
+		return
 	}
-}
-
-func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	socketConn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
 	defer socketConn.Close()
 
+	socketPresenter := api.NewSocketPresenter(socketConn, &sync.RWMutex{})
+	gameAppService, err := newGameAppService(socketPresenter)
+	if err != nil {
+		return
+	}
+
 	closeConnFlag := make(chan bool)
 	disconnect := func() {
 		closeConnFlag <- true
 	}
 
-	worldIdDto, err := uuid.Parse(c.Request.URL.Query().Get("id"))
-	if err != nil {
-		return
-	}
-
 	playerIdDto := uuid.New()
 
-	socketPresenter := api.NewSocketPresenter(socketConn, &sync.RWMutex{})
-
-	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent](
-		controller.redisClient,
-	).Subscribe(
+	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent]().Subscribe(
 		gamesocketappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.PlayersUpdatedIntEvent) {
-			err = controller.gameAppService.GetPlayersAroundPlayer(socketPresenter, gamesocketappservice.GetPlayersQuery{
+			err = gameAppService.GetPlayersAroundPlayer(gamesocketappservice.GetPlayersQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
@@ -75,12 +60,10 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	)
 	defer playersUpdatedIntEventUnsubscriber()
 
-	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent](
-		controller.redisClient,
-	).Subscribe(
+	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent]().Subscribe(
 		gamesocketappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.UnitsUpdatedIntEvent) {
-			err = controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
+			err = gameAppService.GetUnitsVisibleByPlayer(gamesocketappservice.GetUnitsVisibleByPlayerQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
@@ -91,12 +74,10 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	)
 	defer unitsUpdatedIntEventTypeUnsubscriber()
 
-	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.VisionBoundUpdatedIntEvent](
-		controller.redisClient,
-	).Subscribe(
+	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.VisionBoundUpdatedIntEvent]().Subscribe(
 		gamesocketappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gamesocketappservice.VisionBoundUpdatedIntEvent) {
-			err = controller.gameAppService.GetUnitsVisibleByPlayer(socketPresenter, gamesocketappservice.GetUnitsVisibleByPlayerQuery{
+			err = gameAppService.GetUnitsVisibleByPlayer(gamesocketappservice.GetUnitsVisibleByPlayerQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
@@ -107,7 +88,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	)
 	defer visionBoundUpdatedIntEventTypeUnsubscriber()
 
-	err = controller.gameAppService.AddPlayer(socketPresenter, gamesocketappservice.AddPlayerCommand{
+	err = gameAppService.AddPlayer(gamesocketappservice.AddPlayerCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
@@ -143,7 +124,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					return
 				}
 
-				err = controller.gameAppService.MovePlayer(socketPresenter, gamesocketappservice.MovePlayerCommand{
+				err = gameAppService.MovePlayer(gamesocketappservice.MovePlayerCommand{
 					WorldId:   worldIdDto,
 					PlayerId:  playerIdDto,
 					Direction: requestDto.Direction,
@@ -157,7 +138,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					return
 				}
 
-				err = controller.gameAppService.PlaceItem(socketPresenter, gamesocketappservice.PlaceItemCommand{
+				err = gameAppService.PlaceItem(gamesocketappservice.PlaceItemCommand{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 					ItemId:   requestDto.ItemId,
@@ -166,7 +147,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 					return
 				}
 			case gamesocketappservice.DestroyItemRequestDtoType:
-				err = controller.gameAppService.DestroyItem(socketPresenter, gamesocketappservice.DestroyItemCommand{
+				err = gameAppService.DestroyItem(gamesocketappservice.DestroyItemCommand{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 				})
@@ -181,7 +162,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		_ = controller.gameAppService.RemovePlayer(socketPresenter, gamesocketappservice.RemovePlayerCommand{
+		_ = gameAppService.RemovePlayer(gamesocketappservice.RemovePlayerCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		})

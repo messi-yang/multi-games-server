@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/client/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
 	"github.com/go-redis/redis/v9"
 )
@@ -12,7 +13,8 @@ type subscriber[T intevent.Event] struct {
 	redisClient *redis.Client
 }
 
-func New[T intevent.Event](redisClient *redis.Client) intevent.Subscriber[T] {
+func New[T intevent.Event]() intevent.Subscriber[T] {
+	redisClient := redisclient.New()
 	return &subscriber[T]{redisClient: redisClient}
 }
 

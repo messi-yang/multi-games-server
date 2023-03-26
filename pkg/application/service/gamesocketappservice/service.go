@@ -12,16 +12,17 @@ import (
 )
 
 type Service interface {
-	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error
-	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
-	AddPlayer(presenter Presenter, command AddPlayerCommand) error
-	MovePlayer(presenter Presenter, command MovePlayerCommand) error
-	RemovePlayer(presenter Presenter, command RemovePlayerCommand) error
-	PlaceItem(presenter Presenter, command PlaceItemCommand) error
-	DestroyItem(presenter Presenter, command DestroyItemCommand) error
+	GetPlayersAroundPlayer(query GetPlayersQuery) error
+	GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) error
+	AddPlayer(command AddPlayerCommand) error
+	MovePlayer(command MovePlayerCommand) error
+	RemovePlayer(command RemovePlayerCommand) error
+	PlaceItem(command PlaceItemCommand) error
+	DestroyItem(command DestroyItemCommand) error
 }
 
 type serve struct {
+	presenter         Presenter
 	intEventPublisher intevent.Publisher
 	worldRepository   worldmodel.Repository
 	playerRepository  playermodel.Repository
@@ -30,8 +31,9 @@ type serve struct {
 	gameService       service.GameService
 }
 
-func NewService(intEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+func NewService(presenter Presenter, intEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
 	return &serve{
+		presenter:         presenter,
 		intEventPublisher: intEventPublisher,
 		worldRepository:   worldRepository,
 		playerRepository:  playerRepository,
@@ -92,7 +94,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 	return nil
 }
 
-func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error {
+func (serve *serve) GetPlayersAroundPlayer(query GetPlayersQuery) error {
 	worldId, playerId, err := query.Validate()
 	if err != nil {
 		return err
@@ -108,7 +110,7 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 		return err
 	}
 
-	return presenter.OnMessage(PlayersUpdatedResponseDto{
+	return serve.presenter.OnMessage(PlayersUpdatedResponseDto{
 		Type: PlayersUpdatedResponseDtoType,
 		Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
 			return dto.NewPlayerAggDto(player)
@@ -116,7 +118,7 @@ func (serve *serve) GetPlayersAroundPlayer(presenter Presenter, query GetPlayers
 	})
 }
 
-func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error {
+func (serve *serve) GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) error {
 	worldId, playerId, err := query.Validate()
 	if err != nil {
 		return err
@@ -133,7 +135,7 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 		return err
 	}
 
-	return presenter.OnMessage(UnitsUpdatedResponseDto{
+	return serve.presenter.OnMessage(UnitsUpdatedResponseDto{
 		Type:        UnitsUpdatedResponseDtoType,
 		VisionBound: dto.NewBoundVoDto(playerVisionBound),
 		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
@@ -142,7 +144,7 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 	})
 }
 
-func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) error {
+func (serve *serve) AddPlayer(command AddPlayerCommand) error {
 	worldId, playerId, err := command.Validate()
 	if err != nil {
 		return err
@@ -182,7 +184,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 		return err
 	}
 
-	err = presenter.OnMessage(GameJoinedResponseDto{
+	err = serve.presenter.OnMessage(GameJoinedResponseDto{
 		Type:        GameJoinedResponseDtoType,
 		Items:       itemDtos,
 		PlayerId:    playerId.Uuid(),
@@ -199,7 +201,7 @@ func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) err
 	return serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
 }
 
-func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) error {
+func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 	worldId, playerId, direction, err := command.Validate()
 	if err != nil {
 		return err
@@ -224,7 +226,7 @@ func (serve *serve) MovePlayer(presenter Presenter, command MovePlayerCommand) e
 	return nil
 }
 
-func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerCommand) error {
+func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 	worldId, playerId, err := command.Validate()
 	if err != nil {
 		return err
@@ -238,7 +240,7 @@ func (serve *serve) RemovePlayer(presenter Presenter, command RemovePlayerComman
 	return serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
 }
 
-func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) error {
+func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 	worldId, playerId, itemId, err := command.Validate()
 	if err != nil {
 		return err
@@ -252,7 +254,7 @@ func (serve *serve) PlaceItem(presenter Presenter, command PlaceItemCommand) err
 	return serve.publishUnitsUpdatedEventToNearPlayers(playerId)
 }
 
-func (serve *serve) DestroyItem(presenter Presenter, command DestroyItemCommand) error {
+func (serve *serve) DestroyItem(command DestroyItemCommand) error {
 	worldId, playerId, err := command.Validate()
 	if err != nil {
 		return err
