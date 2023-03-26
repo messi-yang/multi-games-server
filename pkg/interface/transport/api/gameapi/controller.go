@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redisinteventsubscriber"
@@ -46,10 +46,10 @@ func gameConnectionHandler(c *gin.Context) {
 
 	playerIdDto := uuid.New()
 
-	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent]().Subscribe(
-		gamesocketappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
-		func(intEvent gamesocketappservice.PlayersUpdatedIntEvent) {
-			err = gameAppService.GetPlayersAroundPlayer(gamesocketappservice.GetPlayersQuery{
+	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gameappservice.PlayersUpdatedIntEvent]().Subscribe(
+		gameappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
+		func(intEvent gameappservice.PlayersUpdatedIntEvent) {
+			err = gameAppService.GetPlayersAroundPlayer(gameappservice.GetPlayersQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
@@ -60,10 +60,10 @@ func gameConnectionHandler(c *gin.Context) {
 	)
 	defer playersUpdatedIntEventUnsubscriber()
 
-	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.UnitsUpdatedIntEvent]().Subscribe(
-		gamesocketappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
-		func(intEvent gamesocketappservice.UnitsUpdatedIntEvent) {
-			err = gameAppService.GetUnitsVisibleByPlayer(gamesocketappservice.GetUnitsVisibleByPlayerQuery{
+	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.UnitsUpdatedIntEvent]().Subscribe(
+		gameappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
+		func(intEvent gameappservice.UnitsUpdatedIntEvent) {
+			err = gameAppService.GetUnitsVisibleByPlayer(gameappservice.GetUnitsVisibleByPlayerQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
@@ -74,10 +74,10 @@ func gameConnectionHandler(c *gin.Context) {
 	)
 	defer unitsUpdatedIntEventTypeUnsubscriber()
 
-	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.VisionBoundUpdatedIntEvent]().Subscribe(
-		gamesocketappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
-		func(intEvent gamesocketappservice.VisionBoundUpdatedIntEvent) {
-			err = gameAppService.GetUnitsVisibleByPlayer(gamesocketappservice.GetUnitsVisibleByPlayerQuery{
+	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.VisionBoundUpdatedIntEvent]().Subscribe(
+		gameappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
+		func(intEvent gameappservice.VisionBoundUpdatedIntEvent) {
+			err = gameAppService.GetUnitsVisibleByPlayer(gameappservice.GetUnitsVisibleByPlayerQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
 			})
@@ -88,7 +88,7 @@ func gameConnectionHandler(c *gin.Context) {
 	)
 	defer visionBoundUpdatedIntEventTypeUnsubscriber()
 
-	err = gameAppService.AddPlayer(gamesocketappservice.AddPlayerCommand{
+	err = gameAppService.AddPlayer(gameappservice.AddPlayerCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
@@ -110,21 +110,21 @@ func gameConnectionHandler(c *gin.Context) {
 				return
 			}
 
-			genericRequestDto, err := jsonutil.Unmarshal[gamesocketappservice.GenericRequestDto](message)
+			genericRequestDto, err := jsonutil.Unmarshal[gameappservice.GenericRequestDto](message)
 			if err != nil {
 				return
 			}
 
 			switch genericRequestDto.Type {
-			case gamesocketappservice.PingRequestDtoType:
+			case gameappservice.PingRequestDtoType:
 				continue
-			case gamesocketappservice.MoveRequestDtoType:
-				requestDto, err := jsonutil.Unmarshal[gamesocketappservice.MoveRequestDto](message)
+			case gameappservice.MoveRequestDtoType:
+				requestDto, err := jsonutil.Unmarshal[gameappservice.MoveRequestDto](message)
 				if err != nil {
 					return
 				}
 
-				err = gameAppService.MovePlayer(gamesocketappservice.MovePlayerCommand{
+				err = gameAppService.MovePlayer(gameappservice.MovePlayerCommand{
 					WorldId:   worldIdDto,
 					PlayerId:  playerIdDto,
 					Direction: requestDto.Direction,
@@ -132,13 +132,13 @@ func gameConnectionHandler(c *gin.Context) {
 				if err != nil {
 					return
 				}
-			case gamesocketappservice.PlaceItemRequestDtoType:
-				requestDto, err := jsonutil.Unmarshal[gamesocketappservice.PlaceItemRequestDto](message)
+			case gameappservice.PlaceItemRequestDtoType:
+				requestDto, err := jsonutil.Unmarshal[gameappservice.PlaceItemRequestDto](message)
 				if err != nil {
 					return
 				}
 
-				err = gameAppService.PlaceItem(gamesocketappservice.PlaceItemCommand{
+				err = gameAppService.PlaceItem(gameappservice.PlaceItemCommand{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 					ItemId:   requestDto.ItemId,
@@ -146,8 +146,8 @@ func gameConnectionHandler(c *gin.Context) {
 				if err != nil {
 					return
 				}
-			case gamesocketappservice.DestroyItemRequestDtoType:
-				err = gameAppService.DestroyItem(gamesocketappservice.DestroyItemCommand{
+			case gameappservice.DestroyItemRequestDtoType:
+				err = gameAppService.DestroyItem(gameappservice.DestroyItemCommand{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 				})
@@ -162,7 +162,7 @@ func gameConnectionHandler(c *gin.Context) {
 	for {
 		<-closeConnFlag
 
-		_ = gameAppService.RemovePlayer(gamesocketappservice.RemovePlayerCommand{
+		_ = gameAppService.RemovePlayer(gameappservice.RemovePlayerCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		})

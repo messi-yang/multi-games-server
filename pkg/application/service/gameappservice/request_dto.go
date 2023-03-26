@@ -1,4 +1,4 @@
-package gamesocketappservice
+package gameappservice
 
 import "github.com/google/uuid"
 

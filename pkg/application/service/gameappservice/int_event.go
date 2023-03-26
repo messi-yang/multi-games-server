@@ -1,4 +1,4 @@
-package gamesocketappservice
+package gameappservice
 
 import (
 	"fmt"
