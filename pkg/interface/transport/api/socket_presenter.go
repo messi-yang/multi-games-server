@@ -1,4 +1,4 @@
-package gamesocket
+package api
 
 import (
 	"encoding/json"
@@ -9,16 +9,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type presenter struct {
+type SocketPresenter struct {
 	socketConn     *websocket.Conn
 	socketConnLock *sync.RWMutex
 }
 
-func newPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) gamesocketappservice.Presenter {
-	return &presenter{socketConn: socketConn, socketConnLock: socketConnLock}
+func NewSocketPresenter(socketConn *websocket.Conn, socketConnLock *sync.RWMutex) gamesocketappservice.Presenter {
+	return &SocketPresenter{socketConn: socketConn, socketConnLock: socketConnLock}
 }
 
-func (presenter *presenter) OnMessage(jsonObj any) error {
+func (presenter *SocketPresenter) OnMessage(jsonObj any) error {
 	presenter.socketConnLock.Lock()
 	defer presenter.socketConnLock.Unlock()
 

@@ -1,4 +1,4 @@
-package gamesocket
+package gameapi
 
 import (
 	"net/http"
@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redisinteventsubscriber"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
 	"github.com/google/uuid"
@@ -53,7 +54,7 @@ func (controller *Controller) HandleGameConnection(c *gin.Context) {
 
 	playerIdDto := uuid.New().String()
 
-	socketPresenter := newPresenter(socketConn, &sync.RWMutex{})
+	socketPresenter := api.NewSocketPresenter(socketConn, &sync.RWMutex{})
 
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gamesocketappservice.PlayersUpdatedIntEvent](
 		controller.redisClient,

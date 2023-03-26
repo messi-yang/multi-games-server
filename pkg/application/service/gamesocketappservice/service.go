@@ -1,24 +1,17 @@
 package gamesocketappservice
 
 import (
-	"math/rand"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/commonutil"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
 type Service interface {
-	CreateWorld(userIdDto string) error
 	GetPlayersAroundPlayer(presenter Presenter, query GetPlayersQuery) error
 	GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsVisibleByPlayerQuery) error
 	AddPlayer(presenter Presenter, command AddPlayerCommand) error
@@ -147,49 +140,6 @@ func (serve *serve) GetUnitsVisibleByPlayer(presenter Presenter, query GetUnitsV
 			return dto.NewUnitVoDto(unit)
 		}),
 	})
-}
-
-func (serve *serve) CreateWorld(userIdDto string) error {
-	userId, err := usermodel.ParseUserIdVo(userIdDto)
-	if err != nil {
-		return err
-	}
-
-	_, worldFound, err := serve.worldRepository.GetWorldOfUser(userId)
-	if err != nil {
-		return nil
-	}
-	if worldFound {
-		return nil
-	}
-
-	worldId, _ := worldmodel.ParseWorldIdVo(uuid.New().String())
-	newWorld := worldmodel.NewWorldAgg(worldId, userId)
-
-	err = serve.worldRepository.Add(newWorld)
-	if err != nil {
-		return err
-	}
-
-	items, err := serve.itemRepository.GetAll()
-	if err != nil {
-		return err
-	}
-
-	commonutil.RangeMatrix(100, 100, func(x int, z int) error {
-		randomInt := rand.Intn(40)
-		position := commonmodel.NewPositionVo(x-50, z-50)
-		if randomInt < 3 {
-			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirectionVo())
-			err = serve.unitRepository.Add(newUnit)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-
-	return nil
 }
 
 func (serve *serve) AddPlayer(presenter Presenter, command AddPlayerCommand) error {

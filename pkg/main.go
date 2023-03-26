@@ -5,15 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gamesocketappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/client/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redisinteventpublisher"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cmd/seedcmd"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/httpcontroller/worldhttpcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/socket/gamesocket"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api/gameapi"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api/worldapi"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -36,22 +32,6 @@ func main() {
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
 
-	redisClient := redisclient.New()
-	intEventPublisher := redisinteventpublisher.New(redisClient)
-
-	itemRepository, err := postgres.NewItemRepository()
-	if err != nil {
-		panic(err)
-	}
-	playerRepository := memrepo.NewPlayerMemRepository()
-	worldRepository, err := postgres.NewWorldRepository()
-	if err != nil {
-		panic(err)
-	}
-	unitRepository, err := postgres.NewUnitRepository()
-	if err != nil {
-		panic(err)
-	}
 	userRepository, err := postgres.NewUserRepository()
 	if err != nil {
 		panic(err)
@@ -63,18 +43,10 @@ func main() {
 		fmt.Println(err)
 	}
 
-	gameSocketAppService := gamesocketappservice.NewService(intEventPublisher, worldRepository, playerRepository, unitRepository, itemRepository)
-	gameSocketApiController := gamesocket.NewController(gameSocketAppService, redisClient)
-
-	err = gameSocketAppService.CreateWorld(userId.String())
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	router.Static("/asset", "./pkg/interface/transport/asset")
-	router.Group("/ws/game").GET("/", gameSocketApiController.HandleGameConnection)
 
-	worldhttpcontroller.SetRouter(router.Group("/api/worlds"))
+	gameapi.SetRouter(router.Group("/ws/game"))
+	worldapi.SetRouter(router.Group("/api/worlds"))
 	err = router.Run()
 	if err != nil {
 		panic(err)
