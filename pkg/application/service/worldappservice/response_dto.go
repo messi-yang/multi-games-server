@@ -1,4 +1,4 @@
-package worldapiservice
+package worldappservice
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 

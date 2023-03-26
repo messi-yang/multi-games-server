@@ -1,11 +1,11 @@
 package worldapi
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/worldapiservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/worldappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 )
 
-func newWorldAppService(presenter worldapiservice.Presenter) (worldAppService worldapiservice.Service, err error) {
+func newWorldAppService(presenter worldappservice.Presenter) (worldAppService worldappservice.Service, err error) {
 	worldRepository, err := postgres.NewWorldRepository()
 	if err != nil {
 		return worldAppService, err
@@ -18,5 +18,5 @@ func newWorldAppService(presenter worldapiservice.Presenter) (worldAppService wo
 	if err != nil {
 		return worldAppService, err
 	}
-	return worldapiservice.NewService(worldRepository, unitRepository, itemRepository, presenter), nil
+	return worldappservice.NewService(worldRepository, unitRepository, itemRepository, presenter), nil
 }

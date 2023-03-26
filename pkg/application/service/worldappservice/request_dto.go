@@ -1,4 +1,4 @@
-package worldapiservice
+package worldappservice
 
 import "github.com/google/uuid"
 

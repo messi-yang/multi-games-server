@@ -1,4 +1,4 @@
-package worldapiservice
+package worldappservice
 
 import (
 	"math/rand"

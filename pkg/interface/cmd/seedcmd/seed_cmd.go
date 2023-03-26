@@ -3,7 +3,7 @@ package seedcmd
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/dbseedcmdservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/dbseedappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 )
 
@@ -15,7 +15,7 @@ func Exec() {
 		panic(err)
 	}
 
-	dbSeedAppService := dbseedcmdservice.NewService(itemRepository)
+	dbSeedAppService := dbseedappservice.NewService(itemRepository)
 	err = dbSeedAppService.AddDefaultItems()
 	if err != nil {
 		panic(err)

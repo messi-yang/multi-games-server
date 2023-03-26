@@ -1,4 +1,4 @@
-package gameapiservice
+package gameappservice
 
 type Presenter interface {
 	OnMessage(jsonObj any) error

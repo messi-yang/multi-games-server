@@ -1,4 +1,4 @@
-package dbseedcmdservice
+package dbseedappservice
 
 import (
 	"fmt"

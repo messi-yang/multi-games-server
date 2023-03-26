@@ -1,4 +1,4 @@
-package gameapiservice
+package gameappservice
 
 import (
 	"fmt"
