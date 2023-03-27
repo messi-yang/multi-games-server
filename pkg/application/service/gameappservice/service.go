@@ -12,9 +12,9 @@ import (
 )
 
 type Service interface {
-	GetPlayersAroundPlayer(query GetPlayersQuery) error
-	GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) error
-	AddPlayer(command AddPlayerCommand) error
+	GetPlayersAroundPlayer(query GetPlayersAroundPlayerQuery) ([]dto.PlayerAggDto, error)
+	GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) (dto.BoundVoDto, []dto.UnitVoDto, error)
+	AddPlayer(command AddPlayerCommand) ([]dto.ItemAggDto, []dto.PlayerAggDto, dto.BoundVoDto, []dto.UnitVoDto, error)
 	MovePlayer(command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
 	PlaceItem(command PlaceItemCommand) error
@@ -22,7 +22,6 @@ type Service interface {
 }
 
 type serve struct {
-	presenter         Presenter
 	intEventPublisher intevent.Publisher
 	worldRepository   worldmodel.Repository
 	playerRepository  playermodel.Repository
@@ -31,9 +30,8 @@ type serve struct {
 	gameService       service.GameService
 }
 
-func NewService(presenter Presenter, intEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+func NewService(intEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
 	return &serve{
-		presenter:         presenter,
 		intEventPublisher: intEventPublisher,
 		worldRepository:   worldRepository,
 		playerRepository:  playerRepository,
@@ -94,111 +92,112 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 	return nil
 }
 
-func (serve *serve) GetPlayersAroundPlayer(query GetPlayersQuery) error {
+func (serve *serve) GetPlayersAroundPlayer(query GetPlayersAroundPlayerQuery) (
+	playerDtos []dto.PlayerAggDto, err error,
+) {
 	worldId, playerId, err := query.Validate()
 	if err != nil {
-		return err
+		return playerDtos, err
 	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return err
+		return playerDtos, err
 	}
 
 	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
 	if err != nil {
-		return err
+		return playerDtos, err
 	}
 
-	return serve.presenter.OnMessage(PlayersUpdatedResponseDto{
-		Type: PlayersUpdatedResponseDtoType,
-		Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
-			return dto.NewPlayerAggDto(player)
-		}),
+	playerDtos = lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
+		return dto.NewPlayerAggDto(player)
 	})
+
+	return playerDtos, nil
 }
 
-func (serve *serve) GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) error {
+func (serve *serve) GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) (
+	boundDto dto.BoundVoDto, unitDtos []dto.UnitVoDto, err error,
+) {
 	worldId, playerId, err := query.Validate()
 	if err != nil {
-		return err
+		return boundDto, unitDtos, err
 	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return err
+		return boundDto, unitDtos, err
 	}
 
-	playerVisionBound := player.GetVisionBound()
-	units, err := serve.unitRepository.GetUnitsInBound(worldId, playerVisionBound)
+	visionBound := player.GetVisionBound()
+	units, err := serve.unitRepository.GetUnitsInBound(worldId, visionBound)
 	if err != nil {
-		return err
+		return boundDto, unitDtos, err
 	}
 
-	return serve.presenter.OnMessage(UnitsUpdatedResponseDto{
-		Type:        UnitsUpdatedResponseDtoType,
-		VisionBound: dto.NewBoundVoDto(playerVisionBound),
-		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
-			return dto.NewUnitVoDto(unit)
-		}),
+	boundDto = dto.NewBoundVoDto(visionBound)
+	unitDtos = lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
+		return dto.NewUnitVoDto(unit)
 	})
+
+	return boundDto, unitDtos, nil
 }
 
-func (serve *serve) AddPlayer(command AddPlayerCommand) error {
+func (serve *serve) AddPlayer(command AddPlayerCommand) (
+	itemDtos []dto.ItemAggDto, playerDtos []dto.PlayerAggDto, visionBoundDto dto.BoundVoDto, unitDtos []dto.UnitVoDto, err error,
+) {
 	worldId, playerId, err := command.Validate()
 	if err != nil {
-		return err
+		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
 	}
 
 	err = serve.gameService.AddPlayer(worldId, playerId)
 	if err != nil {
-		return err
+		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
 	}
 
 	newPlayer, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return err
+		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
 	}
 
 	items, err := serve.itemRepository.GetAll()
 	if err != nil {
-		return err
+		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
 	}
-
-	itemDtos := lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemAggDto {
-		return dto.NewItemAggDto(item)
-	})
 
 	players, err := serve.playerRepository.GetPlayersAround(worldId, newPlayer.GetPosition())
 	if err != nil {
-		return err
+		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
 	}
 
-	playerDtos := lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
+	visionBound := newPlayer.GetVisionBound()
+
+	units, err := serve.unitRepository.GetUnitsInBound(worldId, visionBound)
+	if err != nil {
+		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+	}
+
+	itemDtos = lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemAggDto {
+		return dto.NewItemAggDto(item)
+	})
+
+	playerDtos = lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
 		return dto.NewPlayerAggDto(p)
 	})
 
-	playerVisionBound := newPlayer.GetVisionBound()
-	units, err := serve.unitRepository.GetUnitsInBound(worldId, playerVisionBound)
-	if err != nil {
-		return err
-	}
-
-	err = serve.presenter.OnMessage(GameJoinedResponseDto{
-		Type:        GameJoinedResponseDtoType,
-		Items:       itemDtos,
-		PlayerId:    playerId.Uuid(),
-		Players:     playerDtos,
-		VisionBound: dto.NewBoundVoDto(playerVisionBound),
-		Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
-			return dto.NewUnitVoDto(unit)
-		}),
+	unitDtos = lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
+		return dto.NewUnitVoDto(unit)
 	})
-	if err != nil {
-		return err
-	}
 
-	return serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	visionBoundDto = dto.NewBoundVoDto(visionBound)
+
+	err = serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	if err != nil {
+		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+	}
+	return itemDtos, playerDtos, visionBoundDto, unitDtos, nil
 }
 
 func (serve *serve) MovePlayer(command MovePlayerCommand) error {
@@ -218,10 +217,13 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 	}
 
 	if isVisionBoundUpdated {
-		return serve.intEventPublisher.Publish(
+		err = serve.intEventPublisher.Publish(
 			NewVisionBoundUpdatedIntEventChannel(worldId.Uuid(), playerId.Uuid()),
 			VisionBoundUpdatedIntEvent{},
 		)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -237,7 +239,11 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 		return err
 	}
 
-	return serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	err = serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
@@ -251,7 +257,11 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 		return err
 	}
 
-	return serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	err = serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {
@@ -265,5 +275,9 @@ func (serve *serve) DestroyItem(command DestroyItemCommand) error {
 		return err
 	}
 
-	return serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	err = serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	if err != nil {
+		return err
+	}
+	return nil
 }

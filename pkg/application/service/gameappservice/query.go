@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetPlayersQuery struct {
+type GetPlayersAroundPlayerQuery struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }
 
-func (query GetPlayersQuery) Validate() (
+func (query GetPlayersAroundPlayerQuery) Validate() (
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
 ) {
 	worldId = worldmodel.NewWorldIdVo(query.WorldId)
