@@ -5,26 +5,26 @@ import "github.com/google/uuid"
 type RequestDtoType string
 
 const (
-	PingRequestDtoType        RequestDtoType = "PING"
-	MoveRequestDtoType        RequestDtoType = "MOVE"
-	PlaceItemRequestDtoType   RequestDtoType = "PLACE_ITEM"
-	DestroyItemRequestDtoType RequestDtoType = "DESTROY_ITEM"
+	pingRequestDtoType        RequestDtoType = "PING"
+	moveRequestDtoType        RequestDtoType = "MOVE"
+	placeItemRequestDtoType   RequestDtoType = "PLACE_ITEM"
+	destroyItemRequestDtoType RequestDtoType = "DESTROY_ITEM"
 )
 
-type GenericRequestDto struct {
+type genericRequestDto struct {
 	Type RequestDtoType `json:"type"`
 }
 
-type MoveRequestDto struct {
+type moveRequestDto struct {
 	Type      RequestDtoType `json:"type"`
 	Direction int8           `json:"direction"`
 }
 
-type PlaceItemRequestDto struct {
+type placeItemRequestDto struct {
 	Type   RequestDtoType `json:"type"`
 	ItemId uuid.UUID      `json:"itemId"`
 }
 
-type DestroyItemRequestDto struct {
+type destroyItemRequestDto struct {
 	Type RequestDtoType `json:"type"`
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 )
 
-func newWorldAppService() (worldAppService worldappservice.Service, err error) {
+func provideWorldAppService() (worldAppService worldappservice.Service, err error) {
 	worldRepository, err := postgres.NewWorldRepository()
 	if err != nil {
 		return worldAppService, err

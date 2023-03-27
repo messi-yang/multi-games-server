@@ -3,6 +3,7 @@ package worldappservice
 import (
 	"math/rand"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/commonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
@@ -10,11 +11,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type Service interface {
-	QueryWorlds(worldsTransformer func([]worldmodel.WorldAgg), errorTransformer func(error))
-	CreateWorld(userIdDto uuid.UUID, worldTransformer func(worldmodel.WorldAgg), errorTransformer func(error))
+	QueryWorlds() ([]dto.WorldAggDto, error)
+	CreateWorld(userIdDto uuid.UUID) (dto.WorldAggDto, error)
 }
 
 type serve struct {
@@ -31,31 +33,33 @@ func NewService(worldRepository worldmodel.Repository, unitRepository unitmodel.
 	}
 }
 
-func (serve *serve) QueryWorlds(worldsTransformer func([]worldmodel.WorldAgg), errorTransformer func(error)) {
+func (serve *serve) QueryWorlds() (worldDtos []dto.WorldAggDto, err error) {
 	worlds, err := serve.worldRepository.GetAll()
 	if err != nil {
-		errorTransformer(err)
-		return
+		return worldDtos, err
 	}
-	worldsTransformer(worlds)
+	worldDtos = lo.Map(worlds, func(world worldmodel.WorldAgg, _ int) dto.WorldAggDto {
+		return dto.NewWorldAggDto(world)
+	})
+	return worldDtos, err
 }
 
-func (serve *serve) CreateWorld(userIdDto uuid.UUID, worldTransformer func(worldmodel.WorldAgg), errorTransformer func(error)) {
+func (serve *serve) CreateWorld(userIdDto uuid.UUID) (
+	newWorldDto dto.WorldAggDto, err error,
+) {
 	userId := usermodel.NewUserIdVo(userIdDto)
 
 	worldId := worldmodel.NewWorldIdVo(uuid.New())
 	newWorld := worldmodel.NewWorldAgg(worldId, userId)
 
-	err := serve.worldRepository.Add(newWorld)
+	err = serve.worldRepository.Add(newWorld)
 	if err != nil {
-		errorTransformer(err)
-		return
+		return newWorldDto, err
 	}
 
 	items, err := serve.itemRepository.GetAll()
 	if err != nil {
-		errorTransformer(err)
-		return
+		return newWorldDto, err
 	}
 
 	commonutil.RangeMatrix(100, 100, func(x int, z int) error {
@@ -71,5 +75,6 @@ func (serve *serve) CreateWorld(userIdDto uuid.UUID, worldTransformer func(world
 		return nil
 	})
 
-	worldTransformer(newWorld)
+	newWorldDto = dto.NewWorldAggDto(newWorld)
+	return newWorldDto, err
 }

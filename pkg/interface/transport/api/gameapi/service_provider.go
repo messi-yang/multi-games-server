@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 )
 
-func newGameAppService() (gameAppService gameappservice.Service, err error) {
+func provideGameAppService() (gameAppService gameappservice.Service, err error) {
 	intEventPublisher := redisinteventpublisher.New()
 	itemRepository, err := postgres.NewItemRepository()
 	if err != nil {

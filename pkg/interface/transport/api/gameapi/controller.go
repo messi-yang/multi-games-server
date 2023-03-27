@@ -35,7 +35,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 	playerIdDto := uuid.New()
 
-	gameAppService, err := newGameAppService()
+	gameAppService, err := provideGameAppService()
 	if err != nil {
 		return
 	}
@@ -159,16 +159,16 @@ func gameConnectionHandler(c *gin.Context) {
 				return
 			}
 
-			genericRequestDto, err := jsonutil.Unmarshal[GenericRequestDto](message)
+			genericRequestDto, err := jsonutil.Unmarshal[genericRequestDto](message)
 			if err != nil {
 				return
 			}
 
 			switch genericRequestDto.Type {
-			case PingRequestDtoType:
+			case pingRequestDtoType:
 				continue
-			case MoveRequestDtoType:
-				requestDto, err := jsonutil.Unmarshal[MoveRequestDto](message)
+			case moveRequestDtoType:
+				requestDto, err := jsonutil.Unmarshal[moveRequestDto](message)
 				if err != nil {
 					return
 				}
@@ -181,8 +181,8 @@ func gameConnectionHandler(c *gin.Context) {
 				if err != nil {
 					return
 				}
-			case PlaceItemRequestDtoType:
-				requestDto, err := jsonutil.Unmarshal[PlaceItemRequestDto](message)
+			case placeItemRequestDtoType:
+				requestDto, err := jsonutil.Unmarshal[placeItemRequestDto](message)
 				if err != nil {
 					return
 				}
@@ -195,7 +195,12 @@ func gameConnectionHandler(c *gin.Context) {
 				if err != nil {
 					return
 				}
-			case DestroyItemRequestDtoType:
+			case destroyItemRequestDtoType:
+				_, err := jsonutil.Unmarshal[destroyItemRequestDto](message)
+				if err != nil {
+					return
+				}
+
 				err = gameAppService.DestroyItem(gameappservice.DestroyItemCommand{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
