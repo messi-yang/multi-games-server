@@ -1,4 +1,4 @@
-package worldapi
+package worldhttpcontroller
 
 import (
 	"net/http"

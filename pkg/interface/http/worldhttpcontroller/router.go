@@ -1,8 +1,9 @@
-package worldapi
+package worldhttpcontroller
 
 import "github.com/gin-gonic/gin"
 
-func SetRouter(routerGroup *gin.RouterGroup) {
+func Setup(router *gin.Engine) {
+	routerGroup := router.Group("/api/worlds")
 	routerGroup.GET("/", queryWorldHandler)
 	routerGroup.POST("/", createWorldHandler)
 }

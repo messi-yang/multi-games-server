@@ -1,4 +1,4 @@
-package gameapi
+package gamesocketcontroller
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"

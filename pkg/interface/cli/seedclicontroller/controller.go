@@ -1,4 +1,4 @@
-package seedcmd
+package seedclicontroller
 
 import (
 	"fmt"

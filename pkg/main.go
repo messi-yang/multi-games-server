@@ -7,9 +7,10 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cmd/seedcmd"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api/gameapi"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/transport/api/worldapi"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/seedclicontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/assethttpcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamesocketcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/worldhttpcontroller"
 	"github.com/google/uuid"
 
 	"github.com/gin-contrib/cors"
@@ -22,7 +23,7 @@ func main() {
 	if len(args) > 0 {
 		switch args[0] {
 		case "db-seed":
-			seedcmd.Exec()
+			seedclicontroller.Exec()
 			os.Exit(0)
 		}
 		return
@@ -46,10 +47,9 @@ func main() {
 		fmt.Println(err)
 	}
 
-	router.Static("/asset", "./pkg/interface/transport/asset")
-
-	gameapi.SetRouter(router.Group("/ws/game"))
-	worldapi.SetRouter(router.Group("/api/worlds"))
+	assethttpcontroller.Setup(router)
+	gamesocketcontroller.Setup(router)
+	worldhttpcontroller.Setup(router)
 	err = router.Run()
 	if err != nil {
 		panic(err)

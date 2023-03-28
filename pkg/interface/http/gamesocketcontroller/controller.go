@@ -1,4 +1,4 @@
-package gameapi
+package gamesocketcontroller
 
 import (
 	"fmt"
