@@ -62,8 +62,8 @@ func gameConnectionHandler(c *gin.Context) {
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gameappservice.PlayersUpdatedIntEvent]().Subscribe(
 		gameappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.PlayersUpdatedIntEvent) {
-			playerDtos, err := gameAppService.GetPlayersAroundPlayer(
-				gameappservice.GetPlayersAroundPlayerQuery{
+			playerDtos, err := gameAppService.FindNearbyPlayers(
+				gameappservice.FindNearbyPlayersQuery{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 				},
@@ -83,8 +83,8 @@ func gameConnectionHandler(c *gin.Context) {
 	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.UnitsUpdatedIntEvent]().Subscribe(
 		gameappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.UnitsUpdatedIntEvent) {
-			visionBoundDto, unitDtos, err := gameAppService.GetUnitsVisibleByPlayer(
-				gameappservice.GetUnitsVisibleByPlayerQuery{
+			visionBoundDto, unitDtos, err := gameAppService.FindUnits(
+				gameappservice.FindUnitsQuery{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 				},
@@ -105,8 +105,8 @@ func gameConnectionHandler(c *gin.Context) {
 	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.VisionBoundUpdatedIntEvent]().Subscribe(
 		gameappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.VisionBoundUpdatedIntEvent) {
-			visionBoundDto, unitDtos, err := gameAppService.GetUnitsVisibleByPlayer(
-				gameappservice.GetUnitsVisibleByPlayerQuery{
+			visionBoundDto, unitDtos, err := gameAppService.FindUnits(
+				gameappservice.FindUnitsQuery{
 					WorldId:  worldIdDto,
 					PlayerId: playerIdDto,
 				},

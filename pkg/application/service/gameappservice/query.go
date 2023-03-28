@@ -6,20 +6,20 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetPlayersAroundPlayerQuery struct {
+type FindNearbyPlayersQuery struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }
 
-func (query GetPlayersAroundPlayerQuery) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
+func (query FindNearbyPlayersQuery) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
 	return worldmodel.NewWorldIdVo(query.WorldId), playermodel.NewPlayerIdVo(query.PlayerId)
 }
 
-type GetUnitsVisibleByPlayerQuery struct {
+type FindUnitsQuery struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }
 
-func (query GetUnitsVisibleByPlayerQuery) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
+func (query FindUnitsQuery) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
 	return worldmodel.NewWorldIdVo(query.WorldId), playermodel.NewPlayerIdVo(query.PlayerId)
 }

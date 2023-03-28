@@ -12,8 +12,8 @@ import (
 )
 
 type Service interface {
-	GetPlayersAroundPlayer(query GetPlayersAroundPlayerQuery) ([]dto.PlayerAggDto, error)
-	GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) (dto.BoundVoDto, []dto.UnitVoDto, error)
+	FindNearbyPlayers(query FindNearbyPlayersQuery) ([]dto.PlayerAggDto, error)
+	FindUnits(query FindUnitsQuery) (dto.BoundVoDto, []dto.UnitVoDto, error)
 	AddPlayer(command AddPlayerCommand) ([]dto.ItemAggDto, []dto.PlayerAggDto, dto.BoundVoDto, []dto.UnitVoDto, error)
 	MovePlayer(command MovePlayerCommand) error
 	RemovePlayer(command RemovePlayerCommand) error
@@ -92,7 +92,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 	return nil
 }
 
-func (serve *serve) GetPlayersAroundPlayer(query GetPlayersAroundPlayerQuery) (
+func (serve *serve) FindNearbyPlayers(query FindNearbyPlayersQuery) (
 	playerDtos []dto.PlayerAggDto, err error,
 ) {
 	worldId, playerId := query.Parse()
@@ -114,7 +114,7 @@ func (serve *serve) GetPlayersAroundPlayer(query GetPlayersAroundPlayerQuery) (
 	return playerDtos, nil
 }
 
-func (serve *serve) GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) (
+func (serve *serve) FindUnits(query FindUnitsQuery) (
 	boundDto dto.BoundVoDto, unitDtos []dto.UnitVoDto, err error,
 ) {
 	worldId, playerId := query.Parse()
