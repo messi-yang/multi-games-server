@@ -15,8 +15,8 @@ import (
 )
 
 type Service interface {
-	QueryWorlds() ([]dto.WorldAggDto, error)
-	CreateWorld(userIdDto uuid.UUID) (dto.WorldAggDto, error)
+	FindWorlds(FindWorldsQuery) ([]dto.WorldAggDto, error)
+	CreateWorld(CreateWorldCommand) (dto.WorldAggDto, error)
 }
 
 type serve struct {
@@ -33,7 +33,7 @@ func NewService(worldRepository worldmodel.Repository, unitRepository unitmodel.
 	}
 }
 
-func (serve *serve) QueryWorlds() (worldDtos []dto.WorldAggDto, err error) {
+func (serve *serve) FindWorlds(query FindWorldsQuery) (worldDtos []dto.WorldAggDto, err error) {
 	worlds, err := serve.worldRepository.GetAll()
 	if err != nil {
 		return worldDtos, err
@@ -44,11 +44,10 @@ func (serve *serve) QueryWorlds() (worldDtos []dto.WorldAggDto, err error) {
 	return worldDtos, err
 }
 
-func (serve *serve) CreateWorld(userIdDto uuid.UUID) (
+func (serve *serve) CreateWorld(command CreateWorldCommand) (
 	newWorldDto dto.WorldAggDto, err error,
 ) {
-	userId := usermodel.NewUserIdVo(userIdDto)
-
+	userId := usermodel.NewUserIdVo(command.UserId)
 	worldId := worldmodel.NewWorldIdVo(uuid.New())
 	newWorld := worldmodel.NewWorldAgg(worldId, userId)
 

@@ -3,6 +3,7 @@ package worldapi
 import (
 	"net/http"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/worldappservice"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +14,7 @@ func queryWorldHandler(c *gin.Context) {
 		return
 	}
 
-	worldDtos, err := worldAppService.QueryWorlds()
+	worldDtos, err := worldAppService.FindWorlds(worldappservice.FindWorldsQuery{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -34,7 +35,9 @@ func createWorldHandler(c *gin.Context) {
 		return
 	}
 
-	worldDto, err := worldAppService.CreateWorld(requestDto.UserId)
+	worldDto, err := worldAppService.CreateWorld(worldappservice.CreateWorldCommand{
+		UserId: requestDto.UserId,
+	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
