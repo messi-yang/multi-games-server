@@ -95,10 +95,7 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 func (serve *serve) GetPlayersAroundPlayer(query GetPlayersAroundPlayerQuery) (
 	playerDtos []dto.PlayerAggDto, err error,
 ) {
-	worldId, playerId, err := query.Validate()
-	if err != nil {
-		return playerDtos, err
-	}
+	worldId, playerId := query.Parse()
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
@@ -120,10 +117,7 @@ func (serve *serve) GetPlayersAroundPlayer(query GetPlayersAroundPlayerQuery) (
 func (serve *serve) GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) (
 	boundDto dto.BoundVoDto, unitDtos []dto.UnitVoDto, err error,
 ) {
-	worldId, playerId, err := query.Validate()
-	if err != nil {
-		return boundDto, unitDtos, err
-	}
+	worldId, playerId := query.Parse()
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
@@ -147,10 +141,7 @@ func (serve *serve) GetUnitsVisibleByPlayer(query GetUnitsVisibleByPlayerQuery) 
 func (serve *serve) AddPlayer(command AddPlayerCommand) (
 	itemDtos []dto.ItemAggDto, playerDtos []dto.PlayerAggDto, visionBoundDto dto.BoundVoDto, unitDtos []dto.UnitVoDto, err error,
 ) {
-	worldId, playerId, err := command.Validate()
-	if err != nil {
-		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
-	}
+	worldId, playerId := command.Parse()
 
 	err = serve.gameService.AddPlayer(worldId, playerId)
 	if err != nil {
@@ -201,10 +192,7 @@ func (serve *serve) AddPlayer(command AddPlayerCommand) (
 }
 
 func (serve *serve) MovePlayer(command MovePlayerCommand) error {
-	worldId, playerId, direction, err := command.Validate()
-	if err != nil {
-		return err
-	}
+	worldId, playerId, direction := command.Parse()
 
 	isVisionBoundUpdated, err := serve.gameService.MovePlayer(worldId, playerId, direction)
 	if err != nil {
@@ -229,12 +217,9 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 }
 
 func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
-	worldId, playerId, err := command.Validate()
-	if err != nil {
-		return err
-	}
+	worldId, playerId := command.Parse()
 
-	err = serve.gameService.RemovePlayer(worldId, playerId)
+	err := serve.gameService.RemovePlayer(worldId, playerId)
 	if err != nil {
 		return err
 	}
@@ -247,12 +232,9 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	worldId, playerId, itemId, err := command.Validate()
-	if err != nil {
-		return err
-	}
+	worldId, playerId, itemId := command.Parse()
 
-	err = serve.gameService.PlaceItem(worldId, playerId, itemId)
+	err := serve.gameService.PlaceItem(worldId, playerId, itemId)
 	if err != nil {
 		return err
 	}
@@ -265,12 +247,9 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {
-	worldId, playerId, err := command.Validate()
-	if err != nil {
-		return err
-	}
+	worldId, playerId := command.Parse()
 
-	err = serve.gameService.DestroyItem(worldId, playerId)
+	err := serve.gameService.DestroyItem(worldId, playerId)
 	if err != nil {
 		return err
 	}

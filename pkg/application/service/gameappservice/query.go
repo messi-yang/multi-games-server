@@ -11,13 +11,8 @@ type GetPlayersAroundPlayerQuery struct {
 	PlayerId uuid.UUID
 }
 
-func (query GetPlayersAroundPlayerQuery) Validate() (
-	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
-) {
-	worldId = worldmodel.NewWorldIdVo(query.WorldId)
-	playerId = playermodel.NewPlayerIdVo(query.PlayerId)
-
-	return worldId, playerId, nil
+func (query GetPlayersAroundPlayerQuery) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
+	return worldmodel.NewWorldIdVo(query.WorldId), playermodel.NewPlayerIdVo(query.PlayerId)
 }
 
 type GetUnitsVisibleByPlayerQuery struct {
@@ -25,11 +20,6 @@ type GetUnitsVisibleByPlayerQuery struct {
 	PlayerId uuid.UUID
 }
 
-func (query GetUnitsVisibleByPlayerQuery) Validate() (
-	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
-) {
-	worldId = worldmodel.NewWorldIdVo(query.WorldId)
-	playerId = playermodel.NewPlayerIdVo(query.PlayerId)
-
-	return worldId, playerId, nil
+func (query GetUnitsVisibleByPlayerQuery) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
+	return worldmodel.NewWorldIdVo(query.WorldId), playermodel.NewPlayerIdVo(query.PlayerId)
 }

@@ -14,13 +14,8 @@ type PlaceItemCommand struct {
 	ItemId   uuid.UUID
 }
 
-func (command PlaceItemCommand) Validate() (
-	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo, err error,
-) {
-	worldId = worldmodel.NewWorldIdVo(command.WorldId)
-	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
-	itemId = itemmodel.NewItemIdVo(command.ItemId)
-	return worldId, playerId, itemId, nil
+func (command PlaceItemCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo) {
+	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId), itemmodel.NewItemIdVo(command.ItemId)
 }
 
 type DestroyItemCommand struct {
@@ -28,12 +23,8 @@ type DestroyItemCommand struct {
 	PlayerId uuid.UUID
 }
 
-func (command DestroyItemCommand) Validate() (
-	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
-) {
-	worldId = worldmodel.NewWorldIdVo(command.WorldId)
-	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
-	return worldId, playerId, nil
+func (command DestroyItemCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
+	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId)
 }
 
 type AddPlayerCommand struct {
@@ -41,12 +32,8 @@ type AddPlayerCommand struct {
 	PlayerId uuid.UUID
 }
 
-func (command AddPlayerCommand) Validate() (
-	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
-) {
-	worldId = worldmodel.NewWorldIdVo(command.WorldId)
-	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
-	return worldId, playerId, nil
+func (command AddPlayerCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
+	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId)
 }
 
 type MovePlayerCommand struct {
@@ -55,14 +42,8 @@ type MovePlayerCommand struct {
 	Direction int8
 }
 
-func (command MovePlayerCommand) Validate() (
-	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo, err error,
-) {
-	worldId = worldmodel.NewWorldIdVo(command.WorldId)
-	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
-	direction = commonmodel.NewDirectionVo(command.Direction)
-
-	return worldId, playerId, direction, nil
+func (command MovePlayerCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) {
+	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewDirectionVo(command.Direction)
 }
 
 type RemovePlayerCommand struct {
@@ -70,10 +51,6 @@ type RemovePlayerCommand struct {
 	PlayerId uuid.UUID
 }
 
-func (command RemovePlayerCommand) Validate() (
-	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, err error,
-) {
-	worldId = worldmodel.NewWorldIdVo(command.WorldId)
-	playerId = playermodel.NewPlayerIdVo(command.PlayerId)
-	return worldId, playerId, nil
+func (command RemovePlayerCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
+	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId)
 }
