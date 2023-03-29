@@ -10,7 +10,7 @@ type FindNearbyPlayersQuery struct {
 	PlayerId playermodel.PlayerIdVo
 }
 
-type QueryUnitsQuery struct {
+type FindNearbyUnitsQuery struct {
 	WorldId  worldmodel.WorldIdVo
 	PlayerId playermodel.PlayerIdVo
 }

@@ -12,7 +12,7 @@ import (
 
 type Service interface {
 	FindNearbyPlayers(FindNearbyPlayersQuery) ([]playermodel.PlayerAgg, error)
-	QueryUnits(QueryUnitsQuery) (commonmodel.BoundVo, []unitmodel.UnitAgg, error)
+	FindNearbyUnits(FindNearbyUnitsQuery) (commonmodel.BoundVo, []unitmodel.UnitAgg, error)
 	AddPlayer(AddPlayerCommand) ([]itemmodel.ItemAgg, []playermodel.PlayerAgg, commonmodel.BoundVo, []unitmodel.UnitAgg, error)
 	MovePlayer(MovePlayerCommand) error
 	RemovePlayer(RemovePlayerCommand) error
@@ -102,7 +102,7 @@ func (serve *serve) FindNearbyPlayers(query FindNearbyPlayersQuery) (
 	return serve.playerRepository.GetPlayersAround(query.WorldId, player.GetPosition())
 }
 
-func (serve *serve) QueryUnits(query QueryUnitsQuery) (
+func (serve *serve) FindNearbyUnits(query FindNearbyUnitsQuery) (
 	visionBound commonmodel.BoundVo, units []unitmodel.UnitAgg, err error,
 ) {
 	player, err := serve.playerRepository.Get(query.PlayerId)

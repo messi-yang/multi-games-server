@@ -92,8 +92,8 @@ func gameConnectionHandler(c *gin.Context) {
 	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.UnitsUpdatedIntEvent]().Subscribe(
 		gameappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.UnitsUpdatedIntEvent) {
-			visionBound, units, err := gameAppService.QueryUnits(
-				gameappservice.QueryUnitsQuery{
+			visionBound, units, err := gameAppService.FindNearbyUnits(
+				gameappservice.FindNearbyUnitsQuery{
 					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 				},
@@ -116,8 +116,8 @@ func gameConnectionHandler(c *gin.Context) {
 	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.VisionBoundUpdatedIntEvent]().Subscribe(
 		gameappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.VisionBoundUpdatedIntEvent) {
-			visionBound, units, err := gameAppService.QueryUnits(
-				gameappservice.QueryUnitsQuery{
+			visionBound, units, err := gameAppService.FindNearbyUnits(
+				gameappservice.FindNearbyUnitsQuery{
 					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 				},
