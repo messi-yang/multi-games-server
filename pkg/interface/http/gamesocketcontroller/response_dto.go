@@ -1,7 +1,7 @@
 package gamesocketcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
 	"github.com/google/uuid"
 )
 
@@ -14,21 +14,21 @@ const (
 )
 
 type gameJoinedResponseDto struct {
-	Type        responseDtoType    `json:"type"`
-	PlayerId    uuid.UUID          `json:"playerId"`
-	Players     []dto.PlayerAggDto `json:"players"`
-	VisionBound dto.BoundVoDto     `json:"visionBound"`
-	Units       []dto.UnitVoDto    `json:"units"`
-	Items       []dto.ItemAggDto   `json:"items"`
+	Type        responseDtoType        `json:"type"`
+	PlayerId    uuid.UUID              `json:"playerId"`
+	Players     []httpdto.PlayerAggDto `json:"players"`
+	VisionBound httpdto.BoundVoDto     `json:"visionBound"`
+	Units       []httpdto.UnitVoDto    `json:"units"`
+	Items       []httpdto.ItemAggDto   `json:"items"`
 }
 
 type playersUpdatedResponseDto struct {
-	Type    responseDtoType    `json:"type"`
-	Players []dto.PlayerAggDto `json:"players"`
+	Type    responseDtoType        `json:"type"`
+	Players []httpdto.PlayerAggDto `json:"players"`
 }
 
 type unitsUpdatedResponseDto struct {
-	Type        responseDtoType `json:"type"`
-	VisionBound dto.BoundVoDto  `json:"visionBound"`
-	Units       []dto.UnitVoDto `json:"units"`
+	Type        responseDtoType     `json:"type"`
+	VisionBound httpdto.BoundVoDto  `json:"visionBound"`
+	Units       []httpdto.UnitVoDto `json:"units"`
 }

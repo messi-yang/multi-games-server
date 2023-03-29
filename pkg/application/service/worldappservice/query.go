@@ -1,3 +1,11 @@
 package worldappservice
 
-type FindWorldsQuery struct{}
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
+)
+
+type GetWorldQuery struct {
+	WorldId worldmodel.WorldIdVo
+}
+
+type GetWorldsQuery struct{}

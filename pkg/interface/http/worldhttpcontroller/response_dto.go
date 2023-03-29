@@ -1,7 +1,7 @@
 package worldhttpcontroller
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
 
-type queryWorldsResponseDto []dto.WorldAggDto
+type queryWorldsResponseDto []httpdto.WorldAggDto
 
-type createWorldResponseDto dto.WorldAggDto
+type createWorldResponseDto httpdto.WorldAggDto

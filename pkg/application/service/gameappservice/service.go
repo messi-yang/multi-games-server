@@ -1,24 +1,23 @@
 package gameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
-	"github.com/samber/lo"
 )
 
 type Service interface {
-	FindNearbyPlayers(query FindNearbyPlayersQuery) ([]dto.PlayerAggDto, error)
-	FindUnits(query FindUnitsQuery) (dto.BoundVoDto, []dto.UnitVoDto, error)
-	AddPlayer(command AddPlayerCommand) ([]dto.ItemAggDto, []dto.PlayerAggDto, dto.BoundVoDto, []dto.UnitVoDto, error)
-	MovePlayer(command MovePlayerCommand) error
-	RemovePlayer(command RemovePlayerCommand) error
-	PlaceItem(command PlaceItemCommand) error
-	DestroyItem(command DestroyItemCommand) error
+	FindNearbyPlayers(FindNearbyPlayersQuery) ([]playermodel.PlayerAgg, error)
+	QueryUnits(QueryUnitsQuery) (commonmodel.BoundVo, []unitmodel.UnitAgg, error)
+	AddPlayer(AddPlayerCommand) ([]itemmodel.ItemAgg, []playermodel.PlayerAgg, commonmodel.BoundVo, []unitmodel.UnitAgg, error)
+	MovePlayer(MovePlayerCommand) error
+	RemovePlayer(RemovePlayerCommand) error
+	PlaceItem(PlaceItemCommand) error
+	DestroyItem(DestroyItemCommand) error
 }
 
 type serve struct {
@@ -93,120 +92,84 @@ func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.W
 }
 
 func (serve *serve) FindNearbyPlayers(query FindNearbyPlayersQuery) (
-	playerDtos []dto.PlayerAggDto, err error,
+	players []playermodel.PlayerAgg, err error,
 ) {
-	worldId, playerId := query.Parse()
-
-	player, err := serve.playerRepository.Get(playerId)
+	player, err := serve.playerRepository.Get(query.PlayerId)
 	if err != nil {
-		return playerDtos, err
+		return players, err
 	}
 
-	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
-	if err != nil {
-		return playerDtos, err
-	}
-
-	playerDtos = lo.Map(players, func(player playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
-		return dto.NewPlayerAggDto(player)
-	})
-
-	return playerDtos, nil
+	return serve.playerRepository.GetPlayersAround(query.WorldId, player.GetPosition())
 }
 
-func (serve *serve) FindUnits(query FindUnitsQuery) (
-	boundDto dto.BoundVoDto, unitDtos []dto.UnitVoDto, err error,
+func (serve *serve) QueryUnits(query QueryUnitsQuery) (
+	visionBound commonmodel.BoundVo, units []unitmodel.UnitAgg, err error,
 ) {
-	worldId, playerId := query.Parse()
-
-	player, err := serve.playerRepository.Get(playerId)
+	player, err := serve.playerRepository.Get(query.PlayerId)
 	if err != nil {
-		return boundDto, unitDtos, err
+		return visionBound, units, err
 	}
 
-	visionBound := player.GetVisionBound()
-	units, err := serve.unitRepository.GetUnitsInBound(worldId, visionBound)
+	visionBound = player.GetVisionBound()
+	units, err = serve.unitRepository.GetUnitsInBound(query.WorldId, visionBound)
 	if err != nil {
-		return boundDto, unitDtos, err
+		return visionBound, units, err
 	}
 
-	boundDto = dto.NewBoundVoDto(visionBound)
-	unitDtos = lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
-		return dto.NewUnitVoDto(unit)
-	})
-
-	return boundDto, unitDtos, nil
+	return visionBound, units, nil
 }
 
 func (serve *serve) AddPlayer(command AddPlayerCommand) (
-	itemDtos []dto.ItemAggDto, playerDtos []dto.PlayerAggDto, visionBoundDto dto.BoundVoDto, unitDtos []dto.UnitVoDto, err error,
+	items []itemmodel.ItemAgg, players []playermodel.PlayerAgg, visionBound commonmodel.BoundVo, units []unitmodel.UnitAgg, err error,
 ) {
-	worldId, playerId := command.Parse()
-
-	err = serve.gameService.AddPlayer(worldId, playerId)
+	err = serve.gameService.AddPlayer(command.WorldId, command.PlayerId)
 	if err != nil {
-		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+		return items, players, visionBound, units, err
 	}
 
-	newPlayer, err := serve.playerRepository.Get(playerId)
+	newPlayer, err := serve.playerRepository.Get(command.PlayerId)
 	if err != nil {
-		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+		return items, players, visionBound, units, err
 	}
 
-	items, err := serve.itemRepository.GetAll()
+	items, err = serve.itemRepository.GetAll()
 	if err != nil {
-		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+		return items, players, visionBound, units, err
 	}
 
-	players, err := serve.playerRepository.GetPlayersAround(worldId, newPlayer.GetPosition())
+	players, err = serve.playerRepository.GetPlayersAround(command.WorldId, newPlayer.GetPosition())
 	if err != nil {
-		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+		return items, players, visionBound, units, err
 	}
 
-	visionBound := newPlayer.GetVisionBound()
+	visionBound = newPlayer.GetVisionBound()
 
-	units, err := serve.unitRepository.GetUnitsInBound(worldId, visionBound)
+	units, err = serve.unitRepository.GetUnitsInBound(command.WorldId, visionBound)
 	if err != nil {
-		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+		return items, players, visionBound, units, err
 	}
 
-	itemDtos = lo.Map(items, func(item itemmodel.ItemAgg, _ int) dto.ItemAggDto {
-		return dto.NewItemAggDto(item)
-	})
-
-	playerDtos = lo.Map(players, func(p playermodel.PlayerAgg, _ int) dto.PlayerAggDto {
-		return dto.NewPlayerAggDto(p)
-	})
-
-	unitDtos = lo.Map(units, func(unit unitmodel.UnitAgg, _ int) dto.UnitVoDto {
-		return dto.NewUnitVoDto(unit)
-	})
-
-	visionBoundDto = dto.NewBoundVoDto(visionBound)
-
-	err = serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	err = serve.publishPlayersUpdatedEventToNearPlayers(command.WorldId, command.PlayerId)
 	if err != nil {
-		return itemDtos, playerDtos, visionBoundDto, unitDtos, err
+		return items, players, visionBound, units, err
 	}
-	return itemDtos, playerDtos, visionBoundDto, unitDtos, nil
+	return items, players, visionBound, units, err
 }
 
 func (serve *serve) MovePlayer(command MovePlayerCommand) error {
-	worldId, playerId, direction := command.Parse()
-
-	isVisionBoundUpdated, err := serve.gameService.MovePlayer(worldId, playerId, direction)
+	isVisionBoundUpdated, err := serve.gameService.MovePlayer(command.WorldId, command.PlayerId, command.Direction)
 	if err != nil {
 		return err
 	}
 
-	err = serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	err = serve.publishPlayersUpdatedEventToNearPlayers(command.WorldId, command.PlayerId)
 	if err != nil {
 		return err
 	}
 
 	if isVisionBoundUpdated {
 		err = serve.intEventPublisher.Publish(
-			NewVisionBoundUpdatedIntEventChannel(worldId.Uuid(), playerId.Uuid()),
+			NewVisionBoundUpdatedIntEventChannel(command.WorldId.Uuid(), command.PlayerId.Uuid()),
 			VisionBoundUpdatedIntEvent{},
 		)
 		if err != nil {
@@ -217,14 +180,12 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 }
 
 func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
-	worldId, playerId := command.Parse()
-
-	err := serve.gameService.RemovePlayer(worldId, playerId)
+	err := serve.gameService.RemovePlayer(command.WorldId, command.PlayerId)
 	if err != nil {
 		return err
 	}
 
-	err = serve.publishPlayersUpdatedEventToNearPlayers(worldId, playerId)
+	err = serve.publishPlayersUpdatedEventToNearPlayers(command.WorldId, command.PlayerId)
 	if err != nil {
 		return err
 	}
@@ -232,14 +193,12 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	worldId, playerId, itemId := command.Parse()
-
-	err := serve.gameService.PlaceItem(worldId, playerId, itemId)
+	err := serve.gameService.PlaceItem(command.WorldId, command.PlayerId, command.ItemId)
 	if err != nil {
 		return err
 	}
 
-	err = serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	err = serve.publishUnitsUpdatedEventToNearPlayers(command.PlayerId)
 	if err != nil {
 		return err
 	}
@@ -247,14 +206,12 @@ func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {
-	worldId, playerId := command.Parse()
-
-	err := serve.gameService.DestroyItem(worldId, playerId)
+	err := serve.gameService.DestroyItem(command.WorldId, command.PlayerId)
 	if err != nil {
 		return err
 	}
 
-	err = serve.publishUnitsUpdatedEventToNearPlayers(playerId)
+	err = serve.publishUnitsUpdatedEventToNearPlayers(command.PlayerId)
 	if err != nil {
 		return err
 	}

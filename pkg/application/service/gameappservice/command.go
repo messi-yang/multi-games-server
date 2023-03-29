@@ -5,52 +5,31 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
-	"github.com/google/uuid"
 )
 
 type PlaceItemCommand struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
-	ItemId   uuid.UUID
-}
-
-func (command PlaceItemCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo) {
-	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId), itemmodel.NewItemIdVo(command.ItemId)
+	WorldId  worldmodel.WorldIdVo
+	PlayerId playermodel.PlayerIdVo
+	ItemId   itemmodel.ItemIdVo
 }
 
 type DestroyItemCommand struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
-}
-
-func (command DestroyItemCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
-	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId)
+	WorldId  worldmodel.WorldIdVo
+	PlayerId playermodel.PlayerIdVo
 }
 
 type AddPlayerCommand struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
-}
-
-func (command AddPlayerCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
-	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId)
+	WorldId  worldmodel.WorldIdVo
+	PlayerId playermodel.PlayerIdVo
 }
 
 type MovePlayerCommand struct {
-	WorldId   uuid.UUID
-	PlayerId  uuid.UUID
-	Direction int8
-}
-
-func (command MovePlayerCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) {
-	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewDirectionVo(command.Direction)
+	WorldId   worldmodel.WorldIdVo
+	PlayerId  playermodel.PlayerIdVo
+	Direction commonmodel.DirectionVo
 }
 
 type RemovePlayerCommand struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
-}
-
-func (command RemovePlayerCommand) Parse() (worldmodel.WorldIdVo, playermodel.PlayerIdVo) {
-	return worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId)
+	WorldId  worldmodel.WorldIdVo
+	PlayerId playermodel.PlayerIdVo
 }

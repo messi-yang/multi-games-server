@@ -3,20 +3,18 @@ package worldappservice
 import (
 	"math/rand"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/commonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 type Service interface {
-	FindWorlds(FindWorldsQuery) ([]dto.WorldAggDto, error)
-	CreateWorld(CreateWorldCommand) (dto.WorldAggDto, error)
+	GetWorld(GetWorldQuery) (worldmodel.WorldAgg, error)
+	FindWorlds(GetWorldsQuery) ([]worldmodel.WorldAgg, error)
+	CreateWorld(CreateWorldCommand) (worldmodel.WorldIdVo, error)
 }
 
 type serve struct {
@@ -33,32 +31,26 @@ func NewService(worldRepository worldmodel.Repository, unitRepository unitmodel.
 	}
 }
 
-func (serve *serve) FindWorlds(query FindWorldsQuery) (worldDtos []dto.WorldAggDto, err error) {
-	worlds, err := serve.worldRepository.GetAll()
-	if err != nil {
-		return worldDtos, err
-	}
-	worldDtos = lo.Map(worlds, func(world worldmodel.WorldAgg, _ int) dto.WorldAggDto {
-		return dto.NewWorldAggDto(world)
-	})
-	return worldDtos, err
+func (serve *serve) GetWorld(query GetWorldQuery) (worldmodel.WorldAgg, error) {
+	return serve.worldRepository.Get(query.WorldId)
 }
 
-func (serve *serve) CreateWorld(command CreateWorldCommand) (
-	newWorldDto dto.WorldAggDto, err error,
-) {
-	userId := usermodel.NewUserIdVo(command.UserId)
+func (serve *serve) FindWorlds(query GetWorldsQuery) (worlds []worldmodel.WorldAgg, err error) {
+	return serve.worldRepository.GetAll()
+}
+
+func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldId worldmodel.WorldIdVo, err error) {
 	worldId := worldmodel.NewWorldIdVo(uuid.New())
-	newWorld := worldmodel.NewWorldAgg(worldId, userId)
+	newWorld := worldmodel.NewWorldAgg(worldId, command.UserId)
 
 	err = serve.worldRepository.Add(newWorld)
 	if err != nil {
-		return newWorldDto, err
+		return newWorldId, err
 	}
 
 	items, err := serve.itemRepository.GetAll()
 	if err != nil {
-		return newWorldDto, err
+		return newWorldId, err
 	}
 
 	commonutil.RangeMatrix(100, 100, func(x int, z int) error {
@@ -74,6 +66,5 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (
 		return nil
 	})
 
-	newWorldDto = dto.NewWorldAggDto(newWorld)
-	return newWorldDto, err
+	return newWorld.GetId(), nil
 }

@@ -8,10 +8,17 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redisinteventsubscriber"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/samber/lo"
 )
 
 var wsupgrader = websocket.Upgrader{
@@ -62,10 +69,10 @@ func gameConnectionHandler(c *gin.Context) {
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gameappservice.PlayersUpdatedIntEvent]().Subscribe(
 		gameappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.PlayersUpdatedIntEvent) {
-			playerDtos, err := gameAppService.FindNearbyPlayers(
+			players, err := gameAppService.FindNearbyPlayers(
 				gameappservice.FindNearbyPlayersQuery{
-					WorldId:  worldIdDto,
-					PlayerId: playerIdDto,
+					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 				},
 			)
 			if err != nil {
@@ -73,8 +80,10 @@ func gameConnectionHandler(c *gin.Context) {
 				return
 			}
 			sendMessage(playersUpdatedResponseDto{
-				Type:    playersUpdatedResponseDtoType,
-				Players: playerDtos,
+				Type: playersUpdatedResponseDtoType,
+				Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) httpdto.PlayerAggDto {
+					return httpdto.NewPlayerAggDto(player)
+				}),
 			})
 		},
 	)
@@ -83,10 +92,10 @@ func gameConnectionHandler(c *gin.Context) {
 	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.UnitsUpdatedIntEvent]().Subscribe(
 		gameappservice.NewUnitsUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.UnitsUpdatedIntEvent) {
-			visionBoundDto, unitDtos, err := gameAppService.FindUnits(
-				gameappservice.FindUnitsQuery{
-					WorldId:  worldIdDto,
-					PlayerId: playerIdDto,
+			visionBound, units, err := gameAppService.QueryUnits(
+				gameappservice.QueryUnitsQuery{
+					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 				},
 			)
 			if err != nil {
@@ -95,8 +104,10 @@ func gameConnectionHandler(c *gin.Context) {
 			}
 			sendMessage(unitsUpdatedResponseDto{
 				Type:        unitsUpdatedResponseDtoType,
-				VisionBound: visionBoundDto,
-				Units:       unitDtos,
+				VisionBound: httpdto.NewBoundVoDto(visionBound),
+				Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) httpdto.UnitVoDto {
+					return httpdto.NewUnitVoDto(unit)
+				}),
 			})
 		},
 	)
@@ -105,10 +116,10 @@ func gameConnectionHandler(c *gin.Context) {
 	visionBoundUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[gameappservice.VisionBoundUpdatedIntEvent]().Subscribe(
 		gameappservice.NewVisionBoundUpdatedIntEventChannel(worldIdDto, playerIdDto),
 		func(intEvent gameappservice.VisionBoundUpdatedIntEvent) {
-			visionBoundDto, unitDtos, err := gameAppService.FindUnits(
-				gameappservice.FindUnitsQuery{
-					WorldId:  worldIdDto,
-					PlayerId: playerIdDto,
+			visionBound, units, err := gameAppService.QueryUnits(
+				gameappservice.QueryUnitsQuery{
+					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 				},
 			)
 			if err != nil {
@@ -117,31 +128,38 @@ func gameConnectionHandler(c *gin.Context) {
 			}
 			sendMessage(unitsUpdatedResponseDto{
 				Type:        unitsUpdatedResponseDtoType,
-				VisionBound: visionBoundDto,
-				Units:       unitDtos,
+				VisionBound: httpdto.NewBoundVoDto(visionBound),
+				Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) httpdto.UnitVoDto {
+					return httpdto.NewUnitVoDto(unit)
+				}),
 			})
 		},
 	)
 	defer visionBoundUpdatedIntEventTypeUnsubscriber()
 
 	{
-		itemDtos, playerDtos, visionBoundDto, unitDtos, err := gameAppService.AddPlayer(
-			gameappservice.AddPlayerCommand{
-				WorldId:  worldIdDto,
-				PlayerId: playerIdDto,
-			},
-		)
+		items, players, visionBound, units, err := gameAppService.AddPlayer(gameappservice.AddPlayerCommand{
+			WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+			PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+		})
 		if err != nil {
 			disconnect()
 			return
 		}
+
 		sendMessage(gameJoinedResponseDto{
-			Type:        gameJoinedResponseDtoType,
-			Items:       itemDtos,
-			PlayerId:    playerIdDto,
-			Players:     playerDtos,
-			VisionBound: visionBoundDto,
-			Units:       unitDtos,
+			Type: gameJoinedResponseDtoType,
+			Items: lo.Map(items, func(item itemmodel.ItemAgg, _ int) httpdto.ItemAggDto {
+				return httpdto.NewItemAggDto(item)
+			}),
+			PlayerId: playerIdDto,
+			Players: lo.Map(players, func(p playermodel.PlayerAgg, _ int) httpdto.PlayerAggDto {
+				return httpdto.NewPlayerAggDto(p)
+			}),
+			VisionBound: httpdto.NewBoundVoDto(visionBound),
+			Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) httpdto.UnitVoDto {
+				return httpdto.NewUnitVoDto(unit)
+			}),
 		})
 	}
 
@@ -174,9 +192,9 @@ func gameConnectionHandler(c *gin.Context) {
 				}
 
 				err = gameAppService.MovePlayer(gameappservice.MovePlayerCommand{
-					WorldId:   worldIdDto,
-					PlayerId:  playerIdDto,
-					Direction: requestDto.Direction,
+					WorldId:   worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId:  playermodel.NewPlayerIdVo(playerIdDto),
+					Direction: commonmodel.NewDirectionVo(requestDto.Direction),
 				})
 				if err != nil {
 					return
@@ -188,9 +206,9 @@ func gameConnectionHandler(c *gin.Context) {
 				}
 
 				err = gameAppService.PlaceItem(gameappservice.PlaceItemCommand{
-					WorldId:  worldIdDto,
-					PlayerId: playerIdDto,
-					ItemId:   requestDto.ItemId,
+					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+					ItemId:   itemmodel.NewItemIdVo(requestDto.ItemId),
 				})
 				if err != nil {
 					return
@@ -202,8 +220,8 @@ func gameConnectionHandler(c *gin.Context) {
 				}
 
 				err = gameAppService.DestroyItem(gameappservice.DestroyItemCommand{
-					WorldId:  worldIdDto,
-					PlayerId: playerIdDto,
+					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 				})
 				if err != nil {
 					return
@@ -217,8 +235,8 @@ func gameConnectionHandler(c *gin.Context) {
 		<-closeConnChan
 
 		err = gameAppService.RemovePlayer(gameappservice.RemovePlayerCommand{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
+			WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+			PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 		})
 		if err != nil {
 			fmt.Println(err)

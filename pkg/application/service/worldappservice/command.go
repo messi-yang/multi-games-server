@@ -1,9 +1,9 @@
 package worldappservice
 
 import (
-	"github.com/google/uuid"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/usermodel"
 )
 
 type CreateWorldCommand struct {
-	UserId uuid.UUID
+	UserId usermodel.UserIdVo
 }
