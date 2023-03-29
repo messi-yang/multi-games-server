@@ -14,7 +14,7 @@ type Service interface {
 	FindNearbyPlayers(FindNearbyPlayersQuery) ([]playermodel.PlayerAgg, error)
 	FindNearbyUnits(FindNearbyUnitsQuery) (commonmodel.BoundVo, []unitmodel.UnitAgg, error)
 	AddPlayer(AddPlayerCommand) ([]itemmodel.ItemAgg, []playermodel.PlayerAgg, commonmodel.BoundVo, []unitmodel.UnitAgg, error)
-	MovePlayer(MovePlayerCommand) error
+	MovePlayer(MovePlayerCommand) (isVisionBoundUpdated bool, err error)
 	RemovePlayer(RemovePlayerCommand) error
 	PlaceItem(PlaceItemCommand) error
 	DestroyItem(DestroyItemCommand) error
@@ -38,34 +38,6 @@ func NewService(intEventPublisher intevent.Publisher, worldRepository worldmodel
 		itemRepository:    itemRepository,
 		gameService:       service.NewGameService(worldRepository, playerRepository, unitRepository, itemRepository),
 	}
-}
-
-func (serve *serve) publishUnitsUpdatedEventTo(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
-	return serve.intEventPublisher.Publish(
-		NewUnitsUpdatedIntEventChannel(worldId.Uuid(), playerId.Uuid()),
-		UnitsUpdatedIntEvent{},
-	)
-}
-
-func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.PlayerIdVo) error {
-	player, err := serve.playerRepository.Get(playerId)
-	if err != nil {
-		return err
-	}
-
-	players, err := serve.playerRepository.GetPlayersAround(player.GetWorldId(), player.GetPosition())
-	if err != nil {
-		return err
-	}
-
-	for _, player := range players {
-		err = serve.publishUnitsUpdatedEventTo(player.GetWorldId(), player.GetId())
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (serve *serve) FindNearbyPlayers(query FindNearbyPlayersQuery) (
@@ -122,84 +94,22 @@ func (serve *serve) AddPlayer(command AddPlayerCommand) (
 	visionBound = newPlayer.GetVisionBound()
 
 	units, err = serve.unitRepository.GetUnitsInBound(command.WorldId, visionBound)
-	if err != nil {
-		return items, players, visionBound, units, err
-	}
 
-	err = serve.intEventPublisher.Publish(
-		NewPlayersUpdatedIntEventChannel(command.WorldId.Uuid()),
-		PlayersUpdatedIntEvent{},
-	)
-	if err != nil {
-		return items, players, visionBound, units, err
-	}
 	return items, players, visionBound, units, err
 }
 
-func (serve *serve) MovePlayer(command MovePlayerCommand) error {
-	isVisionBoundUpdated, err := serve.gameService.MovePlayer(command.WorldId, command.PlayerId, command.Direction)
-	if err != nil {
-		return err
-	}
-
-	err = serve.intEventPublisher.Publish(
-		NewPlayersUpdatedIntEventChannel(command.WorldId.Uuid()),
-		PlayersUpdatedIntEvent{},
-	)
-	if err != nil {
-		return err
-	}
-
-	if isVisionBoundUpdated {
-		err = serve.intEventPublisher.Publish(
-			NewVisionBoundUpdatedIntEventChannel(command.WorldId.Uuid(), command.PlayerId.Uuid()),
-			VisionBoundUpdatedIntEvent{},
-		)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (serve *serve) MovePlayer(command MovePlayerCommand) (isVisionBoundUpdated bool, err error) {
+	return serve.gameService.MovePlayer(command.WorldId, command.PlayerId, command.Direction)
 }
 
 func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
-	err := serve.gameService.RemovePlayer(command.WorldId, command.PlayerId)
-	if err != nil {
-		return err
-	}
-
-	err = serve.intEventPublisher.Publish(
-		NewPlayersUpdatedIntEventChannel(command.WorldId.Uuid()),
-		PlayersUpdatedIntEvent{},
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return serve.gameService.RemovePlayer(command.WorldId, command.PlayerId)
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	err := serve.gameService.PlaceItem(command.WorldId, command.PlayerId, command.ItemId)
-	if err != nil {
-		return err
-	}
-
-	err = serve.publishUnitsUpdatedEventToNearPlayers(command.PlayerId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return serve.gameService.PlaceItem(command.WorldId, command.PlayerId, command.ItemId)
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {
-	err := serve.gameService.DestroyItem(command.WorldId, command.PlayerId)
-	if err != nil {
-		return err
-	}
-
-	err = serve.publishUnitsUpdatedEventToNearPlayers(command.PlayerId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return serve.gameService.DestroyItem(command.WorldId, command.PlayerId)
 }
