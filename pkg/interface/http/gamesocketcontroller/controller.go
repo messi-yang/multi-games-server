@@ -67,7 +67,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[gameappservice.PlayersUpdatedIntEvent]().Subscribe(
-		gameappservice.NewPlayersUpdatedIntEventChannel(worldIdDto, playerIdDto),
+		gameappservice.NewPlayersUpdatedIntEventChannel(worldIdDto),
 		func(intEvent gameappservice.PlayersUpdatedIntEvent) {
 			players, err := gameAppService.FindNearbyPlayers(
 				gameappservice.FindNearbyPlayersQuery{

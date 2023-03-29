@@ -68,29 +68,6 @@ func (serve *serve) publishUnitsUpdatedEventToNearPlayers(playerId playermodel.P
 	return nil
 }
 
-func (serve *serve) publishPlayersUpdatedEventToNearPlayers(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
-	player, err := serve.playerRepository.Get(playerId)
-	if err != nil {
-		return err
-	}
-
-	players, err := serve.playerRepository.GetPlayersAround(worldId, player.GetPosition())
-	if err != nil {
-		return err
-	}
-
-	for _, player := range players {
-		err = serve.intEventPublisher.Publish(
-			NewPlayersUpdatedIntEventChannel(worldId.Uuid(), player.GetId().Uuid()),
-			PlayersUpdatedIntEvent{},
-		)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (serve *serve) FindNearbyPlayers(query FindNearbyPlayersQuery) (
 	players []playermodel.PlayerAgg, err error,
 ) {
@@ -149,7 +126,10 @@ func (serve *serve) AddPlayer(command AddPlayerCommand) (
 		return items, players, visionBound, units, err
 	}
 
-	err = serve.publishPlayersUpdatedEventToNearPlayers(command.WorldId, command.PlayerId)
+	err = serve.intEventPublisher.Publish(
+		NewPlayersUpdatedIntEventChannel(command.WorldId.Uuid()),
+		PlayersUpdatedIntEvent{},
+	)
 	if err != nil {
 		return items, players, visionBound, units, err
 	}
@@ -162,7 +142,10 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 		return err
 	}
 
-	err = serve.publishPlayersUpdatedEventToNearPlayers(command.WorldId, command.PlayerId)
+	err = serve.intEventPublisher.Publish(
+		NewPlayersUpdatedIntEventChannel(command.WorldId.Uuid()),
+		PlayersUpdatedIntEvent{},
+	)
 	if err != nil {
 		return err
 	}
@@ -185,7 +168,10 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 		return err
 	}
 
-	err = serve.publishPlayersUpdatedEventToNearPlayers(command.WorldId, command.PlayerId)
+	err = serve.intEventPublisher.Publish(
+		NewPlayersUpdatedIntEventChannel(command.WorldId.Uuid()),
+		PlayersUpdatedIntEvent{},
+	)
 	if err != nil {
 		return err
 	}

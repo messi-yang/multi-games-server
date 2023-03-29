@@ -8,8 +8,8 @@ import (
 
 type PlayersUpdatedIntEvent struct{}
 
-func NewPlayersUpdatedIntEventChannel(worldIdDto uuid.UUID, playerIdDto uuid.UUID) string {
-	return fmt.Sprintf("GAME_%s_PLAYER_%s_PLAYERS_UPDATED", worldIdDto, playerIdDto)
+func NewPlayersUpdatedIntEventChannel(worldIdDto uuid.UUID) string {
+	return fmt.Sprintf("GAME_%s_PLAYERS_UPDATED", worldIdDto)
 }
 
 type UnitsUpdatedIntEvent struct{}
