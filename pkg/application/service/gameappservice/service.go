@@ -13,7 +13,7 @@ import (
 type Service interface {
 	FindNearbyPlayers(FindNearbyPlayersQuery) ([]playermodel.PlayerAgg, error)
 	FindNearbyUnits(FindNearbyUnitsQuery) (commonmodel.BoundVo, []unitmodel.UnitAgg, error)
-	AddPlayer(AddPlayerCommand) ([]itemmodel.ItemAgg, []playermodel.PlayerAgg, commonmodel.BoundVo, []unitmodel.UnitAgg, error)
+	AddPlayer(AddPlayerCommand) ([]itemmodel.ItemAgg, []playermodel.PlayerAgg, error)
 	MovePlayer(MovePlayerCommand) (isVisionBoundUpdated bool, err error)
 	RemovePlayer(RemovePlayerCommand) error
 	PlaceItem(PlaceItemCommand) error
@@ -69,33 +69,29 @@ func (serve *serve) FindNearbyUnits(query FindNearbyUnitsQuery) (
 }
 
 func (serve *serve) AddPlayer(command AddPlayerCommand) (
-	items []itemmodel.ItemAgg, players []playermodel.PlayerAgg, visionBound commonmodel.BoundVo, units []unitmodel.UnitAgg, err error,
+	items []itemmodel.ItemAgg, players []playermodel.PlayerAgg, err error,
 ) {
 	err = serve.gameService.AddPlayer(command.WorldId, command.PlayerId)
 	if err != nil {
-		return items, players, visionBound, units, err
+		return items, players, err
 	}
 
 	newPlayer, err := serve.playerRepository.Get(command.PlayerId)
 	if err != nil {
-		return items, players, visionBound, units, err
+		return items, players, err
 	}
 
 	items, err = serve.itemRepository.GetAll()
 	if err != nil {
-		return items, players, visionBound, units, err
+		return items, players, err
 	}
 
 	players, err = serve.playerRepository.GetPlayersAround(command.WorldId, newPlayer.GetPosition())
 	if err != nil {
-		return items, players, visionBound, units, err
+		return items, players, err
 	}
 
-	visionBound = newPlayer.GetVisionBound()
-
-	units, err = serve.unitRepository.GetUnitsInBound(command.WorldId, visionBound)
-
-	return items, players, visionBound, units, err
+	return items, players, err
 }
 
 func (serve *serve) MovePlayer(command MovePlayerCommand) (isVisionBoundUpdated bool, err error) {
