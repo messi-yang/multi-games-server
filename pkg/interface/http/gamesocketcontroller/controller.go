@@ -68,27 +68,21 @@ func gameConnectionHandler(c *gin.Context) {
 		}
 	}
 
-	publishPlayersUpdatedEvent := func() {
-		err = intEventPublisher.Publish(
+	publishPlayersUpdatedEvent := func() error {
+		return intEventPublisher.Publish(
 			newPlayersUpdatedIntEventChannel(worldIdDto),
 			PlayersUpdatedIntEvent{},
 		)
-		if err != nil {
-			disconnect()
-		}
 	}
 
-	publishUnitsUpdatedEvent := func() {
-		err = intEventPublisher.Publish(
+	publishUnitsUpdatedEvent := func() error {
+		return intEventPublisher.Publish(
 			NewUnitsUpdatedIntEventChannel(worldIdDto),
 			UnitsUpdatedIntEvent{},
 		)
-		if err != nil {
-			disconnect()
-		}
 	}
 
-	findNearbyPlayers := func() {
+	doFindNearbyPlayersQuery := func() error {
 		players, err := gameAppService.FindNearbyPlayers(
 			gameappservice.FindNearbyPlayersQuery{
 				WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
@@ -96,8 +90,7 @@ func gameConnectionHandler(c *gin.Context) {
 			},
 		)
 		if err != nil {
-			disconnect()
-			return
+			return err
 		}
 		sendMessage(playersUpdatedResponseDto{
 			Type: playersUpdatedResponseDtoType,
@@ -105,9 +98,10 @@ func gameConnectionHandler(c *gin.Context) {
 				return httpdto.NewPlayerAggDto(player)
 			}),
 		})
+		return nil
 	}
 
-	findNearbyUnits := func() {
+	doFindNearbyUnitsQuery := func() error {
 		visionBound, units, err := gameAppService.FindNearbyUnits(
 			gameappservice.FindNearbyUnitsQuery{
 				WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
@@ -115,8 +109,7 @@ func gameConnectionHandler(c *gin.Context) {
 			},
 		)
 		if err != nil {
-			disconnect()
-			return
+			return err
 		}
 		sendMessage(unitsUpdatedResponseDto{
 			Type:        unitsUpdatedResponseDtoType,
@@ -125,16 +118,16 @@ func gameConnectionHandler(c *gin.Context) {
 				return httpdto.NewUnitVoDto(unit)
 			}),
 		})
+		return nil
 	}
 
-	addPlayer := func() {
+	doAddPlayerCommand := func() error {
 		items, players, visionBound, units, err := gameAppService.AddPlayer(gameappservice.AddPlayerCommand{
 			WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 			PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 		})
 		if err != nil {
-			disconnect()
-			return
+			return err
 		}
 
 		sendMessage(gameJoinedResponseDto{
@@ -151,12 +144,15 @@ func gameConnectionHandler(c *gin.Context) {
 				return httpdto.NewUnitVoDto(unit)
 			}),
 		})
+		return nil
 	}
 
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[PlayersUpdatedIntEvent]().Subscribe(
 		newPlayersUpdatedIntEventChannel(worldIdDto),
 		func(intEvent PlayersUpdatedIntEvent) {
-			findNearbyPlayers()
+			if err = doFindNearbyPlayersQuery(); err != nil {
+				disconnect()
+			}
 		},
 	)
 	defer playersUpdatedIntEventUnsubscriber()
@@ -164,13 +160,21 @@ func gameConnectionHandler(c *gin.Context) {
 	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[UnitsUpdatedIntEvent]().Subscribe(
 		NewUnitsUpdatedIntEventChannel(worldIdDto),
 		func(intEvent UnitsUpdatedIntEvent) {
-			findNearbyUnits()
+			if err = doFindNearbyUnitsQuery(); err != nil {
+				disconnect()
+			}
 		},
 	)
 	defer unitsUpdatedIntEventTypeUnsubscriber()
 
-	addPlayer()
-	publishPlayersUpdatedEvent()
+	if err = doAddPlayerCommand(); err != nil {
+		disconnect()
+		return
+	}
+	if err = publishPlayersUpdatedEvent(); err != nil {
+		disconnect()
+		return
+	}
 
 	go func() {
 		defer disconnect()
@@ -209,38 +213,44 @@ func gameConnectionHandler(c *gin.Context) {
 					return
 				}
 				if isVisionBoundUpdated {
-					findNearbyUnits()
+					if err = doFindNearbyUnitsQuery(); err != nil {
+						return
+					}
 				}
-				publishPlayersUpdatedEvent()
+				if err = publishPlayersUpdatedEvent(); err != nil {
+					return
+				}
 			case placeItemRequestDtoType:
 				requestDto, err := jsonutil.Unmarshal[placeItemRequestDto](message)
 				if err != nil {
 					return
 				}
 
-				err = gameAppService.PlaceItem(gameappservice.PlaceItemCommand{
+				if err = gameAppService.PlaceItem(gameappservice.PlaceItemCommand{
 					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 					ItemId:   itemmodel.NewItemIdVo(requestDto.ItemId),
-				})
-				if err != nil {
+				}); err != nil {
 					return
 				}
-				publishUnitsUpdatedEvent()
+				if err = publishUnitsUpdatedEvent(); err != nil {
+					return
+				}
 			case destroyItemRequestDtoType:
 				_, err := jsonutil.Unmarshal[destroyItemRequestDto](message)
 				if err != nil {
 					return
 				}
 
-				err = gameAppService.DestroyItem(gameappservice.DestroyItemCommand{
+				if err = gameAppService.DestroyItem(gameappservice.DestroyItemCommand{
 					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
-				})
-				if err != nil {
+				}); err != nil {
 					return
 				}
-				publishUnitsUpdatedEvent()
+				if err = publishUnitsUpdatedEvent(); err != nil {
+					return
+				}
 			default:
 			}
 		}
@@ -249,14 +259,16 @@ func gameConnectionHandler(c *gin.Context) {
 	for {
 		<-closeConnChan
 
-		err = gameAppService.RemovePlayer(gameappservice.RemovePlayerCommand{
+		if err = gameAppService.RemovePlayer(gameappservice.RemovePlayerCommand{
 			WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 			PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
-		})
-		if err != nil {
+		}); err != nil {
 			fmt.Println(err)
 			return
 		}
-		publishPlayersUpdatedEvent()
+		if err = publishPlayersUpdatedEvent(); err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }
