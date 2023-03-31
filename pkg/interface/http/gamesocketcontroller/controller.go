@@ -122,7 +122,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doAddPlayerCommand := func() error {
-		items, players, err := gameAppService.AddPlayer(gameappservice.AddPlayerCommand{
+		items, err := gameAppService.AddPlayer(gameappservice.AddPlayerCommand{
 			WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 			PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 		})
@@ -136,9 +136,6 @@ func gameConnectionHandler(c *gin.Context) {
 				return httpdto.NewItemAggDto(item)
 			}),
 			PlayerId: playerIdDto,
-			Players: lo.Map(players, func(p playermodel.PlayerAgg, _ int) httpdto.PlayerAggDto {
-				return httpdto.NewPlayerAggDto(p)
-			}),
 		})
 		return nil
 	}

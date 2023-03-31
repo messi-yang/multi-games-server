@@ -14,10 +14,9 @@ const (
 )
 
 type gameJoinedResponseDto struct {
-	Type     responseDtoType        `json:"type"`
-	PlayerId uuid.UUID              `json:"playerId"`
-	Players  []httpdto.PlayerAggDto `json:"players"`
-	Items    []httpdto.ItemAggDto   `json:"items"`
+	Type     responseDtoType      `json:"type"`
+	PlayerId uuid.UUID            `json:"playerId"`
+	Items    []httpdto.ItemAggDto `json:"items"`
 }
 
 type playersUpdatedResponseDto struct {
