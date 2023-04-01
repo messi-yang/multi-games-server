@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func queryWorldHandler(c *gin.Context) {
+func getItemsHandler(c *gin.Context) {
 	itemAppService, err := provideItemAppService()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
