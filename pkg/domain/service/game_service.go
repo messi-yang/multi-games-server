@@ -10,7 +10,7 @@ import (
 
 type GameService interface {
 	AddPlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
-	MovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) (isVisionBoundUpdated bool, err error)
+	MovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) error
 	RemovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 	PlaceItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo) error
 	DestroyItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
@@ -43,23 +43,23 @@ func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playerm
 
 func (serve *gameServe) MovePlayer(
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo,
-) (isVisionBoundUpdated bool, err error) {
+) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err = serve.worldRepository.Get(worldId); err != nil {
-		return isVisionBoundUpdated, err
+	if _, err := serve.worldRepository.Get(worldId); err != nil {
+		return err
 	}
 
 	player, err := serve.playerRepository.Get(playerId)
 	if err != nil {
-		return isVisionBoundUpdated, err
+		return err
 	}
 
 	if !direction.IsEqual(player.GetDirection()) {
 		player.ChangeDirection(direction)
 		err = serve.playerRepository.Update(player)
-		return isVisionBoundUpdated, err
+		return err
 	}
 
 	player.ChangeDirection(direction)
@@ -67,14 +67,14 @@ func (serve *gameServe) MovePlayer(
 
 	unit, unitFound, err := serve.unitRepository.GetUnitAt(worldId, newItemPos)
 	if err != nil {
-		return isVisionBoundUpdated, err
+		return err
 	}
 
 	if unitFound {
 		itemId := unit.GetItemId()
 		item, err := serve.itemRepository.Get(itemId)
 		if err != nil {
-			return isVisionBoundUpdated, err
+			return err
 		}
 		if item.GetTraversable() {
 			player.ChangePosition(newItemPos)
@@ -85,11 +85,9 @@ func (serve *gameServe) MovePlayer(
 
 	if player.ShallUpdateVisionBound() {
 		player.UpdateVisionBound()
-		isVisionBoundUpdated = true
 	}
 
-	err = serve.playerRepository.Update(player)
-	return isVisionBoundUpdated, err
+	return serve.playerRepository.Update(player)
 }
 
 func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {

@@ -207,15 +207,23 @@ func gameConnectionHandler(c *gin.Context) {
 					return
 				}
 
-				isVisionBoundUpdated, err := gameAppService.MovePlayer(gameappservice.MovePlayerCommand{
-					WorldId:   worldmodel.NewWorldIdVo(worldIdDto),
-					PlayerId:  playermodel.NewPlayerIdVo(playerIdDto),
-					Direction: commonmodel.NewDirectionVo(requestDto.Direction),
-				})
+				player, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playermodel.NewPlayerIdVo(playerIdDto)})
 				if err != nil {
 					return
 				}
-				if isVisionBoundUpdated {
+				if err := gameAppService.MovePlayer(gameappservice.MovePlayerCommand{
+					WorldId:   worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId:  playermodel.NewPlayerIdVo(playerIdDto),
+					Direction: commonmodel.NewDirectionVo(requestDto.Direction),
+				}); err != nil {
+					return
+				}
+				updatedPlayer, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playermodel.NewPlayerIdVo(playerIdDto)})
+				if err != nil {
+					return
+				}
+				playerVisionBoundUpdated := !player.GetVisionBound().IsEqual(updatedPlayer.GetVisionBound())
+				if playerVisionBoundUpdated {
 					if err = doGetNearbyUnitsQuery(); err != nil {
 						return
 					}

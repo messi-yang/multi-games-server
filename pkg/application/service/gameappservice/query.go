@@ -5,6 +5,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
+type GetPlayerQuery struct {
+	PlayerId playermodel.PlayerIdVo
+}
+
 type GetNearbyPlayersQuery struct {
 	WorldId  worldmodel.WorldIdVo
 	PlayerId playermodel.PlayerIdVo

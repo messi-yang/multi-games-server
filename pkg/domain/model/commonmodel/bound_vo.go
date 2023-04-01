@@ -31,6 +31,10 @@ func NewBoundVo(from PositionVo, to PositionVo) (BoundVo, error) {
 	}, nil
 }
 
+func (bound BoundVo) IsEqual(otherBound BoundVo) bool {
+	return bound.from.IsEqual(otherBound.from) && bound.to.IsEqual(otherBound.to)
+}
+
 func (bound BoundVo) GetFrom() PositionVo {
 	return bound.from
 }
