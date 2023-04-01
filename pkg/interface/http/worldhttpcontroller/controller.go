@@ -8,17 +8,40 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
-func queryWorldHandler(c *gin.Context) {
+func getWorldHandler(c *gin.Context) {
+	worldIdDto, err := uuid.Parse(c.Param("worldId"))
+	if err != nil {
+		return
+	}
+
 	worldAppService, err := provideWorldAppService()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	worlds, err := worldAppService.FindWorlds(worldappservice.GetWorldsQuery{})
+	world, err := worldAppService.GetWorld(worldappservice.GetWorldQuery{
+		WorldId: worldmodel.NewWorldIdVo(worldIdDto),
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, getWorldResponseDto(httpdto.NewWorldAggDto(world)))
+}
+
+func getWorldsHandler(c *gin.Context) {
+	worldAppService, err := provideWorldAppService()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	worlds, err := worldAppService.GetWorlds(worldappservice.GetWorldsQuery{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -26,7 +49,7 @@ func queryWorldHandler(c *gin.Context) {
 	worldDtos := lo.Map(worlds, func(world worldmodel.WorldAgg, _ int) httpdto.WorldAggDto {
 		return httpdto.NewWorldAggDto(world)
 	})
-	c.JSON(http.StatusOK, queryWorldsResponseDto(worldDtos))
+	c.JSON(http.StatusOK, getWorldsResponseDto(worldDtos))
 }
 
 func createWorldHandler(c *gin.Context) {

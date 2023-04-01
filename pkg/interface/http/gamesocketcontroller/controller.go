@@ -83,9 +83,9 @@ func gameConnectionHandler(c *gin.Context) {
 		)
 	}
 
-	doFindNearbyPlayersQuery := func() error {
-		players, err := gameAppService.FindNearbyPlayers(
-			gameappservice.FindNearbyPlayersQuery{
+	doGetNearbyPlayersQuery := func() error {
+		players, err := gameAppService.GetNearbyPlayers(
+			gameappservice.GetNearbyPlayersQuery{
 				WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 				PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 			},
@@ -112,9 +112,9 @@ func gameConnectionHandler(c *gin.Context) {
 		return nil
 	}
 
-	doFindNearbyUnitsQuery := func() error {
-		visionBound, units, err := gameAppService.FindNearbyUnits(
-			gameappservice.FindNearbyUnitsQuery{
+	doGetNearbyUnitsQuery := func() error {
+		visionBound, units, err := gameAppService.GetNearbyUnits(
+			gameappservice.GetNearbyUnitsQuery{
 				WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 				PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 			},
@@ -153,7 +153,7 @@ func gameConnectionHandler(c *gin.Context) {
 	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[PlayersUpdatedIntEvent]().Subscribe(
 		newPlayersUpdatedIntEventChannel(worldIdDto),
 		func(intEvent PlayersUpdatedIntEvent) {
-			if err = doFindNearbyPlayersQuery(); err != nil {
+			if err = doGetNearbyPlayersQuery(); err != nil {
 				disconnect()
 			}
 		},
@@ -163,7 +163,7 @@ func gameConnectionHandler(c *gin.Context) {
 	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[UnitsUpdatedIntEvent]().Subscribe(
 		NewUnitsUpdatedIntEventChannel(worldIdDto),
 		func(intEvent UnitsUpdatedIntEvent) {
-			if err = doFindNearbyUnitsQuery(); err != nil {
+			if err = doGetNearbyUnitsQuery(); err != nil {
 				disconnect()
 			}
 		},
@@ -178,7 +178,7 @@ func gameConnectionHandler(c *gin.Context) {
 		disconnect()
 		return
 	}
-	if err = doFindNearbyUnitsQuery(); err != nil {
+	if err = doGetNearbyUnitsQuery(); err != nil {
 		disconnect()
 		return
 	}
@@ -220,7 +220,7 @@ func gameConnectionHandler(c *gin.Context) {
 					return
 				}
 				if isVisionBoundUpdated {
-					if err = doFindNearbyUnitsQuery(); err != nil {
+					if err = doGetNearbyUnitsQuery(); err != nil {
 						return
 					}
 				}

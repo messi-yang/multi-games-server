@@ -13,7 +13,7 @@ import (
 
 type Service interface {
 	GetWorld(GetWorldQuery) (worldmodel.WorldAgg, error)
-	FindWorlds(GetWorldsQuery) ([]worldmodel.WorldAgg, error)
+	GetWorlds(GetWorldsQuery) ([]worldmodel.WorldAgg, error)
 	CreateWorld(CreateWorldCommand) (worldmodel.WorldIdVo, error)
 }
 
@@ -35,7 +35,7 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldmodel.WorldAgg, error) {
 	return serve.worldRepository.Get(query.WorldId)
 }
 
-func (serve *serve) FindWorlds(query GetWorldsQuery) (worlds []worldmodel.WorldAgg, err error) {
+func (serve *serve) GetWorlds(query GetWorldsQuery) (worlds []worldmodel.WorldAgg, err error) {
 	return serve.worldRepository.GetAll()
 }
 

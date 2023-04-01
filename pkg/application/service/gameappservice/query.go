@@ -5,12 +5,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
-type FindNearbyPlayersQuery struct {
+type GetNearbyPlayersQuery struct {
 	WorldId  worldmodel.WorldIdVo
 	PlayerId playermodel.PlayerIdVo
 }
 
-type FindNearbyUnitsQuery struct {
+type GetNearbyUnitsQuery struct {
 	WorldId  worldmodel.WorldIdVo
 	PlayerId playermodel.PlayerIdVo
 }
