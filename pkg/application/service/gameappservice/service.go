@@ -13,7 +13,7 @@ import (
 type Service interface {
 	GetNearbyPlayers(GetNearbyPlayersQuery) ([]playermodel.PlayerAgg, error)
 	GetNearbyUnits(GetNearbyUnitsQuery) (commonmodel.BoundVo, []unitmodel.UnitAgg, error)
-	AddPlayer(AddPlayerCommand) ([]itemmodel.ItemAgg, error)
+	AddPlayer(AddPlayerCommand) error
 	MovePlayer(MovePlayerCommand) (isVisionBoundUpdated bool, err error)
 	RemovePlayer(RemovePlayerCommand) error
 	PlaceItem(PlaceItemCommand) error
@@ -68,20 +68,8 @@ func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 	return visionBound, units, nil
 }
 
-func (serve *serve) AddPlayer(command AddPlayerCommand) (
-	items []itemmodel.ItemAgg, err error,
-) {
-	err = serve.gameService.AddPlayer(command.WorldId, command.PlayerId)
-	if err != nil {
-		return items, err
-	}
-
-	items, err = serve.itemRepository.GetAll()
-	if err != nil {
-		return items, err
-	}
-
-	return items, err
+func (serve *serve) AddPlayer(command AddPlayerCommand) error {
+	return serve.gameService.AddPlayer(command.WorldId, command.PlayerId)
 }
 
 func (serve *serve) MovePlayer(command MovePlayerCommand) (isVisionBoundUpdated bool, err error) {

@@ -13,8 +13,7 @@ const (
 )
 
 type gameJoinedResponseDto struct {
-	Type  responseDtoType      `json:"type"`
-	Items []httpdto.ItemAggDto `json:"items"`
+	Type responseDtoType `json:"type"`
 }
 
 type playersUpdatedResponseDto struct {
