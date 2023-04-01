@@ -1,6 +1,7 @@
 package gamesocketcontroller
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -92,9 +93,19 @@ func gameConnectionHandler(c *gin.Context) {
 		if err != nil {
 			return err
 		}
+		myPlayer, myPlayrFound := lo.Find(players, func(player playermodel.PlayerAgg) bool {
+			return player.GetId().Uuid() == playerIdDto
+		})
+		if !myPlayrFound {
+			return errors.New("my player not found in players")
+		}
+		otherPlayers := lo.Filter(players, func(player playermodel.PlayerAgg, _ int) bool {
+			return player.GetId().Uuid() != playerIdDto
+		})
 		sendMessage(playersUpdatedResponseDto{
-			Type: playersUpdatedResponseDtoType,
-			Players: lo.Map(players, func(player playermodel.PlayerAgg, _ int) httpdto.PlayerAggDto {
+			Type:     playersUpdatedResponseDtoType,
+			MyPlayer: httpdto.NewPlayerAggDto(myPlayer),
+			OtherPlayers: lo.Map(otherPlayers, func(player playermodel.PlayerAgg, _ int) httpdto.PlayerAggDto {
 				return httpdto.NewPlayerAggDto(player)
 			}),
 		})
@@ -135,7 +146,6 @@ func gameConnectionHandler(c *gin.Context) {
 			Items: lo.Map(items, func(item itemmodel.ItemAgg, _ int) httpdto.ItemAggDto {
 				return httpdto.NewItemAggDto(item)
 			}),
-			PlayerId: playerIdDto,
 		})
 		return nil
 	}

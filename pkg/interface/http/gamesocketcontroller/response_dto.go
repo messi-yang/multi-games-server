@@ -2,7 +2,6 @@ package gamesocketcontroller
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
-	"github.com/google/uuid"
 )
 
 type responseDtoType string
@@ -14,14 +13,14 @@ const (
 )
 
 type gameJoinedResponseDto struct {
-	Type     responseDtoType      `json:"type"`
-	PlayerId uuid.UUID            `json:"playerId"`
-	Items    []httpdto.ItemAggDto `json:"items"`
+	Type  responseDtoType      `json:"type"`
+	Items []httpdto.ItemAggDto `json:"items"`
 }
 
 type playersUpdatedResponseDto struct {
-	Type    responseDtoType        `json:"type"`
-	Players []httpdto.PlayerAggDto `json:"players"`
+	Type         responseDtoType        `json:"type"`
+	MyPlayer     httpdto.PlayerAggDto   `json:"myPlayer"`
+	OtherPlayers []httpdto.PlayerAggDto `json:"otherPlayers"`
 }
 
 type unitsUpdatedResponseDto struct {
