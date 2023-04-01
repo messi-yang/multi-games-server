@@ -2,6 +2,7 @@ package gamesocketcontroller
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 )
@@ -20,7 +21,8 @@ func provideGameAppService() (gameAppService gameappservice.Service, err error) 
 	if err != nil {
 		return gameAppService, err
 	}
+	gameService := service.NewGameService(worldRepository, playerRepository, unitRepository, itemRepository)
 	return gameappservice.NewService(
-		worldRepository, playerRepository, unitRepository, itemRepository,
+		worldRepository, playerRepository, unitRepository, itemRepository, gameService,
 	), nil
 }

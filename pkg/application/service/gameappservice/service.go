@@ -27,13 +27,13 @@ type serve struct {
 	gameService      service.GameService
 }
 
-func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository, gameService service.GameService) Service {
 	return &serve{
 		worldRepository:  worldRepository,
 		playerRepository: playerRepository,
 		unitRepository:   unitRepository,
 		itemRepository:   itemRepository,
-		gameService:      service.NewGameService(worldRepository, playerRepository, unitRepository, itemRepository),
+		gameService:      gameService,
 	}
 }
 
