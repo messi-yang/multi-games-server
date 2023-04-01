@@ -10,6 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/seedclicontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/assethttpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamesocketcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/itemhttpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/worldhttpcontroller"
 	"github.com/google/uuid"
 
@@ -50,6 +51,7 @@ func main() {
 	assethttpcontroller.Setup(router)
 	gamesocketcontroller.Setup(router)
 	worldhttpcontroller.Setup(router)
+	itemhttpcontroller.Setup(router)
 	err = router.Run()
 	if err != nil {
 		panic(err)
