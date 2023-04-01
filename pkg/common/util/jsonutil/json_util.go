@@ -3,16 +3,16 @@ package jsonutil
 import "encoding/json"
 
 func Unmarshal[T any](bytes []byte) (T, error) {
-	var intEvent T
-	err := json.Unmarshal(bytes, &intEvent)
+	var data T
+	err := json.Unmarshal(bytes, &data)
 	if err != nil {
-		return intEvent, err
+		return data, err
 	}
 
-	return intEvent, nil
+	return data, nil
 }
 
-func Marshal(event any) []byte {
-	message, _ := json.Marshal(event)
+func Marshal(data any) []byte {
+	message, _ := json.Marshal(data)
 	return message
 }

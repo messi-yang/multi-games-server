@@ -14,9 +14,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redisinteventpublisher"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redispubsub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/messaging/redisinteventsubscriber"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -44,7 +43,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 	playerIdDto := uuid.New()
 
-	intEventPublisher := redisinteventpublisher.New()
+	redisChannelPublisher := redispubsub.NewChannelPublisher()
 	gameAppService, err := provideGameAppService()
 	if err != nil {
 		return
@@ -70,16 +69,16 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	publishPlayersUpdatedEvent := func() error {
-		return intEventPublisher.Publish(
-			newPlayersUpdatedIntEventChannel(worldIdDto),
-			PlayersUpdatedIntEvent{},
+		return redisChannelPublisher.Publish(
+			newPlayersUpdatedMessageChannel(worldIdDto),
+			PlayersUpdatedMessage{},
 		)
 	}
 
 	publishUnitsUpdatedEvent := func() error {
-		return intEventPublisher.Publish(
-			NewUnitsUpdatedIntEventChannel(worldIdDto),
-			UnitsUpdatedIntEvent{},
+		return redisChannelPublisher.Publish(
+			NewUnitsUpdatedMessageChannel(worldIdDto),
+			UnitsUpdatedMessage{},
 		)
 	}
 
@@ -147,25 +146,25 @@ func gameConnectionHandler(c *gin.Context) {
 		return nil
 	}
 
-	playersUpdatedIntEventUnsubscriber := redisinteventsubscriber.New[PlayersUpdatedIntEvent]().Subscribe(
-		newPlayersUpdatedIntEventChannel(worldIdDto),
-		func(intEvent PlayersUpdatedIntEvent) {
+	playersUpdatedMessageUnsubscriber := redispubsub.NewChannelSubscriber[PlayersUpdatedMessage]().Subscribe(
+		newPlayersUpdatedMessageChannel(worldIdDto),
+		func(message PlayersUpdatedMessage) {
 			if err = doGetNearbyPlayersQuery(); err != nil {
 				disconnect()
 			}
 		},
 	)
-	defer playersUpdatedIntEventUnsubscriber()
+	defer playersUpdatedMessageUnsubscriber()
 
-	unitsUpdatedIntEventTypeUnsubscriber := redisinteventsubscriber.New[UnitsUpdatedIntEvent]().Subscribe(
-		NewUnitsUpdatedIntEventChannel(worldIdDto),
-		func(intEvent UnitsUpdatedIntEvent) {
+	unitsUpdatedMessageTypeUnsubscriber := redispubsub.NewChannelSubscriber[UnitsUpdatedMessage]().Subscribe(
+		NewUnitsUpdatedMessageChannel(worldIdDto),
+		func(message UnitsUpdatedMessage) {
 			if err = doGetNearbyUnitsQuery(); err != nil {
 				disconnect()
 			}
 		},
 	)
-	defer unitsUpdatedIntEventTypeUnsubscriber()
+	defer unitsUpdatedMessageTypeUnsubscriber()
 
 	if err = doAddPlayerCommand(); err != nil {
 		disconnect()
