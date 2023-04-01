@@ -1,7 +1,6 @@
 package gameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/intevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
@@ -21,22 +20,20 @@ type Service interface {
 }
 
 type serve struct {
-	intEventPublisher intevent.Publisher
-	worldRepository   worldmodel.Repository
-	playerRepository  playermodel.Repository
-	unitRepository    unitmodel.Repository
-	itemRepository    itemmodel.Repository
-	gameService       service.GameService
+	worldRepository  worldmodel.Repository
+	playerRepository playermodel.Repository
+	unitRepository   unitmodel.Repository
+	itemRepository   itemmodel.Repository
+	gameService      service.GameService
 }
 
-func NewService(intEventPublisher intevent.Publisher, worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
 	return &serve{
-		intEventPublisher: intEventPublisher,
-		worldRepository:   worldRepository,
-		playerRepository:  playerRepository,
-		unitRepository:    unitRepository,
-		itemRepository:    itemRepository,
-		gameService:       service.NewGameService(worldRepository, playerRepository, unitRepository, itemRepository),
+		worldRepository:  worldRepository,
+		playerRepository: playerRepository,
+		unitRepository:   unitRepository,
+		itemRepository:   itemRepository,
+		gameService:      service.NewGameService(worldRepository, playerRepository, unitRepository, itemRepository),
 	}
 }
 

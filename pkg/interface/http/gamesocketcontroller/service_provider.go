@@ -2,13 +2,11 @@ package gamesocketcontroller
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redisinteventpublisher"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
 )
 
 func provideGameAppService() (gameAppService gameappservice.Service, err error) {
-	intEventPublisher := redisinteventpublisher.New()
 	itemRepository, err := postgres.NewItemRepository()
 	if err != nil {
 		return gameAppService, err
@@ -23,6 +21,6 @@ func provideGameAppService() (gameAppService gameappservice.Service, err error) 
 		return gameAppService, err
 	}
 	return gameappservice.NewService(
-		intEventPublisher, worldRepository, playerRepository, unitRepository, itemRepository,
+		worldRepository, playerRepository, unitRepository, itemRepository,
 	), nil
 }
