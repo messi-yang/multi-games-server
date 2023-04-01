@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 )
 
@@ -22,15 +23,16 @@ func calculatePlayerVisionBound(pos commonmodel.PositionVo) commonmodel.BoundVo 
 }
 
 type PlayerAgg struct {
-	id          PlayerIdVo
+	id          PlayerIdVo              // Id of the player
 	worldId     worldmodel.WorldIdVo    // The id of the world the player belongs to
 	name        string                  // The name of the player
 	position    commonmodel.PositionVo  // The current position of the player
 	direction   commonmodel.DirectionVo // The direction where the player is facing
 	visionBound commonmodel.BoundVo     // The vision bound of the player
+	heldItemId  *itemmodel.ItemIdVo     // Optional, The item held by the player
 }
 
-func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo) PlayerAgg {
+func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo, heldItemId *itemmodel.ItemIdVo) PlayerAgg {
 	player := PlayerAgg{
 		id:          id,
 		worldId:     worldId,
@@ -38,6 +40,7 @@ func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, posi
 		position:    position,
 		direction:   direction,
 		visionBound: calculatePlayerVisionBound(position),
+		heldItemId:  heldItemId,
 	}
 	return player
 }
@@ -105,4 +108,12 @@ func (agg *PlayerAgg) GetPositionOneStepFoward() commonmodel.PositionVo {
 	} else {
 		return position.Shift(0, 1)
 	}
+}
+
+func (agg *PlayerAgg) HasHeldItem() bool {
+	return agg.heldItemId != nil
+}
+
+func (agg *PlayerAgg) GetHeldItemId() *itemmodel.ItemIdVo {
+	return agg.heldItemId
 }

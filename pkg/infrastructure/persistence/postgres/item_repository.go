@@ -43,6 +43,16 @@ func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemA
 	return itemModel.ToAggregate(), nil
 }
 
+func (repo *itemRepository) GetFirstItem() (item itemmodel.ItemAgg, err error) {
+	itemModel := psqlmodel.ItemModel{}
+	result := repo.gormDb.First(&itemModel)
+	if result.Error != nil {
+		return item, result.Error
+	}
+
+	return itemModel.ToAggregate(), nil
+}
+
 func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
 	itemModel := psqlmodel.NewItemModel(item)
 	res := repo.gormDb.Create(&itemModel)

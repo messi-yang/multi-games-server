@@ -46,6 +46,10 @@ db-seed:
 dev:
 	air -c .air.toml
 
+# .PHONY: test
+test:
+	go test
+
 # .PHONY: build
 build:
 	go build -o ./dist/main ./pkg/main.go

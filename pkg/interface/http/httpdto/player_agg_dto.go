@@ -6,17 +6,25 @@ import (
 )
 
 type PlayerAggDto struct {
-	Id        uuid.UUID     `json:"id"`
-	Name      string        `json:"name"`
-	Position  PositionVoDto `json:"position"`
-	Direction int8          `json:"direction"`
+	Id         uuid.UUID     `json:"id"`
+	Name       string        `json:"name"`
+	Position   PositionVoDto `json:"position"`
+	Direction  int8          `json:"direction"`
+	HeldItemId *uuid.UUID    `json:"heldItemId"`
 }
 
 func NewPlayerAggDto(player playermodel.PlayerAgg) PlayerAggDto {
-	return PlayerAggDto{
+	dto := PlayerAggDto{
 		Id:        player.GetId().Uuid(),
 		Name:      player.GetName(),
 		Position:  NewPositionVoDto(player.GetPosition()),
 		Direction: player.GetDirection().Int8(),
 	}
+	if player.HasHeldItem() {
+		heldItemIdDto := (*player.GetHeldItemId()).Uuid()
+		dto.HeldItemId = &heldItemIdDto
+	} else {
+		dto.HeldItemId = nil
+	}
+	return dto
 }

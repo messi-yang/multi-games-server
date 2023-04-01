@@ -3,6 +3,7 @@ package itemmodel
 type Repository interface {
 	GetAll() ([]ItemAgg, error)
 	Get(itemId ItemIdVo) (ItemAgg, error)
+	GetFirstItem() (ItemAgg, error)
 	Add(item ItemAgg) error
 	Update(item ItemAgg) error
 }

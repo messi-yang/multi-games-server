@@ -83,7 +83,7 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	return serve.gameService.PlaceItem(command.WorldId, command.PlayerId, command.ItemId)
+	return serve.gameService.PlaceItem(command.WorldId, command.PlayerId)
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {
