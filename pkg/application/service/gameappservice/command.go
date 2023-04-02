@@ -18,7 +18,7 @@ type PlaceItemCommand struct {
 	PlayerId playermodel.PlayerIdVo
 }
 
-type DestroyItemCommand struct {
+type RemoveItemCommand struct {
 	WorldId  worldmodel.WorldIdVo
 	PlayerId playermodel.PlayerIdVo
 }

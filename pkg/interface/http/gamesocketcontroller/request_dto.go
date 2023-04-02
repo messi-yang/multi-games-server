@@ -9,7 +9,7 @@ const (
 	moveRequestDtoType           RequestDtoType = "MOVE"
 	changeHeldItemRequestDtoType RequestDtoType = "CHANGE_HELD_ITEM"
 	placeItemRequestDtoType      RequestDtoType = "PLACE_ITEM"
-	destroyItemRequestDtoType    RequestDtoType = "DESTROY_ITEM"
+	removeItemRequestDtoType     RequestDtoType = "REMOVE_ITEM"
 )
 
 type genericRequestDto struct {
@@ -30,6 +30,6 @@ type placeItemRequestDto struct {
 	Type RequestDtoType `json:"type"`
 }
 
-type destroyItemRequestDto struct {
+type removeItemRequestDto struct {
 	Type RequestDtoType `json:"type"`
 }

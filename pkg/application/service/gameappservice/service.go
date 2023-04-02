@@ -18,7 +18,7 @@ type Service interface {
 	RemovePlayer(RemovePlayerCommand) error
 	ChangeHeldItem(ChangeHeldItemCommand) error
 	PlaceItem(PlaceItemCommand) error
-	DestroyItem(DestroyItemCommand) error
+	RemoveItem(RemoveItemCommand) error
 }
 
 type serve struct {
@@ -91,6 +91,6 @@ func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
 	return serve.gameService.ChangeHeldItem(command.WorldId, command.PlayerId, command.ItemId)
 }
 
-func (serve *serve) DestroyItem(command DestroyItemCommand) error {
-	return serve.gameService.DestroyItem(command.WorldId, command.PlayerId)
+func (serve *serve) RemoveItem(command RemoveItemCommand) error {
+	return serve.gameService.RemoveItem(command.WorldId, command.PlayerId)
 }

@@ -14,7 +14,7 @@ type GameService interface {
 	RemovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 	ChangeHeldItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo) error
 	PlaceItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
-	DestroyItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
+	RemoveItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 }
 
 type gameServe struct {
@@ -176,7 +176,7 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 	return serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, newItemPos, itemId, newItemDirection))
 }
 
-func (serve *gameServe) DestroyItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+func (serve *gameServe) RemoveItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 

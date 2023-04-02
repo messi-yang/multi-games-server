@@ -261,13 +261,13 @@ func gameConnectionHandler(c *gin.Context) {
 				if err = publishUnitsUpdatedEvent(); err != nil {
 					return
 				}
-			case destroyItemRequestDtoType:
-				_, err := jsonutil.Unmarshal[destroyItemRequestDto](message)
+			case removeItemRequestDtoType:
+				_, err := jsonutil.Unmarshal[removeItemRequestDto](message)
 				if err != nil {
 					return
 				}
 
-				if err = gameAppService.DestroyItem(gameappservice.DestroyItemCommand{
+				if err = gameAppService.RemoveItem(gameappservice.RemoveItemCommand{
 					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 				}); err != nil {
