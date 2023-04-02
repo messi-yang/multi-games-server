@@ -16,6 +16,7 @@ type Service interface {
 	AddPlayer(AddPlayerCommand) error
 	MovePlayer(MovePlayerCommand) error
 	RemovePlayer(RemovePlayerCommand) error
+	ChangeHeldItem(ChangeHeldItemCommand) error
 	PlaceItem(PlaceItemCommand) error
 	DestroyItem(DestroyItemCommand) error
 }
@@ -84,6 +85,10 @@ func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
 	return serve.gameService.PlaceItem(command.WorldId, command.PlayerId)
+}
+
+func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
+	return serve.gameService.ChangeHeldItem(command.WorldId, command.PlayerId, command.ItemId)
 }
 
 func (serve *serve) DestroyItem(command DestroyItemCommand) error {

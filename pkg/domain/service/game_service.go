@@ -12,6 +12,7 @@ type GameService interface {
 	AddPlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 	MovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) error
 	RemovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
+	ChangeHeldItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo) error
 	PlaceItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 	DestroyItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 }
@@ -105,6 +106,27 @@ func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId play
 	}
 
 	return serve.playerRepository.Delete(playerId)
+}
+
+func (serve *gameServe) ChangeHeldItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, itemId itemmodel.ItemIdVo) error {
+	unlocker := serve.worldRepository.LockAccess(worldId)
+	defer unlocker()
+
+	if _, err := serve.worldRepository.Get(worldId); err != nil {
+		return err
+	}
+
+	player, err := serve.playerRepository.Get(playerId)
+	if err != nil {
+		return err
+	}
+
+	if _, err = serve.itemRepository.Get(itemId); err != nil {
+		return err
+	}
+
+	player.ChangeHeldItem(itemId)
+	return serve.playerRepository.Update(player)
 }
 
 func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {

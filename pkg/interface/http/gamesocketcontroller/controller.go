@@ -10,6 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
@@ -230,9 +231,24 @@ func gameConnectionHandler(c *gin.Context) {
 				if err = publishPlayersUpdatedEvent(); err != nil {
 					return
 				}
-			case placeItemRequestDtoType:
-				_, err := jsonutil.Unmarshal[placeItemRequestDto](message)
+			case changeHeldItemRequestDtoType:
+				requestDto, err := jsonutil.Unmarshal[changeHeldItemRequestDto](message)
 				if err != nil {
+					return
+				}
+
+				if err = gameAppService.ChangeHeldItem(gameappservice.ChangeHeldItemCommand{
+					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
+					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+					ItemId:   itemmodel.NewItemIdVo(requestDto.ItemId),
+				}); err != nil {
+					return
+				}
+				if err = publishPlayersUpdatedEvent(); err != nil {
+					return
+				}
+			case placeItemRequestDtoType:
+				if _, err := jsonutil.Unmarshal[placeItemRequestDto](message); err != nil {
 					return
 				}
 

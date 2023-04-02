@@ -114,6 +114,10 @@ func (agg *PlayerAgg) HasHeldItem() bool {
 	return agg.heldItemId != nil
 }
 
+func (agg *PlayerAgg) ChangeHeldItem(itemId itemmodel.ItemIdVo) {
+	agg.heldItemId = &itemId
+}
+
 func (agg *PlayerAgg) GetHeldItemId() *itemmodel.ItemIdVo {
 	return agg.heldItemId
 }
