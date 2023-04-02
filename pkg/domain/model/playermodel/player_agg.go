@@ -110,10 +110,6 @@ func (agg *PlayerAgg) GetPositionOneStepFoward() commonmodel.PositionVo {
 	}
 }
 
-func (agg *PlayerAgg) HasHeldItem() bool {
-	return agg.heldItemId != nil
-}
-
 func (agg *PlayerAgg) ChangeHeldItem(itemId itemmodel.ItemIdVo) {
 	agg.heldItemId = &itemId
 }

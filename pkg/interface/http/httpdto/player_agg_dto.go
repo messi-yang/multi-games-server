@@ -20,11 +20,12 @@ func NewPlayerAggDto(player playermodel.PlayerAgg) PlayerAggDto {
 		Position:  NewPositionVoDto(player.GetPosition()),
 		Direction: player.GetDirection().Int8(),
 	}
-	if player.HasHeldItem() {
+	playerHeldItemid := player.GetHeldItemId()
+	if playerHeldItemid == nil {
+		dto.HeldItemId = nil
+	} else {
 		heldItemIdDto := (*player.GetHeldItemId()).Uuid()
 		dto.HeldItemId = &heldItemIdDto
-	} else {
-		dto.HeldItemId = nil
 	}
 	return dto
 }

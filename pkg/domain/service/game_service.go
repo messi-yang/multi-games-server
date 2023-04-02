@@ -142,11 +142,12 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 		return err
 	}
 
-	if !player.HasHeldItem() {
+	playerHeldItemId := player.GetHeldItemId()
+	if playerHeldItemId == nil {
 		return nil
 	}
 
-	itemId := *player.GetHeldItemId()
+	itemId := *playerHeldItemId
 	item, err := serve.itemRepository.Get(itemId)
 	if err != nil {
 		return err
