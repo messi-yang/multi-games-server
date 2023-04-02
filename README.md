@@ -20,6 +20,12 @@ docker-compose up
 docker compose exec web golangci-lint run
 ```
 
+### DB Seeding
+
+```bash
+docker compose exec web make db-seed
+```
+
 ## Cassandra Database
 
 ### Initialize Cassandra
