@@ -17,7 +17,13 @@ docker-compose up
 ### Lint Check
 
 ```bash
-docker compose exec web golangci-lint run
+docker compose exec web make lint
+```
+
+### Unit Test
+
+```bash
+docker compose exec web make test
 ```
 
 ### DB Seeding

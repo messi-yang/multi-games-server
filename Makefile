@@ -46,9 +46,13 @@ db-seed:
 dev:
 	air -c .air.toml
 
+# .PHONY: lint
+lint:
+	golangci-lint run
+
 # .PHONY: test
 test:
-	go test
+	go test -v ./...
 
 # .PHONY: build
 build:

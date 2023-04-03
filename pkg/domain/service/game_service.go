@@ -154,6 +154,9 @@ func (serve *gameServe) PlaceItem(worldId worldmodel.WorldIdVo, playerId playerm
 	}
 
 	newItemPos := player.GetPositionOneStepFoward()
+	if newItemPos.IsEqual(commonmodel.NewPositionVo(0, 0)) {
+		return nil
+	}
 
 	_, unitFound, err := serve.unitRepository.GetUnitAt(worldId, newItemPos)
 	if err != nil {
