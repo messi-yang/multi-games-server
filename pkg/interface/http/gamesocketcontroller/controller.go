@@ -131,8 +131,8 @@ func gameConnectionHandler(c *gin.Context) {
 		return nil
 	}
 
-	doAddPlayerCommand := func() error {
-		err := gameAppService.AddPlayer(gameappservice.AddPlayerCommand{
+	doEnterWorldCommand := func() error {
+		err := gameAppService.EnterWorld(gameappservice.EnterWorldCommand{
 			WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 			PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 		})
@@ -166,7 +166,7 @@ func gameConnectionHandler(c *gin.Context) {
 	)
 	defer unitsUpdatedMessageTypeUnsubscriber()
 
-	if err = doAddPlayerCommand(); err != nil {
+	if err = doEnterWorldCommand(); err != nil {
 		disconnect()
 		return
 	}
@@ -211,7 +211,7 @@ func gameConnectionHandler(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				if err := gameAppService.MovePlayer(gameappservice.MovePlayerCommand{
+				if err := gameAppService.Move(gameappservice.MoveCommand{
 					WorldId:   worldmodel.NewWorldIdVo(worldIdDto),
 					PlayerId:  playermodel.NewPlayerIdVo(playerIdDto),
 					Direction: commonmodel.NewDirectionVo(requestDto.Direction),
@@ -283,7 +283,7 @@ func gameConnectionHandler(c *gin.Context) {
 
 	<-closeConnChan
 
-	if err = gameAppService.RemovePlayer(gameappservice.RemovePlayerCommand{
+	if err = gameAppService.LeaveWorld(gameappservice.LeaveWorldCommand{
 		WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
 		PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
 	}); err != nil {

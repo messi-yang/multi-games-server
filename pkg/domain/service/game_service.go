@@ -9,9 +9,9 @@ import (
 )
 
 type GameService interface {
-	AddPlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
-	MovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) error
-	RemovePlayer(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
+	EnterWorld(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
+	Move(worldmodel.WorldIdVo, playermodel.PlayerIdVo, commonmodel.DirectionVo) error
+	LeaveWorld(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 	ChangeHeldItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo, itemmodel.ItemIdVo) error
 	PlaceItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
 	RemoveItem(worldmodel.WorldIdVo, playermodel.PlayerIdVo) error
@@ -28,7 +28,7 @@ func NewGameService(worldRepository worldmodel.Repository, playerRepository play
 	return &gameServe{worldRepository: worldRepository, playerRepository: playerRepository, unitRepository: unitRepository, itemRepository: itemRepository}
 }
 
-func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+func (serve *gameServe) EnterWorld(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
@@ -48,7 +48,7 @@ func (serve *gameServe) AddPlayer(worldId worldmodel.WorldIdVo, playerId playerm
 	return serve.playerRepository.Add(newPlayer)
 }
 
-func (serve *gameServe) MovePlayer(
+func (serve *gameServe) Move(
 	worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo, direction commonmodel.DirectionVo,
 ) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
@@ -97,7 +97,7 @@ func (serve *gameServe) MovePlayer(
 	return serve.playerRepository.Update(player)
 }
 
-func (serve *gameServe) RemovePlayer(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
+func (serve *gameServe) LeaveWorld(worldId worldmodel.WorldIdVo, playerId playermodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 

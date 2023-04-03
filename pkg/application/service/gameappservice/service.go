@@ -13,9 +13,9 @@ type Service interface {
 	GetNearbyPlayers(GetNearbyPlayersQuery) ([]playermodel.PlayerAgg, error)
 	GetNearbyUnits(GetNearbyUnitsQuery) (commonmodel.BoundVo, []unitmodel.UnitAgg, error)
 	GetPlayer(GetPlayerQuery) (playermodel.PlayerAgg, error)
-	AddPlayer(AddPlayerCommand) error
-	MovePlayer(MovePlayerCommand) error
-	RemovePlayer(RemovePlayerCommand) error
+	EnterWorld(EnterWorldCommand) error
+	Move(MoveCommand) error
+	LeaveWorld(LeaveWorldCommand) error
 	ChangeHeldItem(ChangeHeldItemCommand) error
 	PlaceItem(PlaceItemCommand) error
 	RemoveItem(RemoveItemCommand) error
@@ -71,16 +71,16 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playermodel.PlayerAgg, erro
 	return serve.playerRepository.Get(query.PlayerId)
 }
 
-func (serve *serve) AddPlayer(command AddPlayerCommand) error {
-	return serve.gameService.AddPlayer(command.WorldId, command.PlayerId)
+func (serve *serve) EnterWorld(command EnterWorldCommand) error {
+	return serve.gameService.EnterWorld(command.WorldId, command.PlayerId)
 }
 
-func (serve *serve) MovePlayer(command MovePlayerCommand) error {
-	return serve.gameService.MovePlayer(command.WorldId, command.PlayerId, command.Direction)
+func (serve *serve) Move(command MoveCommand) error {
+	return serve.gameService.Move(command.WorldId, command.PlayerId, command.Direction)
 }
 
-func (serve *serve) RemovePlayer(command RemovePlayerCommand) error {
-	return serve.gameService.RemovePlayer(command.WorldId, command.PlayerId)
+func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
+	return serve.gameService.LeaveWorld(command.WorldId, command.PlayerId)
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {

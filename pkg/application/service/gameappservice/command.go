@@ -23,18 +23,18 @@ type RemoveItemCommand struct {
 	PlayerId playermodel.PlayerIdVo
 }
 
-type AddPlayerCommand struct {
+type EnterWorldCommand struct {
 	WorldId  worldmodel.WorldIdVo
 	PlayerId playermodel.PlayerIdVo
 }
 
-type MovePlayerCommand struct {
+type MoveCommand struct {
 	WorldId   worldmodel.WorldIdVo
 	PlayerId  playermodel.PlayerIdVo
 	Direction commonmodel.DirectionVo
 }
 
-type RemovePlayerCommand struct {
+type LeaveWorldCommand struct {
 	WorldId  worldmodel.WorldIdVo
 	PlayerId playermodel.PlayerIdVo
 }
