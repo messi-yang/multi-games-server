@@ -9,14 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-var gormDbSingleton *gorm.DB = nil
-var sessionCreationLock = &sync.Mutex{}
+var dbClient *gorm.DB = nil
+var dbClientCreatorLock = &sync.Mutex{}
 
-func NewSession() (gormDb *gorm.DB, err error) {
-	sessionCreationLock.Lock()
-	defer sessionCreationLock.Unlock()
+func NewDbClient() (gormDb *gorm.DB, err error) {
+	dbClientCreatorLock.Lock()
+	defer dbClientCreatorLock.Unlock()
 
-	if gormDbSingleton == nil {
+	if dbClient == nil {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",
 			os.Getenv("POSTGRES_HOST"),
@@ -24,13 +24,13 @@ func NewSession() (gormDb *gorm.DB, err error) {
 			os.Getenv("POSTGRES_PASSWORD"),
 			os.Getenv("POSTGRES_DB"),
 		)
-		gormDbSingleton, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		dbClient, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
 			return gormDb, err
 		}
 
-		return gormDbSingleton, nil
+		return dbClient, nil
 	}
 
-	return gormDbSingleton, nil
+	return dbClient, nil
 }

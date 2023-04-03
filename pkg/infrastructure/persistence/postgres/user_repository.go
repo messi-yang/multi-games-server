@@ -7,20 +7,20 @@ import (
 )
 
 type userRepository struct {
-	gormDb *gorm.DB
+	dbClient *gorm.DB
 }
 
 func NewUserRepository() (repository usermodel.Repository, err error) {
-	gormDb, err := NewSession()
+	dbClient, err := NewDbClient()
 	if err != nil {
 		return repository, err
 	}
-	return &userRepository{gormDb: gormDb}, nil
+	return &userRepository{dbClient: dbClient}, nil
 }
 
 func (repo *userRepository) Add(user usermodel.UserAgg) error {
 	userModel := psqlmodel.NewUserModel(user)
-	res := repo.gormDb.Create(&userModel)
+	res := repo.dbClient.Create(&userModel)
 	if res.Error != nil {
 		return res.Error
 	}

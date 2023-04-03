@@ -8,20 +8,20 @@ import (
 )
 
 type itemRepository struct {
-	gormDb *gorm.DB
+	dbClient *gorm.DB
 }
 
 func NewItemRepository() (repository itemmodel.Repository, err error) {
-	gormDb, err := NewSession()
+	dbClient, err := NewDbClient()
 	if err != nil {
 		return repository, err
 	}
-	return &itemRepository{gormDb: gormDb}, nil
+	return &itemRepository{dbClient: dbClient}, nil
 }
 
 func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
 	var itemModels []psqlmodel.ItemModel
-	result := repo.gormDb.Find(&itemModels)
+	result := repo.dbClient.Find(&itemModels)
 	if result.Error != nil {
 		err = result.Error
 		return items, err
@@ -35,7 +35,7 @@ func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
 
 func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
 	itemModel := psqlmodel.ItemModel{Id: itemId.Uuid()}
-	result := repo.gormDb.First(&itemModel)
+	result := repo.dbClient.First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
@@ -45,7 +45,7 @@ func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemA
 
 func (repo *itemRepository) GetFirstItem() (item itemmodel.ItemAgg, err error) {
 	itemModel := psqlmodel.ItemModel{}
-	result := repo.gormDb.First(&itemModel)
+	result := repo.dbClient.First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
@@ -55,7 +55,7 @@ func (repo *itemRepository) GetFirstItem() (item itemmodel.ItemAgg, err error) {
 
 func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
 	itemModel := psqlmodel.NewItemModel(item)
-	res := repo.gormDb.Create(&itemModel)
+	res := repo.dbClient.Create(&itemModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -64,7 +64,7 @@ func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
 
 func (repo *itemRepository) Update(item itemmodel.ItemAgg) error {
 	itemModel := psqlmodel.NewItemModel(item)
-	res := repo.gormDb.Save(&itemModel)
+	res := repo.dbClient.Save(&itemModel)
 	if res.Error != nil {
 		return res.Error
 	}

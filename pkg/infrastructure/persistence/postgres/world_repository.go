@@ -9,20 +9,20 @@ import (
 )
 
 type worldRepository struct {
-	gormDb *gorm.DB
+	dbClient *gorm.DB
 }
 
 func NewWorldRepository() (repository worldmodel.Repository, err error) {
-	gormDb, err := NewSession()
+	dbClient, err := NewDbClient()
 	if err != nil {
 		return repository, err
 	}
-	return &worldRepository{gormDb: gormDb}, nil
+	return &worldRepository{dbClient: dbClient}, nil
 }
 
 func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
 	worldModel := psqlmodel.WorldModel{Id: worldId.Uuid()}
-	result := repo.gormDb.First(&worldModel)
+	result := repo.dbClient.First(&worldModel)
 	if result.Error != nil {
 		return world, result.Error
 	}
@@ -31,7 +31,7 @@ func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (world worldmodel
 
 func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (world worldmodel.WorldAgg, found bool, err error) {
 	worldModels := []psqlmodel.WorldModel{}
-	result := repo.gormDb.Where("user_id = ?", userId.Uuid()).Find(&worldModels)
+	result := repo.dbClient.Where("user_id = ?", userId.Uuid()).Find(&worldModels)
 	if result.Error != nil {
 		return world, found, result.Error
 	}
@@ -44,7 +44,7 @@ func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (world wo
 
 func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) {
 	var worldModels []psqlmodel.WorldModel
-	result := repo.gormDb.Find(&worldModels).Limit(10)
+	result := repo.dbClient.Find(&worldModels).Limit(10)
 	if result.Error != nil {
 		return worlds, result.Error
 	}
@@ -57,7 +57,7 @@ func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) 
 
 func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
 	worldModel := psqlmodel.NewWorldModel(world)
-	res := repo.gormDb.Create(&worldModel)
+	res := repo.dbClient.Create(&worldModel)
 	if res.Error != nil {
 		return res.Error
 	}

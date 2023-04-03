@@ -10,20 +10,20 @@ import (
 )
 
 type unitRepository struct {
-	gormDb *gorm.DB
+	dbClient *gorm.DB
 }
 
 func NewUnitRepository() (repository unitmodel.Repository, err error) {
-	gormDb, err := NewSession()
+	dbClient, err := NewDbClient()
 	if err != nil {
 		return repository, err
 	}
-	return &unitRepository{gormDb: gormDb}, nil
+	return &unitRepository{dbClient: dbClient}, nil
 }
 
 func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
 	unitModel := psqlmodel.NewUnitModel(unit)
-	res := repo.gormDb.Create(&unitModel)
+	res := repo.dbClient.Create(&unitModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -34,7 +34,7 @@ func (repo *unitRepository) GetUnitAt(
 	worldId worldmodel.WorldIdVo, position commonmodel.PositionVo,
 ) (unit unitmodel.UnitAgg, found bool, err error) {
 	unitModels := []psqlmodel.UnitModel{}
-	result := repo.gormDb.Where(
+	result := repo.dbClient.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
 		position.GetX(),
@@ -56,7 +56,7 @@ func (repo *unitRepository) GetUnitsInBound(
 	worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo,
 ) (units []unitmodel.UnitAgg, err error) {
 	var unitModels []psqlmodel.UnitModel
-	result := repo.gormDb.Where(
+	result := repo.dbClient.Where(
 		"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
 		worldId.Uuid(),
 		bound.GetFrom().GetX(),
@@ -74,7 +74,7 @@ func (repo *unitRepository) GetUnitsInBound(
 }
 
 func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error {
-	result := repo.gormDb.Where(
+	result := repo.dbClient.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
 		position.GetX(),
