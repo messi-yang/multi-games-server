@@ -9,11 +9,11 @@ import (
 )
 
 func calculatePlayerVisionBound(pos commonmodel.PositionVo) commonmodel.BoundVo {
-	fromX := pos.GetX() - 30
-	toX := pos.GetX() + 30
+	fromX := pos.GetX() - 50
+	toX := pos.GetX() + 50
 
-	fromY := pos.GetZ() - 30
-	toY := pos.GetZ() + 30
+	fromY := pos.GetZ() - 50
+	toY := pos.GetZ() + 50
 
 	from := commonmodel.NewPositionVo(fromX, fromY)
 	to := commonmodel.NewPositionVo(toX, toY)
