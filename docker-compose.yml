@@ -3,7 +3,6 @@ networks:
   base:
     driver: bridge
 volumes:
-  # cassandra:
   postgres:
 services:
   redis:
@@ -15,14 +14,6 @@ services:
       - REDIS_PASSWORD=main
     networks:
       - base
-  # cassandra:
-  #   image: cassandra:4.0
-  #   ports:
-  #     - 9042:9042
-  #   volumes:
-  #     - cassandra:/var/lib/cassandra
-  #   networks:
-  #     - base
   postgres:
     image: postgres:15-alpine
     ports:
@@ -41,9 +32,6 @@ services:
       - SERVER_URL=http://localhost:8080
       - REDIS_HOST=redis:6379
       - REDIS_PASSWORD=main
-      - CASSANDRA_HOST=cassandra
-      - CASSANDRA_PORT=9042
-      - CASSANDRA_KEYSPACE=main
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_USER=main
@@ -53,7 +41,6 @@ services:
       - 8080:8080
     depends_on:
       - redis
-      # - cassandra
       - postgres
     networks:
       - base
