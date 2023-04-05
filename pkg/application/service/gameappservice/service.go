@@ -15,7 +15,7 @@ import (
 
 type Service interface {
 	GetNearbyPlayers(GetNearbyPlayersQuery) (myPlayerDto jsondto.PlayerAggDto, ohterPlayerDtos []jsondto.PlayerAggDto, err error)
-	GetNearbyUnits(GetNearbyUnitsQuery) (visionBoundDto jsondto.BoundVoDto, unitDtos []jsondto.UnitAggDto, err error)
+	GetNearbyUnits(GetNearbyUnitsQuery) (unitDtos []jsondto.UnitAggDto, err error)
 	GetPlayer(GetPlayerQuery) (jsondto.PlayerAggDto, error)
 	EnterWorld(EnterWorldCommand) error
 	Move(MoveCommand) error
@@ -74,24 +74,23 @@ func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 }
 
 func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
-	visionBoundDto jsondto.BoundVoDto, unitDtos []jsondto.UnitAggDto, err error,
+	unitDtos []jsondto.UnitAggDto, err error,
 ) {
 	player, err := serve.playerRepository.Get(playermodel.NewPlayerIdVo(query.PlayerId))
 	if err != nil {
-		return visionBoundDto, unitDtos, err
+		return unitDtos, err
 	}
 
 	visionBound := player.GetVisionBound()
-	visionBoundDto = jsondto.NewBoundVoDto(visionBound)
 	units, err := serve.unitRepository.GetUnitsInBound(worldmodel.NewWorldIdVo(query.WorldId), visionBound)
 	if err != nil {
-		return visionBoundDto, unitDtos, err
+		return unitDtos, err
 	}
 	unitDtos = lo.Map(units, func(unit unitmodel.UnitAgg, _ int) jsondto.UnitAggDto {
 		return jsondto.NewUnitAggDto(unit)
 	})
 
-	return visionBoundDto, unitDtos, err
+	return unitDtos, err
 }
 
 func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto jsondto.PlayerAggDto, err error) {

@@ -23,7 +23,6 @@ type playersUpdatedResponseDto struct {
 }
 
 type unitsUpdatedResponseDto struct {
-	Type        responseDtoType      `json:"type"`
-	VisionBound jsondto.BoundVoDto   `json:"visionBound"`
-	Units       []jsondto.UnitAggDto `json:"units"`
+	Type  responseDtoType      `json:"type"`
+	Units []jsondto.UnitAggDto `json:"units"`
 }
