@@ -5,14 +5,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type UnitVoDto struct {
+type UnitAggDto struct {
 	ItemId    uuid.UUID     `json:"itemId"`
 	Position  PositionVoDto `json:"position"`
 	Direction int8          `json:"direction"`
 }
 
-func NewUnitVoDto(unit unitmodel.UnitAgg) UnitVoDto {
-	return UnitVoDto{
+func NewUnitAggDto(unit unitmodel.UnitAgg) UnitAggDto {
+	return UnitAggDto{
 		ItemId:    unit.GetItemId().Uuid(),
 		Position:  NewPositionVoDto(unit.GetPosition()),
 		Direction: unit.GetDirection().Int8(),
