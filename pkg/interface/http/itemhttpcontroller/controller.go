@@ -3,7 +3,7 @@ package itemhttpcontroller
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/itemappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/itemappservice"
 	"github.com/gin-gonic/gin"
 )
 

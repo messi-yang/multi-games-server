@@ -1,8 +1,8 @@
 package itemhttpcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/itemappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/itemappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres"
 )
 
 func provideItemAppService() (itemAppService itemappservice.Service, err error) {

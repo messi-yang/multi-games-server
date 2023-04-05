@@ -1,7 +1,7 @@
 package gamesocketcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
 )
 
 type responseDtoType string

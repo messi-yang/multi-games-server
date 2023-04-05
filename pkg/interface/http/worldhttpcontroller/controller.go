@@ -3,7 +3,7 @@ package worldhttpcontroller
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/worldappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappservice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

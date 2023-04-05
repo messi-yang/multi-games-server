@@ -1,10 +1,10 @@
 package gamesocketcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/memrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/memrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres"
 )
 
 func provideGameAppService() (gameAppService gameappservice.Service, err error) {

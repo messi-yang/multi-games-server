@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redispubsub"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/messaging/redispubsub"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"

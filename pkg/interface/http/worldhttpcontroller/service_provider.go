@@ -1,8 +1,8 @@
 package worldhttpcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/worldappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres"
 )
 
 func provideWorldAppService() (worldAppService worldappservice.Service, err error) {
