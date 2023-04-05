@@ -1,20 +1,19 @@
 package gameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
+	"github.com/google/uuid"
 )
 
 type GetPlayerQuery struct {
-	PlayerId playermodel.PlayerIdVo
+	PlayerId uuid.UUID
 }
 
 type GetNearbyPlayersQuery struct {
-	WorldId  worldmodel.WorldIdVo
-	PlayerId playermodel.PlayerIdVo
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }
 
 type GetNearbyUnitsQuery struct {
-	WorldId  worldmodel.WorldIdVo
-	PlayerId playermodel.PlayerIdVo
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }

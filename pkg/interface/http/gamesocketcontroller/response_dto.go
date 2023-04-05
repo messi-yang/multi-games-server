@@ -1,7 +1,7 @@
 package gamesocketcontroller
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/jsondto"
 )
 
 type responseDtoType string
@@ -18,12 +18,12 @@ type gameJoinedResponseDto struct {
 
 type playersUpdatedResponseDto struct {
 	Type         responseDtoType        `json:"type"`
-	MyPlayer     httpdto.PlayerAggDto   `json:"myPlayer"`
-	OtherPlayers []httpdto.PlayerAggDto `json:"otherPlayers"`
+	MyPlayer     jsondto.PlayerAggDto   `json:"myPlayer"`
+	OtherPlayers []jsondto.PlayerAggDto `json:"otherPlayers"`
 }
 
 type unitsUpdatedResponseDto struct {
 	Type        responseDtoType     `json:"type"`
-	VisionBound httpdto.BoundVoDto  `json:"visionBound"`
-	Units       []httpdto.UnitVoDto `json:"units"`
+	VisionBound jsondto.BoundVoDto  `json:"visionBound"`
+	Units       []jsondto.UnitVoDto `json:"units"`
 }

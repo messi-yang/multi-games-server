@@ -1,9 +1,13 @@
 package itemappservice
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
+	"github.com/samber/lo"
+)
 
 type Service interface {
-	GetItems(GetItemsQuery) ([]itemmodel.ItemAgg, error)
+	GetItems(GetItemsQuery) ([]jsondto.ItemAggDto, error)
 }
 
 type serve struct {
@@ -16,6 +20,13 @@ func NewService(itemRepository itemmodel.Repository) Service {
 	}
 }
 
-func (serve *serve) GetItems(query GetItemsQuery) ([]itemmodel.ItemAgg, error) {
-	return serve.itemRepository.GetAll()
+func (serve *serve) GetItems(query GetItemsQuery) (itemDtos []jsondto.ItemAggDto, err error) {
+	items, err := serve.itemRepository.GetAll()
+	if err != nil {
+		return itemDtos, err
+	}
+
+	return lo.Map(items, func(item itemmodel.ItemAgg, _ int) jsondto.ItemAggDto {
+		return jsondto.NewItemAggDto(item)
+	}), nil
 }

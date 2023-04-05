@@ -1,40 +1,37 @@
 package gameappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
+	"github.com/google/uuid"
 )
 
 type ChangeHeldItemCommand struct {
-	WorldId  worldmodel.WorldIdVo
-	PlayerId playermodel.PlayerIdVo
-	ItemId   itemmodel.ItemIdVo
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
+	ItemId   uuid.UUID
 }
 
 type PlaceItemCommand struct {
-	WorldId  worldmodel.WorldIdVo
-	PlayerId playermodel.PlayerIdVo
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }
 
 type RemoveItemCommand struct {
-	WorldId  worldmodel.WorldIdVo
-	PlayerId playermodel.PlayerIdVo
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }
 
 type EnterWorldCommand struct {
-	WorldId  worldmodel.WorldIdVo
-	PlayerId playermodel.PlayerIdVo
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }
 
 type MoveCommand struct {
-	WorldId   worldmodel.WorldIdVo
-	PlayerId  playermodel.PlayerIdVo
-	Direction commonmodel.DirectionVo
+	WorldId   uuid.UUID
+	PlayerId  uuid.UUID
+	Direction int8
 }
 
 type LeaveWorldCommand struct {
-	WorldId  worldmodel.WorldIdVo
-	PlayerId playermodel.PlayerIdVo
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
 }

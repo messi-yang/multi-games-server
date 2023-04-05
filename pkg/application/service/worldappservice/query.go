@@ -1,11 +1,11 @@
 package worldappservice
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
+	"github.com/google/uuid"
 )
 
 type GetWorldQuery struct {
-	WorldId worldmodel.WorldIdVo
+	WorldId uuid.UUID
 }
 
 type GetWorldsQuery struct{}

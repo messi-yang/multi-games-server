@@ -1,7 +1,6 @@
 package gamesocketcontroller
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -9,17 +8,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/application/service/gameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/jsonutil"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/playermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/infrastructure/messaging/redispubsub"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httpdto"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/samber/lo"
 )
 
 var wsupgrader = websocket.Upgrader{
@@ -83,39 +75,28 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doGetNearbyPlayersQuery := func() error {
-		players, err := gameAppService.GetNearbyPlayers(
+		myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
 			gameappservice.GetNearbyPlayersQuery{
-				WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
-				PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+				WorldId:  worldIdDto,
+				PlayerId: playerIdDto,
 			},
 		)
 		if err != nil {
 			return err
 		}
-		myPlayer, myPlayrFound := lo.Find(players, func(player playermodel.PlayerAgg) bool {
-			return player.GetId().Uuid() == playerIdDto
-		})
-		if !myPlayrFound {
-			return errors.New("my player not found in players")
-		}
-		otherPlayers := lo.Filter(players, func(player playermodel.PlayerAgg, _ int) bool {
-			return player.GetId().Uuid() != playerIdDto
-		})
 		sendMessage(playersUpdatedResponseDto{
-			Type:     playersUpdatedResponseDtoType,
-			MyPlayer: httpdto.NewPlayerAggDto(myPlayer),
-			OtherPlayers: lo.Map(otherPlayers, func(player playermodel.PlayerAgg, _ int) httpdto.PlayerAggDto {
-				return httpdto.NewPlayerAggDto(player)
-			}),
+			Type:         playersUpdatedResponseDtoType,
+			MyPlayer:     myPlayerDto,
+			OtherPlayers: otherPlayerDtos,
 		})
 		return nil
 	}
 
 	doGetNearbyUnitsQuery := func() error {
-		visionBound, units, err := gameAppService.GetNearbyUnits(
+		visionBoundDto, unitDtos, err := gameAppService.GetNearbyUnits(
 			gameappservice.GetNearbyUnitsQuery{
-				WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
-				PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+				WorldId:  worldIdDto,
+				PlayerId: playerIdDto,
 			},
 		)
 		if err != nil {
@@ -123,18 +104,16 @@ func gameConnectionHandler(c *gin.Context) {
 		}
 		sendMessage(unitsUpdatedResponseDto{
 			Type:        unitsUpdatedResponseDtoType,
-			VisionBound: httpdto.NewBoundVoDto(visionBound),
-			Units: lo.Map(units, func(unit unitmodel.UnitAgg, _ int) httpdto.UnitVoDto {
-				return httpdto.NewUnitVoDto(unit)
-			}),
+			VisionBound: visionBoundDto,
+			Units:       unitDtos,
 		})
 		return nil
 	}
 
 	doEnterWorldCommand := func() error {
 		err := gameAppService.EnterWorld(gameappservice.EnterWorldCommand{
-			WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
-			PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+			WorldId:  worldIdDto,
+			PlayerId: playerIdDto,
 		})
 		if err != nil {
 			return err
@@ -207,22 +186,22 @@ func gameConnectionHandler(c *gin.Context) {
 					return
 				}
 
-				player, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playermodel.NewPlayerIdVo(playerIdDto)})
+				playerDto, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playerIdDto})
 				if err != nil {
 					return
 				}
 				if err := gameAppService.Move(gameappservice.MoveCommand{
-					WorldId:   worldmodel.NewWorldIdVo(worldIdDto),
-					PlayerId:  playermodel.NewPlayerIdVo(playerIdDto),
-					Direction: commonmodel.NewDirectionVo(requestDto.Direction),
+					WorldId:   worldIdDto,
+					PlayerId:  playerIdDto,
+					Direction: requestDto.Direction,
 				}); err != nil {
 					return
 				}
-				updatedPlayer, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playermodel.NewPlayerIdVo(playerIdDto)})
+				updatedPlayerDto, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playerIdDto})
 				if err != nil {
 					return
 				}
-				playerVisionBoundUpdated := !player.GetVisionBound().IsEqual(updatedPlayer.GetVisionBound())
+				playerVisionBoundUpdated := playerDto.VisionBound != updatedPlayerDto.VisionBound
 				if playerVisionBoundUpdated {
 					if err = doGetNearbyUnitsQuery(); err != nil {
 						return
@@ -238,9 +217,9 @@ func gameConnectionHandler(c *gin.Context) {
 				}
 
 				if err = gameAppService.ChangeHeldItem(gameappservice.ChangeHeldItemCommand{
-					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
-					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
-					ItemId:   itemmodel.NewItemIdVo(requestDto.ItemId),
+					WorldId:  worldIdDto,
+					PlayerId: playerIdDto,
+					ItemId:   requestDto.ItemId,
 				}); err != nil {
 					return
 				}
@@ -253,8 +232,8 @@ func gameConnectionHandler(c *gin.Context) {
 				}
 
 				if err = gameAppService.PlaceItem(gameappservice.PlaceItemCommand{
-					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
-					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+					WorldId:  worldIdDto,
+					PlayerId: playerIdDto,
 				}); err != nil {
 					return
 				}
@@ -268,8 +247,8 @@ func gameConnectionHandler(c *gin.Context) {
 				}
 
 				if err = gameAppService.RemoveItem(gameappservice.RemoveItemCommand{
-					WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
-					PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+					WorldId:  worldIdDto,
+					PlayerId: playerIdDto,
 				}); err != nil {
 					return
 				}
@@ -284,8 +263,8 @@ func gameConnectionHandler(c *gin.Context) {
 	<-closeConnChan
 
 	if err = gameAppService.LeaveWorld(gameappservice.LeaveWorldCommand{
-		WorldId:  worldmodel.NewWorldIdVo(worldIdDto),
-		PlayerId: playermodel.NewPlayerIdVo(playerIdDto),
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
 	}); err != nil {
 		fmt.Println(err)
 		return
