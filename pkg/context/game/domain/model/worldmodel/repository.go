@@ -1,6 +1,6 @@
 package worldmodel
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
 
 type Repository interface {
 	Add(WorldAgg) error

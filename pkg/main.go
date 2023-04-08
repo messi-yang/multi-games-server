@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/pgrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/pgrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/seedclicontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/assethttpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamesocketcontroller"
