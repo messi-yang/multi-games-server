@@ -22,3 +22,6 @@ hotreload
 
 # Config
 .env
+
+# Os System
+.DS_Store
