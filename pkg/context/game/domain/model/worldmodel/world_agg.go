@@ -3,7 +3,7 @@ package worldmodel
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
 )
 
 var (
@@ -14,16 +14,16 @@ var (
 )
 
 type WorldAgg struct {
-	id     WorldIdVo
-	userId usermodel.UserIdVo
-	name   string
+	id      WorldIdVo
+	gamerId gamermodel.GamerIdVo
+	name    string
 }
 
-func NewWorldAgg(id WorldIdVo, userId usermodel.UserIdVo) WorldAgg {
+func NewWorldAgg(id WorldIdVo, gamerId gamermodel.GamerIdVo) WorldAgg {
 	return WorldAgg{
-		id:     id,
-		userId: userId,
-		name:   "Hello World",
+		id:      id,
+		gamerId: gamerId,
+		name:    "Hello World",
 	}
 }
 
@@ -31,8 +31,8 @@ func (agg *WorldAgg) GetId() WorldIdVo {
 	return agg.id
 }
 
-func (agg *WorldAgg) GetUserId() usermodel.UserIdVo {
-	return agg.userId
+func (agg *WorldAgg) GetGamerId() gamermodel.GamerIdVo {
+	return agg.gamerId
 }
 
 func (agg *WorldAgg) GetName() string {

@@ -6,9 +6,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/commonutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -56,8 +56,8 @@ func (serve *serve) GetWorlds(query GetWorldsQuery) (worldDtos []jsondto.WorldAg
 
 func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
 	worldId := worldmodel.NewWorldIdVo(uuid.New())
-	userId := usermodel.NewUserIdVo(command.UserId)
-	newWorld := worldmodel.NewWorldAgg(worldId, userId)
+	gamerId := gamermodel.NewGamerIdVo(command.GamerId)
+	newWorld := worldmodel.NewWorldAgg(worldId, gamerId)
 
 	err = serve.worldRepository.Add(newWorld)
 	if err != nil {

@@ -2,7 +2,7 @@ package pgrepository
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -10,14 +10,14 @@ import (
 
 func newWorldModel(world worldmodel.WorldAgg) pgmodel.WorldModel {
 	return pgmodel.WorldModel{
-		Id:         world.GetId().Uuid(),
-		GameUserId: world.GetUserId().Uuid(),
-		Name:       world.GetName(),
+		Id:      world.GetId().Uuid(),
+		GamerId: world.GetGamerId().Uuid(),
+		Name:    world.GetName(),
 	}
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.WorldAgg {
-	return worldmodel.NewWorldAgg(worldmodel.NewWorldIdVo(worldModel.Id), usermodel.NewUserIdVo(worldModel.GameUserId))
+	return worldmodel.NewWorldAgg(worldmodel.NewWorldIdVo(worldModel.Id), gamermodel.NewGamerIdVo(worldModel.GamerId))
 }
 
 type worldRepository struct {
@@ -39,19 +39,6 @@ func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (world worldmodel
 		return world, result.Error
 	}
 	return parseWorldModel(worldModel), nil
-}
-
-func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (world worldmodel.WorldAgg, found bool, err error) {
-	worldModels := []pgmodel.WorldModel{}
-	result := repo.dbClient.Where("user_id = ?", userId.Uuid()).Find(&worldModels)
-	if result.Error != nil {
-		return world, found, result.Error
-	}
-	found = result.RowsAffected > 0
-	if found {
-		world = parseWorldModel(worldModels[0])
-	}
-	return world, found, nil
 }
 
 func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) {

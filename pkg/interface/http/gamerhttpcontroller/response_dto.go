@@ -1,5 +1,5 @@
-package userhttpcontroller
+package gamerhttpcontroller
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
 
-type getUsersReponseDto []jsondto.UserAggDto
+type getGamersReponseDto []jsondto.GamerAggDto

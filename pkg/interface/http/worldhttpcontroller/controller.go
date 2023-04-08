@@ -57,7 +57,7 @@ func createWorldHandler(c *gin.Context) {
 		return
 	}
 
-	newWorldIdDto, err := worldAppService.CreateWorld(worldappservice.CreateWorldCommand{UserId: requestDto.UserId})
+	newWorldIdDto, err := worldAppService.CreateWorld(worldappservice.CreateWorldCommand{GamerId: requestDto.GamerId})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
