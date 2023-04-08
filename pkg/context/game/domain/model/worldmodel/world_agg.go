@@ -3,7 +3,7 @@ package worldmodel
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
 )
 
 var (

@@ -2,22 +2,22 @@ package pgrepository
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
 func newWorldModel(world worldmodel.WorldAgg) pgmodel.WorldModel {
 	return pgmodel.WorldModel{
-		Id:     world.GetId().Uuid(),
-		UserId: world.GetUserId().Uuid(),
-		Name:   world.GetName(),
+		Id:         world.GetId().Uuid(),
+		GameUserId: world.GetUserId().Uuid(),
+		Name:       world.GetName(),
 	}
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.WorldAgg {
-	return worldmodel.NewWorldAgg(worldmodel.NewWorldIdVo(worldModel.Id), usermodel.NewUserIdVo(worldModel.UserId))
+	return worldmodel.NewWorldAgg(worldmodel.NewWorldIdVo(worldModel.Id), usermodel.NewUserIdVo(worldModel.GameUserId))
 }
 
 type worldRepository struct {
