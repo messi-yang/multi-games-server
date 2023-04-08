@@ -36,7 +36,3 @@ func (size SizeVo) GetWidth() int {
 func (size SizeVo) GetHeight() int {
 	return size.height
 }
-
-func (size SizeVo) CoversPosition(position PositionVo) bool {
-	return position.x < 0 || position.x >= size.width || position.z < 0 || position.z >= size.height
-}
