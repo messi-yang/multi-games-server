@@ -1,18 +1,42 @@
-package postgres
+package pgrepository
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres/psqlmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
+
+func newItemModel(item itemmodel.ItemAgg) pgmodel.ItemModel {
+	return pgmodel.ItemModel{
+		Id:           item.GetId().Uuid(),
+		Name:         item.GetName(),
+		Traversable:  item.GetTraversable(),
+		ThumbnailSrc: item.GetThumbnailSrc(),
+		ModelSrc:     item.GetModelSrc(),
+	}
+}
+
+func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.ItemAgg {
+	serverUrl := os.Getenv("SERVER_URL")
+	return itemmodel.NewItemAgg(
+		itemmodel.NewItemIdVo(itemModel.Id),
+		itemModel.Name,
+		itemModel.Traversable,
+		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
+		fmt.Sprintf("%s%s", serverUrl, itemModel.ModelSrc),
+	)
+}
 
 type itemRepository struct {
 	dbClient *gorm.DB
 }
 
 func NewItemRepository() (repository itemmodel.Repository, err error) {
-	dbClient, err := NewDbClient()
+	dbClient, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
@@ -20,41 +44,41 @@ func NewItemRepository() (repository itemmodel.Repository, err error) {
 }
 
 func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
-	var itemModels []psqlmodel.ItemModel
+	var itemModels []pgmodel.ItemModel
 	result := repo.dbClient.Find(&itemModels)
 	if result.Error != nil {
 		err = result.Error
 		return items, err
 	}
 
-	items = lo.Map(itemModels, func(model psqlmodel.ItemModel, _ int) itemmodel.ItemAgg {
-		return model.ToAggregate()
+	items = lo.Map(itemModels, func(itemModel pgmodel.ItemModel, _ int) itemmodel.ItemAgg {
+		return parseItemModel(itemModel)
 	})
 	return items, nil
 }
 
 func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
-	itemModel := psqlmodel.ItemModel{Id: itemId.Uuid()}
+	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
 	result := repo.dbClient.First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
 
-	return itemModel.ToAggregate(), nil
+	return parseItemModel(itemModel), nil
 }
 
 func (repo *itemRepository) GetFirstItem() (item itemmodel.ItemAgg, err error) {
-	itemModel := psqlmodel.ItemModel{}
+	itemModel := pgmodel.ItemModel{}
 	result := repo.dbClient.First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
 
-	return itemModel.ToAggregate(), nil
+	return parseItemModel(itemModel), nil
 }
 
 func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
-	itemModel := psqlmodel.NewItemModel(item)
+	itemModel := newItemModel(item)
 	res := repo.dbClient.Create(&itemModel)
 	if res.Error != nil {
 		return res.Error
@@ -63,7 +87,7 @@ func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
 }
 
 func (repo *itemRepository) Update(item itemmodel.ItemAgg) error {
-	itemModel := psqlmodel.NewItemModel(item)
+	itemModel := newItemModel(item)
 	res := repo.dbClient.Save(&itemModel)
 	if res.Error != nil {
 		return res.Error

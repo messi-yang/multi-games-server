@@ -1,4 +1,4 @@
-package postgres
+package pgmodel
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 var dbClient *gorm.DB = nil
 var dbClientCreatorLock = &sync.Mutex{}
 
-func NewDbClient() (gormDb *gorm.DB, err error) {
+func NewClient() (gormDb *gorm.DB, err error) {
 	dbClientCreatorLock.Lock()
 	defer dbClientCreatorLock.Unlock()
 

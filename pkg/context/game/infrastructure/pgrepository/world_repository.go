@@ -1,19 +1,31 @@
-package postgres
+package pgrepository
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres/psqlmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
+
+func newWorldModel(world worldmodel.WorldAgg) pgmodel.WorldModel {
+	return pgmodel.WorldModel{
+		Id:     world.GetId().Uuid(),
+		UserId: world.GetUserId().Uuid(),
+		Name:   world.GetName(),
+	}
+}
+
+func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.WorldAgg {
+	return worldmodel.NewWorldAgg(worldmodel.NewWorldIdVo(worldModel.Id), usermodel.NewUserIdVo(worldModel.UserId))
+}
 
 type worldRepository struct {
 	dbClient *gorm.DB
 }
 
 func NewWorldRepository() (repository worldmodel.Repository, err error) {
-	dbClient, err := NewDbClient()
+	dbClient, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
@@ -21,42 +33,42 @@ func NewWorldRepository() (repository worldmodel.Repository, err error) {
 }
 
 func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
-	worldModel := psqlmodel.WorldModel{Id: worldId.Uuid()}
+	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
 	result := repo.dbClient.First(&worldModel)
 	if result.Error != nil {
 		return world, result.Error
 	}
-	return worldModel.ToAggregate(), nil
+	return parseWorldModel(worldModel), nil
 }
 
 func (repo *worldRepository) GetWorldOfUser(userId usermodel.UserIdVo) (world worldmodel.WorldAgg, found bool, err error) {
-	worldModels := []psqlmodel.WorldModel{}
+	worldModels := []pgmodel.WorldModel{}
 	result := repo.dbClient.Where("user_id = ?", userId.Uuid()).Find(&worldModels)
 	if result.Error != nil {
 		return world, found, result.Error
 	}
 	found = result.RowsAffected > 0
 	if found {
-		world = worldModels[0].ToAggregate()
+		world = parseWorldModel(worldModels[0])
 	}
 	return world, found, nil
 }
 
 func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) {
-	var worldModels []psqlmodel.WorldModel
+	var worldModels []pgmodel.WorldModel
 	result := repo.dbClient.Find(&worldModels).Limit(10)
 	if result.Error != nil {
 		return worlds, result.Error
 	}
 
-	worlds = lo.Map(worldModels, func(model psqlmodel.WorldModel, _ int) worldmodel.WorldAgg {
-		return model.ToAggregate()
+	worlds = lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.WorldAgg {
+		return parseWorldModel(worldModel)
 	})
 	return worlds, nil
 }
 
 func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
-	worldModel := psqlmodel.NewWorldModel(world)
+	worldModel := newWorldModel(world)
 	res := repo.dbClient.Create(&worldModel)
 	if res.Error != nil {
 		return res.Error

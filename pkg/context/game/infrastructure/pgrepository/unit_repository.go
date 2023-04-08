@@ -1,20 +1,40 @@
-package postgres
+package pgrepository
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres/psqlmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
+
+func newUnitModel(unit unitmodel.UnitAgg) pgmodel.UnitModel {
+	return pgmodel.UnitModel{
+		WorldId:   unit.GetWorldId().Uuid(),
+		PosX:      unit.GetPosition().GetX(),
+		PosZ:      unit.GetPosition().GetZ(),
+		ItemId:    unit.GetItemId().Uuid(),
+		Direction: unit.GetDirection().Int8(),
+	}
+}
+
+func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.UnitAgg {
+	return unitmodel.NewUnitAgg(
+		worldmodel.NewWorldIdVo(unitModel.WorldId),
+		commonmodel.NewPositionVo(unitModel.PosX, unitModel.PosZ),
+		itemmodel.NewItemIdVo(unitModel.ItemId),
+		commonmodel.NewDirectionVo(unitModel.Direction),
+	)
+}
 
 type unitRepository struct {
 	dbClient *gorm.DB
 }
 
 func NewUnitRepository() (repository unitmodel.Repository, err error) {
-	dbClient, err := NewDbClient()
+	dbClient, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
@@ -22,7 +42,7 @@ func NewUnitRepository() (repository unitmodel.Repository, err error) {
 }
 
 func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
-	unitModel := psqlmodel.NewUnitModel(unit)
+	unitModel := newUnitModel(unit)
 	res := repo.dbClient.Create(&unitModel)
 	if res.Error != nil {
 		return res.Error
@@ -33,7 +53,7 @@ func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
 func (repo *unitRepository) GetUnitAt(
 	worldId worldmodel.WorldIdVo, position commonmodel.PositionVo,
 ) (unit unitmodel.UnitAgg, found bool, err error) {
-	unitModels := []psqlmodel.UnitModel{}
+	unitModels := []pgmodel.UnitModel{}
 	result := repo.dbClient.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
@@ -47,7 +67,7 @@ func (repo *unitRepository) GetUnitAt(
 
 	found = result.RowsAffected >= 1
 	if found {
-		unit = unitModels[0].ToAggregate()
+		unit = parseUnitModel(unitModels[0])
 	}
 	return unit, found, nil
 }
@@ -55,7 +75,7 @@ func (repo *unitRepository) GetUnitAt(
 func (repo *unitRepository) GetUnitsInBound(
 	worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo,
 ) (units []unitmodel.UnitAgg, err error) {
-	var unitModels []psqlmodel.UnitModel
+	var unitModels []pgmodel.UnitModel
 	result := repo.dbClient.Where(
 		"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
 		worldId.Uuid(),
@@ -63,12 +83,12 @@ func (repo *unitRepository) GetUnitsInBound(
 		bound.GetTo().GetX(),
 		bound.GetFrom().GetZ(),
 		bound.GetTo().GetZ(),
-	).Find(&unitModels, psqlmodel.UnitModel{})
+	).Find(&unitModels, pgmodel.UnitModel{})
 	if result.Error != nil {
 		return units, result.Error
 	}
-	units = lo.Map(unitModels, func(model psqlmodel.UnitModel, _ int) unitmodel.UnitAgg {
-		return model.ToAggregate()
+	units = lo.Map(unitModels, func(unitModel pgmodel.UnitModel, _ int) unitmodel.UnitAgg {
+		return parseUnitModel(unitModel)
 	})
 	return units, nil
 }
@@ -79,7 +99,7 @@ func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position common
 		worldId.Uuid(),
 		position.GetX(),
 		position.GetZ(),
-	).Delete(&psqlmodel.UnitModel{})
+	).Delete(&pgmodel.UnitModel{})
 	if result.Error != nil {
 		return result.Error
 	}

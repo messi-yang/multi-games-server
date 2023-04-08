@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/dbseedappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/pgrepository"
 )
 
 func Exec() {
 	fmt.Println("Start seeding Postgres database")
 
-	itemRepository, err := postgres.NewItemRepository()
+	itemRepository, err := pgrepository.NewItemRepository()
 	if err != nil {
 		panic(err)
 	}

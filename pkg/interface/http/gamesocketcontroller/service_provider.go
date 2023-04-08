@@ -3,21 +3,21 @@ package gamesocketcontroller
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/memrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/memrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/pgrepository"
 )
 
 func provideGameAppService() (gameAppService gameappservice.Service, err error) {
-	itemRepository, err := postgres.NewItemRepository()
+	itemRepository, err := pgrepository.NewItemRepository()
 	if err != nil {
 		return gameAppService, err
 	}
 	playerRepository := memrepo.NewPlayerMemRepository()
-	worldRepository, err := postgres.NewWorldRepository()
+	worldRepository, err := pgrepository.NewWorldRepository()
 	if err != nil {
 		return gameAppService, err
 	}
-	unitRepository, err := postgres.NewUnitRepository()
+	unitRepository, err := pgrepository.NewUnitRepository()
 	if err != nil {
 		return gameAppService, err
 	}
