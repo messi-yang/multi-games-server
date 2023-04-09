@@ -1,4 +1,4 @@
-package gamermodel
+package commonmodel
 
 import "github.com/google/uuid"
 

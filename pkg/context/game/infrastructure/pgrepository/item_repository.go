@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -23,7 +24,7 @@ func newItemModel(item itemmodel.ItemAgg) pgmodel.ItemModel {
 func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.ItemAgg {
 	serverUrl := os.Getenv("SERVER_URL")
 	return itemmodel.NewItemAgg(
-		itemmodel.NewItemIdVo(itemModel.Id),
+		commonmodel.NewItemIdVo(itemModel.Id),
 		itemModel.Name,
 		itemModel.Traversable,
 		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
@@ -57,7 +58,7 @@ func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
 	return items, nil
 }
 
-func (repo *itemRepository) Get(itemId itemmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
+func (repo *itemRepository) Get(itemId commonmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
 	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
 	result := repo.dbClient.First(&itemModel)
 	if result.Error != nil {

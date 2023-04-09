@@ -2,7 +2,7 @@ package pgrepository
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -17,7 +17,7 @@ func newWorldModel(world worldmodel.WorldAgg) pgmodel.WorldModel {
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.WorldAgg {
-	return worldmodel.NewWorldAgg(worldmodel.NewWorldIdVo(worldModel.Id), gamermodel.NewGamerIdVo(worldModel.GamerId))
+	return worldmodel.NewWorldAgg(commonmodel.NewWorldIdVo(worldModel.Id), commonmodel.NewGamerIdVo(worldModel.GamerId))
 }
 
 type worldRepository struct {
@@ -32,7 +32,7 @@ func NewWorldRepository() (repository worldmodel.Repository, err error) {
 	return &worldRepository{dbClient: dbClient}, nil
 }
 
-func (repo *worldRepository) Get(worldId worldmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
+func (repo *worldRepository) Get(worldId commonmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
 	result := repo.dbClient.First(&worldModel)
 	if result.Error != nil {
@@ -63,10 +63,10 @@ func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
 	return nil
 }
 
-func (repo *worldRepository) ReadLockAccess(worldId worldmodel.WorldIdVo) func() {
+func (repo *worldRepository) ReadLockAccess(worldId commonmodel.WorldIdVo) func() {
 	return func() {}
 }
 
-func (repo *worldRepository) LockAccess(worldId worldmodel.WorldIdVo) func() {
+func (repo *worldRepository) LockAccess(worldId commonmodel.WorldIdVo) func() {
 	return func() {}
 }

@@ -1,10 +1,12 @@
 package worldmodel
 
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+
 type Repository interface {
 	Add(WorldAgg) error
-	Get(WorldIdVo) (WorldAgg, error)
+	Get(commonmodel.WorldIdVo) (WorldAgg, error)
 	GetAll() ([]WorldAgg, error)
 
-	ReadLockAccess(WorldIdVo) (rUnlocker func())
-	LockAccess(WorldIdVo) (unlocker func())
+	ReadLockAccess(commonmodel.WorldIdVo) (rUnlocker func())
+	LockAccess(commonmodel.WorldIdVo) (unlocker func())
 }

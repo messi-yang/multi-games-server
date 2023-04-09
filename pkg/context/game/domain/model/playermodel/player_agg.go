@@ -4,8 +4,6 @@ import (
 	"math"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 )
 
 func calculatePlayerVisionBound(pos commonmodel.PositionVo) commonmodel.BoundVo {
@@ -23,16 +21,16 @@ func calculatePlayerVisionBound(pos commonmodel.PositionVo) commonmodel.BoundVo 
 }
 
 type PlayerAgg struct {
-	id          PlayerIdVo              // Id of the player
-	worldId     worldmodel.WorldIdVo    // The id of the world the player belongs to
+	id          commonmodel.PlayerIdVo  // Id of the player
+	worldId     commonmodel.WorldIdVo   // The id of the world the player belongs to
 	name        string                  // The name of the player
 	position    commonmodel.PositionVo  // The current position of the player
 	direction   commonmodel.DirectionVo // The direction where the player is facing
 	visionBound commonmodel.BoundVo     // The vision bound of the player
-	heldItemId  *itemmodel.ItemIdVo     // Optional, The item held by the player
+	heldItemId  *commonmodel.ItemIdVo   // Optional, The item held by the player
 }
 
-func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo, heldItemId *itemmodel.ItemIdVo) PlayerAgg {
+func NewPlayerAgg(id commonmodel.PlayerIdVo, worldId commonmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo, heldItemId *commonmodel.ItemIdVo) PlayerAgg {
 	player := PlayerAgg{
 		id:          id,
 		worldId:     worldId,
@@ -45,11 +43,11 @@ func NewPlayerAgg(id PlayerIdVo, worldId worldmodel.WorldIdVo, name string, posi
 	return player
 }
 
-func (agg *PlayerAgg) GetId() PlayerIdVo {
+func (agg *PlayerAgg) GetId() commonmodel.PlayerIdVo {
 	return agg.id
 }
 
-func (agg *PlayerAgg) GetWorldId() worldmodel.WorldIdVo {
+func (agg *PlayerAgg) GetWorldId() commonmodel.WorldIdVo {
 	return agg.worldId
 }
 
@@ -110,10 +108,10 @@ func (agg *PlayerAgg) GetPositionOneStepFoward() commonmodel.PositionVo {
 	}
 }
 
-func (agg *PlayerAgg) ChangeHeldItem(itemId itemmodel.ItemIdVo) {
+func (agg *PlayerAgg) ChangeHeldItem(itemId commonmodel.ItemIdVo) {
 	agg.heldItemId = &itemId
 }
 
-func (agg *PlayerAgg) GetHeldItemId() *itemmodel.ItemIdVo {
+func (agg *PlayerAgg) GetHeldItemId() *commonmodel.ItemIdVo {
 	return agg.heldItemId
 }

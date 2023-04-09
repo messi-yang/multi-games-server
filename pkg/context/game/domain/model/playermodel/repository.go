@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 )
 
 var (
@@ -14,9 +13,9 @@ var (
 
 type Repository interface {
 	Add(PlayerAgg) error
-	Get(PlayerIdVo) (PlayerAgg, error)
-	GetPlayerAt(worldmodel.WorldIdVo, commonmodel.PositionVo) (player PlayerAgg, found bool, err error)
-	GetPlayersAround(worldmodel.WorldIdVo, commonmodel.PositionVo) ([]PlayerAgg, error)
+	Get(commonmodel.PlayerIdVo) (PlayerAgg, error)
+	GetPlayerAt(commonmodel.WorldIdVo, commonmodel.PositionVo) (player PlayerAgg, found bool, err error)
+	GetPlayersAround(commonmodel.WorldIdVo, commonmodel.PositionVo) ([]PlayerAgg, error)
 	Update(PlayerAgg) error
-	Delete(PlayerIdVo) error
+	Delete(commonmodel.PlayerIdVo) error
 }

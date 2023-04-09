@@ -1,4 +1,4 @@
-package worldmodel
+package commonmodel
 
 import "github.com/google/uuid"
 

@@ -1,14 +1,16 @@
 package itemmodel
 
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+
 type ItemAgg struct {
-	id           ItemIdVo
+	id           commonmodel.ItemIdVo
 	name         string
 	traversable  bool
 	thumbnailSrc string
 	modelSrc     string
 }
 
-func NewItemAgg(id ItemIdVo, name string, traversable bool, thumbnailSrc string, modelSrc string) ItemAgg {
+func NewItemAgg(id commonmodel.ItemIdVo, name string, traversable bool, thumbnailSrc string, modelSrc string) ItemAgg {
 	return ItemAgg{
 		id:           id,
 		name:         name,
@@ -18,7 +20,7 @@ func NewItemAgg(id ItemIdVo, name string, traversable bool, thumbnailSrc string,
 	}
 }
 
-func (item *ItemAgg) GetId() ItemIdVo {
+func (item *ItemAgg) GetId() commonmodel.ItemIdVo {
 	return item.id
 }
 

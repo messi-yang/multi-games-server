@@ -1,4 +1,4 @@
-package itemmodel
+package commonmodel
 
 import "github.com/google/uuid"
 

@@ -17,7 +17,7 @@ func newGamerModel(user gamermodel.GamerAgg) pgmodel.GamerModel {
 
 func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.GamerAgg {
 	return gamermodel.NewGamerAgg(
-		gamermodel.NewGamerIdVo(gamerModel.Id),
+		commonmodel.NewGamerIdVo(gamerModel.Id),
 		commonmodel.NewUserIdVo(gamerModel.UserId),
 	)
 }

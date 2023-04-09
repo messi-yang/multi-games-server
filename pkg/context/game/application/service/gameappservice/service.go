@@ -46,12 +46,12 @@ func NewService(worldRepository worldmodel.Repository, playerRepository playermo
 func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 	myPlayerDto jsondto.PlayerAggDto, otherPlayerDtos []jsondto.PlayerAggDto, err error,
 ) {
-	player, err := serve.playerRepository.Get(playermodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepository.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
 	if err != nil {
 		return myPlayerDto, otherPlayerDtos, err
 	}
 
-	players, err := serve.playerRepository.GetPlayersAround(worldmodel.NewWorldIdVo(query.WorldId), player.GetPosition())
+	players, err := serve.playerRepository.GetPlayersAround(commonmodel.NewWorldIdVo(query.WorldId), player.GetPosition())
 	if err != nil {
 		return myPlayerDto, otherPlayerDtos, err
 	}
@@ -76,13 +76,13 @@ func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 	unitDtos []jsondto.UnitAggDto, err error,
 ) {
-	player, err := serve.playerRepository.Get(playermodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepository.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
 	if err != nil {
 		return unitDtos, err
 	}
 
 	visionBound := player.GetVisionBound()
-	units, err := serve.unitRepository.GetUnitsInBound(worldmodel.NewWorldIdVo(query.WorldId), visionBound)
+	units, err := serve.unitRepository.GetUnitsInBound(commonmodel.NewWorldIdVo(query.WorldId), visionBound)
 	if err != nil {
 		return unitDtos, err
 	}
@@ -94,7 +94,7 @@ func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 }
 
 func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto jsondto.PlayerAggDto, err error) {
-	player, err := serve.playerRepository.Get(playermodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepository.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
 	if err != nil {
 		return playerDto, err
 	}
@@ -102,25 +102,25 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto jsondto.PlayerAgg
 }
 
 func (serve *serve) EnterWorld(command EnterWorldCommand) error {
-	return serve.gameService.EnterWorld(worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameService.EnterWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }
 
 func (serve *serve) Move(command MoveCommand) error {
-	return serve.gameService.Move(worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewDirectionVo(command.Direction))
+	return serve.gameService.Move(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewDirectionVo(command.Direction))
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	return serve.gameService.LeaveWorld(worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameService.LeaveWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	return serve.gameService.PlaceItem(worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameService.PlaceItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
-	return serve.gameService.ChangeHeldItem(worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId), itemmodel.NewItemIdVo(command.ItemId))
+	return serve.gameService.ChangeHeldItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewItemIdVo(command.ItemId))
 }
 
 func (serve *serve) RemoveItem(command RemoveItemCommand) error {
-	return serve.gameService.RemoveItem(worldmodel.NewWorldIdVo(command.WorldId), playermodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameService.RemoveItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }

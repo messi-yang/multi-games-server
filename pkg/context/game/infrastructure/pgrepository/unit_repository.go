@@ -3,9 +3,7 @@ package pgrepository
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
@@ -22,9 +20,9 @@ func newUnitModel(unit unitmodel.UnitAgg) pgmodel.UnitModel {
 
 func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.UnitAgg {
 	return unitmodel.NewUnitAgg(
-		worldmodel.NewWorldIdVo(unitModel.WorldId),
+		commonmodel.NewWorldIdVo(unitModel.WorldId),
 		commonmodel.NewPositionVo(unitModel.PosX, unitModel.PosZ),
-		itemmodel.NewItemIdVo(unitModel.ItemId),
+		commonmodel.NewItemIdVo(unitModel.ItemId),
 		commonmodel.NewDirectionVo(unitModel.Direction),
 	)
 }
@@ -51,7 +49,7 @@ func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
 }
 
 func (repo *unitRepository) GetUnitAt(
-	worldId worldmodel.WorldIdVo, position commonmodel.PositionVo,
+	worldId commonmodel.WorldIdVo, position commonmodel.PositionVo,
 ) (unit unitmodel.UnitAgg, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
 	result := repo.dbClient.Where(
@@ -73,7 +71,7 @@ func (repo *unitRepository) GetUnitAt(
 }
 
 func (repo *unitRepository) GetUnitsInBound(
-	worldId worldmodel.WorldIdVo, bound commonmodel.BoundVo,
+	worldId commonmodel.WorldIdVo, bound commonmodel.BoundVo,
 ) (units []unitmodel.UnitAgg, err error) {
 	var unitModels []pgmodel.UnitModel
 	result := repo.dbClient.Where(
@@ -93,7 +91,7 @@ func (repo *unitRepository) GetUnitsInBound(
 	return units, nil
 }
 
-func (repo *unitRepository) Delete(worldId worldmodel.WorldIdVo, position commonmodel.PositionVo) error {
+func (repo *unitRepository) Delete(worldId commonmodel.WorldIdVo, position commonmodel.PositionVo) error {
 	result := repo.dbClient.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
