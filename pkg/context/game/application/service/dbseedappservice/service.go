@@ -3,9 +3,9 @@ package dbseedappservice
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/common/util/uuidutil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
 )
 
 type Service interface {
