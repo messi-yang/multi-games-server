@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/redispubsub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/redispubsub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/jsonutil"
 	"github.com/gin-gonic/gin"

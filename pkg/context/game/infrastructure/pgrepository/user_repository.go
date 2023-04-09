@@ -1,9 +1,10 @@
 package pgrepository
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/infrastructure/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/pgmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
@@ -18,7 +19,7 @@ func newGamerModel(user gamermodel.GamerAgg) pgmodel.GamerModel {
 func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.GamerAgg {
 	return gamermodel.NewGamerAgg(
 		commonmodel.NewGamerIdVo(gamerModel.Id),
-		commonmodel.NewUserIdVo(gamerModel.UserId),
+		sharedkernelmodel.NewUserIdVo(gamerModel.UserId),
 	)
 }
 

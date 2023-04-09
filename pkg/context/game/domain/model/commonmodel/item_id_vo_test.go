@@ -14,10 +14,10 @@ func Test_ItemIdVo_IsEqual(t *testing.T) {
 	itemId3 := NewItemIdVo(uuid2)
 
 	if !itemId1.IsEqual(itemId2) {
-		t.Errorf("zeroValueItemId is expected to be equal to itemId2")
+		t.Errorf("itemId1 is expected to be equal to itemId2")
 	}
 	if itemId1.IsEqual(itemId3) {
-		t.Errorf("zeroValueItemId is not expected to be equal to itemId3")
+		t.Errorf("itemId1 is expected to be not equal to itemId3")
 	}
 }
 
