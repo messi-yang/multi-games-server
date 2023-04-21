@@ -60,17 +60,23 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	publishPlayersUpdatedEvent := func() {
-		redisChannelPublisher.Publish(
+		err = redisChannelPublisher.Publish(
 			newPlayersUpdatedMessageChannel(worldIdDto),
 			PlayersUpdatedMessage{},
 		)
+		if err != nil {
+			disconnectOnError(err)
+		}
 	}
 
 	publishUnitsUpdatedEvent := func() {
-		redisChannelPublisher.Publish(
+		err = redisChannelPublisher.Publish(
 			NewUnitsUpdatedMessageChannel(worldIdDto),
 			UnitsUpdatedMessage{},
 		)
+		if err != nil {
+			disconnectOnError(err)
+		}
 	}
 
 	doGetNearbyPlayersQuery := func() {

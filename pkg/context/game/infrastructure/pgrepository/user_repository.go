@@ -9,12 +9,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func newGamerModel(user gamermodel.GamerAgg) pgmodel.GamerModel {
-	return pgmodel.GamerModel{
-		Id:     user.GetId().Uuid(),
-		UserId: user.GetUserId().Uuid(),
-	}
-}
+// func newGamerModel(user gamermodel.GamerAgg) pgmodel.GamerModel {
+// 	return pgmodel.GamerModel{
+// 		Id:     user.GetId().Uuid(),
+// 		UserId: user.GetUserId().Uuid(),
+// 	}
+// }
 
 func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.GamerAgg {
 	return gamermodel.NewGamerAgg(

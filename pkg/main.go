@@ -6,6 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/seedclicontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/assethttpcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/authhttpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamerhttpcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamesocketcontroller"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/itemhttpcontroller"
@@ -37,6 +38,7 @@ func main() {
 	worldhttpcontroller.Setup(router)
 	itemhttpcontroller.Setup(router)
 	gamerhttpcontroller.Setup(router)
+	authhttpcontroller.Setup(router)
 	err := router.Run()
 	if err != nil {
 		panic(err)
