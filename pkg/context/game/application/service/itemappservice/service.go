@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	GetItems(GetItemsQuery) ([]jsondto.ItemAggDto, error)
+	QueryItems(QueryItemsQuery) ([]jsondto.ItemAggDto, error)
 }
 
 type serve struct {
@@ -20,7 +20,7 @@ func NewService(itemRepository itemmodel.Repository) Service {
 	}
 }
 
-func (serve *serve) GetItems(query GetItemsQuery) (itemDtos []jsondto.ItemAggDto, err error) {
+func (serve *serve) QueryItems(query QueryItemsQuery) (itemDtos []jsondto.ItemAggDto, err error) {
 	items, err := serve.itemRepository.GetAll()
 	if err != nil {
 		return itemDtos, err

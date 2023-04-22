@@ -1,4 +1,4 @@
-package worldhttpcontroller
+package worldhttphandler
 
 import "github.com/google/uuid"
 

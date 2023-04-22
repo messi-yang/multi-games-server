@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	GetGamers(GetGamersQuery) ([]jsondto.GamerAggDto, error)
+	QueryGamers(QueryGamersQuery) ([]jsondto.GamerAggDto, error)
 }
 
 type serve struct {
@@ -20,7 +20,7 @@ func NewService(gamerRepository gamermodel.Repository) Service {
 	}
 }
 
-func (serve *serve) GetGamers(query GetGamersQuery) (itemDtos []jsondto.GamerAggDto, err error) {
+func (serve *serve) QueryGamers(query QueryGamersQuery) (itemDtos []jsondto.GamerAggDto, err error) {
 	gamers, err := serve.gamerRepository.GetAll()
 	if err != nil {
 		return itemDtos, err

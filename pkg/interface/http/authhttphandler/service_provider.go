@@ -1,4 +1,4 @@
-package authhttpcontroller
+package authhttphandler
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappservice"

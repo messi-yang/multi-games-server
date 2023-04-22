@@ -1,4 +1,4 @@
 package itemappservice
 
-type GetItemsQuery struct {
+type QueryItemsQuery struct {
 }

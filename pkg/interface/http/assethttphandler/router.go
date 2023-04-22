@@ -1,4 +1,4 @@
-package assethttpcontroller
+package assethttphandler
 
 import "github.com/gin-gonic/gin"
 

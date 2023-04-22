@@ -1,4 +1,4 @@
 package gamerappservice
 
-type GetGamersQuery struct {
+type QueryGamersQuery struct {
 }

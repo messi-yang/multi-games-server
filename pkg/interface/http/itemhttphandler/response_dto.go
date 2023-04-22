@@ -1,5 +1,5 @@
-package itemhttpcontroller
+package itemhttphandler
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
 
-type getItemsReponseDto []jsondto.ItemAggDto
+type queryItemsReponseDto []jsondto.ItemAggDto

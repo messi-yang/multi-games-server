@@ -1,4 +1,4 @@
-package gamesocketcontroller
+package gamesockethandler
 
 import "github.com/google/uuid"
 

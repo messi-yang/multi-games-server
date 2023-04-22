@@ -8,4 +8,4 @@ type GetWorldQuery struct {
 	WorldId uuid.UUID
 }
 
-type GetWorldsQuery struct{}
+type QueryWorldsQuery struct{}

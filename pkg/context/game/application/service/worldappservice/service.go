@@ -15,7 +15,7 @@ import (
 
 type Service interface {
 	GetWorld(GetWorldQuery) (jsondto.WorldAggDto, error)
-	GetWorlds(GetWorldsQuery) ([]jsondto.WorldAggDto, error)
+	QueryWorlds(QueryWorldsQuery) ([]jsondto.WorldAggDto, error)
 	CreateWorld(CreateWorldCommand) (uuid.UUID, error)
 }
 
@@ -42,7 +42,7 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldDto jsondto.WorldAggDto,
 	return jsondto.NewWorldAggDto(world), nil
 }
 
-func (serve *serve) GetWorlds(query GetWorldsQuery) (worldDtos []jsondto.WorldAggDto, err error) {
+func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []jsondto.WorldAggDto, err error) {
 	worlds, err := serve.worldRepository.GetAll()
 	if err != nil {
 		return worldDtos, err

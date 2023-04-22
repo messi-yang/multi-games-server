@@ -5,12 +5,12 @@ import (
 	"os"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/seedclicontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/assethttpcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/authhttpcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamerhttpcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamesocketcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/itemhttpcontroller"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/worldhttpcontroller"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/assethttphandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/authhttphandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamerhttphandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/gamesockethandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/itemhttphandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/worldhttphandler"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -33,12 +33,12 @@ func main() {
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
 
-	assethttpcontroller.Setup(router)
-	gamesocketcontroller.Setup(router)
-	worldhttpcontroller.Setup(router)
-	itemhttpcontroller.Setup(router)
-	gamerhttpcontroller.Setup(router)
-	authhttpcontroller.Setup(router)
+	assethttphandler.Setup(router)
+	gamesockethandler.Setup(router)
+	worldhttphandler.Setup(router)
+	itemhttphandler.Setup(router)
+	gamerhttphandler.Setup(router)
+	authhttphandler.Setup(router)
 	err := router.Run()
 	if err != nil {
 		panic(err)

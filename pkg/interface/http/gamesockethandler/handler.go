@@ -1,7 +1,6 @@
-package gamesocketcontroller
+package gamesockethandler
 
 import (
-	"net/http"
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappservice"
@@ -13,16 +12,25 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var wsupgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
+type httpHandler struct {
+	gameAppService gameappservice.Service
+	wsupgrader     websocket.Upgrader
 }
 
-func gameConnectionHandler(c *gin.Context) {
-	socketConn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
+var httpHandlerSingleton *httpHandler
+
+func newHttpHandler(
+	gameAppService gameappservice.Service,
+	wsupgrader websocket.Upgrader,
+) *httpHandler {
+	if httpHandlerSingleton != nil {
+		return httpHandlerSingleton
+	}
+	return &httpHandler{gameAppService: gameAppService, wsupgrader: wsupgrader}
+}
+
+func (httpHandler *httpHandler) gameConnection(c *gin.Context) {
+	socketConn, err := httpHandler.wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
@@ -35,10 +43,6 @@ func gameConnectionHandler(c *gin.Context) {
 	playerIdDto := uuid.New()
 
 	redisChannelPublisher := redispubsub.NewChannelPublisher()
-	gameAppService, err := provideGameAppService()
-	if err != nil {
-		return
-	}
 
 	closeConnChan := make(chan bool)
 	disconnectOnError := func(err error) {
@@ -80,7 +84,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doGetNearbyPlayersQuery := func() {
-		myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
+		myPlayerDto, otherPlayerDtos, err := httpHandler.gameAppService.GetNearbyPlayers(
 			gameappservice.GetNearbyPlayersQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
@@ -98,7 +102,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doGetNearbyUnitsQuery := func() {
-		unitDtos, err := gameAppService.GetNearbyUnits(
+		unitDtos, err := httpHandler.gameAppService.GetNearbyUnits(
 			gameappservice.GetNearbyUnitsQuery{
 				WorldId:  worldIdDto,
 				PlayerId: playerIdDto,
@@ -115,7 +119,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doEnterWorldCommand := func() {
-		err := gameAppService.EnterWorld(gameappservice.EnterWorldCommand{
+		err := httpHandler.gameAppService.EnterWorld(gameappservice.EnterWorldCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		})
@@ -130,12 +134,12 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doMoveCommand := func(directionDto int8) {
-		playerDto, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playerIdDto})
+		playerDto, err := httpHandler.gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playerIdDto})
 		if err != nil {
 			disconnectOnError(err)
 			return
 		}
-		if err := gameAppService.Move(gameappservice.MoveCommand{
+		if err := httpHandler.gameAppService.Move(gameappservice.MoveCommand{
 			WorldId:   worldIdDto,
 			PlayerId:  playerIdDto,
 			Direction: directionDto,
@@ -143,7 +147,7 @@ func gameConnectionHandler(c *gin.Context) {
 			disconnectOnError(err)
 			return
 		}
-		updatedPlayerDto, err := gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playerIdDto})
+		updatedPlayerDto, err := httpHandler.gameAppService.GetPlayer(gameappservice.GetPlayerQuery{PlayerId: playerIdDto})
 		if err != nil {
 			disconnectOnError(err)
 			return
@@ -155,7 +159,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doChangeHeldItemCommand := func(itemIdDto uuid.UUID) {
-		if err = gameAppService.ChangeHeldItem(gameappservice.ChangeHeldItemCommand{
+		if err = httpHandler.gameAppService.ChangeHeldItem(gameappservice.ChangeHeldItemCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 			ItemId:   itemIdDto,
@@ -165,7 +169,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doPlaceItemCommand := func() {
-		if err = gameAppService.PlaceItem(gameappservice.PlaceItemCommand{
+		if err = httpHandler.gameAppService.PlaceItem(gameappservice.PlaceItemCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		}); err != nil {
@@ -174,7 +178,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doRemoveItemCommand := func() {
-		if err = gameAppService.RemoveItem(gameappservice.RemoveItemCommand{
+		if err = httpHandler.gameAppService.RemoveItem(gameappservice.RemoveItemCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		}); err != nil {
@@ -183,7 +187,7 @@ func gameConnectionHandler(c *gin.Context) {
 	}
 
 	doLeaveWorldCommand := func() {
-		if err = gameAppService.LeaveWorld(gameappservice.LeaveWorldCommand{
+		if err = httpHandler.gameAppService.LeaveWorld(gameappservice.LeaveWorldCommand{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		}); err != nil {
