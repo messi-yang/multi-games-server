@@ -3,7 +3,7 @@ package authhttpcontroller
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/pgrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/persistence/pgrepository"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfraservice"
 )
 
