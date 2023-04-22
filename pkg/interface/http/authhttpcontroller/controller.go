@@ -31,7 +31,7 @@ func googleAuthCallbackHandler(c *gin.Context) {
 		fmt.Println(err.Error())
 		return
 	}
-	user, err := identityAppService.LoginOrRegister(
+	userDto, err := identityAppService.LoginOrRegister(
 		identityappservice.LoginOrRegisterCommand{EmailAddress: userEmailAddress},
 	)
 	if err != nil {
@@ -39,7 +39,7 @@ func googleAuthCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(user)
+	fmt.Println(userDto)
 	clientUrl := os.Getenv("CLIENT_URL")
-	c.Redirect(http.StatusFound, fmt.Sprintf("%s/?access_token=%v", clientUrl, user))
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s/?access_token=%v", clientUrl, userDto))
 }
