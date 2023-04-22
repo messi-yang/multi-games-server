@@ -1,7 +1,10 @@
 package pgrepository
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/pgmodel"
 	"gorm.io/gorm"
 )
@@ -14,9 +17,9 @@ func newUserModel(user usermodel.UserAgg) pgmodel.UserModel {
 	}
 }
 
-// func parseUserModel(userModel pgmodel.UserModel) usermodel.UserAgg {
-// 	return usermodel.NewUserAgg(usermodel.NewUserIdVo(userModel.Id), userModel.EmailAddress, userModel.Username)
-// }
+func parseUserModel(userModel pgmodel.UserModel) usermodel.UserAgg {
+	return usermodel.NewUserAgg(sharedkernelmodel.NewUserIdVo(userModel.Id), userModel.EmailAddress, userModel.Username)
+}
 
 type userRepository struct {
 	dbClient *gorm.DB
@@ -37,4 +40,27 @@ func (repo *userRepository) Add(user usermodel.UserAgg) error {
 		return res.Error
 	}
 	return nil
+}
+
+func (repo *userRepository) Get(userId sharedkernelmodel.UserIdVo) (user usermodel.UserAgg, err error) {
+	userModel := pgmodel.UserModel{Id: userId.Uuid()}
+	result := repo.dbClient.First(&userModel)
+	if result.Error != nil {
+		return user, result.Error
+	}
+
+	return parseUserModel(userModel), nil
+}
+
+func (repo *userRepository) GetByEmailAddress(emailAddress string) (user usermodel.UserAgg, exists bool, err error) {
+	var userModel pgmodel.UserModel
+	result := repo.dbClient.First(&userModel, pgmodel.UserModel{})
+	if result.Error != nil {
+		fmt.Println(result.Error, emailAddress)
+		if result.Error == gorm.ErrRecordNotFound {
+			return user, false, nil
+		}
+		return user, exists, result.Error
+	}
+	return parseUserModel(userModel), true, nil
 }

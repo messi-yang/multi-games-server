@@ -1,4 +1,4 @@
-package googleoauthinfraservice
+package googleauthinfraservice
 
 import (
 	"context"

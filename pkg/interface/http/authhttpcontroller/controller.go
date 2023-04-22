@@ -5,27 +5,41 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleoauthinfraservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfraservice"
 	"github.com/gin-gonic/gin"
 )
 
 func goToGoogleAuthUrlHandler(c *gin.Context) {
-	googleOauthInfraService := googleoauthinfraservice.NewService()
-	authUrl := googleOauthInfraService.GenerateAuthUrl(googleoauthinfraservice.GenerateAuthUrlCommand{})
+	googleAuthInfraService := provideGoogleOauthInfraService()
+	authUrl := googleAuthInfraService.GenerateAuthUrl(googleauthinfraservice.GenerateAuthUrlCommand{})
 	c.Redirect(http.StatusFound, authUrl)
 }
 
 func googleAuthCallbackHandler(c *gin.Context) {
 	code := c.Query("code")
-	googleOauthInfraService := googleoauthinfraservice.NewService()
-	userEmailAddress, err := googleOauthInfraService.GetUserEmailAddress(googleoauthinfraservice.GetUserEmailAddressQuery{
+	googleAuthInfraService := provideGoogleOauthInfraService()
+	identityAppService, err := provideIdentityAppService()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	userEmailAddress, err := googleAuthInfraService.GetUserEmailAddress(googleauthinfraservice.GetUserEmailAddressQuery{
 		Code: code,
 	})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
+		return
+	}
+	user, err := identityAppService.LoginOrRegister(
+		identityappservice.LoginOrRegisterCommand{EmailAddress: userEmailAddress},
+	)
+	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
+	fmt.Println(user)
 	clientUrl := os.Getenv("CLIENT_URL")
-	c.Redirect(http.StatusFound, fmt.Sprintf("%s/?email_address=%s", clientUrl, userEmailAddress))
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s/?access_token=%v", clientUrl, user))
 }

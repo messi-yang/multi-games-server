@@ -1,3 +1,3 @@
-package googleoauthinfraservice
+package googleauthinfraservice
 
 type GenerateAuthUrlCommand struct{}
