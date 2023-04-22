@@ -1,13 +1,23 @@
 package authhttphandler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/persistence/pgrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfraservice"
+	"github.com/gin-gonic/gin"
+)
 
 func Setup(router *gin.Engine) {
-	googleAuthInfraService := provideGoogleOauthInfraService()
-	identityAppService, err := provideIdentityAppService()
+	googleAuthInfraService := googleauthinfraservice.NewService()
+
+	userRepository, err := pgrepository.NewUserRepository()
 	if err != nil {
 		panic(err)
 	}
+	identityService := service.NewIdentityService(userRepository)
+	identityAppService := identityappservice.NewService(userRepository, identityService)
+
 	httpHandler := newHttpHandler(googleAuthInfraService, identityAppService)
 
 	routerGroup := router.Group("/auth")
