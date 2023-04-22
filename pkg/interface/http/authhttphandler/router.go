@@ -20,7 +20,7 @@ func Setup(router *gin.Engine) {
 
 	httpHandler := newHttpHandler(googleAuthInfraService, identityAppService)
 
-	routerGroup := router.Group("/auth")
+	routerGroup := router.Group("/api/auth")
 	routerGroup.GET("/oauth2/google", httpHandler.goToGoogleAuthUrl)
 	routerGroup.GET("/oauth2/google/redirect", httpHandler.googleAuthCallback)
 }
