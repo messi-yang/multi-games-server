@@ -30,7 +30,7 @@ func NewService() Service {
 		config: &oauth2.Config{
 			ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 			ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-			RedirectURL:  fmt.Sprintf("%s/auth/oauth2/google/redirect", os.Getenv("SERVER_URL")),
+			RedirectURL:  fmt.Sprintf("%s/api/auth/oauth2/google/redirect", os.Getenv("SERVER_URL")),
 			Scopes: []string{
 				"https://www.googleapis.com/auth/userinfo.email",
 			},
