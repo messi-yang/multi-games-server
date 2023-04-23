@@ -5,25 +5,30 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappservice"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfraservice"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type httpHandler struct {
 	googleAuthInfraService googleauthinfraservice.Service
 	identityAppService     identityappservice.Service
+	gamerappservice        gamerappservice.Service
 }
 
 var httpHandlerSingleton *httpHandler
 
 func newHttpHandler(
-	googleAuthInfraService googleauthinfraservice.Service, identityAppService identityappservice.Service,
+	googleAuthInfraService googleauthinfraservice.Service,
+	identityAppService identityappservice.Service,
+	gamerappservice gamerappservice.Service,
 ) *httpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &httpHandler{googleAuthInfraService: googleAuthInfraService, identityAppService: identityAppService}
+	return &httpHandler{googleAuthInfraService, identityAppService, gamerappservice}
 }
 
 func (httpHandler *httpHandler) goToGoogleAuthUrl(c *gin.Context) {
@@ -40,8 +45,38 @@ func (httpHandler *httpHandler) googleAuthCallback(c *gin.Context) {
 		fmt.Println(err.Error())
 		return
 	}
-	accessToken, err := httpHandler.identityAppService.LoginOrRegister(
-		identityappservice.LoginOrRegisterCommand{EmailAddress: userEmailAddress},
+
+	userDto, userFound, err := httpHandler.identityAppService.FindUserByEmailAddress(identityappservice.FindUserByEmailAddressQuery{
+		EmailAddress: userEmailAddress,
+	})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	var userIdDto uuid.UUID
+	if userFound {
+		fmt.Println("Logged in")
+		userIdDto = userDto.Id
+	} else {
+		newUserIdDto, err := httpHandler.identityAppService.Register(identityappservice.RegisterCommand{EmailAddress: userEmailAddress})
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		userIdDto = newUserIdDto
+
+		if _, err = httpHandler.gamerappservice.CreateGamer(gamerappservice.CreateGamerCommand{
+			UserId: userIdDto,
+		}); err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		fmt.Println("Registred")
+	}
+
+	accessToken, err := httpHandler.identityAppService.Login(
+		identityappservice.LoginCommand{UserId: userIdDto},
 	)
 	if err != nil {
 		fmt.Println(err.Error())

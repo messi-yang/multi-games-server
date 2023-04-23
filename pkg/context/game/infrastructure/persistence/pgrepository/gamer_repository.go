@@ -9,12 +9,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// func newGamerModel(user gamermodel.GamerAgg) pgmodel.GamerModel {
-// 	return pgmodel.GamerModel{
-// 		Id:     user.GetId().Uuid(),
-// 		UserId: user.GetUserId().Uuid(),
-// 	}
-// }
+func newGamerModel(user gamermodel.GamerAgg) pgmodel.GamerModel {
+	return pgmodel.GamerModel{
+		Id:     user.GetId().Uuid(),
+		UserId: user.GetUserId().Uuid(),
+	}
+}
 
 func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.GamerAgg {
 	return gamermodel.NewGamerAgg(
@@ -33,6 +33,37 @@ func NewGamerRepository() (repository gamermodel.Repository, err error) {
 		return repository, err
 	}
 	return &gamerRepository{dbClient: dbClient}, nil
+}
+
+func (repo *gamerRepository) Add(gamer gamermodel.GamerAgg) error {
+	gamerModel := newGamerModel(gamer)
+	res := repo.dbClient.Create(&gamerModel)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
+func (repo *gamerRepository) Get(gamerId commonmodel.GamerIdVo) (gamer gamermodel.GamerAgg, err error) {
+	gamerModel := pgmodel.GamerModel{Id: gamerId.Uuid()}
+	result := repo.dbClient.First(&gamerModel)
+	if result.Error != nil {
+		return gamer, result.Error
+	}
+	return parseGamerModel(gamerModel), nil
+}
+
+func (repo *gamerRepository) FindGamerByUserId(userId sharedkernelmodel.UserIdVo) (gamer gamermodel.GamerAgg, gamerFound bool, err error) {
+	gamerModels := []pgmodel.GamerModel{}
+	result := repo.dbClient.Find(&gamerModels, pgmodel.GamerModel{UserId: userId.Uuid()})
+	if result.Error != nil {
+		return gamer, gamerFound, result.Error
+	}
+	gamerFound = result.RowsAffected >= 1
+	if !gamerFound {
+		return gamer, false, nil
+	}
+	return parseGamerModel(gamerModels[0]), true, nil
 }
 
 func (repo *gamerRepository) GetAll() (gamers []gamermodel.GamerAgg, err error) {

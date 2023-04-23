@@ -1,8 +1,6 @@
 package pgrepository
 
 import (
-	"fmt"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
@@ -52,15 +50,15 @@ func (repo *userRepository) Get(userId sharedkernelmodel.UserIdVo) (user usermod
 	return parseUserModel(userModel), nil
 }
 
-func (repo *userRepository) GetByEmailAddress(emailAddress string) (user usermodel.UserAgg, exists bool, err error) {
-	var userModel pgmodel.UserModel
-	result := repo.dbClient.First(&userModel, pgmodel.UserModel{})
+func (repo *userRepository) FindUserByEmailAddress(emailAddress string) (user usermodel.UserAgg, userFound bool, err error) {
+	userModels := []pgmodel.UserModel{}
+	result := repo.dbClient.Find(&userModels, pgmodel.UserModel{EmailAddress: emailAddress})
 	if result.Error != nil {
-		fmt.Println(result.Error, emailAddress)
-		if result.Error == gorm.ErrRecordNotFound {
-			return user, false, nil
-		}
-		return user, exists, result.Error
+		return user, userFound, result.Error
 	}
-	return parseUserModel(userModel), true, nil
+	userFound = result.RowsAffected >= 1
+	if !userFound {
+		return user, false, nil
+	}
+	return parseUserModel(userModels[0]), true, nil
 }
