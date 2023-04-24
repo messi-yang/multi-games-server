@@ -8,12 +8,12 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/service/identitydomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/persistence/pgrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfraservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfrasrv"
 	"github.com/gin-gonic/gin"
 )
 
 func Setup(router *gin.Engine) {
-	googleAuthInfraService := googleauthinfraservice.NewService()
+	googleAuthInfraService := googleauthinfrasrv.NewService()
 
 	userRepo, err := pgrepo.NewUserRepo()
 	if err != nil {

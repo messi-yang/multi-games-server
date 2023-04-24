@@ -7,13 +7,13 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappsrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfraservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfrasrv"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type httpHandler struct {
-	googleAuthInfraService googleauthinfraservice.Service
+	googleAuthInfraService googleauthinfrasrv.Service
 	identityAppService     identityappsrv.Service
 	gamerappsrv            gamerappsrv.Service
 }
@@ -21,7 +21,7 @@ type httpHandler struct {
 var httpHandlerSingleton *httpHandler
 
 func newHttpHandler(
-	googleAuthInfraService googleauthinfraservice.Service,
+	googleAuthInfraService googleauthinfrasrv.Service,
 	identityAppService identityappsrv.Service,
 	gamerappsrv gamerappsrv.Service,
 ) *httpHandler {
@@ -32,13 +32,13 @@ func newHttpHandler(
 }
 
 func (httpHandler *httpHandler) goToGoogleAuthUrl(c *gin.Context) {
-	authUrl := httpHandler.googleAuthInfraService.GenerateAuthUrl(googleauthinfraservice.GenerateAuthUrlCommand{})
+	authUrl := httpHandler.googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{})
 	c.Redirect(http.StatusFound, authUrl)
 }
 
 func (httpHandler *httpHandler) googleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
-	userEmailAddress, err := httpHandler.googleAuthInfraService.GetUserEmailAddress(googleauthinfraservice.GetUserEmailAddressQuery{
+	userEmailAddress, err := httpHandler.googleAuthInfraService.GetUserEmailAddress(googleauthinfrasrv.GetUserEmailAddressQuery{
 		Code: code,
 	})
 	if err != nil {
