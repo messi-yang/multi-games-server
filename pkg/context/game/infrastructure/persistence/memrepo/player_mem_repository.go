@@ -41,7 +41,7 @@ func (repo *playerMemRepository) Get(playerId commonmodel.PlayerIdVo) (playermod
 	return foundPlayer, nil
 }
 
-func (repo *playerMemRepository) GetPlayerAt(worldId commonmodel.WorldIdVo, position commonmodel.PositionVo) (playermodel.PlayerAgg, bool, error) {
+func (repo *playerMemRepository) FindPlayerAt(worldId commonmodel.WorldIdVo, position commonmodel.PositionVo) (playermodel.PlayerAgg, bool, error) {
 	foundPlayer, found := lo.Find(repo.players, func(player playermodel.PlayerAgg) bool {
 		return player.GetWorldId().IsEqual(worldId) && player.GetPosition().IsEqual(position)
 	})

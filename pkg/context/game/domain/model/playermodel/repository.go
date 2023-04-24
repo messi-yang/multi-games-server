@@ -14,7 +14,7 @@ var (
 type Repository interface {
 	Add(PlayerAgg) error
 	Get(commonmodel.PlayerIdVo) (PlayerAgg, error)
-	GetPlayerAt(commonmodel.WorldIdVo, commonmodel.PositionVo) (player PlayerAgg, found bool, err error)
+	FindPlayerAt(commonmodel.WorldIdVo, commonmodel.PositionVo) (player PlayerAgg, found bool, err error)
 	GetPlayersAround(commonmodel.WorldIdVo, commonmodel.PositionVo) ([]PlayerAgg, error)
 	Update(PlayerAgg) error
 	Delete(commonmodel.PlayerIdVo) error

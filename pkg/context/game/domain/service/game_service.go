@@ -166,7 +166,7 @@ func (serve *gameServe) PlaceItem(worldId commonmodel.WorldIdVo, playerId common
 		return nil
 	}
 
-	_, playerFound, err := serve.playerRepository.GetPlayerAt(worldId, newItemPos)
+	_, playerFound, err := serve.playerRepository.FindPlayerAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
