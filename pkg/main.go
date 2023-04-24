@@ -24,11 +24,11 @@ func main() {
 	if len(args) > 0 {
 		switch args[0] {
 		case "db-seed":
-			itemRepository, err := pgrepo.NewItemRepository()
+			itemRepo, err := pgrepo.NewItemRepo()
 			if err != nil {
 				panic(err)
 			}
-			dbSeedAppService := dbseedappsrv.NewService(itemRepository)
+			dbSeedAppService := dbseedappsrv.NewService(itemRepo)
 			seedCliHandler := seedclihandler.NewHandler(dbSeedAppService)
 			seedCliHandler.Exec()
 			os.Exit(0)

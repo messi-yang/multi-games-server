@@ -22,17 +22,17 @@ type Service interface {
 }
 
 type serve struct {
-	userRepository  usermodel.Repository
+	userRepo        usermodel.Repo
 	identityService identitydomainsrv.Service
 	authSecret      string
 }
 
-func NewService(userRepository usermodel.Repository, identityService identitydomainsrv.Service, authSecret string) Service {
-	return &serve{userRepository: userRepository, identityService: identityService, authSecret: authSecret}
+func NewService(userRepo usermodel.Repo, identityService identitydomainsrv.Service, authSecret string) Service {
+	return &serve{userRepo: userRepo, identityService: identityService, authSecret: authSecret}
 }
 
 func (serve *serve) FindUserByEmailAddress(query FindUserByEmailAddressQuery) (userAggDto jsondto.UserAggDto, found bool, err error) {
-	user, found, err := serve.userRepository.FindUserByEmailAddress(query.EmailAddress)
+	user, found, err := serve.userRepo.FindUserByEmailAddress(query.EmailAddress)
 	if err != nil {
 		return userAggDto, found, err
 	}
@@ -43,7 +43,7 @@ func (serve *serve) FindUserByEmailAddress(query FindUserByEmailAddressQuery) (u
 }
 
 func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err error) {
-	_, userFound, err := serve.userRepository.FindUserByEmailAddress(command.EmailAddress)
+	_, userFound, err := serve.userRepo.FindUserByEmailAddress(command.EmailAddress)
 	if err != nil {
 		return userIdDto, err
 	}
@@ -61,7 +61,7 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 }
 
 func (serve *serve) Login(command LoginCommand) (accessToken string, err error) {
-	user, err := serve.userRepository.Get(sharedkernelmodel.NewUserIdVo(command.UserId))
+	user, err := serve.userRepo.Get(sharedkernelmodel.NewUserIdVo(command.UserId))
 	if err != nil {
 		return accessToken, err
 	}

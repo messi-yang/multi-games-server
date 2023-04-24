@@ -7,11 +7,11 @@ import (
 )
 
 func Setup(router *gin.Engine) {
-	itemRepository, err := pgrepo.NewItemRepository()
+	itemRepo, err := pgrepo.NewItemRepo()
 	if err != nil {
 		panic(err)
 	}
-	itemAppService := itemappsrv.NewService(itemRepository)
+	itemAppService := itemappsrv.NewService(itemRepo)
 	httpHandler := newHttpHandler(itemAppService)
 
 	routerGroup := router.Group("/api/items")

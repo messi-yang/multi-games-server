@@ -20,19 +20,19 @@ func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.WorldAgg {
 	return worldmodel.NewWorldAgg(commonmodel.NewWorldIdVo(worldModel.Id), commonmodel.NewGamerIdVo(worldModel.GamerId))
 }
 
-type worldRepository struct {
+type worldRepo struct {
 	dbClient *gorm.DB
 }
 
-func NewWorldRepository() (repository worldmodel.Repository, err error) {
+func NewWorldRepo() (repository worldmodel.Repo, err error) {
 	dbClient, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &worldRepository{dbClient: dbClient}, nil
+	return &worldRepo{dbClient: dbClient}, nil
 }
 
-func (repo *worldRepository) Get(worldId commonmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
+func (repo *worldRepo) Get(worldId commonmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
 	result := repo.dbClient.First(&worldModel)
 	if result.Error != nil {
@@ -41,7 +41,7 @@ func (repo *worldRepository) Get(worldId commonmodel.WorldIdVo) (world worldmode
 	return parseWorldModel(worldModel), nil
 }
 
-func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) {
+func (repo *worldRepo) GetAll() (worlds []worldmodel.WorldAgg, err error) {
 	var worldModels []pgmodel.WorldModel
 	result := repo.dbClient.Find(&worldModels).Limit(10)
 	if result.Error != nil {
@@ -54,7 +54,7 @@ func (repo *worldRepository) GetAll() (worlds []worldmodel.WorldAgg, err error) 
 	return worlds, nil
 }
 
-func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
+func (repo *worldRepo) Add(world worldmodel.WorldAgg) error {
 	worldModel := newWorldModel(world)
 	res := repo.dbClient.Create(&worldModel)
 	if res.Error != nil {
@@ -63,10 +63,10 @@ func (repo *worldRepository) Add(world worldmodel.WorldAgg) error {
 	return nil
 }
 
-func (repo *worldRepository) ReadLockAccess(worldId commonmodel.WorldIdVo) func() {
+func (repo *worldRepo) ReadLockAccess(worldId commonmodel.WorldIdVo) func() {
 	return func() {}
 }
 
-func (repo *worldRepository) LockAccess(worldId commonmodel.WorldIdVo) func() {
+func (repo *worldRepo) LockAccess(worldId commonmodel.WorldIdVo) func() {
 	return func() {}
 }

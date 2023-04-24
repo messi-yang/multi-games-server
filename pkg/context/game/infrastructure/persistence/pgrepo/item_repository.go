@@ -32,19 +32,19 @@ func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.ItemAgg {
 	)
 }
 
-type itemRepository struct {
+type itemRepo struct {
 	dbClient *gorm.DB
 }
 
-func NewItemRepository() (repository itemmodel.Repository, err error) {
+func NewItemRepo() (repository itemmodel.Repo, err error) {
 	dbClient, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &itemRepository{dbClient: dbClient}, nil
+	return &itemRepo{dbClient: dbClient}, nil
 }
 
-func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
+func (repo *itemRepo) GetAll() (items []itemmodel.ItemAgg, err error) {
 	var itemModels []pgmodel.ItemModel
 	result := repo.dbClient.Find(&itemModels)
 	if result.Error != nil {
@@ -58,7 +58,7 @@ func (repo *itemRepository) GetAll() (items []itemmodel.ItemAgg, err error) {
 	return items, nil
 }
 
-func (repo *itemRepository) Get(itemId commonmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
+func (repo *itemRepo) Get(itemId commonmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
 	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
 	result := repo.dbClient.First(&itemModel)
 	if result.Error != nil {
@@ -68,7 +68,7 @@ func (repo *itemRepository) Get(itemId commonmodel.ItemIdVo) (item itemmodel.Ite
 	return parseItemModel(itemModel), nil
 }
 
-func (repo *itemRepository) GetFirstItem() (item itemmodel.ItemAgg, err error) {
+func (repo *itemRepo) GetFirstItem() (item itemmodel.ItemAgg, err error) {
 	itemModel := pgmodel.ItemModel{}
 	result := repo.dbClient.First(&itemModel)
 	if result.Error != nil {
@@ -78,7 +78,7 @@ func (repo *itemRepository) GetFirstItem() (item itemmodel.ItemAgg, err error) {
 	return parseItemModel(itemModel), nil
 }
 
-func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
+func (repo *itemRepo) Add(item itemmodel.ItemAgg) error {
 	itemModel := newItemModel(item)
 	res := repo.dbClient.Create(&itemModel)
 	if res.Error != nil {
@@ -87,7 +87,7 @@ func (repo *itemRepository) Add(item itemmodel.ItemAgg) error {
 	return nil
 }
 
-func (repo *itemRepository) Update(item itemmodel.ItemAgg) error {
+func (repo *itemRepo) Update(item itemmodel.ItemAgg) error {
 	itemModel := newItemModel(item)
 	res := repo.dbClient.Save(&itemModel)
 	if res.Error != nil {

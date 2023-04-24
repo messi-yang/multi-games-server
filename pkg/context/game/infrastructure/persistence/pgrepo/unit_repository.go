@@ -27,19 +27,19 @@ func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.UnitAgg {
 	)
 }
 
-type unitRepository struct {
+type unitRepo struct {
 	dbClient *gorm.DB
 }
 
-func NewUnitRepository() (repository unitmodel.Repository, err error) {
+func NewUnitRepo() (repository unitmodel.Repo, err error) {
 	dbClient, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &unitRepository{dbClient: dbClient}, nil
+	return &unitRepo{dbClient: dbClient}, nil
 }
 
-func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
+func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	unitModel := newUnitModel(unit)
 	res := repo.dbClient.Create(&unitModel)
 	if res.Error != nil {
@@ -48,7 +48,7 @@ func (repo *unitRepository) Add(unit unitmodel.UnitAgg) error {
 	return nil
 }
 
-func (repo *unitRepository) GetUnitAt(
+func (repo *unitRepo) GetUnitAt(
 	worldId commonmodel.WorldIdVo, position commonmodel.PositionVo,
 ) (unit unitmodel.UnitAgg, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
@@ -70,7 +70,7 @@ func (repo *unitRepository) GetUnitAt(
 	return unit, found, nil
 }
 
-func (repo *unitRepository) GetUnitsInBound(
+func (repo *unitRepo) GetUnitsInBound(
 	worldId commonmodel.WorldIdVo, bound commonmodel.BoundVo,
 ) (units []unitmodel.UnitAgg, err error) {
 	var unitModels []pgmodel.UnitModel
@@ -91,7 +91,7 @@ func (repo *unitRepository) GetUnitsInBound(
 	return units, nil
 }
 
-func (repo *unitRepository) Delete(worldId commonmodel.WorldIdVo, position commonmodel.PositionVo) error {
+func (repo *unitRepo) Delete(worldId commonmodel.WorldIdVo, position commonmodel.PositionVo) error {
 	result := repo.dbClient.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),

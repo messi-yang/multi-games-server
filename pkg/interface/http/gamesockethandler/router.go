@@ -12,22 +12,22 @@ import (
 )
 
 func Setup(router *gin.Engine) {
-	itemRepository, err := pgrepo.NewItemRepository()
+	itemRepo, err := pgrepo.NewItemRepo()
 	if err != nil {
 		panic(err)
 	}
-	playerRepository := memrepo.NewPlayerMemRepository()
-	worldRepository, err := pgrepo.NewWorldRepository()
+	playerRepo := memrepo.NewPlayerMemRepo()
+	worldRepo, err := pgrepo.NewWorldRepo()
 	if err != nil {
 		panic(err)
 	}
-	unitRepository, err := pgrepo.NewUnitRepository()
+	unitRepo, err := pgrepo.NewUnitRepo()
 	if err != nil {
 		panic(err)
 	}
-	gameDomainService := gamedomainsrv.NewService(worldRepository, playerRepository, unitRepository, itemRepository)
+	gameDomainService := gamedomainsrv.NewService(worldRepo, playerRepo, unitRepo, itemRepo)
 	gameAppService := gameappsrv.NewService(
-		worldRepository, playerRepository, unitRepository, itemRepository, gameDomainService,
+		worldRepo, playerRepo, unitRepo, itemRepo, gameDomainService,
 	)
 	httpHandler := newHttpHandler(gameAppService, websocket.Upgrader{
 		ReadBufferSize:  1024,

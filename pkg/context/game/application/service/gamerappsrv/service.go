@@ -17,18 +17,18 @@ type Service interface {
 }
 
 type serve struct {
-	gamerRepository gamermodel.Repository
+	gamerRepo gamermodel.Repo
 }
 
-func NewService(gamerRepository gamermodel.Repository) Service {
+func NewService(gamerRepo gamermodel.Repo) Service {
 	return &serve{
-		gamerRepository: gamerRepository,
+		gamerRepo: gamerRepo,
 	}
 }
 
 func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUID, err error) {
 	userId := sharedkernelmodel.NewUserIdVo(command.UserId)
-	_, gamerFound, err := serve.gamerRepository.FindGamerByUserId(userId)
+	_, gamerFound, err := serve.gamerRepo.FindGamerByUserId(userId)
 	if err != nil {
 		return gamerIdDto, err
 	}
@@ -36,7 +36,7 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 		return gamerIdDto, fmt.Errorf("already has a gamer with userId of %s", userId.Uuid().String())
 	}
 	newGamer := gamermodel.NewGamerAgg(commonmodel.NewGamerIdVo(uuid.New()), userId)
-	err = serve.gamerRepository.Add(newGamer)
+	err = serve.gamerRepo.Add(newGamer)
 	if err != nil {
 		return gamerIdDto, err
 	}
@@ -44,7 +44,7 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 }
 
 func (serve *serve) QueryGamers(query QueryGamersQuery) (itemDtos []jsondto.GamerAggDto, err error) {
-	gamers, err := serve.gamerRepository.GetAll()
+	gamers, err := serve.gamerRepo.GetAll()
 	if err != nil {
 		return itemDtos, err
 	}

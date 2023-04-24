@@ -26,19 +26,19 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepository   worldmodel.Repository
-	playerRepository  playermodel.Repository
-	unitRepository    unitmodel.Repository
-	itemRepository    itemmodel.Repository
+	worldRepo         worldmodel.Repo
+	playerRepo        playermodel.Repo
+	unitRepo          unitmodel.Repo
+	itemRepo          itemmodel.Repo
 	gameDomainService gamedomainsrv.Service
 }
 
-func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository, gameDomainService gamedomainsrv.Service) Service {
+func NewService(worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo, gameDomainService gamedomainsrv.Service) Service {
 	return &serve{
-		worldRepository:   worldRepository,
-		playerRepository:  playerRepository,
-		unitRepository:    unitRepository,
-		itemRepository:    itemRepository,
+		worldRepo:         worldRepo,
+		playerRepo:        playerRepo,
+		unitRepo:          unitRepo,
+		itemRepo:          itemRepo,
 		gameDomainService: gameDomainService,
 	}
 }
@@ -46,12 +46,12 @@ func NewService(worldRepository worldmodel.Repository, playerRepository playermo
 func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 	myPlayerDto jsondto.PlayerAggDto, otherPlayerDtos []jsondto.PlayerAggDto, err error,
 ) {
-	player, err := serve.playerRepository.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepo.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
 	if err != nil {
 		return myPlayerDto, otherPlayerDtos, err
 	}
 
-	players, err := serve.playerRepository.GetPlayersAround(commonmodel.NewWorldIdVo(query.WorldId), player.GetPosition())
+	players, err := serve.playerRepo.GetPlayersAround(commonmodel.NewWorldIdVo(query.WorldId), player.GetPosition())
 	if err != nil {
 		return myPlayerDto, otherPlayerDtos, err
 	}
@@ -76,13 +76,13 @@ func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 	unitDtos []jsondto.UnitAggDto, err error,
 ) {
-	player, err := serve.playerRepository.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepo.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
 	if err != nil {
 		return unitDtos, err
 	}
 
 	visionBound := player.GetVisionBound()
-	units, err := serve.unitRepository.GetUnitsInBound(commonmodel.NewWorldIdVo(query.WorldId), visionBound)
+	units, err := serve.unitRepo.GetUnitsInBound(commonmodel.NewWorldIdVo(query.WorldId), visionBound)
 	if err != nil {
 		return unitDtos, err
 	}
@@ -94,7 +94,7 @@ func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 }
 
 func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto jsondto.PlayerAggDto, err error) {
-	player, err := serve.playerRepository.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepo.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
 	if err != nil {
 		return playerDto, err
 	}

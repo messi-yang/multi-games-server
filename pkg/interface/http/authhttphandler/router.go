@@ -15,18 +15,18 @@ import (
 func Setup(router *gin.Engine) {
 	googleAuthInfraService := googleauthinfraservice.NewService()
 
-	userRepository, err := pgrepo.NewUserRepository()
+	userRepo, err := pgrepo.NewUserRepo()
 	if err != nil {
 		panic(err)
 	}
-	identityService := identitydomainsrv.NewService(userRepository)
-	identityAppService := identityappsrv.NewService(userRepository, identityService, os.Getenv("AUTH_SECRET"))
+	identityService := identitydomainsrv.NewService(userRepo)
+	identityAppService := identityappsrv.NewService(userRepo, identityService, os.Getenv("AUTH_SECRET"))
 
-	gamerRepository, err := game_pgrepository.NewGamerRepository()
+	gamerRepo, err := game_pgrepository.NewGamerRepo()
 	if err != nil {
 		panic(err)
 	}
-	gamerAppService := gamerappsrv.NewService(gamerRepository)
+	gamerAppService := gamerappsrv.NewService(gamerRepo)
 
 	httpHandler := newHttpHandler(googleAuthInfraService, identityAppService, gamerAppService)
 

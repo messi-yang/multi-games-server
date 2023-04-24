@@ -13,12 +13,12 @@ type Service interface {
 }
 
 type serve struct {
-	itemRepository itemmodel.Repository
+	itemRepo itemmodel.Repo
 }
 
-func NewService(itemRepository itemmodel.Repository) Service {
+func NewService(itemRepo itemmodel.Repo) Service {
 	return &serve{
-		itemRepository: itemRepository,
+		itemRepo: itemRepo,
 	}
 }
 
@@ -51,15 +51,15 @@ func (serve *serve) AddDefaultItems() error {
 	}
 
 	for _, item := range items {
-		if _, err := serve.itemRepository.Get(item.GetId()); err != nil {
+		if _, err := serve.itemRepo.Get(item.GetId()); err != nil {
 			fmt.Printf("Add new item \"%s\"\n", item.GetName())
-			err := serve.itemRepository.Add(item)
+			err := serve.itemRepo.Add(item)
 			if err != nil {
 				return err
 			}
 		} else {
 			fmt.Printf("Update existing item \"%s\"\n", item.GetName())
-			err = serve.itemRepository.Update(item)
+			err = serve.itemRepo.Update(item)
 			if err != nil {
 				return err
 			}

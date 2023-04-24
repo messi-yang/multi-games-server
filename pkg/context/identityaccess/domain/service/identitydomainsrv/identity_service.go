@@ -11,16 +11,16 @@ type Service interface {
 }
 
 type serve struct {
-	userRepository usermodel.Repository
+	userRepo usermodel.Repo
 }
 
-func NewService(userRepository usermodel.Repository) Service {
-	return &serve{userRepository: userRepository}
+func NewService(userRepo usermodel.Repo) Service {
+	return &serve{userRepo: userRepo}
 }
 
 func (serve *serve) Register(emailAddress string, username string) (user usermodel.UserAgg, err error) {
 	user = usermodel.NewUserAgg(sharedkernelmodel.NewUserIdVo(uuid.New()), emailAddress, username)
-	err = serve.userRepository.Add(user)
+	err = serve.userRepo.Add(user)
 	if err != nil {
 		return user, err
 	}

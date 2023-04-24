@@ -20,22 +20,22 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepository worldmodel.Repository
-	unitRepository  unitmodel.Repository
-	itemRepository  itemmodel.Repository
+	worldRepo worldmodel.Repo
+	unitRepo  unitmodel.Repo
+	itemRepo  itemmodel.Repo
 }
 
-func NewService(worldRepository worldmodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+func NewService(worldRepo worldmodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
 	return &serve{
-		worldRepository: worldRepository,
-		unitRepository:  unitRepository,
-		itemRepository:  itemRepository,
+		worldRepo: worldRepo,
+		unitRepo:  unitRepo,
+		itemRepo:  itemRepo,
 	}
 }
 
 func (serve *serve) GetWorld(query GetWorldQuery) (worldDto jsondto.WorldAggDto, err error) {
 	worldId := commonmodel.NewWorldIdVo(query.WorldId)
-	world, err := serve.worldRepository.Get(worldId)
+	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
 		return worldDto, err
 	}
@@ -43,7 +43,7 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldDto jsondto.WorldAggDto,
 }
 
 func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []jsondto.WorldAggDto, err error) {
-	worlds, err := serve.worldRepository.GetAll()
+	worlds, err := serve.worldRepo.GetAll()
 	if err != nil {
 		return worldDtos, err
 	}
@@ -58,12 +58,12 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 	gamerId := commonmodel.NewGamerIdVo(command.GamerId)
 	newWorld := worldmodel.NewWorldAgg(worldId, gamerId)
 
-	err = serve.worldRepository.Add(newWorld)
+	err = serve.worldRepo.Add(newWorld)
 	if err != nil {
 		return newWorldIdDto, err
 	}
 
-	items, err := serve.itemRepository.GetAll()
+	items, err := serve.itemRepo.GetAll()
 	if err != nil {
 		return newWorldIdDto, err
 	}
@@ -73,7 +73,7 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 		position := commonmodel.NewPositionVo(x-50, z-50)
 		if randomInt < 3 {
 			newUnit := unitmodel.NewUnitAgg(worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirectionVo())
-			err = serve.unitRepository.Add(newUnit)
+			err = serve.unitRepo.Add(newUnit)
 			if err != nil {
 				return err
 			}

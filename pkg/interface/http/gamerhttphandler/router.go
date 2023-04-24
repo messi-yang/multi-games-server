@@ -7,13 +7,13 @@ import (
 )
 
 func Setup(router *gin.Engine) {
-	gamerRepository, err := pgrepo.NewGamerRepository()
+	gamerRepo, err := pgrepo.NewGamerRepo()
 	if err != nil {
 		if err != nil {
 			panic(err)
 		}
 	}
-	gamerAppService := gamerappsrv.NewService(gamerRepository)
+	gamerAppService := gamerappsrv.NewService(gamerRepo)
 	httpHandler := newHttpHandler(gamerAppService)
 
 	routerGroup := router.Group("/api/gamers")

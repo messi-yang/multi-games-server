@@ -7,19 +7,19 @@ import (
 )
 
 func Setup(router *gin.Engine) {
-	worldRepository, err := pgrepo.NewWorldRepository()
+	worldRepo, err := pgrepo.NewWorldRepo()
 	if err != nil {
 		panic(err)
 	}
-	itemRepository, err := pgrepo.NewItemRepository()
+	itemRepo, err := pgrepo.NewItemRepo()
 	if err != nil {
 		panic(err)
 	}
-	unitRepository, err := pgrepo.NewUnitRepository()
+	unitRepo, err := pgrepo.NewUnitRepo()
 	if err != nil {
 		panic(err)
 	}
-	worldAppService := worldappsrv.NewService(worldRepository, unitRepository, itemRepository)
+	worldAppService := worldappsrv.NewService(worldRepo, unitRepo, itemRepo)
 	httphandler := newHttpHandler(worldAppService)
 
 	routerGroup := router.Group("/api/worlds")

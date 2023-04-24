@@ -18,25 +18,25 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepository  worldmodel.Repository
-	playerRepository playermodel.Repository
-	unitRepository   unitmodel.Repository
-	itemRepository   itemmodel.Repository
+	worldRepo  worldmodel.Repo
+	playerRepo playermodel.Repo
+	unitRepo   unitmodel.Repo
+	itemRepo   itemmodel.Repo
 }
 
-func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
-	return &serve{worldRepository: worldRepository, playerRepository: playerRepository, unitRepository: unitRepository, itemRepository: itemRepository}
+func NewService(worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
+	return &serve{worldRepo: worldRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
 func (serve *serve) EnterWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
-	unlocker := serve.worldRepository.LockAccess(worldId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
 
-	firstItem, err := serve.itemRepository.GetFirstItem()
+	firstItem, err := serve.itemRepo.GetFirstItem()
 	if err != nil {
 		return err
 	}
@@ -45,41 +45,41 @@ func (serve *serve) EnterWorld(worldId commonmodel.WorldIdVo, playerId commonmod
 	direction := commonmodel.NewDownDirectionVo()
 	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction, &firstItemId)
 
-	return serve.playerRepository.Add(newPlayer)
+	return serve.playerRepo.Add(newPlayer)
 }
 
 func (serve *serve) Move(
 	worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo, direction commonmodel.DirectionVo,
 ) error {
-	unlocker := serve.worldRepository.LockAccess(worldId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
 
-	player, err := serve.playerRepository.Get(playerId)
+	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
 	}
 
 	if !direction.IsEqual(player.GetDirection()) {
 		player.ChangeDirection(direction)
-		err = serve.playerRepository.Update(player)
+		err = serve.playerRepo.Update(player)
 		return err
 	}
 
 	player.ChangeDirection(direction)
 	newItemPos := player.GetPositionOneStepFoward()
 
-	unit, unitFound, err := serve.unitRepository.GetUnitAt(worldId, newItemPos)
+	unit, unitFound, err := serve.unitRepo.GetUnitAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
 
 	if unitFound {
 		itemId := unit.GetItemId()
-		item, err := serve.itemRepository.Get(itemId)
+		item, err := serve.itemRepo.Get(itemId)
 		if err != nil {
 			return err
 		}
@@ -94,50 +94,50 @@ func (serve *serve) Move(
 		player.UpdateVisionBound()
 	}
 
-	return serve.playerRepository.Update(player)
+	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) LeaveWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
-	unlocker := serve.worldRepository.LockAccess(worldId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
 
-	return serve.playerRepository.Delete(playerId)
+	return serve.playerRepo.Delete(playerId)
 }
 
 func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo, itemId commonmodel.ItemIdVo) error {
-	unlocker := serve.worldRepository.LockAccess(worldId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
 
-	player, err := serve.playerRepository.Get(playerId)
+	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
 	}
 
-	if _, err = serve.itemRepository.Get(itemId); err != nil {
+	if _, err = serve.itemRepo.Get(itemId); err != nil {
 		return err
 	}
 
 	player.ChangeHeldItem(itemId)
-	return serve.playerRepository.Update(player)
+	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
-	unlocker := serve.worldRepository.LockAccess(worldId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
 
-	player, err := serve.playerRepository.Get(playerId)
+	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmode
 	}
 
 	itemId := *playerHeldItemId
-	item, err := serve.itemRepository.Get(itemId)
+	item, err := serve.itemRepo.Get(itemId)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmode
 		return nil
 	}
 
-	_, unitFound, err := serve.unitRepository.GetUnitAt(worldId, newItemPos)
+	_, unitFound, err := serve.unitRepo.GetUnitAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmode
 		return nil
 	}
 
-	_, playerFound, err := serve.playerRepository.FindPlayerAt(worldId, newItemPos)
+	_, playerFound, err := serve.playerRepo.FindPlayerAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
@@ -176,22 +176,22 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmode
 	}
 
 	newItemDirection := player.GetDirection().Rotate().Rotate()
-	return serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, newItemPos, itemId, newItemDirection))
+	return serve.unitRepo.Add(unitmodel.NewUnitAgg(worldId, newItemPos, itemId, newItemDirection))
 }
 
 func (serve *serve) RemoveItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
-	unlocker := serve.worldRepository.LockAccess(worldId)
+	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
-	if _, err := serve.worldRepository.Get(worldId); err != nil {
+	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
 
-	player, err := serve.playerRepository.Get(playerId)
+	player, err := serve.playerRepo.Get(playerId)
 	if err != nil {
 		return err
 	}
 
 	newItemPos := player.GetPositionOneStepFoward()
-	return serve.unitRepository.Delete(worldId, newItemPos)
+	return serve.unitRepo.Delete(worldId, newItemPos)
 }

@@ -23,19 +23,19 @@ func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.GamerAgg {
 	)
 }
 
-type gamerRepository struct {
+type gamerRepo struct {
 	dbClient *gorm.DB
 }
 
-func NewGamerRepository() (repository gamermodel.Repository, err error) {
+func NewGamerRepo() (repository gamermodel.Repo, err error) {
 	dbClient, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &gamerRepository{dbClient: dbClient}, nil
+	return &gamerRepo{dbClient: dbClient}, nil
 }
 
-func (repo *gamerRepository) Add(gamer gamermodel.GamerAgg) error {
+func (repo *gamerRepo) Add(gamer gamermodel.GamerAgg) error {
 	gamerModel := newGamerModel(gamer)
 	res := repo.dbClient.Create(&gamerModel)
 	if res.Error != nil {
@@ -44,7 +44,7 @@ func (repo *gamerRepository) Add(gamer gamermodel.GamerAgg) error {
 	return nil
 }
 
-func (repo *gamerRepository) Get(gamerId commonmodel.GamerIdVo) (gamer gamermodel.GamerAgg, err error) {
+func (repo *gamerRepo) Get(gamerId commonmodel.GamerIdVo) (gamer gamermodel.GamerAgg, err error) {
 	gamerModel := pgmodel.GamerModel{Id: gamerId.Uuid()}
 	result := repo.dbClient.First(&gamerModel)
 	if result.Error != nil {
@@ -53,7 +53,7 @@ func (repo *gamerRepository) Get(gamerId commonmodel.GamerIdVo) (gamer gamermode
 	return parseGamerModel(gamerModel), nil
 }
 
-func (repo *gamerRepository) FindGamerByUserId(userId sharedkernelmodel.UserIdVo) (gamer gamermodel.GamerAgg, gamerFound bool, err error) {
+func (repo *gamerRepo) FindGamerByUserId(userId sharedkernelmodel.UserIdVo) (gamer gamermodel.GamerAgg, gamerFound bool, err error) {
 	gamerModels := []pgmodel.GamerModel{}
 	result := repo.dbClient.Find(&gamerModels, pgmodel.GamerModel{UserId: userId.Uuid()})
 	if result.Error != nil {
@@ -66,7 +66,7 @@ func (repo *gamerRepository) FindGamerByUserId(userId sharedkernelmodel.UserIdVo
 	return parseGamerModel(gamerModels[0]), true, nil
 }
 
-func (repo *gamerRepository) GetAll() (gamers []gamermodel.GamerAgg, err error) {
+func (repo *gamerRepo) GetAll() (gamers []gamermodel.GamerAgg, err error) {
 	var gamerModels []pgmodel.GamerModel
 	result := repo.dbClient.Find(&gamerModels)
 	if result.Error != nil {

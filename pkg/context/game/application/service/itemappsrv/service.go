@@ -11,17 +11,17 @@ type Service interface {
 }
 
 type serve struct {
-	itemRepository itemmodel.Repository
+	itemRepo itemmodel.Repo
 }
 
-func NewService(itemRepository itemmodel.Repository) Service {
+func NewService(itemRepo itemmodel.Repo) Service {
 	return &serve{
-		itemRepository: itemRepository,
+		itemRepo: itemRepo,
 	}
 }
 
 func (serve *serve) QueryItems(query QueryItemsQuery) (itemDtos []jsondto.ItemAggDto, err error) {
-	items, err := serve.itemRepository.GetAll()
+	items, err := serve.itemRepo.GetAll()
 	if err != nil {
 		return itemDtos, err
 	}
