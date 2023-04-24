@@ -7,22 +7,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type httpHandler struct {
+type HttpHandler struct {
 	gamerAppService gamerappsrv.Service
 }
 
-var httpHandlerSingleton *httpHandler
+var httpHandlerSingleton *HttpHandler
 
-func newHttpHandler(
+func NewHttpHandler(
 	gamerAppService gamerappsrv.Service,
-) *httpHandler {
+) *HttpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &httpHandler{gamerAppService: gamerAppService}
+	return &HttpHandler{gamerAppService: gamerAppService}
 }
 
-func (httpHandler *httpHandler) queryGamers(c *gin.Context) {
+func (httpHandler *HttpHandler) QueryGamers(c *gin.Context) {
 	gamerDtos, err := httpHandler.gamerAppService.QueryGamers(gamerappsrv.QueryGamersQuery{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())

@@ -12,31 +12,31 @@ import (
 	"github.com/google/uuid"
 )
 
-type httpHandler struct {
+type HttpHandler struct {
 	googleAuthInfraService googleauthinfrasrv.Service
 	identityAppService     identityappsrv.Service
 	gamerappsrv            gamerappsrv.Service
 }
 
-var httpHandlerSingleton *httpHandler
+var httpHandlerSingleton *HttpHandler
 
-func newHttpHandler(
+func NewHttpHandler(
 	googleAuthInfraService googleauthinfrasrv.Service,
 	identityAppService identityappsrv.Service,
 	gamerappsrv gamerappsrv.Service,
-) *httpHandler {
+) *HttpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &httpHandler{googleAuthInfraService, identityAppService, gamerappsrv}
+	return &HttpHandler{googleAuthInfraService, identityAppService, gamerappsrv}
 }
 
-func (httpHandler *httpHandler) goToGoogleAuthUrl(c *gin.Context) {
+func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
 	authUrl := httpHandler.googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{})
 	c.Redirect(http.StatusFound, authUrl)
 }
 
-func (httpHandler *httpHandler) googleAuthCallback(c *gin.Context) {
+func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
 	userEmailAddress, err := httpHandler.googleAuthInfraService.GetUserEmailAddress(googleauthinfrasrv.GetUserEmailAddressQuery{
 		Code: code,

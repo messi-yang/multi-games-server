@@ -8,22 +8,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type httpHandler struct {
+type HttpHandler struct {
 	worldAppService worldappsrv.Service
 }
 
-var httpHandlerSingleton *httpHandler
+var httpHandlerSingleton *HttpHandler
 
-func newHttpHandler(
+func NewHttpHandler(
 	worldAppService worldappsrv.Service,
-) *httpHandler {
+) *HttpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &httpHandler{worldAppService: worldAppService}
+	return &HttpHandler{worldAppService: worldAppService}
 }
 
-func (httpHandler *httpHandler) getWorld(c *gin.Context) {
+func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 	worldIdDto, err := uuid.Parse(c.Param("worldId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
@@ -38,7 +38,7 @@ func (httpHandler *httpHandler) getWorld(c *gin.Context) {
 	c.JSON(http.StatusOK, getWorldResponseDto(worldDto))
 }
 
-func (httpHandler *httpHandler) queryWorlds(c *gin.Context) {
+func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 	worldDtos, err := httpHandler.worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
@@ -47,7 +47,7 @@ func (httpHandler *httpHandler) queryWorlds(c *gin.Context) {
 	c.JSON(http.StatusOK, queryWorldsResponseDto(worldDtos))
 }
 
-func (httpHandler *httpHandler) createWorld(c *gin.Context) {
+func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	var requestDto createWorldRequestDto
 	if err := c.BindJSON(&requestDto); err != nil {

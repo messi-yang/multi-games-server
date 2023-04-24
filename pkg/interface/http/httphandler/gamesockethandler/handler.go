@@ -12,24 +12,24 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type httpHandler struct {
+type HttpHandler struct {
 	gameAppService gameappsrv.Service
 	wsupgrader     websocket.Upgrader
 }
 
-var httpHandlerSingleton *httpHandler
+var httpHandlerSingleton *HttpHandler
 
-func newHttpHandler(
+func NewHttpHandler(
 	gameAppService gameappsrv.Service,
 	wsupgrader websocket.Upgrader,
-) *httpHandler {
+) *HttpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &httpHandler{gameAppService: gameAppService, wsupgrader: wsupgrader}
+	return &HttpHandler{gameAppService: gameAppService, wsupgrader: wsupgrader}
 }
 
-func (httpHandler *httpHandler) gameConnection(c *gin.Context) {
+func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	socketConn, err := httpHandler.wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
