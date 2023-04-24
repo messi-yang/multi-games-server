@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/jsondto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/service/identitydomainsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service/identitydomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"

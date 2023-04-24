@@ -1,7 +1,7 @@
 package jsondto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
 	"github.com/google/uuid"
 )
 
