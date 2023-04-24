@@ -3,19 +3,19 @@ package worldhttphandler
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type httpHandler struct {
-	worldAppService worldappservice.Service
+	worldAppService worldappsrv.Service
 }
 
 var httpHandlerSingleton *httpHandler
 
 func newHttpHandler(
-	worldAppService worldappservice.Service,
+	worldAppService worldappsrv.Service,
 ) *httpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
@@ -30,7 +30,7 @@ func (httpHandler *httpHandler) getWorld(c *gin.Context) {
 		return
 	}
 
-	worldDto, err := httpHandler.worldAppService.GetWorld(worldappservice.GetWorldQuery{WorldId: worldIdDto})
+	worldDto, err := httpHandler.worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -39,7 +39,7 @@ func (httpHandler *httpHandler) getWorld(c *gin.Context) {
 }
 
 func (httpHandler *httpHandler) queryWorlds(c *gin.Context) {
-	worldDtos, err := httpHandler.worldAppService.QueryWorlds(worldappservice.QueryWorldsQuery{})
+	worldDtos, err := httpHandler.worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -55,12 +55,12 @@ func (httpHandler *httpHandler) createWorld(c *gin.Context) {
 		return
 	}
 
-	newWorldIdDto, err := httpHandler.worldAppService.CreateWorld(worldappservice.CreateWorldCommand{GamerId: requestDto.GamerId})
+	newWorldIdDto, err := httpHandler.worldAppService.CreateWorld(worldappsrv.CreateWorldCommand{GamerId: requestDto.GamerId})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	worldDto, err := httpHandler.worldAppService.GetWorld(worldappservice.GetWorldQuery{WorldId: newWorldIdDto})
+	worldDto, err := httpHandler.worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: newWorldIdDto})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return

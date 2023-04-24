@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/dbseedappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/dbseedappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/seedclihandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/assethttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/authhttphandler"
@@ -24,11 +24,11 @@ func main() {
 	if len(args) > 0 {
 		switch args[0] {
 		case "db-seed":
-			itemRepository, err := pgrepository.NewItemRepository()
+			itemRepository, err := pgrepo.NewItemRepository()
 			if err != nil {
 				panic(err)
 			}
-			dbSeedAppService := dbseedappservice.NewService(itemRepository)
+			dbSeedAppService := dbseedappsrv.NewService(itemRepository)
 			seedCliHandler := seedclihandler.NewHandler(dbSeedAppService)
 			seedCliHandler.Exec()
 			os.Exit(0)

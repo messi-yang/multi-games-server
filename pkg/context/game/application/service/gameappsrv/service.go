@@ -1,4 +1,4 @@
-package gameappservice
+package gameappsrv
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/gamedomainsrv"
 	"github.com/samber/lo"
 )
 
@@ -26,20 +26,20 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepository  worldmodel.Repository
-	playerRepository playermodel.Repository
-	unitRepository   unitmodel.Repository
-	itemRepository   itemmodel.Repository
-	gameService      service.GameService
+	worldRepository   worldmodel.Repository
+	playerRepository  playermodel.Repository
+	unitRepository    unitmodel.Repository
+	itemRepository    itemmodel.Repository
+	gameDomainService gamedomainsrv.Service
 }
 
-func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository, gameService service.GameService) Service {
+func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository, gameDomainService gamedomainsrv.Service) Service {
 	return &serve{
-		worldRepository:  worldRepository,
-		playerRepository: playerRepository,
-		unitRepository:   unitRepository,
-		itemRepository:   itemRepository,
-		gameService:      gameService,
+		worldRepository:   worldRepository,
+		playerRepository:  playerRepository,
+		unitRepository:    unitRepository,
+		itemRepository:    itemRepository,
+		gameDomainService: gameDomainService,
 	}
 }
 
@@ -102,25 +102,25 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto jsondto.PlayerAgg
 }
 
 func (serve *serve) EnterWorld(command EnterWorldCommand) error {
-	return serve.gameService.EnterWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.EnterWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }
 
 func (serve *serve) Move(command MoveCommand) error {
-	return serve.gameService.Move(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewDirectionVo(command.Direction))
+	return serve.gameDomainService.Move(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewDirectionVo(command.Direction))
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	return serve.gameService.LeaveWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.LeaveWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	return serve.gameService.PlaceItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.PlaceItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
-	return serve.gameService.ChangeHeldItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewItemIdVo(command.ItemId))
+	return serve.gameDomainService.ChangeHeldItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewItemIdVo(command.ItemId))
 }
 
 func (serve *serve) RemoveItem(command RemoveItemCommand) error {
-	return serve.gameService.RemoveItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.RemoveItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
 }

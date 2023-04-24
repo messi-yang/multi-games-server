@@ -1,4 +1,4 @@
-package itemappservice
+package itemappsrv
 
 type QueryItemsQuery struct {
 }

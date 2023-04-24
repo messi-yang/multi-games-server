@@ -3,31 +3,31 @@ package gamesockethandler
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/gamedomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/memrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepo"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
 func Setup(router *gin.Engine) {
-	itemRepository, err := pgrepository.NewItemRepository()
+	itemRepository, err := pgrepo.NewItemRepository()
 	if err != nil {
 		panic(err)
 	}
 	playerRepository := memrepo.NewPlayerMemRepository()
-	worldRepository, err := pgrepository.NewWorldRepository()
+	worldRepository, err := pgrepo.NewWorldRepository()
 	if err != nil {
 		panic(err)
 	}
-	unitRepository, err := pgrepository.NewUnitRepository()
+	unitRepository, err := pgrepo.NewUnitRepository()
 	if err != nil {
 		panic(err)
 	}
-	gameService := service.NewGameService(worldRepository, playerRepository, unitRepository, itemRepository)
-	gameAppService := gameappservice.NewService(
-		worldRepository, playerRepository, unitRepository, itemRepository, gameService,
+	gameDomainService := gamedomainsrv.NewService(worldRepository, playerRepository, unitRepository, itemRepository)
+	gameAppService := gameappsrv.NewService(
+		worldRepository, playerRepository, unitRepository, itemRepository, gameDomainService,
 	)
 	httpHandler := newHttpHandler(gameAppService, websocket.Upgrader{
 		ReadBufferSize:  1024,

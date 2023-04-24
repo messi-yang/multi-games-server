@@ -1,4 +1,4 @@
-package service
+package gamedomainsrv
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
@@ -8,7 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 )
 
-type GameService interface {
+type Service interface {
 	EnterWorld(commonmodel.WorldIdVo, commonmodel.PlayerIdVo) error
 	Move(commonmodel.WorldIdVo, commonmodel.PlayerIdVo, commonmodel.DirectionVo) error
 	LeaveWorld(commonmodel.WorldIdVo, commonmodel.PlayerIdVo) error
@@ -17,18 +17,18 @@ type GameService interface {
 	RemoveItem(commonmodel.WorldIdVo, commonmodel.PlayerIdVo) error
 }
 
-type gameServe struct {
+type serve struct {
 	worldRepository  worldmodel.Repository
 	playerRepository playermodel.Repository
 	unitRepository   unitmodel.Repository
 	itemRepository   itemmodel.Repository
 }
 
-func NewGameService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) GameService {
-	return &gameServe{worldRepository: worldRepository, playerRepository: playerRepository, unitRepository: unitRepository, itemRepository: itemRepository}
+func NewService(worldRepository worldmodel.Repository, playerRepository playermodel.Repository, unitRepository unitmodel.Repository, itemRepository itemmodel.Repository) Service {
+	return &serve{worldRepository: worldRepository, playerRepository: playerRepository, unitRepository: unitRepository, itemRepository: itemRepository}
 }
 
-func (serve *gameServe) EnterWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) EnterWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
@@ -48,7 +48,7 @@ func (serve *gameServe) EnterWorld(worldId commonmodel.WorldIdVo, playerId commo
 	return serve.playerRepository.Add(newPlayer)
 }
 
-func (serve *gameServe) Move(
+func (serve *serve) Move(
 	worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo, direction commonmodel.DirectionVo,
 ) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
@@ -97,7 +97,7 @@ func (serve *gameServe) Move(
 	return serve.playerRepository.Update(player)
 }
 
-func (serve *gameServe) LeaveWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) LeaveWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
@@ -108,7 +108,7 @@ func (serve *gameServe) LeaveWorld(worldId commonmodel.WorldIdVo, playerId commo
 	return serve.playerRepository.Delete(playerId)
 }
 
-func (serve *gameServe) ChangeHeldItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo, itemId commonmodel.ItemIdVo) error {
+func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo, itemId commonmodel.ItemIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
@@ -129,7 +129,7 @@ func (serve *gameServe) ChangeHeldItem(worldId commonmodel.WorldIdVo, playerId c
 	return serve.playerRepository.Update(player)
 }
 
-func (serve *gameServe) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 
@@ -179,7 +179,7 @@ func (serve *gameServe) PlaceItem(worldId commonmodel.WorldIdVo, playerId common
 	return serve.unitRepository.Add(unitmodel.NewUnitAgg(worldId, newItemPos, itemId, newItemDirection))
 }
 
-func (serve *gameServe) RemoveItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) RemoveItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
 	unlocker := serve.worldRepository.LockAccess(worldId)
 	defer unlocker()
 

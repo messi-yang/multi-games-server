@@ -1,4 +1,4 @@
-package pgrepository
+package pgrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"

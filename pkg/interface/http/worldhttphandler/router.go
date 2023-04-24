@@ -1,25 +1,25 @@
 package worldhttphandler
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepository"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepo"
 	"github.com/gin-gonic/gin"
 )
 
 func Setup(router *gin.Engine) {
-	worldRepository, err := pgrepository.NewWorldRepository()
+	worldRepository, err := pgrepo.NewWorldRepository()
 	if err != nil {
 		panic(err)
 	}
-	itemRepository, err := pgrepository.NewItemRepository()
+	itemRepository, err := pgrepo.NewItemRepository()
 	if err != nil {
 		panic(err)
 	}
-	unitRepository, err := pgrepository.NewUnitRepository()
+	unitRepository, err := pgrepo.NewUnitRepository()
 	if err != nil {
 		panic(err)
 	}
-	worldAppService := worldappservice.NewService(worldRepository, unitRepository, itemRepository)
+	worldAppService := worldappsrv.NewService(worldRepository, unitRepository, itemRepository)
 	httphandler := newHttpHandler(worldAppService)
 
 	routerGroup := router.Group("/api/worlds")

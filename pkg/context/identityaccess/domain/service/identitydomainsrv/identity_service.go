@@ -1,4 +1,4 @@
-package service
+package identitydomainsrv
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
@@ -6,19 +6,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type IdentityService interface {
+type Service interface {
 	Register(emailAddress string, username string) (user usermodel.UserAgg, err error)
 }
 
-type identityServe struct {
+type serve struct {
 	userRepository usermodel.Repository
 }
 
-func NewIdentityService(userRepository usermodel.Repository) IdentityService {
-	return &identityServe{userRepository: userRepository}
+func NewService(userRepository usermodel.Repository) Service {
+	return &serve{userRepository: userRepository}
 }
 
-func (serve *identityServe) Register(emailAddress string, username string) (user usermodel.UserAgg, err error) {
+func (serve *serve) Register(emailAddress string, username string) (user usermodel.UserAgg, err error) {
 	user = usermodel.NewUserAgg(sharedkernelmodel.NewUserIdVo(uuid.New()), emailAddress, username)
 	err = serve.userRepository.Add(user)
 	if err != nil {

@@ -1,4 +1,4 @@
-package identityappservice
+package identityappsrv
 
 type FindUserByEmailAddressQuery struct {
 	EmailAddress string

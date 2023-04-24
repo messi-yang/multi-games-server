@@ -1,4 +1,4 @@
-package gameappservice
+package gameappsrv
 
 import (
 	"github.com/google/uuid"

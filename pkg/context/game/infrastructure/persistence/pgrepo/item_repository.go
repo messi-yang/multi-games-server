@@ -1,4 +1,4 @@
-package pgrepository
+package pgrepo
 
 import (
 	"fmt"

@@ -3,17 +3,17 @@ package seedclihandler
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/dbseedappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/dbseedappsrv"
 )
 
 type Handler struct {
-	dbSeedAppService dbseedappservice.Service
+	dbSeedAppService dbseedappsrv.Service
 }
 
 var handlerSingleton *Handler
 
 func NewHandler(
-	dbSeedAppService dbseedappservice.Service,
+	dbSeedAppService dbseedappsrv.Service,
 ) *Handler {
 	if handlerSingleton != nil {
 		return handlerSingleton

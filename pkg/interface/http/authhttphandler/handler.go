@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappservice"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappservice"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/service/identityappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/infrastructure/service/googleauthinfraservice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -14,21 +14,21 @@ import (
 
 type httpHandler struct {
 	googleAuthInfraService googleauthinfraservice.Service
-	identityAppService     identityappservice.Service
-	gamerappservice        gamerappservice.Service
+	identityAppService     identityappsrv.Service
+	gamerappsrv            gamerappsrv.Service
 }
 
 var httpHandlerSingleton *httpHandler
 
 func newHttpHandler(
 	googleAuthInfraService googleauthinfraservice.Service,
-	identityAppService identityappservice.Service,
-	gamerappservice gamerappservice.Service,
+	identityAppService identityappsrv.Service,
+	gamerappsrv gamerappsrv.Service,
 ) *httpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &httpHandler{googleAuthInfraService, identityAppService, gamerappservice}
+	return &httpHandler{googleAuthInfraService, identityAppService, gamerappsrv}
 }
 
 func (httpHandler *httpHandler) goToGoogleAuthUrl(c *gin.Context) {
@@ -46,7 +46,7 @@ func (httpHandler *httpHandler) googleAuthCallback(c *gin.Context) {
 		return
 	}
 
-	userDto, userFound, err := httpHandler.identityAppService.FindUserByEmailAddress(identityappservice.FindUserByEmailAddressQuery{
+	userDto, userFound, err := httpHandler.identityAppService.FindUserByEmailAddress(identityappsrv.FindUserByEmailAddressQuery{
 		EmailAddress: userEmailAddress,
 	})
 	if err != nil {
@@ -59,14 +59,14 @@ func (httpHandler *httpHandler) googleAuthCallback(c *gin.Context) {
 		fmt.Println("Logged in")
 		userIdDto = userDto.Id
 	} else {
-		newUserIdDto, err := httpHandler.identityAppService.Register(identityappservice.RegisterCommand{EmailAddress: userEmailAddress})
+		newUserIdDto, err := httpHandler.identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 		userIdDto = newUserIdDto
 
-		if _, err = httpHandler.gamerappservice.CreateGamer(gamerappservice.CreateGamerCommand{
+		if _, err = httpHandler.gamerappsrv.CreateGamer(gamerappsrv.CreateGamerCommand{
 			UserId: userIdDto,
 		}); err != nil {
 			fmt.Println(err.Error())
@@ -76,7 +76,7 @@ func (httpHandler *httpHandler) googleAuthCallback(c *gin.Context) {
 	}
 
 	accessToken, err := httpHandler.identityAppService.Login(
-		identityappservice.LoginCommand{UserId: userIdDto},
+		identityappsrv.LoginCommand{UserId: userIdDto},
 	)
 	if err != nil {
 		fmt.Println(err.Error())

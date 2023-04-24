@@ -1,4 +1,4 @@
-package worldappservice
+package worldappsrv
 
 import (
 	"github.com/google/uuid"

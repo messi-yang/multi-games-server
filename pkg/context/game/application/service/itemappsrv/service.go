@@ -1,4 +1,4 @@
-package itemappservice
+package itemappsrv
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"

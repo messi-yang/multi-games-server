@@ -1,4 +1,4 @@
-package identityappservice
+package identityappsrv
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/application/jsondto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/model/usermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/service"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/identityaccess/domain/service/identitydomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"
@@ -23,11 +23,11 @@ type Service interface {
 
 type serve struct {
 	userRepository  usermodel.Repository
-	identityService service.IdentityService
+	identityService identitydomainsrv.Service
 	authSecret      string
 }
 
-func NewService(userRepository usermodel.Repository, identityService service.IdentityService, authSecret string) Service {
+func NewService(userRepository usermodel.Repository, identityService identitydomainsrv.Service, authSecret string) Service {
 	return &serve{userRepository: userRepository, identityService: identityService, authSecret: authSecret}
 }
 

@@ -1,4 +1,4 @@
-package gamerappservice
+package gamerappsrv
 
 type QueryGamersQuery struct {
 }
