@@ -88,6 +88,7 @@ func (serve *serve) Validate(accessToken string) (userIdDto uuid.UUID, err error
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		// TODO - Check expiration date
 		userIdDto := uuidutil.UnsafelyNewUuid(claims["jti"].(string))
 		return userIdDto, nil
 	} else {

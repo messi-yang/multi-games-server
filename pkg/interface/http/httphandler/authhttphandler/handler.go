@@ -56,7 +56,6 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 
 	var userIdDto uuid.UUID
 	if userFound {
-		fmt.Println("Logged in")
 		userIdDto = userDto.Id
 	} else {
 		newUserIdDto, err := httpHandler.identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
@@ -72,7 +71,6 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 			fmt.Println(err.Error())
 			return
 		}
-		fmt.Println("Registred")
 	}
 
 	accessToken, err := httpHandler.identityAppService.Login(

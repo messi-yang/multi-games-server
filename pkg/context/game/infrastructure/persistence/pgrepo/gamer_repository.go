@@ -53,6 +53,15 @@ func (repo *gamerRepo) Get(gamerId commonmodel.GamerIdVo) (gamer gamermodel.Game
 	return parseGamerModel(gamerModel), nil
 }
 
+func (repo *gamerRepo) GetGamerByUserId(userId sharedkernelmodel.UserIdVo) (gamer gamermodel.GamerAgg, err error) {
+	var gamerModel pgmodel.GamerModel
+	result := repo.dbClient.First(&gamerModel, pgmodel.GamerModel{UserId: userId.Uuid()})
+	if result.Error != nil {
+		return gamer, result.Error
+	}
+	return parseGamerModel(gamerModel), nil
+}
+
 func (repo *gamerRepo) FindGamerByUserId(userId sharedkernelmodel.UserIdVo) (gamer gamermodel.GamerAgg, gamerFound bool, err error) {
 	gamerModels := []pgmodel.GamerModel{}
 	result := repo.dbClient.Find(&gamerModels, pgmodel.GamerModel{UserId: userId.Uuid()})

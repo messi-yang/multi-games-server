@@ -3,24 +3,35 @@ package worldhttphandler
 import (
 	"net/http"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/identityappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type HttpHandler struct {
-	worldAppService worldappsrv.Service
+	identityAppService identityappsrv.Service
+	worldAppService    worldappsrv.Service
+	gamerAppService    gamerappsrv.Service
 }
 
 var httpHandlerSingleton *HttpHandler
 
 func NewHttpHandler(
+	identityAppService identityappsrv.Service,
 	worldAppService worldappsrv.Service,
+	gamerAppService gamerappsrv.Service,
 ) *HttpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &HttpHandler{worldAppService: worldAppService}
+	return &HttpHandler{
+		identityAppService: identityAppService,
+		worldAppService:    worldAppService,
+		gamerAppService:    gamerAppService,
+	}
 }
 
 func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
@@ -48,14 +59,14 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
-
-	var requestDto createWorldRequestDto
-	if err := c.BindJSON(&requestDto); err != nil {
+	userIdDto := httputil.GetUserId(c)
+	gamer, err := httpHandler.gamerAppService.GetGamerByUserId(gamerappsrv.GetGamerByUserIdQuery{UserId: userIdDto})
+	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	newWorldIdDto, err := httpHandler.worldAppService.CreateWorld(worldappsrv.CreateWorldCommand{GamerId: requestDto.GamerId})
+	newWorldIdDto, err := httpHandler.worldAppService.CreateWorld(worldappsrv.CreateWorldCommand{GamerId: gamer.Id})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return

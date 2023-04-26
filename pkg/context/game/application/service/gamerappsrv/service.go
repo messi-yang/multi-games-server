@@ -12,6 +12,7 @@ import (
 )
 
 type Service interface {
+	GetGamerByUserId(GetGamerByUserIdQuery) (jsondto.GamerAggDto, error)
 	CreateGamer(CreateGamerCommand) (gamerIdDto uuid.UUID, err error)
 	QueryGamers(QueryGamersQuery) ([]jsondto.GamerAggDto, error)
 }
@@ -24,6 +25,16 @@ func NewService(gamerRepo gamermodel.Repo) Service {
 	return &serve{
 		gamerRepo: gamerRepo,
 	}
+}
+
+func (serve *serve) GetGamerByUserId(query GetGamerByUserIdQuery) (gamerDto jsondto.GamerAggDto, err error) {
+	userId := sharedkernelmodel.NewUserIdVo(query.UserId)
+	gamer, err := serve.gamerRepo.GetGamerByUserId(userId)
+	if err != nil {
+		return gamerDto, err
+	}
+
+	return jsondto.NewGamerAggDto(gamer), nil
 }
 
 func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUID, err error) {
