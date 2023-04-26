@@ -15,7 +15,7 @@ import (
 type HttpHandler struct {
 	googleAuthInfraService googleauthinfrasrv.Service
 	identityAppService     identityappsrv.Service
-	gamerappsrv            gamerappsrv.Service
+	gamerAppService        gamerappsrv.Service
 }
 
 var httpHandlerSingleton *HttpHandler
@@ -23,12 +23,12 @@ var httpHandlerSingleton *HttpHandler
 func NewHttpHandler(
 	googleAuthInfraService googleauthinfrasrv.Service,
 	identityAppService identityappsrv.Service,
-	gamerappsrv gamerappsrv.Service,
+	gamerAppService gamerappsrv.Service,
 ) *HttpHandler {
 	if httpHandlerSingleton != nil {
 		return httpHandlerSingleton
 	}
-	return &HttpHandler{googleAuthInfraService, identityAppService, gamerappsrv}
+	return &HttpHandler{googleAuthInfraService, identityAppService, gamerAppService}
 }
 
 func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
@@ -66,7 +66,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 		}
 		userIdDto = newUserIdDto
 
-		if _, err = httpHandler.gamerappsrv.CreateGamer(gamerappsrv.CreateGamerCommand{
+		if _, err = httpHandler.gamerAppService.CreateGamer(gamerappsrv.CreateGamerCommand{
 			UserId: userIdDto,
 		}); err != nil {
 			fmt.Println(err.Error())
