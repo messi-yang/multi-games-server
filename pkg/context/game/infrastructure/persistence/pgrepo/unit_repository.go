@@ -28,20 +28,20 @@ func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.UnitAgg {
 }
 
 type unitRepo struct {
-	dbClient *gorm.DB
+	db *gorm.DB
 }
 
 func NewUnitRepo() (repository unitmodel.Repo, err error) {
-	dbClient, err := pgmodel.NewClient()
+	db, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &unitRepo{dbClient: dbClient}, nil
+	return &unitRepo{db: db}, nil
 }
 
 func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	unitModel := newUnitModel(unit)
-	res := repo.dbClient.Create(&unitModel)
+	res := repo.db.Create(&unitModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -52,7 +52,7 @@ func (repo *unitRepo) GetUnitAt(
 	worldId commonmodel.WorldIdVo, position commonmodel.PositionVo,
 ) (unit unitmodel.UnitAgg, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
-	result := repo.dbClient.Where(
+	result := repo.db.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
 		position.GetX(),
@@ -74,7 +74,7 @@ func (repo *unitRepo) GetUnitsInBound(
 	worldId commonmodel.WorldIdVo, bound commonmodel.BoundVo,
 ) (units []unitmodel.UnitAgg, err error) {
 	var unitModels []pgmodel.UnitModel
-	result := repo.dbClient.Where(
+	result := repo.db.Where(
 		"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
 		worldId.Uuid(),
 		bound.GetFrom().GetX(),
@@ -92,7 +92,7 @@ func (repo *unitRepo) GetUnitsInBound(
 }
 
 func (repo *unitRepo) Delete(worldId commonmodel.WorldIdVo, position commonmodel.PositionVo) error {
-	result := repo.dbClient.Where(
+	result := repo.db.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
 		position.GetX(),

@@ -20,20 +20,20 @@ func parseUserModel(userModel pgmodel.UserModel) usermodel.UserAgg {
 }
 
 type userRepo struct {
-	dbClient *gorm.DB
+	db *gorm.DB
 }
 
 func NewUserRepo() (repository usermodel.Repo, err error) {
-	dbClient, err := pgmodel.NewClient()
+	db, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &userRepo{dbClient: dbClient}, nil
+	return &userRepo{db: db}, nil
 }
 
 func (repo *userRepo) Add(user usermodel.UserAgg) error {
 	userModel := newUserModel(user)
-	res := repo.dbClient.Create(&userModel)
+	res := repo.db.Create(&userModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -42,7 +42,7 @@ func (repo *userRepo) Add(user usermodel.UserAgg) error {
 
 func (repo *userRepo) Get(userId sharedkernelmodel.UserIdVo) (user usermodel.UserAgg, err error) {
 	userModel := pgmodel.UserModel{Id: userId.Uuid()}
-	result := repo.dbClient.First(&userModel)
+	result := repo.db.First(&userModel)
 	if result.Error != nil {
 		return user, result.Error
 	}
@@ -52,7 +52,7 @@ func (repo *userRepo) Get(userId sharedkernelmodel.UserIdVo) (user usermodel.Use
 
 func (repo *userRepo) FindUserByEmailAddress(emailAddress string) (user usermodel.UserAgg, userFound bool, err error) {
 	userModels := []pgmodel.UserModel{}
-	result := repo.dbClient.Find(&userModels, pgmodel.UserModel{EmailAddress: emailAddress})
+	result := repo.db.Find(&userModels, pgmodel.UserModel{EmailAddress: emailAddress})
 	if result.Error != nil {
 		return user, userFound, result.Error
 	}

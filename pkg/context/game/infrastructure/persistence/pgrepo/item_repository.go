@@ -33,20 +33,20 @@ func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.ItemAgg {
 }
 
 type itemRepo struct {
-	dbClient *gorm.DB
+	db *gorm.DB
 }
 
 func NewItemRepo() (repository itemmodel.Repo, err error) {
-	dbClient, err := pgmodel.NewClient()
+	db, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &itemRepo{dbClient: dbClient}, nil
+	return &itemRepo{db: db}, nil
 }
 
 func (repo *itemRepo) GetAll() (items []itemmodel.ItemAgg, err error) {
 	var itemModels []pgmodel.ItemModel
-	result := repo.dbClient.Find(&itemModels)
+	result := repo.db.Find(&itemModels)
 	if result.Error != nil {
 		err = result.Error
 		return items, err
@@ -60,7 +60,7 @@ func (repo *itemRepo) GetAll() (items []itemmodel.ItemAgg, err error) {
 
 func (repo *itemRepo) Get(itemId commonmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
 	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
-	result := repo.dbClient.First(&itemModel)
+	result := repo.db.First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
@@ -70,7 +70,7 @@ func (repo *itemRepo) Get(itemId commonmodel.ItemIdVo) (item itemmodel.ItemAgg, 
 
 func (repo *itemRepo) GetFirstItem() (item itemmodel.ItemAgg, err error) {
 	itemModel := pgmodel.ItemModel{}
-	result := repo.dbClient.First(&itemModel)
+	result := repo.db.First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
@@ -80,7 +80,7 @@ func (repo *itemRepo) GetFirstItem() (item itemmodel.ItemAgg, err error) {
 
 func (repo *itemRepo) Add(item itemmodel.ItemAgg) error {
 	itemModel := newItemModel(item)
-	res := repo.dbClient.Create(&itemModel)
+	res := repo.db.Create(&itemModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -89,7 +89,7 @@ func (repo *itemRepo) Add(item itemmodel.ItemAgg) error {
 
 func (repo *itemRepo) Update(item itemmodel.ItemAgg) error {
 	itemModel := newItemModel(item)
-	res := repo.dbClient.Save(&itemModel)
+	res := repo.db.Save(&itemModel)
 	if res.Error != nil {
 		return res.Error
 	}

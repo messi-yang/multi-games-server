@@ -24,20 +24,20 @@ func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.GamerAgg {
 }
 
 type gamerRepo struct {
-	dbClient *gorm.DB
+	db *gorm.DB
 }
 
 func NewGamerRepo() (repository gamermodel.Repo, err error) {
-	dbClient, err := pgmodel.NewClient()
+	db, err := pgmodel.NewClient()
 	if err != nil {
 		return repository, err
 	}
-	return &gamerRepo{dbClient: dbClient}, nil
+	return &gamerRepo{db: db}, nil
 }
 
 func (repo *gamerRepo) Add(gamer gamermodel.GamerAgg) error {
 	gamerModel := newGamerModel(gamer)
-	res := repo.dbClient.Create(&gamerModel)
+	res := repo.db.Create(&gamerModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -46,7 +46,7 @@ func (repo *gamerRepo) Add(gamer gamermodel.GamerAgg) error {
 
 func (repo *gamerRepo) Get(gamerId commonmodel.GamerIdVo) (gamer gamermodel.GamerAgg, err error) {
 	gamerModel := pgmodel.GamerModel{Id: gamerId.Uuid()}
-	result := repo.dbClient.First(&gamerModel)
+	result := repo.db.First(&gamerModel)
 	if result.Error != nil {
 		return gamer, result.Error
 	}
@@ -55,7 +55,7 @@ func (repo *gamerRepo) Get(gamerId commonmodel.GamerIdVo) (gamer gamermodel.Game
 
 func (repo *gamerRepo) GetGamerByUserId(userId sharedkernelmodel.UserIdVo) (gamer gamermodel.GamerAgg, err error) {
 	var gamerModel pgmodel.GamerModel
-	result := repo.dbClient.First(&gamerModel, pgmodel.GamerModel{UserId: userId.Uuid()})
+	result := repo.db.First(&gamerModel, pgmodel.GamerModel{UserId: userId.Uuid()})
 	if result.Error != nil {
 		return gamer, result.Error
 	}
@@ -64,7 +64,7 @@ func (repo *gamerRepo) GetGamerByUserId(userId sharedkernelmodel.UserIdVo) (game
 
 func (repo *gamerRepo) FindGamerByUserId(userId sharedkernelmodel.UserIdVo) (gamer gamermodel.GamerAgg, gamerFound bool, err error) {
 	gamerModels := []pgmodel.GamerModel{}
-	result := repo.dbClient.Find(&gamerModels, pgmodel.GamerModel{UserId: userId.Uuid()})
+	result := repo.db.Find(&gamerModels, pgmodel.GamerModel{UserId: userId.Uuid()})
 	if result.Error != nil {
 		return gamer, gamerFound, result.Error
 	}
@@ -77,7 +77,7 @@ func (repo *gamerRepo) FindGamerByUserId(userId sharedkernelmodel.UserIdVo) (gam
 
 func (repo *gamerRepo) GetAll() (gamers []gamermodel.GamerAgg, err error) {
 	var gamerModels []pgmodel.GamerModel
-	result := repo.dbClient.Find(&gamerModels)
+	result := repo.db.Find(&gamerModels)
 	if result.Error != nil {
 		err = result.Error
 		return gamers, err

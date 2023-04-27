@@ -9,14 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-var dbClient *gorm.DB = nil
-var dbClientCreatorLock = &sync.Mutex{}
+var db *gorm.DB = nil
+var dbCreatorLock = &sync.Mutex{}
 
 func NewClient() (gormDb *gorm.DB, err error) {
-	dbClientCreatorLock.Lock()
-	defer dbClientCreatorLock.Unlock()
+	dbCreatorLock.Lock()
+	defer dbCreatorLock.Unlock()
 
-	if dbClient == nil {
+	if db == nil {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",
 			os.Getenv("POSTGRES_HOST"),
@@ -24,13 +24,13 @@ func NewClient() (gormDb *gorm.DB, err error) {
 			os.Getenv("POSTGRES_PASSWORD"),
 			os.Getenv("POSTGRES_DB"),
 		)
-		dbClient, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
 			return gormDb, err
 		}
 
-		return dbClient, nil
+		return db, nil
 	}
 
-	return dbClient, nil
+	return db, nil
 }
