@@ -1,9 +1,14 @@
 package commonmodel
 
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/valueobject"
+
 type PositionVo struct {
 	x int
 	z int
 }
+
+// Interface Implementation Check
+var _ valueobject.ValueObject[PositionVo] = (*PositionVo)(nil)
 
 func NewPositionVo(x int, z int) PositionVo {
 	return PositionVo{

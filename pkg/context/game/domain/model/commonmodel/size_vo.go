@@ -2,6 +2,8 @@ package commonmodel
 
 import (
 	"fmt"
+
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/valueobject"
 )
 
 type ErrInvalidSizeVo struct {
@@ -18,6 +20,9 @@ type SizeVo struct {
 	height int
 }
 
+// Interface Implementation Check
+var _ valueobject.ValueObject[SizeVo] = (*SizeVo)(nil)
+
 func NewSizeVo(width int, height int) (SizeVo, error) {
 	if width < 1 || height < 1 {
 		return SizeVo{}, &ErrInvalidSizeVo{width: width, height: height}
@@ -27,6 +32,10 @@ func NewSizeVo(width int, height int) (SizeVo, error) {
 		width:  width,
 		height: height,
 	}, nil
+}
+
+func (size SizeVo) IsEqual(anotherVo SizeVo) bool {
+	return size.width == anotherVo.width && size.height == anotherVo.height
 }
 
 func (size SizeVo) GetWidth() int {

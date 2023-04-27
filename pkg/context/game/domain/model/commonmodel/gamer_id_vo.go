@@ -1,10 +1,16 @@
 package commonmodel
 
-import "github.com/google/uuid"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/valueobject"
+	"github.com/google/uuid"
+)
 
 type GamerIdVo struct {
 	id uuid.UUID
 }
+
+// Interface Implementation Check
+var _ valueobject.ValueObject[GamerIdVo] = (*GamerIdVo)(nil)
 
 func NewGamerIdVo(uuid uuid.UUID) GamerIdVo {
 	return GamerIdVo{
