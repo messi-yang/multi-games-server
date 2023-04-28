@@ -72,7 +72,7 @@ func (serve *serve) Move(
 	player.ChangeDirection(direction)
 	newItemPos := player.GetPositionOneStepFoward()
 
-	unit, unitFound, err := serve.unitRepo.GetUnitAt(worldId, newItemPos)
+	unit, unitFound, err := serve.unitRepo.FindUnitAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmode
 		return nil
 	}
 
-	_, unitFound, err := serve.unitRepo.GetUnitAt(worldId, newItemPos)
+	_, unitFound, err := serve.unitRepo.FindUnitAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}

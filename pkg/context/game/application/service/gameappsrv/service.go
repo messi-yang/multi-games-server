@@ -82,7 +82,7 @@ func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 	}
 
 	visionBound := player.GetVisionBound()
-	units, err := serve.unitRepo.GetUnitsInBound(commonmodel.NewWorldIdVo(query.WorldId), visionBound)
+	units, err := serve.unitRepo.QueryUnitsInBound(commonmodel.NewWorldIdVo(query.WorldId), visionBound)
 	if err != nil {
 		return unitDtos, err
 	}

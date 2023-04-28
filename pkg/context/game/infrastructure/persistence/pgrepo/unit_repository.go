@@ -48,7 +48,7 @@ func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 	return nil
 }
 
-func (repo *unitRepo) GetUnitAt(
+func (repo *unitRepo) FindUnitAt(
 	worldId commonmodel.WorldIdVo, position commonmodel.PositionVo,
 ) (unit unitmodel.UnitAgg, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
@@ -70,7 +70,7 @@ func (repo *unitRepo) GetUnitAt(
 	return unit, found, nil
 }
 
-func (repo *unitRepo) GetUnitsInBound(
+func (repo *unitRepo) QueryUnitsInBound(
 	worldId commonmodel.WorldIdVo, bound commonmodel.BoundVo,
 ) (units []unitmodel.UnitAgg, err error) {
 	var unitModels []pgmodel.UnitModel

@@ -6,7 +6,7 @@ import (
 
 type Repo interface {
 	Add(unit UnitAgg) error
-	GetUnitAt(commonmodel.WorldIdVo, commonmodel.PositionVo) (unit UnitAgg, found bool, err error)
-	GetUnitsInBound(commonmodel.WorldIdVo, commonmodel.BoundVo) ([]UnitAgg, error)
+	FindUnitAt(commonmodel.WorldIdVo, commonmodel.PositionVo) (unit UnitAgg, found bool, err error)
+	QueryUnitsInBound(commonmodel.WorldIdVo, commonmodel.BoundVo) ([]UnitAgg, error)
 	Delete(commonmodel.WorldIdVo, commonmodel.PositionVo) error
 }
