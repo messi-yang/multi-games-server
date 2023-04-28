@@ -3,7 +3,7 @@ package commonmodel
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 )
 
 var (
@@ -13,7 +13,7 @@ var (
 type DirectionVo int8
 
 // Interface Implementation Check
-var _ valueobject.ValueObject[DirectionVo] = (*DirectionVo)(nil)
+var _ domainmodel.ValueObject[DirectionVo] = (*DirectionVo)(nil)
 
 func NewDirectionVo(direction int8) DirectionVo {
 	return DirectionVo(direction % 4)

@@ -3,7 +3,7 @@ package commonmodel
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 )
 
 type ErrInvalidSizeVo struct {
@@ -21,7 +21,7 @@ type SizeVo struct {
 }
 
 // Interface Implementation Check
-var _ valueobject.ValueObject[SizeVo] = (*SizeVo)(nil)
+var _ domainmodel.ValueObject[SizeVo] = (*SizeVo)(nil)
 
 func NewSizeVo(width int, height int) (SizeVo, error) {
 	if width < 1 || height < 1 {

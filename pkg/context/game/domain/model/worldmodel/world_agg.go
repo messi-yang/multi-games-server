@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 )
 
 var (
@@ -14,17 +15,30 @@ var (
 )
 
 type WorldAgg struct {
-	id      commonmodel.WorldIdVo
-	gamerId commonmodel.GamerIdVo
-	name    string
+	id           commonmodel.WorldIdVo
+	gamerId      commonmodel.GamerIdVo
+	name         string
+	domainEvents []domainmodel.DomainEvent
 }
+
+// Interface Implementation Check
+var _ domainmodel.Aggregate = (*WorldAgg)(nil)
 
 func NewWorldAgg(id commonmodel.WorldIdVo, gamerId commonmodel.GamerIdVo) WorldAgg {
 	return WorldAgg{
-		id:      id,
-		gamerId: gamerId,
-		name:    "Hello World",
+		id:           id,
+		gamerId:      gamerId,
+		name:         "Hello World",
+		domainEvents: []domainmodel.DomainEvent{},
 	}
+}
+
+func (agg *WorldAgg) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
+	agg.domainEvents = append(agg.domainEvents, domainEvent)
+}
+
+func (agg *WorldAgg) GetDomainEvents() []domainmodel.DomainEvent {
+	return agg.domainEvents
 }
 
 func (agg *WorldAgg) GetId() commonmodel.WorldIdVo {

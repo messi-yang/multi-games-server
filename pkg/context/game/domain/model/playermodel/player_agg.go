@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 )
 
 func calculatePlayerVisionBound(pos commonmodel.PositionVo) commonmodel.BoundVo {
@@ -21,26 +22,39 @@ func calculatePlayerVisionBound(pos commonmodel.PositionVo) commonmodel.BoundVo 
 }
 
 type PlayerAgg struct {
-	id          commonmodel.PlayerIdVo  // Id of the player
-	worldId     commonmodel.WorldIdVo   // The id of the world the player belongs to
-	name        string                  // The name of the player
-	position    commonmodel.PositionVo  // The current position of the player
-	direction   commonmodel.DirectionVo // The direction where the player is facing
-	visionBound commonmodel.BoundVo     // The vision bound of the player
-	heldItemId  *commonmodel.ItemIdVo   // Optional, The item held by the player
+	id           commonmodel.PlayerIdVo  // Id of the player
+	worldId      commonmodel.WorldIdVo   // The id of the world the player belongs to
+	name         string                  // The name of the player
+	position     commonmodel.PositionVo  // The current position of the player
+	direction    commonmodel.DirectionVo // The direction where the player is facing
+	visionBound  commonmodel.BoundVo     // The vision bound of the player
+	heldItemId   *commonmodel.ItemIdVo   // Optional, The item held by the player
+	domainEvents []domainmodel.DomainEvent
 }
+
+// Interface Implementation Check
+var _ domainmodel.Aggregate = (*PlayerAgg)(nil)
 
 func NewPlayerAgg(id commonmodel.PlayerIdVo, worldId commonmodel.WorldIdVo, name string, position commonmodel.PositionVo, direction commonmodel.DirectionVo, heldItemId *commonmodel.ItemIdVo) PlayerAgg {
 	player := PlayerAgg{
-		id:          id,
-		worldId:     worldId,
-		name:        name,
-		position:    position,
-		direction:   direction,
-		visionBound: calculatePlayerVisionBound(position),
-		heldItemId:  heldItemId,
+		id:           id,
+		worldId:      worldId,
+		name:         name,
+		position:     position,
+		direction:    direction,
+		visionBound:  calculatePlayerVisionBound(position),
+		heldItemId:   heldItemId,
+		domainEvents: []domainmodel.DomainEvent{},
 	}
 	return player
+}
+
+func (agg *PlayerAgg) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
+	agg.domainEvents = append(agg.domainEvents, domainEvent)
+}
+
+func (agg *PlayerAgg) GetDomainEvents() []domainmodel.DomainEvent {
+	return agg.domainEvents
 }
 
 func (agg *PlayerAgg) GetId() commonmodel.PlayerIdVo {

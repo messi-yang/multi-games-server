@@ -1,6 +1,9 @@
 package itemmodel
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
+)
 
 type ItemAgg struct {
 	id           commonmodel.ItemIdVo
@@ -8,7 +11,11 @@ type ItemAgg struct {
 	traversable  bool
 	thumbnailSrc string
 	modelSrc     string
+	domainEvents []domainmodel.DomainEvent
 }
+
+// Interface Implementation Check
+var _ domainmodel.Aggregate = (*ItemAgg)(nil)
 
 func NewItemAgg(id commonmodel.ItemIdVo, name string, traversable bool, thumbnailSrc string, modelSrc string) ItemAgg {
 	return ItemAgg{
@@ -17,25 +24,34 @@ func NewItemAgg(id commonmodel.ItemIdVo, name string, traversable bool, thumbnai
 		traversable:  traversable,
 		thumbnailSrc: thumbnailSrc,
 		modelSrc:     modelSrc,
+		domainEvents: []domainmodel.DomainEvent{},
 	}
 }
 
-func (item *ItemAgg) GetId() commonmodel.ItemIdVo {
-	return item.id
+func (agg *ItemAgg) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
+	agg.domainEvents = append(agg.domainEvents, domainEvent)
 }
 
-func (item *ItemAgg) GetName() string {
-	return item.name
+func (agg *ItemAgg) GetDomainEvents() []domainmodel.DomainEvent {
+	return agg.domainEvents
 }
 
-func (item *ItemAgg) GetTraversable() bool {
-	return item.traversable
+func (agg *ItemAgg) GetId() commonmodel.ItemIdVo {
+	return agg.id
 }
 
-func (item *ItemAgg) GetThumbnailSrc() string {
-	return item.thumbnailSrc
+func (agg *ItemAgg) GetName() string {
+	return agg.name
 }
 
-func (item *ItemAgg) GetModelSrc() string {
-	return item.modelSrc
+func (agg *ItemAgg) GetTraversable() bool {
+	return agg.traversable
+}
+
+func (agg *ItemAgg) GetThumbnailSrc() string {
+	return agg.thumbnailSrc
+}
+
+func (agg *ItemAgg) GetModelSrc() string {
+	return agg.modelSrc
 }

@@ -3,7 +3,7 @@ package commonmodel
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/valueobject"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 	"github.com/samber/lo"
 )
 
@@ -22,7 +22,7 @@ type BoundVo struct {
 }
 
 // Interface Implementation Check
-var _ valueobject.ValueObject[BoundVo] = (*BoundVo)(nil)
+var _ domainmodel.ValueObject[BoundVo] = (*BoundVo)(nil)
 
 func NewBoundVo(from PositionVo, to PositionVo) (BoundVo, error) {
 	if from.GetX() > to.GetX() || from.GetZ() > to.GetZ() {
