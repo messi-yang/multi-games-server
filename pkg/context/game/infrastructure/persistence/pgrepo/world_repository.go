@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func newWorldModel(world worldmodel.WorldAgg) pgmodel.WorldModel {
+func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 	return pgmodel.WorldModel{
 		Id:      world.GetId().Uuid(),
 		GamerId: world.GetGamerId().Uuid(),
@@ -16,8 +16,8 @@ func newWorldModel(world worldmodel.WorldAgg) pgmodel.WorldModel {
 	}
 }
 
-func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.WorldAgg {
-	return worldmodel.NewWorldAgg(commonmodel.NewWorldIdVo(worldModel.Id), commonmodel.NewGamerIdVo(worldModel.GamerId))
+func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
+	return worldmodel.NewWorld(commonmodel.NewWorldId(worldModel.Id), commonmodel.NewGamerId(worldModel.GamerId))
 }
 
 type worldRepo struct {
@@ -32,7 +32,7 @@ func NewWorldRepo() (repository worldmodel.Repo, err error) {
 	return &worldRepo{db: db}, nil
 }
 
-func (repo *worldRepo) Get(worldId commonmodel.WorldIdVo) (world worldmodel.WorldAgg, err error) {
+func (repo *worldRepo) Get(worldId commonmodel.WorldId) (world worldmodel.World, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
 	result := repo.db.First(&worldModel)
 	if result.Error != nil {
@@ -41,20 +41,20 @@ func (repo *worldRepo) Get(worldId commonmodel.WorldIdVo) (world worldmodel.Worl
 	return parseWorldModel(worldModel), nil
 }
 
-func (repo *worldRepo) GetAll() (worlds []worldmodel.WorldAgg, err error) {
+func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
 	var worldModels []pgmodel.WorldModel
 	result := repo.db.Find(&worldModels).Limit(10)
 	if result.Error != nil {
 		return worlds, result.Error
 	}
 
-	worlds = lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.WorldAgg {
+	worlds = lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.World {
 		return parseWorldModel(worldModel)
 	})
 	return worlds, nil
 }
 
-func (repo *worldRepo) Add(world worldmodel.WorldAgg) error {
+func (repo *worldRepo) Add(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
 	res := repo.db.Create(&worldModel)
 	if res.Error != nil {
@@ -63,10 +63,10 @@ func (repo *worldRepo) Add(world worldmodel.WorldAgg) error {
 	return nil
 }
 
-func (repo *worldRepo) ReadLockAccess(worldId commonmodel.WorldIdVo) func() {
+func (repo *worldRepo) ReadLockAccess(worldId commonmodel.WorldId) func() {
 	return func() {}
 }
 
-func (repo *worldRepo) LockAccess(worldId commonmodel.WorldIdVo) func() {
+func (repo *worldRepo) LockAccess(worldId commonmodel.WorldId) func() {
 	return func() {}
 }

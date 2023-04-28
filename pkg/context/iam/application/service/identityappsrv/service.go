@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service/identitydomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
@@ -15,7 +15,7 @@ import (
 )
 
 type Service interface {
-	FindUserByEmailAddress(FindUserByEmailAddressQuery) (userAggDto jsondto.UserAggDto, found bool, err error)
+	FindUserByEmailAddress(FindUserByEmailAddressQuery) (userDto dto.UserDto, found bool, err error)
 	Register(RegisterCommand) (userIdDto uuid.UUID, err error)
 	Login(LoginCommand) (accessToken string, err error)
 	Validate(accessToken string) (userIdDto uuid.UUID, err error)
@@ -31,15 +31,15 @@ func NewService(userRepo usermodel.Repo, identityService identitydomainsrv.Servi
 	return &serve{userRepo: userRepo, identityService: identityService, authSecret: authSecret}
 }
 
-func (serve *serve) FindUserByEmailAddress(query FindUserByEmailAddressQuery) (userAggDto jsondto.UserAggDto, found bool, err error) {
+func (serve *serve) FindUserByEmailAddress(query FindUserByEmailAddressQuery) (userDto dto.UserDto, found bool, err error) {
 	user, found, err := serve.userRepo.FindUserByEmailAddress(query.EmailAddress)
 	if err != nil {
-		return userAggDto, found, err
+		return userDto, found, err
 	}
 	if !found {
-		return userAggDto, false, err
+		return userDto, false, err
 	}
-	return jsondto.NewUserAggDto(user), true, nil
+	return dto.NewUserDto(user), true, nil
 }
 
 func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err error) {
@@ -61,7 +61,7 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 }
 
 func (serve *serve) Login(command LoginCommand) (accessToken string, err error) {
-	user, err := serve.userRepo.Get(sharedkernelmodel.NewUserIdVo(command.UserId))
+	user, err := serve.userRepo.Get(sharedkernelmodel.NewUserId(command.UserId))
 	if err != nil {
 		return accessToken, err
 	}

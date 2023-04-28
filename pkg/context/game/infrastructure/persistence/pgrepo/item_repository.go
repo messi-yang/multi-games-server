@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func newItemModel(item itemmodel.ItemAgg) pgmodel.ItemModel {
+func newItemModel(item itemmodel.Item) pgmodel.ItemModel {
 	return pgmodel.ItemModel{
 		Id:           item.GetId().Uuid(),
 		Name:         item.GetName(),
@@ -21,10 +21,10 @@ func newItemModel(item itemmodel.ItemAgg) pgmodel.ItemModel {
 	}
 }
 
-func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.ItemAgg {
+func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.Item {
 	serverUrl := os.Getenv("SERVER_URL")
-	return itemmodel.NewItemAgg(
-		commonmodel.NewItemIdVo(itemModel.Id),
+	return itemmodel.NewItem(
+		commonmodel.NewItemId(itemModel.Id),
 		itemModel.Name,
 		itemModel.Traversable,
 		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
@@ -44,7 +44,7 @@ func NewItemRepo() (repository itemmodel.Repo, err error) {
 	return &itemRepo{db: db}, nil
 }
 
-func (repo *itemRepo) GetAll() (items []itemmodel.ItemAgg, err error) {
+func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 	var itemModels []pgmodel.ItemModel
 	result := repo.db.Find(&itemModels)
 	if result.Error != nil {
@@ -52,13 +52,13 @@ func (repo *itemRepo) GetAll() (items []itemmodel.ItemAgg, err error) {
 		return items, err
 	}
 
-	items = lo.Map(itemModels, func(itemModel pgmodel.ItemModel, _ int) itemmodel.ItemAgg {
+	items = lo.Map(itemModels, func(itemModel pgmodel.ItemModel, _ int) itemmodel.Item {
 		return parseItemModel(itemModel)
 	})
 	return items, nil
 }
 
-func (repo *itemRepo) Get(itemId commonmodel.ItemIdVo) (item itemmodel.ItemAgg, err error) {
+func (repo *itemRepo) Get(itemId commonmodel.ItemId) (item itemmodel.Item, err error) {
 	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
 	result := repo.db.First(&itemModel)
 	if result.Error != nil {
@@ -68,7 +68,7 @@ func (repo *itemRepo) Get(itemId commonmodel.ItemIdVo) (item itemmodel.ItemAgg, 
 	return parseItemModel(itemModel), nil
 }
 
-func (repo *itemRepo) GetFirstItem() (item itemmodel.ItemAgg, err error) {
+func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
 	itemModel := pgmodel.ItemModel{}
 	result := repo.db.First(&itemModel)
 	if result.Error != nil {
@@ -78,7 +78,7 @@ func (repo *itemRepo) GetFirstItem() (item itemmodel.ItemAgg, err error) {
 	return parseItemModel(itemModel), nil
 }
 
-func (repo *itemRepo) Add(item itemmodel.ItemAgg) error {
+func (repo *itemRepo) Add(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
 	res := repo.db.Create(&itemModel)
 	if res.Error != nil {
@@ -87,7 +87,7 @@ func (repo *itemRepo) Add(item itemmodel.ItemAgg) error {
 	return nil
 }
 
-func (repo *itemRepo) Update(item itemmodel.ItemAgg) error {
+func (repo *itemRepo) Update(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
 	res := repo.db.Save(&itemModel)
 	if res.Error != nil {

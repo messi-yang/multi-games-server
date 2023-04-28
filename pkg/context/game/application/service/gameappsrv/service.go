@@ -3,7 +3,7 @@ package gameappsrv
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
@@ -14,9 +14,9 @@ import (
 )
 
 type Service interface {
-	GetNearbyPlayers(GetNearbyPlayersQuery) (myPlayerDto jsondto.PlayerAggDto, ohterPlayerDtos []jsondto.PlayerAggDto, err error)
-	GetNearbyUnits(GetNearbyUnitsQuery) (unitDtos []jsondto.UnitAggDto, err error)
-	GetPlayer(GetPlayerQuery) (jsondto.PlayerAggDto, error)
+	GetNearbyPlayers(GetNearbyPlayersQuery) (myPlayerDto dto.PlayerDto, ohterPlayerDtos []dto.PlayerDto, err error)
+	GetNearbyUnits(GetNearbyUnitsQuery) (unitDtos []dto.UnitDto, err error)
+	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) error
 	Move(MoveCommand) error
 	LeaveWorld(LeaveWorldCommand) error
@@ -44,83 +44,83 @@ func NewService(worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo
 }
 
 func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
-	myPlayerDto jsondto.PlayerAggDto, otherPlayerDtos []jsondto.PlayerAggDto, err error,
+	myPlayerDto dto.PlayerDto, otherPlayerDtos []dto.PlayerDto, err error,
 ) {
-	player, err := serve.playerRepo.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepo.Get(commonmodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return myPlayerDto, otherPlayerDtos, err
 	}
 
-	players, err := serve.playerRepo.GetPlayersAround(commonmodel.NewWorldIdVo(query.WorldId), player.GetPosition())
+	players, err := serve.playerRepo.GetPlayersAround(commonmodel.NewWorldId(query.WorldId), player.GetPosition())
 	if err != nil {
 		return myPlayerDto, otherPlayerDtos, err
 	}
 
-	myPlayer, myPlayrFound := lo.Find(players, func(_player playermodel.PlayerAgg) bool {
+	myPlayer, myPlayrFound := lo.Find(players, func(_player playermodel.Player) bool {
 		return _player.GetId().IsEqual(player.GetId())
 	})
 	if !myPlayrFound {
 		return myPlayerDto, otherPlayerDtos, errors.New("my player not found in players")
 	}
-	myPlayerDto = jsondto.NewPlayerAggDto(myPlayer)
-	otherPlayers := lo.Filter(players, func(_player playermodel.PlayerAgg, _ int) bool {
+	myPlayerDto = dto.NewPlayerDto(myPlayer)
+	otherPlayers := lo.Filter(players, func(_player playermodel.Player, _ int) bool {
 		return !_player.GetId().IsEqual(player.GetId())
 	})
-	otherPlayerDtos = lo.Map(otherPlayers, func(_player playermodel.PlayerAgg, _ int) jsondto.PlayerAggDto {
-		return jsondto.NewPlayerAggDto(_player)
+	otherPlayerDtos = lo.Map(otherPlayers, func(_player playermodel.Player, _ int) dto.PlayerDto {
+		return dto.NewPlayerDto(_player)
 	})
 
 	return myPlayerDto, otherPlayerDtos, err
 }
 
 func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
-	unitDtos []jsondto.UnitAggDto, err error,
+	unitDtos []dto.UnitDto, err error,
 ) {
-	player, err := serve.playerRepo.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
+	player, err := serve.playerRepo.Get(commonmodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return unitDtos, err
 	}
 
 	visionBound := player.GetVisionBound()
-	units, err := serve.unitRepo.QueryUnitsInBound(commonmodel.NewWorldIdVo(query.WorldId), visionBound)
+	units, err := serve.unitRepo.QueryUnitsInBound(commonmodel.NewWorldId(query.WorldId), visionBound)
 	if err != nil {
 		return unitDtos, err
 	}
-	unitDtos = lo.Map(units, func(unit unitmodel.UnitAgg, _ int) jsondto.UnitAggDto {
-		return jsondto.NewUnitAggDto(unit)
+	unitDtos = lo.Map(units, func(unit unitmodel.Unit, _ int) dto.UnitDto {
+		return dto.NewUnitDto(unit)
 	})
 
 	return unitDtos, err
 }
 
-func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto jsondto.PlayerAggDto, err error) {
-	player, err := serve.playerRepo.Get(commonmodel.NewPlayerIdVo(query.PlayerId))
+func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, err error) {
+	player, err := serve.playerRepo.Get(commonmodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return playerDto, err
 	}
-	return jsondto.NewPlayerAggDto(player), nil
+	return dto.NewPlayerDto(player), nil
 }
 
 func (serve *serve) EnterWorld(command EnterWorldCommand) error {
-	return serve.gameDomainService.EnterWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.EnterWorld(commonmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) Move(command MoveCommand) error {
-	return serve.gameDomainService.Move(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewDirectionVo(command.Direction))
+	return serve.gameDomainService.Move(commonmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId), commonmodel.NewDirection(command.Direction))
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	return serve.gameDomainService.LeaveWorld(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.LeaveWorld(commonmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	return serve.gameDomainService.PlaceItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.PlaceItem(commonmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
-	return serve.gameDomainService.ChangeHeldItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId), commonmodel.NewItemIdVo(command.ItemId))
+	return serve.gameDomainService.ChangeHeldItem(commonmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId), commonmodel.NewItemId(command.ItemId))
 }
 
 func (serve *serve) RemoveItem(command RemoveItemCommand) error {
-	return serve.gameDomainService.RemoveItem(commonmodel.NewWorldIdVo(command.WorldId), commonmodel.NewPlayerIdVo(command.PlayerId))
+	return serve.gameDomainService.RemoveItem(commonmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
 }

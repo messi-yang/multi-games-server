@@ -1,7 +1,7 @@
 package gamesockethandler
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 )
 
 type responseDtoType string
@@ -17,12 +17,12 @@ type gameJoinedResponseDto struct {
 }
 
 type playersUpdatedResponseDto struct {
-	Type         responseDtoType        `json:"type"`
-	MyPlayer     jsondto.PlayerAggDto   `json:"myPlayer"`
-	OtherPlayers []jsondto.PlayerAggDto `json:"otherPlayers"`
+	Type         responseDtoType `json:"type"`
+	MyPlayer     dto.PlayerDto   `json:"myPlayer"`
+	OtherPlayers []dto.PlayerDto `json:"otherPlayers"`
 }
 
 type unitsUpdatedResponseDto struct {
-	Type  responseDtoType      `json:"type"`
-	Units []jsondto.UnitAggDto `json:"units"`
+	Type  responseDtoType `json:"type"`
+	Units []dto.UnitDto   `json:"units"`
 }

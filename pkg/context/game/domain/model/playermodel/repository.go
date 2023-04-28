@@ -12,10 +12,10 @@ var (
 )
 
 type Repo interface {
-	Add(PlayerAgg) error
-	Get(commonmodel.PlayerIdVo) (PlayerAgg, error)
-	FindPlayerAt(commonmodel.WorldIdVo, commonmodel.PositionVo) (player PlayerAgg, found bool, err error)
-	GetPlayersAround(commonmodel.WorldIdVo, commonmodel.PositionVo) ([]PlayerAgg, error)
-	Update(PlayerAgg) error
-	Delete(commonmodel.PlayerIdVo) error
+	Add(Player) error
+	Get(commonmodel.PlayerId) (Player, error)
+	FindPlayerAt(commonmodel.WorldId, commonmodel.Position) (player Player, found bool, err error)
+	GetPlayersAround(commonmodel.WorldId, commonmodel.Position) ([]Player, error)
+	Update(Player) error
+	Delete(commonmodel.PlayerId) error
 }

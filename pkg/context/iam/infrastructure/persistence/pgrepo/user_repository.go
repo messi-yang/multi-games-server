@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func newUserModel(user usermodel.UserAgg) pgmodel.UserModel {
+func newUserModel(user usermodel.User) pgmodel.UserModel {
 	return pgmodel.UserModel{
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress(),
@@ -15,8 +15,8 @@ func newUserModel(user usermodel.UserAgg) pgmodel.UserModel {
 	}
 }
 
-func parseUserModel(userModel pgmodel.UserModel) usermodel.UserAgg {
-	return usermodel.NewUserAgg(sharedkernelmodel.NewUserIdVo(userModel.Id), userModel.EmailAddress, userModel.Username)
+func parseUserModel(userModel pgmodel.UserModel) usermodel.User {
+	return usermodel.NewUser(sharedkernelmodel.NewUserId(userModel.Id), userModel.EmailAddress, userModel.Username)
 }
 
 type userRepo struct {
@@ -31,7 +31,7 @@ func NewUserRepo() (repository usermodel.Repo, err error) {
 	return &userRepo{db: db}, nil
 }
 
-func (repo *userRepo) Add(user usermodel.UserAgg) error {
+func (repo *userRepo) Add(user usermodel.User) error {
 	userModel := newUserModel(user)
 	res := repo.db.Create(&userModel)
 	if res.Error != nil {
@@ -40,7 +40,7 @@ func (repo *userRepo) Add(user usermodel.UserAgg) error {
 	return nil
 }
 
-func (repo *userRepo) Get(userId sharedkernelmodel.UserIdVo) (user usermodel.UserAgg, err error) {
+func (repo *userRepo) Get(userId sharedkernelmodel.UserId) (user usermodel.User, err error) {
 	userModel := pgmodel.UserModel{Id: userId.Uuid()}
 	result := repo.db.First(&userModel)
 	if result.Error != nil {
@@ -50,7 +50,7 @@ func (repo *userRepo) Get(userId sharedkernelmodel.UserIdVo) (user usermodel.Use
 	return parseUserModel(userModel), nil
 }
 
-func (repo *userRepo) FindUserByEmailAddress(emailAddress string) (user usermodel.UserAgg, userFound bool, err error) {
+func (repo *userRepo) FindUserByEmailAddress(emailAddress string) (user usermodel.User, userFound bool, err error) {
 	userModels := []pgmodel.UserModel{}
 	result := repo.db.Find(&userModels, pgmodel.UserModel{EmailAddress: emailAddress})
 	if result.Error != nil {

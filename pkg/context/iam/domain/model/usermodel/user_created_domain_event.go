@@ -9,13 +9,13 @@ import (
 
 type UserCreatedDomainEvent struct {
 	OccurredOn time.Time
-	UserId     sharedkernelmodel.UserIdVo
+	UserId     sharedkernelmodel.UserId
 }
 
 // Interface Implementation Check
 var _ domainmodel.DomainEvent = (*UserCreatedDomainEvent)(nil)
 
-func NewUserCreatedDomainEvent(userId sharedkernelmodel.UserIdVo) UserCreatedDomainEvent {
+func NewUserCreatedDomainEvent(userId sharedkernelmodel.UserId) UserCreatedDomainEvent {
 	return UserCreatedDomainEvent{
 		OccurredOn: time.Now(),
 		UserId:     userId,

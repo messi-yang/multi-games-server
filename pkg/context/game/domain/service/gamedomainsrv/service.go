@@ -9,12 +9,12 @@ import (
 )
 
 type Service interface {
-	EnterWorld(commonmodel.WorldIdVo, commonmodel.PlayerIdVo) error
-	Move(commonmodel.WorldIdVo, commonmodel.PlayerIdVo, commonmodel.DirectionVo) error
-	LeaveWorld(commonmodel.WorldIdVo, commonmodel.PlayerIdVo) error
-	ChangeHeldItem(commonmodel.WorldIdVo, commonmodel.PlayerIdVo, commonmodel.ItemIdVo) error
-	PlaceItem(commonmodel.WorldIdVo, commonmodel.PlayerIdVo) error
-	RemoveItem(commonmodel.WorldIdVo, commonmodel.PlayerIdVo) error
+	EnterWorld(commonmodel.WorldId, commonmodel.PlayerId) error
+	Move(commonmodel.WorldId, commonmodel.PlayerId, commonmodel.Direction) error
+	LeaveWorld(commonmodel.WorldId, commonmodel.PlayerId) error
+	ChangeHeldItem(commonmodel.WorldId, commonmodel.PlayerId, commonmodel.ItemId) error
+	PlaceItem(commonmodel.WorldId, commonmodel.PlayerId) error
+	RemoveItem(commonmodel.WorldId, commonmodel.PlayerId) error
 }
 
 type serve struct {
@@ -28,7 +28,7 @@ func NewService(worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo
 	return &serve{worldRepo: worldRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo}
 }
 
-func (serve *serve) EnterWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) EnterWorld(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
 	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
@@ -42,14 +42,14 @@ func (serve *serve) EnterWorld(worldId commonmodel.WorldIdVo, playerId commonmod
 	}
 	firstItemId := firstItem.GetId()
 
-	direction := commonmodel.NewDownDirectionVo()
-	newPlayer := playermodel.NewPlayerAgg(playerId, worldId, "Hello", commonmodel.NewPositionVo(0, 0), direction, &firstItemId)
+	direction := commonmodel.NewDownDirection()
+	newPlayer := playermodel.NewPlayer(playerId, worldId, "Hello", commonmodel.NewPosition(0, 0), direction, &firstItemId)
 
 	return serve.playerRepo.Add(newPlayer)
 }
 
 func (serve *serve) Move(
-	worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo, direction commonmodel.DirectionVo,
+	worldId commonmodel.WorldId, playerId commonmodel.PlayerId, direction commonmodel.Direction,
 ) error {
 	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
@@ -97,7 +97,7 @@ func (serve *serve) Move(
 	return serve.playerRepo.Update(player)
 }
 
-func (serve *serve) LeaveWorld(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) LeaveWorld(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
 	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
@@ -108,7 +108,7 @@ func (serve *serve) LeaveWorld(worldId commonmodel.WorldIdVo, playerId commonmod
 	return serve.playerRepo.Delete(playerId)
 }
 
-func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo, itemId commonmodel.ItemIdVo) error {
+func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId, itemId commonmodel.ItemId) error {
 	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
@@ -129,7 +129,7 @@ func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldIdVo, playerId commo
 	return serve.playerRepo.Update(player)
 }
 
-func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) PlaceItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
 	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 
@@ -154,7 +154,7 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmode
 	}
 
 	newItemPos := player.GetPositionOneStepFoward()
-	if newItemPos.IsEqual(commonmodel.NewPositionVo(0, 0)) {
+	if newItemPos.IsEqual(commonmodel.NewPosition(0, 0)) {
 		return nil
 	}
 
@@ -176,10 +176,10 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldIdVo, playerId commonmode
 	}
 
 	newItemDirection := player.GetDirection().Rotate().Rotate()
-	return serve.unitRepo.Add(unitmodel.NewUnitAgg(worldId, newItemPos, itemId, newItemDirection))
+	return serve.unitRepo.Add(unitmodel.NewUnit(worldId, newItemPos, itemId, newItemDirection))
 }
 
-func (serve *serve) RemoveItem(worldId commonmodel.WorldIdVo, playerId commonmodel.PlayerIdVo) error {
+func (serve *serve) RemoveItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
 	unlocker := serve.worldRepo.LockAccess(worldId)
 	defer unlocker()
 

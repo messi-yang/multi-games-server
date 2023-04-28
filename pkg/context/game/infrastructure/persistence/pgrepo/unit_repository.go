@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func newUnitModel(unit unitmodel.UnitAgg) pgmodel.UnitModel {
+func newUnitModel(unit unitmodel.Unit) pgmodel.UnitModel {
 	return pgmodel.UnitModel{
 		WorldId:   unit.GetWorldId().Uuid(),
 		PosX:      unit.GetPosition().GetX(),
@@ -18,12 +18,12 @@ func newUnitModel(unit unitmodel.UnitAgg) pgmodel.UnitModel {
 	}
 }
 
-func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.UnitAgg {
-	return unitmodel.NewUnitAgg(
-		commonmodel.NewWorldIdVo(unitModel.WorldId),
-		commonmodel.NewPositionVo(unitModel.PosX, unitModel.PosZ),
-		commonmodel.NewItemIdVo(unitModel.ItemId),
-		commonmodel.NewDirectionVo(unitModel.Direction),
+func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
+	return unitmodel.NewUnit(
+		commonmodel.NewWorldId(unitModel.WorldId),
+		commonmodel.NewPosition(unitModel.PosX, unitModel.PosZ),
+		commonmodel.NewItemId(unitModel.ItemId),
+		commonmodel.NewDirection(unitModel.Direction),
 	)
 }
 
@@ -39,7 +39,7 @@ func NewUnitRepo() (repository unitmodel.Repo, err error) {
 	return &unitRepo{db: db}, nil
 }
 
-func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
+func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	unitModel := newUnitModel(unit)
 	res := repo.db.Create(&unitModel)
 	if res.Error != nil {
@@ -49,8 +49,8 @@ func (repo *unitRepo) Add(unit unitmodel.UnitAgg) error {
 }
 
 func (repo *unitRepo) FindUnitAt(
-	worldId commonmodel.WorldIdVo, position commonmodel.PositionVo,
-) (unit unitmodel.UnitAgg, found bool, err error) {
+	worldId commonmodel.WorldId, position commonmodel.Position,
+) (unit unitmodel.Unit, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
 	result := repo.db.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
@@ -71,8 +71,8 @@ func (repo *unitRepo) FindUnitAt(
 }
 
 func (repo *unitRepo) QueryUnitsInBound(
-	worldId commonmodel.WorldIdVo, bound commonmodel.BoundVo,
-) (units []unitmodel.UnitAgg, err error) {
+	worldId commonmodel.WorldId, bound commonmodel.Bound,
+) (units []unitmodel.Unit, err error) {
 	var unitModels []pgmodel.UnitModel
 	result := repo.db.Where(
 		"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
@@ -85,13 +85,13 @@ func (repo *unitRepo) QueryUnitsInBound(
 	if result.Error != nil {
 		return units, result.Error
 	}
-	units = lo.Map(unitModels, func(unitModel pgmodel.UnitModel, _ int) unitmodel.UnitAgg {
+	units = lo.Map(unitModels, func(unitModel pgmodel.UnitModel, _ int) unitmodel.Unit {
 		return parseUnitModel(unitModel)
 	})
 	return units, nil
 }
 
-func (repo *unitRepo) Delete(worldId commonmodel.WorldIdVo, position commonmodel.PositionVo) error {
+func (repo *unitRepo) Delete(worldId commonmodel.WorldId, position commonmodel.Position) error {
 	result := repo.db.Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),

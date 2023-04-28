@@ -1,9 +1,9 @@
 package worldhttphandler
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 
-type getWorldResponseDto jsondto.WorldAggDto
+type getWorldResponseDto dto.WorldDto
 
-type queryWorldsResponseDto []jsondto.WorldAggDto
+type queryWorldsResponseDto []dto.WorldDto
 
-type createWorldResponseDto jsondto.WorldAggDto
+type createWorldResponseDto dto.WorldDto

@@ -3,7 +3,7 @@ package gamerappsrv
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/jsondto"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
@@ -12,9 +12,9 @@ import (
 )
 
 type Service interface {
-	GetGamerByUserId(GetGamerByUserIdQuery) (jsondto.GamerAggDto, error)
+	GetGamerByUserId(GetGamerByUserIdQuery) (dto.GamerDto, error)
 	CreateGamer(CreateGamerCommand) (gamerIdDto uuid.UUID, err error)
-	QueryGamers(QueryGamersQuery) ([]jsondto.GamerAggDto, error)
+	QueryGamers(QueryGamersQuery) ([]dto.GamerDto, error)
 }
 
 type serve struct {
@@ -27,18 +27,18 @@ func NewService(gamerRepo gamermodel.Repo) Service {
 	}
 }
 
-func (serve *serve) GetGamerByUserId(query GetGamerByUserIdQuery) (gamerDto jsondto.GamerAggDto, err error) {
-	userId := sharedkernelmodel.NewUserIdVo(query.UserId)
+func (serve *serve) GetGamerByUserId(query GetGamerByUserIdQuery) (gamerDto dto.GamerDto, err error) {
+	userId := sharedkernelmodel.NewUserId(query.UserId)
 	gamer, err := serve.gamerRepo.GetGamerByUserId(userId)
 	if err != nil {
 		return gamerDto, err
 	}
 
-	return jsondto.NewGamerAggDto(gamer), nil
+	return dto.NewGamerDto(gamer), nil
 }
 
 func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUID, err error) {
-	userId := sharedkernelmodel.NewUserIdVo(command.UserId)
+	userId := sharedkernelmodel.NewUserId(command.UserId)
 	_, gamerFound, err := serve.gamerRepo.FindGamerByUserId(userId)
 	if err != nil {
 		return gamerIdDto, err
@@ -46,7 +46,7 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 	if gamerFound {
 		return gamerIdDto, fmt.Errorf("already has a gamer with userId of %s", userId.Uuid().String())
 	}
-	newGamer := gamermodel.NewGamerAgg(commonmodel.NewGamerIdVo(uuid.New()), userId)
+	newGamer := gamermodel.NewGamer(commonmodel.NewGamerId(uuid.New()), userId)
 	err = serve.gamerRepo.Add(newGamer)
 	if err != nil {
 		return gamerIdDto, err
@@ -54,13 +54,13 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 	return newGamer.GetId().Uuid(), nil
 }
 
-func (serve *serve) QueryGamers(query QueryGamersQuery) (itemDtos []jsondto.GamerAggDto, err error) {
+func (serve *serve) QueryGamers(query QueryGamersQuery) (itemDtos []dto.GamerDto, err error) {
 	gamers, err := serve.gamerRepo.GetAll()
 	if err != nil {
 		return itemDtos, err
 	}
 
-	return lo.Map(gamers, func(gamer gamermodel.GamerAgg, _ int) jsondto.GamerAggDto {
-		return jsondto.NewGamerAggDto(gamer)
+	return lo.Map(gamers, func(gamer gamermodel.Gamer, _ int) dto.GamerDto {
+		return dto.NewGamerDto(gamer)
 	}), nil
 }
