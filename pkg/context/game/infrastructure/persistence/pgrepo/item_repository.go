@@ -6,10 +6,9 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/samber/lo"
-	"gorm.io/gorm"
 )
 
 func newItemModel(item itemmodel.Item) pgmodel.ItemModel {
@@ -34,10 +33,10 @@ func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.Item {
 }
 
 type itemRepo struct {
-	uow uow.Uow[*gorm.DB]
+	uow pguow.Uow
 }
 
-func NewItemRepo(uow uow.Uow[*gorm.DB]) (repository itemmodel.Repo) {
+func NewItemRepo(uow pguow.Uow) (repository itemmodel.Repo) {
 	return &itemRepo{uow: uow}
 }
 

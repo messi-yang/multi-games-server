@@ -2,10 +2,9 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"gorm.io/gorm"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 )
 
 func newUserModel(user usermodel.User) pgmodel.UserModel {
@@ -21,10 +20,10 @@ func parseUserModel(userModel pgmodel.UserModel) usermodel.User {
 }
 
 type userRepo struct {
-	uow uow.Uow[*gorm.DB]
+	uow pguow.Uow
 }
 
-func NewUserRepo(uow uow.Uow[*gorm.DB]) (repository usermodel.Repo) {
+func NewUserRepo(uow pguow.Uow) (repository usermodel.Repo) {
 	return &userRepo{uow: uow}
 }
 

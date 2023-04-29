@@ -3,11 +3,10 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/samber/lo"
-	"gorm.io/gorm"
 )
 
 func newGamerModel(user gamermodel.Gamer) pgmodel.GamerModel {
@@ -25,10 +24,10 @@ func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.Gamer {
 }
 
 type gamerRepo struct {
-	uow uow.Uow[*gorm.DB]
+	uow pguow.Uow
 }
 
-func NewGamerRepo(uow uow.Uow[*gorm.DB]) (repository gamermodel.Repo) {
+func NewGamerRepo(uow pguow.Uow) (repository gamermodel.Repo) {
 	return &gamerRepo{uow: uow}
 }
 

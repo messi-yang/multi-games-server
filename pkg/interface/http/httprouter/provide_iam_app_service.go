@@ -9,7 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 )
 
-func provideIdentityAppService(pgUow *pguow.Uow) identityappsrv.Service {
+func provideIdentityAppService(pgUow pguow.Uow) identityappsrv.Service {
 	userRepo := pgrepo.NewUserRepo(pgUow)
 	identityService := identitydomainsrv.NewService(userRepo)
 	return identityappsrv.NewService(userRepo, identityService, os.Getenv("AUTH_SECRET"))

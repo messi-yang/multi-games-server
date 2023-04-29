@@ -3,10 +3,9 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/samber/lo"
-	"gorm.io/gorm"
 )
 
 func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
@@ -22,10 +21,10 @@ func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
 }
 
 type worldRepo struct {
-	uow uow.Uow[*gorm.DB]
+	uow pguow.Uow
 }
 
-func NewWorldRepo(uow uow.Uow[*gorm.DB]) (repository worldmodel.Repo) {
+func NewWorldRepo(uow pguow.Uow) (repository worldmodel.Repo) {
 	return &worldRepo{uow: uow}
 }
 

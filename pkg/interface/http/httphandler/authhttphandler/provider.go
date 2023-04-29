@@ -16,12 +16,12 @@ func provideGoogleAuthInfraService() googleauthinfrasrv.Service {
 	return googleauthinfrasrv.NewService()
 }
 
-func provideGamerAppService(pgUow *pguow.Uow) gamerappsrv.Service {
+func provideGamerAppService(pgUow pguow.Uow) gamerappsrv.Service {
 	gamerRepo := pgrepo.NewGamerRepo(pgUow)
 	return gamerappsrv.NewService(gamerRepo)
 }
 
-func provideIdentityAppService(pgUow *pguow.Uow) identityappsrv.Service {
+func provideIdentityAppService(pgUow pguow.Uow) identityappsrv.Service {
 	userRepo := iam_pg_repo.NewUserRepo(pgUow)
 	identityDomainService := identitydomainsrv.NewService(userRepo)
 	return identityappsrv.NewService(userRepo, identityDomainService, os.Getenv("AUTH_SECRET"))

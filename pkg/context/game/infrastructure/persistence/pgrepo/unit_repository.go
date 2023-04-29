@@ -3,10 +3,9 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/samber/lo"
-	"gorm.io/gorm"
 )
 
 func newUnitModel(unit unitmodel.Unit) pgmodel.UnitModel {
@@ -29,10 +28,10 @@ func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
 }
 
 type unitRepo struct {
-	uow uow.Uow[*gorm.DB]
+	uow pguow.Uow
 }
 
-func NewUnitRepo(uow uow.Uow[*gorm.DB]) (repository unitmodel.Repo) {
+func NewUnitRepo(uow pguow.Uow) (repository unitmodel.Repo) {
 	return &unitRepo{uow: uow}
 }
 

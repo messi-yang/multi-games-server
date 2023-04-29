@@ -8,7 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 )
 
-func provideGameAppService(pgUow *pguow.Uow) gameappsrv.Service {
+func provideGameAppService(pgUow pguow.Uow) gameappsrv.Service {
 	itemRepo := pgrepo.NewItemRepo(pgUow)
 	playerRepo := memrepo.NewPlayerMemRepo()
 	worldRepo := pgrepo.NewWorldRepo(pgUow)
