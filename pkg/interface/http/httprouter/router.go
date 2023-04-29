@@ -55,6 +55,7 @@ func Run() error {
 		userId, err := identityAppService.Validate(authToken)
 		if err != nil {
 			ctx.String(http.StatusUnauthorized, err.Error())
+			return
 		}
 
 		httputil.SetUserId(ctx, userId)
