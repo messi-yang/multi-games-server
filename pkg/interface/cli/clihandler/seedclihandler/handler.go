@@ -10,14 +10,9 @@ type Handler struct {
 	dbSeedAppService dbseedappsrv.Service
 }
 
-var handlerSingleton *Handler
-
 func NewHandler(
 	dbSeedAppService dbseedappsrv.Service,
 ) *Handler {
-	if handlerSingleton != nil {
-		return handlerSingleton
-	}
 	return &Handler{dbSeedAppService: dbSeedAppService}
 }
 

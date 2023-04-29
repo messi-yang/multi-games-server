@@ -4,6 +4,7 @@ import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/doma
 
 type Repo interface {
 	Add(World) error
+	Update(World) error
 	Get(commonmodel.WorldId) (World, error)
 	GetAll() ([]World, error)
 	ReadLockAccess(commonmodel.WorldId) (rUnlocker func())

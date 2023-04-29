@@ -1,6 +1,7 @@
 package worldappsrv
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
@@ -17,6 +18,7 @@ type Service interface {
 	GetWorld(GetWorldQuery) (dto.WorldDto, error)
 	QueryWorlds(QueryWorldsQuery) ([]dto.WorldDto, error)
 	CreateWorld(CreateWorldCommand) (uuid.UUID, error)
+	UpdateWorld(UpdateWorldCommand) error
 }
 
 type serve struct {
@@ -52,11 +54,10 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 		return dto.NewWorldDto(world)
 	}), nil
 }
-
 func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
 	worldId := commonmodel.NewWorldId(uuid.New())
 	gamerId := commonmodel.NewGamerId(command.GamerId)
-	newWorld := worldmodel.NewWorld(worldId, gamerId)
+	newWorld := worldmodel.NewWorld(worldId, gamerId, "Hello World")
 
 	err = serve.worldRepo.Add(newWorld)
 	if err != nil {
@@ -82,4 +83,22 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 	})
 
 	return newWorld.GetId().Uuid(), nil
+}
+
+func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
+	worldId := commonmodel.NewWorldId(command.WorldId)
+	gamerId := commonmodel.NewGamerId(command.GamerId)
+	world, err := serve.worldRepo.Get(worldId)
+	if err != nil {
+		return err
+	}
+	if !world.GetGamerId().IsEqual(gamerId) {
+		return fmt.Errorf("the world with id of %s do not belong to gamer with id of %s", worldId.Uuid().String(), gamerId.Uuid().String())
+	}
+	world.ChangeName(command.Name)
+	err = serve.worldRepo.Update(world)
+	if err != nil {
+		return err
+	}
+	return nil
 }

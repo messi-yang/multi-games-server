@@ -6,6 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -33,20 +34,16 @@ func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.Item {
 }
 
 type itemRepo struct {
-	db *gorm.DB
+	uow uow.Uow[*gorm.DB]
 }
 
-func NewItemRepo() (repository itemmodel.Repo, err error) {
-	db, err := pgmodel.NewClient()
-	if err != nil {
-		return repository, err
-	}
-	return &itemRepo{db: db}, nil
+func NewItemRepo(uow uow.Uow[*gorm.DB]) (repository itemmodel.Repo) {
+	return &itemRepo{uow: uow}
 }
 
 func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 	var itemModels []pgmodel.ItemModel
-	result := repo.db.Find(&itemModels)
+	result := repo.uow.GetTransaction().Find(&itemModels)
 	if result.Error != nil {
 		err = result.Error
 		return items, err
@@ -60,7 +57,7 @@ func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 
 func (repo *itemRepo) Get(itemId commonmodel.ItemId) (item itemmodel.Item, err error) {
 	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
-	result := repo.db.First(&itemModel)
+	result := repo.uow.GetTransaction().First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
@@ -70,7 +67,7 @@ func (repo *itemRepo) Get(itemId commonmodel.ItemId) (item itemmodel.Item, err e
 
 func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
 	itemModel := pgmodel.ItemModel{}
-	result := repo.db.First(&itemModel)
+	result := repo.uow.GetTransaction().First(&itemModel)
 	if result.Error != nil {
 		return item, result.Error
 	}
@@ -80,7 +77,7 @@ func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
 
 func (repo *itemRepo) Add(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
-	res := repo.db.Create(&itemModel)
+	res := repo.uow.GetTransaction().Create(&itemModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -89,7 +86,7 @@ func (repo *itemRepo) Add(item itemmodel.Item) error {
 
 func (repo *itemRepo) Update(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
-	res := repo.db.Save(&itemModel)
+	res := repo.uow.GetTransaction().Save(&itemModel)
 	if res.Error != nil {
 		return res.Error
 	}

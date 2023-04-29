@@ -1,5 +1,5 @@
-package itemhttphandler
+package gamerhttphandler
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 
-type queryItemsReponseDto []dto.ItemDto
+type queryGamersReponse []dto.GamerDto

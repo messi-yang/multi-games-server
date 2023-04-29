@@ -3,6 +3,7 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -28,20 +29,16 @@ func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
 }
 
 type unitRepo struct {
-	db *gorm.DB
+	uow uow.Uow[*gorm.DB]
 }
 
-func NewUnitRepo() (repository unitmodel.Repo, err error) {
-	db, err := pgmodel.NewClient()
-	if err != nil {
-		return repository, err
-	}
-	return &unitRepo{db: db}, nil
+func NewUnitRepo(uow uow.Uow[*gorm.DB]) (repository unitmodel.Repo) {
+	return &unitRepo{uow: uow}
 }
 
 func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	unitModel := newUnitModel(unit)
-	res := repo.db.Create(&unitModel)
+	res := repo.uow.GetTransaction().Create(&unitModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -52,7 +49,7 @@ func (repo *unitRepo) FindUnitAt(
 	worldId commonmodel.WorldId, position commonmodel.Position,
 ) (unit unitmodel.Unit, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
-	result := repo.db.Where(
+	result := repo.uow.GetTransaction().Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
 		position.GetX(),
@@ -74,7 +71,7 @@ func (repo *unitRepo) QueryUnitsInBound(
 	worldId commonmodel.WorldId, bound commonmodel.Bound,
 ) (units []unitmodel.Unit, err error) {
 	var unitModels []pgmodel.UnitModel
-	result := repo.db.Where(
+	result := repo.uow.GetTransaction().Where(
 		"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
 		worldId.Uuid(),
 		bound.GetFrom().GetX(),
@@ -92,7 +89,7 @@ func (repo *unitRepo) QueryUnitsInBound(
 }
 
 func (repo *unitRepo) Delete(worldId commonmodel.WorldId, position commonmodel.Position) error {
-	result := repo.db.Where(
+	result := repo.uow.GetTransaction().Where(
 		"world_id = ? AND pos_x = ? AND pos_z = ?",
 		worldId.Uuid(),
 		position.GetX(),

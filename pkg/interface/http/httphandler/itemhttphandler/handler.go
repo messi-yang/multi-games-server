@@ -4,30 +4,25 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/itemappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/gin-gonic/gin"
 )
 
-type HttpHandler struct {
-	itemAppService itemappsrv.Service
-}
+type HttpHandler struct{}
 
-var httpHandlerSingleton *HttpHandler
-
-func NewHttpHandler(
-	itemAppService itemappsrv.Service,
-) *HttpHandler {
-	if httpHandlerSingleton != nil {
-		return httpHandlerSingleton
-	}
-	return &HttpHandler{itemAppService: itemAppService}
+func NewHttpHandler() *HttpHandler {
+	return &HttpHandler{}
 }
 
 func (httpHandler *HttpHandler) QueryItems(c *gin.Context) {
-	itemDtos, err := httpHandler.itemAppService.QueryItems(itemappsrv.QueryItemsQuery{})
+	pgUow := pguow.NewDummyUow()
+
+	itemAppService := provideItemAppService(pgUow)
+	itemDtos, err := itemAppService.QueryItems(itemappsrv.QueryItemsQuery{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, queryItemsReponseDto(itemDtos))
+	c.JSON(http.StatusOK, queryItemsReponse(itemDtos))
 }

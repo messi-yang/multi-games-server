@@ -8,49 +8,45 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/identityappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/service/googleauthinfrasrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type HttpHandler struct {
-	googleAuthInfraService googleauthinfrasrv.Service
-	identityAppService     identityappsrv.Service
-	gamerAppService        gamerappsrv.Service
 }
 
-var httpHandlerSingleton *HttpHandler
-
-func NewHttpHandler(
-	googleAuthInfraService googleauthinfrasrv.Service,
-	identityAppService identityappsrv.Service,
-	gamerAppService gamerappsrv.Service,
-) *HttpHandler {
-	if httpHandlerSingleton != nil {
-		return httpHandlerSingleton
-	}
-	return &HttpHandler{googleAuthInfraService, identityAppService, gamerAppService}
+func NewHttpHandler() *HttpHandler {
+	return &HttpHandler{}
 }
 
 func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
-	authUrl := httpHandler.googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{})
+	googleAuthInfraService := provideGoogleAuthInfraService()
+
+	authUrl := googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{})
 	c.Redirect(http.StatusFound, authUrl)
 }
 
 func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
-	userEmailAddress, err := httpHandler.googleAuthInfraService.GetUserEmailAddress(googleauthinfrasrv.GetUserEmailAddressQuery{
+	googleAuthInfraService := provideGoogleAuthInfraService()
+	userEmailAddress, err := googleAuthInfraService.GetUserEmailAddress(googleauthinfrasrv.GetUserEmailAddressQuery{
 		Code: code,
 	})
 	if err != nil {
-		fmt.Println(err.Error())
 		return
 	}
 
-	userDto, userFound, err := httpHandler.identityAppService.FindUserByEmailAddress(identityappsrv.FindUserByEmailAddressQuery{
+	pgUow := pguow.NewUow()
+
+	identityAppService := provideIdentityAppService(pgUow)
+	gamerAppService := provideGamerAppService(pgUow)
+
+	userDto, userFound, err := identityAppService.FindUserByEmailAddress(identityappsrv.FindUserByEmailAddressQuery{
 		EmailAddress: userEmailAddress,
 	})
 	if err != nil {
-		fmt.Println(err.Error())
+		pgUow.Rollback()
 		return
 	}
 
@@ -58,28 +54,29 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	if userFound {
 		userIdDto = userDto.Id
 	} else {
-		newUserIdDto, err := httpHandler.identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
+		userIdDto, err := identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
 		if err != nil {
-			fmt.Println(err.Error())
+			pgUow.Rollback()
 			return
 		}
-		userIdDto = newUserIdDto
 
-		if _, err = httpHandler.gamerAppService.CreateGamer(gamerappsrv.CreateGamerCommand{
+		if _, err = gamerAppService.CreateGamer(gamerappsrv.CreateGamerCommand{
 			UserId: userIdDto,
 		}); err != nil {
-			fmt.Println(err.Error())
+			pgUow.Rollback()
 			return
 		}
 	}
 
-	accessToken, err := httpHandler.identityAppService.Login(
+	accessToken, err := identityAppService.Login(
 		identityappsrv.LoginCommand{UserId: userIdDto},
 	)
 	if err != nil {
-		fmt.Println(err.Error())
+		pgUow.Rollback()
 		return
 	}
+
+	pgUow.Commit()
 
 	clientUrl := os.Getenv("CLIENT_URL")
 	c.Redirect(http.StatusFound, fmt.Sprintf("%s/?access_token=%v", clientUrl, accessToken))

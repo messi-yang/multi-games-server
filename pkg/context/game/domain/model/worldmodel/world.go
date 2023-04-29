@@ -24,11 +24,11 @@ type World struct {
 // Interface Implementation Check
 var _ domainmodel.Aggregate = (*World)(nil)
 
-func NewWorld(id commonmodel.WorldId, gamerId commonmodel.GamerId) World {
+func NewWorld(id commonmodel.WorldId, gamerId commonmodel.GamerId, name string) World {
 	return World{
 		id:           id,
 		gamerId:      gamerId,
-		name:         "Hello World",
+		name:         name,
 		domainEvents: []domainmodel.DomainEvent{},
 	}
 }
@@ -51,4 +51,8 @@ func (world *World) GetGamerId() commonmodel.GamerId {
 
 func (world *World) GetName() string {
 	return world.name
+}
+
+func (world *World) ChangeName(name string) {
+	world.name = name
 }

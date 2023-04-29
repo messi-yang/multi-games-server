@@ -2,6 +2,7 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"gorm.io/gorm"
@@ -20,20 +21,16 @@ func parseUserModel(userModel pgmodel.UserModel) usermodel.User {
 }
 
 type userRepo struct {
-	db *gorm.DB
+	uow uow.Uow[*gorm.DB]
 }
 
-func NewUserRepo() (repository usermodel.Repo, err error) {
-	db, err := pgmodel.NewClient()
-	if err != nil {
-		return repository, err
-	}
-	return &userRepo{db: db}, nil
+func NewUserRepo(uow uow.Uow[*gorm.DB]) (repository usermodel.Repo) {
+	return &userRepo{uow: uow}
 }
 
 func (repo *userRepo) Add(user usermodel.User) error {
 	userModel := newUserModel(user)
-	res := repo.db.Create(&userModel)
+	res := repo.uow.GetTransaction().Create(&userModel)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -42,7 +39,7 @@ func (repo *userRepo) Add(user usermodel.User) error {
 
 func (repo *userRepo) Get(userId sharedkernelmodel.UserId) (user usermodel.User, err error) {
 	userModel := pgmodel.UserModel{Id: userId.Uuid()}
-	result := repo.db.First(&userModel)
+	result := repo.uow.GetTransaction().First(&userModel)
 	if result.Error != nil {
 		return user, result.Error
 	}
@@ -52,7 +49,7 @@ func (repo *userRepo) Get(userId sharedkernelmodel.UserId) (user usermodel.User,
 
 func (repo *userRepo) FindUserByEmailAddress(emailAddress string) (user usermodel.User, userFound bool, err error) {
 	userModels := []pgmodel.UserModel{}
-	result := repo.db.Find(&userModels, pgmodel.UserModel{EmailAddress: emailAddress})
+	result := repo.uow.GetTransaction().Find(&userModels, pgmodel.UserModel{EmailAddress: emailAddress})
 	if result.Error != nil {
 		return user, userFound, result.Error
 	}

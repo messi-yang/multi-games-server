@@ -7,22 +7,22 @@ import (
 type responseDtoType string
 
 const (
-	playersUpdatedResponseDtoType responseDtoType = "PLAYERS_UPDATED"
-	unitsUpdatedResponseDtoType   responseDtoType = "UNITS_UPDATED"
-	gameJoinedResponseDtoType     responseDtoType = "GAME_JOINED"
+	playersUpdatedResponseType responseDtoType = "PLAYERS_UPDATED"
+	unitsUpdatedResponseType   responseDtoType = "UNITS_UPDATED"
+	gameJoinedResponseType     responseDtoType = "GAME_JOINED"
 )
 
-type gameJoinedResponseDto struct {
+type gameJoinedResponse struct {
 	Type responseDtoType `json:"type"`
 }
 
-type playersUpdatedResponseDto struct {
+type playersUpdatedResponse struct {
 	Type         responseDtoType `json:"type"`
 	MyPlayer     dto.PlayerDto   `json:"myPlayer"`
 	OtherPlayers []dto.PlayerDto `json:"otherPlayers"`
 }
 
-type unitsUpdatedResponseDto struct {
+type unitsUpdatedResponse struct {
 	Type  responseDtoType `json:"type"`
 	Units []dto.UnitDto   `json:"units"`
 }

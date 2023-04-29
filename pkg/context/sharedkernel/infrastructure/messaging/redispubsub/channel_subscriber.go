@@ -3,6 +3,7 @@ package redispubsub
 import (
 	"context"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/jsonutil"
 	"github.com/go-redis/redis/v9"
 )
@@ -16,7 +17,7 @@ type channelSubscriber[T any] struct {
 }
 
 func NewChannelSubscriber[T any]() ChannelSubscriber[T] {
-	return &channelSubscriber[T]{redisClient: newRedisClient()}
+	return &channelSubscriber[T]{redisClient: redisclient.NewRedisClient()}
 }
 
 func (channelSubscriber *channelSubscriber[T]) Subscribe(channel string, handler func(T)) (channelUnsubscriber func()) {

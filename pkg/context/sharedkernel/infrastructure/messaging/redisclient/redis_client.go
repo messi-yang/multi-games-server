@@ -1,4 +1,4 @@
-package redispubsub
+package redisclient
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 
 var redisClient *redis.Client
 
-func newRedisClient() *redis.Client {
+func NewRedisClient() *redis.Client {
 	if redisClient != nil {
 		return redisClient
 	}

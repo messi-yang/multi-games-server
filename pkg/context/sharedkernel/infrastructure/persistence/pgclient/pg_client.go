@@ -1,4 +1,4 @@
-package pgmodel
+package pgclient
 
 import (
 	"fmt"
@@ -9,14 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB = nil
+var dbSingleton *gorm.DB = nil
 var dbCreatorLock = &sync.Mutex{}
 
-func NewClient() (gormDb *gorm.DB, err error) {
+func NewPgClient() (gormDb *gorm.DB) {
 	dbCreatorLock.Lock()
 	defer dbCreatorLock.Unlock()
 
-	if db == nil {
+	if dbSingleton == nil {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",
 			os.Getenv("POSTGRES_HOST"),
@@ -24,13 +24,14 @@ func NewClient() (gormDb *gorm.DB, err error) {
 			os.Getenv("POSTGRES_PASSWORD"),
 			os.Getenv("POSTGRES_DB"),
 		)
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
-			return gormDb, err
+			panic("Failed to open postgres connection")
 		}
 
-		return db, nil
+		dbSingleton = db
+		return dbSingleton
 	}
 
-	return db, nil
+	return dbSingleton
 }

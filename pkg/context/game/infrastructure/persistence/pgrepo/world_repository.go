@@ -3,6 +3,7 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/application/uow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -17,33 +18,38 @@ func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
-	return worldmodel.NewWorld(commonmodel.NewWorldId(worldModel.Id), commonmodel.NewGamerId(worldModel.GamerId))
+	return worldmodel.NewWorld(commonmodel.NewWorldId(worldModel.Id), commonmodel.NewGamerId(worldModel.GamerId), worldModel.Name)
 }
 
 type worldRepo struct {
-	db *gorm.DB
+	uow uow.Uow[*gorm.DB]
 }
 
-func NewWorldRepo() (repository worldmodel.Repo, err error) {
-	db, err := pgmodel.NewClient()
-	if err != nil {
-		return repository, err
-	}
-	return &worldRepo{db: db}, nil
+func NewWorldRepo(uow uow.Uow[*gorm.DB]) (repository worldmodel.Repo) {
+	return &worldRepo{uow: uow}
 }
 
 func (repo *worldRepo) Get(worldId commonmodel.WorldId) (world worldmodel.World, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
-	result := repo.db.First(&worldModel)
+	result := repo.uow.GetTransaction().First(&worldModel)
 	if result.Error != nil {
 		return world, result.Error
 	}
 	return parseWorldModel(worldModel), nil
 }
 
+func (repo *worldRepo) Update(world worldmodel.World) error {
+	worldModel := newWorldModel(world)
+	res := repo.uow.GetTransaction().Save(&worldModel)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
 func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
 	var worldModels []pgmodel.WorldModel
-	result := repo.db.Find(&worldModels).Limit(10)
+	result := repo.uow.GetTransaction().Find(&worldModels).Limit(10)
 	if result.Error != nil {
 		return worlds, result.Error
 	}
@@ -56,7 +62,7 @@ func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
 
 func (repo *worldRepo) Add(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
-	res := repo.db.Create(&worldModel)
+	res := repo.uow.GetTransaction().Create(&worldModel)
 	if res.Error != nil {
 		return res.Error
 	}
