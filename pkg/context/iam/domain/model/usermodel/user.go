@@ -21,7 +21,7 @@ func NewUser(
 	username string,
 ) User {
 	newUser := User{id: id, emailAddress: emailAddress, username: username, domainEvents: []domainmodel.DomainEvent{}}
-	newUser.AddDomainEvent(NewUserCreatedDomainEvent(id))
+	newUser.AddDomainEvent(NewUserCreated(id))
 	return newUser
 }
 

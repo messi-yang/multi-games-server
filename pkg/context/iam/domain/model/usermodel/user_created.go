@@ -7,21 +7,25 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
-type UserCreatedDomainEvent struct {
+type UserCreated struct {
 	OccurredOn time.Time
 	UserId     sharedkernelmodel.UserId
 }
 
 // Interface Implementation Check
-var _ domainmodel.DomainEvent = (*UserCreatedDomainEvent)(nil)
+var _ domainmodel.DomainEvent = (*UserCreated)(nil)
 
-func NewUserCreatedDomainEvent(userId sharedkernelmodel.UserId) UserCreatedDomainEvent {
-	return UserCreatedDomainEvent{
+func NewUserCreated(userId sharedkernelmodel.UserId) UserCreated {
+	return UserCreated{
 		OccurredOn: time.Now(),
 		UserId:     userId,
 	}
 }
 
-func (domainEvent UserCreatedDomainEvent) GetOccurredOn() time.Time {
+func (domainEvent UserCreated) GetName() string {
+	return "USER_CREATED"
+}
+
+func (domainEvent UserCreated) GetOccurredOn() time.Time {
 	return domainEvent.OccurredOn
 }
