@@ -1,6 +1,7 @@
 package gamesockethandler
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -43,11 +44,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 
 	redisChannelPublisher := redispubsub.NewChannelPublisher()
 
-	closeConnChan := make(chan bool)
-	disconnectOnError := func(err error) {
-		closeConnChan <- true
-	}
-
 	sendMessageLocker := &sync.RWMutex{}
 	sendMessage := func(jsonObj any) {
 		sendMessageLocker.Lock()
@@ -58,8 +54,16 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 
 		err = socketConn.WriteMessage(2, compressedMessage)
 		if err != nil {
-			disconnectOnError(err)
+			fmt.Println("send error")
 		}
+	}
+
+	closeConnChan := make(chan bool)
+	closeConnectionOnError := func(err error) {
+		sendMessage(errorHappenedResponse{
+			Type: errorHappenedResponseType,
+		})
+		closeConnChan <- true
 	}
 
 	publishPlayersUpdatedEvent := func() {
@@ -68,7 +72,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			PlayersUpdatedMessage{},
 		)
 		if err != nil {
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 		}
 	}
 
@@ -78,7 +82,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			UnitsUpdatedMessage{},
 		)
 		if err != nil {
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 		}
 	}
 
@@ -93,7 +97,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			},
 		)
 		if err != nil {
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 			return
 		}
 
@@ -115,7 +119,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			},
 		)
 		if err != nil {
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 			return
 		}
 
@@ -134,7 +138,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			PlayerId: playerIdDto,
 		}); err != nil {
 			pgUow.Rollback()
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 			return
 		}
 		pgUow.Commit()
@@ -144,35 +148,23 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		})
 	}
 
+	moveSteps := 0
 	doMoveCommand := func(directionDto int8) {
 		pgUow := pguow.NewUow()
 
 		gameAppService := provideGameAppService(pgUow)
-		playerDto, err := gameAppService.GetPlayer(gameappsrv.GetPlayerQuery{PlayerId: playerIdDto})
-		if err != nil {
-			pgUow.Rollback()
-			disconnectOnError(err)
-			return
-		}
 		if err := gameAppService.Move(gameappsrv.MoveCommand{
 			WorldId:   worldIdDto,
 			PlayerId:  playerIdDto,
 			Direction: directionDto,
 		}); err != nil {
 			pgUow.Rollback()
-			disconnectOnError(err)
-			return
-		}
-		updatedPlayerDto, err := gameAppService.GetPlayer(gameappsrv.GetPlayerQuery{PlayerId: playerIdDto})
-		if err != nil {
-			pgUow.Rollback()
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 			return
 		}
 		pgUow.Commit()
-
-		playerVisionBoundUpdated := playerDto.VisionBound != updatedPlayerDto.VisionBound
-		if playerVisionBoundUpdated {
+		moveSteps += 1
+		if moveSteps%10 == 0 {
 			doGetNearbyUnitsQuery()
 		}
 	}
@@ -187,7 +179,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			ItemId:   itemIdDto,
 		}); err != nil {
 			pgUow.Rollback()
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 		}
 		pgUow.Commit()
 	}
@@ -201,7 +193,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			PlayerId: playerIdDto,
 		}); err != nil {
 			pgUow.Rollback()
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 		}
 		pgUow.Commit()
 	}
@@ -215,7 +207,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			PlayerId: playerIdDto,
 		}); err != nil {
 			pgUow.Rollback()
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 		}
 		pgUow.Commit()
 	}
@@ -229,7 +221,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			PlayerId: playerIdDto,
 		}); err != nil {
 			pgUow.Rollback()
-			disconnectOnError(err)
+			closeConnectionOnError(err)
 		}
 		pgUow.Commit()
 	}
@@ -258,6 +250,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		for {
 			_, compressedMessage, err := socketConn.ReadMessage()
 			if err != nil {
+				closeConnectionOnError(err)
 				return
 			}
 
@@ -277,7 +270,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			case moveRequestType:
 				requestDto, err := jsonutil.Unmarshal[moveRequest](message)
 				if err != nil {
-					disconnectOnError(err)
+					closeConnectionOnError(err)
 					return
 				}
 				doMoveCommand(requestDto.Direction)
@@ -285,14 +278,14 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			case changeHeldItemRequestType:
 				requestDto, err := jsonutil.Unmarshal[changeHeldItemRequest](message)
 				if err != nil {
-					disconnectOnError(err)
+					closeConnectionOnError(err)
 					return
 				}
 				doChangeHeldItemCommand(requestDto.ItemId)
 				publishPlayersUpdatedEvent()
 			case placeItemRequestType:
 				if _, err := jsonutil.Unmarshal[placeItemRequest](message); err != nil {
-					disconnectOnError(err)
+					closeConnectionOnError(err)
 					return
 				}
 				doPlaceItemCommand()
@@ -300,7 +293,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			case removeItemRequestType:
 				_, err := jsonutil.Unmarshal[removeItemRequest](message)
 				if err != nil {
-					disconnectOnError(err)
+					closeConnectionOnError(err)
 					return
 				}
 				doRemoveItemCommand()

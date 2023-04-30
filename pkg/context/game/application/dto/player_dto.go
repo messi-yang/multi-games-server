@@ -3,6 +3,7 @@ package dto
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type PlayerDto struct {
@@ -21,13 +22,16 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 		Position:    NewPositionDto(player.GetPosition()),
 		Direction:   player.GetDirection().Int8(),
 		VisionBound: NewBoundDto(player.GetVisionBound()),
-	}
-	playerHeldItemid := player.GetHeldItemId()
-	if playerHeldItemid == nil {
-		dto.HeldItemId = nil
-	} else {
-		heldItemIdDto := (*player.GetHeldItemId()).Uuid()
-		dto.HeldItemId = &heldItemIdDto
+		HeldItemId: lo.TernaryF(
+			player.GetHeldItemId() == nil,
+			func() *uuid.UUID {
+				return nil
+			},
+			func() *uuid.UUID {
+				heldItemIdDto := (*player.GetHeldItemId()).Uuid()
+				return &heldItemIdDto
+			},
+		),
 	}
 	return dto
 }

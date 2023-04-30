@@ -43,7 +43,9 @@ func (serve *serve) EnterWorld(worldId commonmodel.WorldId, playerId commonmodel
 	firstItemId := firstItem.GetId()
 
 	direction := commonmodel.NewDownDirection()
-	newPlayer := playermodel.NewPlayer(playerId, worldId, "Hello", commonmodel.NewPosition(0, 0), direction, &firstItemId)
+	newPlayer := playermodel.NewPlayer(
+		playerId, worldId, "Hello", commonmodel.NewPosition(0, 0), direction, &firstItemId,
+	)
 
 	return serve.playerRepo.Add(newPlayer)
 }
@@ -65,8 +67,7 @@ func (serve *serve) Move(
 
 	if !direction.IsEqual(player.GetDirection()) {
 		player.ChangeDirection(direction)
-		err = serve.playerRepo.Update(player)
-		return err
+		return serve.playerRepo.Update(player)
 	}
 
 	player.ChangeDirection(direction)
@@ -88,10 +89,6 @@ func (serve *serve) Move(
 		}
 	} else {
 		player.ChangePosition(newItemPos)
-	}
-
-	if player.ShallUpdateVisionBound() {
-		player.UpdateVisionBound()
 	}
 
 	return serve.playerRepo.Update(player)
@@ -166,7 +163,7 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldId, playerId commonmodel.
 		return nil
 	}
 
-	_, playerFound, err := serve.playerRepo.FindPlayerAt(worldId, newItemPos)
+	_, playerFound, err := serve.playerRepo.FindPlayersAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}

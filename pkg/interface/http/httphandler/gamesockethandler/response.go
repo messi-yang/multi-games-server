@@ -7,10 +7,16 @@ import (
 type responseDtoType string
 
 const (
+	errorHappenedResponseType  responseDtoType = "ERROR_HAPPENED"
 	playersUpdatedResponseType responseDtoType = "PLAYERS_UPDATED"
 	unitsUpdatedResponseType   responseDtoType = "UNITS_UPDATED"
 	gameJoinedResponseType     responseDtoType = "GAME_JOINED"
 )
+
+type errorHappenedResponse struct {
+	Type    responseDtoType `json:"type"`
+	Message string          `json:"message"`
+}
 
 type gameJoinedResponse struct {
 	Type responseDtoType `json:"type"`

@@ -1,7 +1,7 @@
 package playermodel
 
 import (
-	"math"
+	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
@@ -22,29 +22,62 @@ func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {
 }
 
 type Player struct {
-	id           commonmodel.PlayerId  // Id of the player
-	worldId      commonmodel.WorldId   // The id of the world the player belongs to
-	name         string                // The name of the player
-	position     commonmodel.Position  // The current position of the player
-	direction    commonmodel.Direction // The direction where the player is facing
-	visionBound  commonmodel.Bound     // The vision bound of the player
-	heldItemId   *commonmodel.ItemId   // Optional, The item held by the player
-	domainEvents []domainmodel.DomainEvent
+	id           commonmodel.PlayerId      // Id of the player
+	worldId      commonmodel.WorldId       // The id of the world the player belongs to
+	name         string                    // The name of the player
+	position     commonmodel.Position      // The current position of the player
+	direction    commonmodel.Direction     // The direction where the player is facing
+	heldItemId   *commonmodel.ItemId       // Optional, The item held by the player
+	domainEvents []domainmodel.DomainEvent // Domain events
+	createdAt    time.Time
+	updatedAt    time.Time
 }
 
 // Interface Implementation Check
 var _ domainmodel.Aggregate = (*Player)(nil)
 
-func NewPlayer(id commonmodel.PlayerId, worldId commonmodel.WorldId, name string, position commonmodel.Position, direction commonmodel.Direction, heldItemId *commonmodel.ItemId) Player {
+func NewPlayer(
+	id commonmodel.PlayerId,
+	worldId commonmodel.WorldId,
+	name string,
+	position commonmodel.Position,
+	direction commonmodel.Direction,
+	heldItemId *commonmodel.ItemId,
+) Player {
 	player := Player{
 		id:           id,
 		worldId:      worldId,
 		name:         name,
 		position:     position,
 		direction:    direction,
-		visionBound:  calculatePlayerVisionBound(position),
 		heldItemId:   heldItemId,
 		domainEvents: []domainmodel.DomainEvent{},
+		createdAt:    time.Now(),
+		updatedAt:    time.Now(),
+	}
+	return player
+}
+
+func LoadPlayer(
+	id commonmodel.PlayerId,
+	worldId commonmodel.WorldId,
+	name string,
+	position commonmodel.Position,
+	direction commonmodel.Direction,
+	heldItemId *commonmodel.ItemId,
+	createdAt time.Time,
+	updatedAt time.Time,
+) Player {
+	player := Player{
+		id:           id,
+		worldId:      worldId,
+		name:         name,
+		position:     position,
+		direction:    direction,
+		heldItemId:   heldItemId,
+		domainEvents: []domainmodel.DomainEvent{},
+		createdAt:    createdAt,
+		updatedAt:    updatedAt,
 	}
 	return player
 }
@@ -85,24 +118,8 @@ func (player *Player) ChangeDirection(direction commonmodel.Direction) {
 	player.direction = direction
 }
 
-func (player *Player) ShallUpdateVisionBound() bool {
-	visionBoundCenterPos := player.visionBound.GetCenterPos()
-	xDistance := int(math.Abs(float64(player.position.GetX() - visionBoundCenterPos.GetX())))
-	zDistance := int(math.Abs(float64(player.position.GetZ() - visionBoundCenterPos.GetZ())))
-	return xDistance >= 10 || zDistance >= 10
-}
-
-func (player *Player) UpdateVisionBound() {
-	player.visionBound = calculatePlayerVisionBound(player.GetPosition())
-}
-
 func (player *Player) GetVisionBound() commonmodel.Bound {
-	return player.visionBound
-}
-
-func (player *Player) CanSeeAnyPositions(positions []commonmodel.Position) bool {
-	bound := player.GetVisionBound()
-	return bound.CoverAnyPositions(positions)
+	return calculatePlayerVisionBound(player.position)
 }
 
 func (player *Player) GetPositionOneStepFoward() commonmodel.Position {
@@ -128,4 +145,12 @@ func (player *Player) ChangeHeldItem(itemId commonmodel.ItemId) {
 
 func (player *Player) GetHeldItemId() *commonmodel.ItemId {
 	return player.heldItemId
+}
+
+func (player *Player) GetCreatedAt() time.Time {
+	return player.createdAt
+}
+
+func (player *Player) GetUpdatedAt() time.Time {
+	return player.updatedAt
 }
