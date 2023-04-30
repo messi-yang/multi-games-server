@@ -48,6 +48,14 @@ func (serve *serve) AddDefaultItems() error {
 			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("2b6ab30d-0a2a-4424-b245-99ec2c301844")),
 			"chair", false, "/asset/item/chair/thumbnail.png", "/asset/item/chair/model.gltf",
 		),
+		itemmodel.NewItem(
+			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("fb9d06f8-5d6d-4fa9-bdc5-ab760d55a442")),
+			"potted plant", false, "/asset/item/potted_plant/thumbnail.png", "/asset/item/potted_plant/model.gltf",
+		),
+		itemmodel.NewItem(
+			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("1b9ba8b1-c13e-4524-bddc-7cc6d981ee2c")),
+			"trash bin", false, "/asset/item/trash_bin/thumbnail.png", "/asset/item/trash_bin/model.gltf",
+		),
 	}
 
 	for _, item := range items {
