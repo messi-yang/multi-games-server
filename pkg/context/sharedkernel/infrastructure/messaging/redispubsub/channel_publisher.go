@@ -17,7 +17,7 @@ type channelPublisher struct {
 }
 
 func NewChannelPublisher() ChannelPublisher {
-	return &channelPublisher{redisClient: redisclient.NewRedisClient()}
+	return &channelPublisher{redisClient: redisclient.GetRedisClient()}
 }
 
 func (channelPublisher *channelPublisher) Publish(channel string, event any) error {

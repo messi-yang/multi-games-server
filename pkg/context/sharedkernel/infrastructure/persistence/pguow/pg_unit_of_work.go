@@ -18,7 +18,7 @@ type uow struct {
 // Dummy Unit of Work, by using this, you don't have to
 // to Rollback and Commit in the end because it uses a fake transaction.
 func NewDummyUow() Uow {
-	pgClient := pgclient.NewPgClient()
+	pgClient := pgclient.GetPgClient()
 
 	return &uow{
 		transaction: pgClient,
@@ -26,7 +26,7 @@ func NewDummyUow() Uow {
 }
 
 func NewUow() Uow {
-	pgClient := pgclient.NewPgClient()
+	pgClient := pgclient.GetPgClient()
 
 	transaction := pgClient.Begin()
 	return &uow{

@@ -17,7 +17,7 @@ type channelSubscriber[T any] struct {
 }
 
 func NewChannelSubscriber[T any]() ChannelSubscriber[T] {
-	return &channelSubscriber[T]{redisClient: redisclient.NewRedisClient()}
+	return &channelSubscriber[T]{redisClient: redisclient.GetRedisClient()}
 }
 
 func (channelSubscriber *channelSubscriber[T]) Subscribe(channel string, handler func(T)) (channelUnsubscriber func()) {
