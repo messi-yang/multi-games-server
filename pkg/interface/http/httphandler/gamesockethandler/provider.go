@@ -4,14 +4,14 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/gamedomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
 )
 
-func provideGameAppService(pgUow pguow.Uow) gameappsrv.Service {
-	itemRepo := pgrepo.NewItemRepo(pgUow)
-	playerRepo := pgrepo.NewPlayerRepo(pgUow)
-	worldRepo := pgrepo.NewWorldRepo(pgUow)
-	unitRepo := pgrepo.NewUnitRepo(pgUow)
+func provideGameAppService(uow pguow.Uow) gameappsrv.Service {
+	itemRepo := pgrepo.NewItemRepo(uow)
+	playerRepo := pgrepo.NewPlayerRepo(uow)
+	worldRepo := pgrepo.NewWorldRepo(uow)
+	unitRepo := pgrepo.NewUnitRepo(uow)
 	gameDomainService := gamedomainsrv.NewService(worldRepo, playerRepo, unitRepo, itemRepo)
 	return gameappsrv.NewService(
 		worldRepo, playerRepo, unitRepo, itemRepo, gameDomainService,

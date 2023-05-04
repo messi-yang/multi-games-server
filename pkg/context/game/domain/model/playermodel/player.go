@@ -3,8 +3,8 @@ package playermodel
 import (
 	"time"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 )
 
 func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {
@@ -22,19 +22,19 @@ func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {
 }
 
 type Player struct {
-	id           commonmodel.PlayerId      // Id of the player
-	worldId      commonmodel.WorldId       // The id of the world the player belongs to
-	name         string                    // The name of the player
-	position     commonmodel.Position      // The current position of the player
-	direction    commonmodel.Direction     // The direction where the player is facing
-	heldItemId   *commonmodel.ItemId       // Optional, The item held by the player
-	domainEvents []domainmodel.DomainEvent // Domain events
-	createdAt    time.Time
-	updatedAt    time.Time
+	id                   commonmodel.PlayerId  // Id of the player
+	worldId              commonmodel.WorldId   // The id of the world the player belongs to
+	name                 string                // The name of the player
+	position             commonmodel.Position  // The current position of the player
+	direction            commonmodel.Direction // The direction where the player is facing
+	heldItemId           *commonmodel.ItemId   // Optional, The item held by the player
+	domainEventCollector *domain.DomainEventCollector
+	createdAt            time.Time
+	updatedAt            time.Time
 }
 
 // Interface Implementation Check
-var _ domainmodel.Aggregate = (*Player)(nil)
+var _ domain.Aggregate = (*Player)(nil)
 
 func NewPlayer(
 	id commonmodel.PlayerId,
@@ -45,15 +45,15 @@ func NewPlayer(
 	heldItemId *commonmodel.ItemId,
 ) Player {
 	player := Player{
-		id:           id,
-		worldId:      worldId,
-		name:         name,
-		position:     position,
-		direction:    direction,
-		heldItemId:   heldItemId,
-		domainEvents: []domainmodel.DomainEvent{},
-		createdAt:    time.Now(),
-		updatedAt:    time.Now(),
+		id:                   id,
+		worldId:              worldId,
+		name:                 name,
+		position:             position,
+		direction:            direction,
+		heldItemId:           heldItemId,
+		domainEventCollector: domain.NewDomainEventCollector(),
+		createdAt:            time.Now(),
+		updatedAt:            time.Now(),
 	}
 	return player
 }
@@ -69,25 +69,21 @@ func LoadPlayer(
 	updatedAt time.Time,
 ) Player {
 	player := Player{
-		id:           id,
-		worldId:      worldId,
-		name:         name,
-		position:     position,
-		direction:    direction,
-		heldItemId:   heldItemId,
-		domainEvents: []domainmodel.DomainEvent{},
-		createdAt:    createdAt,
-		updatedAt:    updatedAt,
+		id:                   id,
+		worldId:              worldId,
+		name:                 name,
+		position:             position,
+		direction:            direction,
+		heldItemId:           heldItemId,
+		domainEventCollector: domain.NewDomainEventCollector(),
+		createdAt:            createdAt,
+		updatedAt:            updatedAt,
 	}
 	return player
 }
 
-func (player *Player) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
-	player.domainEvents = append(player.domainEvents, domainEvent)
-}
-
-func (player *Player) GetDomainEvents() []domainmodel.DomainEvent {
-	return player.domainEvents
+func (player *Player) PopDomainEvents() []domain.DomainEvent {
+	return player.domainEventCollector.PopAll()
 }
 
 func (player *Player) GetId() commonmodel.PlayerId {

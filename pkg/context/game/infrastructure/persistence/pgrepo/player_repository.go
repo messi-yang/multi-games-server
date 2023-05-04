@@ -3,8 +3,9 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
 	"github.com/google/uuid"
 
 	"github.com/samber/lo"
@@ -68,7 +69,7 @@ func (repo *playerRepo) Add(player playermodel.Player) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return nil
+	return repo.uow.DispatchDomainEvents(&player)
 }
 
 func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.Player, err error) {
@@ -115,13 +116,13 @@ func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position c
 	}), nil
 }
 
-func (repo *playerRepo) Update(updatedPlayer playermodel.Player) error {
-	playerModel := newPlayerModel(updatedPlayer)
+func (repo *playerRepo) Update(player playermodel.Player) error {
+	playerModel := newPlayerModel(player)
 	res := repo.uow.GetTransaction().Save(&playerModel)
 	if res.Error != nil {
 		return res.Error
 	}
-	return nil
+	return repo.uow.DispatchDomainEvents(&player)
 }
 
 func (repo *playerRepo) GetAll(worldId commonmodel.WorldId) []playermodel.Player {

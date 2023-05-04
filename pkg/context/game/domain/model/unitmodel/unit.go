@@ -1,20 +1,20 @@
 package unitmodel
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 )
 
 type Unit struct {
-	worldId      commonmodel.WorldId
-	position     commonmodel.Position
-	itemId       commonmodel.ItemId
-	direction    commonmodel.Direction
-	domainEvents []domainmodel.DomainEvent
+	worldId              commonmodel.WorldId
+	position             commonmodel.Position
+	itemId               commonmodel.ItemId
+	direction            commonmodel.Direction
+	domainEventCollector *domain.DomainEventCollector
 }
 
 // Interface Implementation Check
-var _ domainmodel.Aggregate = (*Unit)(nil)
+var _ domain.Aggregate = (*Unit)(nil)
 
 func NewUnit(
 	worldId commonmodel.WorldId,
@@ -22,15 +22,17 @@ func NewUnit(
 	itemId commonmodel.ItemId,
 	direction commonmodel.Direction,
 ) Unit {
-	return Unit{worldId: worldId, position: position, itemId: itemId, direction: direction, domainEvents: []domainmodel.DomainEvent{}}
+	return Unit{
+		worldId:              worldId,
+		position:             position,
+		itemId:               itemId,
+		direction:            direction,
+		domainEventCollector: domain.NewDomainEventCollector(),
+	}
 }
 
-func (unit *Unit) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
-	unit.domainEvents = append(unit.domainEvents, domainEvent)
-}
-
-func (unit *Unit) GetDomainEvents() []domainmodel.DomainEvent {
-	return unit.domainEvents
+func (unit *Unit) PopDomainEvents() []domain.DomainEvent {
+	return unit.domainEventCollector.PopAll()
 }
 
 func (unit *Unit) GetWorldId() commonmodel.WorldId {

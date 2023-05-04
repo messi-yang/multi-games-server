@@ -6,8 +6,9 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
 	"github.com/samber/lo"
 )
 
@@ -80,7 +81,7 @@ func (repo *itemRepo) Add(item itemmodel.Item) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return nil
+	return repo.uow.DispatchDomainEvents(&item)
 }
 
 func (repo *itemRepo) Update(item itemmodel.Item) error {
@@ -89,5 +90,5 @@ func (repo *itemRepo) Update(item itemmodel.Item) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return nil
+	return repo.uow.DispatchDomainEvents(&item)
 }

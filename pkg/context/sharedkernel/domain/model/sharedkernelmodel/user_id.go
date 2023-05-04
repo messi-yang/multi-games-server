@@ -1,7 +1,7 @@
 package sharedkernelmodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/google/uuid"
 )
 
@@ -10,7 +10,7 @@ type UserId struct {
 }
 
 // Interface Implementation Check
-var _ domainmodel.ValueObject[UserId] = (*UserId)(nil)
+var _ domain.ValueObject[UserId] = (*UserId)(nil)
 
 func NewUserId(uuid uuid.UUID) UserId {
 	return UserId{

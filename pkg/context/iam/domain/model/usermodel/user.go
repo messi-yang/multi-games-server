@@ -1,36 +1,32 @@
 package usermodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type User struct {
-	id           sharedkernelmodel.UserId
-	emailAddress string
-	username     string
-	domainEvents []domainmodel.DomainEvent
+	id                   sharedkernelmodel.UserId
+	emailAddress         string
+	username             string
+	domainEventCollector *domain.DomainEventCollector
 }
 
 // Interface Implementation Check
-var _ domainmodel.Aggregate = (*User)(nil)
+var _ domain.Aggregate = (*User)(nil)
 
 func NewUser(
 	id sharedkernelmodel.UserId,
 	emailAddress string,
 	username string,
 ) User {
-	newUser := User{id: id, emailAddress: emailAddress, username: username, domainEvents: []domainmodel.DomainEvent{}}
-	newUser.AddDomainEvent(NewUserCreated(id))
+	newUser := User{id: id, emailAddress: emailAddress, username: username, domainEventCollector: domain.NewDomainEventCollector()}
+	newUser.domainEventCollector.Add(NewUserCreated(id))
 	return newUser
 }
 
-func (user *User) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
-	user.domainEvents = append(user.domainEvents, domainEvent)
-}
-
-func (user *User) GetDomainEvents() []domainmodel.DomainEvent {
-	return user.domainEvents
+func (user *User) PopDomainEvents() []domain.DomainEvent {
+	return user.domainEventCollector.PopAll()
 }
 
 func (user *User) GetId() sharedkernelmodel.UserId {

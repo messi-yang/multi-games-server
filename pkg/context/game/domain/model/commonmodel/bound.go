@@ -3,7 +3,7 @@ package commonmodel
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/samber/lo"
 )
 
@@ -22,7 +22,7 @@ type Bound struct {
 }
 
 // Interface Implementation Check
-var _ domainmodel.ValueObject[Bound] = (*Bound)(nil)
+var _ domain.ValueObject[Bound] = (*Bound)(nil)
 
 func NewBound(from Position, to Position) (Bound, error) {
 	if from.GetX() > to.GetX() || from.GetZ() > to.GetZ() {

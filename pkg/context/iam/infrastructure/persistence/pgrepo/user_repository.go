@@ -2,9 +2,10 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
 )
 
 func newUserModel(user usermodel.User) pgmodel.UserModel {
@@ -33,7 +34,7 @@ func (repo *userRepo) Add(user usermodel.User) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return nil
+	return repo.uow.DispatchDomainEvents(&user)
 }
 
 func (repo *userRepo) Get(userId sharedkernelmodel.UserId) (user usermodel.User, err error) {

@@ -1,6 +1,6 @@
 package commonmodel
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 
 type Position struct {
 	x int
@@ -8,7 +8,7 @@ type Position struct {
 }
 
 // Interface Implementation Check
-var _ domainmodel.ValueObject[Position] = (*Position)(nil)
+var _ domain.ValueObject[Position] = (*Position)(nil)
 
 func NewPosition(x int, z int) Position {
 	return Position{

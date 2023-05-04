@@ -1,39 +1,35 @@
 package itemmodel
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 )
 
 type Item struct {
-	id           commonmodel.ItemId
-	name         string
-	traversable  bool
-	thumbnailSrc string
-	modelSrc     string
-	domainEvents []domainmodel.DomainEvent
+	id                   commonmodel.ItemId
+	name                 string
+	traversable          bool
+	thumbnailSrc         string
+	modelSrc             string
+	domainEventCollector *domain.DomainEventCollector
 }
 
 // Interface Implementation Check
-var _ domainmodel.Aggregate = (*Item)(nil)
+var _ domain.Aggregate = (*Item)(nil)
 
 func NewItem(id commonmodel.ItemId, name string, traversable bool, thumbnailSrc string, modelSrc string) Item {
 	return Item{
-		id:           id,
-		name:         name,
-		traversable:  traversable,
-		thumbnailSrc: thumbnailSrc,
-		modelSrc:     modelSrc,
-		domainEvents: []domainmodel.DomainEvent{},
+		id:                   id,
+		name:                 name,
+		traversable:          traversable,
+		thumbnailSrc:         thumbnailSrc,
+		modelSrc:             modelSrc,
+		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
 
-func (item *Item) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
-	item.domainEvents = append(item.domainEvents, domainEvent)
-}
-
-func (item *Item) GetDomainEvents() []domainmodel.DomainEvent {
-	return item.domainEvents
+func (item *Item) PopDomainEvents() []domain.DomainEvent {
+	return item.domainEventCollector.PopAll()
 }
 
 func (item *Item) GetId() commonmodel.ItemId {

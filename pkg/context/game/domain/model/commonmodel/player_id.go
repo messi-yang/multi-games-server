@@ -1,7 +1,7 @@
 package commonmodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/google/uuid"
 )
 
@@ -10,7 +10,7 @@ type PlayerId struct {
 }
 
 // Interface Implementation Check
-var _ domainmodel.ValueObject[PlayerId] = (*PlayerId)(nil)
+var _ domain.ValueObject[PlayerId] = (*PlayerId)(nil)
 
 func NewPlayerId(uuid uuid.UUID) PlayerId {
 	return PlayerId{

@@ -67,7 +67,7 @@ func (serve *serve) Login(command LoginCommand) (accessToken string, err error) 
 	}
 
 	claims := &jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 1)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		ID:        user.GetId().Uuid().String(),
 	}
 

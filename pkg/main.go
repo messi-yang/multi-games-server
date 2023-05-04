@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/domaineventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/clirouter"
@@ -19,6 +20,8 @@ func main() {
 		clirouter.Run(args)
 		return
 	}
+
+	domaineventhandler.Run()
 
 	err := httprouter.Run()
 	if err != nil {

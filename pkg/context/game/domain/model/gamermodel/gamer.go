@@ -1,39 +1,39 @@
 package gamermodel
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/domainmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type Gamer struct {
-	id           commonmodel.GamerId
-	userId       sharedkernelmodel.UserId
-	domainEvents []domainmodel.DomainEvent
+	id                   commonmodel.GamerId
+	userId               sharedkernelmodel.UserId
+	domainEventCollector *domain.DomainEventCollector
 }
 
 // Interface Implementation Check
-var _ domainmodel.Aggregate = (*Gamer)(nil)
+var _ domain.Aggregate = (*Gamer)(nil)
 
 func NewGamer(
 	id commonmodel.GamerId,
 	userId sharedkernelmodel.UserId,
 ) Gamer {
-	return Gamer{id: id, userId: userId, domainEvents: []domainmodel.DomainEvent{}}
+	return Gamer{
+		id:                   id,
+		userId:               userId,
+		domainEventCollector: domain.NewDomainEventCollector(),
+	}
 }
 
-func (gamerappsrv *Gamer) AddDomainEvent(domainEvent domainmodel.DomainEvent) {
-	gamerappsrv.domainEvents = append(gamerappsrv.domainEvents, domainEvent)
+func (gamer *Gamer) PopDomainEvents() []domain.DomainEvent {
+	return gamer.domainEventCollector.PopAll()
 }
 
-func (gamerappsrv *Gamer) GetDomainEvents() []domainmodel.DomainEvent {
-	return gamerappsrv.domainEvents
+func (gamer *Gamer) GetId() commonmodel.GamerId {
+	return gamer.id
 }
 
-func (gamerappsrv *Gamer) GetId() commonmodel.GamerId {
-	return gamerappsrv.id
-}
-
-func (gamerappsrv *Gamer) GetUserId() sharedkernelmodel.UserId {
-	return gamerappsrv.userId
+func (gamer *Gamer) GetUserId() sharedkernelmodel.UserId {
+	return gamer.userId
 }

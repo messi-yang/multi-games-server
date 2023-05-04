@@ -3,9 +3,10 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
 	"github.com/samber/lo"
 )
 
@@ -37,7 +38,7 @@ func (repo *gamerRepo) Add(gamer gamermodel.Gamer) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return nil
+	return repo.uow.DispatchDomainEvents(&gamer)
 }
 
 func (repo *gamerRepo) Get(gamerId commonmodel.GamerId) (gamer gamermodel.Gamer, err error) {

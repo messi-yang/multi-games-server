@@ -1,8 +1,8 @@
-package domainmodel
+package domain
 
 import "time"
 
 type DomainEvent interface {
-	GetName() string
+	GetEventName() string
 	GetOccurredOn() time.Time
 }

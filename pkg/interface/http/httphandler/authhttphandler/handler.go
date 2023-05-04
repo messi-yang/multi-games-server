@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/identityappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/service/googleauthinfrasrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -40,7 +39,6 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	pgUow := pguow.NewUow()
 
 	identityAppService := provideIdentityAppService(pgUow)
-	gamerAppService := provideGamerAppService(pgUow)
 
 	userDto, userFound, err := identityAppService.FindUserByEmailAddress(identityappsrv.FindUserByEmailAddressQuery{
 		EmailAddress: userEmailAddress,
@@ -54,15 +52,8 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	if userFound {
 		userIdDto = userDto.Id
 	} else {
-		userIdDto, err := identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
+		userIdDto, err = identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
 		if err != nil {
-			pgUow.Rollback()
-			return
-		}
-
-		if _, err = gamerAppService.CreateGamer(gamerappsrv.CreateGamerCommand{
-			UserId: userIdDto,
-		}); err != nil {
 			pgUow.Rollback()
 			return
 		}

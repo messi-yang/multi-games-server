@@ -3,8 +3,9 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
 	"github.com/samber/lo"
 )
 
@@ -41,7 +42,7 @@ func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return nil
+	return repo.uow.DispatchDomainEvents(&unit)
 }
 
 func (repo *unitRepo) FindUnitAt(
