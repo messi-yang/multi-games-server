@@ -1,8 +1,8 @@
 package unitmodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 )
 
 type Unit struct {

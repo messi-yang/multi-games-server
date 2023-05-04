@@ -1,8 +1,6 @@
 package pguow
 
-import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
-)
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 
 type DomainEventDispatcher interface {
 	Register(domain.DomainEvent, DomainEventHandler)

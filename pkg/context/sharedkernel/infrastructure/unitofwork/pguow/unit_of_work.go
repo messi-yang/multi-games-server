@@ -1,7 +1,7 @@
 package pguow
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgclient"
 	"gorm.io/gorm"
 )
