@@ -6,7 +6,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/samber/lo"
 )
 
@@ -38,7 +38,7 @@ func (repo *gamerRepo) Add(gamer gamermodel.Gamer) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return repo.uow.DispatchDomainEvents(&gamer)
+	return nil
 }
 
 func (repo *gamerRepo) Get(gamerId commonmodel.GamerId) (gamer gamermodel.Gamer, err error) {
@@ -76,8 +76,7 @@ func (repo *gamerRepo) GetAll() (gamers []gamermodel.Gamer, err error) {
 	var gamerModels []pgmodel.GamerModel
 	result := repo.uow.GetTransaction().Find(&gamerModels)
 	if result.Error != nil {
-		err = result.Error
-		return gamers, err
+		return gamers, result.Error
 	}
 
 	gamers = lo.Map(gamerModels, func(gamerModel pgmodel.GamerModel, _ int) gamermodel.Gamer {

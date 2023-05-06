@@ -4,7 +4,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/gamedomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/memdomainevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 )
 
 func provideGameAppService(uow pguow.Uow) gameappsrv.Service {
@@ -12,7 +13,8 @@ func provideGameAppService(uow pguow.Uow) gameappsrv.Service {
 	playerRepo := pgrepo.NewPlayerRepo(uow)
 	worldRepo := pgrepo.NewWorldRepo(uow)
 	unitRepo := pgrepo.NewUnitRepo(uow)
-	gameDomainService := gamedomainsrv.NewService(worldRepo, playerRepo, unitRepo, itemRepo)
+	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	gameDomainService := gamedomainsrv.NewService(worldRepo, playerRepo, unitRepo, itemRepo, domainEventDispatcher)
 	return gameappsrv.NewService(
 		worldRepo, playerRepo, unitRepo, itemRepo, gameDomainService,
 	)

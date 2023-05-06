@@ -7,7 +7,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service/identitydomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/service/googleauthinfrasrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/memdomainevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 )
 
 func provideGoogleAuthInfraService() googleauthinfrasrv.Service {
@@ -16,6 +17,7 @@ func provideGoogleAuthInfraService() googleauthinfrasrv.Service {
 
 func provideIdentityAppService(uow pguow.Uow) identityappsrv.Service {
 	userRepo := pgrepo.NewUserRepo(uow)
-	identityDomainService := identitydomainsrv.NewService(userRepo)
+	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	identityDomainService := identitydomainsrv.NewService(userRepo, domainEventDispatcher)
 	return identityappsrv.NewService(userRepo, identityDomainService, os.Getenv("AUTH_SECRET"))
 }

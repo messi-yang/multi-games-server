@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/samber/lo"
 )
 
@@ -44,7 +44,7 @@ func (repo *worldRepo) Update(world worldmodel.World) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return repo.uow.DispatchDomainEvents(&world)
+	return nil
 }
 
 func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
@@ -66,7 +66,7 @@ func (repo *worldRepo) Add(world worldmodel.World) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return repo.uow.DispatchDomainEvents(&world)
+	return nil
 }
 
 func (repo *worldRepo) ReadLockAccess(worldId commonmodel.WorldId) func() {

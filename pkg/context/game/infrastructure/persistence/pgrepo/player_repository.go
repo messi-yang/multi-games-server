@@ -5,7 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 	"github.com/google/uuid"
 
 	"github.com/samber/lo"
@@ -69,7 +69,7 @@ func (repo *playerRepo) Add(player playermodel.Player) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return repo.uow.DispatchDomainEvents(&player)
+	return nil
 }
 
 func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.Player, err error) {
@@ -122,7 +122,7 @@ func (repo *playerRepo) Update(player playermodel.Player) error {
 	if res.Error != nil {
 		return res.Error
 	}
-	return repo.uow.DispatchDomainEvents(&player)
+	return nil
 }
 
 func (repo *playerRepo) GetAll(worldId commonmodel.WorldId) []playermodel.Player {

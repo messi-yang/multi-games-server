@@ -9,6 +9,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/commonutil"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -22,16 +23,23 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo worldmodel.Repo
-	unitRepo  unitmodel.Repo
-	itemRepo  itemmodel.Repo
+	worldRepo             worldmodel.Repo
+	unitRepo              unitmodel.Repo
+	itemRepo              itemmodel.Repo
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewService(worldRepo worldmodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo) Service {
+func NewService(
+	worldRepo worldmodel.Repo,
+	unitRepo unitmodel.Repo,
+	itemRepo itemmodel.Repo,
+	domainEventDispatcher domain.DomainEventDispatcher,
+) Service {
 	return &serve{
-		worldRepo: worldRepo,
-		unitRepo:  unitRepo,
-		itemRepo:  itemRepo,
+		worldRepo:             worldRepo,
+		unitRepo:              unitRepo,
+		itemRepo:              itemRepo,
+		domainEventDispatcher: domainEventDispatcher,
 	}
 }
 
@@ -59,8 +67,10 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 	gamerId := commonmodel.NewGamerId(command.GamerId)
 	newWorld := worldmodel.NewWorld(worldId, gamerId, "Hello World")
 
-	err = serve.worldRepo.Add(newWorld)
-	if err != nil {
+	if err = serve.worldRepo.Add(newWorld); err != nil {
+		return newWorldIdDto, err
+	}
+	if err = serve.domainEventDispatcher.Dispatch(&newWorld); err != nil {
 		return newWorldIdDto, err
 	}
 
@@ -74,8 +84,10 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 		position := commonmodel.NewPosition(x-50, z-50)
 		if randomInt < 3 {
 			newUnit := unitmodel.NewUnit(worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirection())
-			err = serve.unitRepo.Add(newUnit)
-			if err != nil {
+			if err = serve.unitRepo.Add(newUnit); err != nil {
+				return err
+			}
+			if err = serve.domainEventDispatcher.Dispatch(&newUnit); err != nil {
 				return err
 			}
 		}
@@ -96,9 +108,8 @@ func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
 		return fmt.Errorf("the world with id of %s do not belong to gamer with id of %s", worldId.Uuid().String(), gamerId.Uuid().String())
 	}
 	world.ChangeName(command.Name)
-	err = serve.worldRepo.Update(world)
-	if err != nil {
+	if err = serve.worldRepo.Update(world); err != nil {
 		return err
 	}
-	return nil
+	return serve.domainEventDispatcher.Dispatch(&world)
 }

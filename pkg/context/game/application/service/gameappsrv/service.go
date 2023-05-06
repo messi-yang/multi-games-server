@@ -33,7 +33,13 @@ type serve struct {
 	gameDomainService gamedomainsrv.Service
 }
 
-func NewService(worldRepo worldmodel.Repo, playerRepo playermodel.Repo, unitRepo unitmodel.Repo, itemRepo itemmodel.Repo, gameDomainService gamedomainsrv.Service) Service {
+func NewService(
+	worldRepo worldmodel.Repo,
+	playerRepo playermodel.Repo,
+	unitRepo unitmodel.Repo,
+	itemRepo itemmodel.Repo,
+	gameDomainService gamedomainsrv.Service,
+) Service {
 	return &serve{
 		worldRepo:         worldRepo,
 		playerRepo:        playerRepo,

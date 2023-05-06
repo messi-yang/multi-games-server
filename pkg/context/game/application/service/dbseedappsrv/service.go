@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
 )
 
@@ -13,12 +14,14 @@ type Service interface {
 }
 
 type serve struct {
-	itemRepo itemmodel.Repo
+	itemRepo              itemmodel.Repo
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewService(itemRepo itemmodel.Repo) Service {
+func NewService(itemRepo itemmodel.Repo, domainEventDispatcher domain.DomainEventDispatcher) Service {
 	return &serve{
-		itemRepo: itemRepo,
+		itemRepo:              itemRepo,
+		domainEventDispatcher: domainEventDispatcher,
 	}
 }
 
@@ -61,14 +64,18 @@ func (serve *serve) AddDefaultItems() error {
 	for _, item := range items {
 		if _, err := serve.itemRepo.Get(item.GetId()); err != nil {
 			fmt.Printf("Add new item \"%s\"\n", item.GetName())
-			err := serve.itemRepo.Add(item)
-			if err != nil {
+			if err = serve.itemRepo.Add(item); err != nil {
+				return err
+			}
+			if err = serve.domainEventDispatcher.Dispatch(&item); err != nil {
 				return err
 			}
 		} else {
 			fmt.Printf("Update existing item \"%s\"\n", item.GetName())
-			err = serve.itemRepo.Update(item)
-			if err != nil {
+			if err = serve.itemRepo.Update(item); err != nil {
+				return err
+			}
+			if err = serve.domainEventDispatcher.Dispatch(&item); err != nil {
 				return err
 			}
 		}

@@ -5,7 +5,8 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/dbseedappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/pgrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/unitofwork/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/memdomainevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
 )
 
 type Handler struct{}
@@ -18,7 +19,8 @@ func (handler *Handler) Exec() {
 	pgUow := pguow.NewUow()
 
 	itemRepo := pgrepo.NewItemRepo(pgUow)
-	dbSeedAppService := dbseedappsrv.NewService(itemRepo)
+	domainEventDispatcher := memdomainevent.NewDispatcher(pgUow)
+	dbSeedAppService := dbseedappsrv.NewService(itemRepo, domainEventDispatcher)
 
 	fmt.Println("Start seeding Postgres database")
 	err := dbSeedAppService.AddDefaultItems()

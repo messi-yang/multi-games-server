@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -18,12 +19,17 @@ type Service interface {
 }
 
 type serve struct {
-	gamerRepo gamermodel.Repo
+	gamerRepo             gamermodel.Repo
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewService(gamerRepo gamermodel.Repo) Service {
+func NewService(
+	gamerRepo gamermodel.Repo,
+	domainEventDispatcher domain.DomainEventDispatcher,
+) Service {
 	return &serve{
-		gamerRepo: gamerRepo,
+		gamerRepo:             gamerRepo,
+		domainEventDispatcher: domainEventDispatcher,
 	}
 }
 
@@ -47,8 +53,10 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 		return gamerIdDto, fmt.Errorf("already has a gamer with userId of %s", userId.Uuid().String())
 	}
 	newGamer := gamermodel.NewGamer(commonmodel.NewGamerId(uuid.New()), userId)
-	err = serve.gamerRepo.Add(newGamer)
-	if err != nil {
+	if err = serve.gamerRepo.Add(newGamer); err != nil {
+		return gamerIdDto, err
+	}
+	if err = serve.domainEventDispatcher.Dispatch(&newGamer); err != nil {
 		return gamerIdDto, err
 	}
 	return newGamer.GetId().Uuid(), nil
