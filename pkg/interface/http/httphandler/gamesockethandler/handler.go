@@ -58,10 +58,11 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}
 	}
 
-	closeConnChan := make(chan bool)
+	closeConnChan := make(chan bool, 100)
 	closeConnectionOnError := func(err error) {
 		sendMessage(errorHappenedResponse{
-			Type: errorHappenedResponseType,
+			Type:    errorHappenedResponseType,
+			Message: err.Error(),
 		})
 		closeConnChan <- true
 	}
@@ -242,9 +243,11 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	)
 	defer unitsUpdatedMessageTypeUnsubscriber()
 
-	doEnterWorldCommand()
-	doGetNearbyUnitsQuery()
-	publishPlayersUpdatedEvent()
+	go func() {
+		doEnterWorldCommand()
+		doGetNearbyUnitsQuery()
+		publishPlayersUpdatedEvent()
+	}()
 
 	go func() {
 		for {
@@ -256,12 +259,14 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 
 			message, err := gziputil.Ungzip(compressedMessage)
 			if err != nil {
-				continue
+				closeConnectionOnError(err)
+				return
 			}
 
 			genericRequest, err := jsonutil.Unmarshal[genericRequest](message)
 			if err != nil {
-				continue
+				closeConnectionOnError(err)
+				return
 			}
 
 			switch genericRequest.Type {

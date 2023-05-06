@@ -1,6 +1,6 @@
 package commonmodel
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/common/domain"
+import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 
 type Position struct {
 	x int
