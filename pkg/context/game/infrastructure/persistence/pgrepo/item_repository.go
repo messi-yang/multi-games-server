@@ -41,40 +41,6 @@ func NewItemRepo(uow pguow.Uow) (repository itemmodel.Repo) {
 	return &itemRepo{uow: uow}
 }
 
-func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
-	var itemModels []pgmodel.ItemModel
-	result := repo.uow.GetTransaction().Find(&itemModels)
-	if result.Error != nil {
-		err = result.Error
-		return items, err
-	}
-
-	items = lo.Map(itemModels, func(itemModel pgmodel.ItemModel, _ int) itemmodel.Item {
-		return parseItemModel(itemModel)
-	})
-	return items, nil
-}
-
-func (repo *itemRepo) Get(itemId commonmodel.ItemId) (item itemmodel.Item, err error) {
-	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
-	result := repo.uow.GetTransaction().First(&itemModel)
-	if result.Error != nil {
-		return item, result.Error
-	}
-
-	return parseItemModel(itemModel), nil
-}
-
-func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
-	itemModel := pgmodel.ItemModel{}
-	result := repo.uow.GetTransaction().First(&itemModel)
-	if result.Error != nil {
-		return item, result.Error
-	}
-
-	return parseItemModel(itemModel), nil
-}
-
 func (repo *itemRepo) Add(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
 	res := repo.uow.GetTransaction().Create(&itemModel)
@@ -91,4 +57,38 @@ func (repo *itemRepo) Update(item itemmodel.Item) error {
 		return res.Error
 	}
 	return nil
+}
+
+func (repo *itemRepo) Get(itemId commonmodel.ItemId) (item itemmodel.Item, err error) {
+	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
+	result := repo.uow.GetTransaction().First(&itemModel)
+	if result.Error != nil {
+		return item, result.Error
+	}
+
+	return parseItemModel(itemModel), nil
+}
+
+func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
+	var itemModels []pgmodel.ItemModel
+	result := repo.uow.GetTransaction().Find(&itemModels)
+	if result.Error != nil {
+		err = result.Error
+		return items, err
+	}
+
+	items = lo.Map(itemModels, func(itemModel pgmodel.ItemModel, _ int) itemmodel.Item {
+		return parseItemModel(itemModel)
+	})
+	return items, nil
+}
+
+func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
+	itemModel := pgmodel.ItemModel{}
+	result := repo.uow.GetTransaction().First(&itemModel)
+	if result.Error != nil {
+		return item, result.Error
+	}
+
+	return parseItemModel(itemModel), nil
 }

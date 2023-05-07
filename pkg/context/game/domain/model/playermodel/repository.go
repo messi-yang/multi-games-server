@@ -13,9 +13,9 @@ var (
 
 type Repo interface {
 	Add(Player) error
-	Get(commonmodel.PlayerId) (Player, error)
 	Update(Player) error
 	Delete(commonmodel.PlayerId) error
+	Get(commonmodel.PlayerId) (Player, error)
 	FindPlayersAt(commonmodel.WorldId, commonmodel.Position) (players []Player, found bool, err error)
 	GetPlayersAround(commonmodel.WorldId, commonmodel.Position) ([]Player, error)
 }

@@ -45,6 +45,19 @@ func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	return nil
 }
 
+func (repo *unitRepo) Delete(worldId commonmodel.WorldId, position commonmodel.Position) error {
+	result := repo.uow.GetTransaction().Where(
+		"world_id = ? AND pos_x = ? AND pos_z = ?",
+		worldId.Uuid(),
+		position.GetX(),
+		position.GetZ(),
+	).Delete(&pgmodel.UnitModel{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (repo *unitRepo) FindUnitAt(
 	worldId commonmodel.WorldId, position commonmodel.Position,
 ) (unit unitmodel.Unit, found bool, err error) {
@@ -86,17 +99,4 @@ func (repo *unitRepo) QueryUnitsInBound(
 		return parseUnitModel(unitModel)
 	})
 	return units, nil
-}
-
-func (repo *unitRepo) Delete(worldId commonmodel.WorldId, position commonmodel.Position) error {
-	result := repo.uow.GetTransaction().Where(
-		"world_id = ? AND pos_x = ? AND pos_z = ?",
-		worldId.Uuid(),
-		position.GetX(),
-		position.GetZ(),
-	).Delete(&pgmodel.UnitModel{})
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
 }

@@ -7,6 +7,4 @@ type Repo interface {
 	Update(World) error
 	Get(commonmodel.WorldId) (World, error)
 	GetAll() ([]World, error)
-	ReadLockAccess(commonmodel.WorldId) (rUnlocker func())
-	LockAccess(commonmodel.WorldId) (unlocker func())
 }

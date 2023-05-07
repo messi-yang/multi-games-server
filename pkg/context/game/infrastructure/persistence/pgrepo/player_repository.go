@@ -72,6 +72,23 @@ func (repo *playerRepo) Add(player playermodel.Player) error {
 	return nil
 }
 
+func (repo *playerRepo) Update(player playermodel.Player) error {
+	playerModel := newPlayerModel(player)
+	res := repo.uow.GetTransaction().Save(&playerModel)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
+func (repo *playerRepo) Delete(playerId commonmodel.PlayerId) error {
+	result := repo.uow.GetTransaction().Delete(&pgmodel.PlayerModel{Id: playerId.Uuid()})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.Player, err error) {
 	playerModel := pgmodel.PlayerModel{Id: playerId.Uuid()}
 	result := repo.uow.GetTransaction().First(&playerModel)
@@ -116,15 +133,6 @@ func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position c
 	}), nil
 }
 
-func (repo *playerRepo) Update(player playermodel.Player) error {
-	playerModel := newPlayerModel(player)
-	res := repo.uow.GetTransaction().Save(&playerModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
-}
-
 func (repo *playerRepo) GetAll(worldId commonmodel.WorldId) []playermodel.Player {
 	var playerModels []pgmodel.PlayerModel
 	result := repo.uow.GetTransaction().Find(&playerModels)
@@ -135,12 +143,4 @@ func (repo *playerRepo) GetAll(worldId commonmodel.WorldId) []playermodel.Player
 	return lo.Map(playerModels, func(playerModel pgmodel.PlayerModel, _ int) playermodel.Player {
 		return parsePlayerModel(playerModel)
 	})
-}
-
-func (repo *playerRepo) Delete(playerId commonmodel.PlayerId) error {
-	result := repo.uow.GetTransaction().Delete(&pgmodel.PlayerModel{Id: playerId.Uuid()})
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
 }

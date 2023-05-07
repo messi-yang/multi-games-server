@@ -29,13 +29,13 @@ func NewWorldRepo(uow pguow.Uow) (repository worldmodel.Repo) {
 	return &worldRepo{uow: uow}
 }
 
-func (repo *worldRepo) Get(worldId commonmodel.WorldId) (world worldmodel.World, err error) {
-	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
-	result := repo.uow.GetTransaction().First(&worldModel)
-	if result.Error != nil {
-		return world, result.Error
+func (repo *worldRepo) Add(world worldmodel.World) error {
+	worldModel := newWorldModel(world)
+	res := repo.uow.GetTransaction().Create(&worldModel)
+	if res.Error != nil {
+		return res.Error
 	}
-	return parseWorldModel(worldModel), nil
+	return nil
 }
 
 func (repo *worldRepo) Update(world worldmodel.World) error {
@@ -45,6 +45,15 @@ func (repo *worldRepo) Update(world worldmodel.World) error {
 		return res.Error
 	}
 	return nil
+}
+
+func (repo *worldRepo) Get(worldId commonmodel.WorldId) (world worldmodel.World, err error) {
+	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
+	result := repo.uow.GetTransaction().First(&worldModel)
+	if result.Error != nil {
+		return world, result.Error
+	}
+	return parseWorldModel(worldModel), nil
 }
 
 func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
@@ -58,15 +67,6 @@ func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
 		return parseWorldModel(worldModel)
 	})
 	return worlds, nil
-}
-
-func (repo *worldRepo) Add(world worldmodel.World) error {
-	worldModel := newWorldModel(world)
-	res := repo.uow.GetTransaction().Create(&worldModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
 }
 
 func (repo *worldRepo) ReadLockAccess(worldId commonmodel.WorldId) func() {

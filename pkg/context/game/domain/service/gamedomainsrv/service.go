@@ -37,9 +37,6 @@ func NewService(
 }
 
 func (serve *serve) EnterWorld(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
-	unlocker := serve.worldRepo.LockAccess(worldId)
-	defer unlocker()
-
 	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
@@ -65,9 +62,6 @@ func (serve *serve) EnterWorld(worldId commonmodel.WorldId, playerId commonmodel
 func (serve *serve) Move(
 	worldId commonmodel.WorldId, playerId commonmodel.PlayerId, direction commonmodel.Direction,
 ) error {
-	unlocker := serve.worldRepo.LockAccess(worldId)
-	defer unlocker()
-
 	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
@@ -115,9 +109,6 @@ func (serve *serve) Move(
 }
 
 func (serve *serve) LeaveWorld(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
-	unlocker := serve.worldRepo.LockAccess(worldId)
-	defer unlocker()
-
 	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
@@ -126,9 +117,6 @@ func (serve *serve) LeaveWorld(worldId commonmodel.WorldId, playerId commonmodel
 }
 
 func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId, itemId commonmodel.ItemId) error {
-	unlocker := serve.worldRepo.LockAccess(worldId)
-	defer unlocker()
-
 	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
@@ -151,9 +139,6 @@ func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldId, playerId commonm
 }
 
 func (serve *serve) PlaceItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
-	unlocker := serve.worldRepo.LockAccess(worldId)
-	defer unlocker()
-
 	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
@@ -205,9 +190,6 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldId, playerId commonmodel.
 }
 
 func (serve *serve) RemoveItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
-	unlocker := serve.worldRepo.LockAccess(worldId)
-	defer unlocker()
-
 	if _, err := serve.worldRepo.Get(worldId); err != nil {
 		return err
 	}
