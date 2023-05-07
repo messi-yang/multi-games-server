@@ -13,7 +13,6 @@ RUN go install github.com/cosmtrek/air@latest
 # Install Golang CLI Lint
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.52.1
 
-
 COPY . /app
 
 WORKDIR /app

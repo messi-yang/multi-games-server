@@ -34,6 +34,12 @@ docker compose exec web make db-seed
 
 ## Postgres Database
 
+### Update Postgres Schema
+
+```bash
+docker compose exec postgres /usr/local/bin/pg_dump -U main --schema-only main > db/postgres/schema.sql
+```
+
 ### Plan New Postgres Migration
 
 Create new Postgres migration file.
