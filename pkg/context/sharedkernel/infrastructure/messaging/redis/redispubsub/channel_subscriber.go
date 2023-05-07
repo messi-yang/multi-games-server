@@ -3,7 +3,7 @@ package redispubsub
 import (
 	"context"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redisclient"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/jsonutil"
 	"github.com/go-redis/redis/v9"
 )
