@@ -3,6 +3,7 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
+	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
@@ -38,42 +39,38 @@ func NewUnitRepo(uow pguow.Uow) (repository unitmodel.Repo) {
 
 func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	unitModel := newUnitModel(unit)
-	res := repo.uow.GetTransaction().Create(&unitModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Create(&unitModel).Error
+	})
 }
 
 func (repo *unitRepo) Delete(worldId commonmodel.WorldId, position commonmodel.Position) error {
-	result := repo.uow.GetTransaction().Where(
-		"world_id = ? AND pos_x = ? AND pos_z = ?",
-		worldId.Uuid(),
-		position.GetX(),
-		position.GetZ(),
-	).Delete(&pgmodel.UnitModel{})
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			worldId.Uuid(),
+			position.GetX(),
+			position.GetZ(),
+		).Delete(&pgmodel.UnitModel{}).Error
+	})
 }
 
 func (repo *unitRepo) FindUnitAt(
 	worldId commonmodel.WorldId, position commonmodel.Position,
 ) (unit unitmodel.Unit, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
-	result := repo.uow.GetTransaction().Where(
-		"world_id = ? AND pos_x = ? AND pos_z = ?",
-		worldId.Uuid(),
-		position.GetX(),
-		position.GetZ(),
-	).Find(&unitModels)
-
-	if result.Error != nil {
-		return unit, found, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			worldId.Uuid(),
+			position.GetX(),
+			position.GetZ(),
+		).Find(&unitModels).Error
+	}); err != nil {
+		return unit, found, err
 	}
 
-	found = result.RowsAffected >= 1
+	found = len(unitModels) >= 1
 	if found {
 		unit = parseUnitModel(unitModels[0])
 	}
@@ -84,17 +81,19 @@ func (repo *unitRepo) QueryUnitsInBound(
 	worldId commonmodel.WorldId, bound commonmodel.Bound,
 ) (units []unitmodel.Unit, err error) {
 	var unitModels []pgmodel.UnitModel
-	result := repo.uow.GetTransaction().Where(
-		"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
-		worldId.Uuid(),
-		bound.GetFrom().GetX(),
-		bound.GetTo().GetX(),
-		bound.GetFrom().GetZ(),
-		bound.GetTo().GetZ(),
-	).Find(&unitModels, pgmodel.UnitModel{})
-	if result.Error != nil {
-		return units, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
+			worldId.Uuid(),
+			bound.GetFrom().GetX(),
+			bound.GetTo().GetX(),
+			bound.GetFrom().GetZ(),
+			bound.GetTo().GetZ(),
+		).Find(&unitModels, pgmodel.UnitModel{}).Error
+	}); err != nil {
+		return units, err
 	}
+
 	units = lo.Map(unitModels, func(unitModel pgmodel.UnitModel, _ int) unitmodel.Unit {
 		return parseUnitModel(unitModel)
 	})

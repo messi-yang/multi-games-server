@@ -25,9 +25,9 @@ func (handler *Handler) Exec() {
 	fmt.Println("Start seeding Postgres database")
 	err := dbSeedAppService.AddDefaultItems()
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		panic(err)
 	}
-	pgUow.Commit()
+	pgUow.SaveChanges()
 	fmt.Println("Finished seeding Postgres database")
 }

@@ -138,11 +138,11 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		}); err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			closeConnectionOnError(err)
 			return
 		}
-		pgUow.Commit()
+		pgUow.SaveChanges()
 
 		sendMessage(gameJoinedResponse{
 			Type: gameJoinedResponseType,
@@ -159,11 +159,11 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			PlayerId:  playerIdDto,
 			Direction: directionDto,
 		}); err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			closeConnectionOnError(err)
 			return
 		}
-		pgUow.Commit()
+		pgUow.SaveChanges()
 		moveSteps += 1
 		if moveSteps%10 == 0 {
 			doGetNearbyUnitsQuery()
@@ -179,10 +179,10 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			PlayerId: playerIdDto,
 			ItemId:   itemIdDto,
 		}); err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			closeConnectionOnError(err)
 		}
-		pgUow.Commit()
+		pgUow.SaveChanges()
 	}
 
 	doPlaceItemCommand := func() {
@@ -193,10 +193,10 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		}); err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			closeConnectionOnError(err)
 		}
-		pgUow.Commit()
+		pgUow.SaveChanges()
 	}
 
 	doRemoveItemCommand := func() {
@@ -207,10 +207,10 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		}); err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			closeConnectionOnError(err)
 		}
-		pgUow.Commit()
+		pgUow.SaveChanges()
 	}
 
 	doLeaveWorldCommand := func() {
@@ -221,10 +221,10 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		}); err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			closeConnectionOnError(err)
 		}
-		pgUow.Commit()
+		pgUow.SaveChanges()
 	}
 
 	playersUpdatedMessageUnsubscriber := redispubsub.NewChannelSubscriber[PlayersUpdatedMessage]().Subscribe(

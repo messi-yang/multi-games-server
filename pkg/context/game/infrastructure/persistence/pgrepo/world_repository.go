@@ -3,6 +3,7 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
+	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
@@ -31,48 +32,38 @@ func NewWorldRepo(uow pguow.Uow) (repository worldmodel.Repo) {
 
 func (repo *worldRepo) Add(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
-	res := repo.uow.GetTransaction().Create(&worldModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Create(&worldModel).Error
+	})
 }
 
 func (repo *worldRepo) Update(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
-	res := repo.uow.GetTransaction().Save(&worldModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Save(&worldModel).Error
+	})
 }
 
 func (repo *worldRepo) Get(worldId commonmodel.WorldId) (world worldmodel.World, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
-	result := repo.uow.GetTransaction().First(&worldModel)
-	if result.Error != nil {
-		return world, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.First(&worldModel).Error
+	}); err != nil {
+		return world, err
 	}
 	return parseWorldModel(worldModel), nil
 }
 
 func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
 	var worldModels []pgmodel.WorldModel
-	result := repo.uow.GetTransaction().Find(&worldModels).Limit(10)
-	if result.Error != nil {
-		return worlds, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Find(&worldModels).Limit(10).Error
+	}); err != nil {
+		return worlds, err
 	}
 
 	worlds = lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.World {
 		return parseWorldModel(worldModel)
 	})
 	return worlds, nil
-}
-
-func (repo *worldRepo) ReadLockAccess(worldId commonmodel.WorldId) func() {
-	return func() {}
-}
-
-func (repo *worldRepo) LockAccess(worldId commonmodel.WorldId) func() {
-	return func() {}
 }

@@ -3,6 +3,7 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
+	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
@@ -34,38 +35,41 @@ func NewGamerRepo(uow pguow.Uow) (repository gamermodel.Repo) {
 
 func (repo *gamerRepo) Add(gamer gamermodel.Gamer) error {
 	gamerModel := newGamerModel(gamer)
-	res := repo.uow.GetTransaction().Create(&gamerModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Create(&gamerModel).Error
+	})
 }
 
 func (repo *gamerRepo) Get(gamerId commonmodel.GamerId) (gamer gamermodel.Gamer, err error) {
 	gamerModel := pgmodel.GamerModel{Id: gamerId.Uuid()}
-	result := repo.uow.GetTransaction().First(&gamerModel)
-	if result.Error != nil {
-		return gamer, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.First(&gamerModel).Error
+	}); err != nil {
+		return gamer, err
 	}
 	return parseGamerModel(gamerModel), nil
 }
 
 func (repo *gamerRepo) GetGamerByUserId(userId sharedkernelmodel.UserId) (gamer gamermodel.Gamer, err error) {
 	var gamerModel pgmodel.GamerModel
-	result := repo.uow.GetTransaction().First(&gamerModel, pgmodel.GamerModel{UserId: userId.Uuid()})
-	if result.Error != nil {
-		return gamer, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.First(&gamerModel, pgmodel.GamerModel{UserId: userId.Uuid()}).Error
+	}); err != nil {
+		return gamer, err
 	}
+
 	return parseGamerModel(gamerModel), nil
 }
 
 func (repo *gamerRepo) FindGamerByUserId(userId sharedkernelmodel.UserId) (gamer gamermodel.Gamer, gamerFound bool, err error) {
 	gamerModels := []pgmodel.GamerModel{}
-	result := repo.uow.GetTransaction().Find(&gamerModels, pgmodel.GamerModel{UserId: userId.Uuid()})
-	if result.Error != nil {
-		return gamer, gamerFound, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Find(&gamerModels, pgmodel.GamerModel{UserId: userId.Uuid()}).Error
+	}); err != nil {
+		return gamer, gamerFound, err
 	}
-	gamerFound = result.RowsAffected >= 1
+
+	gamerFound = len(gamerModels) >= 1
 	if !gamerFound {
 		return gamer, false, nil
 	}
@@ -74,9 +78,10 @@ func (repo *gamerRepo) FindGamerByUserId(userId sharedkernelmodel.UserId) (gamer
 
 func (repo *gamerRepo) GetAll() (gamers []gamermodel.Gamer, err error) {
 	var gamerModels []pgmodel.GamerModel
-	result := repo.uow.GetTransaction().Find(&gamerModels)
-	if result.Error != nil {
-		return gamers, result.Error
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Find(&gamerModels).Error
+	}); err != nil {
+		return gamers, err
 	}
 
 	gamers = lo.Map(gamerModels, func(gamerModel pgmodel.GamerModel, _ int) gamermodel.Gamer {

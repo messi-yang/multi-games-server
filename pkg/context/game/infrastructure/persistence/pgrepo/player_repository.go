@@ -3,6 +3,7 @@ package pgrepo
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
+	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/pguow"
@@ -65,52 +66,49 @@ func NewPlayerRepo(uow pguow.Uow) (repository playermodel.Repo) {
 
 func (repo *playerRepo) Add(player playermodel.Player) error {
 	playerModel := newPlayerModel(player)
-	res := repo.uow.GetTransaction().Create(&playerModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Create(&playerModel).Error
+	})
 }
 
 func (repo *playerRepo) Update(player playermodel.Player) error {
 	playerModel := newPlayerModel(player)
-	res := repo.uow.GetTransaction().Save(&playerModel)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Save(&playerModel).Error
+	})
 }
 
 func (repo *playerRepo) Delete(playerId commonmodel.PlayerId) error {
-	result := repo.uow.GetTransaction().Delete(&pgmodel.PlayerModel{Id: playerId.Uuid()})
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Delete(&pgmodel.PlayerModel{Id: playerId.Uuid()}).Error
+	})
 }
 
 func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.Player, err error) {
 	playerModel := pgmodel.PlayerModel{Id: playerId.Uuid()}
-	result := repo.uow.GetTransaction().First(&playerModel)
-	if result.Error != nil {
-		return player, result.Error
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.First(&playerModel).Error
+	}); err != nil {
+		return player, err
 	}
+
 	return parsePlayerModel(playerModel), nil
 }
 
 func (repo *playerRepo) FindPlayersAt(worldId commonmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, playersFound bool, err error) {
 	var playerModels = []pgmodel.PlayerModel{}
-	result := repo.uow.GetTransaction().Where(
-		"world_id = ? AND pos_x = ? AND pos_z = ?",
-		worldId.Uuid(),
-		position.GetX(),
-		position.GetZ(),
-	).Find(&playerModels)
-	if result.Error != nil {
-		return players, playersFound, result.Error
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			worldId.Uuid(),
+			position.GetX(),
+			position.GetZ(),
+		).Find(&playerModels).Error
+	}); err != nil {
+		return players, playersFound, err
 	}
 
-	playersFound = result.RowsAffected >= 1
+	playersFound = len(playerModels) >= 1
 
 	return lo.Map(playerModels, func(playerModel pgmodel.PlayerModel, _ int) playermodel.Player {
 		return parsePlayerModel(playerModel)
@@ -119,15 +117,17 @@ func (repo *playerRepo) FindPlayersAt(worldId commonmodel.WorldId, position comm
 
 func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, err error) {
 	playerModels := []pgmodel.PlayerModel{}
-	result := repo.uow.GetTransaction().Find(
-		&playerModels,
-		pgmodel.PlayerModel{
-			WorldId: worldId.Uuid(),
-		},
-	)
-	if result.Error != nil {
-		return players, result.Error
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Find(
+			&playerModels,
+			pgmodel.PlayerModel{
+				WorldId: worldId.Uuid(),
+			},
+		).Error
+	}); err != nil {
+		return players, err
 	}
+
 	return lo.Map(playerModels, func(playerModel pgmodel.PlayerModel, _ int) playermodel.Player {
 		return parsePlayerModel(playerModel)
 	}), nil
@@ -135,8 +135,9 @@ func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position c
 
 func (repo *playerRepo) GetAll(worldId commonmodel.WorldId) []playermodel.Player {
 	var playerModels []pgmodel.PlayerModel
-	result := repo.uow.GetTransaction().Find(&playerModels)
-	if result.Error != nil {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Find(&playerModels).Error
+	}); err != nil {
 		return []playermodel.Player{}
 	}
 

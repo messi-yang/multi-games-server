@@ -59,25 +59,25 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	gamer, err := gamerAppService.GetGamerByUserId(gamerappsrv.GetGamerByUserIdQuery{UserId: userIdDto})
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	newWorldIdDto, err := worldAppService.CreateWorld(worldappsrv.CreateWorldCommand{GamerId: gamer.Id})
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: newWorldIdDto})
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	pgUow.Commit()
+	pgUow.SaveChanges()
 	c.JSON(http.StatusOK, createWorldResponse(worldDto))
 }
 
@@ -103,7 +103,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	gamer, err := gamerAppService.GetGamerByUserId(gamerappsrv.GetGamerByUserIdQuery{UserId: userIdDto})
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -112,18 +112,18 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 		WorldId: worldIdDto,
 		Name:    requestBody.Name,
 	}); err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	updatedWorldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	pgUow.Commit()
+	pgUow.SaveChanges()
 	c.JSON(http.StatusOK, updateWorldResponse(updatedWorldDto))
 }

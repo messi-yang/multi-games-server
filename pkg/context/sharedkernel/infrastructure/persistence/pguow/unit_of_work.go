@@ -6,9 +6,9 @@ import (
 )
 
 type Uow interface {
-	GetTransaction() *gorm.DB
-	Rollback()
-	Commit()
+	Execute(func(transaction *gorm.DB) error) error
+	RevertChanges()
+	SaveChanges()
 }
 
 type uow struct {
@@ -16,7 +16,7 @@ type uow struct {
 }
 
 // Dummy Unit of Work, by using this, you don't have to
-// to Rollback and Commit in the end because it uses a fake transaction.
+// to RevertChanges and SaveChanges in the end because it uses a fake transaction.
 func NewDummyUow() Uow {
 	pgClient := pgclient.GetPgClient()
 
@@ -34,14 +34,14 @@ func NewUow() Uow {
 	}
 }
 
-func (uow *uow) GetTransaction() *gorm.DB {
-	return uow.transaction
+func (uow *uow) Execute(execute func(transaction *gorm.DB) error) error {
+	return execute(uow.transaction)
 }
 
-func (uow *uow) Rollback() {
+func (uow *uow) RevertChanges() {
 	uow.transaction.Rollback()
 }
 
-func (uow *uow) Commit() {
+func (uow *uow) SaveChanges() {
 	uow.transaction.Commit()
 }

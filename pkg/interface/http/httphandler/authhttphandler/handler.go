@@ -44,7 +44,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 		EmailAddress: userEmailAddress,
 	})
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		return
 	}
 
@@ -54,7 +54,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	} else {
 		userIdDto, err = identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
 		if err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			return
 		}
 	}
@@ -63,11 +63,11 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 		identityappsrv.LoginCommand{UserId: userIdDto},
 	)
 	if err != nil {
-		pgUow.Rollback()
+		pgUow.RevertChanges()
 		return
 	}
 
-	pgUow.Commit()
+	pgUow.SaveChanges()
 
 	clientUrl := os.Getenv("CLIENT_URL")
 	c.Redirect(http.StatusFound, fmt.Sprintf("%s/?access_token=%v", clientUrl, accessToken))

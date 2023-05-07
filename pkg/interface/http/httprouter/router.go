@@ -36,12 +36,12 @@ func Run() error {
 		identityAppService := provideIdentityAppService(pgUow)
 		userId, err := identityAppService.Validate(authToken)
 		if err != nil {
-			pgUow.Rollback()
+			pgUow.RevertChanges()
 			ctx.AbortWithError(http.StatusUnauthorized, err)
 			return
 		}
 
-		pgUow.Commit()
+		pgUow.SaveChanges()
 		httputil.SetUserId(ctx, userId)
 		ctx.Next()
 	}
