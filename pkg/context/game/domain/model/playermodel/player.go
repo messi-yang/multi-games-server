@@ -55,6 +55,7 @@ func NewPlayer(
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
+	player.domainEventCollector.Add(NewPlayerJoined(id, worldId))
 	return player
 }
 
@@ -75,9 +76,9 @@ func LoadPlayer(
 		position:             position,
 		direction:            direction,
 		heldItemId:           heldItemId,
-		domainEventCollector: domain.NewDomainEventCollector(),
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
+		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 	return player
 }
@@ -102,16 +103,14 @@ func (player *Player) GetPosition() commonmodel.Position {
 	return player.position
 }
 
-func (player *Player) ChangePosition(position commonmodel.Position) {
+func (player *Player) Move(position commonmodel.Position, direction commonmodel.Direction) {
 	player.position = position
+	player.direction = direction
+	player.domainEventCollector.Add(NewPlayerMoved(player.id, player.worldId))
 }
 
 func (player *Player) GetDirection() commonmodel.Direction {
 	return player.direction
-}
-
-func (player *Player) ChangeDirection(direction commonmodel.Direction) {
-	player.direction = direction
 }
 
 func (player *Player) GetVisionBound() commonmodel.Bound {
@@ -149,4 +148,8 @@ func (player *Player) GetCreatedAt() time.Time {
 
 func (player *Player) GetUpdatedAt() time.Time {
 	return player.updatedAt
+}
+
+func (player *Player) Delete() {
+	player.domainEventCollector.Add(NewPlayerLeft(player.id, player.worldId))
 }

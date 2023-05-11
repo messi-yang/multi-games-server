@@ -21,8 +21,7 @@ type RemoveItemCommand struct {
 }
 
 type EnterWorldCommand struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
+	WorldId uuid.UUID
 }
 
 type MoveCommand struct {

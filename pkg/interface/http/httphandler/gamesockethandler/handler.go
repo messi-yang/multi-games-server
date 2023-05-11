@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redispubsub"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/gziputil"
@@ -45,9 +44,24 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	playerIdDto := uuid.New()
 
-	redisChannelPublisher := redispubsub.NewChannelPublisher()
+	var playerIdDto uuid.UUID
+	doEnterWorldCommand := func() error {
+		pgUow := pguow.NewUow()
+
+		gameAppService := provideGameAppService(pgUow)
+		if playerIdDto, err = gameAppService.EnterWorld(gameappsrv.EnterWorldCommand{
+			WorldId: worldIdDto,
+		}); err != nil {
+			pgUow.RevertChanges()
+			return err
+		}
+		pgUow.SaveChanges()
+		return nil
+	}
+	if err := doEnterWorldCommand(); err != nil {
+		return
+	}
 
 	sendMessageLocker := &sync.RWMutex{}
 	sendMessage := func(jsonObj any) {
@@ -70,16 +84,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 			Message: err.Error(),
 		})
 		closeConnChan <- true
-	}
-
-	publishPlayersUpdatedEvent := func() {
-		err = redisChannelPublisher.Publish(
-			newPlayersUpdatedMessageChannel(worldIdDto),
-			PlayersUpdatedMessage{},
-		)
-		if err != nil {
-			closeConnectionOnError(err)
-		}
 	}
 
 	doGetNearbyPlayersQuery := func() {
@@ -125,25 +129,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		})
 	}
 
-	doEnterWorldCommand := func() {
-		pgUow := pguow.NewUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		if err = gameAppService.EnterWorld(gameappsrv.EnterWorldCommand{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		}); err != nil {
-			pgUow.RevertChanges()
-			closeConnectionOnError(err)
-			return
-		}
-		pgUow.SaveChanges()
-
-		sendMessage(gameJoinedResponse{
-			Type: gameJoinedResponseType,
-		})
-	}
-
 	moveSteps := 0
 	doMoveCommand := func(directionDto int8) {
 		pgUow := pguow.NewUow()
@@ -176,6 +161,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}); err != nil {
 			pgUow.RevertChanges()
 			closeConnectionOnError(err)
+			return
 		}
 		pgUow.SaveChanges()
 	}
@@ -190,6 +176,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}); err != nil {
 			pgUow.RevertChanges()
 			closeConnectionOnError(err)
+			return
 		}
 		pgUow.SaveChanges()
 	}
@@ -204,6 +191,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}); err != nil {
 			pgUow.RevertChanges()
 			closeConnectionOnError(err)
+			return
 		}
 		pgUow.SaveChanges()
 	}
@@ -218,6 +206,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}); err != nil {
 			pgUow.RevertChanges()
 			closeConnectionOnError(err)
+			return
 		}
 		pgUow.SaveChanges()
 	}
@@ -225,8 +214,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	unitCreatedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
 		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
 		func(serverMessageBytes []byte) {
-			_, err := jsonutil.Unmarshal[gameappsrv.UnitCreatedServerMessage](serverMessageBytes)
-			if err != nil {
+			if _, err := jsonutil.Unmarshal[gameappsrv.UnitCreatedServerMessage](serverMessageBytes); err != nil {
 				return
 			}
 			doGetNearbyUnitsQuery()
@@ -237,8 +225,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	unitDeletedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
 		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
 		func(serverMessageBytes []byte) {
-			_, err := jsonutil.Unmarshal[gameappsrv.UnitDeletedServerMessage](serverMessageBytes)
-			if err != nil {
+			if _, err := jsonutil.Unmarshal[gameappsrv.UnitDeletedServerMessage](serverMessageBytes); err != nil {
 				return
 			}
 			doGetNearbyUnitsQuery()
@@ -246,19 +233,43 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	)
 	defer unitDeletedServerMessageUnsubscriber()
 
-	playersUpdatedMessageUnsubscriber := redispubsub.NewChannelSubscriber[PlayersUpdatedMessage]().Subscribe(
-		newPlayersUpdatedMessageChannel(worldIdDto),
-		func(message PlayersUpdatedMessage) {
+	playerJoinedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
+		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+		func(serverMessageBytes []byte) {
+			if _, err := jsonutil.Unmarshal[gameappsrv.PlayerJoinedServerMessage](serverMessageBytes); err != nil {
+				return
+			}
 			doGetNearbyPlayersQuery()
 		},
 	)
-	defer playersUpdatedMessageUnsubscriber()
+	defer playerJoinedServerMessageUnsubscriber()
 
-	go func() {
-		doEnterWorldCommand()
-		doGetNearbyUnitsQuery()
-		publishPlayersUpdatedEvent()
-	}()
+	playerLeftServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
+		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+		func(serverMessageBytes []byte) {
+			_, err := jsonutil.Unmarshal[gameappsrv.PlayerLeftServerMessage](serverMessageBytes)
+			if err != nil {
+				return
+			}
+			doGetNearbyPlayersQuery()
+		},
+	)
+	defer playerLeftServerMessageUnsubscriber()
+
+	playerMovedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
+		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+		func(serverMessageBytes []byte) {
+			_, err := jsonutil.Unmarshal[gameappsrv.PlayerMovedServerMessage](serverMessageBytes)
+			if err != nil {
+				return
+			}
+			doGetNearbyPlayersQuery()
+		},
+	)
+	defer playerMovedServerMessageUnsubscriber()
+
+	doGetNearbyUnitsQuery()
+	doGetNearbyPlayersQuery()
 
 	go func() {
 		for {
@@ -290,7 +301,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 					return
 				}
 				doMoveCommand(requestDto.Direction)
-				publishPlayersUpdatedEvent()
 			case changeHeldItemRequestType:
 				requestDto, err := jsonutil.Unmarshal[changeHeldItemRequest](message)
 				if err != nil {
@@ -298,7 +308,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 					return
 				}
 				doChangeHeldItemCommand(requestDto.ItemId)
-				publishPlayersUpdatedEvent()
 			case placeItemRequestType:
 				if _, err := jsonutil.Unmarshal[placeItemRequest](message); err != nil {
 					closeConnectionOnError(err)
@@ -320,5 +329,4 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	<-closeConnChan
 
 	doLeaveWorldCommand()
-	publishPlayersUpdatedEvent()
 }

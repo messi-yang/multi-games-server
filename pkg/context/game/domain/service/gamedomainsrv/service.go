@@ -7,10 +7,11 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/google/uuid"
 )
 
 type Service interface {
-	EnterWorld(commonmodel.WorldId, commonmodel.PlayerId) error
+	EnterWorld(commonmodel.WorldId) (commonmodel.PlayerId, error)
 	Move(commonmodel.WorldId, commonmodel.PlayerId, commonmodel.Direction) error
 	LeaveWorld(commonmodel.WorldId, commonmodel.PlayerId) error
 	ChangeHeldItem(commonmodel.WorldId, commonmodel.PlayerId, commonmodel.ItemId) error
@@ -36,27 +37,29 @@ func NewService(
 	return &serve{worldRepo: worldRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo, domainEventDispatcher: domainEventDispatcher}
 }
 
-func (serve *serve) EnterWorld(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
+func (serve *serve) EnterWorld(worldId commonmodel.WorldId) (playerId commonmodel.PlayerId, err error) {
 	if _, err := serve.worldRepo.Get(worldId); err != nil {
-		return err
+		return playerId, err
 	}
 
 	firstItem, err := serve.itemRepo.GetFirstItem()
 	if err != nil {
-		return err
+		return playerId, err
 	}
 	firstItemId := firstItem.GetId()
 
 	direction := commonmodel.NewDownDirection()
 	newPlayer := playermodel.NewPlayer(
-		playerId, worldId, "Hello", commonmodel.NewPosition(0, 0), direction, &firstItemId,
+		commonmodel.NewPlayerId(uuid.New()), worldId, "Hello", commonmodel.NewPosition(0, 0), direction, &firstItemId,
 	)
 
-	err = serve.playerRepo.Add(newPlayer)
-	if err != nil {
-		return err
+	if err = serve.playerRepo.Add(newPlayer); err != nil {
+		return playerId, err
 	}
-	return serve.domainEventDispatcher.Dispatch(&newPlayer)
+	if err = serve.domainEventDispatcher.Dispatch(&newPlayer); err != nil {
+		return playerId, err
+	}
+	return newPlayer.GetId(), nil
 }
 
 func (serve *serve) Move(
@@ -72,7 +75,7 @@ func (serve *serve) Move(
 	}
 
 	if !direction.IsEqual(player.GetDirection()) {
-		player.ChangeDirection(direction)
+		player.Move(player.GetPosition(), direction)
 		err = serve.playerRepo.Update(player)
 		if err != nil {
 			return err
@@ -80,7 +83,6 @@ func (serve *serve) Move(
 		return serve.domainEventDispatcher.Dispatch(&player)
 	}
 
-	player.ChangeDirection(direction)
 	newItemPos := player.GetPositionOneStepFoward()
 
 	unit, unitFound, err := serve.unitRepo.FindUnitAt(worldId, newItemPos)
@@ -95,14 +97,13 @@ func (serve *serve) Move(
 			return err
 		}
 		if item.GetTraversable() {
-			player.ChangePosition(newItemPos)
+			player.Move(newItemPos, direction)
 		}
 	} else {
-		player.ChangePosition(newItemPos)
+		player.Move(newItemPos, direction)
 	}
 
-	err = serve.playerRepo.Update(player)
-	if err != nil {
+	if err = serve.playerRepo.Update(player); err != nil {
 		return err
 	}
 	return serve.domainEventDispatcher.Dispatch(&player)
@@ -113,7 +114,15 @@ func (serve *serve) LeaveWorld(worldId commonmodel.WorldId, playerId commonmodel
 		return err
 	}
 
-	return serve.playerRepo.Delete(playerId)
+	player, err := serve.playerRepo.Get(playerId)
+	if err != nil {
+		return err
+	}
+
+	if err = serve.playerRepo.Delete(player); err != nil {
+		return err
+	}
+	return serve.domainEventDispatcher.Dispatch(&player)
 }
 
 func (serve *serve) ChangeHeldItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId, itemId commonmodel.ItemId) error {

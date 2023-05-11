@@ -78,9 +78,9 @@ func (repo *playerRepo) Update(player playermodel.Player) error {
 	})
 }
 
-func (repo *playerRepo) Delete(playerId commonmodel.PlayerId) error {
+func (repo *playerRepo) Delete(player playermodel.Player) error {
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Delete(&pgmodel.PlayerModel{Id: playerId.Uuid()}).Error
+		return transaction.Delete(&pgmodel.PlayerModel{Id: player.GetId().Uuid()}).Error
 	})
 }
 

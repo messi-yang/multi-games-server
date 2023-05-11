@@ -10,6 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/gamedomainsrv"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -17,7 +18,7 @@ type Service interface {
 	GetNearbyPlayers(GetNearbyPlayersQuery) (myPlayerDto dto.PlayerDto, ohterPlayerDtos []dto.PlayerDto, err error)
 	GetNearbyUnits(GetNearbyUnitsQuery) (unitDtos []dto.UnitDto, err error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
-	EnterWorld(EnterWorldCommand) error
+	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
 	Move(MoveCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangeHeldItem(ChangeHeldItemCommand) error
@@ -107,8 +108,12 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, er
 	return dto.NewPlayerDto(player), nil
 }
 
-func (serve *serve) EnterWorld(command EnterWorldCommand) error {
-	return serve.gameDomainService.EnterWorld(commonmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
+func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID, err error) {
+	playerId, err := serve.gameDomainService.EnterWorld(commonmodel.NewWorldId(command.WorldId))
+	if err != nil {
+		return plyaerIdDto, err
+	}
+	return playerId.Uuid(), nil
 }
 
 func (serve *serve) Move(command MoveCommand) error {

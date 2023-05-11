@@ -1,7 +1,9 @@
 package memdomaineventhandler
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/event/memory/memdomaineventhandler/playerdomaineventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/event/memory/memdomaineventhandler/unitdomaineventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
@@ -13,4 +15,7 @@ func Run() {
 	domainEventRegister := memdomainevent.NewRegister()
 	domainEventRegister.Register(unitmodel.UnitCreated{}, unitdomaineventhandler.NewUnitCreatedHandler(redisServerMessageMediator))
 	domainEventRegister.Register(unitmodel.UnitDeleted{}, unitdomaineventhandler.NewUnitDeletedHandler(redisServerMessageMediator))
+	domainEventRegister.Register(playermodel.PlayerJoined{}, playerdomaineventhandler.NewPlayerJoinedHandler(redisServerMessageMediator))
+	domainEventRegister.Register(playermodel.PlayerLeft{}, playerdomaineventhandler.NewPlayerLeftHandler(redisServerMessageMediator))
+	domainEventRegister.Register(playermodel.PlayerMoved{}, playerdomaineventhandler.NewPlayerMovedHandler(redisServerMessageMediator))
 }
