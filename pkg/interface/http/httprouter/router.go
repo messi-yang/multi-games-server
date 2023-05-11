@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/authhttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/gamerhttphandler"
@@ -66,7 +67,8 @@ func Run() error {
 	routerGroup := router.Group("/api/items")
 	routerGroup.GET("/", itemHttpHandler.QueryItems)
 
-	gameSocketHandler := gamesockethandler.NewHttpHandler()
+	redisServerMessageMediator := redisservermessagemediator.NewMediator()
+	gameSocketHandler := gamesockethandler.NewHttpHandler(redisServerMessageMediator)
 	gameRouterGroup := router.Group("/ws/game")
 	gameRouterGroup.GET("/", gameSocketHandler.GameConnection)
 

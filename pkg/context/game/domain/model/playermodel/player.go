@@ -28,9 +28,9 @@ type Player struct {
 	position             commonmodel.Position  // The current position of the player
 	direction            commonmodel.Direction // The direction where the player is facing
 	heldItemId           *commonmodel.ItemId   // Optional, The item held by the player
-	domainEventCollector *domain.DomainEventCollector
 	createdAt            time.Time
 	updatedAt            time.Time
+	domainEventCollector *domain.DomainEventCollector
 }
 
 // Interface Implementation Check
@@ -51,9 +51,9 @@ func NewPlayer(
 		position:             position,
 		direction:            direction,
 		heldItemId:           heldItemId,
-		domainEventCollector: domain.NewDomainEventCollector(),
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
+		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 	return player
 }

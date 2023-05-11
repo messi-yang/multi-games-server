@@ -15,9 +15,10 @@ func GetMediator() *Mediator {
 	if mediatorSingleton != nil {
 		return mediatorSingleton
 	}
-	return &Mediator{
+	mediatorSingleton = &Mediator{
 		handlersMap: make(map[string][]Handler),
 	}
+	return mediatorSingleton
 }
 
 func (mediator *Mediator) Register(domainEvent domain.DomainEvent, newHandler Handler) {

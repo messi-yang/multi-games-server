@@ -21,9 +21,12 @@ func newUnitModel(unit unitmodel.Unit) pgmodel.UnitModel {
 }
 
 func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
-	return unitmodel.NewUnit(
-		commonmodel.NewWorldId(unitModel.WorldId),
-		commonmodel.NewPosition(unitModel.PosX, unitModel.PosZ),
+	worldId := commonmodel.NewWorldId(unitModel.WorldId)
+	pos := commonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
+	return unitmodel.LoadUnit(
+		commonmodel.NewUnitId(worldId, pos),
+		worldId,
+		pos,
 		commonmodel.NewItemId(unitModel.ItemId),
 		commonmodel.NewDirection(unitModel.Direction),
 	)
@@ -44,13 +47,13 @@ func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	})
 }
 
-func (repo *unitRepo) Delete(worldId commonmodel.WorldId, position commonmodel.Position) error {
+func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
-			worldId.Uuid(),
-			position.GetX(),
-			position.GetZ(),
+			unit.GetWorldId().Uuid(),
+			unit.GetPosition().GetX(),
+			unit.GetPosition().GetZ(),
 		).Delete(&pgmodel.UnitModel{}).Error
 	})
 }

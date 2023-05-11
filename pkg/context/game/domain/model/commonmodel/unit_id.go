@@ -1,0 +1,32 @@
+package commonmodel
+
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+)
+
+type UnitId struct {
+	worldId  WorldId
+	position Position
+}
+
+// Interface Implementation Check
+var _ domain.ValueObject[UnitId] = (*UnitId)(nil)
+
+func NewUnitId(worldId WorldId, position Position) UnitId {
+	return UnitId{
+		worldId:  worldId,
+		position: position,
+	}
+}
+
+func (unitId UnitId) IsEqual(otherUnitId UnitId) bool {
+	return unitId.worldId.IsEqual(otherUnitId.worldId) && unitId.position.IsEqual(otherUnitId.position)
+}
+
+func (unitId UnitId) GetWorldId() WorldId {
+	return unitId.worldId
+}
+
+func (unitId UnitId) GetPosition() Position {
+	return unitId.position
+}

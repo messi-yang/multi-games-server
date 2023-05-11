@@ -83,7 +83,9 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 		randomInt := rand.Intn(40)
 		position := commonmodel.NewPosition(x-50, z-50)
 		if randomInt < 3 {
-			newUnit := unitmodel.NewUnit(worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirection())
+			newUnit := unitmodel.NewUnit(
+				commonmodel.NewUnitId(worldId, position), worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirection(),
+			)
 			if err = serve.unitRepo.Add(newUnit); err != nil {
 				return err
 			}

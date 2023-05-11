@@ -7,6 +7,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redispubsub"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/gziputil"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/jsonutil"
@@ -23,10 +24,14 @@ var websocketUpgrader = websocket.Upgrader{
 	},
 }
 
-type HttpHandler struct{}
+type HttpHandler struct {
+	redisServerMessageMediator redisservermessagemediator.Mediator
+}
 
-func NewHttpHandler() *HttpHandler {
-	return &HttpHandler{}
+func NewHttpHandler(redisServerMessageMediator redisservermessagemediator.Mediator) *HttpHandler {
+	return &HttpHandler{
+		redisServerMessageMediator: redisServerMessageMediator,
+	}
 }
 
 func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
@@ -71,16 +76,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		err = redisChannelPublisher.Publish(
 			newPlayersUpdatedMessageChannel(worldIdDto),
 			PlayersUpdatedMessage{},
-		)
-		if err != nil {
-			closeConnectionOnError(err)
-		}
-	}
-
-	publishUnitsUpdatedEvent := func() {
-		err = redisChannelPublisher.Publish(
-			NewUnitsUpdatedMessageChannel(worldIdDto),
-			UnitsUpdatedMessage{},
 		)
 		if err != nil {
 			closeConnectionOnError(err)
@@ -227,6 +222,30 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		pgUow.SaveChanges()
 	}
 
+	unitCreatedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
+		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+		func(serverMessageBytes []byte) {
+			_, err := jsonutil.Unmarshal[gameappsrv.UnitCreatedServerMessage](serverMessageBytes)
+			if err != nil {
+				return
+			}
+			doGetNearbyUnitsQuery()
+		},
+	)
+	defer unitCreatedServerMessageUnsubscriber()
+
+	unitDeletedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
+		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+		func(serverMessageBytes []byte) {
+			_, err := jsonutil.Unmarshal[gameappsrv.UnitDeletedServerMessage](serverMessageBytes)
+			if err != nil {
+				return
+			}
+			doGetNearbyUnitsQuery()
+		},
+	)
+	defer unitDeletedServerMessageUnsubscriber()
+
 	playersUpdatedMessageUnsubscriber := redispubsub.NewChannelSubscriber[PlayersUpdatedMessage]().Subscribe(
 		newPlayersUpdatedMessageChannel(worldIdDto),
 		func(message PlayersUpdatedMessage) {
@@ -234,14 +253,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		},
 	)
 	defer playersUpdatedMessageUnsubscriber()
-
-	unitsUpdatedMessageTypeUnsubscriber := redispubsub.NewChannelSubscriber[UnitsUpdatedMessage]().Subscribe(
-		NewUnitsUpdatedMessageChannel(worldIdDto),
-		func(message UnitsUpdatedMessage) {
-			doGetNearbyUnitsQuery()
-		},
-	)
-	defer unitsUpdatedMessageTypeUnsubscriber()
 
 	go func() {
 		doEnterWorldCommand()
@@ -294,7 +305,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 					return
 				}
 				doPlaceItemCommand()
-				publishUnitsUpdatedEvent()
 			case removeItemRequestType:
 				_, err := jsonutil.Unmarshal[removeItemRequest](message)
 				if err != nil {
@@ -302,7 +312,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 					return
 				}
 				doRemoveItemCommand()
-				publishUnitsUpdatedEvent()
 			default:
 			}
 		}

@@ -181,12 +181,12 @@ func (serve *serve) PlaceItem(worldId commonmodel.WorldId, playerId commonmodel.
 		return nil
 	}
 
-	newItemDirection := player.GetDirection().Rotate().Rotate()
-	err = serve.unitRepo.Add(unitmodel.NewUnit(worldId, newItemPos, itemId, newItemDirection))
-	if err != nil {
+	newUnitDirection := player.GetDirection().Rotate().Rotate()
+	newUnit := unitmodel.NewUnit(commonmodel.NewUnitId(worldId, newItemPos), worldId, newItemPos, itemId, newUnitDirection)
+	if err = serve.unitRepo.Add(newUnit); err != nil {
 		return err
 	}
-	return serve.domainEventDispatcher.Dispatch(&player)
+	return serve.domainEventDispatcher.Dispatch(&newUnit)
 }
 
 func (serve *serve) RemoveItem(worldId commonmodel.WorldId, playerId commonmodel.PlayerId) error {
@@ -199,6 +199,18 @@ func (serve *serve) RemoveItem(worldId commonmodel.WorldId, playerId commonmodel
 		return err
 	}
 
-	newItemPos := player.GetPositionOneStepFoward()
-	return serve.unitRepo.Delete(worldId, newItemPos)
+	targetUnitPos := player.GetPositionOneStepFoward()
+
+	unit, unitFound, err := serve.unitRepo.FindUnitAt(worldId, targetUnitPos)
+	if err != nil {
+		return err
+	}
+	if !unitFound {
+		return nil
+	}
+	unit.Delete()
+	if err = serve.unitRepo.Delete(unit); err != nil {
+		return err
+	}
+	return serve.domainEventDispatcher.Dispatch(&unit)
 }
