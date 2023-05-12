@@ -23,15 +23,14 @@ func NewPlayerJoinedHandler(redisServerMessageMediator redisservermessagemediato
 func (handler PlayerJoinedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	playerJoined := domainEvent.(playermodel.PlayerJoined)
 
-	worldIdDto := playerJoined.GetWorldId().Uuid()
-	playerIdDto := playerJoined.GetPlayerId().Uuid()
-	handler.redisServerMessageMediator.Send(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(gameappsrv.PlayerJoinedServerMessage{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		}),
-	)
+	uow.AddDelayedWork(func() {
+		worldIdDto := playerJoined.GetWorldId().Uuid()
+		playerIdDto := playerJoined.GetPlayerId().Uuid()
+		handler.redisServerMessageMediator.Send(
+			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(gameappsrv.NewPlayerJoinedServerMessage(worldIdDto, playerIdDto)),
+		)
+	})
 
 	return nil
 }

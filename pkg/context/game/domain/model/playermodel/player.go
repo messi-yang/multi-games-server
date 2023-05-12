@@ -136,6 +136,7 @@ func (player *Player) GetPositionOneStepFoward() commonmodel.Position {
 
 func (player *Player) ChangeHeldItem(itemId commonmodel.ItemId) {
 	player.heldItemId = &itemId
+	player.domainEventCollector.Add(NewPlayerMoved(player.id, player.worldId))
 }
 
 func (player *Player) GetHeldItemId() *commonmodel.ItemId {

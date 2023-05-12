@@ -24,14 +24,14 @@ func NewUnitDeletedHandler(redisServerMessageMediator redisservermessagemediator
 func (handler UnitDeletedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	unitDeleted := domainEvent.(unitmodel.UnitDeleted)
 
-	worldIdDto := unitDeleted.GetUnitId().GetWorldId().Uuid()
-	positionDto := dto.NewPositionDto(unitDeleted.GetUnitId().GetPosition())
-	handler.redisServerMessageMediator.Send(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(gameappsrv.UnitDeletedServerMessage{
-			WorldId:  worldIdDto,
-			Position: positionDto,
-		}),
-	)
+	uow.AddDelayedWork(func() {
+		worldIdDto := unitDeleted.GetUnitId().GetWorldId().Uuid()
+		positionDto := dto.NewPositionDto(unitDeleted.GetUnitId().GetPosition())
+		handler.redisServerMessageMediator.Send(
+			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(gameappsrv.NewUnitDeletedServerMessage(worldIdDto, positionDto)),
+		)
+	})
+
 	return nil
 }

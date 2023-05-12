@@ -24,14 +24,14 @@ func NewUnitCreatedHandler(redisServerMessageMediator redisservermessagemediator
 func (handler UnitCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	unitCreated := domainEvent.(unitmodel.UnitCreated)
 
-	worldIdDto := unitCreated.GetUnitId().GetWorldId().Uuid()
-	positionDto := dto.NewPositionDto(unitCreated.GetUnitId().GetPosition())
-	handler.redisServerMessageMediator.Send(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(gameappsrv.UnitCreatedServerMessage{
-			WorldId:  worldIdDto,
-			Position: positionDto,
-		}),
-	)
+	uow.AddDelayedWork(func() {
+		worldIdDto := unitCreated.GetUnitId().GetWorldId().Uuid()
+		positionDto := dto.NewPositionDto(unitCreated.GetUnitId().GetPosition())
+		handler.redisServerMessageMediator.Send(
+			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(gameappsrv.NewUnitCreatedServerMessage(worldIdDto, positionDto)),
+		)
+	})
+
 	return nil
 }

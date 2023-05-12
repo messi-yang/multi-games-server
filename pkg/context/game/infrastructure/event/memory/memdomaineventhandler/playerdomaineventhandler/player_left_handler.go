@@ -23,15 +23,14 @@ func NewPlayerLeftHandler(redisServerMessageMediator redisservermessagemediator.
 func (handler PlayerLeftHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	playerLeft := domainEvent.(playermodel.PlayerLeft)
 
-	worldIdDto := playerLeft.GetWorldId().Uuid()
-	playerIdDto := playerLeft.GetPlayerId().Uuid()
-	handler.redisServerMessageMediator.Send(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(gameappsrv.PlayerLeftServerMessage{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		}),
-	)
+	uow.AddDelayedWork(func() {
+		worldIdDto := playerLeft.GetWorldId().Uuid()
+		playerIdDto := playerLeft.GetPlayerId().Uuid()
+		handler.redisServerMessageMediator.Send(
+			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(gameappsrv.NewPlayerLeftServerMessage(worldIdDto, playerIdDto)),
+		)
+	})
 
 	return nil
 }

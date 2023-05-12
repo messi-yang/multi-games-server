@@ -36,32 +36,10 @@ func NewHttpHandler(redisServerMessageMediator redisservermessagemediator.Mediat
 func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 	socketConn, err := websocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
+		c.String(http.StatusBadRequest, "failed to upgrade http to socket")
 		return
 	}
 	defer socketConn.Close()
-
-	worldIdDto, err := uuid.Parse(c.Request.URL.Query().Get("id"))
-	if err != nil {
-		return
-	}
-
-	var playerIdDto uuid.UUID
-	doEnterWorldCommand := func() error {
-		pgUow := pguow.NewUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		if playerIdDto, err = gameAppService.EnterWorld(gameappsrv.EnterWorldCommand{
-			WorldId: worldIdDto,
-		}); err != nil {
-			pgUow.RevertChanges()
-			return err
-		}
-		pgUow.SaveChanges()
-		return nil
-	}
-	if err := doEnterWorldCommand(); err != nil {
-		return
-	}
 
 	sendMessageLocker := &sync.RWMutex{}
 	sendMessage := func(jsonObj any) {
@@ -73,203 +51,80 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 
 		err = socketConn.WriteMessage(2, compressedMessage)
 		if err != nil {
-			fmt.Println("send error")
+			fmt.Println(err.Error())
 		}
 	}
 
-	closeConnChan := make(chan bool, 100)
+	var closeConnFlag sync.WaitGroup
+	closeConnFlag.Add(1)
+	closeConnection := func() {
+		closeConnFlag.Done()
+	}
 	closeConnectionOnError := func(err error) {
 		sendMessage(errorHappenedResponse{
 			Type:    errorHappenedResponseType,
 			Message: err.Error(),
 		})
-		closeConnChan <- true
+		closeConnection()
 	}
 
-	doGetNearbyPlayersQuery := func() {
-		pgUow := pguow.NewDummyUow()
+	var worldIdDto uuid.UUID
+	var playerIdDto uuid.UUID
 
-		gameAppService := provideGameAppService(pgUow)
-		myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
-			gameappsrv.GetNearbyPlayersQuery{
-				WorldId:  worldIdDto,
-				PlayerId: playerIdDto,
-			},
-		)
-		if err != nil {
-			closeConnectionOnError(err)
-			return
-		}
-
-		sendMessage(playersUpdatedResponse{
-			Type:         playersUpdatedResponseType,
-			MyPlayer:     myPlayerDto,
-			OtherPlayers: otherPlayerDtos,
-		})
+	if worldIdDto, err = uuid.Parse(c.Request.URL.Query().Get("id")); err != nil {
+		closeConnectionOnError(err)
+		return
 	}
 
-	doGetNearbyUnitsQuery := func() {
-		pgUow := pguow.NewDummyUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		unitDtos, err := gameAppService.GetNearbyUnits(
-			gameappsrv.GetNearbyUnitsQuery{
-				WorldId:  worldIdDto,
-				PlayerId: playerIdDto,
-			},
-		)
-		if err != nil {
-			closeConnectionOnError(err)
-			return
+	if playerIdDto, err = httpHandler.executeEnterWorldCommand(worldIdDto); err != nil {
+		closeConnectionOnError(err)
+		return
+	}
+	defer func() {
+		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
+			fmt.Println(err)
 		}
+	}()
 
-		sendMessage(unitsUpdatedResponse{
-			Type:  unitsUpdatedResponseType,
-			Units: unitDtos,
-		})
+	if err = httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage); err != nil {
+		closeConnectionOnError(err)
+		return
+	}
+
+	if err = httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage); err != nil {
+		closeConnectionOnError(err)
+		return
 	}
 
 	moveSteps := 0
-	doMoveCommand := func(directionDto int8) {
-		pgUow := pguow.NewUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		if err := gameAppService.Move(gameappsrv.MoveCommand{
-			WorldId:   worldIdDto,
-			PlayerId:  playerIdDto,
-			Direction: directionDto,
-		}); err != nil {
-			pgUow.RevertChanges()
-			closeConnectionOnError(err)
-			return
-		}
-		pgUow.SaveChanges()
-		moveSteps += 1
-		if moveSteps%10 == 0 {
-			doGetNearbyUnitsQuery()
-		}
-	}
-
-	doChangeHeldItemCommand := func(itemIdDto uuid.UUID) {
-		pgUow := pguow.NewUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		if err = gameAppService.ChangeHeldItem(gameappsrv.ChangeHeldItemCommand{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-			ItemId:   itemIdDto,
-		}); err != nil {
-			pgUow.RevertChanges()
-			closeConnectionOnError(err)
-			return
-		}
-		pgUow.SaveChanges()
-	}
-
-	doPlaceItemCommand := func() {
-		pgUow := pguow.NewUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		if err = gameAppService.PlaceItem(gameappsrv.PlaceItemCommand{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		}); err != nil {
-			pgUow.RevertChanges()
-			closeConnectionOnError(err)
-			return
-		}
-		pgUow.SaveChanges()
-	}
-
-	doRemoveItemCommand := func() {
-		pgUow := pguow.NewUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		if err = gameAppService.RemoveItem(gameappsrv.RemoveItemCommand{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		}); err != nil {
-			pgUow.RevertChanges()
-			closeConnectionOnError(err)
-			return
-		}
-		pgUow.SaveChanges()
-	}
-
-	doLeaveWorldCommand := func() {
-		pgUow := pguow.NewUow()
-
-		gameAppService := provideGameAppService(pgUow)
-		if err = gameAppService.LeaveWorld(gameappsrv.LeaveWorldCommand{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		}); err != nil {
-			pgUow.RevertChanges()
-			closeConnectionOnError(err)
-			return
-		}
-		pgUow.SaveChanges()
-	}
-
-	unitCreatedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
+	worldServerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
 		func(serverMessageBytes []byte) {
-			if _, err := jsonutil.Unmarshal[gameappsrv.UnitCreatedServerMessage](serverMessageBytes); err != nil {
-				return
-			}
-			doGetNearbyUnitsQuery()
-		},
-	)
-	defer unitCreatedServerMessageUnsubscriber()
-
-	unitDeletedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		func(serverMessageBytes []byte) {
-			if _, err := jsonutil.Unmarshal[gameappsrv.UnitDeletedServerMessage](serverMessageBytes); err != nil {
-				return
-			}
-			doGetNearbyUnitsQuery()
-		},
-	)
-	defer unitDeletedServerMessageUnsubscriber()
-
-	playerJoinedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		func(serverMessageBytes []byte) {
-			if _, err := jsonutil.Unmarshal[gameappsrv.PlayerJoinedServerMessage](serverMessageBytes); err != nil {
-				return
-			}
-			doGetNearbyPlayersQuery()
-		},
-	)
-	defer playerJoinedServerMessageUnsubscriber()
-
-	playerLeftServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		func(serverMessageBytes []byte) {
-			_, err := jsonutil.Unmarshal[gameappsrv.PlayerLeftServerMessage](serverMessageBytes)
+			serverMessage, err := jsonutil.Unmarshal[gameappsrv.ServerMessage](serverMessageBytes)
 			if err != nil {
 				return
 			}
-			doGetNearbyPlayersQuery()
-		},
-	)
-	defer playerLeftServerMessageUnsubscriber()
 
-	playerMovedServerMessageUnsubscriber := httpHandler.redisServerMessageMediator.Receive(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-		func(serverMessageBytes []byte) {
-			_, err := jsonutil.Unmarshal[gameappsrv.PlayerMovedServerMessage](serverMessageBytes)
-			if err != nil {
-				return
+			switch serverMessage.Name {
+			case gameappsrv.UnitCreated:
+				httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage)
+			case gameappsrv.UnitDeleted:
+				httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage)
+			case gameappsrv.PlayerJoined:
+				httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage)
+			case gameappsrv.PlayerMoved:
+				httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage)
+				moveSteps += 1
+				if moveSteps%10 == 0 {
+					httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage)
+				}
+			case gameappsrv.PlayerLeft:
+				httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage)
+			default:
 			}
-			doGetNearbyPlayersQuery()
 		},
 	)
-	defer playerMovedServerMessageUnsubscriber()
-
-	doGetNearbyUnitsQuery()
-	doGetNearbyPlayersQuery()
+	defer worldServerMessageUnusbscriber()
 
 	go func() {
 		for {
@@ -300,33 +155,173 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 					closeConnectionOnError(err)
 					return
 				}
-				doMoveCommand(requestDto.Direction)
+				if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
+					closeConnectionOnError(err)
+				}
 			case changeHeldItemRequestType:
 				requestDto, err := jsonutil.Unmarshal[changeHeldItemRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				doChangeHeldItemCommand(requestDto.ItemId)
+				if err = httpHandler.executeChangeHeldItemCommand(worldIdDto, playerIdDto, requestDto.ItemId); err != nil {
+					closeConnectionOnError(err)
+				}
 			case placeItemRequestType:
 				if _, err := jsonutil.Unmarshal[placeItemRequest](message); err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				doPlaceItemCommand()
+				if err = httpHandler.executePlaceItemCommand(worldIdDto, playerIdDto); err != nil {
+					closeConnectionOnError(err)
+				}
 			case removeItemRequestType:
 				_, err := jsonutil.Unmarshal[removeItemRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				doRemoveItemCommand()
+				if err = httpHandler.executeRemoveItemCommand(worldIdDto, playerIdDto); err != nil {
+					closeConnectionOnError(err)
+				}
 			default:
 			}
 		}
 	}()
 
-	<-closeConnChan
+	closeConnFlag.Wait()
+}
 
-	doLeaveWorldCommand()
+func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, directionDto int8) error {
+	pgUow := pguow.NewUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	if err := gameAppService.Move(gameappsrv.MoveCommand{
+		WorldId:   worldIdDto,
+		PlayerId:  playerIdDto,
+		Direction: directionDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		return err
+	}
+	pgUow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {
+	pgUow := pguow.NewUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	if err := gameAppService.ChangeHeldItem(gameappsrv.ChangeHeldItemCommand{
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
+		ItemId:   itemIdDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		return err
+	}
+	pgUow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executePlaceItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+	pgUow := pguow.NewUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	if err := gameAppService.PlaceItem(gameappsrv.PlaceItemCommand{
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		return err
+	}
+	pgUow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeRemoveItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+	pgUow := pguow.NewUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	if err := gameAppService.RemoveItem(gameappsrv.RemoveItemCommand{
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		return err
+	}
+	pgUow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (playerIdDto uuid.UUID, err error) {
+	pgUow := pguow.NewUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	if playerIdDto, err = gameAppService.EnterWorld(gameappsrv.EnterWorldCommand{
+		WorldId: worldIdDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		return playerIdDto, err
+	}
+	pgUow.SaveChanges()
+	return playerIdDto, nil
+}
+
+func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+	pgUow := pguow.NewUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	if err := gameAppService.LeaveWorld(gameappsrv.LeaveWorldCommand{
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		return err
+	}
+	pgUow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeGetNearbyUnitsQuery(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
+	pgUow := pguow.NewDummyUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	unitDtos, err := gameAppService.GetNearbyUnits(
+		gameappsrv.GetNearbyUnitsQuery{
+			WorldId:  worldIdDto,
+			PlayerId: playerIdDto,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	sendMessage(unitsUpdatedResponse{
+		Type:  unitsUpdatedResponseType,
+		Units: unitDtos,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeGetNearbyPlayersQuery(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
+	pgUow := pguow.NewDummyUow()
+
+	gameAppService := provideGameAppService(pgUow)
+	myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
+		gameappsrv.GetNearbyPlayersQuery{
+			WorldId:  worldIdDto,
+			PlayerId: playerIdDto,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	sendMessage(playersUpdatedResponse{
+		Type:         playersUpdatedResponseType,
+		MyPlayer:     myPlayerDto,
+		OtherPlayers: otherPlayerDtos,
+	})
+	return nil
 }

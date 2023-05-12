@@ -5,14 +5,19 @@ import (
 	"gorm.io/gorm"
 )
 
+type delayedWork func()
+
 type Uow interface {
 	Execute(func(transaction *gorm.DB) error) error
+	// The work that will be executed after all the changes saved to database
+	AddDelayedWork(delayedWork)
 	RevertChanges()
 	SaveChanges()
 }
 
 type uow struct {
-	transaction *gorm.DB
+	transaction  *gorm.DB
+	delayedWorks []delayedWork
 }
 
 // Dummy Unit of Work, by using this, you don't have to
@@ -38,10 +43,17 @@ func (uow *uow) Execute(execute func(transaction *gorm.DB) error) error {
 	return execute(uow.transaction)
 }
 
+func (uow *uow) AddDelayedWork(work delayedWork) {
+	uow.delayedWorks = append(uow.delayedWorks, work)
+}
+
 func (uow *uow) RevertChanges() {
 	uow.transaction.Rollback()
 }
 
 func (uow *uow) SaveChanges() {
 	uow.transaction.Commit()
+	for _, work := range uow.delayedWorks {
+		work()
+	}
 }
