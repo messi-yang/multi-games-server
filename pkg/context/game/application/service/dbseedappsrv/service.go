@@ -59,6 +59,10 @@ func (serve *serve) AddDefaultItems() error {
 			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("1b9ba8b1-c13e-4524-bddc-7cc6d981ee2c")),
 			"trash bin", false, "/asset/item/trash_bin/thumbnail.png", "/asset/item/trash_bin/model.gltf",
 		),
+		itemmodel.NewItem(
+			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("e495468b-e662-49cb-bc5b-96db204ad9d8")),
+			"box", false, "/asset/item/box/thumbnail.png", "/asset/item/box/model.gltf",
+		),
 	}
 
 	for _, item := range items {
