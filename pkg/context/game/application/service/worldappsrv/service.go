@@ -10,6 +10,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/commonutil"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -64,8 +65,8 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 }
 func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
 	worldId := commonmodel.NewWorldId(uuid.New())
-	gamerId := commonmodel.NewGamerId(command.GamerId)
-	newWorld := worldmodel.NewWorld(worldId, gamerId, "Hello World")
+	userId := sharedkernelmodel.NewUserId(command.UserId)
+	newWorld := worldmodel.NewWorld(worldId, userId, "Hello World")
 
 	if err = serve.worldRepo.Add(newWorld); err != nil {
 		return newWorldIdDto, err
@@ -101,13 +102,13 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
 	worldId := commonmodel.NewWorldId(command.WorldId)
-	gamerId := commonmodel.NewGamerId(command.GamerId)
+	userId := sharedkernelmodel.NewUserId(command.UserId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
 		return err
 	}
-	if !world.GetGamerId().IsEqual(gamerId) {
-		return fmt.Errorf("the world with id of %s do not belong to gamer with id of %s", worldId.Uuid().String(), gamerId.Uuid().String())
+	if !world.GetUserId().IsEqual(userId) {
+		return fmt.Errorf("the world with id of %s do not belong to gamer with id of %s", worldId.Uuid().String(), userId.Uuid().String())
 	}
 	world.ChangeName(command.Name)
 	if err = serve.worldRepo.Update(world); err != nil {

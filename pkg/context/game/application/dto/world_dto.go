@@ -6,15 +6,15 @@ import (
 )
 
 type WorldDto struct {
-	Id      uuid.UUID `json:"id"`
-	GamerId uuid.UUID `json:"gamerId"`
-	Name    string    `json:"name"`
+	Id     uuid.UUID `json:"id"`
+	UserId uuid.UUID `json:"userId"`
+	Name   string    `json:"name"`
 }
 
 func NewWorldDto(world worldmodel.World) WorldDto {
 	return WorldDto{
-		Id:      world.GetId().Uuid(),
-		GamerId: world.GetGamerId().Uuid(),
-		Name:    world.GetName(),
+		Id:     world.GetId().Uuid(),
+		UserId: world.GetUserId().Uuid(),
+		Name:   world.GetName(),
 	}
 }

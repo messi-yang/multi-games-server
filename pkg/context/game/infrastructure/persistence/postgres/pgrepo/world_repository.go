@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/samber/lo"
@@ -12,14 +13,14 @@ import (
 
 func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 	return pgmodel.WorldModel{
-		Id:      world.GetId().Uuid(),
-		GamerId: world.GetGamerId().Uuid(),
-		Name:    world.GetName(),
+		Id:     world.GetId().Uuid(),
+		UserId: world.GetUserId().Uuid(),
+		Name:   world.GetName(),
 	}
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
-	return worldmodel.NewWorld(commonmodel.NewWorldId(worldModel.Id), commonmodel.NewGamerId(worldModel.GamerId), worldModel.Name)
+	return worldmodel.NewWorld(commonmodel.NewWorldId(worldModel.Id), sharedkernelmodel.NewUserId(worldModel.UserId), worldModel.Name)
 }
 
 type worldRepo struct {

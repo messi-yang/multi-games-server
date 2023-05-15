@@ -3,7 +3,6 @@ package worldhttphandler
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httputil"
@@ -54,17 +53,9 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	pgUow := pguow.NewUow()
 
-	gamerAppService := provideGamerAppService(pgUow)
 	worldAppService := provideWorldAppService(pgUow)
 
-	gamer, err := gamerAppService.GetGamerByUserId(gamerappsrv.GetGamerByUserIdQuery{UserId: userIdDto})
-	if err != nil {
-		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	newWorldIdDto, err := worldAppService.CreateWorld(worldappsrv.CreateWorldCommand{GamerId: gamer.Id})
+	newWorldIdDto, err := worldAppService.CreateWorld(worldappsrv.CreateWorldCommand{UserId: userIdDto})
 	if err != nil {
 		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())
@@ -98,17 +89,10 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	pgUow := pguow.NewUow()
 
-	gamerAppService := provideGamerAppService(pgUow)
 	worldAppService := provideWorldAppService(pgUow)
 
-	gamer, err := gamerAppService.GetGamerByUserId(gamerappsrv.GetGamerByUserIdQuery{UserId: userIdDto})
-	if err != nil {
-		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
 	if err = worldAppService.UpdateWorld(worldappsrv.UpdateWorldCommand{
-		GamerId: gamer.Id,
+		UserId:  userIdDto,
 		WorldId: worldIdDto,
 		Name:    requestBody.Name,
 	}); err != nil {

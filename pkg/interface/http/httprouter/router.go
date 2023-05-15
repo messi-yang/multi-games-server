@@ -20,6 +20,7 @@ func Run() error {
 	router := gin.Default()
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = []string{"Authorization", "Origin"}
 	router.Use(cors.New(corsConfig))
 
 	router.Static("/asset", "./asset")

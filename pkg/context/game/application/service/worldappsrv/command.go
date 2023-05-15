@@ -5,11 +5,11 @@ import (
 )
 
 type CreateWorldCommand struct {
-	GamerId uuid.UUID
+	UserId uuid.UUID
 }
 
 type UpdateWorldCommand struct {
-	GamerId uuid.UUID
+	UserId  uuid.UUID
 	WorldId uuid.UUID
 	Name    string
 }
