@@ -119,7 +119,7 @@ ALTER TABLE public.users OWNER TO main;
 
 CREATE TABLE public.worlds (
     id uuid NOT NULL,
-    gamer_id uuid NOT NULL,
+    user_id uuid NOT NULL,
     name character varying(50) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
@@ -221,7 +221,7 @@ ALTER TABLE ONLY public.worlds
 --
 
 ALTER TABLE ONLY public.worlds
-    ADD CONSTRAINT worlds_user_id_key UNIQUE (gamer_id);
+    ADD CONSTRAINT worlds_user_id_key UNIQUE (user_id);
 
 
 --
@@ -236,14 +236,6 @@ CREATE INDEX players_world_id_pos_x_pos_z ON public.players USING btree (world_i
 --
 
 CREATE INDEX unit_world_id_pos_x_pos_z ON public.units USING btree (world_id, pos_x, pos_z);
-
-
---
--- Name: worlds fk_game_user; Type: FK CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.worlds
-    ADD CONSTRAINT fk_game_user FOREIGN KEY (gamer_id) REFERENCES public.gamers(id);
 
 
 --
@@ -275,6 +267,14 @@ ALTER TABLE ONLY public.players
 --
 
 ALTER TABLE ONLY public.gamers
+    ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: worlds fk_user; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.worlds
     ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
