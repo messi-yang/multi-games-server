@@ -20,7 +20,7 @@ func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
-	return worldmodel.NewWorld(commonmodel.NewWorldId(worldModel.Id), sharedkernelmodel.NewUserId(worldModel.UserId), worldModel.Name)
+	return worldmodel.LoadWorld(commonmodel.NewWorldId(worldModel.Id), sharedkernelmodel.NewUserId(worldModel.UserId), worldModel.Name)
 }
 
 type worldRepo struct {

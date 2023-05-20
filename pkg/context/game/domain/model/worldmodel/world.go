@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/google/uuid"
 )
 
 var (
@@ -25,9 +26,18 @@ type World struct {
 // Interface Implementation Check
 var _ domain.Aggregate = (*World)(nil)
 
-func NewWorld(id commonmodel.WorldId, userId sharedkernelmodel.UserId, name string) World {
+func NewWorld(userId sharedkernelmodel.UserId, name string) World {
 	return World{
-		id:                   id,
+		id:                   commonmodel.NewWorldId(uuid.New()),
+		userId:               userId,
+		name:                 name,
+		domainEventCollector: domain.NewDomainEventCollector(),
+	}
+}
+
+func LoadWorld(worldId commonmodel.WorldId, userId sharedkernelmodel.UserId, name string) World {
+	return World{
+		id:                   worldId,
 		userId:               userId,
 		name:                 name,
 		domainEventCollector: domain.NewDomainEventCollector(),

@@ -2,16 +2,15 @@ package worldappsrv
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/worlddomainsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/commonutil"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -27,6 +26,7 @@ type serve struct {
 	worldRepo             worldmodel.Repo
 	unitRepo              unitmodel.Repo
 	itemRepo              itemmodel.Repo
+	worldDomainService    worlddomainsrv.Service
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
@@ -34,12 +34,14 @@ func NewService(
 	worldRepo worldmodel.Repo,
 	unitRepo unitmodel.Repo,
 	itemRepo itemmodel.Repo,
+	worldDomainService worlddomainsrv.Service,
 	domainEventDispatcher domain.DomainEventDispatcher,
 ) Service {
 	return &serve{
 		worldRepo:             worldRepo,
 		unitRepo:              unitRepo,
 		itemRepo:              itemRepo,
+		worldDomainService:    worldDomainService,
 		domainEventDispatcher: domainEventDispatcher,
 	}
 }
@@ -64,40 +66,13 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 	}), nil
 }
 func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
-	worldId := commonmodel.NewWorldId(uuid.New())
 	userId := sharedkernelmodel.NewUserId(command.UserId)
-	newWorld := worldmodel.NewWorld(worldId, userId, "Hello World")
-
-	if err = serve.worldRepo.Add(newWorld); err != nil {
-		return newWorldIdDto, err
-	}
-	if err = serve.domainEventDispatcher.Dispatch(&newWorld); err != nil {
-		return newWorldIdDto, err
-	}
-
-	items, err := serve.itemRepo.GetAll()
+	newWorldId, err := serve.worldDomainService.CreateWorld(userId, command.Name)
 	if err != nil {
 		return newWorldIdDto, err
 	}
 
-	commonutil.RangeMatrix(100, 100, func(x int, z int) error {
-		randomInt := rand.Intn(40)
-		position := commonmodel.NewPosition(x-50, z-50)
-		if randomInt < 3 {
-			newUnit := unitmodel.NewUnit(
-				commonmodel.NewUnitId(worldId, position), worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirection(),
-			)
-			if err = serve.unitRepo.Add(newUnit); err != nil {
-				return err
-			}
-			if err = serve.domainEventDispatcher.Dispatch(&newUnit); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-
-	return newWorld.GetId().Uuid(), nil
+	return newWorldId.Uuid(), nil
 }
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {

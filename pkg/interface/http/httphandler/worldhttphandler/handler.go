@@ -51,11 +51,22 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 	userIdDto := httputil.GetUserId(c)
 
+	var requestBody createWorldRequestBody
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	pgUow := pguow.NewUow()
 
 	worldAppService := provideWorldAppService(pgUow)
 
-	newWorldIdDto, err := worldAppService.CreateWorld(worldappsrv.CreateWorldCommand{UserId: userIdDto})
+	newWorldIdDto, err := worldAppService.CreateWorld(
+		worldappsrv.CreateWorldCommand{
+			UserId: userIdDto,
+			Name:   requestBody.Name,
+		},
+	)
 	if err != nil {
 		pgUow.RevertChanges()
 		c.JSON(http.StatusBadRequest, err.Error())

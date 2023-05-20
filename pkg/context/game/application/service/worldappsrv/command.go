@@ -6,6 +6,7 @@ import (
 
 type CreateWorldCommand struct {
 	UserId uuid.UUID
+	Name   string
 }
 
 type UpdateWorldCommand struct {
