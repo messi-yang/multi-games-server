@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
@@ -52,7 +51,7 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 	if gamerFound {
 		return gamerIdDto, fmt.Errorf("already has a gamer with userId of %s", userId.Uuid().String())
 	}
-	newGamer := gamermodel.NewGamer(commonmodel.NewGamerId(uuid.New()), userId)
+	newGamer := gamermodel.NewGamer(userId, 1, 0)
 	if err = serve.gamerRepo.Add(newGamer); err != nil {
 		return gamerIdDto, err
 	}

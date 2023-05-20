@@ -1,0 +1,3 @@
+ALTER TABLE worlds DROP CONSTRAINT worlds_user_id_key;
+ALTER TABLE gamers ADD COLUMN worlds_count INT NOT NULL DEFAULT 0;
+ALTER TABLE gamers ADD COLUMN worlds_count_limit INT NOT NULL DEFAULT 1;

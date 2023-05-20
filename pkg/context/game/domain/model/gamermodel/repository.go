@@ -7,6 +7,7 @@ import (
 
 type Repo interface {
 	Add(Gamer) error
+	Update(Gamer) error
 	Get(commonmodel.GamerId) (Gamer, error)
 	GetAll() ([]Gamer, error)
 	FindGamerByUserId(sharedkernelmodel.UserId) (gamer Gamer, gamerFound bool, err error)

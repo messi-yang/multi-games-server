@@ -13,15 +13,19 @@ import (
 
 func newGamerModel(user gamermodel.Gamer) pgmodel.GamerModel {
 	return pgmodel.GamerModel{
-		Id:     user.GetId().Uuid(),
-		UserId: user.GetUserId().Uuid(),
+		Id:               user.GetId().Uuid(),
+		UserId:           user.GetUserId().Uuid(),
+		WorldsCount:      user.GetWorldsCount(),
+		WorldsCountLimit: user.GetWorldsCountLimit(),
 	}
 }
 
 func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.Gamer {
-	return gamermodel.NewGamer(
+	return gamermodel.LoadPlayer(
 		commonmodel.NewGamerId(gamerModel.Id),
 		sharedkernelmodel.NewUserId(gamerModel.UserId),
+		gamerModel.WorldsCount,
+		gamerModel.WorldsCountLimit,
 	)
 }
 
@@ -37,6 +41,13 @@ func (repo *gamerRepo) Add(gamer gamermodel.Gamer) error {
 	gamerModel := newGamerModel(gamer)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&gamerModel).Error
+	})
+}
+
+func (repo *gamerRepo) Update(gamer gamermodel.Gamer) error {
+	gamerModel := newGamerModel(gamer)
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Save(&gamerModel).Error
 	})
 }
 

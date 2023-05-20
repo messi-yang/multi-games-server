@@ -6,13 +6,17 @@ import (
 )
 
 type GamerDto struct {
-	Id     uuid.UUID `json:"id"`
-	UserId uuid.UUID `json:"userId"`
+	Id               uuid.UUID `json:"id"`
+	UserId           uuid.UUID `json:"userId"`
+	WorldsCount      int8      `json:"worldsCount"`
+	WorldsCountLimit int8      `json:"worldsCountLimit"`
 }
 
 func NewGamerDto(gamer gamermodel.Gamer) GamerDto {
 	return GamerDto{
-		Id:     gamer.GetId().Uuid(),
-		UserId: gamer.GetUserId().Uuid(),
+		Id:               gamer.GetId().Uuid(),
+		UserId:           gamer.GetUserId().Uuid(),
+		WorldsCount:      gamer.GetWorldsCount(),
+		WorldsCountLimit: gamer.GetWorldsCountLimit(),
 	}
 }
