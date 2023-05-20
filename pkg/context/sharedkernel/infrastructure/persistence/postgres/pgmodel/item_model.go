@@ -7,7 +7,7 @@ import (
 )
 
 type ItemModel struct {
-	Id           uuid.UUID `gorm:"primaryKey;unique"`
+	Id           uuid.UUID `gorm:"primaryKey"`
 	Name         string    `gorm:"not null"`
 	Traversable  bool      `gorm:"not null"`
 	ModelSrc     string    `gorm:"not null"`

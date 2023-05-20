@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {
@@ -22,8 +23,9 @@ func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {
 }
 
 type Player struct {
-	id                   commonmodel.PlayerId  // Id of the player
-	worldId              commonmodel.WorldId   // The id of the world the player belongs to
+	id                   commonmodel.PlayerId // Id of the player
+	worldId              commonmodel.WorldId  // The id of the world the player belongs to
+	userId               *sharedkernelmodel.UserId
 	name                 string                // The name of the player
 	position             commonmodel.Position  // The current position of the player
 	direction            commonmodel.Direction // The direction where the player is facing
@@ -62,6 +64,7 @@ func NewPlayer(
 func LoadPlayer(
 	id commonmodel.PlayerId,
 	worldId commonmodel.WorldId,
+	userId *sharedkernelmodel.UserId,
 	name string,
 	position commonmodel.Position,
 	direction commonmodel.Direction,
@@ -72,6 +75,7 @@ func LoadPlayer(
 	player := Player{
 		id:                   id,
 		worldId:              worldId,
+		userId:               userId,
 		name:                 name,
 		position:             position,
 		direction:            direction,
@@ -93,6 +97,10 @@ func (player *Player) GetId() commonmodel.PlayerId {
 
 func (player *Player) GetWorldId() commonmodel.WorldId {
 	return player.worldId
+}
+
+func (player *Player) GetUserId() *sharedkernelmodel.UserId {
+	return player.userId
 }
 
 func (player *Player) GetName() string {

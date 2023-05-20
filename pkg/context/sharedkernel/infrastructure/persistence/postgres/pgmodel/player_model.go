@@ -7,8 +7,9 @@ import (
 )
 
 type PlayerModel struct {
-	Id         uuid.UUID  `gorm:"primaryKey;unique"`
-	GamerId    *uuid.UUID `gorm:""`
+	Id         uuid.UUID  `gorm:"primaryKey"`
+	UserId     *uuid.UUID `gorm:""`
+	User       *UserModel `gorm:"foreignKey:UserId;references:Id"`
 	WorldId    uuid.UUID  `gorm:"not null"`
 	Name       string     `gorm:"not null"`
 	PosX       int        `gorm:"not null"`

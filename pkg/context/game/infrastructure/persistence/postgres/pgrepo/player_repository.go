@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/google/uuid"
@@ -14,8 +15,17 @@ import (
 
 func newPlayerModel(player playermodel.Player) pgmodel.PlayerModel {
 	return pgmodel.PlayerModel{
-		Id:        player.GetId().Uuid(),
-		GamerId:   nil,
+		Id: player.GetId().Uuid(),
+		UserId: lo.TernaryF(
+			player.GetUserId() == nil,
+			func() *uuid.UUID {
+				return nil
+			},
+			func() *uuid.UUID {
+				userId := (*player.GetUserId()).Uuid()
+				return &userId
+			},
+		),
 		WorldId:   player.GetWorldId().Uuid(),
 		Name:      player.GetName(),
 		PosX:      player.GetPosition().GetX(),
@@ -40,7 +50,21 @@ func parsePlayerModel(playerModel pgmodel.PlayerModel) playermodel.Player {
 	return playermodel.LoadPlayer(
 		commonmodel.NewPlayerId(playerModel.Id),
 		commonmodel.NewWorldId(playerModel.WorldId),
-		playerModel.Name,
+		lo.TernaryF(
+			playerModel.UserId == nil,
+			func() *sharedkernelmodel.UserId { return nil },
+			func() *sharedkernelmodel.UserId {
+				userId := sharedkernelmodel.NewUserId(*playerModel.UserId)
+				return &userId
+			},
+		),
+		lo.TernaryF(
+			playerModel.User == nil,
+			func() string { return "Untitled" },
+			func() string {
+				return playerModel.User.Username
+			},
+		),
 		commonmodel.NewPosition(playerModel.PosX, playerModel.PosZ),
 		commonmodel.NewDirection(playerModel.Direction),
 		lo.TernaryF(
@@ -87,7 +111,7 @@ func (repo *playerRepo) Delete(player playermodel.Player) error {
 func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.Player, err error) {
 	playerModel := pgmodel.PlayerModel{Id: playerId.Uuid()}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.First(&playerModel).Error
+		return transaction.Joins("User").First(&playerModel).Error
 	}); err != nil {
 		return player, err
 	}
@@ -98,7 +122,7 @@ func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.P
 func (repo *playerRepo) FindPlayersAt(worldId commonmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, playersFound bool, err error) {
 	var playerModels = []pgmodel.PlayerModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Where(
+		return transaction.Joins("User").Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
 			worldId.Uuid(),
 			position.GetX(),
@@ -118,7 +142,7 @@ func (repo *playerRepo) FindPlayersAt(worldId commonmodel.WorldId, position comm
 func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, err error) {
 	playerModels := []pgmodel.PlayerModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Find(
+		return transaction.Joins("User").Find(
 			&playerModels,
 			pgmodel.PlayerModel{
 				WorldId: worldId.Uuid(),
@@ -136,7 +160,7 @@ func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position c
 func (repo *playerRepo) GetAll(worldId commonmodel.WorldId) []playermodel.Player {
 	var playerModels []pgmodel.PlayerModel
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Find(&playerModels).Error
+		return transaction.Joins("User").Find(&playerModels).Error
 	}); err != nil {
 		return []playermodel.Player{}
 	}

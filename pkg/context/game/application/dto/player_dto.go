@@ -8,6 +8,7 @@ import (
 
 type PlayerDto struct {
 	Id          uuid.UUID   `json:"id"`
+	UserId      *uuid.UUID  `json:"userId"`
 	Name        string      `json:"name"`
 	Position    PositionDto `json:"position"`
 	Direction   int8        `json:"direction"`
@@ -17,7 +18,17 @@ type PlayerDto struct {
 
 func NewPlayerDto(player playermodel.Player) PlayerDto {
 	dto := PlayerDto{
-		Id:          player.GetId().Uuid(),
+		Id: player.GetId().Uuid(),
+		UserId: lo.TernaryF(
+			player.GetUserId() == nil,
+			func() *uuid.UUID {
+				return nil
+			},
+			func() *uuid.UUID {
+				userIdDto := (*player.GetUserId()).Uuid()
+				return &userIdDto
+			},
+		),
 		Name:        player.GetName(),
 		Position:    NewPositionDto(player.GetPosition()),
 		Direction:   player.GetDirection().Int8(),

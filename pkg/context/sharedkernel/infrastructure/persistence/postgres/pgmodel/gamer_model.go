@@ -7,7 +7,7 @@ import (
 )
 
 type GamerModel struct {
-	Id        uuid.UUID `gorm:"primaryKey;unique"`
+	Id        uuid.UUID `gorm:"primaryKey"`
 	UserId    uuid.UUID `gorm:"unique;not null"`
 	User      UserModel `gorm:"foreignKey:UserId;references:Id"`
 	CreatedAt time.Time `gorm:"autoCreateTime;not null"`

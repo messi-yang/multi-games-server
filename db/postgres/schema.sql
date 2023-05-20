@@ -57,7 +57,7 @@ ALTER TABLE public.items OWNER TO main;
 
 CREATE TABLE public.players (
     id uuid NOT NULL,
-    gamer_id uuid,
+    user_id uuid,
     world_id uuid NOT NULL,
     name character varying(50) NOT NULL,
     pos_x integer NOT NULL,
@@ -239,14 +239,6 @@ CREATE INDEX unit_world_id_pos_x_pos_z ON public.units USING btree (world_id, po
 
 
 --
--- Name: players fk_gamer; Type: FK CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.players
-    ADD CONSTRAINT fk_gamer FOREIGN KEY (gamer_id) REFERENCES public.gamers(id);
-
-
---
 -- Name: units fk_item; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -260,6 +252,14 @@ ALTER TABLE ONLY public.units
 
 ALTER TABLE ONLY public.players
     ADD CONSTRAINT fk_item FOREIGN KEY (held_item_id) REFERENCES public.items(id);
+
+
+--
+-- Name: players fk_players_user; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.players
+    ADD CONSTRAINT fk_players_user FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
