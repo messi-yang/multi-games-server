@@ -70,5 +70,5 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	pgUow.SaveChanges()
 
 	clientUrl := os.Getenv("CLIENT_URL")
-	c.Redirect(http.StatusFound, fmt.Sprintf("%s/auth/signin-success/?access_token=%v", clientUrl, accessToken))
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s/auth/sign-in-success/?access_token=%v", clientUrl, accessToken))
 }
