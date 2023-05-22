@@ -49,7 +49,7 @@ func (serve *serve) AddDefaultItems() error {
 		),
 		itemmodel.NewItem(
 			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("2b6ab30d-0a2a-4424-b245-99ec2c301844")),
-			"chair", false, "/asset/item/chair/thumbnail.png", "/asset/item/chair/model.gltf",
+			"chair 1", false, "/asset/item/chair/thumbnail.png", "/asset/item/chair/model.gltf",
 		),
 		itemmodel.NewItem(
 			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("fb9d06f8-5d6d-4fa9-bdc5-ab760d55a442")),
@@ -62,6 +62,10 @@ func (serve *serve) AddDefaultItems() error {
 		itemmodel.NewItem(
 			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("e495468b-e662-49cb-bc5b-96db204ad9d8")),
 			"box", false, "/asset/item/box/thumbnail.png", "/asset/item/box/model.gltf",
+		),
+		itemmodel.NewItem(
+			commonmodel.NewItemId(uuidutil.UnsafelyNewUuid("52bdd7d3-799d-42dd-a2dc-cd438101cfca")),
+			"chair 2", false, "/asset/item/chair_2/thumbnail.png", "/asset/item/chair_2/model.gltf",
 		),
 	}
 
