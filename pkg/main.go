@@ -4,7 +4,6 @@ import (
 	"flag"
 
 	game_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/event/memory/memdomaineventhandler"
-	sharedkernel_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/event/memory/memdomaineventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/clirouter"
@@ -22,7 +21,6 @@ func main() {
 		return
 	}
 
-	sharedkernel_mem_domain_event_handler.Run()
 	game_mem_domain_event_handler.Run()
 
 	err := httprouter.Run()

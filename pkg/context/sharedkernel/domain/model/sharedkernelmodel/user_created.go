@@ -1,21 +1,20 @@
-package usermodel
+package sharedkernelmodel
 
 import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type UserCreated struct {
 	occurredOn time.Time
-	userId     sharedkernelmodel.UserId
+	userId     UserId
 }
 
 // Interface Implementation Check
 var _ domain.DomainEvent = (*UserCreated)(nil)
 
-func NewUserCreated(userId sharedkernelmodel.UserId) UserCreated {
+func NewUserCreated(userId UserId) UserCreated {
 	return UserCreated{
 		occurredOn: time.Now(),
 		userId:     userId,
@@ -30,6 +29,6 @@ func (domainEvent UserCreated) GetOccurredOn() time.Time {
 	return domainEvent.occurredOn
 }
 
-func (domainEvent UserCreated) GetUserId() sharedkernelmodel.UserId {
+func (domainEvent UserCreated) GetUserId() UserId {
 	return domainEvent.userId
 }

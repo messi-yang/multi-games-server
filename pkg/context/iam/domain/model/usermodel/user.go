@@ -21,7 +21,7 @@ func NewUser(
 	username string,
 ) User {
 	newUser := User{id: id, emailAddress: emailAddress, username: username, domainEventCollector: domain.NewDomainEventCollector()}
-	newUser.domainEventCollector.Add(NewUserCreated(id))
+	newUser.domainEventCollector.Add(sharedkernelmodel.NewUserCreated(id))
 	return newUser
 }
 

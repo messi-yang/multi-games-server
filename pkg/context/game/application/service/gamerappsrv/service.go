@@ -51,7 +51,7 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 	if gamerFound {
 		return gamerIdDto, fmt.Errorf("already has a gamer with userId of %s", userId.Uuid().String())
 	}
-	newGamer := gamermodel.NewGamer(userId, 1, 0)
+	newGamer := gamermodel.NewGamer(userId, 0, 1)
 	if err = serve.gamerRepo.Add(newGamer); err != nil {
 		return gamerIdDto, err
 	}

@@ -51,7 +51,7 @@ func (serve *serve) CreateWorld(userId sharedkernelmodel.UserId, name string) (w
 	if err != nil {
 		return worldId, err
 	}
-	if gamer.GetWorldsCount() == gamer.GetWorldsCountLimit() {
+	if gamer.GetWorldsCount() <= gamer.GetWorldsCountLimit() {
 		return worldId, ErrWorldsCountExceedsLimit
 	}
 	gamer.AddWorldsCount()
