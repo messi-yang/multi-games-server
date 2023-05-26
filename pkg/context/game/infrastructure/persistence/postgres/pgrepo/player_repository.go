@@ -1,6 +1,8 @@
 package pgrepo
 
 import (
+	"time"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 	"gorm.io/gorm"
@@ -97,6 +99,7 @@ func (repo *playerRepo) Add(player playermodel.Player) error {
 
 func (repo *playerRepo) Update(player playermodel.Player) error {
 	playerModel := newPlayerModel(player)
+	playerModel.UpdatedAt = time.Now()
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Save(&playerModel).Error
 	})

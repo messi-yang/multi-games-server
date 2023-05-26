@@ -2,6 +2,7 @@ package worldmodel
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
@@ -20,6 +21,8 @@ type World struct {
 	id                   commonmodel.WorldId
 	userId               sharedkernelmodel.UserId
 	name                 string
+	createdAt            time.Time
+	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -31,15 +34,25 @@ func NewWorld(userId sharedkernelmodel.UserId, name string) World {
 		id:                   commonmodel.NewWorldId(uuid.New()),
 		userId:               userId,
 		name:                 name,
+		createdAt:            time.Now(),
+		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
 
-func LoadWorld(worldId commonmodel.WorldId, userId sharedkernelmodel.UserId, name string) World {
+func LoadWorld(
+	worldId commonmodel.WorldId,
+	userId sharedkernelmodel.UserId,
+	name string,
+	createdAt time.Time,
+	updatedAt time.Time,
+) World {
 	return World{
 		id:                   worldId,
 		userId:               userId,
 		name:                 name,
+		createdAt:            createdAt,
+		updatedAt:            updatedAt,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -62,4 +75,12 @@ func (world *World) GetName() string {
 
 func (world *World) ChangeName(name string) {
 	world.name = name
+}
+
+func (world *World) GetCreatedAt() time.Time {
+	return world.createdAt
+}
+
+func (world *World) GetUpdatedAt() time.Time {
+	return world.updatedAt
 }

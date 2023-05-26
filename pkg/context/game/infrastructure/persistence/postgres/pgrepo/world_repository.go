@@ -1,6 +1,8 @@
 package pgrepo
 
 import (
+	"time"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"gorm.io/gorm"
@@ -13,14 +15,22 @@ import (
 
 func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 	return pgmodel.WorldModel{
-		Id:     world.GetId().Uuid(),
-		UserId: world.GetUserId().Uuid(),
-		Name:   world.GetName(),
+		Id:        world.GetId().Uuid(),
+		UserId:    world.GetUserId().Uuid(),
+		Name:      world.GetName(),
+		UpdatedAt: world.GetUpdatedAt(),
+		CreatedAt: world.GetCreatedAt(),
 	}
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
-	return worldmodel.LoadWorld(commonmodel.NewWorldId(worldModel.Id), sharedkernelmodel.NewUserId(worldModel.UserId), worldModel.Name)
+	return worldmodel.LoadWorld(
+		commonmodel.NewWorldId(worldModel.Id),
+		sharedkernelmodel.NewUserId(worldModel.UserId),
+		worldModel.Name,
+		worldModel.CreatedAt,
+		worldModel.UpdatedAt,
+	)
 }
 
 type worldRepo struct {
@@ -40,6 +50,7 @@ func (repo *worldRepo) Add(world worldmodel.World) error {
 
 func (repo *worldRepo) Update(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
+	worldModel.UpdatedAt = time.Now()
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Save(&worldModel).Error
 	})
