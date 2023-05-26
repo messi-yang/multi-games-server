@@ -8,4 +8,7 @@ type GetWorldQuery struct {
 	WorldId uuid.UUID
 }
 
-type QueryWorldsQuery struct{}
+type QueryWorldsQuery struct {
+	Limit  int
+	Offset int
+}

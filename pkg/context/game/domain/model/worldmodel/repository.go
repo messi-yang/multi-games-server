@@ -6,5 +6,5 @@ type Repo interface {
 	Add(World) error
 	Update(World) error
 	Get(commonmodel.WorldId) (World, error)
-	GetAll() ([]World, error)
+	Query(limit int, offset int) ([]World, error)
 }

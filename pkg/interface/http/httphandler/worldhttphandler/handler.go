@@ -2,6 +2,7 @@ package worldhttphandler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -36,10 +37,26 @@ func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
+	limitQuery := c.Query("limit")
+	limit, err := strconv.Atoi(limitQuery)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	offsetQuery := c.Query("offset")
+	offset, err := strconv.Atoi(offsetQuery)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	pgUow := pguow.NewDummyUow()
 
 	worldAppService := provideWorldAppService(pgUow)
-	worldDtos, err := worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{})
+	worldDtos, err := worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return

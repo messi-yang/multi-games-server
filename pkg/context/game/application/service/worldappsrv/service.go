@@ -56,7 +56,7 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldDto dto.WorldDto, err er
 }
 
 func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDto, err error) {
-	worlds, err := serve.worldRepo.GetAll()
+	worlds, err := serve.worldRepo.Query(query.Limit, query.Offset)
 	if err != nil {
 		return worldDtos, err
 	}

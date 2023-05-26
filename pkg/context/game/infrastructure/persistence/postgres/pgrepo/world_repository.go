@@ -66,10 +66,11 @@ func (repo *worldRepo) Get(worldId commonmodel.WorldId) (world worldmodel.World,
 	return parseWorldModel(worldModel), nil
 }
 
-func (repo *worldRepo) GetAll() (worlds []worldmodel.World, err error) {
+func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, err error) {
 	var worldModels []pgmodel.WorldModel
+
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Find(&worldModels).Limit(10).Error
+		return transaction.Limit(limit).Offset(offset).Order("created_at DESC").Find(&worldModels).Error
 	}); err != nil {
 		return worlds, err
 	}
