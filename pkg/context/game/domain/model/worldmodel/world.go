@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
@@ -18,7 +17,7 @@ var (
 )
 
 type World struct {
-	id                   commonmodel.WorldId
+	id                   sharedkernelmodel.WorldId
 	userId               sharedkernelmodel.UserId
 	name                 string
 	createdAt            time.Time
@@ -30,18 +29,23 @@ type World struct {
 var _ domain.Aggregate = (*World)(nil)
 
 func NewWorld(userId sharedkernelmodel.UserId, name string) World {
-	return World{
-		id:                   commonmodel.NewWorldId(uuid.New()),
+	newWorld := World{
+		id:                   sharedkernelmodel.NewWorldId(uuid.New()),
 		userId:               userId,
 		name:                 name,
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
+	newWorld.domainEventCollector.Add(sharedkernelmodel.NewWorldCreated(
+		newWorld.id,
+		newWorld.userId,
+	))
+	return newWorld
 }
 
 func LoadWorld(
-	worldId commonmodel.WorldId,
+	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
 	name string,
 	createdAt time.Time,
@@ -61,7 +65,7 @@ func (world *World) PopDomainEvents() []domain.DomainEvent {
 	return world.domainEventCollector.PopAll()
 }
 
-func (world *World) GetId() commonmodel.WorldId {
+func (world *World) GetId() sharedkernelmodel.WorldId {
 	return world.id
 }
 

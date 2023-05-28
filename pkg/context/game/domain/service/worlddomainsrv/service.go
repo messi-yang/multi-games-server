@@ -19,7 +19,7 @@ var (
 )
 
 type Service interface {
-	CreateWorld(userId sharedkernelmodel.UserId, name string) (commonmodel.WorldId, error)
+	CreateWorld(userId sharedkernelmodel.UserId, name string) (sharedkernelmodel.WorldId, error)
 }
 
 type serve struct {
@@ -46,7 +46,7 @@ func NewService(
 	}
 }
 
-func (serve *serve) CreateWorld(userId sharedkernelmodel.UserId, name string) (worldId commonmodel.WorldId, err error) {
+func (serve *serve) CreateWorld(userId sharedkernelmodel.UserId, name string) (worldId sharedkernelmodel.WorldId, err error) {
 	gamer, err := serve.gamerRepo.GetGamerByUserId(userId)
 	if err != nil {
 		return worldId, err

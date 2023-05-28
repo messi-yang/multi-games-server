@@ -3,7 +3,6 @@ package pgrepo
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"gorm.io/gorm"
 
@@ -25,7 +24,7 @@ func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 
 func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
 	return worldmodel.LoadWorld(
-		commonmodel.NewWorldId(worldModel.Id),
+		sharedkernelmodel.NewWorldId(worldModel.Id),
 		sharedkernelmodel.NewUserId(worldModel.UserId),
 		worldModel.Name,
 		worldModel.CreatedAt,
@@ -56,7 +55,7 @@ func (repo *worldRepo) Update(world worldmodel.World) error {
 	})
 }
 
-func (repo *worldRepo) Get(worldId commonmodel.WorldId) (world worldmodel.World, err error) {
+func (repo *worldRepo) Get(worldId sharedkernelmodel.WorldId) (world worldmodel.World, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.First(&worldModel).Error

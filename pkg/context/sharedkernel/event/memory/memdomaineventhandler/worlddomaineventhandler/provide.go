@@ -1,0 +1,16 @@
+package worlddomaineventhandler
+
+import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/accessappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service/accessdomainsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/persistence/postgres/pgrepo"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+)
+
+func provideAccessAppService(uow pguow.Uow) accessappsrv.Service {
+	worldRoleRepo := pgrepo.NewWorldRoleRepo(uow)
+	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	accessDomainService := accessdomainsrv.NewService(worldRoleRepo, domainEventDispatcher)
+	return accessappsrv.NewService(accessDomainService)
+}

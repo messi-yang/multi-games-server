@@ -51,7 +51,7 @@ func newPlayerModel(player playermodel.Player) pgmodel.PlayerModel {
 func parsePlayerModel(playerModel pgmodel.PlayerModel) playermodel.Player {
 	return playermodel.LoadPlayer(
 		commonmodel.NewPlayerId(playerModel.Id),
-		commonmodel.NewWorldId(playerModel.WorldId),
+		sharedkernelmodel.NewWorldId(playerModel.WorldId),
 		lo.TernaryF(
 			playerModel.UserId == nil,
 			func() *sharedkernelmodel.UserId { return nil },
@@ -122,7 +122,7 @@ func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.P
 	return parsePlayerModel(playerModel), nil
 }
 
-func (repo *playerRepo) FindPlayersAt(worldId commonmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, playersFound bool, err error) {
+func (repo *playerRepo) FindPlayersAt(worldId sharedkernelmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, playersFound bool, err error) {
 	var playerModels = []pgmodel.PlayerModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Joins("User").Where(
@@ -142,7 +142,7 @@ func (repo *playerRepo) FindPlayersAt(worldId commonmodel.WorldId, position comm
 	}), playersFound, nil
 }
 
-func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, err error) {
+func (repo *playerRepo) GetPlayersAround(worldId sharedkernelmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, err error) {
 	playerModels := []pgmodel.PlayerModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Joins("User").Find(
@@ -160,7 +160,7 @@ func (repo *playerRepo) GetPlayersAround(worldId commonmodel.WorldId, position c
 	}), nil
 }
 
-func (repo *playerRepo) GetAll(worldId commonmodel.WorldId) []playermodel.Player {
+func (repo *playerRepo) GetAll(worldId sharedkernelmodel.WorldId) []playermodel.Player {
 	var playerModels []pgmodel.PlayerModel
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Joins("User").Find(&playerModels).Error

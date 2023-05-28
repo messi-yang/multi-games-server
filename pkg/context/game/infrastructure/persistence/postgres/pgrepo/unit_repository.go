@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/samber/lo"
@@ -21,7 +22,7 @@ func newUnitModel(unit unitmodel.Unit) pgmodel.UnitModel {
 }
 
 func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
-	worldId := commonmodel.NewWorldId(unitModel.WorldId)
+	worldId := sharedkernelmodel.NewWorldId(unitModel.WorldId)
 	pos := commonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 	return unitmodel.LoadUnit(
 		commonmodel.NewUnitId(worldId, pos),
@@ -59,7 +60,7 @@ func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
 }
 
 func (repo *unitRepo) FindUnitAt(
-	worldId commonmodel.WorldId, position commonmodel.Position,
+	worldId sharedkernelmodel.WorldId, position commonmodel.Position,
 ) (unit unitmodel.Unit, found bool, err error) {
 	unitModels := []pgmodel.UnitModel{}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
@@ -81,7 +82,7 @@ func (repo *unitRepo) FindUnitAt(
 }
 
 func (repo *unitRepo) QueryUnitsInBound(
-	worldId commonmodel.WorldId, bound commonmodel.Bound,
+	worldId sharedkernelmodel.WorldId, bound commonmodel.Bound,
 ) (units []unitmodel.Unit, err error) {
 	var unitModels []pgmodel.UnitModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {

@@ -3,11 +3,12 @@ package unitmodel
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type Unit struct {
 	id                   commonmodel.UnitId
-	worldId              commonmodel.WorldId
+	worldId              sharedkernelmodel.WorldId
 	position             commonmodel.Position
 	itemId               commonmodel.ItemId
 	direction            commonmodel.Direction
@@ -19,7 +20,7 @@ var _ domain.Aggregate = (*Unit)(nil)
 
 func NewUnit(
 	id commonmodel.UnitId,
-	worldId commonmodel.WorldId,
+	worldId sharedkernelmodel.WorldId,
 	position commonmodel.Position,
 	itemId commonmodel.ItemId,
 	direction commonmodel.Direction,
@@ -38,7 +39,7 @@ func NewUnit(
 
 func LoadUnit(
 	id commonmodel.UnitId,
-	worldId commonmodel.WorldId,
+	worldId sharedkernelmodel.WorldId,
 	position commonmodel.Position,
 	itemId commonmodel.ItemId,
 	direction commonmodel.Direction,
@@ -61,7 +62,7 @@ func (unit *Unit) GetId() commonmodel.UnitId {
 	return unit.id
 }
 
-func (unit *Unit) GetWorldId() commonmodel.WorldId {
+func (unit *Unit) GetWorldId() sharedkernelmodel.WorldId {
 	return unit.worldId
 }
 

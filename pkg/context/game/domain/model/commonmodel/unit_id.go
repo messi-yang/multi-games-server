@@ -2,17 +2,18 @@ package commonmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type UnitId struct {
-	worldId  WorldId
+	worldId  sharedkernelmodel.WorldId
 	position Position
 }
 
 // Interface Implementation Check
 var _ domain.ValueObject[UnitId] = (*UnitId)(nil)
 
-func NewUnitId(worldId WorldId, position Position) UnitId {
+func NewUnitId(worldId sharedkernelmodel.WorldId, position Position) UnitId {
 	return UnitId{
 		worldId:  worldId,
 		position: position,
@@ -23,7 +24,7 @@ func (unitId UnitId) IsEqual(otherUnitId UnitId) bool {
 	return unitId.worldId.IsEqual(otherUnitId.worldId) && unitId.position.IsEqual(otherUnitId.position)
 }
 
-func (unitId UnitId) GetWorldId() WorldId {
+func (unitId UnitId) GetWorldId() sharedkernelmodel.WorldId {
 	return unitId.worldId
 }
 

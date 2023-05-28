@@ -5,18 +5,19 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type PlayerMoved struct {
 	occurredOn time.Time
 	playerId   commonmodel.PlayerId
-	worldId    commonmodel.WorldId
+	worldId    sharedkernelmodel.WorldId
 }
 
 // Interface Implementation Check
 var _ domain.DomainEvent = (*PlayerMoved)(nil)
 
-func NewPlayerMoved(playerId commonmodel.PlayerId, worldId commonmodel.WorldId) PlayerMoved {
+func NewPlayerMoved(playerId commonmodel.PlayerId, worldId sharedkernelmodel.WorldId) PlayerMoved {
 	return PlayerMoved{
 		occurredOn: time.Now(),
 		playerId:   playerId,
@@ -36,6 +37,6 @@ func (domainEvent PlayerMoved) GetPlayerId() commonmodel.PlayerId {
 	return domainEvent.playerId
 }
 
-func (domainEvent PlayerMoved) GetWorldId() commonmodel.WorldId {
+func (domainEvent PlayerMoved) GetWorldId() sharedkernelmodel.WorldId {
 	return domainEvent.worldId
 }

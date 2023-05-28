@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
@@ -47,7 +46,7 @@ func NewService(
 }
 
 func (serve *serve) GetWorld(query GetWorldQuery) (worldDto dto.WorldDto, err error) {
-	worldId := commonmodel.NewWorldId(query.WorldId)
+	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
 		return worldDto, err
@@ -76,7 +75,7 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 }
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
-	worldId := commonmodel.NewWorldId(command.WorldId)
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
 	userId := sharedkernelmodel.NewUserId(command.UserId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
