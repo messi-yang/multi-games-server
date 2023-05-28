@@ -16,6 +16,17 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: world_role_name; Type: TYPE; Schema: public; Owner: main
+--
+
+CREATE TYPE public.world_role_name AS ENUM (
+    'admin'
+);
+
+
+ALTER TYPE public.world_role_name OWNER TO main;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -28,7 +39,9 @@ CREATE TABLE public.gamers (
     id uuid NOT NULL,
     user_id uuid NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone NOT NULL,
+    worlds_count integer DEFAULT 0 NOT NULL,
+    worlds_count_limit integer DEFAULT 1 NOT NULL
 );
 
 
@@ -112,6 +125,22 @@ CREATE TABLE public.users (
 
 
 ALTER TABLE public.users OWNER TO main;
+
+--
+-- Name: world_roles; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.world_roles (
+    id uuid NOT NULL,
+    world_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    name public.world_role_name NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.world_roles OWNER TO main;
 
 --
 -- Name: worlds; Type: TABLE; Schema: public; Owner: main
@@ -209,19 +238,27 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: world_roles world_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.world_roles
+    ADD CONSTRAINT world_roles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: world_roles world_roles_world_id_user_id_key; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.world_roles
+    ADD CONSTRAINT world_roles_world_id_user_id_key UNIQUE (world_id, user_id);
+
+
+--
 -- Name: worlds worlds_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
 ALTER TABLE ONLY public.worlds
     ADD CONSTRAINT worlds_pkey PRIMARY KEY (id);
-
-
---
--- Name: worlds worlds_user_id_key; Type: CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.worlds
-    ADD CONSTRAINT worlds_user_id_key UNIQUE (user_id);
 
 
 --
@@ -236,6 +273,13 @@ CREATE INDEX players_world_id_pos_x_pos_z ON public.players USING btree (world_i
 --
 
 CREATE INDEX unit_world_id_pos_x_pos_z ON public.units USING btree (world_id, pos_x, pos_z);
+
+
+--
+-- Name: world_roles_world_id_user_id; Type: INDEX; Schema: public; Owner: main
+--
+
+CREATE INDEX world_roles_world_id_user_id ON public.world_roles USING btree (world_id, user_id);
 
 
 --
@@ -279,6 +323,14 @@ ALTER TABLE ONLY public.worlds
 
 
 --
+-- Name: world_roles fk_user; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.world_roles
+    ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: units fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -291,6 +343,14 @@ ALTER TABLE ONLY public.units
 --
 
 ALTER TABLE ONLY public.players
+    ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
+
+
+--
+-- Name: world_roles fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.world_roles
     ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
 
 
