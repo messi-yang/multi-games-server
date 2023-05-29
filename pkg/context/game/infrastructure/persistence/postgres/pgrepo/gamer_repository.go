@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -30,25 +31,35 @@ func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.Gamer {
 }
 
 type gamerRepo struct {
-	uow pguow.Uow
+	uow                   pguow.Uow
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewGamerRepo(uow pguow.Uow) (repository gamermodel.Repo) {
-	return &gamerRepo{uow: uow}
+func NewGamerRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository gamermodel.Repo) {
+	return &gamerRepo{
+		uow:                   uow,
+		domainEventDispatcher: domainEventDispatcher,
+	}
 }
 
 func (repo *gamerRepo) Add(gamer gamermodel.Gamer) error {
 	gamerModel := newGamerModel(gamer)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&gamerModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&gamer)
 }
 
 func (repo *gamerRepo) Update(gamer gamermodel.Gamer) error {
 	gamerModel := newGamerModel(gamer)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Save(&gamerModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&gamer)
 }
 
 func (repo *gamerRepo) Get(gamerId commonmodel.GamerId) (gamer gamermodel.Gamer, err error) {

@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 )
@@ -21,11 +20,10 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo             worldmodel.Repo
-	playerRepo            playermodel.Repo
-	unitRepo              unitmodel.Repo
-	itemRepo              itemmodel.Repo
-	domainEventDispatcher domain.DomainEventDispatcher
+	worldRepo  worldmodel.Repo
+	playerRepo playermodel.Repo
+	unitRepo   unitmodel.Repo
+	itemRepo   itemmodel.Repo
 }
 
 func NewService(
@@ -33,9 +31,13 @@ func NewService(
 	playerRepo playermodel.Repo,
 	unitRepo unitmodel.Repo,
 	itemRepo itemmodel.Repo,
-	domainEventDispatcher domain.DomainEventDispatcher,
 ) Service {
-	return &serve{worldRepo: worldRepo, playerRepo: playerRepo, unitRepo: unitRepo, itemRepo: itemRepo, domainEventDispatcher: domainEventDispatcher}
+	return &serve{
+		worldRepo:  worldRepo,
+		playerRepo: playerRepo,
+		unitRepo:   unitRepo,
+		itemRepo:   itemRepo,
+	}
 }
 
 func (serve *serve) EnterWorld(worldId sharedkernelmodel.WorldId) (playerId commonmodel.PlayerId, err error) {
@@ -57,9 +59,6 @@ func (serve *serve) EnterWorld(worldId sharedkernelmodel.WorldId) (playerId comm
 	if err = serve.playerRepo.Add(newPlayer); err != nil {
 		return playerId, err
 	}
-	if err = serve.domainEventDispatcher.Dispatch(&newPlayer); err != nil {
-		return playerId, err
-	}
 	return newPlayer.GetId(), nil
 }
 
@@ -77,11 +76,7 @@ func (serve *serve) Move(
 
 	if !direction.IsEqual(player.GetDirection()) {
 		player.Move(player.GetPosition(), direction)
-		err = serve.playerRepo.Update(player)
-		if err != nil {
-			return err
-		}
-		return serve.domainEventDispatcher.Dispatch(&player)
+		return serve.playerRepo.Update(player)
 	}
 
 	newItemPos := player.GetPositionOneStepFoward()
@@ -104,10 +99,7 @@ func (serve *serve) Move(
 		player.Move(newItemPos, direction)
 	}
 
-	if err = serve.playerRepo.Update(player); err != nil {
-		return err
-	}
-	return serve.domainEventDispatcher.Dispatch(&player)
+	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) LeaveWorld(worldId sharedkernelmodel.WorldId, playerId commonmodel.PlayerId) error {
@@ -120,10 +112,7 @@ func (serve *serve) LeaveWorld(worldId sharedkernelmodel.WorldId, playerId commo
 		return err
 	}
 
-	if err = serve.playerRepo.Delete(player); err != nil {
-		return err
-	}
-	return serve.domainEventDispatcher.Dispatch(&player)
+	return serve.playerRepo.Delete(player)
 }
 
 func (serve *serve) ChangeHeldItem(worldId sharedkernelmodel.WorldId, playerId commonmodel.PlayerId, itemId commonmodel.ItemId) error {
@@ -141,11 +130,7 @@ func (serve *serve) ChangeHeldItem(worldId sharedkernelmodel.WorldId, playerId c
 	}
 
 	player.ChangeHeldItem(itemId)
-	err = serve.playerRepo.Update(player)
-	if err != nil {
-		return err
-	}
-	return serve.domainEventDispatcher.Dispatch(&player)
+	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) PlaceItem(worldId sharedkernelmodel.WorldId, playerId commonmodel.PlayerId) error {
@@ -193,10 +178,7 @@ func (serve *serve) PlaceItem(worldId sharedkernelmodel.WorldId, playerId common
 
 	newUnitDirection := player.GetDirection().Rotate().Rotate()
 	newUnit := unitmodel.NewUnit(commonmodel.NewUnitId(worldId, newItemPos), worldId, newItemPos, itemId, newUnitDirection)
-	if err = serve.unitRepo.Add(newUnit); err != nil {
-		return err
-	}
-	return serve.domainEventDispatcher.Dispatch(&newUnit)
+	return serve.unitRepo.Add(newUnit)
 }
 
 func (serve *serve) RemoveItem(worldId sharedkernelmodel.WorldId, playerId commonmodel.PlayerId) error {
@@ -219,8 +201,5 @@ func (serve *serve) RemoveItem(worldId sharedkernelmodel.WorldId, playerId commo
 		return nil
 	}
 	unit.Delete()
-	if err = serve.unitRepo.Delete(unit); err != nil {
-		return err
-	}
-	return serve.domainEventDispatcher.Dispatch(&unit)
+	return serve.unitRepo.Delete(unit)
 }

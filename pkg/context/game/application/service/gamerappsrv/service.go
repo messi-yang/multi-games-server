@@ -5,7 +5,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -18,17 +17,14 @@ type Service interface {
 }
 
 type serve struct {
-	gamerRepo             gamermodel.Repo
-	domainEventDispatcher domain.DomainEventDispatcher
+	gamerRepo gamermodel.Repo
 }
 
 func NewService(
 	gamerRepo gamermodel.Repo,
-	domainEventDispatcher domain.DomainEventDispatcher,
 ) Service {
 	return &serve{
-		gamerRepo:             gamerRepo,
-		domainEventDispatcher: domainEventDispatcher,
+		gamerRepo: gamerRepo,
 	}
 }
 
@@ -53,9 +49,6 @@ func (serve *serve) CreateGamer(command CreateGamerCommand) (gamerIdDto uuid.UUI
 	}
 	newGamer := gamermodel.NewGamer(userId, 0, 1)
 	if err = serve.gamerRepo.Add(newGamer); err != nil {
-		return gamerIdDto, err
-	}
-	if err = serve.domainEventDispatcher.Dispatch(&newGamer); err != nil {
 		return gamerIdDto, err
 	}
 	return newGamer.GetId().Uuid(), nil

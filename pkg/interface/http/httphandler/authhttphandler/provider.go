@@ -16,8 +16,8 @@ func provideGoogleAuthInfraService() googleauthinfrasrv.Service {
 }
 
 func provideIdentityAppService(uow pguow.Uow) identityappsrv.Service {
-	userRepo := pgrepo.NewUserRepo(uow)
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
-	identityDomainService := identitydomainsrv.NewService(userRepo, domainEventDispatcher)
+	userRepo := pgrepo.NewUserRepo(uow, domainEventDispatcher)
+	identityDomainService := identitydomainsrv.NewService(userRepo)
 	return identityappsrv.NewService(userRepo, identityDomainService, os.Getenv("AUTH_SECRET"))
 }

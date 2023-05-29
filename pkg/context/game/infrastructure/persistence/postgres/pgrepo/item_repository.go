@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/samber/lo"
@@ -35,25 +36,35 @@ func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.Item {
 }
 
 type itemRepo struct {
-	uow pguow.Uow
+	uow                   pguow.Uow
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewItemRepo(uow pguow.Uow) (repository itemmodel.Repo) {
-	return &itemRepo{uow: uow}
+func NewItemRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository itemmodel.Repo) {
+	return &itemRepo{
+		uow:                   uow,
+		domainEventDispatcher: domainEventDispatcher,
+	}
 }
 
 func (repo *itemRepo) Add(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&itemModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&item)
 }
 
 func (repo *itemRepo) Update(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Save(&itemModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&item)
 }
 
 func (repo *itemRepo) Get(itemId commonmodel.ItemId) (item itemmodel.Item, err error) {

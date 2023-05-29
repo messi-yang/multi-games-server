@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -34,29 +35,39 @@ func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
 }
 
 type unitRepo struct {
-	uow pguow.Uow
+	uow                   pguow.Uow
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewUnitRepo(uow pguow.Uow) (repository unitmodel.Repo) {
-	return &unitRepo{uow: uow}
+func NewUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository unitmodel.Repo) {
+	return &unitRepo{
+		uow:                   uow,
+		domainEventDispatcher: domainEventDispatcher,
+	}
 }
 
 func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	unitModel := newUnitModel(unit)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&unitModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&unit)
 }
 
 func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
 			unit.GetWorldId().Uuid(),
 			unit.GetPosition().GetX(),
 			unit.GetPosition().GetZ(),
 		).Delete(&pgmodel.UnitModel{}).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&unit)
 }
 
 func (repo *unitRepo) FindUnitAt(

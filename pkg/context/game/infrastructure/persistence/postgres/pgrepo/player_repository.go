@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -83,32 +84,45 @@ func parsePlayerModel(playerModel pgmodel.PlayerModel) playermodel.Player {
 }
 
 type playerRepo struct {
-	uow pguow.Uow
+	uow                   pguow.Uow
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewPlayerRepo(uow pguow.Uow) (repository playermodel.Repo) {
-	return &playerRepo{uow: uow}
+func NewPlayerRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository playermodel.Repo) {
+	return &playerRepo{
+		uow:                   uow,
+		domainEventDispatcher: domainEventDispatcher,
+	}
 }
 
 func (repo *playerRepo) Add(player playermodel.Player) error {
 	playerModel := newPlayerModel(player)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&playerModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
 func (repo *playerRepo) Update(player playermodel.Player) error {
 	playerModel := newPlayerModel(player)
 	playerModel.UpdatedAt = time.Now()
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Save(&playerModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
 func (repo *playerRepo) Delete(player playermodel.Player) error {
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Delete(&pgmodel.PlayerModel{Id: player.GetId().Uuid()}).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
 func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.Player, err error) {

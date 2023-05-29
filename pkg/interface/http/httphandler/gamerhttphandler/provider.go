@@ -8,7 +8,7 @@ import (
 )
 
 func provideGamerAppService(uow pguow.Uow) gamerappsrv.Service {
-	gamerRepo := pgrepo.NewGamerRepo(uow)
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
-	return gamerappsrv.NewService(gamerRepo, domainEventDispatcher)
+	gamerRepo := pgrepo.NewGamerRepo(uow, domainEventDispatcher)
+	return gamerappsrv.NewService(gamerRepo)
 }

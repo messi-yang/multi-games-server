@@ -11,8 +11,8 @@ import (
 )
 
 func provideIdentityAppService(uow pguow.Uow) identityappsrv.Service {
-	userRepo := pgrepo.NewUserRepo(uow)
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
-	identityService := identitydomainsrv.NewService(userRepo, domainEventDispatcher)
+	userRepo := pgrepo.NewUserRepo(uow, domainEventDispatcher)
+	identityService := identitydomainsrv.NewService(userRepo)
 	return identityappsrv.NewService(userRepo, identityService, os.Getenv("AUTH_SECRET"))
 }

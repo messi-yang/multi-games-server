@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/worlddomainsrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -22,11 +21,10 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo             worldmodel.Repo
-	unitRepo              unitmodel.Repo
-	itemRepo              itemmodel.Repo
-	worldDomainService    worlddomainsrv.Service
-	domainEventDispatcher domain.DomainEventDispatcher
+	worldRepo          worldmodel.Repo
+	unitRepo           unitmodel.Repo
+	itemRepo           itemmodel.Repo
+	worldDomainService worlddomainsrv.Service
 }
 
 func NewService(
@@ -34,14 +32,12 @@ func NewService(
 	unitRepo unitmodel.Repo,
 	itemRepo itemmodel.Repo,
 	worldDomainService worlddomainsrv.Service,
-	domainEventDispatcher domain.DomainEventDispatcher,
 ) Service {
 	return &serve{
-		worldRepo:             worldRepo,
-		unitRepo:              unitRepo,
-		itemRepo:              itemRepo,
-		worldDomainService:    worldDomainService,
-		domainEventDispatcher: domainEventDispatcher,
+		worldRepo:          worldRepo,
+		unitRepo:           unitRepo,
+		itemRepo:           itemRepo,
+		worldDomainService: worldDomainService,
 	}
 }
 
@@ -85,8 +81,5 @@ func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
 		return fmt.Errorf("the world with id of %s do not belong to gamer with id of %s", worldId.Uuid().String(), userId.Uuid().String())
 	}
 	world.ChangeName(command.Name)
-	if err = serve.worldRepo.Update(world); err != nil {
-		return err
-	}
-	return serve.domainEventDispatcher.Dispatch(&world)
+	return serve.worldRepo.Update(world)
 }

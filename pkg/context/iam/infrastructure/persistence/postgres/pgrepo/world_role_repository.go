@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/worldrolemodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -36,18 +37,25 @@ func parseWorldRoleModel(worldRoleModel pgmodel.WorldRoleModel) (worldRole world
 }
 
 type worldRoleRepo struct {
-	uow pguow.Uow
+	uow                   pguow.Uow
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewWorldRoleRepo(uow pguow.Uow) (repository worldrolemodel.Repo) {
-	return &worldRoleRepo{uow: uow}
+func NewWorldRoleRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository worldrolemodel.Repo) {
+	return &worldRoleRepo{
+		uow:                   uow,
+		domainEventDispatcher: domainEventDispatcher,
+	}
 }
 
 func (repo *worldRoleRepo) Add(worldRole worldrolemodel.WorldRole) error {
 	worldRoleModel := newWorldRoleModel(worldRole)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&worldRoleModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&worldRole)
 }
 
 func (repo *worldRoleRepo) Get(worldRoleId worldrolemodel.WorldRoleId) (worldRole worldrolemodel.WorldRole, err error) {

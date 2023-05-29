@@ -9,12 +9,12 @@ import (
 )
 
 func provideGameAppService(uow pguow.Uow) gameappsrv.Service {
-	itemRepo := pgrepo.NewItemRepo(uow)
-	playerRepo := pgrepo.NewPlayerRepo(uow)
-	worldRepo := pgrepo.NewWorldRepo(uow)
-	unitRepo := pgrepo.NewUnitRepo(uow)
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
-	gameDomainService := gamedomainsrv.NewService(worldRepo, playerRepo, unitRepo, itemRepo, domainEventDispatcher)
+	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
+	playerRepo := pgrepo.NewPlayerRepo(uow, domainEventDispatcher)
+	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
+	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
+	gameDomainService := gamedomainsrv.NewService(worldRepo, playerRepo, unitRepo, itemRepo)
 	return gameappsrv.NewService(
 		worldRepo, playerRepo, unitRepo, itemRepo, gameDomainService,
 	)

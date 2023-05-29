@@ -35,11 +35,5 @@ func (serve *serve) AssignWorldRole(
 		userId,
 		worldRoleName,
 	)
-	if err := serve.worldRoleRepo.Add(newWorldRole); err != nil {
-		return err
-	}
-	if err := serve.domainEventDispatcher.Dispatch(&newWorldRole); err != nil {
-		return err
-	}
-	return nil
+	return serve.worldRoleRepo.Add(newWorldRole)
 }

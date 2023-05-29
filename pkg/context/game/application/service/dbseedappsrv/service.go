@@ -5,7 +5,6 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
 )
 
@@ -14,14 +13,12 @@ type Service interface {
 }
 
 type serve struct {
-	itemRepo              itemmodel.Repo
-	domainEventDispatcher domain.DomainEventDispatcher
+	itemRepo itemmodel.Repo
 }
 
-func NewService(itemRepo itemmodel.Repo, domainEventDispatcher domain.DomainEventDispatcher) Service {
+func NewService(itemRepo itemmodel.Repo) Service {
 	return &serve{
-		itemRepo:              itemRepo,
-		domainEventDispatcher: domainEventDispatcher,
+		itemRepo: itemRepo,
 	}
 }
 
@@ -75,15 +72,9 @@ func (serve *serve) AddDefaultItems() error {
 			if err = serve.itemRepo.Add(item); err != nil {
 				return err
 			}
-			if err = serve.domainEventDispatcher.Dispatch(&item); err != nil {
-				return err
-			}
 		} else {
 			fmt.Printf("Update existing item \"%s\"\n", item.GetName())
 			if err = serve.itemRepo.Update(item); err != nil {
-				return err
-			}
-			if err = serve.domainEventDispatcher.Dispatch(&item); err != nil {
 				return err
 			}
 		}

@@ -18,9 +18,9 @@ func NewHandler() *Handler {
 func (handler *Handler) Exec() {
 	pgUow := pguow.NewUow()
 
-	itemRepo := pgrepo.NewItemRepo(pgUow)
 	domainEventDispatcher := memdomainevent.NewDispatcher(pgUow)
-	dbSeedAppService := dbseedappsrv.NewService(itemRepo, domainEventDispatcher)
+	itemRepo := pgrepo.NewItemRepo(pgUow, domainEventDispatcher)
+	dbSeedAppService := dbseedappsrv.NewService(itemRepo)
 
 	fmt.Println("Start seeding Postgres database")
 	err := dbSeedAppService.AddDefaultItems()

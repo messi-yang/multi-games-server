@@ -9,8 +9,8 @@ import (
 )
 
 func provideAccessAppService(uow pguow.Uow) accessappsrv.Service {
-	worldRoleRepo := pgrepo.NewWorldRoleRepo(uow)
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	worldRoleRepo := pgrepo.NewWorldRoleRepo(uow, domainEventDispatcher)
 	accessDomainService := accessdomainsrv.NewService(worldRoleRepo, domainEventDispatcher)
 	return accessappsrv.NewService(accessDomainService)
 }

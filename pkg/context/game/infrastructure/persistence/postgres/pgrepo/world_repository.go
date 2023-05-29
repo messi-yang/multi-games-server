@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"gorm.io/gorm"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -33,26 +34,36 @@ func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
 }
 
 type worldRepo struct {
-	uow pguow.Uow
+	uow                   pguow.Uow
+	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewWorldRepo(uow pguow.Uow) (repository worldmodel.Repo) {
-	return &worldRepo{uow: uow}
+func NewWorldRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository worldmodel.Repo) {
+	return &worldRepo{
+		uow:                   uow,
+		domainEventDispatcher: domainEventDispatcher,
+	}
 }
 
 func (repo *worldRepo) Add(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&worldModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&world)
 }
 
 func (repo *worldRepo) Update(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
 	worldModel.UpdatedAt = time.Now()
-	return repo.uow.Execute(func(transaction *gorm.DB) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Save(&worldModel).Error
-	})
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&world)
 }
 
 func (repo *worldRepo) Get(worldId sharedkernelmodel.WorldId) (world worldmodel.World, err error) {

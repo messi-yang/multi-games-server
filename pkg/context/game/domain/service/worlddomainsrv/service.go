@@ -9,7 +9,6 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/commonutil"
 )
@@ -23,11 +22,10 @@ type Service interface {
 }
 
 type serve struct {
-	gamerRepo             gamermodel.Repo
-	worldRepo             worldmodel.Repo
-	unitRepo              unitmodel.Repo
-	itemRepo              itemmodel.Repo
-	domainEventDispatcher domain.DomainEventDispatcher
+	gamerRepo gamermodel.Repo
+	worldRepo worldmodel.Repo
+	unitRepo  unitmodel.Repo
+	itemRepo  itemmodel.Repo
 }
 
 func NewService(
@@ -35,14 +33,12 @@ func NewService(
 	worldRepo worldmodel.Repo,
 	unitRepo unitmodel.Repo,
 	itemRepo itemmodel.Repo,
-	domainEventDispatcher domain.DomainEventDispatcher,
 ) Service {
 	return &serve{
-		gamerRepo:             gamerRepo,
-		worldRepo:             worldRepo,
-		unitRepo:              unitRepo,
-		itemRepo:              itemRepo,
-		domainEventDispatcher: domainEventDispatcher,
+		gamerRepo: gamerRepo,
+		worldRepo: worldRepo,
+		unitRepo:  unitRepo,
+		itemRepo:  itemRepo,
 	}
 }
 
@@ -58,17 +54,11 @@ func (serve *serve) CreateWorld(userId sharedkernelmodel.UserId, name string) (w
 	if err = serve.gamerRepo.Update(gamer); err != nil {
 		return worldId, err
 	}
-	if err = serve.domainEventDispatcher.Dispatch(&gamer); err != nil {
-		return worldId, err
-	}
 
 	newWorld := worldmodel.NewWorld(userId, name)
 	worldId = newWorld.GetId()
 
 	if err = serve.worldRepo.Add(newWorld); err != nil {
-		return worldId, err
-	}
-	if err = serve.domainEventDispatcher.Dispatch(&newWorld); err != nil {
 		return worldId, err
 	}
 
@@ -85,9 +75,6 @@ func (serve *serve) CreateWorld(userId sharedkernelmodel.UserId, name string) (w
 				commonmodel.NewUnitId(worldId, position), worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirection(),
 			)
 			if err = serve.unitRepo.Add(newUnit); err != nil {
-				return err
-			}
-			if err = serve.domainEventDispatcher.Dispatch(&newUnit); err != nil {
 				return err
 			}
 		}
