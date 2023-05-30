@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	AssignWorldRole(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, worldrolemodel.WorldRoleName) error
+	AssignUserToWorldRole(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, worldrolemodel.WorldRoleName) error
 }
 
 type serve struct {
@@ -25,7 +25,7 @@ func NewService(
 	}
 }
 
-func (serve *serve) AssignWorldRole(
+func (serve *serve) AssignUserToWorldRole(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
 	worldRoleName worldrolemodel.WorldRoleName,

@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	AssignWorldRole(AssignWorldRoleCommand) error
+	AssignUserToWorldRole(AssignUserToWorldRoleCommand) error
 }
 
 type serve struct {
@@ -20,12 +20,12 @@ func NewService(accessDomainService accessdomainsrv.Service) Service {
 	}
 }
 
-func (serve *serve) AssignWorldRole(command AssignWorldRoleCommand) error {
+func (serve *serve) AssignUserToWorldRole(command AssignUserToWorldRoleCommand) error {
 	worldRoleName, err := worldrolemodel.NewWorldRoleName(string(command.WorldRoleName))
 	if err != nil {
 		return err
 	}
-	return serve.accessDomainService.AssignWorldRole(
+	return serve.accessDomainService.AssignUserToWorldRole(
 		sharedkernelmodel.NewWorldId(command.WorldId),
 		sharedkernelmodel.NewUserId(command.UserId),
 		worldRoleName,
