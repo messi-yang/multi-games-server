@@ -1,8 +1,6 @@
 package worlddomaineventhandler
 
 import (
-	"fmt"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/accessappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
@@ -20,7 +18,6 @@ func NewWorldCreatedHandler() memdomainevent.Handler {
 func (handler WorldCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	worldCreated := domainEvent.(sharedkernelmodel.WorldCreated)
 
-	fmt.Println(worldCreated)
 	accessAppService := provideAccessAppService(uow)
 
 	return accessAppService.AssignUserToWorldRole(accessappsrv.AssignUserToWorldRoleCommand{

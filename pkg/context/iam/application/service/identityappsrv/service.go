@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service/identitydomainsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"
@@ -22,12 +21,12 @@ type Service interface {
 }
 
 type serve struct {
-	userRepo        usermodel.Repo
-	identityService identitydomainsrv.Service
+	userRepo        identitymodel.UserRepo
+	identityService identitymodel.IdentityService
 	authSecret      string
 }
 
-func NewService(userRepo usermodel.Repo, identityService identitydomainsrv.Service, authSecret string) Service {
+func NewService(userRepo identitymodel.UserRepo, identityService identitymodel.IdentityService, authSecret string) Service {
 	return &serve{userRepo: userRepo, identityService: identityService, authSecret: authSecret}
 }
 

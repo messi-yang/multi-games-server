@@ -1,6 +1,6 @@
-package worldrolemodel
+package accessmodel
 
-type Repo interface {
+type WorldRoleRepo interface {
 	Add(WorldRole) error
 	Get(WorldRoleId) (WorldRole, error)
 }

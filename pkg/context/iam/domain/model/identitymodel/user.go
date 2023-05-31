@@ -1,4 +1,4 @@
-package usermodel
+package identitymodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"

@@ -1,4 +1,4 @@
-package worldrolemodel
+package accessmodel
 
 import "fmt"
 

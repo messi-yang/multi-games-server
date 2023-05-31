@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/usermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
 	"github.com/google/uuid"
 )
 
@@ -11,7 +11,7 @@ type UserDto struct {
 	Username     string    `json:"username"`
 }
 
-func NewUserDto(user usermodel.User) UserDto {
+func NewUserDto(user identitymodel.User) UserDto {
 	dto := UserDto{
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress(),
