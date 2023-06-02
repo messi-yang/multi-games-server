@@ -2,6 +2,7 @@ package accessappsrv
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/accessmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
@@ -10,10 +11,10 @@ type Service interface {
 }
 
 type serve struct {
-	accessDomainService accessmodel.AccessService
+	accessDomainService service.AccessService
 }
 
-func NewService(accessDomainService accessmodel.AccessService) Service {
+func NewService(accessDomainService service.AccessService) Service {
 	return &serve{
 		accessDomainService: accessDomainService,
 	}

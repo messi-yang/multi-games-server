@@ -40,7 +40,7 @@ type itemRepo struct {
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewItemRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository itemmodel.Repo) {
+func NewItemRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository itemmodel.ItemRepo) {
 	return &itemRepo{
 		uow:                   uow,
 		domainEventDispatcher: domainEventDispatcher,

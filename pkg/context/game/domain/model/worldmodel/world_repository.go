@@ -2,7 +2,7 @@ package worldmodel
 
 import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 
-type Repo interface {
+type WorldRepo interface {
 	Add(World) error
 	Update(World) error
 	Get(sharedkernelmodel.WorldId) (World, error)

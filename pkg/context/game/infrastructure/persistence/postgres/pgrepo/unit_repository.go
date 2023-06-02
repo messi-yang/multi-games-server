@@ -2,7 +2,7 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel/unitmodel"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
@@ -26,7 +26,7 @@ func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
 	worldId := sharedkernelmodel.NewWorldId(unitModel.WorldId)
 	pos := commonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 	return unitmodel.LoadUnit(
-		commonmodel.NewUnitId(worldId, pos),
+		unitmodel.NewUnitId(worldId, pos),
 		worldId,
 		pos,
 		commonmodel.NewItemId(unitModel.ItemId),
@@ -39,7 +39,7 @@ type unitRepo struct {
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository unitmodel.Repo) {
+func NewUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository unitmodel.UnitRepo) {
 	return &unitRepo{
 		uow:                   uow,
 		domainEventDispatcher: domainEventDispatcher,

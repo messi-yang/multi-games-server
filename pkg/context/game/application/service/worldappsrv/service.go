@@ -4,10 +4,8 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/worlddomainsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -21,22 +19,16 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo          worldmodel.Repo
-	unitRepo           unitmodel.Repo
-	itemRepo           itemmodel.Repo
-	worldDomainService worlddomainsrv.Service
+	worldRepo          worldmodel.WorldRepo
+	worldDomainService service.WorldService
 }
 
 func NewService(
-	worldRepo worldmodel.Repo,
-	unitRepo unitmodel.Repo,
-	itemRepo itemmodel.Repo,
-	worldDomainService worlddomainsrv.Service,
+	worldRepo worldmodel.WorldRepo,
+	worldDomainService service.WorldService,
 ) Service {
 	return &serve{
 		worldRepo:          worldRepo,
-		unitRepo:           unitRepo,
-		itemRepo:           itemRepo,
 		worldDomainService: worldDomainService,
 	}
 }
@@ -60,6 +52,7 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 		return dto.NewWorldDto(world)
 	}), nil
 }
+
 func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
 	userId := sharedkernelmodel.NewUserId(command.UserId)
 	newWorldId, err := serve.worldDomainService.CreateWorld(userId, command.Name)

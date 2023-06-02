@@ -1,13 +1,7 @@
 package commonmodel
 
 import (
-	"errors"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
-)
-
-var (
-	ErrNoSuchDirection = errors.New("direction must be one of 0, 1, 2, 3")
 )
 
 type Direction int8

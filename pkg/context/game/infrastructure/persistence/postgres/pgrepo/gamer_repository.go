@@ -1,7 +1,6 @@
 package pgrepo
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
 	"gorm.io/gorm"
 
@@ -23,7 +22,7 @@ func newGamerModel(user gamermodel.Gamer) pgmodel.GamerModel {
 
 func parseGamerModel(gamerModel pgmodel.GamerModel) gamermodel.Gamer {
 	return gamermodel.LoadPlayer(
-		commonmodel.NewGamerId(gamerModel.Id),
+		gamermodel.NewGamerId(gamerModel.Id),
 		sharedkernelmodel.NewUserId(gamerModel.UserId),
 		gamerModel.WorldsCount,
 		gamerModel.WorldsCountLimit,
@@ -35,7 +34,7 @@ type gamerRepo struct {
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewGamerRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository gamermodel.Repo) {
+func NewGamerRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository gamermodel.GamerRepo) {
 	return &gamerRepo{
 		uow:                   uow,
 		domainEventDispatcher: domainEventDispatcher,
@@ -62,7 +61,7 @@ func (repo *gamerRepo) Update(gamer gamermodel.Gamer) error {
 	return repo.domainEventDispatcher.Dispatch(&gamer)
 }
 
-func (repo *gamerRepo) Get(gamerId commonmodel.GamerId) (gamer gamermodel.Gamer, err error) {
+func (repo *gamerRepo) Get(gamerId gamermodel.GamerId) (gamer gamermodel.Gamer, err error) {
 	gamerModel := pgmodel.GamerModel{Id: gamerId.Uuid()}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.First(&gamerModel).Error

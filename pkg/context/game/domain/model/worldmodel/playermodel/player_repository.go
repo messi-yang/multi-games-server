@@ -12,11 +12,11 @@ var (
 	ErrSomethinHappened = errors.New("some unexpected error happened")
 )
 
-type Repo interface {
+type PlayerRepo interface {
 	Add(Player) error
 	Update(Player) error
 	Delete(Player) error
-	Get(commonmodel.PlayerId) (Player, error)
+	Get(PlayerId) (Player, error)
 	FindPlayersAt(sharedkernelmodel.WorldId, commonmodel.Position) (players []Player, found bool, err error)
 	GetPlayersAround(sharedkernelmodel.WorldId, commonmodel.Position) ([]Player, error)
 }

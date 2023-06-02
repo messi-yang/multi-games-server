@@ -23,7 +23,7 @@ func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {
 }
 
 type Player struct {
-	id                   commonmodel.PlayerId      // Id of the player
+	id                   PlayerId                  // Id of the player
 	worldId              sharedkernelmodel.WorldId // The id of the world the player belongs to
 	userId               *sharedkernelmodel.UserId
 	name                 string                // The name of the player
@@ -39,7 +39,7 @@ type Player struct {
 var _ domain.Aggregate = (*Player)(nil)
 
 func NewPlayer(
-	id commonmodel.PlayerId,
+	id PlayerId,
 	worldId sharedkernelmodel.WorldId,
 	name string,
 	position commonmodel.Position,
@@ -62,7 +62,7 @@ func NewPlayer(
 }
 
 func LoadPlayer(
-	id commonmodel.PlayerId,
+	id PlayerId,
 	worldId sharedkernelmodel.WorldId,
 	userId *sharedkernelmodel.UserId,
 	name string,
@@ -91,7 +91,7 @@ func (player *Player) PopDomainEvents() []domain.DomainEvent {
 	return player.domainEventCollector.PopAll()
 }
 
-func (player *Player) GetId() commonmodel.PlayerId {
+func (player *Player) GetId() PlayerId {
 	return player.id
 }
 

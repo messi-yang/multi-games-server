@@ -1,8 +1,9 @@
-package commonmodel
+package unitmodel
 
 import (
 	"testing"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 )
@@ -10,8 +11,8 @@ import (
 func Test_UnitId_IsEqual(t *testing.T) {
 	worldId1 := sharedkernelmodel.NewWorldId(uuid.New())
 	worldId2 := sharedkernelmodel.NewWorldId(uuid.New())
-	pos1 := NewPosition(0, 0)
-	pos2 := NewPosition(0, 1)
+	pos1 := commonmodel.NewPosition(0, 0)
+	pos2 := commonmodel.NewPosition(0, 1)
 
 	unitId1 := NewUnitId(worldId1, pos1)
 	unitId2 := NewUnitId(worldId1, pos1)

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel/playermodel"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
@@ -51,7 +51,7 @@ func newPlayerModel(player playermodel.Player) pgmodel.PlayerModel {
 
 func parsePlayerModel(playerModel pgmodel.PlayerModel) playermodel.Player {
 	return playermodel.LoadPlayer(
-		commonmodel.NewPlayerId(playerModel.Id),
+		playermodel.NewPlayerId(playerModel.Id),
 		sharedkernelmodel.NewWorldId(playerModel.WorldId),
 		lo.TernaryF(
 			playerModel.UserId == nil,
@@ -88,7 +88,7 @@ type playerRepo struct {
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewPlayerRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository playermodel.Repo) {
+func NewPlayerRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository playermodel.PlayerRepo) {
 	return &playerRepo{
 		uow:                   uow,
 		domainEventDispatcher: domainEventDispatcher,
@@ -125,7 +125,7 @@ func (repo *playerRepo) Delete(player playermodel.Player) error {
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
-func (repo *playerRepo) Get(playerId commonmodel.PlayerId) (player playermodel.Player, err error) {
+func (repo *playerRepo) Get(playerId playermodel.PlayerId) (player playermodel.Player, err error) {
 	playerModel := pgmodel.PlayerModel{Id: playerId.Uuid()}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Joins("User").First(&playerModel).Error

@@ -7,6 +7,7 @@ import (
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"
@@ -22,11 +23,11 @@ type Service interface {
 
 type serve struct {
 	userRepo        identitymodel.UserRepo
-	identityService identitymodel.IdentityService
+	identityService service.IdentityService
 	authSecret      string
 }
 
-func NewService(userRepo identitymodel.UserRepo, identityService identitymodel.IdentityService, authSecret string) Service {
+func NewService(userRepo identitymodel.UserRepo, identityService service.IdentityService, authSecret string) Service {
 	return &serve{userRepo: userRepo, identityService: identityService, authSecret: authSecret}
 }
 

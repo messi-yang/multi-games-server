@@ -11,10 +11,10 @@ type Service interface {
 }
 
 type serve struct {
-	itemRepo itemmodel.Repo
+	itemRepo itemmodel.ItemRepo
 }
 
-func NewService(itemRepo itemmodel.Repo) Service {
+func NewService(itemRepo itemmodel.ItemRepo) Service {
 	return &serve{
 		itemRepo: itemRepo,
 	}

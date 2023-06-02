@@ -7,7 +7,7 @@ import (
 )
 
 type Unit struct {
-	id                   commonmodel.UnitId
+	id                   UnitId
 	worldId              sharedkernelmodel.WorldId
 	position             commonmodel.Position
 	itemId               commonmodel.ItemId
@@ -19,7 +19,7 @@ type Unit struct {
 var _ domain.Aggregate = (*Unit)(nil)
 
 func NewUnit(
-	id commonmodel.UnitId,
+	id UnitId,
 	worldId sharedkernelmodel.WorldId,
 	position commonmodel.Position,
 	itemId commonmodel.ItemId,
@@ -38,7 +38,7 @@ func NewUnit(
 }
 
 func LoadUnit(
-	id commonmodel.UnitId,
+	id UnitId,
 	worldId sharedkernelmodel.WorldId,
 	position commonmodel.Position,
 	itemId commonmodel.ItemId,
@@ -58,7 +58,7 @@ func (unit *Unit) PopDomainEvents() []domain.DomainEvent {
 	return unit.domainEventCollector.PopAll()
 }
 
-func (unit *Unit) GetId() commonmodel.UnitId {
+func (unit *Unit) GetId() UnitId {
 	return unit.id
 }
 

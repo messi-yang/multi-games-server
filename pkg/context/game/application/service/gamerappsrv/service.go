@@ -17,11 +17,11 @@ type Service interface {
 }
 
 type serve struct {
-	gamerRepo gamermodel.Repo
+	gamerRepo gamermodel.GamerRepo
 }
 
 func NewService(
-	gamerRepo gamermodel.Repo,
+	gamerRepo gamermodel.GamerRepo,
 ) Service {
 	return &serve{
 		gamerRepo: gamerRepo,

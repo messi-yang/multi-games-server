@@ -1,14 +1,19 @@
 package gamermodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"errors"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 )
 
+var (
+	ErrWorldsCountExceedsLimit = errors.New("worlds count has reached the limit")
+)
+
 type Gamer struct {
-	id                   commonmodel.GamerId
+	id                   GamerId
 	userId               sharedkernelmodel.UserId
 	worldsCount          int8
 	worldsCountLimit     int8
@@ -24,7 +29,7 @@ func NewGamer(
 	worldsCountLimit int8,
 ) Gamer {
 	return Gamer{
-		id:                   commonmodel.NewGamerId(uuid.New()),
+		id:                   NewGamerId(uuid.New()),
 		userId:               userId,
 		worldsCount:          worldsCount,
 		worldsCountLimit:     worldsCountLimit,
@@ -33,7 +38,7 @@ func NewGamer(
 }
 
 func LoadPlayer(
-	id commonmodel.GamerId,
+	id GamerId,
 	userId sharedkernelmodel.UserId,
 	worldsCount int8,
 	worldsCountLimit int8,
@@ -51,7 +56,7 @@ func (gamer *Gamer) PopDomainEvents() []domain.DomainEvent {
 	return gamer.domainEventCollector.PopAll()
 }
 
-func (gamer *Gamer) GetId() commonmodel.GamerId {
+func (gamer *Gamer) GetId() GamerId {
 	return gamer.id
 }
 
@@ -67,6 +72,10 @@ func (gamer *Gamer) GetWorldsCountLimit() int8 {
 	return gamer.worldsCountLimit
 }
 
-func (gamer *Gamer) AddWorldsCount() {
+func (gamer *Gamer) AddWorldsCount() error {
+	if gamer.GetWorldsCount() >= gamer.GetWorldsCountLimit() {
+		return ErrWorldsCountExceedsLimit
+	}
 	gamer.worldsCount += 1
+	return nil
 }

@@ -1,21 +1,22 @@
-package accessmodel
+package service
 
 import (
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/accessmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type AccessService interface {
-	AssignUserToWorldRole(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, WorldRoleName) error
+	AssignUserToWorldRole(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, accessmodel.WorldRoleName) error
 }
 
 type accessServe struct {
-	worldRoleRepo         WorldRoleRepo
+	worldRoleRepo         accessmodel.WorldRoleRepo
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
 func NewAccessService(
-	worldRoleRepo WorldRoleRepo,
+	worldRoleRepo accessmodel.WorldRoleRepo,
 	domainEventDispatcher domain.DomainEventDispatcher,
 ) AccessService {
 	return &accessServe{
@@ -27,9 +28,9 @@ func NewAccessService(
 func (accessServe *accessServe) AssignUserToWorldRole(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
-	worldRoleName WorldRoleName,
+	worldRoleName accessmodel.WorldRoleName,
 ) error {
-	newWorldRole := NewWorldRole(
+	newWorldRole := accessmodel.NewWorldRole(
 		worldId,
 		userId,
 		worldRoleName,

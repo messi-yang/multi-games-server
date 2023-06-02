@@ -6,10 +6,10 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/playermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/unitmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service/gamedomainsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel/playermodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel/unitmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -28,19 +28,19 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo         worldmodel.Repo
-	playerRepo        playermodel.Repo
-	unitRepo          unitmodel.Repo
-	itemRepo          itemmodel.Repo
-	gameDomainService gamedomainsrv.Service
+	worldRepo         worldmodel.WorldRepo
+	playerRepo        playermodel.PlayerRepo
+	unitRepo          unitmodel.UnitRepo
+	itemRepo          itemmodel.ItemRepo
+	gameDomainService service.GameService
 }
 
 func NewService(
-	worldRepo worldmodel.Repo,
-	playerRepo playermodel.Repo,
-	unitRepo unitmodel.Repo,
-	itemRepo itemmodel.Repo,
-	gameDomainService gamedomainsrv.Service,
+	worldRepo worldmodel.WorldRepo,
+	playerRepo playermodel.PlayerRepo,
+	unitRepo unitmodel.UnitRepo,
+	itemRepo itemmodel.ItemRepo,
+	gameDomainService service.GameService,
 ) Service {
 	return &serve{
 		worldRepo:         worldRepo,
@@ -54,7 +54,7 @@ func NewService(
 func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 	myPlayerDto dto.PlayerDto, otherPlayerDtos []dto.PlayerDto, err error,
 ) {
-	player, err := serve.playerRepo.Get(commonmodel.NewPlayerId(query.PlayerId))
+	player, err := serve.playerRepo.Get(playermodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return myPlayerDto, otherPlayerDtos, err
 	}
@@ -84,7 +84,7 @@ func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 	unitDtos []dto.UnitDto, err error,
 ) {
-	player, err := serve.playerRepo.Get(commonmodel.NewPlayerId(query.PlayerId))
+	player, err := serve.playerRepo.Get(playermodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return unitDtos, err
 	}
@@ -102,7 +102,7 @@ func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 }
 
 func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, err error) {
-	player, err := serve.playerRepo.Get(commonmodel.NewPlayerId(query.PlayerId))
+	player, err := serve.playerRepo.Get(playermodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return playerDto, err
 	}
@@ -118,21 +118,21 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 }
 
 func (serve *serve) Move(command MoveCommand) error {
-	return serve.gameDomainService.Move(sharedkernelmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId), commonmodel.NewDirection(command.Direction))
+	return serve.gameDomainService.Move(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewDirection(command.Direction))
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	return serve.gameDomainService.LeaveWorld(sharedkernelmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
+	return serve.gameDomainService.LeaveWorld(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	return serve.gameDomainService.PlaceItem(sharedkernelmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
+	return serve.gameDomainService.PlaceItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
-	return serve.gameDomainService.ChangeHeldItem(sharedkernelmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId), commonmodel.NewItemId(command.ItemId))
+	return serve.gameDomainService.ChangeHeldItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewItemId(command.ItemId))
 }
 
 func (serve *serve) RemoveItem(command RemoveItemCommand) error {
-	return serve.gameDomainService.RemoveItem(sharedkernelmodel.NewWorldId(command.WorldId), commonmodel.NewPlayerId(command.PlayerId))
+	return serve.gameDomainService.RemoveItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }

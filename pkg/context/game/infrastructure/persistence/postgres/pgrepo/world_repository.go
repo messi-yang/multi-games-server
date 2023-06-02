@@ -38,7 +38,7 @@ type worldRepo struct {
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewWorldRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository worldmodel.Repo) {
+func NewWorldRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository worldmodel.WorldRepo) {
 	return &worldRepo{
 		uow:                   uow,
 		domainEventDispatcher: domainEventDispatcher,

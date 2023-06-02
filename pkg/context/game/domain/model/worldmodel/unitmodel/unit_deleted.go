@@ -3,19 +3,18 @@ package unitmodel
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 )
 
 type UnitDeleted struct {
 	occurredOn time.Time
-	unitId     commonmodel.UnitId
+	unitId     UnitId
 }
 
 // Interface Implementation Check
 var _ domain.DomainEvent = (*UnitDeleted)(nil)
 
-func NewUnitDeleted(unitId commonmodel.UnitId) UnitDeleted {
+func NewUnitDeleted(unitId UnitId) UnitDeleted {
 	return UnitDeleted{
 		occurredOn: time.Now(),
 		unitId:     unitId,
@@ -30,6 +29,6 @@ func (domainEvent UnitDeleted) GetOccurredOn() time.Time {
 	return domainEvent.occurredOn
 }
 
-func (domainEvent UnitDeleted) GetUnitId() commonmodel.UnitId {
+func (domainEvent UnitDeleted) GetUnitId() UnitId {
 	return domainEvent.unitId
 }
