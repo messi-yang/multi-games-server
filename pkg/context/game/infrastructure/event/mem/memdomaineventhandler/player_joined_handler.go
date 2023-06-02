@@ -1,4 +1,4 @@
-package playerdomaineventhandler
+package memdomaineventhandler
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
@@ -10,25 +10,25 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/jsonutil"
 )
 
-type PlayerLeftHandler struct {
+type PlayerJoinedHandler struct {
 	redisServerMessageMediator redisservermessagemediator.Mediator
 }
 
-func NewPlayerLeftHandler(redisServerMessageMediator redisservermessagemediator.Mediator) memdomainevent.Handler {
-	return &PlayerLeftHandler{
+func NewPlayerJoinedHandler(redisServerMessageMediator redisservermessagemediator.Mediator) memdomainevent.Handler {
+	return &PlayerJoinedHandler{
 		redisServerMessageMediator: redisServerMessageMediator,
 	}
 }
 
-func (handler PlayerLeftHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
-	playerLeft := domainEvent.(playermodel.PlayerLeft)
+func (handler PlayerJoinedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
+	playerJoined := domainEvent.(playermodel.PlayerJoined)
 
 	uow.AddDelayedWork(func() {
-		worldIdDto := playerLeft.GetWorldId().Uuid()
-		playerIdDto := playerLeft.GetPlayerId().Uuid()
+		worldIdDto := playerJoined.GetWorldId().Uuid()
+		playerIdDto := playerJoined.GetPlayerId().Uuid()
 		handler.redisServerMessageMediator.Send(
 			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-			jsonutil.Marshal(gameappsrv.NewPlayerLeftServerMessage(worldIdDto, playerIdDto)),
+			jsonutil.Marshal(gameappsrv.NewPlayerJoinedServerMessage(worldIdDto, playerIdDto)),
 		)
 	})
 

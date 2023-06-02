@@ -1,4 +1,4 @@
-package unitdomaineventhandler
+package memdomaineventhandler
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"

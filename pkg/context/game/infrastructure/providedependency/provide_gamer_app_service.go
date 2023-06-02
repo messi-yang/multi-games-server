@@ -1,4 +1,4 @@
-package gamerhttphandler
+package providedependency
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
@@ -7,7 +7,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 )
 
-func provideGamerAppService(uow pguow.Uow) gamerappsrv.Service {
+func ProvideGamerAppService(uow pguow.Uow) gamerappsrv.Service {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	gamerRepo := pgrepo.NewGamerRepo(uow, domainEventDispatcher)
 	return gamerappsrv.NewService(gamerRepo)

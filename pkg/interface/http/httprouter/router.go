@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/authhttphandler"
@@ -35,7 +36,7 @@ func Run() error {
 
 		pgUow := pguow.NewUow()
 
-		identityAppService := provideIdentityAppService(pgUow)
+		identityAppService := providedependency.ProvideIdentityAppService(pgUow)
 		userId, err := identityAppService.Validate(authToken)
 		if err != nil {
 			pgUow.RevertChanges()

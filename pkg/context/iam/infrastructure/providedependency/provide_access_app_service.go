@@ -1,4 +1,4 @@
-package worlddomaineventhandler
+package providedependency
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/accessappsrv"
@@ -8,7 +8,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 )
 
-func provideAccessAppService(uow pguow.Uow) accessappsrv.Service {
+func ProvideAccessAppService(uow pguow.Uow) accessappsrv.Service {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	worldRoleRepo := pgrepo.NewWorldRoleRepo(uow, domainEventDispatcher)
 	accessDomainService := service.NewAccessService(worldRoleRepo, domainEventDispatcher)

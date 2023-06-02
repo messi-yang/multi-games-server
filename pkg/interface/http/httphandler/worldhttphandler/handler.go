@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httputil"
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 
 	pgUow := pguow.NewDummyUow()
 
-	worldAppService := provideWorldAppService(pgUow)
+	worldAppService := providedependency.ProvideWorldAppService(pgUow)
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
@@ -52,7 +53,7 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 
 	pgUow := pguow.NewDummyUow()
 
-	worldAppService := provideWorldAppService(pgUow)
+	worldAppService := providedependency.ProvideWorldAppService(pgUow)
 	worldDtos, err := worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{
 		Limit:  limit,
 		Offset: offset,
@@ -76,7 +77,7 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	pgUow := pguow.NewUow()
 
-	worldAppService := provideWorldAppService(pgUow)
+	worldAppService := providedependency.ProvideWorldAppService(pgUow)
 
 	newWorldIdDto, err := worldAppService.CreateWorld(
 		worldappsrv.CreateWorldCommand{
@@ -117,7 +118,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	pgUow := pguow.NewUow()
 
-	worldAppService := provideWorldAppService(pgUow)
+	worldAppService := providedependency.ProvideWorldAppService(pgUow)
 
 	if err = worldAppService.UpdateWorld(worldappsrv.UpdateWorldCommand{
 		UserId:  userIdDto,

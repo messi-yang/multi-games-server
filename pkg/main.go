@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	game_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/event/memory/memdomaineventhandler"
-	iam_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/event/memory/memdomaineventhandler"
+	game_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/event/mem/memdomaineventhandler"
+	iam_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/event/mem/memdomaineventhandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgclient"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/clirouter"
@@ -22,8 +22,8 @@ func main() {
 		return
 	}
 
-	game_mem_domain_event_handler.Run()
-	iam_mem_domain_event_handler.Run()
+	game_mem_domain_event_handler.RegisterEvents()
+	iam_mem_domain_event_handler.RegisterEvents()
 
 	err := httprouter.Run()
 	if err != nil {

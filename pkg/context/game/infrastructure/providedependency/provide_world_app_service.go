@@ -1,21 +1,19 @@
-package gamesockethandler
+package providedependency
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres/pgrepo"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 )
 
-func provideGameAppService(uow pguow.Uow) gameappsrv.Service {
+func ProvideWorldAppService(uow pguow.Uow) worldappsrv.Service {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
-	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	playerRepo := pgrepo.NewPlayerRepo(uow, domainEventDispatcher)
+	gamerRepo := pgrepo.NewGamerRepo(uow, domainEventDispatcher)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
+	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
-	gameDomainService := service.NewGameService(worldRepo, playerRepo, unitRepo, itemRepo)
-	return gameappsrv.NewService(
-		worldRepo, playerRepo, unitRepo, itemRepo, gameDomainService,
-	)
+	worldDomainService := service.NewWorldService(gamerRepo, worldRepo, unitRepo, itemRepo)
+	return worldappsrv.NewService(worldRepo, worldDomainService)
 }

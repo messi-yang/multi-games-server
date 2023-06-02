@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/identityappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/service/googleauthinfrasrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func NewHttpHandler() *HttpHandler {
 }
 
 func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
-	googleAuthInfraService := provideGoogleAuthInfraService()
+	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()
 
 	authUrl := googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{})
 	c.Redirect(http.StatusFound, authUrl)
@@ -28,7 +29,7 @@ func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
 
 func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
-	googleAuthInfraService := provideGoogleAuthInfraService()
+	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()
 	userEmailAddress, err := googleAuthInfraService.GetUserEmailAddress(googleauthinfrasrv.GetUserEmailAddressQuery{
 		Code: code,
 	})
@@ -38,7 +39,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 
 	pgUow := pguow.NewUow()
 
-	identityAppService := provideIdentityAppService(pgUow)
+	identityAppService := providedependency.ProvideIdentityAppService(pgUow)
 
 	userDto, userFound, err := identityAppService.FindUserByEmailAddress(identityappsrv.FindUserByEmailAddressQuery{
 		EmailAddress: userEmailAddress,

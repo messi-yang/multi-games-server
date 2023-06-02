@@ -1,4 +1,4 @@
-package httprouter
+package providedependency
 
 import (
 	"os"
@@ -10,9 +10,9 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 )
 
-func provideIdentityAppService(uow pguow.Uow) identityappsrv.Service {
+func ProvideIdentityAppService(uow pguow.Uow) identityappsrv.Service {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	userRepo := pgrepo.NewUserRepo(uow, domainEventDispatcher)
-	identityService := service.NewIdentityService(userRepo)
-	return identityappsrv.NewService(userRepo, identityService, os.Getenv("AUTH_SECRET"))
+	identityDomainService := service.NewIdentityService(userRepo)
+	return identityappsrv.NewService(userRepo, identityDomainService, os.Getenv("AUTH_SECRET"))
 }

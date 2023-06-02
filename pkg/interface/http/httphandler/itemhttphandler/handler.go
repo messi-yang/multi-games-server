@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/itemappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,7 @@ func NewHttpHandler() *HttpHandler {
 func (httpHandler *HttpHandler) QueryItems(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 
-	itemAppService := provideItemAppService(pgUow)
+	itemAppService := providedependency.ProvideItemAppService(pgUow)
 	itemDtos, err := itemAppService.QueryItems(itemappsrv.QueryItemsQuery{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())

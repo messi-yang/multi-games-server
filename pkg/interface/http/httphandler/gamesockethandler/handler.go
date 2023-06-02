@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/gziputil"
@@ -195,7 +196,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, directionDto int8) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	if err := gameAppService.Move(gameappsrv.MoveCommand{
 		WorldId:   worldIdDto,
 		PlayerId:  playerIdDto,
@@ -211,7 +212,7 @@ func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerI
 func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	if err := gameAppService.ChangeHeldItem(gameappsrv.ChangeHeldItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
@@ -227,7 +228,7 @@ func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUI
 func (httpHandler *HttpHandler) executePlaceItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	if err := gameAppService.PlaceItem(gameappsrv.PlaceItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
@@ -242,7 +243,7 @@ func (httpHandler *HttpHandler) executePlaceItemCommand(worldIdDto uuid.UUID, pl
 func (httpHandler *HttpHandler) executeRemoveItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	if err := gameAppService.RemoveItem(gameappsrv.RemoveItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
@@ -257,7 +258,7 @@ func (httpHandler *HttpHandler) executeRemoveItemCommand(worldIdDto uuid.UUID, p
 func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (playerIdDto uuid.UUID, err error) {
 	pgUow := pguow.NewUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	if playerIdDto, err = gameAppService.EnterWorld(gameappsrv.EnterWorldCommand{
 		WorldId: worldIdDto,
 	}); err != nil {
@@ -271,7 +272,7 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (
 func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	if err := gameAppService.LeaveWorld(gameappsrv.LeaveWorldCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
@@ -286,7 +287,7 @@ func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, p
 func (httpHandler *HttpHandler) executeGetNearbyUnitsQuery(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
 	pgUow := pguow.NewDummyUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	unitDtos, err := gameAppService.GetNearbyUnits(
 		gameappsrv.GetNearbyUnitsQuery{
 			WorldId:  worldIdDto,
@@ -307,7 +308,7 @@ func (httpHandler *HttpHandler) executeGetNearbyUnitsQuery(worldIdDto uuid.UUID,
 func (httpHandler *HttpHandler) executeGetNearbyPlayersQuery(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
 	pgUow := pguow.NewDummyUow()
 
-	gameAppService := provideGameAppService(pgUow)
+	gameAppService := providedependency.ProvideGameAppService(pgUow)
 	myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
 		gameappsrv.GetNearbyPlayersQuery{
 			WorldId:  worldIdDto,

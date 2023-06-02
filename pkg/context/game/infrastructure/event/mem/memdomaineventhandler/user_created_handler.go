@@ -1,9 +1,10 @@
-package userdomaineventhandler
+package memdomaineventhandler
 
 import (
 	"fmt"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
@@ -20,7 +21,7 @@ func NewUserCreatedHandler() memdomainevent.Handler {
 func (handler UserCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	fmt.Println(domainEvent)
 	userCreated := domainEvent.(sharedkernelmodel.UserCreated)
-	gamerAppService := provideGamerAppService(uow)
+	gamerAppService := providedependency.ProvideGamerAppService(uow)
 
 	if _, err := gamerAppService.CreateGamer(gamerappsrv.CreateGamerCommand{
 		UserId: userCreated.GetUserId().Uuid(),
