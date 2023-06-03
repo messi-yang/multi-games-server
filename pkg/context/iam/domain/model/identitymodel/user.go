@@ -1,6 +1,8 @@
 package identitymodel
 
 import (
+	"time"
+
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
@@ -9,6 +11,8 @@ type User struct {
 	id                   sharedkernelmodel.UserId
 	emailAddress         string
 	username             string
+	createdAt            time.Time
+	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -20,8 +24,33 @@ func NewUser(
 	emailAddress string,
 	username string,
 ) User {
-	newUser := User{id: id, emailAddress: emailAddress, username: username, domainEventCollector: domain.NewDomainEventCollector()}
+	newUser := User{
+		id:                   id,
+		emailAddress:         emailAddress,
+		username:             username,
+		createdAt:            time.Now(),
+		updatedAt:            time.Now(),
+		domainEventCollector: domain.NewDomainEventCollector(),
+	}
 	newUser.domainEventCollector.Add(sharedkernelmodel.NewUserCreated(id))
+	return newUser
+}
+
+func LoadUser(
+	id sharedkernelmodel.UserId,
+	emailAddress string,
+	username string,
+	createdAt time.Time,
+	updatedAt time.Time,
+) User {
+	newUser := User{
+		id:                   id,
+		emailAddress:         emailAddress,
+		username:             username,
+		createdAt:            createdAt,
+		updatedAt:            updatedAt,
+		domainEventCollector: domain.NewDomainEventCollector(),
+	}
 	return newUser
 }
 
@@ -39,4 +68,12 @@ func (user *User) GetEmailAddress() string {
 
 func (user *User) GetUsername() string {
 	return user.username
+}
+
+func (user *User) GetCreatedAt() time.Time {
+	return user.createdAt
+}
+
+func (user *User) GetUpdatedAt() time.Time {
+	return user.updatedAt
 }

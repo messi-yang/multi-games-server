@@ -15,11 +15,19 @@ func newUserModel(user identitymodel.User) pgmodel.UserModel {
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress(),
 		Username:     user.GetUsername(),
+		CreatedAt:    user.GetCreatedAt(),
+		UpdatedAt:    user.GetUpdatedAt(),
 	}
 }
 
 func parseUserModel(userModel pgmodel.UserModel) identitymodel.User {
-	return identitymodel.NewUser(sharedkernelmodel.NewUserId(userModel.Id), userModel.EmailAddress, userModel.Username)
+	return identitymodel.LoadUser(
+		sharedkernelmodel.NewUserId(userModel.Id),
+		userModel.EmailAddress,
+		userModel.Username,
+		userModel.CreatedAt,
+		userModel.UpdatedAt,
+	)
 }
 
 type userRepo struct {
