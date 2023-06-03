@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/identityappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/authappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/userappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/service/googleauthinfrasrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -39,9 +40,10 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 
 	pgUow := pguow.NewUow()
 
-	identityAppService := providedependency.ProvideIdentityAppService(pgUow)
+	userAppService := providedependency.ProvideUserAppService(pgUow)
+	authAppService := providedependency.ProvideAuthAppService(pgUow)
 
-	userDto, userFound, err := identityAppService.FindUserByEmailAddress(identityappsrv.FindUserByEmailAddressQuery{
+	userDto, userFound, err := userAppService.FindUserByEmailAddress(userappsrv.FindUserByEmailAddressQuery{
 		EmailAddress: userEmailAddress,
 	})
 	if err != nil {
@@ -53,15 +55,15 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	if userFound {
 		userIdDto = userDto.Id
 	} else {
-		userIdDto, err = identityAppService.Register(identityappsrv.RegisterCommand{EmailAddress: userEmailAddress})
+		userIdDto, err = authAppService.Register(authappsrv.RegisterCommand{EmailAddress: userEmailAddress})
 		if err != nil {
 			pgUow.RevertChanges()
 			return
 		}
 	}
 
-	accessToken, err := identityAppService.Login(
-		identityappsrv.LoginCommand{UserId: userIdDto},
+	accessToken, err := authAppService.Login(
+		authappsrv.LoginCommand{UserId: userIdDto},
 	)
 	if err != nil {
 		pgUow.RevertChanges()

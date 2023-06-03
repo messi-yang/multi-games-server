@@ -1,11 +1,10 @@
-package identityappsrv
+package authappsrv
 
 import (
 	"errors"
 	"fmt"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
@@ -15,7 +14,6 @@ import (
 )
 
 type Service interface {
-	FindUserByEmailAddress(FindUserByEmailAddressQuery) (userDto dto.UserDto, found bool, err error)
 	Register(RegisterCommand) (userIdDto uuid.UUID, err error)
 	Login(LoginCommand) (accessToken string, err error)
 	Validate(accessToken string) (userIdDto uuid.UUID, err error)
@@ -29,17 +27,6 @@ type serve struct {
 
 func NewService(userRepo identitymodel.UserRepo, identityService service.IdentityService, authSecret string) Service {
 	return &serve{userRepo: userRepo, identityService: identityService, authSecret: authSecret}
-}
-
-func (serve *serve) FindUserByEmailAddress(query FindUserByEmailAddressQuery) (userDto dto.UserDto, found bool, err error) {
-	user, found, err := serve.userRepo.FindUserByEmailAddress(query.EmailAddress)
-	if err != nil {
-		return userDto, found, err
-	}
-	if !found {
-		return userDto, false, err
-	}
-	return dto.NewUserDto(user), true, nil
 }
 
 func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err error) {

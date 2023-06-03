@@ -1,4 +1,4 @@
-package identityappsrv
+package authappsrv
 
 import "github.com/google/uuid"
 

@@ -11,6 +11,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/gamerhttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/gamesockethandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/itemhttphandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/userhttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/worldhttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httputil"
 	"github.com/gin-contrib/cors"
@@ -36,8 +37,8 @@ func Run() error {
 
 		pgUow := pguow.NewUow()
 
-		identityAppService := providedependency.ProvideIdentityAppService(pgUow)
-		userId, err := identityAppService.Validate(authToken)
+		authAppService := providedependency.ProvideAuthAppService(pgUow)
+		userId, err := authAppService.Validate(authToken)
 		if err != nil {
 			pgUow.RevertChanges()
 			ctx.AbortWithError(http.StatusUnauthorized, err)
@@ -53,6 +54,10 @@ func Run() error {
 	authRouterGroup := router.Group("/api/auth")
 	authRouterGroup.GET("/oauth2/google", authHttpHandler.GoToGoogleAuthUrl)
 	authRouterGroup.GET("/oauth2/google/redirect", authHttpHandler.HandleGoogleAuthCallback)
+
+	userHttpHandler := userhttphandler.NewHttpHandler()
+	userRouterGroup := router.Group("/api/user")
+	userRouterGroup.GET("/me", authorizeTokenMiddleware, userHttpHandler.GetMyUser)
 
 	gamerHttpHandler := gamerhttphandler.NewHttpHandler()
 	gamersRouterGroup := router.Group("/api/gamers")
