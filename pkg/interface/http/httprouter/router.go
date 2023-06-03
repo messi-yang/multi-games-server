@@ -56,7 +56,7 @@ func Run() error {
 	authRouterGroup.GET("/oauth2/google/redirect", authHttpHandler.HandleGoogleAuthCallback)
 
 	userHttpHandler := userhttphandler.NewHttpHandler()
-	userRouterGroup := router.Group("/api/user")
+	userRouterGroup := router.Group("/api/users")
 	userRouterGroup.GET("/me", authorizeTokenMiddleware, userHttpHandler.GetMyUser)
 
 	gamerHttpHandler := gamerhttphandler.NewHttpHandler()
