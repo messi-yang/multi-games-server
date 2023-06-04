@@ -10,7 +10,11 @@ type Direction int8
 var _ domain.ValueObject[Direction] = (*Direction)(nil)
 
 func NewDirection(direction int8) Direction {
-	return Direction(direction % 4)
+	if direction >= 0 {
+		return Direction(direction % 4)
+	} else {
+		return Direction(-direction % 4)
+	}
 }
 
 func NewDownDirection() Direction {

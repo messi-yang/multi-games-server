@@ -6,22 +6,50 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_UnitId_IsEqual(t *testing.T) {
+func TestNewUnitId(t *testing.T) {
+	worldId := sharedkernelmodel.NewWorldId(uuid.New())
+	position := commonmodel.NewPosition(10, 20)
+
+	unitId := NewUnitId(worldId, position)
+
+	expectedUnitId := UnitId{
+		worldId:  worldId,
+		position: position,
+	}
+	assert.Equal(t, expectedUnitId, unitId, "unitId should have the provided worldId and position")
+}
+
+func TestUnitId_IsEqual(t *testing.T) {
 	worldId1 := sharedkernelmodel.NewWorldId(uuid.New())
 	worldId2 := sharedkernelmodel.NewWorldId(uuid.New())
-	pos1 := commonmodel.NewPosition(0, 0)
-	pos2 := commonmodel.NewPosition(0, 1)
+	position1 := commonmodel.NewPosition(10, 20)
+	position2 := commonmodel.NewPosition(30, 40)
 
-	unitId1 := NewUnitId(worldId1, pos1)
-	unitId2 := NewUnitId(worldId1, pos1)
-	unitId3 := NewUnitId(worldId2, pos2)
+	unitId1 := NewUnitId(worldId1, position1)
+	unitId2 := NewUnitId(worldId1, position1)
+	unitId3 := NewUnitId(worldId2, position1)
+	unitId4 := NewUnitId(worldId1, position2)
 
-	if !unitId1.IsEqual(unitId2) {
-		t.Errorf("unitId1 is expected to be equal to unitId2")
-	}
-	if unitId1.IsEqual(unitId3) {
-		t.Errorf("unitId1 is expected to be not equal to unitId3")
-	}
+	assert.True(t, unitId1.IsEqual(unitId2), "unitId1 should be equal to unitId2")
+	assert.False(t, unitId1.IsEqual(unitId3), "unitId1 should not be equal to unitId3")
+	assert.False(t, unitId1.IsEqual(unitId4), "unitId1 should not be equal to unitId4")
+}
+
+func TestUnitId_GetWorldId(t *testing.T) {
+	worldId := sharedkernelmodel.NewWorldId(uuid.New())
+	position := commonmodel.NewPosition(10, 20)
+	unitId := NewUnitId(worldId, position)
+
+	assert.Equal(t, worldId, unitId.GetWorldId(), "GetWorldId() should return the worldId of the unitId")
+}
+
+func TestUnitId_GetPosition(t *testing.T) {
+	worldId := sharedkernelmodel.NewWorldId(uuid.New())
+	position := commonmodel.NewPosition(10, 20)
+	unitId := NewUnitId(worldId, position)
+
+	assert.Equal(t, position, unitId.GetPosition(), "GetPosition() should return the position of the unitId")
 }

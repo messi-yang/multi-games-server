@@ -1,19 +1,14 @@
 package commonmodel
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 )
 
-type ErrInvalidSize struct {
-	width  int
-	height int
-}
-
-func (e *ErrInvalidSize) Error() string {
-	return fmt.Sprintf("width (%d) and height(%d) of size must be greater than 0", e.width, e.height)
-}
+var (
+	ErrInvalidSize = errors.New("width or height is invalid")
+)
 
 type Size struct {
 	width  int
@@ -25,7 +20,7 @@ var _ domain.ValueObject[Size] = (*Size)(nil)
 
 func NewSize(width int, height int) (Size, error) {
 	if width < 1 || height < 1 {
-		return Size{}, &ErrInvalidSize{width: width, height: height}
+		return Size{}, ErrInvalidSize
 	}
 
 	return Size{

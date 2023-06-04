@@ -12,14 +12,14 @@ type WorldRoleName struct {
 	name WorldRoleNameValue
 }
 
-func NewWorldRoleName(worldRoleNameStr string) (WorldRoleName, error) {
-	switch worldRoleNameStr {
+func NewWorldRoleName(worldRoleNameValue string) (WorldRoleName, error) {
+	switch worldRoleNameValue {
 	case "admin":
 		return WorldRoleName{
 			name: WorldRoleAdmin,
 		}, nil
 	default:
-		return WorldRoleName{}, fmt.Errorf("invalid WorldRoleName: %s", worldRoleNameStr)
+		return WorldRoleName{}, fmt.Errorf("invalid WorldRoleName: %s", worldRoleNameValue)
 	}
 }
 

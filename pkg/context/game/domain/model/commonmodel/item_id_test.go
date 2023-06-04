@@ -4,28 +4,29 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_ItemId_IsEqual(t *testing.T) {
-	uuid1 := uuid.New()
-	uuid2 := uuid.New()
-	itemId1 := NewItemId(uuid1)
-	itemId2 := NewItemId(uuid1)
-	itemId3 := NewItemId(uuid2)
-
-	if !itemId1.IsEqual(itemId2) {
-		t.Errorf("itemId1 is expected to be equal to itemId2")
-	}
-	if itemId1.IsEqual(itemId3) {
-		t.Errorf("itemId1 is expected to be not equal to itemId3")
-	}
+func TestNewItemId(t *testing.T) {
+	id := uuid.New()
+	itemId := NewItemId(id)
+	assert.Equal(t, ItemId{id}, itemId, "itemId should have the provided UUID")
 }
 
-func Test_ItemId_Uuid(t *testing.T) {
-	uuid := uuid.New()
-	itemId := NewItemId(uuid)
+func TestItemId_IsEqual(t *testing.T) {
+	id1 := uuid.New()
+	id2 := uuid.New()
+	itemId1 := NewItemId(id1)
+	itemId2 := NewItemId(id1)
+	itemId3 := NewItemId(id2)
 
-	if itemId.Uuid() != uuid {
-		t.Errorf("itemId should export uuid correctly")
-	}
+	assert.True(t, itemId1.IsEqual(itemId2), "itemId1 should be equal to itemId2")
+	assert.False(t, itemId1.IsEqual(itemId3), "itemId1 should not be equal to itemId3")
+}
+
+func TestItemId_Uuid(t *testing.T) {
+	id := uuid.New()
+	itemId := NewItemId(id)
+
+	assert.Equal(t, id, itemId.Uuid(), "itemId should return the UUID correctly")
 }
