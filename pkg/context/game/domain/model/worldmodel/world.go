@@ -1,19 +1,11 @@
 package worldmodel
 
 import (
-	"errors"
 	"time"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
-)
-
-var (
-	ErrSomePositionsNotIncludedInMap = errors.New("some positions are not included in the unit map")
-	ErrPositionHasPlayer             = errors.New("the position has player")
-	ErrPlayerNotFound                = errors.New("the play with the given id does not exist")
-	ErrPlayerAlreadyExists           = errors.New("the play with the given id already exists")
 )
 
 type World struct {
