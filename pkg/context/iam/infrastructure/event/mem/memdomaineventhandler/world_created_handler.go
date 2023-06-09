@@ -21,9 +21,9 @@ func (handler WorldCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.Doma
 
 	accessAppService := providedependency.ProvideAccessAppService(uow)
 
-	return accessAppService.AssignUserToWorldRole(accessappsrv.AssignUserToWorldRoleCommand{
-		UserId:        worldCreated.GetUserId().Uuid(),
-		WorldId:       worldCreated.GetWorldId().Uuid(),
-		WorldRoleName: "admin",
+	return accessAppService.AssignWorldRoleToUser(accessappsrv.AssignWorldRoleToUserCommand{
+		UserId:    worldCreated.GetUserId().Uuid(),
+		WorldId:   worldCreated.GetWorldId().Uuid(),
+		WorldRole: "admin",
 	})
 }

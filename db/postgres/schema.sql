@@ -112,6 +112,22 @@ CREATE TABLE public.units (
 ALTER TABLE public.units OWNER TO main;
 
 --
+-- Name: user_world_roles; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.user_world_roles (
+    id uuid NOT NULL,
+    world_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    world_role public.world_role_name NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.user_world_roles OWNER TO main;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -125,22 +141,6 @@ CREATE TABLE public.users (
 
 
 ALTER TABLE public.users OWNER TO main;
-
---
--- Name: world_roles; Type: TABLE; Schema: public; Owner: main
---
-
-CREATE TABLE public.world_roles (
-    id uuid NOT NULL,
-    world_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    name public.world_role_name NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-
-
-ALTER TABLE public.world_roles OWNER TO main;
 
 --
 -- Name: worlds; Type: TABLE; Schema: public; Owner: main
@@ -238,18 +238,18 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: world_roles world_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: main
+-- Name: user_world_roles world_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.world_roles
+ALTER TABLE ONLY public.user_world_roles
     ADD CONSTRAINT world_roles_pkey PRIMARY KEY (id);
 
 
 --
--- Name: world_roles world_roles_world_id_user_id_key; Type: CONSTRAINT; Schema: public; Owner: main
+-- Name: user_world_roles world_roles_world_id_user_id_key; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.world_roles
+ALTER TABLE ONLY public.user_world_roles
     ADD CONSTRAINT world_roles_world_id_user_id_key UNIQUE (world_id, user_id);
 
 
@@ -279,7 +279,7 @@ CREATE INDEX unit_world_id_pos_x_pos_z ON public.units USING btree (world_id, po
 -- Name: world_roles_world_id_user_id; Type: INDEX; Schema: public; Owner: main
 --
 
-CREATE INDEX world_roles_world_id_user_id ON public.world_roles USING btree (world_id, user_id);
+CREATE INDEX world_roles_world_id_user_id ON public.user_world_roles USING btree (world_id, user_id);
 
 
 --
@@ -323,10 +323,10 @@ ALTER TABLE ONLY public.worlds
 
 
 --
--- Name: world_roles fk_user; Type: FK CONSTRAINT; Schema: public; Owner: main
+-- Name: user_world_roles fk_user; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.world_roles
+ALTER TABLE ONLY public.user_world_roles
     ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
@@ -347,10 +347,10 @@ ALTER TABLE ONLY public.players
 
 
 --
--- Name: world_roles fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
+-- Name: user_world_roles fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.world_roles
+ALTER TABLE ONLY public.user_world_roles
     ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
 
 

@@ -7,33 +7,33 @@ import (
 )
 
 type AccessService interface {
-	AssignUserToWorldRole(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, accessmodel.WorldRoleName) error
+	AssignWorldRoleToUser(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, accessmodel.WorldRole) error
 }
 
 type accessServe struct {
-	worldRoleRepo         accessmodel.WorldRoleRepo
+	userWorldRoleRepo     accessmodel.UserWorldRoleRepo
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
 func NewAccessService(
-	worldRoleRepo accessmodel.WorldRoleRepo,
+	userWorldRoleRepo accessmodel.UserWorldRoleRepo,
 	domainEventDispatcher domain.DomainEventDispatcher,
 ) AccessService {
 	return &accessServe{
-		worldRoleRepo:         worldRoleRepo,
+		userWorldRoleRepo:     userWorldRoleRepo,
 		domainEventDispatcher: domainEventDispatcher,
 	}
 }
 
-func (accessServe *accessServe) AssignUserToWorldRole(
+func (accessServe *accessServe) AssignWorldRoleToUser(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
-	worldRoleName accessmodel.WorldRoleName,
+	worldRole accessmodel.WorldRole,
 ) error {
-	newWorldRole := accessmodel.NewWorldRole(
+	newUserWorldRole := accessmodel.NewUserWorldRole(
 		worldId,
 		userId,
-		worldRoleName,
+		worldRole,
 	)
-	return accessServe.worldRoleRepo.Add(newWorldRole)
+	return accessServe.userWorldRoleRepo.Add(newUserWorldRole)
 }
