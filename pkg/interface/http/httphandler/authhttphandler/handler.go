@@ -1,6 +1,7 @@
 package authhttphandler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,9 +11,14 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/service/googleauthinfrasrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/jsonutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+type GoogleOauthState struct {
+	ClientPath string `json:"clientPath"`
+}
 
 type HttpHandler struct {
 }
@@ -22,14 +28,34 @@ func NewHttpHandler() *HttpHandler {
 }
 
 func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
-	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()
+	clientPath := c.Query("client_path")
+	stateInBytes, err := json.Marshal(GoogleOauthState{
+		ClientPath: clientPath,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	state := string(stateInBytes)
 
-	authUrl := googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{})
+	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()
+	authUrl, err := googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{
+		State: state,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
 	c.Redirect(http.StatusFound, authUrl)
 }
 
 func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
+	state, err := jsonutil.Unmarshal[GoogleOauthState]([]byte(c.Query("state")))
+	if err != nil {
+		return
+	}
+
 	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()
 	userEmailAddress, err := googleAuthInfraService.GetUserEmailAddress(googleauthinfrasrv.GetUserEmailAddressQuery{
 		Code: code,
@@ -73,5 +99,13 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	pgUow.SaveChanges()
 
 	clientUrl := os.Getenv("CLIENT_URL")
-	c.Redirect(http.StatusFound, fmt.Sprintf("%s/auth/sign-in-success/?access_token=%v", clientUrl, accessToken))
+	c.Redirect(
+		http.StatusFound,
+		fmt.Sprintf(
+			"%s/auth/sign-in-success/?access_token=%v&client_path=%v",
+			clientUrl,
+			accessToken,
+			state.ClientPath,
+		),
+	)
 }

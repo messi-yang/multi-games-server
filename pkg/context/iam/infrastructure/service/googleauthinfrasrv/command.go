@@ -1,3 +1,5 @@
 package googleauthinfrasrv
 
-type GenerateAuthUrlCommand struct{}
+type GenerateAuthUrlCommand struct {
+	State string
+}

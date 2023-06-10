@@ -12,7 +12,7 @@ import (
 )
 
 type Service interface {
-	GenerateAuthUrl(command GenerateAuthUrlCommand) (url string)
+	GenerateAuthUrl(command GenerateAuthUrlCommand) (authUrl string, err error)
 	GetUserEmailAddress(query GetUserEmailAddressQuery) (emailAddress string, err error)
 }
 
@@ -39,8 +39,8 @@ func NewService() Service {
 	}
 }
 
-func (serve *serve) GenerateAuthUrl(command GenerateAuthUrlCommand) string {
-	return serve.config.AuthCodeURL("state")
+func (serve *serve) GenerateAuthUrl(command GenerateAuthUrlCommand) (authUrl string, err error) {
+	return serve.config.AuthCodeURL(command.State), nil
 }
 
 func (serve *serve) GetUserEmailAddress(query GetUserEmailAddressQuery) (emailAddress string, err error) {
