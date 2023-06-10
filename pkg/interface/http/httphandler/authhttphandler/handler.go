@@ -17,7 +17,7 @@ import (
 )
 
 type GoogleOauthState struct {
-	ClientPath string `json:"clientPath"`
+	ClientRedirectPath string `json:"clientRedirectPath"`
 }
 
 type HttpHandler struct {
@@ -28,9 +28,9 @@ func NewHttpHandler() *HttpHandler {
 }
 
 func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
-	clientPath := c.Query("client_path")
+	clientRedirectPath := c.Query("client_redirect_path")
 	stateInBytes, err := json.Marshal(GoogleOauthState{
-		ClientPath: clientPath,
+		ClientRedirectPath: clientRedirectPath,
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
@@ -102,10 +102,10 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	c.Redirect(
 		http.StatusFound,
 		fmt.Sprintf(
-			"%s/auth/sign-in-success/?access_token=%v&client_path=%v",
+			"%s/auth/sign-in-success/?access_token=%v&client_redirect_path=%v",
 			clientUrl,
 			accessToken,
-			state.ClientPath,
+			state.ClientRedirectPath,
 		),
 	)
 }
