@@ -66,6 +66,23 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 	c.JSON(http.StatusOK, queryWorldsResponse(worldDtos))
 }
 
+func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
+	userIdDto := httputil.GetUserId(c)
+
+	pgUow := pguow.NewDummyUow()
+
+	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+	worldDtos, err := worldAppService.GetMyWorlds(worldappsrv.GetMyWorldsQuery{
+		UserId: userIdDto,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, queryWorldsResponse(worldDtos))
+}
+
 func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 	userIdDto := httputil.GetUserId(c)
 

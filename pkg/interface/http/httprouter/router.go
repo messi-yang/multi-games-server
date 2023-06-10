@@ -68,6 +68,7 @@ func Run() error {
 	worldRouterGroup := router.Group("/api/worlds")
 	worldRouterGroup.GET("/:worldId", worldHttpHandler.GetWorld)
 	worldRouterGroup.GET("/", worldHttpHandler.QueryWorlds)
+	worldRouterGroup.GET("/mine", authorizeTokenMiddleware, worldHttpHandler.GetMyWorlds)
 	worldRouterGroup.POST("/", authorizeTokenMiddleware, worldHttpHandler.CreateWorld)
 	worldRouterGroup.PATCH("/:worldId", authorizeTokenMiddleware, worldHttpHandler.UpdateWorld)
 

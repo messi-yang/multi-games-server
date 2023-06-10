@@ -90,3 +90,23 @@ func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, 
 	})
 	return worlds, nil
 }
+
+func (repo *worldRepo) GetWorldsOfUser(userId sharedkernelmodel.UserId) (worlds []worldmodel.World, err error) {
+	var worldModels []pgmodel.WorldModel
+
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Find(
+			&worldModels,
+			pgmodel.WorldModel{
+				UserId: userId.Uuid(),
+			},
+		).Error
+	}); err != nil {
+		return worlds, err
+	}
+
+	worlds = lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.World {
+		return parseWorldModel(worldModel)
+	})
+	return worlds, nil
+}

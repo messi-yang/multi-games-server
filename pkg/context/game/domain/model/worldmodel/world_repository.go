@@ -6,5 +6,6 @@ type WorldRepo interface {
 	Add(World) error
 	Update(World) error
 	Get(sharedkernelmodel.WorldId) (World, error)
+	GetWorldsOfUser(sharedkernelmodel.UserId) ([]World, error)
 	Query(limit int, offset int) ([]World, error)
 }
