@@ -25,7 +25,7 @@ func newUserWorldRoleModel(userWorldRole worldaccessmodel.UserWorldRole) pgmodel
 }
 
 func parseUserWorldRoleModel(userWorldRoleModel pgmodel.UserWorldRoleModel) (userWorldRole worldaccessmodel.UserWorldRole, err error) {
-	worldRole, err := worldaccessmodel.NewWorldRole(string(userWorldRoleModel.WorldRole))
+	worldRole, err := sharedkernelmodel.NewWorldRole(string(userWorldRoleModel.WorldRole))
 	if err != nil {
 		return userWorldRole, err
 	}

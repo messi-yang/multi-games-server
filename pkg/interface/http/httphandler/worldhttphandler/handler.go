@@ -5,7 +5,10 @@ import (
 	"strconv"
 
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/worldpermissionappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/providedependency"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/worldaccessappsrv"
+	iam_provide_dependency "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httputil"
 	"github.com/gin-gonic/gin"
@@ -136,6 +139,37 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	pgUow := pguow.NewUow()
 
 	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
+	worldPermissionAppService := providedependency.ProvideWorldPermissionAppService(pgUow)
+
+	userWorldRoleDto, found, err := worldAccessAppService.FindUserWorldRole(worldaccessappsrv.FindUserWorldRoleQuery{
+		WorldId: worldIdDto,
+		UserId:  userIdDto,
+	})
+	if err != nil {
+		pgUow.RevertChanges()
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	if !found {
+		pgUow.RevertChanges()
+		c.String(http.StatusForbidden, "not permitted")
+		return
+	}
+
+	canUpdateWorldInfo, err := worldPermissionAppService.CanUpdateWorldInfo(worldpermissionappsrv.CanUpdateWorldInfoQuery{
+		WorldRole: userWorldRoleDto.WorldRole,
+	})
+	if err != nil {
+		pgUow.RevertChanges()
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	if !canUpdateWorldInfo {
+		pgUow.RevertChanges()
+		c.String(http.StatusForbidden, "not permitted")
+		return
+	}
 
 	if err = worldAppService.UpdateWorld(worldappsrv.UpdateWorldCommand{
 		UserId:  userIdDto,

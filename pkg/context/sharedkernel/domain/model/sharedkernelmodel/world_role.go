@@ -1,4 +1,4 @@
-package worldaccessmodel
+package sharedkernelmodel
 
 import "fmt"
 
@@ -12,32 +12,36 @@ const (
 )
 
 type WorldRole struct {
-	name WorldRoleValue
+	value WorldRoleValue
 }
 
 func NewWorldRole(worldRoleValue string) (WorldRole, error) {
 	switch worldRoleValue {
 	case "owner":
 		return WorldRole{
-			name: WorldRoleOwner,
+			value: WorldRoleOwner,
 		}, nil
 	case "admin":
 		return WorldRole{
-			name: WorldRoleAdmin,
+			value: WorldRoleAdmin,
 		}, nil
 	case "editor":
 		return WorldRole{
-			name: WorldRoleEditor,
+			value: WorldRoleEditor,
 		}, nil
 	case "viewer":
 		return WorldRole{
-			name: WorldRoleViewer,
+			value: WorldRoleViewer,
 		}, nil
 	default:
 		return WorldRole{}, fmt.Errorf("invalid WorldRole: %s", worldRoleValue)
 	}
 }
 
+func (worldRole WorldRole) CanUpdateWorldInfo() bool {
+	return worldRole.value == "owner" || worldRole.value == "admin"
+}
+
 func (worldRole WorldRole) String() string {
-	return string(worldRole.name)
+	return string(worldRole.value)
 }

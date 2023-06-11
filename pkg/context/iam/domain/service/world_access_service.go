@@ -7,7 +7,7 @@ import (
 )
 
 type WorldAccessService interface {
-	AssignWorldRoleToUser(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, worldaccessmodel.WorldRole) error
+	AssignWorldRoleToUser(sharedkernelmodel.WorldId, sharedkernelmodel.UserId, sharedkernelmodel.WorldRole) error
 }
 
 type worldAccessServe struct {
@@ -28,7 +28,7 @@ func NewWorldAccessService(
 func (worldAccessServe *worldAccessServe) AssignWorldRoleToUser(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
-	worldRole worldaccessmodel.WorldRole,
+	worldRole sharedkernelmodel.WorldRole,
 ) error {
 	newUserWorldRole := worldaccessmodel.NewUserWorldRole(
 		worldId,

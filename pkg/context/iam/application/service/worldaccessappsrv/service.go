@@ -27,7 +27,7 @@ func NewService(userWorldRoleRepo worldaccessmodel.UserWorldRoleRepo, worldAcces
 }
 
 func (serve *serve) AssignWorldRoleToUser(command AssignWorldRoleToUserCommand) error {
-	worldRole, err := worldaccessmodel.NewWorldRole(string(command.WorldRole))
+	worldRole, err := sharedkernelmodel.NewWorldRole(string(command.WorldRole))
 	if err != nil {
 		return err
 	}

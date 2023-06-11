@@ -12,7 +12,7 @@ type UserWorldRole struct {
 	id                   UserWorldRoleId
 	worldId              sharedkernelmodel.WorldId
 	userId               sharedkernelmodel.UserId
-	worldRole            WorldRole
+	worldRole            sharedkernelmodel.WorldRole
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -24,7 +24,7 @@ var _ domain.Aggregate = (*UserWorldRole)(nil)
 func NewUserWorldRole(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
-	worldRole WorldRole,
+	worldRole sharedkernelmodel.WorldRole,
 ) UserWorldRole {
 	newWorldRole := UserWorldRole{
 		id:                   NewUserWorldRoleId(uuid.New()),
@@ -42,7 +42,7 @@ func LoadWorldRole(
 	id UserWorldRoleId,
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
-	worldRole WorldRole,
+	worldRole sharedkernelmodel.WorldRole,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) UserWorldRole {
@@ -73,7 +73,7 @@ func (userWorldRole *UserWorldRole) GeUserId() sharedkernelmodel.UserId {
 	return userWorldRole.userId
 }
 
-func (userWorldRole *UserWorldRole) GetWorldRole() WorldRole {
+func (userWorldRole *UserWorldRole) GetWorldRole() sharedkernelmodel.WorldRole {
 	return userWorldRole.worldRole
 }
 
