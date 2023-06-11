@@ -1,7 +1,7 @@
 package memdomaineventhandler
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/accessappsrv"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/service/worldaccessappsrv"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
@@ -19,11 +19,11 @@ func NewWorldCreatedHandler() memdomainevent.Handler {
 func (handler WorldCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	worldCreated := domainEvent.(sharedkernelmodel.WorldCreated)
 
-	accessAppService := providedependency.ProvideAccessAppService(uow)
+	worldAccessAppService := providedependency.ProvideWorldAccessAppService(uow)
 
-	return accessAppService.AssignWorldRoleToUser(accessappsrv.AssignWorldRoleToUserCommand{
+	return worldAccessAppService.AssignWorldRoleToUser(worldaccessappsrv.AssignWorldRoleToUserCommand{
 		UserId:    worldCreated.GetUserId().Uuid(),
 		WorldId:   worldCreated.GetWorldId().Uuid(),
-		WorldRole: "admin",
+		WorldRole: "owner",
 	})
 }

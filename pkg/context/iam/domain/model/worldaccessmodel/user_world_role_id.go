@@ -1,4 +1,4 @@
-package accessmodel
+package worldaccessmodel
 
 import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"

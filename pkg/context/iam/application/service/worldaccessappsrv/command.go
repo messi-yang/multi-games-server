@@ -1,4 +1,4 @@
-package accessappsrv
+package worldaccessappsrv
 
 import (
 	"github.com/google/uuid"

@@ -28,25 +28,25 @@ func Run() error {
 
 	router.Static("/asset", "./asset")
 
-	authorizeTokenMiddleware := func(ctx *gin.Context) {
+	authorizeAccessTokenMiddleware := func(ctx *gin.Context) {
 		authorizationHeader := ctx.Request.Header.Get("Authorization")
 		if authorizationHeader == "" {
-			ctx.String(http.StatusUnauthorized, "Token is not found in Authorization header")
+			ctx.String(http.StatusUnauthorized, "token is not found in authorization header")
+			ctx.Abort()
 			return
 		}
 		authToken := strings.Split(authorizationHeader, " ")[1]
 
-		pgUow := pguow.NewUow()
+		pgUow := pguow.NewDummyUow()
 
 		authAppService := providedependency.ProvideAuthAppService(pgUow)
 		userId, err := authAppService.Validate(authToken)
 		if err != nil {
-			pgUow.RevertChanges()
-			ctx.AbortWithError(http.StatusUnauthorized, err)
+			ctx.String(http.StatusUnauthorized, err.Error())
+			ctx.Abort()
 			return
 		}
 
-		pgUow.SaveChanges()
 		httputil.SetUserId(ctx, userId)
 		ctx.Next()
 	}
@@ -58,7 +58,7 @@ func Run() error {
 
 	userHttpHandler := userhttphandler.NewHttpHandler()
 	userRouterGroup := router.Group("/api/users")
-	userRouterGroup.GET("/me", authorizeTokenMiddleware, userHttpHandler.GetMyUser)
+	userRouterGroup.GET("/me", authorizeAccessTokenMiddleware, userHttpHandler.GetMyUser)
 
 	gamerHttpHandler := gamerhttphandler.NewHttpHandler()
 	gamersRouterGroup := router.Group("/api/gamers")
@@ -68,17 +68,17 @@ func Run() error {
 	worldRouterGroup := router.Group("/api/worlds")
 	worldRouterGroup.GET("/:worldId", worldHttpHandler.GetWorld)
 	worldRouterGroup.GET("/", worldHttpHandler.QueryWorlds)
-	worldRouterGroup.GET("/mine", authorizeTokenMiddleware, worldHttpHandler.GetMyWorlds)
-	worldRouterGroup.POST("/", authorizeTokenMiddleware, worldHttpHandler.CreateWorld)
-	worldRouterGroup.PATCH("/:worldId", authorizeTokenMiddleware, worldHttpHandler.UpdateWorld)
+	worldRouterGroup.GET("/mine", authorizeAccessTokenMiddleware, worldHttpHandler.GetMyWorlds)
+	worldRouterGroup.POST("/", authorizeAccessTokenMiddleware, worldHttpHandler.CreateWorld)
+	worldRouterGroup.PATCH("/:worldId", authorizeAccessTokenMiddleware, worldHttpHandler.UpdateWorld)
 
 	userWorldRoleHttpHandler := userworldrolehttphandler.NewHttpHandler()
 	userWorldRoleRouterGroup := router.Group("/api/worlds/:worldId/user-world-roles")
-	userWorldRoleRouterGroup.GET("/", userWorldRoleHttpHandler.GetUserWorldRoles)
+	userWorldRoleRouterGroup.GET("/", authorizeAccessTokenMiddleware, userWorldRoleHttpHandler.GetUserWorldRoles)
 
 	itemHttpHandler := itemhttphandler.NewHttpHandler()
-	routerGroup := router.Group("/api/items")
-	routerGroup.GET("/", itemHttpHandler.QueryItems)
+	itemRouterGroup := router.Group("/api/items")
+	itemRouterGroup.GET("/", itemHttpHandler.QueryItems)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
 	gameSocketHandler := gamesockethandler.NewHttpHandler(redisServerMessageMediator)

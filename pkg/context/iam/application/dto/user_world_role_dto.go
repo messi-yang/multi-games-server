@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/accessmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/worldaccessmodel"
 	"github.com/google/uuid"
 )
 
@@ -16,7 +16,7 @@ type UserWorldRoleDto struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-func NewUserWorldRoleDto(userWorldRole accessmodel.UserWorldRole) UserWorldRoleDto {
+func NewUserWorldRoleDto(userWorldRole worldaccessmodel.UserWorldRole) UserWorldRoleDto {
 	dto := UserWorldRoleDto{
 		Id:        userWorldRole.GetId().Uuid(),
 		UserId:    userWorldRole.GeUserId().Uuid(),

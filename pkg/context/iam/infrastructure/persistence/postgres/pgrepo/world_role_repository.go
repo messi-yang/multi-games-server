@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/accessmodel"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/worldaccessmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
@@ -13,7 +13,7 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/commonutil"
 )
 
-func newUserWorldRoleModel(userWorldRole accessmodel.UserWorldRole) pgmodel.UserWorldRoleModel {
+func newUserWorldRoleModel(userWorldRole worldaccessmodel.UserWorldRole) pgmodel.UserWorldRoleModel {
 	return pgmodel.UserWorldRoleModel{
 		Id:        userWorldRole.GetId().Uuid(),
 		WorldId:   userWorldRole.GeWorldId().Uuid(),
@@ -24,13 +24,13 @@ func newUserWorldRoleModel(userWorldRole accessmodel.UserWorldRole) pgmodel.User
 	}
 }
 
-func parseUserWorldRoleModel(userWorldRoleModel pgmodel.UserWorldRoleModel) (userWorldRole accessmodel.UserWorldRole, err error) {
-	worldRole, err := accessmodel.NewWorldRole(string(userWorldRoleModel.WorldRole))
+func parseUserWorldRoleModel(userWorldRoleModel pgmodel.UserWorldRoleModel) (userWorldRole worldaccessmodel.UserWorldRole, err error) {
+	worldRole, err := worldaccessmodel.NewWorldRole(string(userWorldRoleModel.WorldRole))
 	if err != nil {
 		return userWorldRole, err
 	}
-	return accessmodel.LoadWorldRole(
-		accessmodel.NewUserWorldRoleId(userWorldRoleModel.Id),
+	return worldaccessmodel.LoadWorldRole(
+		worldaccessmodel.NewUserWorldRoleId(userWorldRoleModel.Id),
 		sharedkernelmodel.NewWorldId(userWorldRoleModel.WorldId),
 		sharedkernelmodel.NewUserId(userWorldRoleModel.UserId),
 		worldRole,
@@ -44,14 +44,14 @@ type userWorldRoleRepo struct {
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewUserWorldRoleRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository accessmodel.UserWorldRoleRepo) {
+func NewUserWorldRoleRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository worldaccessmodel.UserWorldRoleRepo) {
 	return &userWorldRoleRepo{
 		uow:                   uow,
 		domainEventDispatcher: domainEventDispatcher,
 	}
 }
 
-func (repo *userWorldRoleRepo) Add(userWorldRole accessmodel.UserWorldRole) error {
+func (repo *userWorldRoleRepo) Add(userWorldRole worldaccessmodel.UserWorldRole) error {
 	userWorldRoleModel := newUserWorldRoleModel(userWorldRole)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&userWorldRoleModel).Error
@@ -61,7 +61,7 @@ func (repo *userWorldRoleRepo) Add(userWorldRole accessmodel.UserWorldRole) erro
 	return repo.domainEventDispatcher.Dispatch(&userWorldRole)
 }
 
-func (repo *userWorldRoleRepo) Get(userWorldRoleId accessmodel.UserWorldRoleId) (userWorldRole accessmodel.UserWorldRole, err error) {
+func (repo *userWorldRoleRepo) Get(userWorldRoleId worldaccessmodel.UserWorldRoleId) (userWorldRole worldaccessmodel.UserWorldRole, err error) {
 	userWorldRoleModel := pgmodel.UserWorldRoleModel{Id: userWorldRoleId.Uuid()}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.First(&userWorldRoleModel).Error
@@ -76,7 +76,34 @@ func (repo *userWorldRoleRepo) Get(userWorldRoleId accessmodel.UserWorldRoleId) 
 	return userWorldRole, nil
 }
 
-func (repo *userWorldRoleRepo) GetUserWorldRolesInWorld(worldId sharedkernelmodel.WorldId) (userWorldRoles []accessmodel.UserWorldRole, err error) {
+func (repo *userWorldRoleRepo) FindWorldRoleOfUser(
+	worldId sharedkernelmodel.WorldId,
+	userId sharedkernelmodel.UserId,
+) (userWorldRole worldaccessmodel.UserWorldRole, found bool, err error) {
+	userWorldRoleModels := []pgmodel.UserWorldRoleModel{}
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND user_id = ?",
+			worldId.Uuid(),
+			userId.Uuid(),
+		).Find(&userWorldRoleModels).Error
+	}); err != nil {
+		return userWorldRole, found, err
+	}
+
+	found = len(userWorldRoleModels) >= 1
+	if !found {
+		return userWorldRole, false, nil
+	} else {
+		userWorldRole, err = parseUserWorldRoleModel(userWorldRoleModels[0])
+		if err != nil {
+			return userWorldRole, true, err
+		}
+		return userWorldRole, true, nil
+	}
+}
+
+func (repo *userWorldRoleRepo) GetUserWorldRolesInWorld(worldId sharedkernelmodel.WorldId) (userWorldRoles []worldaccessmodel.UserWorldRole, err error) {
 	userWorldRoleModels := []pgmodel.UserWorldRoleModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
@@ -88,7 +115,7 @@ func (repo *userWorldRoleRepo) GetUserWorldRolesInWorld(worldId sharedkernelmode
 	}
 	fmt.Println(worldId.Uuid(), userWorldRoleModels)
 
-	userWorldRoles, err = commonutil.MapWithError(userWorldRoleModels, func(_ int, userWorldRoleModel pgmodel.UserWorldRoleModel) (userWorldRole accessmodel.UserWorldRole, err error) {
+	userWorldRoles, err = commonutil.MapWithError(userWorldRoleModels, func(_ int, userWorldRoleModel pgmodel.UserWorldRoleModel) (userWorldRole worldaccessmodel.UserWorldRole, err error) {
 		return parseUserWorldRoleModel(userWorldRoleModel)
 	})
 	if err != nil {

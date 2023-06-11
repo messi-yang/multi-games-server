@@ -1,4 +1,4 @@
-package accessmodel
+package worldaccessmodel
 
 import (
 	"time"
