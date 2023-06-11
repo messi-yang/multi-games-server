@@ -17,15 +17,18 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: world_role_name; Type: TYPE; Schema: public; Owner: main
+-- Name: world_role; Type: TYPE; Schema: public; Owner: main
 --
 
-CREATE TYPE public.world_role_name AS ENUM (
-    'admin'
+CREATE TYPE public.world_role AS ENUM (
+    'owner',
+    'admin',
+    'editor',
+    'viewer'
 );
 
 
-ALTER TYPE public.world_role_name OWNER TO main;
+ALTER TYPE public.world_role OWNER TO main;
 
 SET default_tablespace = '';
 
@@ -119,7 +122,7 @@ CREATE TABLE public.user_world_roles (
     id uuid NOT NULL,
     world_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    world_role public.world_role_name NOT NULL,
+    world_role public.world_role NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
 );

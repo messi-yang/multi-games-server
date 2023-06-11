@@ -9,7 +9,10 @@ import (
 type WorldRole string
 
 const (
-	WorldRoleAdmin WorldRole = "admin"
+	WorldRoleOwner  WorldRole = "owner"
+	WorldRoleAdmin  WorldRole = "admin"
+	WorldRoleEditor WorldRole = "editor"
+	WorldRoleViewer WorldRole = "viewer"
 )
 
 type UserWorldRoleModel struct {
