@@ -10,7 +10,6 @@ type CreateWorldCommand struct {
 }
 
 type UpdateWorldCommand struct {
-	UserId  uuid.UUID
 	WorldId uuid.UUID
 	Name    string
 }

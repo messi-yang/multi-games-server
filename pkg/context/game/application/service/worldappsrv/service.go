@@ -1,8 +1,6 @@
 package worldappsrv
 
 import (
-	"fmt"
-
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
@@ -78,13 +76,9 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
 	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
-	userId := sharedkernelmodel.NewUserId(command.UserId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
 		return err
-	}
-	if !world.GetUserId().IsEqual(userId) {
-		return fmt.Errorf("the world with id of %s do not belong to gamer with id of %s", worldId.Uuid().String(), userId.Uuid().String())
 	}
 	world.ChangeName(command.Name)
 	return serve.worldRepo.Update(world)

@@ -172,7 +172,6 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	}
 
 	if err = worldAppService.UpdateWorld(worldappsrv.UpdateWorldCommand{
-		UserId:  userIdDto,
 		WorldId: worldIdDto,
 		Name:    requestBody.Name,
 	}); err != nil {
