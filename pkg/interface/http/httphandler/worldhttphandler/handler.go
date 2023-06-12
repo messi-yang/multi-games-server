@@ -83,7 +83,7 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, queryWorldsResponse(worldDtos))
+	c.JSON(http.StatusOK, getMyWorldsResponse(worldDtos))
 }
 
 func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
