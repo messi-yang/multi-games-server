@@ -1,4 +1,4 @@
-package userworldrolehttphandler
+package worldmemberhttphandler
 
 import (
 	"net/http"
@@ -17,7 +17,7 @@ func NewHttpHandler() *HttpHandler {
 	return &HttpHandler{}
 }
 
-func (httpHandler *HttpHandler) GetUserWorldRoles(c *gin.Context) {
+func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 	userIdDto := httputil.GetUserId(c)
 	worldIdDto, err := uuid.Parse(c.Param("worldId"))
 	if err != nil {
@@ -28,7 +28,7 @@ func (httpHandler *HttpHandler) GetUserWorldRoles(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 	worldAccessAppService := providedependency.ProvideWorldAccessAppService(pgUow)
 
-	_, userWorldRoleFound, err := worldAccessAppService.FindUserWorldRole(worldaccessappsrv.FindUserWorldRoleQuery{
+	_, worldMemberFound, err := worldAccessAppService.FindWorldMember(worldaccessappsrv.FindWorldMemberQuery{
 		WorldId: worldIdDto,
 		UserId:  userIdDto,
 	})
@@ -36,12 +36,12 @@ func (httpHandler *HttpHandler) GetUserWorldRoles(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	if !userWorldRoleFound {
+	if !worldMemberFound {
 		c.String(http.StatusForbidden, "you're not permitted to do this")
 		return
 	}
 
-	userWorldRoleDtos, err := worldAccessAppService.GetUserWorldRoles(worldaccessappsrv.GetUserWorldRolesQuery{
+	worldMemberDtos, err := worldAccessAppService.GetWorldMembers(worldaccessappsrv.GetWorldMembersQuery{
 		WorldId: worldIdDto,
 	})
 	if err != nil {
@@ -49,5 +49,5 @@ func (httpHandler *HttpHandler) GetUserWorldRoles(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, getUserWorldRolesResponse(userWorldRoleDtos))
+	c.JSON(http.StatusOK, getWorldMembersResponse(worldMemberDtos))
 }

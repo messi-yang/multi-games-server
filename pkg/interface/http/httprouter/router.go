@@ -12,8 +12,8 @@ import (
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/gamesockethandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/itemhttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/userhttphandler"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/userworldrolehttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/worldhttphandler"
+	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httphandler/worldmemberhttphandler"
 	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httputil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -72,9 +72,9 @@ func Run() error {
 	worldRouterGroup.POST("/", authorizeAccessTokenMiddleware, worldHttpHandler.CreateWorld)
 	worldRouterGroup.PATCH("/:worldId", authorizeAccessTokenMiddleware, worldHttpHandler.UpdateWorld)
 
-	userWorldRoleHttpHandler := userworldrolehttphandler.NewHttpHandler()
-	userWorldRoleRouterGroup := router.Group("/api/worlds/:worldId/user-world-roles")
-	userWorldRoleRouterGroup.GET("/", authorizeAccessTokenMiddleware, userWorldRoleHttpHandler.GetUserWorldRoles)
+	worldMemberHttpHandler := worldmemberhttphandler.NewHttpHandler()
+	worldMemberRouterGroup := router.Group("/api/worlds/:worldId/members")
+	worldMemberRouterGroup.GET("/", authorizeAccessTokenMiddleware, worldMemberHttpHandler.GetWorldMembers)
 
 	itemHttpHandler := itemhttphandler.NewHttpHandler()
 	itemRouterGroup := router.Group("/api/items")

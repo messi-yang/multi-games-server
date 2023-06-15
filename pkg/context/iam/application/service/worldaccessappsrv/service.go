@@ -9,56 +9,56 @@ import (
 )
 
 type Service interface {
-	AssignWorldRoleToUser(AssignWorldRoleToUserCommand) error
-	FindUserWorldRole(FindUserWorldRoleQuery) (userWorldRoleDto dto.UserWorldRoleDto, found bool, err error)
-	GetUserWorldRoles(GetUserWorldRolesQuery) ([]dto.UserWorldRoleDto, error)
+	AddWorldMember(AddWorldMemberCommand) error
+	FindWorldMember(FindWorldMemberQuery) (worldMemberDto dto.WorldMemberDto, found bool, err error)
+	GetWorldMembers(GetWorldMembersQuery) ([]dto.WorldMemberDto, error)
 }
 
 type serve struct {
-	userWorldRoleRepo        worldaccessmodel.UserWorldRoleRepo
+	worldMemberRepo          worldaccessmodel.WorldMemberRepo
 	worldAccessDomainService service.WorldAccessService
 }
 
-func NewService(userWorldRoleRepo worldaccessmodel.UserWorldRoleRepo, worldAccessDomainService service.WorldAccessService) Service {
+func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo, worldAccessDomainService service.WorldAccessService) Service {
 	return &serve{
-		userWorldRoleRepo:        userWorldRoleRepo,
+		worldMemberRepo:          worldMemberRepo,
 		worldAccessDomainService: worldAccessDomainService,
 	}
 }
 
-func (serve *serve) AssignWorldRoleToUser(command AssignWorldRoleToUserCommand) error {
-	worldRole, err := sharedkernelmodel.NewWorldRole(string(command.WorldRole))
+func (serve *serve) AddWorldMember(command AddWorldMemberCommand) error {
+	worldRole, err := sharedkernelmodel.NewWorldRole(string(command.Role))
 	if err != nil {
 		return err
 	}
-	return serve.worldAccessDomainService.AssignWorldRoleToUser(
+	return serve.worldAccessDomainService.AddWorldMember(
 		sharedkernelmodel.NewWorldId(command.WorldId),
 		sharedkernelmodel.NewUserId(command.UserId),
 		worldRole,
 	)
 }
 
-func (serve *serve) FindUserWorldRole(query FindUserWorldRoleQuery) (userWorldRoleDto dto.UserWorldRoleDto, found bool, err error) {
+func (serve *serve) FindWorldMember(query FindWorldMemberQuery) (worldMemberDto dto.WorldMemberDto, found bool, err error) {
 	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
 	userId := sharedkernelmodel.NewUserId(query.UserId)
-	userWorldRole, userWorldRoleFound, err := serve.userWorldRoleRepo.FindWorldRoleOfUser(worldId, userId)
+	worldMember, worldMemberFound, err := serve.worldMemberRepo.FindUserWorldMember(worldId, userId)
 	if err != nil {
-		return userWorldRoleDto, found, err
+		return worldMemberDto, found, err
 	}
-	if !userWorldRoleFound {
-		return userWorldRoleDto, false, nil
+	if !worldMemberFound {
+		return worldMemberDto, false, nil
 	}
-	return dto.NewUserWorldRoleDto(userWorldRole), true, nil
+	return dto.NewWorldMemberDto(worldMember), true, nil
 }
 
-func (serve *serve) GetUserWorldRoles(query GetUserWorldRolesQuery) (userWorldRoleDtos []dto.UserWorldRoleDto, err error) {
+func (serve *serve) GetWorldMembers(query GetWorldMembersQuery) (worldMemberDtos []dto.WorldMemberDto, err error) {
 	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
-	userWorldRoles, err := serve.userWorldRoleRepo.GetUserWorldRolesInWorld(worldId)
+	worldMembers, err := serve.worldMemberRepo.GetWorldMembersInWorld(worldId)
 	if err != nil {
-		return userWorldRoleDtos, err
+		return worldMemberDtos, err
 	}
 
-	return lo.Map(userWorldRoles, func(userWorldRole worldaccessmodel.UserWorldRole, _ int) dto.UserWorldRoleDto {
-		return dto.NewUserWorldRoleDto(userWorldRole)
+	return lo.Map(worldMembers, func(worldMember worldaccessmodel.WorldMember, _ int) dto.WorldMemberDto {
+		return dto.NewWorldMemberDto(worldMember)
 	}), nil
 }

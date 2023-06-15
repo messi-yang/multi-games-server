@@ -142,7 +142,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
 	worldPermissionAppService := providedependency.ProvideWorldPermissionAppService(pgUow)
 
-	userWorldRoleDto, found, err := worldAccessAppService.FindUserWorldRole(worldaccessappsrv.FindUserWorldRoleQuery{
+	worldMemberDto, found, err := worldAccessAppService.FindWorldMember(worldaccessappsrv.FindWorldMemberQuery{
 		WorldId: worldIdDto,
 		UserId:  userIdDto,
 	})
@@ -158,7 +158,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	}
 
 	canUpdateWorldInfo, err := worldPermissionAppService.CanUpdateWorldInfo(worldpermissionappsrv.CanUpdateWorldInfoQuery{
-		WorldRole: userWorldRoleDto.WorldRole,
+		Role: worldMemberDto.Role,
 	})
 	if err != nil {
 		pgUow.RevertChanges()

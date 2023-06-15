@@ -1,5 +1,5 @@
 package worldpermissionappsrv
 
 type CanUpdateWorldInfoQuery struct {
-	WorldRole string
+	Role string
 }

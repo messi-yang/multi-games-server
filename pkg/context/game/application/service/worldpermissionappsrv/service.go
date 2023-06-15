@@ -14,7 +14,7 @@ func NewService() Service {
 }
 
 func (serve *serve) CanUpdateWorldInfo(query CanUpdateWorldInfoQuery) (bool, error) {
-	worldRole, err := sharedkernelmodel.NewWorldRole(query.WorldRole)
+	worldRole, err := sharedkernelmodel.NewWorldRole(query.Role)
 	if err != nil {
 		return false, err
 	}

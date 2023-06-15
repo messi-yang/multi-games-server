@@ -15,15 +15,15 @@ const (
 	WorldRoleViewer WorldRole = "viewer"
 )
 
-type UserWorldRoleModel struct {
+type WorldMemberModel struct {
 	Id        uuid.UUID `gorm:"primaryKey"`
 	UserId    uuid.UUID `gorm:"not null"`
 	WorldId   uuid.UUID `gorm:"not null"`
-	WorldRole WorldRole `gorm:"not null"`
+	Role      WorldRole `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime;not null"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime;not null"`
 }
 
-func (UserWorldRoleModel) TableName() string {
-	return "user_world_roles"
+func (WorldMemberModel) TableName() string {
+	return "world_members"
 }

@@ -4,8 +4,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type AssignWorldRoleToUserCommand struct {
-	UserId    uuid.UUID
-	WorldId   uuid.UUID
-	WorldRole string
+type AddWorldMemberCommand struct {
+	UserId  uuid.UUID
+	WorldId uuid.UUID
+	Role    string
 }
