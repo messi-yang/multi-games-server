@@ -6,8 +6,8 @@
 #.     Name: GCP_SERVICE_ACCOUNT_KEY
 #.     Value: key.json contents
 # 3. Create repo in artifact repository 
-#.   * Name: $env.GCP_AR_REPOSITORY below
-#.   * Region: $env.GCP_AR_REGION below
+#.   * Name: $vars.GCP_AR_REPOSITORY below
+#.   * Region: $vars.GCP_AR_REGION below
 
 name: Docker build and push to Artifact Registry
 
@@ -18,9 +18,9 @@ on:
 
 env:
   GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-  GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
-  GCP_AR_REGION: ${{ env.GCP_AR_REGION }}
-  GCP_AR_REPOSITORY: ${{ env.GCP_AR_REPOSITORY }}
+  GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  GCP_AR_REGION: ${{ vars.GCP_AR_REGION }}
+  GCP_AR_REPOSITORY: ${{ vars.GCP_AR_REPOSITORY }}
   IMAGE: main
 
 jobs:
@@ -47,7 +47,7 @@ jobs:
     - uses: 'docker/login-action@v1'
       name: 'Docker login'
       with:
-        registry: '${{ env.GCP_AR_REGION }}-docker.pkg.dev'
+        registry: '${{ vars.GCP_AR_REGION }}-docker.pkg.dev'
         username: 'oauth2accesstoken'
         password: '${{ steps.auth.outputs.access_token }}'
 
