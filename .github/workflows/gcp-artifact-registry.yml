@@ -35,22 +35,22 @@ jobs:
     - name: 'Docker build'
       run: |-
         docker build \
-          --tag "$GCP_AR_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_AR_REPOSITORY/$IMAGE:$GITHUB_SHA" \
+          --tag "${{ env.GCP_AR_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_AR_REPOSITORY }}/$IMAGE:$GITHUB_SHA" \
           app/
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v0.6.0'
       with:
-        credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+        credentials_json: '${{ env.GCP_SERVICE_ACCOUNT_KEY }}'
         token_format: 'access_token'
 
     - uses: 'docker/login-action@v1'
       name: 'Docker login'
       with:
-        registry: '$GCP_AR_REGION-docker.pkg.dev'
+        registry: '${{ env.GCP_AR_REGION }}-docker.pkg.dev'
         username: 'oauth2accesstoken'
         password: '${{ steps.auth.outputs.access_token }}'
 
     - name: 'Docker push'
       run: |-
-        docker push "$GCP_AR_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$GCP_AR_REPOSITORY/$IMAGE:$GITHUB_SHA"
+        docker push "${{ env.GCP_AR_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GCP_AR_REPOSITORY }}/$IMAGE:$GITHUB_SHA"
