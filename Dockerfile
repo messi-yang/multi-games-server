@@ -18,3 +18,5 @@ COPY . /app
 WORKDIR /app
 
 RUN make build
+
+CMD ["./bin/start.sh"]
