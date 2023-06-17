@@ -19,4 +19,4 @@ WORKDIR /app
 
 RUN make build
 
-CMD ["./bin/start.sh"]
+CMD ["sh", "-c", "./bin/start.sh"]
