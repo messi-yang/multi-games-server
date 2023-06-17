@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
 )
 
 type BoundDto struct {

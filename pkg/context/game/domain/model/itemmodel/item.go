@@ -1,8 +1,8 @@
 package itemmodel
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
 )
 
 type Item struct {

@@ -1,6 +1,6 @@
 package worldhttphandler
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
 
 type getWorldResponse dto.WorldDto
 

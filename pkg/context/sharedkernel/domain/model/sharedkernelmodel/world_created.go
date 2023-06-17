@@ -3,7 +3,7 @@ package sharedkernelmodel
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
 )
 
 type WorldCreated struct {

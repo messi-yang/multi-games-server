@@ -1,10 +1,10 @@
 package worldaccessappsrv
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/worldaccessmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/service"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/samber/lo"
 )
 

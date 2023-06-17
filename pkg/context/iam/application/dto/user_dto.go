@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
 	"github.com/google/uuid"
 )
 

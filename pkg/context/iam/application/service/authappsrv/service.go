@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/uuidutil"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/service"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )

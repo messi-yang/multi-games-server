@@ -3,7 +3,7 @@ package redisservermessagemediator
 import (
 	"context"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
 	"github.com/go-redis/redis/v9"
 )
 

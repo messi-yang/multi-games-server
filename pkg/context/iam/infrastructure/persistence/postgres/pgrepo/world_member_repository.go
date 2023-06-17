@@ -5,12 +5,12 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/worldaccessmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/util/commonutil"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 )
 
 func newWorldMemberModel(worldMember worldaccessmodel.WorldMember) pgmodel.WorldMemberModel {

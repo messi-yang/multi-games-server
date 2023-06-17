@@ -1,9 +1,9 @@
 package userappsrv
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type Service interface {

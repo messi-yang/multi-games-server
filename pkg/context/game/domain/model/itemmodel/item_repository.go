@@ -1,6 +1,6 @@
 package itemmodel
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
 
 type ItemRepo interface {
 	Add(item Item) error

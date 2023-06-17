@@ -1,8 +1,8 @@
 package itemappsrv
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/itemmodel"
 	"github.com/samber/lo"
 )
 

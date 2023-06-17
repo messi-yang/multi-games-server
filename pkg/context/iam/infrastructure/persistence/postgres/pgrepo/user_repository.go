@@ -1,13 +1,13 @@
 package pgrepo
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/domain/model/identitymodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
 	"gorm.io/gorm"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 )
 
 func newUserModel(user identitymodel.User) pgmodel.UserModel {

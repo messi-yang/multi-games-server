@@ -1,11 +1,11 @@
 package providedependency
 
 import (
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gameappsrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/persistence/postgres/pgrepo"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/service"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/persistence/postgres/pgrepo"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 )
 
 func ProvideGameAppService(uow pguow.Uow) gameappsrv.Service {

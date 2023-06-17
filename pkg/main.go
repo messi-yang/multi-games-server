@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 
-	game_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/event/mem/memdomaineventhandler"
-	iam_mem_domain_event_handler "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/infrastructure/event/mem/memdomaineventhandler"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgclient"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/clirouter"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/http/httprouter"
+	game_mem_domain_event_handler "github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/event/mem/memdomaineventhandler"
+	iam_mem_domain_event_handler "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/event/mem/memdomaineventhandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgclient"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/cli/clirouter"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httprouter"
 )
 
 func main() {

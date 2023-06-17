@@ -3,7 +3,7 @@ package clirouter
 import (
 	"os"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/interface/cli/clihandler/seedclihandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/cli/clihandler/seedclihandler"
 )
 
 func Run(args []string) {

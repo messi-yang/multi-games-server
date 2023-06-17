@@ -3,9 +3,9 @@ package gamerappsrv
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/gamermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )

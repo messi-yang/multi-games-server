@@ -3,12 +3,12 @@ package memdomaineventhandler
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/gamerappsrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/providedependency"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gamerappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 )
 
 type UserCreatedHandler struct {

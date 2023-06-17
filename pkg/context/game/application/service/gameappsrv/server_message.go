@@ -3,7 +3,7 @@ package gameappsrv
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
 	"github.com/google/uuid"
 )
 

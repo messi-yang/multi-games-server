@@ -3,9 +3,9 @@ package itemhttphandler
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/service/itemappsrv"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/infrastructure/providedependency"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/itemappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/gin-gonic/gin"
 )
 

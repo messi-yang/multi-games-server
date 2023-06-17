@@ -1,4 +1,4 @@
-module github.com/dum-dum-genius/game-of-liberty-computer
+module github.com/dum-dum-genius/zossi-server
 
 go 1.20
 

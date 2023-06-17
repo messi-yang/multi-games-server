@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
 
 type SizeDto struct {
 	Width  int `json:"width"`

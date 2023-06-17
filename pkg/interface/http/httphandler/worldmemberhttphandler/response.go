@@ -1,5 +1,5 @@
 package worldmemberhttphandler
 
-import "github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/iam/application/dto"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 
 type getWorldMembersResponse []dto.WorldMemberDto

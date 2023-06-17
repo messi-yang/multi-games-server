@@ -3,9 +3,9 @@ package playermodel
 import (
 	"time"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {

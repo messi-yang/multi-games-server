@@ -3,14 +3,14 @@ package gameappsrv
 import (
 	"errors"
 
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/commonmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/itemmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel/playermodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/model/worldmodel/unitmodel"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/game/domain/service"
-	"github.com/dum-dum-genius/game-of-liberty-computer/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/playermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/service"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
