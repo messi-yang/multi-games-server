@@ -30,7 +30,12 @@ func NewService(userRepo identitymodel.UserRepo, identityService service.Identit
 }
 
 func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err error) {
-	_, userFound, err := serve.userRepo.FindUserByEmailAddress(command.EmailAddress)
+	emailAddress, err := sharedkernelmodel.NewEmailAddress(command.EmailAddress)
+	if err != nil {
+		return userIdDto, err
+	}
+
+	_, userFound, err := serve.userRepo.FindUserByEmailAddress(emailAddress)
 	if err != nil {
 		return userIdDto, err
 	}
@@ -39,7 +44,7 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 		return userIdDto, fmt.Errorf("user with email address of %s already exists", command.EmailAddress)
 	}
 
-	user, err := serve.identityService.Register(command.EmailAddress, "New User")
+	user, err := serve.identityService.Register(emailAddress, "New User")
 	if err != nil {
 		return userIdDto, err
 	}

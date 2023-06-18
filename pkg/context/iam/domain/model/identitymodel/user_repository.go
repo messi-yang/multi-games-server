@@ -5,5 +5,5 @@ import "github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/m
 type UserRepo interface {
 	Add(User) error
 	Get(sharedkernelmodel.UserId) (user User, err error)
-	FindUserByEmailAddress(emailAddress string) (user User, userFound bool, err error)
+	FindUserByEmailAddress(emailAddress sharedkernelmodel.EmailAddress) (user User, userFound bool, err error)
 }

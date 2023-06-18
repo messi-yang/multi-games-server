@@ -13,21 +13,25 @@ import (
 func newUserModel(user identitymodel.User) pgmodel.UserModel {
 	return pgmodel.UserModel{
 		Id:           user.GetId().Uuid(),
-		EmailAddress: user.GetEmailAddress(),
+		EmailAddress: user.GetEmailAddress().String(),
 		Username:     user.GetUsername(),
 		CreatedAt:    user.GetCreatedAt(),
 		UpdatedAt:    user.GetUpdatedAt(),
 	}
 }
 
-func parseUserModel(userModel pgmodel.UserModel) identitymodel.User {
+func parseUserModel(userModel pgmodel.UserModel) (user identitymodel.User, err error) {
+	emailAddress, err := sharedkernelmodel.NewEmailAddress(userModel.EmailAddress)
+	if err != nil {
+		return user, err
+	}
 	return identitymodel.LoadUser(
 		sharedkernelmodel.NewUserId(userModel.Id),
-		userModel.EmailAddress,
+		emailAddress,
 		userModel.Username,
 		userModel.CreatedAt,
 		userModel.UpdatedAt,
-	)
+	), nil
 }
 
 type userRepo struct {
@@ -60,13 +64,16 @@ func (repo *userRepo) Get(userId sharedkernelmodel.UserId) (user identitymodel.U
 		return user, err
 	}
 
-	return parseUserModel(userModel), nil
+	return parseUserModel(userModel)
 }
 
-func (repo *userRepo) FindUserByEmailAddress(emailAddress string) (user identitymodel.User, userFound bool, err error) {
+func (repo *userRepo) FindUserByEmailAddress(emailAddress sharedkernelmodel.EmailAddress) (user identitymodel.User, userFound bool, err error) {
 	userModels := []pgmodel.UserModel{}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Find(&userModels, pgmodel.UserModel{EmailAddress: emailAddress}).Error
+		return transaction.Find(
+			&userModels,
+			pgmodel.UserModel{EmailAddress: emailAddress.String()},
+		).Error
 	}); err != nil {
 		return user, userFound, err
 	}
@@ -75,5 +82,9 @@ func (repo *userRepo) FindUserByEmailAddress(emailAddress string) (user identity
 	if !userFound {
 		return user, false, nil
 	}
-	return parseUserModel(userModels[0]), true, nil
+	user, err = parseUserModel(userModels[0])
+	if err != nil {
+		return user, userFound, err
+	}
+	return user, true, nil
 }

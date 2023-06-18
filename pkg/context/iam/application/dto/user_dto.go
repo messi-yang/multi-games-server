@@ -18,7 +18,7 @@ type UserDto struct {
 func NewUserDto(user identitymodel.User) UserDto {
 	dto := UserDto{
 		Id:           user.GetId().Uuid(),
-		EmailAddress: user.GetEmailAddress(),
+		EmailAddress: user.GetEmailAddress().String(),
 		Username:     user.GetUsername(),
 		CreatedAt:    user.GetCreatedAt(),
 		UpdatedAt:    user.GetUpdatedAt(),

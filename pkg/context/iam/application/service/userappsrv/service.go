@@ -22,7 +22,12 @@ func NewService(userRepo identitymodel.UserRepo) Service {
 }
 
 func (serve *serve) FindUserByEmailAddress(query FindUserByEmailAddressQuery) (userDto dto.UserDto, found bool, err error) {
-	user, found, err := serve.userRepo.FindUserByEmailAddress(query.EmailAddress)
+	emailAddress, err := sharedkernelmodel.NewEmailAddress(query.EmailAddress)
+	if err != nil {
+		return userDto, found, err
+	}
+
+	user, found, err := serve.userRepo.FindUserByEmailAddress(emailAddress)
 	if err != nil {
 		return userDto, found, err
 	}
