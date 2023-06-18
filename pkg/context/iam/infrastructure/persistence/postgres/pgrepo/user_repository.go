@@ -14,7 +14,7 @@ func newUserModel(user identitymodel.User) pgmodel.UserModel {
 	return pgmodel.UserModel{
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress().String(),
-		Username:     user.GetUsername(),
+		Username:     user.GetUsername().String(),
 		CreatedAt:    user.GetCreatedAt(),
 		UpdatedAt:    user.GetUpdatedAt(),
 	}
@@ -25,10 +25,14 @@ func parseUserModel(userModel pgmodel.UserModel) (user identitymodel.User, err e
 	if err != nil {
 		return user, err
 	}
+	username, err := sharedkernelmodel.NewUsername(userModel.Username)
+	if err != nil {
+		return user, err
+	}
 	return identitymodel.LoadUser(
 		sharedkernelmodel.NewUserId(userModel.Id),
 		emailAddress,
-		userModel.Username,
+		username,
 		userModel.CreatedAt,
 		userModel.UpdatedAt,
 	), nil

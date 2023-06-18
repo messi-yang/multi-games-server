@@ -19,7 +19,7 @@ func NewUserDto(user identitymodel.User) UserDto {
 	dto := UserDto{
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress().String(),
-		Username:     user.GetUsername(),
+		Username:     user.GetUsername().String(),
 		CreatedAt:    user.GetCreatedAt(),
 		UpdatedAt:    user.GetUpdatedAt(),
 	}

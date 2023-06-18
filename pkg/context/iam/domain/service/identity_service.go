@@ -7,7 +7,7 @@ import (
 )
 
 type IdentityService interface {
-	Register(emailAddress sharedkernelmodel.EmailAddress, username string) (user identitymodel.User, err error)
+	Register(emailAddress sharedkernelmodel.EmailAddress, username sharedkernelmodel.Username) (user identitymodel.User, err error)
 }
 
 type identityServe struct {
@@ -22,7 +22,7 @@ func NewIdentityService(
 	}
 }
 
-func (identityServe *identityServe) Register(emailAddress sharedkernelmodel.EmailAddress, username string) (user identitymodel.User, err error) {
+func (identityServe *identityServe) Register(emailAddress sharedkernelmodel.EmailAddress, username sharedkernelmodel.Username) (user identitymodel.User, err error) {
 	user = identitymodel.NewUser(sharedkernelmodel.NewUserId(uuid.New()), emailAddress, username)
 	if err = identityServe.userRepo.Add(user); err != nil {
 		return user, err

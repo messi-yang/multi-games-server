@@ -10,7 +10,7 @@ import (
 type User struct {
 	id                   sharedkernelmodel.UserId
 	emailAddress         sharedkernelmodel.EmailAddress
-	username             string
+	username             sharedkernelmodel.Username
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -22,7 +22,7 @@ var _ domain.Aggregate = (*User)(nil)
 func NewUser(
 	id sharedkernelmodel.UserId,
 	emailAddress sharedkernelmodel.EmailAddress,
-	username string,
+	username sharedkernelmodel.Username,
 ) User {
 	newUser := User{
 		id:                   id,
@@ -39,7 +39,7 @@ func NewUser(
 func LoadUser(
 	id sharedkernelmodel.UserId,
 	emailAddress sharedkernelmodel.EmailAddress,
-	username string,
+	username sharedkernelmodel.Username,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) User {
@@ -66,7 +66,7 @@ func (user *User) GetEmailAddress() sharedkernelmodel.EmailAddress {
 	return user.emailAddress
 }
 
-func (user *User) GetUsername() string {
+func (user *User) GetUsername() sharedkernelmodel.Username {
 	return user.username
 }
 
