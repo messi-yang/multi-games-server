@@ -9,7 +9,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/util/gziputil"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/jsonutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -48,9 +47,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		defer sendMessageLocker.Unlock()
 
 		messageJsonInBytes := jsonutil.Marshal(jsonObj)
-		compressedMessage, _ := gziputil.Gzip(messageJsonInBytes)
-
-		err = socketConn.WriteMessage(2, compressedMessage)
+		err = socketConn.WriteMessage(2, messageJsonInBytes)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -129,13 +126,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 
 	go func() {
 		for {
-			_, compressedMessage, err := socketConn.ReadMessage()
-			if err != nil {
-				closeConnectionOnError(err)
-				return
-			}
-
-			message, err := gziputil.Ungzip(compressedMessage)
+			_, message, err := socketConn.ReadMessage()
 			if err != nil {
 				closeConnectionOnError(err)
 				return
