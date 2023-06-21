@@ -7,6 +7,7 @@ import (
 
 type UnitRepo interface {
 	Add(Unit) error
+	Get(UnitId) (Unit, error)
 	Delete(Unit) error
 	FindUnitAt(sharedkernelmodel.WorldId, commonmodel.Position) (unit Unit, found bool, err error)
 	QueryUnitsInBound(sharedkernelmodel.WorldId, commonmodel.Bound) ([]Unit, error)

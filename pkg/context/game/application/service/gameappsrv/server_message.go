@@ -22,16 +22,14 @@ type ServerMessage struct {
 }
 
 type UnitCreatedServerMessage struct {
-	Name     ServerMessageName
-	WorldId  uuid.UUID
-	Position dto.PositionDto
+	Name ServerMessageName
+	Unit dto.UnitDto
 }
 
-func NewUnitCreatedServerMessage(worldId uuid.UUID, position dto.PositionDto) UnitCreatedServerMessage {
+func NewUnitCreatedServerMessage(unit dto.UnitDto) UnitCreatedServerMessage {
 	return UnitCreatedServerMessage{
-		Name:     UnitCreated,
-		WorldId:  worldId,
-		Position: position,
+		Name: UnitCreated,
+		Unit: unit,
 	}
 }
 

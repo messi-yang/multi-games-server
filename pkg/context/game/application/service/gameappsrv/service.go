@@ -18,6 +18,7 @@ import (
 type Service interface {
 	GetNearbyPlayers(GetNearbyPlayersQuery) (myPlayerDto dto.PlayerDto, ohterPlayerDtos []dto.PlayerDto, err error)
 	GetNearbyUnits(GetNearbyUnitsQuery) (unitDtos []dto.UnitDto, err error)
+	GetUnit(GetUnitQuery) (dto.UnitDto, error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
 	Move(MoveCommand) error
@@ -99,6 +100,16 @@ func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
 	})
 
 	return unitDtos, err
+}
+
+func (serve *serve) GetUnit(query GetUnitQuery) (unitDto dto.UnitDto, err error) {
+	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
+	position := commonmodel.NewPosition(query.Position.X, query.Position.Z)
+	unit, err := serve.unitRepo.Get(unitmodel.NewUnitId(worldId, position))
+	if err != nil {
+		return unitDto, err
+	}
+	return dto.NewUnitDto(unit), nil
 }
 
 func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, err error) {

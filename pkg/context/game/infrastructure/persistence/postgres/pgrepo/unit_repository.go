@@ -56,6 +56,21 @@ func (repo *unitRepo) Add(unit unitmodel.Unit) error {
 	return repo.domainEventDispatcher.Dispatch(&unit)
 }
 
+func (repo *unitRepo) Get(unitId unitmodel.UnitId) (unit unitmodel.Unit, err error) {
+	unitModel := pgmodel.UnitModel{}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			unitId.GetWorldId().Uuid(),
+			unitId.GetPosition().GetX(),
+			unitId.GetPosition().GetZ(),
+		).First(&unitModel).Error
+	}); err != nil {
+		return unit, err
+	}
+	return parseUnitModel(unitModel), nil
+}
+
 func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(

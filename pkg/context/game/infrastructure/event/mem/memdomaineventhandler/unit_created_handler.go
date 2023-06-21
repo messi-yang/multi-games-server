@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
@@ -23,13 +24,22 @@ func NewUnitCreatedHandler(redisServerMessageMediator redisservermessagemediator
 
 func (handler UnitCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	unitCreated := domainEvent.(unitmodel.UnitCreated)
+	worldIdDto := unitCreated.GetUnitId().GetWorldId().Uuid()
+	positionDto := dto.NewPositionDto(unitCreated.GetUnitId().GetPosition())
+
+	gameAppService := providedependency.ProvideGameAppService(uow)
+	unitDto, err := gameAppService.GetUnit(gameappsrv.GetUnitQuery{
+		WorldId:  worldIdDto,
+		Position: positionDto,
+	})
+	if err != nil {
+		return err
+	}
 
 	uow.AddDelayedWork(func() {
-		worldIdDto := unitCreated.GetUnitId().GetWorldId().Uuid()
-		positionDto := dto.NewPositionDto(unitCreated.GetUnitId().GetPosition())
 		handler.redisServerMessageMediator.Send(
 			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-			jsonutil.Marshal(gameappsrv.NewUnitCreatedServerMessage(worldIdDto, positionDto)),
+			jsonutil.Marshal(gameappsrv.NewUnitCreatedServerMessage(unitDto)),
 		)
 	})
 

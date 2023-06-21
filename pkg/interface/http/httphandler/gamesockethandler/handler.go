@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/worldappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
@@ -85,11 +86,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}
 	}()
 
-	if err = httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage); err != nil {
-		closeConnectionOnError(err)
-		return
-	}
-
 	if err = httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage); err != nil {
 		closeConnectionOnError(err)
 		return
@@ -106,9 +102,17 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 
 			switch serverMessage.Name {
 			case gameappsrv.UnitCreated:
-				httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage)
+				unitCreatedServerMessage, err := jsonutil.Unmarshal[gameappsrv.UnitCreatedServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendUnitCreatedResponse(unitCreatedServerMessage.Unit, sendMessage)
 			case gameappsrv.UnitDeleted:
-				httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage)
+				unitDeletedServerMessage, err := jsonutil.Unmarshal[gameappsrv.UnitDeletedServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendUnitDeletedResponse(unitDeletedServerMessage.Position, sendMessage)
 			case gameappsrv.PlayerJoined:
 				httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage)
 			case gameappsrv.PlayerMoved:
@@ -311,6 +315,22 @@ func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, p
 		return err
 	}
 	pgUow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendUnitCreatedResponse(unitDto dto.UnitDto, sendMessage func(any)) error {
+	sendMessage(unitCreatedResponse{
+		Type: unitCreatedResponseType,
+		Unit: unitDto,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendUnitDeletedResponse(position dto.PositionDto, sendMessage func(any)) error {
+	sendMessage(unitDeletedResponse{
+		Type:     unitDeletedResponseType,
+		Position: position,
+	})
 	return nil
 }
 
