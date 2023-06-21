@@ -18,7 +18,7 @@ var _ domain.ValueObject[Username] = (*Username)(nil)
 func NewUsername(value string) (username Username, err error) {
 	match, _ := regexp.MatchString("^[a-z_]+$", value)
 	if !match {
-		return username, fmt.Errorf("email is not valid")
+		return username, fmt.Errorf("username can only have letters and underscore")
 	}
 	match, _ = regexp.MatchString("_{2,}", value)
 	if match {

@@ -1,7 +1,6 @@
 package userhttphandler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/userappsrv"
@@ -20,8 +19,6 @@ func NewHttpHandler() *HttpHandler {
 
 func (httpHandler *HttpHandler) GetMyUser(c *gin.Context) {
 	userIdDto := httputil.GetUserId(c)
-
-	fmt.Println(userIdDto)
 
 	pgUow := pguow.NewDummyUow()
 	userAppService := providedependency.ProvideUserAppService(pgUow)

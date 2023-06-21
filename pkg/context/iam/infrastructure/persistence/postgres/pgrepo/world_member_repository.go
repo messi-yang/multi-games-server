@@ -1,7 +1,7 @@
 package pgrepo
 
 import (
-	"fmt"
+	"errors"
 
 	"gorm.io/gorm"
 
@@ -76,31 +76,28 @@ func (repo *worldMemberRepo) Get(worldMemberId worldaccessmodel.WorldMemberId) (
 	return worldMember, nil
 }
 
-func (repo *worldMemberRepo) FindUserWorldMember(
+func (repo *worldMemberRepo) GetUserWorldMember(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
-) (worldMember worldaccessmodel.WorldMember, found bool, err error) {
-	worldMemberModels := []pgmodel.WorldMemberModel{}
-	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+) (*worldaccessmodel.WorldMember, error) {
+	worldMemberModel := pgmodel.WorldMemberModel{}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND user_id = ?",
 			worldId.Uuid(),
 			userId.Uuid(),
-		).Find(&worldMemberModels).Error
+		).First(&worldMemberModel).Error
 	}); err != nil {
-		return worldMember, found, err
-	}
-
-	found = len(worldMemberModels) >= 1
-	if !found {
-		return worldMember, false, nil
-	} else {
-		worldMember, err = parseWorldMemberModel(worldMemberModels[0])
-		if err != nil {
-			return worldMember, true, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
 		}
-		return worldMember, true, nil
+		return nil, err
 	}
+	worldMember, err := parseWorldMemberModel(worldMemberModel)
+	if err != nil {
+		return nil, err
+	}
+	return &worldMember, nil
 }
 
 func (repo *worldMemberRepo) GetWorldMembersInWorld(worldId sharedkernelmodel.WorldId) (worldMembers []worldaccessmodel.WorldMember, err error) {
@@ -113,7 +110,6 @@ func (repo *worldMemberRepo) GetWorldMembersInWorld(worldId sharedkernelmodel.Wo
 	}); err != nil {
 		return worldMembers, err
 	}
-	fmt.Println(worldId.Uuid(), worldMemberModels)
 
 	worldMembers, err = commonutil.MapWithError(worldMemberModels, func(_ int, worldMemberModel pgmodel.WorldMemberModel) (worldMember worldaccessmodel.WorldMember, err error) {
 		return parseWorldMemberModel(worldMemberModel)

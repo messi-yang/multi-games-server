@@ -28,7 +28,7 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 	worldAccessAppService := providedependency.ProvideWorldAccessAppService(pgUow)
 
-	_, worldMemberFound, err := worldAccessAppService.FindWorldMember(worldaccessappsrv.FindWorldMemberQuery{
+	worldMemberDto, err := worldAccessAppService.GetUserWorldMember(worldaccessappsrv.GetUserWorldMemberQuery{
 		WorldId: worldIdDto,
 		UserId:  userIdDto,
 	})
@@ -36,7 +36,7 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	if !worldMemberFound {
+	if worldMemberDto == nil {
 		c.String(http.StatusForbidden, "you're not permitted to do this")
 		return
 	}

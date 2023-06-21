@@ -13,6 +13,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type HttpHandler struct{}
@@ -142,7 +143,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
 	worldPermissionAppService := providedependency.ProvideWorldPermissionAppService(pgUow)
 
-	worldMemberDto, found, err := worldAccessAppService.FindWorldMember(worldaccessappsrv.FindWorldMemberQuery{
+	worldMemberDto, err := worldAccessAppService.GetUserWorldMember(worldaccessappsrv.GetUserWorldMemberQuery{
 		WorldId: worldIdDto,
 		UserId:  userIdDto,
 	})
@@ -151,14 +152,15 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	if !found {
-		pgUow.RevertChanges()
-		c.String(http.StatusForbidden, "not permitted")
-		return
-	}
 
 	canUpdateWorldInfo, err := worldPermissionAppService.CanUpdateWorldInfo(worldpermissionappsrv.CanUpdateWorldInfoQuery{
-		Role: worldMemberDto.Role,
+		Role: lo.TernaryF(
+			worldMemberDto == nil,
+			func() *string { return nil },
+			func() *string {
+				return &worldMemberDto.Role
+			},
+		),
 	})
 	if err != nil {
 		pgUow.RevertChanges()

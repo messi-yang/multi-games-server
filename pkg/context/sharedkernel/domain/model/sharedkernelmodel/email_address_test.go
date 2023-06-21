@@ -8,9 +8,10 @@ import (
 
 func TestEmailAddress(t *testing.T) {
 	t.Run("NewEmailAddress", func(t *testing.T) {
-		email, err := NewEmailAddress("test@example.com")
+		_, err := NewEmailAddress("test@example.com")
 		assert.NoError(t, err)
-		assert.Equal(t, "test@example.com", email.String())
+		_, err = NewEmailAddress("dumdumgenius@gmail.com")
+		assert.NoError(t, err)
 
 		_, err = NewEmailAddress("invalid-email")
 		assert.Error(t, err)

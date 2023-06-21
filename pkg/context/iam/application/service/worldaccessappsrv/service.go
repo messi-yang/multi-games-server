@@ -10,7 +10,7 @@ import (
 
 type Service interface {
 	AddWorldMember(AddWorldMemberCommand) error
-	FindWorldMember(FindWorldMemberQuery) (worldMemberDto dto.WorldMemberDto, found bool, err error)
+	GetUserWorldMember(GetUserWorldMemberQuery) (worldMemberDto *dto.WorldMemberDto, err error)
 	GetWorldMembers(GetWorldMembersQuery) ([]dto.WorldMemberDto, error)
 }
 
@@ -38,17 +38,18 @@ func (serve *serve) AddWorldMember(command AddWorldMemberCommand) error {
 	)
 }
 
-func (serve *serve) FindWorldMember(query FindWorldMemberQuery) (worldMemberDto dto.WorldMemberDto, found bool, err error) {
+func (serve *serve) GetUserWorldMember(query GetUserWorldMemberQuery) (*dto.WorldMemberDto, error) {
 	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
 	userId := sharedkernelmodel.NewUserId(query.UserId)
-	worldMember, worldMemberFound, err := serve.worldMemberRepo.FindUserWorldMember(worldId, userId)
+	worldMember, err := serve.worldMemberRepo.GetUserWorldMember(worldId, userId)
 	if err != nil {
-		return worldMemberDto, found, err
+		return nil, err
 	}
-	if !worldMemberFound {
-		return worldMemberDto, false, nil
+	if worldMember == nil {
+		return nil, nil
 	}
-	return dto.NewWorldMemberDto(worldMember), true, nil
+	worldMemberDto := dto.NewWorldMemberDto(*worldMember)
+	return &worldMemberDto, nil
 }
 
 func (serve *serve) GetWorldMembers(query GetWorldMembersQuery) (worldMemberDtos []dto.WorldMemberDto, err error) {

@@ -1,6 +1,8 @@
 package pgrepo
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
 	"gorm.io/gorm"
 
@@ -87,6 +89,7 @@ func (repo *userRepo) FindUserByEmailAddress(emailAddress sharedkernelmodel.Emai
 		return user, false, nil
 	}
 	user, err = parseUserModel(userModels[0])
+	fmt.Println("-----2", err)
 	if err != nil {
 		return user, userFound, err
 	}

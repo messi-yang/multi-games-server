@@ -30,7 +30,6 @@ func NewService(userRepo identitymodel.UserRepo, identityService service.Identit
 }
 
 func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err error) {
-	fmt.Println("=======")
 	emailAddress, err := sharedkernelmodel.NewEmailAddress(command.EmailAddress)
 	if err != nil {
 		return userIdDto, err

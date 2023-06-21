@@ -1,8 +1,6 @@
 package memdomaineventhandler
 
 import (
-	"fmt"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gamerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
@@ -19,7 +17,6 @@ func NewUserCreatedHandler() memdomainevent.Handler {
 }
 
 func (handler UserCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
-	fmt.Println(domainEvent)
 	userCreated := domainEvent.(sharedkernelmodel.UserCreated)
 	gamerAppService := providedependency.ProvideGamerAppService(uow)
 
