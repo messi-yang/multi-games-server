@@ -11,6 +11,7 @@ import (
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -154,12 +155,10 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	}
 
 	canUpdateWorldInfo, err := worldPermissionAppService.CanUpdateWorldInfo(worldpermissionappsrv.CanUpdateWorldInfoQuery{
-		Role: lo.TernaryF(
+		Role: lo.Ternary(
 			worldMemberDto == nil,
-			func() *string { return nil },
-			func() *string {
-				return &worldMemberDto.Role
-			},
+			nil,
+			commonutil.ToPointer(worldMemberDto.Role),
 		),
 	})
 	if err != nil {

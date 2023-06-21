@@ -40,3 +40,7 @@ func RangeMatrix(width int, height int, callback func(i int, j int) error) error
 	}
 	return nil
 }
+
+func ToPointer[T any](v T) *T {
+	return &v
+}
