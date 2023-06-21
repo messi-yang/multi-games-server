@@ -6,34 +6,47 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewWorldRole(t *testing.T) {
-	worldRole, err := NewWorldRole("admin")
-	expectedWorldRole := WorldRole{
-		value: "admin",
-	}
+func TestWorldRole(t *testing.T) {
+	t.Run("NewWorldRole", func(t *testing.T) {
+		worldRole, err := NewWorldRole("admin")
+		assert.NoError(t, err)
+		assert.Equal(t, worldRole.String(), "admin")
 
-	assert.Nil(t, err, "error should be nil when creating a valid world role name")
-	assert.Equal(t, expectedWorldRole, worldRole, "created world role name should match the expected value")
-}
+		_, err = NewWorldRole("invalid")
+		assert.Error(t, err)
+	})
 
-func TestNewWorldRole_InvalidName(t *testing.T) {
-	_, err := NewWorldRole("invalid")
+	t.Run("WorldRole", func(t *testing.T) {
+		t.Run("IsEqual", func(t *testing.T) {
+			worldRole1, _ := NewWorldRole("admin")
+			worldRole2, _ := NewWorldRole("admin")
+			worldRole3, _ := NewWorldRole("owner")
+			assert.True(t, worldRole1.IsEqual(worldRole2))
+			assert.False(t, worldRole1.IsEqual(worldRole3))
+		})
+		t.Run("String", func(t *testing.T) {
+			worldRole, _ := NewWorldRole("admin")
+			assert.Equal(t, worldRole.String(), "admin")
+		})
 
-	assert.Error(t, err, "error should be returned for an invalid world role name")
-}
+		t.Run("IsOwner", func(t *testing.T) {
+			worldRole, _ := NewWorldRole("owner")
+			assert.True(t, worldRole.IsOwner())
+		})
 
-func TestWorldRole_CanUpdateWorldInfo(t *testing.T) {
-	worldRole1, _ := NewWorldRole("owner")
-	assert.Equal(t, true, worldRole1.CanUpdateWorldInfo(), "owner should be able to update world info")
+		t.Run("IsAdmin", func(t *testing.T) {
+			worldRole, _ := NewWorldRole("admin")
+			assert.True(t, worldRole.IsAdmin())
+		})
 
-	worldRole2, _ := NewWorldRole("admin")
-	assert.Equal(t, true, worldRole2.CanUpdateWorldInfo(), "admin should be able to update world info")
+		t.Run("IsEditor", func(t *testing.T) {
+			worldRole, _ := NewWorldRole("editor")
+			assert.True(t, worldRole.IsEditor())
+		})
 
-}
-
-func TestWorldRole_String(t *testing.T) {
-	worldRole, _ := NewWorldRole("admin")
-
-	expectedString := "admin"
-	assert.Equal(t, expectedString, worldRole.String(), "string representation of the world role name should match the expected value")
+		t.Run("IsViewer", func(t *testing.T) {
+			worldRole, _ := NewWorldRole("viewer")
+			assert.True(t, worldRole.IsViewer())
+		})
+	})
 }

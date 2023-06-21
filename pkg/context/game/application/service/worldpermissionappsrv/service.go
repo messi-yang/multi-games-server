@@ -1,6 +1,9 @@
 package worldpermissionappsrv
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+import (
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+)
 
 type Service interface {
 	CanUpdateWorldInfo(CanUpdateWorldInfoQuery) (bool, error)
@@ -21,5 +24,6 @@ func (serve *serve) CanUpdateWorldInfo(query CanUpdateWorldInfoQuery) (bool, err
 	if err != nil {
 		return false, err
 	}
-	return worldRole.CanUpdateWorldInfo(), nil
+	worldPermission := worldmodel.NewWorldPermission(worldRole)
+	return worldPermission.CanUpdateWorldInfo(), nil
 }

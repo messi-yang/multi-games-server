@@ -1,6 +1,10 @@
 package sharedkernelmodel
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
+)
 
 type WorldRoleValue string
 
@@ -8,12 +12,15 @@ const (
 	WorldRoleOwner  WorldRoleValue = "owner"
 	WorldRoleAdmin  WorldRoleValue = "admin"
 	WorldRoleEditor WorldRoleValue = "editor"
-	WorldRoleViewer WorldRoleValue = "viwer"
+	WorldRoleViewer WorldRoleValue = "viewer"
 )
 
 type WorldRole struct {
 	value WorldRoleValue
 }
+
+// Interface Implementation Check
+var _ domain.ValueObject[WorldRole] = (*WorldRole)(nil)
 
 func NewWorldRole(worldRoleValue string) (WorldRole, error) {
 	switch worldRoleValue {
@@ -38,10 +45,26 @@ func NewWorldRole(worldRoleValue string) (WorldRole, error) {
 	}
 }
 
-func (worldRole WorldRole) CanUpdateWorldInfo() bool {
-	return worldRole.value == "owner" || worldRole.value == "admin"
+func (worldRole WorldRole) IsEqual(otherWorldRole WorldRole) bool {
+	return worldRole.value == otherWorldRole.value
 }
 
 func (worldRole WorldRole) String() string {
 	return string(worldRole.value)
+}
+
+func (worldRole WorldRole) IsOwner() bool {
+	return worldRole.value == WorldRoleOwner
+}
+
+func (worldRole WorldRole) IsAdmin() bool {
+	return worldRole.value == WorldRoleAdmin
+}
+
+func (worldRole WorldRole) IsEditor() bool {
+	return worldRole.value == WorldRoleEditor
+}
+
+func (worldRole WorldRole) IsViewer() bool {
+	return worldRole.value == WorldRoleViewer
 }
