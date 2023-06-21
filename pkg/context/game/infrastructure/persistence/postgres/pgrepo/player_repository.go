@@ -6,6 +6,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/google/uuid"
+
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
@@ -19,20 +21,20 @@ import (
 func newPlayerModel(player playermodel.Player) pgmodel.PlayerModel {
 	return pgmodel.PlayerModel{
 		Id: player.GetId().Uuid(),
-		UserId: lo.Ternary(
+		UserId: lo.TernaryF(
 			player.GetUserId() == nil,
-			nil,
-			commonutil.ToPointer((*player.GetUserId()).Uuid()),
+			func() *uuid.UUID { return nil },
+			func() *uuid.UUID { return commonutil.ToPointer((*player.GetUserId()).Uuid()) },
 		),
 		WorldId:   player.GetWorldId().Uuid(),
 		Name:      player.GetName(),
 		PosX:      player.GetPosition().GetX(),
 		PosZ:      player.GetPosition().GetZ(),
 		Direction: player.GetDirection().Int8(),
-		HeldItemId: lo.Ternary(
+		HeldItemId: lo.TernaryF(
 			player.GetHeldItemId() == nil,
-			nil,
-			commonutil.ToPointer((*player.GetHeldItemId()).Uuid()),
+			func() *uuid.UUID { return nil },
+			func() *uuid.UUID { return commonutil.ToPointer((*player.GetHeldItemId()).Uuid()) },
 		),
 		CreatedAt: player.GetCreatedAt(),
 		UpdatedAt: player.GetUpdatedAt(),
@@ -43,22 +45,26 @@ func parsePlayerModel(playerModel pgmodel.PlayerModel) playermodel.Player {
 	return playermodel.LoadPlayer(
 		playermodel.NewPlayerId(playerModel.Id),
 		sharedkernelmodel.NewWorldId(playerModel.WorldId),
-		lo.Ternary(
+		lo.TernaryF(
 			playerModel.UserId == nil,
-			nil,
-			commonutil.ToPointer(sharedkernelmodel.NewUserId(*playerModel.UserId)),
+			func() *sharedkernelmodel.UserId { return nil },
+			func() *sharedkernelmodel.UserId {
+				return commonutil.ToPointer(sharedkernelmodel.NewUserId(*playerModel.UserId))
+			},
 		),
-		lo.Ternary(
+		lo.TernaryF(
 			playerModel.User == nil,
-			"Untitled",
-			playerModel.User.Username,
+			func() string { return "Untitled" },
+			func() string { return playerModel.User.Username },
 		),
 		commonmodel.NewPosition(playerModel.PosX, playerModel.PosZ),
 		commonmodel.NewDirection(playerModel.Direction),
-		lo.Ternary(
+		lo.TernaryF(
 			playerModel.HeldItemId == nil,
-			nil,
-			commonutil.ToPointer(commonmodel.NewItemId(*playerModel.HeldItemId)),
+			func() *commonmodel.ItemId { return nil },
+			func() *commonmodel.ItemId {
+				return commonutil.ToPointer(commonmodel.NewItemId(*playerModel.HeldItemId))
+			},
 		),
 		playerModel.CreatedAt,
 		playerModel.UpdatedAt,

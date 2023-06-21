@@ -20,19 +20,19 @@ type PlayerDto struct {
 func NewPlayerDto(player playermodel.Player) PlayerDto {
 	dto := PlayerDto{
 		Id: player.GetId().Uuid(),
-		UserId: lo.Ternary(
+		UserId: lo.TernaryF(
 			player.GetUserId() == nil,
-			nil,
-			commonutil.ToPointer((*player.GetUserId()).Uuid()),
+			func() *uuid.UUID { return nil },
+			func() *uuid.UUID { return commonutil.ToPointer((*player.GetUserId()).Uuid()) },
 		),
 		Name:        player.GetName(),
 		Position:    NewPositionDto(player.GetPosition()),
 		Direction:   player.GetDirection().Int8(),
 		VisionBound: NewBoundDto(player.GetVisionBound()),
-		HeldItemId: lo.Ternary(
+		HeldItemId: lo.TernaryF(
 			player.GetHeldItemId() == nil,
-			nil,
-			commonutil.ToPointer((*player.GetHeldItemId()).Uuid()),
+			func() *uuid.UUID { return nil },
+			func() *uuid.UUID { return commonutil.ToPointer((*player.GetHeldItemId()).Uuid()) },
 		),
 	}
 	return dto

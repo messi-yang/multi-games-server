@@ -155,10 +155,10 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	}
 
 	canUpdateWorldInfo, err := worldPermissionAppService.CanUpdateWorldInfo(worldpermissionappsrv.CanUpdateWorldInfoQuery{
-		Role: lo.Ternary(
+		Role: lo.TernaryF(
 			worldMemberDto == nil,
-			nil,
-			commonutil.ToPointer(worldMemberDto.Role),
+			func() *string { return nil },
+			func() *string { return commonutil.ToPointer(worldMemberDto.Role) },
 		),
 	})
 	if err != nil {
