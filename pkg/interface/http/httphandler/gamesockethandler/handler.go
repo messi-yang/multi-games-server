@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/worldappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -74,7 +75,7 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		return
 	}
 
-	if playerIdDto, err = httpHandler.executeEnterWorldCommand(worldIdDto); err != nil {
+	if playerIdDto, err = httpHandler.executeEnterWorldCommand(worldIdDto, sendMessage); err != nil {
 		closeConnectionOnError(err)
 		return
 	}
@@ -246,17 +247,55 @@ func (httpHandler *HttpHandler) executeRemoveItemCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (playerIdDto uuid.UUID, err error) {
+func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, sendMessage func(any)) (playerIdDto uuid.UUID, err error) {
 	pgUow := pguow.NewUow()
 
 	gameAppService := providedependency.ProvideGameAppService(pgUow)
+	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+
+	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
+		WorldId: worldIdDto,
+	})
+	if err != nil {
+		return playerIdDto, err
+	}
+
 	if playerIdDto, err = gameAppService.EnterWorld(gameappsrv.EnterWorldCommand{
 		WorldId: worldIdDto,
 	}); err != nil {
 		pgUow.RevertChanges()
 		return playerIdDto, err
 	}
+
+	unitDtos, err := gameAppService.GetNearbyUnits(
+		gameappsrv.GetNearbyUnitsQuery{
+			WorldId:  worldIdDto,
+			PlayerId: playerIdDto,
+		},
+	)
+	if err != nil {
+		return playerIdDto, err
+	}
+
+	myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
+		gameappsrv.GetNearbyPlayersQuery{
+			WorldId:  worldIdDto,
+			PlayerId: playerIdDto,
+		},
+	)
+	if err != nil {
+		return playerIdDto, err
+	}
+
 	pgUow.SaveChanges()
+
+	sendMessage(worldsEnteredResponse{
+		Type:         worldEnteredResponseType,
+		World:        worldDto,
+		Units:        unitDtos,
+		MyPlayer:     myPlayerDto,
+		OtherPlayers: otherPlayerDtos,
+	})
 	return playerIdDto, nil
 }
 
