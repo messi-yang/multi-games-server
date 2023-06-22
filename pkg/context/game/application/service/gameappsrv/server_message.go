@@ -48,44 +48,38 @@ func NewUnitDeletedServerMessage(worldId uuid.UUID, position dto.PositionDto) Un
 }
 
 type PlayerJoinedServerMessage struct {
-	Name     ServerMessageName
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
+	Name   ServerMessageName
+	Player dto.PlayerDto
 }
 
-func NewPlayerJoinedServerMessage(worldId uuid.UUID, playerId uuid.UUID) PlayerJoinedServerMessage {
+func NewPlayerJoinedServerMessage(player dto.PlayerDto) PlayerJoinedServerMessage {
 	return PlayerJoinedServerMessage{
-		Name:     PlayerJoined,
-		WorldId:  worldId,
-		PlayerId: playerId,
+		Name:   PlayerJoined,
+		Player: player,
 	}
 }
 
 type PlayerLeftServerMessage struct {
 	Name     ServerMessageName
-	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }
 
-func NewPlayerLeftServerMessage(worldId uuid.UUID, playerId uuid.UUID) PlayerLeftServerMessage {
+func NewPlayerLeftServerMessage(playerId uuid.UUID) PlayerLeftServerMessage {
 	return PlayerLeftServerMessage{
 		Name:     PlayerLeft,
-		WorldId:  worldId,
 		PlayerId: playerId,
 	}
 }
 
 type PlayerMovedServerMessage struct {
-	Name     ServerMessageName
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
+	Name   ServerMessageName
+	Player dto.PlayerDto
 }
 
-func NewPlayerMovedServerMessage(worldId uuid.UUID, playerId uuid.UUID) PlayerMovedServerMessage {
+func NewPlayerMovedServerMessage(player dto.PlayerDto) PlayerMovedServerMessage {
 	return PlayerMovedServerMessage{
-		Name:     PlayerMoved,
-		WorldId:  worldId,
-		PlayerId: playerId,
+		Name:   PlayerMoved,
+		Player: player,
 	}
 }
 

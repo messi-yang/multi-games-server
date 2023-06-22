@@ -1,8 +1,6 @@
 package gameappsrv
 
 import (
-	"errors"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/itemmodel"
@@ -16,7 +14,7 @@ import (
 )
 
 type Service interface {
-	GetNearbyPlayers(GetNearbyPlayersQuery) (myPlayerDto dto.PlayerDto, ohterPlayerDtos []dto.PlayerDto, err error)
+	GetNearbyPlayers(GetNearbyPlayersQuery) (playerDtos []dto.PlayerDto, err error)
 	GetNearbyUnits(GetNearbyUnitsQuery) (unitDtos []dto.UnitDto, err error)
 	GetUnit(GetUnitQuery) (dto.UnitDto, error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
@@ -53,33 +51,22 @@ func NewService(
 }
 
 func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
-	myPlayerDto dto.PlayerDto, otherPlayerDtos []dto.PlayerDto, err error,
+	playerDtos []dto.PlayerDto, err error,
 ) {
 	player, err := serve.playerRepo.Get(playermodel.NewPlayerId(query.PlayerId))
 	if err != nil {
-		return myPlayerDto, otherPlayerDtos, err
+		return playerDtos, err
 	}
 
 	players, err := serve.playerRepo.GetPlayersAround(sharedkernelmodel.NewWorldId(query.WorldId), player.GetPosition())
 	if err != nil {
-		return myPlayerDto, otherPlayerDtos, err
+		return playerDtos, err
 	}
-
-	myPlayer, myPlayrFound := lo.Find(players, func(_player playermodel.Player) bool {
-		return _player.GetId().IsEqual(player.GetId())
-	})
-	if !myPlayrFound {
-		return myPlayerDto, otherPlayerDtos, errors.New("my player not found in players")
-	}
-	myPlayerDto = dto.NewPlayerDto(myPlayer)
-	otherPlayers := lo.Filter(players, func(_player playermodel.Player, _ int) bool {
-		return !_player.GetId().IsEqual(player.GetId())
-	})
-	otherPlayerDtos = lo.Map(otherPlayers, func(_player playermodel.Player, _ int) dto.PlayerDto {
+	playerDtos = lo.Map(players, func(_player playermodel.Player, _ int) dto.PlayerDto {
 		return dto.NewPlayerDto(_player)
 	})
 
-	return myPlayerDto, otherPlayerDtos, err
+	return playerDtos, nil
 }
 
 func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (

@@ -3,6 +3,7 @@ package memdomaineventhandler
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/playermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
@@ -22,13 +23,21 @@ func NewPlayerJoinedHandler(redisServerMessageMediator redisservermessagemediato
 
 func (handler PlayerJoinedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
 	playerJoined := domainEvent.(playermodel.PlayerJoined)
+	worldIdDto := playerJoined.GetWorldId().Uuid()
+	playerIdDto := playerJoined.GetPlayerId().Uuid()
+
+	gameAppService := providedependency.ProvideGameAppService(uow)
+	player, err := gameAppService.GetPlayer(gameappsrv.GetPlayerQuery{
+		PlayerId: playerIdDto,
+	})
+	if err != nil {
+		return err
+	}
 
 	uow.AddDelayedWork(func() {
-		worldIdDto := playerJoined.GetWorldId().Uuid()
-		playerIdDto := playerJoined.GetPlayerId().Uuid()
 		handler.redisServerMessageMediator.Send(
 			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-			jsonutil.Marshal(gameappsrv.NewPlayerJoinedServerMessage(worldIdDto, playerIdDto)),
+			jsonutil.Marshal(gameappsrv.NewPlayerJoinedServerMessage(player)),
 		)
 	})
 

@@ -111,7 +111,7 @@ func (gamerServe *gamerServe) LeaveWorld(worldId sharedkernelmodel.WorldId, play
 	if err != nil {
 		return err
 	}
-
+	player.Delete()
 	return gamerServe.playerRepo.Delete(player)
 }
 

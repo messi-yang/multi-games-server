@@ -86,11 +86,6 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}
 	}()
 
-	if err = httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage); err != nil {
-		closeConnectionOnError(err)
-		return
-	}
-
 	moveSteps := 0
 	worldServerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
@@ -114,15 +109,27 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 				}
 				httpHandler.sendUnitDeletedResponse(unitDeletedServerMessage.Position, sendMessage)
 			case gameappsrv.PlayerJoined:
-				httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage)
+				playerJoinedServerMessage, err := jsonutil.Unmarshal[gameappsrv.PlayerJoinedServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendPlayerJoinedResponse(playerJoinedServerMessage.Player, sendMessage)
 			case gameappsrv.PlayerMoved:
-				httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage)
+				playerMovedServerMessage, err := jsonutil.Unmarshal[gameappsrv.PlayerMovedServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendPlayerMovedResponse(playerMovedServerMessage.Player, sendMessage)
 				moveSteps += 1
 				if moveSteps%10 == 0 {
 					httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage)
 				}
 			case gameappsrv.PlayerLeft:
-				httpHandler.executeGetNearbyPlayersQuery(worldIdDto, playerIdDto, sendMessage)
+				playerLeftServerMessage, err := jsonutil.Unmarshal[gameappsrv.PlayerLeftServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendPlayerLeftResponse(playerLeftServerMessage.PlayerId, sendMessage)
 			default:
 			}
 		},
@@ -281,7 +288,7 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, s
 		return playerIdDto, err
 	}
 
-	myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
+	playerDtos, err := gameAppService.GetNearbyPlayers(
 		gameappsrv.GetNearbyPlayersQuery{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
@@ -294,11 +301,11 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, s
 	pgUow.SaveChanges()
 
 	sendMessage(worldsEnteredResponse{
-		Type:         worldEnteredResponseType,
-		World:        worldDto,
-		Units:        unitDtos,
-		MyPlayer:     myPlayerDto,
-		OtherPlayers: otherPlayerDtos,
+		Type:       worldEnteredResponseType,
+		World:      worldDto,
+		Units:      unitDtos,
+		MyPlayerId: playerIdDto,
+		Players:    playerDtos,
 	})
 	return playerIdDto, nil
 }
@@ -326,10 +333,34 @@ func (httpHandler *HttpHandler) sendUnitCreatedResponse(unitDto dto.UnitDto, sen
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendUnitDeletedResponse(position dto.PositionDto, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendUnitDeletedResponse(positionDto dto.PositionDto, sendMessage func(any)) error {
 	sendMessage(unitDeletedResponse{
 		Type:     unitDeletedResponseType,
-		Position: position,
+		Position: positionDto,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendPlayerJoinedResponse(playerDto dto.PlayerDto, sendMessage func(any)) error {
+	sendMessage(playerJoinedResponse{
+		Type:   playerJoinedResponseType,
+		Player: playerDto,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendPlayerLeftResponse(playerIdDto uuid.UUID, sendMessage func(any)) error {
+	sendMessage(playerLeftResponse{
+		Type:     playerLeftResponseType,
+		PlayerId: playerIdDto,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendPlayerMovedResponse(playerDto dto.PlayerDto, sendMessage func(any)) error {
+	sendMessage(playerMovedResponse{
+		Type:   playerMovedResponseType,
+		Player: playerDto,
 	})
 	return nil
 }
@@ -351,28 +382,6 @@ func (httpHandler *HttpHandler) executeGetNearbyUnitsQuery(worldIdDto uuid.UUID,
 	sendMessage(unitsUpdatedResponse{
 		Type:  unitsUpdatedResponseType,
 		Units: unitDtos,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) executeGetNearbyPlayersQuery(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
-	pgUow := pguow.NewDummyUow()
-
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
-	myPlayerDto, otherPlayerDtos, err := gameAppService.GetNearbyPlayers(
-		gameappsrv.GetNearbyPlayersQuery{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	sendMessage(playersUpdatedResponse{
-		Type:         playersUpdatedResponseType,
-		MyPlayer:     myPlayerDto,
-		OtherPlayers: otherPlayerDtos,
 	})
 	return nil
 }

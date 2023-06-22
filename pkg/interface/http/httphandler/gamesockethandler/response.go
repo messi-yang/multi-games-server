@@ -2,17 +2,20 @@ package gamesockethandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
+	"github.com/google/uuid"
 )
 
 type responseDtoType string
 
 const (
-	errorHappenedResponseType  responseDtoType = "ERROR_HAPPENED"
-	worldEnteredResponseType   responseDtoType = "WORLD_ENTERED"
-	unitCreatedResponseType    responseDtoType = "UNIT_CREATED"
-	unitDeletedResponseType    responseDtoType = "UNIT_DELETED"
-	playersUpdatedResponseType responseDtoType = "PLAYERS_UPDATED"
-	unitsUpdatedResponseType   responseDtoType = "UNITS_UPDATED"
+	errorHappenedResponseType responseDtoType = "ERROR_HAPPENED"
+	worldEnteredResponseType  responseDtoType = "WORLD_ENTERED"
+	unitCreatedResponseType   responseDtoType = "UNIT_CREATED"
+	unitDeletedResponseType   responseDtoType = "UNIT_DELETED"
+	playerJoinedResponseType  responseDtoType = "PLAYER_JOINED"
+	playerLeftResponseType    responseDtoType = "PLAYER_LEFT"
+	playerMovedResponseType   responseDtoType = "PLAYER_MOVED"
+	unitsUpdatedResponseType  responseDtoType = "UNITS_UPDATED"
 )
 
 type errorHappenedResponse struct {
@@ -21,11 +24,11 @@ type errorHappenedResponse struct {
 }
 
 type worldsEnteredResponse struct {
-	Type         responseDtoType `json:"type"`
-	World        dto.WorldDto    `json:"world"`
-	Units        []dto.UnitDto   `json:"units"`
-	MyPlayer     dto.PlayerDto   `json:"myPlayer"`
-	OtherPlayers []dto.PlayerDto `json:"otherPlayers"`
+	Type       responseDtoType `json:"type"`
+	World      dto.WorldDto    `json:"world"`
+	Units      []dto.UnitDto   `json:"units"`
+	MyPlayerId uuid.UUID       `json:"myPlayerId"`
+	Players    []dto.PlayerDto `json:"players"`
 }
 
 type unitCreatedResponse struct {
@@ -38,10 +41,19 @@ type unitDeletedResponse struct {
 	Position dto.PositionDto `json:"position"`
 }
 
-type playersUpdatedResponse struct {
-	Type         responseDtoType `json:"type"`
-	MyPlayer     dto.PlayerDto   `json:"myPlayer"`
-	OtherPlayers []dto.PlayerDto `json:"otherPlayers"`
+type playerJoinedResponse struct {
+	Type   responseDtoType `json:"type"`
+	Player dto.PlayerDto   `json:"player"`
+}
+
+type playerLeftResponse struct {
+	Type     responseDtoType `json:"type"`
+	PlayerId uuid.UUID       `json:"playerId"`
+}
+
+type playerMovedResponse struct {
+	Type   responseDtoType `json:"type"`
+	Player dto.PlayerDto   `json:"player"`
 }
 
 type unitsUpdatedResponse struct {
