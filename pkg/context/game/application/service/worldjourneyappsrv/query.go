@@ -1,4 +1,4 @@
-package gameappsrv
+package worldjourneyappsrv
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
@@ -14,12 +14,12 @@ type GetPlayerQuery struct {
 	PlayerId uuid.UUID
 }
 
-type GetNearbyPlayersQuery struct {
+type GetPlayersQuery struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }
 
-type GetNearbyUnitsQuery struct {
+type GetUnitsQuery struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }

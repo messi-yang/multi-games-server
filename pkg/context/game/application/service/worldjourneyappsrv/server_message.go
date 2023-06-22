@@ -1,4 +1,4 @@
-package gameappsrv
+package worldjourneyappsrv
 
 import (
 	"fmt"

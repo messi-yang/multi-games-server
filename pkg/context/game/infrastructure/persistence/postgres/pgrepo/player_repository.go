@@ -144,7 +144,7 @@ func (repo *playerRepo) FindPlayersAt(worldId sharedkernelmodel.WorldId, positio
 	}), playersFound, nil
 }
 
-func (repo *playerRepo) GetPlayersAround(worldId sharedkernelmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, err error) {
+func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) (players []playermodel.Player, err error) {
 	playerModels := []pgmodel.PlayerModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Joins("User").Find(

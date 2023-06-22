@@ -2,7 +2,7 @@ package memdomaineventhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/worldjourneyappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
@@ -27,8 +27,8 @@ func (handler UnitCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.Domai
 	worldIdDto := unitCreated.GetUnitId().GetWorldId().Uuid()
 	positionDto := dto.NewPositionDto(unitCreated.GetUnitId().GetPosition())
 
-	gameAppService := providedependency.ProvideGameAppService(uow)
-	unitDto, err := gameAppService.GetUnit(gameappsrv.GetUnitQuery{
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
+	unitDto, err := worldJourneyAppService.GetUnit(worldjourneyappsrv.GetUnitQuery{
 		WorldId:  worldIdDto,
 		Position: positionDto,
 	})
@@ -38,8 +38,8 @@ func (handler UnitCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.Domai
 
 	uow.AddDelayedWork(func() {
 		handler.redisServerMessageMediator.Send(
-			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-			jsonutil.Marshal(gameappsrv.NewUnitCreatedServerMessage(unitDto)),
+			worldjourneyappsrv.NewWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(worldjourneyappsrv.NewUnitCreatedServerMessage(unitDto)),
 		)
 	})
 

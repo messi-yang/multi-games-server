@@ -15,7 +15,6 @@ const (
 	playerJoinedResponseType  responseDtoType = "PLAYER_JOINED"
 	playerLeftResponseType    responseDtoType = "PLAYER_LEFT"
 	playerMovedResponseType   responseDtoType = "PLAYER_MOVED"
-	unitsUpdatedResponseType  responseDtoType = "UNITS_UPDATED"
 )
 
 type errorHappenedResponse struct {
@@ -54,9 +53,4 @@ type playerLeftResponse struct {
 type playerMovedResponse struct {
 	Type   responseDtoType `json:"type"`
 	Player dto.PlayerDto   `json:"player"`
-}
-
-type unitsUpdatedResponse struct {
-	Type  responseDtoType `json:"type"`
-	Units []dto.UnitDto   `json:"units"`
 }

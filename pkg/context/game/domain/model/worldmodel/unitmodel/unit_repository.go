@@ -10,5 +10,5 @@ type UnitRepo interface {
 	Get(UnitId) (Unit, error)
 	Delete(Unit) error
 	FindUnitAt(sharedkernelmodel.WorldId, commonmodel.Position) (unit Unit, found bool, err error)
-	QueryUnitsInBound(sharedkernelmodel.WorldId, commonmodel.Bound) ([]Unit, error)
+	GetUnitsOfWorld(sharedkernelmodel.WorldId) ([]Unit, error)
 }

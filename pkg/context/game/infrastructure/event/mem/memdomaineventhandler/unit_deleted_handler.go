@@ -2,7 +2,7 @@ package memdomaineventhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/worldjourneyappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/event/memory/memdomainevent"
@@ -28,8 +28,8 @@ func (handler UnitDeletedHandler) Handle(uow pguow.Uow, domainEvent domain.Domai
 
 	uow.AddDelayedWork(func() {
 		handler.redisServerMessageMediator.Send(
-			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-			jsonutil.Marshal(gameappsrv.NewUnitDeletedServerMessage(worldIdDto, positionDto)),
+			worldjourneyappsrv.NewWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(worldjourneyappsrv.NewUnitDeletedServerMessage(worldIdDto, positionDto)),
 		)
 	})
 

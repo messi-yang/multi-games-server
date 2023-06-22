@@ -1,7 +1,7 @@
 package memdomaineventhandler
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/worldjourneyappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/worldmodel/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
@@ -26,8 +26,8 @@ func (handler PlayerMovedHandler) Handle(uow pguow.Uow, domainEvent domain.Domai
 	worldIdDto := playerMoved.GetWorldId().Uuid()
 	playerIdDto := playerMoved.GetPlayerId().Uuid()
 
-	gameAppService := providedependency.ProvideGameAppService(uow)
-	player, err := gameAppService.GetPlayer(gameappsrv.GetPlayerQuery{
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
+	player, err := worldJourneyAppService.GetPlayer(worldjourneyappsrv.GetPlayerQuery{
 		PlayerId: playerIdDto,
 	})
 	if err != nil {
@@ -36,8 +36,8 @@ func (handler PlayerMovedHandler) Handle(uow pguow.Uow, domainEvent domain.Domai
 
 	uow.AddDelayedWork(func() {
 		handler.redisServerMessageMediator.Send(
-			gameappsrv.NewWorldServerMessageChannel(worldIdDto),
-			jsonutil.Marshal(gameappsrv.NewPlayerMovedServerMessage(player)),
+			worldjourneyappsrv.NewWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(worldjourneyappsrv.NewPlayerMovedServerMessage(player)),
 		)
 	})
 

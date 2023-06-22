@@ -1,4 +1,4 @@
-package gameappsrv
+package worldjourneyappsrv
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
@@ -14,8 +14,8 @@ import (
 )
 
 type Service interface {
-	GetNearbyPlayers(GetNearbyPlayersQuery) (playerDtos []dto.PlayerDto, err error)
-	GetNearbyUnits(GetNearbyUnitsQuery) (unitDtos []dto.UnitDto, err error)
+	GetPlayers(GetPlayersQuery) (playerDtos []dto.PlayerDto, err error)
+	GetUnits(GetUnitsQuery) (unitDtos []dto.UnitDto, err error)
 	GetUnit(GetUnitQuery) (dto.UnitDto, error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
@@ -50,15 +50,10 @@ func NewService(
 	}
 }
 
-func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
+func (serve *serve) GetPlayers(query GetPlayersQuery) (
 	playerDtos []dto.PlayerDto, err error,
 ) {
-	player, err := serve.playerRepo.Get(playermodel.NewPlayerId(query.PlayerId))
-	if err != nil {
-		return playerDtos, err
-	}
-
-	players, err := serve.playerRepo.GetPlayersAround(sharedkernelmodel.NewWorldId(query.WorldId), player.GetPosition())
+	players, err := serve.playerRepo.GetPlayersOfWorld(sharedkernelmodel.NewWorldId(query.WorldId))
 	if err != nil {
 		return playerDtos, err
 	}
@@ -69,16 +64,10 @@ func (serve *serve) GetNearbyPlayers(query GetNearbyPlayersQuery) (
 	return playerDtos, nil
 }
 
-func (serve *serve) GetNearbyUnits(query GetNearbyUnitsQuery) (
+func (serve *serve) GetUnits(query GetUnitsQuery) (
 	unitDtos []dto.UnitDto, err error,
 ) {
-	player, err := serve.playerRepo.Get(playermodel.NewPlayerId(query.PlayerId))
-	if err != nil {
-		return unitDtos, err
-	}
-
-	visionBound := player.GetVisionBound()
-	units, err := serve.unitRepo.QueryUnitsInBound(sharedkernelmodel.NewWorldId(query.WorldId), visionBound)
+	units, err := serve.unitRepo.GetUnitsOfWorld(sharedkernelmodel.NewWorldId(query.WorldId))
 	if err != nil {
 		return unitDtos, err
 	}

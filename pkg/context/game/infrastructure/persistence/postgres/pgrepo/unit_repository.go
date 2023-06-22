@@ -107,18 +107,14 @@ func (repo *unitRepo) FindUnitAt(
 	return unit, found, nil
 }
 
-func (repo *unitRepo) QueryUnitsInBound(
-	worldId sharedkernelmodel.WorldId, bound commonmodel.Bound,
+func (repo *unitRepo) GetUnitsOfWorld(
+	worldId sharedkernelmodel.WorldId,
 ) (units []unitmodel.Unit, err error) {
 	var unitModels []pgmodel.UnitModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"world_id = ? AND pos_x >= ? AND pos_x <= ? AND pos_z >= ? AND pos_z <= ?",
+			"world_id = ?",
 			worldId.Uuid(),
-			bound.GetFrom().GetX(),
-			bound.GetTo().GetX(),
-			bound.GetFrom().GetZ(),
-			bound.GetTo().GetZ(),
 		).Find(&unitModels, pgmodel.UnitModel{}).Error
 	}); err != nil {
 		return units, err

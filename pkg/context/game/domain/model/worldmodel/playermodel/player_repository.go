@@ -11,5 +11,5 @@ type PlayerRepo interface {
 	Delete(Player) error
 	Get(PlayerId) (Player, error)
 	FindPlayersAt(sharedkernelmodel.WorldId, commonmodel.Position) (players []Player, found bool, err error)
-	GetPlayersAround(sharedkernelmodel.WorldId, commonmodel.Position) ([]Player, error)
+	GetPlayersOfWorld(sharedkernelmodel.WorldId) ([]Player, error)
 }

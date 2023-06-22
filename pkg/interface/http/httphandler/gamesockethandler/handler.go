@@ -6,8 +6,8 @@ import (
 	"sync"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gameappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/worldappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/worldjourneyappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
@@ -86,46 +86,41 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 		}
 	}()
 
-	moveSteps := 0
 	worldServerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
-		gameappsrv.NewWorldServerMessageChannel(worldIdDto),
+		worldjourneyappsrv.NewWorldServerMessageChannel(worldIdDto),
 		func(serverMessageBytes []byte) {
-			serverMessage, err := jsonutil.Unmarshal[gameappsrv.ServerMessage](serverMessageBytes)
+			serverMessage, err := jsonutil.Unmarshal[worldjourneyappsrv.ServerMessage](serverMessageBytes)
 			if err != nil {
 				return
 			}
 
 			switch serverMessage.Name {
-			case gameappsrv.UnitCreated:
-				unitCreatedServerMessage, err := jsonutil.Unmarshal[gameappsrv.UnitCreatedServerMessage](serverMessageBytes)
+			case worldjourneyappsrv.UnitCreated:
+				unitCreatedServerMessage, err := jsonutil.Unmarshal[worldjourneyappsrv.UnitCreatedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				httpHandler.sendUnitCreatedResponse(unitCreatedServerMessage.Unit, sendMessage)
-			case gameappsrv.UnitDeleted:
-				unitDeletedServerMessage, err := jsonutil.Unmarshal[gameappsrv.UnitDeletedServerMessage](serverMessageBytes)
+			case worldjourneyappsrv.UnitDeleted:
+				unitDeletedServerMessage, err := jsonutil.Unmarshal[worldjourneyappsrv.UnitDeletedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				httpHandler.sendUnitDeletedResponse(unitDeletedServerMessage.Position, sendMessage)
-			case gameappsrv.PlayerJoined:
-				playerJoinedServerMessage, err := jsonutil.Unmarshal[gameappsrv.PlayerJoinedServerMessage](serverMessageBytes)
+			case worldjourneyappsrv.PlayerJoined:
+				playerJoinedServerMessage, err := jsonutil.Unmarshal[worldjourneyappsrv.PlayerJoinedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				httpHandler.sendPlayerJoinedResponse(playerJoinedServerMessage.Player, sendMessage)
-			case gameappsrv.PlayerMoved:
-				playerMovedServerMessage, err := jsonutil.Unmarshal[gameappsrv.PlayerMovedServerMessage](serverMessageBytes)
+			case worldjourneyappsrv.PlayerMoved:
+				playerMovedServerMessage, err := jsonutil.Unmarshal[worldjourneyappsrv.PlayerMovedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				httpHandler.sendPlayerMovedResponse(playerMovedServerMessage.Player, sendMessage)
-				moveSteps += 1
-				if moveSteps%10 == 0 {
-					httpHandler.executeGetNearbyUnitsQuery(worldIdDto, playerIdDto, sendMessage)
-				}
-			case gameappsrv.PlayerLeft:
-				playerLeftServerMessage, err := jsonutil.Unmarshal[gameappsrv.PlayerLeftServerMessage](serverMessageBytes)
+			case worldjourneyappsrv.PlayerLeft:
+				playerLeftServerMessage, err := jsonutil.Unmarshal[worldjourneyappsrv.PlayerLeftServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
@@ -199,8 +194,8 @@ func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
 func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, directionDto int8) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
-	if err := gameAppService.Move(gameappsrv.MoveCommand{
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
+	if err := worldJourneyAppService.Move(worldjourneyappsrv.MoveCommand{
 		WorldId:   worldIdDto,
 		PlayerId:  playerIdDto,
 		Direction: directionDto,
@@ -215,8 +210,8 @@ func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerI
 func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
-	if err := gameAppService.ChangeHeldItem(gameappsrv.ChangeHeldItemCommand{
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
+	if err := worldJourneyAppService.ChangeHeldItem(worldjourneyappsrv.ChangeHeldItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 		ItemId:   itemIdDto,
@@ -231,8 +226,8 @@ func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUI
 func (httpHandler *HttpHandler) executePlaceItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
-	if err := gameAppService.PlaceItem(gameappsrv.PlaceItemCommand{
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
+	if err := worldJourneyAppService.PlaceItem(worldjourneyappsrv.PlaceItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	}); err != nil {
@@ -246,8 +241,8 @@ func (httpHandler *HttpHandler) executePlaceItemCommand(worldIdDto uuid.UUID, pl
 func (httpHandler *HttpHandler) executeRemoveItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
-	if err := gameAppService.RemoveItem(gameappsrv.RemoveItemCommand{
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
+	if err := worldJourneyAppService.RemoveItem(worldjourneyappsrv.RemoveItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	}); err != nil {
@@ -261,7 +256,7 @@ func (httpHandler *HttpHandler) executeRemoveItemCommand(worldIdDto uuid.UUID, p
 func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, sendMessage func(any)) (playerIdDto uuid.UUID, err error) {
 	pgUow := pguow.NewUow()
 
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
 	worldAppService := providedependency.ProvideWorldAppService(pgUow)
 
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
@@ -271,15 +266,15 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, s
 		return playerIdDto, err
 	}
 
-	if playerIdDto, err = gameAppService.EnterWorld(gameappsrv.EnterWorldCommand{
+	if playerIdDto, err = worldJourneyAppService.EnterWorld(worldjourneyappsrv.EnterWorldCommand{
 		WorldId: worldIdDto,
 	}); err != nil {
 		pgUow.RevertChanges()
 		return playerIdDto, err
 	}
 
-	unitDtos, err := gameAppService.GetNearbyUnits(
-		gameappsrv.GetNearbyUnitsQuery{
+	unitDtos, err := worldJourneyAppService.GetUnits(
+		worldjourneyappsrv.GetUnitsQuery{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		},
@@ -288,8 +283,8 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, s
 		return playerIdDto, err
 	}
 
-	playerDtos, err := gameAppService.GetNearbyPlayers(
-		gameappsrv.GetNearbyPlayersQuery{
+	playerDtos, err := worldJourneyAppService.GetPlayers(
+		worldjourneyappsrv.GetPlayersQuery{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		},
@@ -313,8 +308,8 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, s
 func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
-	if err := gameAppService.LeaveWorld(gameappsrv.LeaveWorldCommand{
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
+	if err := worldJourneyAppService.LeaveWorld(worldjourneyappsrv.LeaveWorldCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	}); err != nil {
@@ -361,27 +356,6 @@ func (httpHandler *HttpHandler) sendPlayerMovedResponse(playerDto dto.PlayerDto,
 	sendMessage(playerMovedResponse{
 		Type:   playerMovedResponseType,
 		Player: playerDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) executeGetNearbyUnitsQuery(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
-	pgUow := pguow.NewDummyUow()
-
-	gameAppService := providedependency.ProvideGameAppService(pgUow)
-	unitDtos, err := gameAppService.GetNearbyUnits(
-		gameappsrv.GetNearbyUnitsQuery{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	sendMessage(unitsUpdatedResponse{
-		Type:  unitsUpdatedResponseType,
-		Units: unitDtos,
 	})
 	return nil
 }
