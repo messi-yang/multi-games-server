@@ -14,8 +14,8 @@ func ProvideWorldJourneyAppService(uow pguow.Uow) worldjourneyappsrv.Service {
 	playerRepo := pgrepo.NewPlayerRepo(uow, domainEventDispatcher)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
-	gameDomainService := service.NewGameService(worldRepo, playerRepo, unitRepo, itemRepo)
+	worldJourneyService := service.NewWorldJourneyService(worldRepo, playerRepo, unitRepo, itemRepo)
 	return worldjourneyappsrv.NewService(
-		worldRepo, playerRepo, unitRepo, itemRepo, gameDomainService,
+		worldRepo, playerRepo, unitRepo, itemRepo, worldJourneyService,
 	)
 }

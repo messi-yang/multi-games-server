@@ -11,6 +11,6 @@ import (
 func ProvideWorldAccessAppService(uow pguow.Uow) worldaccessappsrv.Service {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	worldMemberRepo := pgrepo.NewWorldMemberRepo(uow, domainEventDispatcher)
-	worldAccessDomainService := service.NewWorldAccessService(worldMemberRepo, domainEventDispatcher)
-	return worldaccessappsrv.NewService(worldMemberRepo, worldAccessDomainService)
+	worldAccessService := service.NewWorldAccessService(worldMemberRepo, domainEventDispatcher)
+	return worldaccessappsrv.NewService(worldMemberRepo, worldAccessService)
 }

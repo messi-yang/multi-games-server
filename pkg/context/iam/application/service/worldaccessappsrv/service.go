@@ -15,14 +15,14 @@ type Service interface {
 }
 
 type serve struct {
-	worldMemberRepo          worldaccessmodel.WorldMemberRepo
-	worldAccessDomainService service.WorldAccessService
+	worldMemberRepo    worldaccessmodel.WorldMemberRepo
+	worldAccessService service.WorldAccessService
 }
 
-func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo, worldAccessDomainService service.WorldAccessService) Service {
+func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo, worldAccessService service.WorldAccessService) Service {
 	return &serve{
-		worldMemberRepo:          worldMemberRepo,
-		worldAccessDomainService: worldAccessDomainService,
+		worldMemberRepo:    worldMemberRepo,
+		worldAccessService: worldAccessService,
 	}
 }
 
@@ -31,7 +31,7 @@ func (serve *serve) AddWorldMember(command AddWorldMemberCommand) error {
 	if err != nil {
 		return err
 	}
-	return serve.worldAccessDomainService.AddWorldMember(
+	return serve.worldAccessService.AddWorldMember(
 		sharedkernelmodel.NewWorldId(command.WorldId),
 		sharedkernelmodel.NewUserId(command.UserId),
 		worldRole,

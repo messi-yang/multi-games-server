@@ -18,17 +18,17 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo          worldmodel.WorldRepo
-	worldDomainService service.WorldService
+	worldRepo    worldmodel.WorldRepo
+	worldService service.WorldService
 }
 
 func NewService(
 	worldRepo worldmodel.WorldRepo,
-	worldDomainService service.WorldService,
+	worldService service.WorldService,
 ) Service {
 	return &serve{
-		worldRepo:          worldRepo,
-		worldDomainService: worldDomainService,
+		worldRepo:    worldRepo,
+		worldService: worldService,
 	}
 }
 
@@ -66,7 +66,7 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 
 func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
 	userId := sharedkernelmodel.NewUserId(command.UserId)
-	newWorldId, err := serve.worldDomainService.CreateWorld(userId, command.Name)
+	newWorldId, err := serve.worldService.CreateWorld(userId, command.Name)
 	if err != nil {
 		return newWorldIdDto, err
 	}

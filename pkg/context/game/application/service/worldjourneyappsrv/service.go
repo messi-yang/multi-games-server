@@ -27,11 +27,11 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo         worldmodel.WorldRepo
-	playerRepo        playermodel.PlayerRepo
-	unitRepo          unitmodel.UnitRepo
-	itemRepo          itemmodel.ItemRepo
-	gameDomainService service.GameService
+	worldRepo           worldmodel.WorldRepo
+	playerRepo          playermodel.PlayerRepo
+	unitRepo            unitmodel.UnitRepo
+	itemRepo            itemmodel.ItemRepo
+	worldJourneyService service.WorldJourneyService
 }
 
 func NewService(
@@ -39,14 +39,14 @@ func NewService(
 	playerRepo playermodel.PlayerRepo,
 	unitRepo unitmodel.UnitRepo,
 	itemRepo itemmodel.ItemRepo,
-	gameDomainService service.GameService,
+	worldJourneyService service.WorldJourneyService,
 ) Service {
 	return &serve{
-		worldRepo:         worldRepo,
-		playerRepo:        playerRepo,
-		unitRepo:          unitRepo,
-		itemRepo:          itemRepo,
-		gameDomainService: gameDomainService,
+		worldRepo:           worldRepo,
+		playerRepo:          playerRepo,
+		unitRepo:            unitRepo,
+		itemRepo:            itemRepo,
+		worldJourneyService: worldJourneyService,
 	}
 }
 
@@ -97,7 +97,7 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, er
 }
 
 func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID, err error) {
-	playerId, err := serve.gameDomainService.EnterWorld(sharedkernelmodel.NewWorldId(command.WorldId))
+	playerId, err := serve.worldJourneyService.EnterWorld(sharedkernelmodel.NewWorldId(command.WorldId))
 	if err != nil {
 		return plyaerIdDto, err
 	}
@@ -105,21 +105,21 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 }
 
 func (serve *serve) Move(command MoveCommand) error {
-	return serve.gameDomainService.Move(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewDirection(command.Direction))
+	return serve.worldJourneyService.Move(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewDirection(command.Direction))
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	return serve.gameDomainService.LeaveWorld(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+	return serve.worldJourneyService.LeaveWorld(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	return serve.gameDomainService.PlaceItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+	return serve.worldJourneyService.PlaceItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
-	return serve.gameDomainService.ChangeHeldItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewItemId(command.ItemId))
+	return serve.worldJourneyService.ChangeHeldItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewItemId(command.ItemId))
 }
 
 func (serve *serve) RemoveItem(command RemoveItemCommand) error {
-	return serve.gameDomainService.RemoveItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+	return serve.worldJourneyService.RemoveItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
