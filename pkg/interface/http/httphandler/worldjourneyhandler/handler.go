@@ -1,4 +1,4 @@
-package gamesockethandler
+package worldjourneyhandler
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ func NewHttpHandler(redisServerMessageMediator redisservermessagemediator.Mediat
 	}
 }
 
-func (httpHandler *HttpHandler) GameConnection(c *gin.Context) {
+func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	socketConn, err := websocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		c.String(http.StatusBadRequest, "failed to upgrade http to socket")

@@ -9,10 +9,10 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/gamerhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/gamesockethandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldjourneyhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldmemberhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
 	"github.com/gin-contrib/cors"
@@ -81,9 +81,9 @@ func Run() error {
 	itemRouterGroup.GET("/", itemHttpHandler.QueryItems)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
-	gameSocketHandler := gamesockethandler.NewHttpHandler(redisServerMessageMediator)
-	gameRouterGroup := router.Group("/ws/game")
-	gameRouterGroup.GET("/", gameSocketHandler.GameConnection)
+	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)
+	worldJourneyGroup := router.Group("/api/world-journey")
+	worldJourneyGroup.GET("/", worldJourneyHandler.StartJourney)
 
 	return router.Run()
 }

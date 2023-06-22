@@ -1,4 +1,4 @@
-package gamesockethandler
+package worldjourneyhandler
 
 import "github.com/google/uuid"
 
