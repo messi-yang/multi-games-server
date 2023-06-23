@@ -1,20 +1,20 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/gamermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
 	"github.com/google/uuid"
 )
 
-type GamerDto struct {
+type WorldAccountDto struct {
 	Id          uuid.UUID `json:"id"`
 	UserId      uuid.UUID `json:"userId"`
 	WorldsCount int8      `json:"worldsCount"`
 }
 
-func NewGamerDto(gamer gamermodel.Gamer) GamerDto {
-	return GamerDto{
-		Id:          gamer.GetId().Uuid(),
-		UserId:      gamer.GetUserId().Uuid(),
-		WorldsCount: gamer.GetWorldsCount(),
+func NewWorldAccountDto(worldAccount worldaccountmodel.WorldAccount) WorldAccountDto {
+	return WorldAccountDto{
+		Id:          worldAccount.GetId().Uuid(),
+		UserId:      worldAccount.GetUserId().Uuid(),
+		WorldsCount: worldAccount.GetWorldsCount(),
 	}
 }

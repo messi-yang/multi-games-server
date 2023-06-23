@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GamerModel struct {
+type WorldAccountModel struct {
 	Id               uuid.UUID `gorm:"primaryKey"`
 	UserId           uuid.UUID `gorm:"unique;not null"`
 	User             UserModel `gorm:"foreignKey:UserId;references:Id"`
@@ -16,6 +16,6 @@ type GamerModel struct {
 	UpdatedAt        time.Time `gorm:"autoUpdateTime;not null"`
 }
 
-func (GamerModel) TableName() string {
-	return "gamers"
+func (WorldAccountModel) TableName() string {
+	return "world_accounts"
 }

@@ -8,9 +8,9 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/gamerhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldaccounthttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldjourneyhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldmemberhttphandler"
@@ -60,9 +60,9 @@ func Run() error {
 	userRouterGroup := router.Group("/api/users")
 	userRouterGroup.GET("/me", authorizeAccessTokenMiddleware, userHttpHandler.GetMyUser)
 
-	gamerHttpHandler := gamerhttphandler.NewHttpHandler()
-	gamersRouterGroup := router.Group("/api/gamers")
-	gamersRouterGroup.GET("/", gamerHttpHandler.QueryGamers)
+	worldAccountHttpHandler := worldaccounthttphandler.NewHttpHandler()
+	worldAccountsRouterGroup := router.Group("/api/world-accounts")
+	worldAccountsRouterGroup.GET("/", worldAccountHttpHandler.QueryWorldAccounts)
 
 	worldHttpHandler := worldhttphandler.NewHttpHandler()
 	worldRouterGroup := router.Group("/api/worlds")

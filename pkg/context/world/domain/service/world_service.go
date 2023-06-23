@@ -5,8 +5,8 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/gamermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -17,35 +17,35 @@ type WorldService interface {
 }
 
 type worldServe struct {
-	gamerRepo gamermodel.GamerRepo
-	worldRepo worldmodel.WorldRepo
-	unitRepo  unitmodel.UnitRepo
-	itemRepo  itemmodel.ItemRepo
+	worldAccountRepo worldaccountmodel.WorldAccountRepo
+	worldRepo        worldmodel.WorldRepo
+	unitRepo         unitmodel.UnitRepo
+	itemRepo         itemmodel.ItemRepo
 }
 
 func NewWorldService(
-	gamerRepo gamermodel.GamerRepo,
+	worldAccountRepo worldaccountmodel.WorldAccountRepo,
 	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
 	itemRepo itemmodel.ItemRepo,
 ) WorldService {
 	return &worldServe{
-		gamerRepo: gamerRepo,
-		worldRepo: worldRepo,
-		unitRepo:  unitRepo,
-		itemRepo:  itemRepo,
+		worldAccountRepo: worldAccountRepo,
+		worldRepo:        worldRepo,
+		unitRepo:         unitRepo,
+		itemRepo:         itemRepo,
 	}
 }
 
 func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name string) (worldId sharedkernelmodel.WorldId, err error) {
-	gamer, err := worldServe.gamerRepo.GetGamerByUserId(userId)
+	worldAccount, err := worldServe.worldAccountRepo.GetWorldAccountOfUser(userId)
 	if err != nil {
 		return worldId, err
 	}
-	if err = gamer.AddWorldsCount(); err != nil {
+	if err = worldAccount.AddWorldsCount(); err != nil {
 		return worldId, err
 	}
-	if err = worldServe.gamerRepo.Update(gamer); err != nil {
+	if err = worldServe.worldAccountRepo.Update(worldAccount); err != nil {
 		return worldId, err
 	}
 

@@ -1,4 +1,4 @@
-package gamermodel
+package worldaccountmodel
 
 import (
 	"errors"
@@ -12,8 +12,8 @@ var (
 	ErrWorldsCountExceedsLimit = errors.New("worlds count has reached the limit")
 )
 
-type Gamer struct {
-	id                   GamerId
+type WorldAccount struct {
+	id                   WorldAccountId
 	userId               sharedkernelmodel.UserId
 	worldsCount          int8
 	worldsCountLimit     int8
@@ -21,15 +21,15 @@ type Gamer struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*Gamer)(nil)
+var _ domain.Aggregate = (*WorldAccount)(nil)
 
-func NewGamer(
+func NewWorldAccount(
 	userId sharedkernelmodel.UserId,
 	worldsCount int8,
 	worldsCountLimit int8,
-) Gamer {
-	return Gamer{
-		id:                   NewGamerId(uuid.New()),
+) WorldAccount {
+	return WorldAccount{
+		id:                   NewWorldAccountId(uuid.New()),
 		userId:               userId,
 		worldsCount:          worldsCount,
 		worldsCountLimit:     worldsCountLimit,
@@ -38,12 +38,12 @@ func NewGamer(
 }
 
 func LoadPlayer(
-	id GamerId,
+	id WorldAccountId,
 	userId sharedkernelmodel.UserId,
 	worldsCount int8,
 	worldsCountLimit int8,
-) Gamer {
-	return Gamer{
+) WorldAccount {
+	return WorldAccount{
 		id:                   id,
 		userId:               userId,
 		worldsCount:          worldsCount,
@@ -52,30 +52,30 @@ func LoadPlayer(
 	}
 }
 
-func (gamer *Gamer) PopDomainEvents() []domain.DomainEvent {
-	return gamer.domainEventCollector.PopAll()
+func (worldAccount *WorldAccount) PopDomainEvents() []domain.DomainEvent {
+	return worldAccount.domainEventCollector.PopAll()
 }
 
-func (gamer *Gamer) GetId() GamerId {
-	return gamer.id
+func (worldAccount *WorldAccount) GetId() WorldAccountId {
+	return worldAccount.id
 }
 
-func (gamer *Gamer) GetUserId() sharedkernelmodel.UserId {
-	return gamer.userId
+func (worldAccount *WorldAccount) GetUserId() sharedkernelmodel.UserId {
+	return worldAccount.userId
 }
 
-func (gamer *Gamer) GetWorldsCount() int8 {
-	return gamer.worldsCount
+func (worldAccount *WorldAccount) GetWorldsCount() int8 {
+	return worldAccount.worldsCount
 }
 
-func (gamer *Gamer) GetWorldsCountLimit() int8 {
-	return gamer.worldsCountLimit
+func (worldAccount *WorldAccount) GetWorldsCountLimit() int8 {
+	return worldAccount.worldsCountLimit
 }
 
-func (gamer *Gamer) AddWorldsCount() error {
-	if gamer.GetWorldsCount() >= gamer.GetWorldsCountLimit() {
+func (worldAccount *WorldAccount) AddWorldsCount() error {
+	if worldAccount.GetWorldsCount() >= worldAccount.GetWorldsCountLimit() {
 		return ErrWorldsCountExceedsLimit
 	}
-	gamer.worldsCount += 1
+	worldAccount.worldsCount += 1
 	return nil
 }
