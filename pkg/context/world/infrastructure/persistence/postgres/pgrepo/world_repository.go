@@ -3,34 +3,47 @@ package pgrepo
 import (
 	"time"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
-	"github.com/samber/lo"
 )
 
 func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 	return pgmodel.WorldModel{
-		Id:        world.GetId().Uuid(),
-		UserId:    world.GetUserId().Uuid(),
-		Name:      world.GetName(),
-		UpdatedAt: world.GetUpdatedAt(),
-		CreatedAt: world.GetCreatedAt(),
+		Id:         world.GetId().Uuid(),
+		UserId:     world.GetUserId().Uuid(),
+		Name:       world.GetName(),
+		BoundFromX: world.GetBound().GetFrom().GetX(),
+		BoundFromZ: world.GetBound().GetFrom().GetZ(),
+		BoundToX:   world.GetBound().GetTo().GetX(),
+		BoundToZ:   world.GetBound().GetTo().GetZ(),
+		UpdatedAt:  world.GetUpdatedAt(),
+		CreatedAt:  world.GetCreatedAt(),
 	}
 }
 
-func parseWorldModel(worldModel pgmodel.WorldModel) worldmodel.World {
+func parseWorldModel(worldModel pgmodel.WorldModel) (world worldmodel.World, err error) {
+	bound, err := commonmodel.NewBound(
+		commonmodel.NewPosition(worldModel.BoundFromX, worldModel.BoundFromZ),
+		commonmodel.NewPosition(worldModel.BoundToX, worldModel.BoundToZ),
+	)
+	if err != nil {
+		return world, err
+	}
 	return worldmodel.LoadWorld(
 		sharedkernelmodel.NewWorldId(worldModel.Id),
 		sharedkernelmodel.NewUserId(worldModel.UserId),
 		worldModel.Name,
+		bound,
 		worldModel.CreatedAt,
 		worldModel.UpdatedAt,
-	)
+	), nil
 }
 
 type worldRepo struct {
@@ -73,7 +86,7 @@ func (repo *worldRepo) Get(worldId sharedkernelmodel.WorldId) (world worldmodel.
 	}); err != nil {
 		return world, err
 	}
-	return parseWorldModel(worldModel), nil
+	return parseWorldModel(worldModel)
 }
 
 func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, err error) {
@@ -85,10 +98,9 @@ func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, 
 		return worlds, err
 	}
 
-	worlds = lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.World {
+	return commonutil.MapWithError[pgmodel.WorldModel](worldModels, func(_ int, worldModel pgmodel.WorldModel) (worldmodel.World, error) {
 		return parseWorldModel(worldModel)
 	})
-	return worlds, nil
 }
 
 func (repo *worldRepo) GetWorldsOfUser(userId sharedkernelmodel.UserId) (worlds []worldmodel.World, err error) {
@@ -105,8 +117,7 @@ func (repo *worldRepo) GetWorldsOfUser(userId sharedkernelmodel.UserId) (worlds 
 		return worlds, err
 	}
 
-	worlds = lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.World {
+	return commonutil.MapWithError[pgmodel.WorldModel](worldModels, func(_ int, worldModel pgmodel.WorldModel) (worldmodel.World, error) {
 		return parseWorldModel(worldModel)
 	})
-	return worlds, nil
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/google/uuid"
 )
 
@@ -12,6 +13,7 @@ type World struct {
 	id                   sharedkernelmodel.WorldId
 	userId               sharedkernelmodel.UserId
 	name                 string
+	bound                commonmodel.Bound
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -20,11 +22,16 @@ type World struct {
 // Interface Implementation Check
 var _ domain.Aggregate = (*World)(nil)
 
-func NewWorld(userId sharedkernelmodel.UserId, name string) World {
+func NewWorld(
+	userId sharedkernelmodel.UserId,
+	name string,
+	bound commonmodel.Bound,
+) World {
 	newWorld := World{
 		id:                   sharedkernelmodel.NewWorldId(uuid.New()),
 		userId:               userId,
 		name:                 name,
+		bound:                bound,
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -40,6 +47,7 @@ func LoadWorld(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
 	name string,
+	bound commonmodel.Bound,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) World {
@@ -47,6 +55,7 @@ func LoadWorld(
 		id:                   worldId,
 		userId:               userId,
 		name:                 name,
+		bound:                bound,
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -67,6 +76,10 @@ func (world *World) GetUserId() sharedkernelmodel.UserId {
 
 func (world *World) GetName() string {
 	return world.name
+}
+
+func (world *World) GetBound() commonmodel.Bound {
+	return world.bound
 }
 
 func (world *World) ChangeName(name string) {

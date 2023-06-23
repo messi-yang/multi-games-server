@@ -35,22 +35,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: gamers; Type: TABLE; Schema: public; Owner: main
---
-
-CREATE TABLE public.gamers (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    worlds_count integer DEFAULT 0 NOT NULL,
-    worlds_count_limit integer DEFAULT 1 NOT NULL
-);
-
-
-ALTER TABLE public.gamers OWNER TO main;
-
---
 -- Name: items; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -130,6 +114,22 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO main;
 
 --
+-- Name: world_accounts; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.world_accounts (
+    id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    worlds_count integer DEFAULT 0 NOT NULL,
+    worlds_count_limit integer DEFAULT 1 NOT NULL
+);
+
+
+ALTER TABLE public.world_accounts OWNER TO main;
+
+--
 -- Name: world_members; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -154,25 +154,29 @@ CREATE TABLE public.worlds (
     user_id uuid NOT NULL,
     name character varying(50) NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone NOT NULL,
+    bound_from_x integer DEFAULT '-50'::integer,
+    bound_from_z integer DEFAULT '-50'::integer,
+    bound_to_x integer DEFAULT 50,
+    bound_to_z integer DEFAULT 50
 );
 
 
 ALTER TABLE public.worlds OWNER TO main;
 
 --
--- Name: gamers game_users_pkey; Type: CONSTRAINT; Schema: public; Owner: main
+-- Name: world_accounts game_users_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.gamers
+ALTER TABLE ONLY public.world_accounts
     ADD CONSTRAINT game_users_pkey PRIMARY KEY (id);
 
 
 --
--- Name: gamers game_users_user_id_key; Type: CONSTRAINT; Schema: public; Owner: main
+-- Name: world_accounts game_users_user_id_key; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.gamers
+ALTER TABLE ONLY public.world_accounts
     ADD CONSTRAINT game_users_user_id_key UNIQUE (user_id);
 
 
@@ -310,10 +314,10 @@ ALTER TABLE ONLY public.players
 
 
 --
--- Name: gamers fk_user; Type: FK CONSTRAINT; Schema: public; Owner: main
+-- Name: world_accounts fk_user; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.gamers
+ALTER TABLE ONLY public.world_accounts
     ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 

@@ -49,7 +49,15 @@ func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name 
 		return worldId, err
 	}
 
-	newWorld := worldmodel.NewWorld(userId, name)
+	worldBound, err := commonmodel.NewBound(
+		commonmodel.NewPosition(-50, -50),
+		commonmodel.NewPosition(50, 50),
+	)
+	if err != nil {
+		return worldId, err
+	}
+
+	newWorld := worldmodel.NewWorld(userId, name, worldBound)
 	worldId = newWorld.GetId()
 
 	if err = worldServe.worldRepo.Add(newWorld); err != nil {
