@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
-	"github.com/samber/lo"
 )
 
 type ErrInvalidBound struct {
@@ -55,16 +54,6 @@ func (bound Bound) GetHeight() int {
 	return bound.to.GetZ() - bound.from.GetZ() + 1
 }
 
-func (bound Bound) GetCenterPos() Position {
-	return NewPosition((bound.from.x+bound.to.x)/2, (bound.from.z+bound.to.z)/2)
-}
-
 func (bound Bound) CoversPosition(position Position) bool {
 	return position.GetX() >= bound.from.GetX() && position.GetX() <= bound.to.GetX() && position.GetZ() >= bound.from.GetZ() && position.GetZ() <= bound.to.GetZ()
-}
-
-func (bound Bound) CoverAnyPositions(positions []Position) bool {
-	return lo.ContainsBy(positions, func(position Position) bool {
-		return bound.CoversPosition(position)
-	})
 }

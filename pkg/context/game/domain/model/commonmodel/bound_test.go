@@ -40,12 +40,3 @@ func TestBound_GetHeight(t *testing.T) {
 
 	assert.Equal(t, 11, bound.GetHeight(), "bound height should be 11")
 }
-
-func TestBound_GetCenterPos(t *testing.T) {
-	bound1, _ := NewBound(NewPosition(0, 0), NewPosition(10, 10))
-	expectedCenterPos := NewPosition(5, 5)
-	assert.True(t, bound1.GetCenterPos().IsEqual(expectedCenterPos), "center position of the bound should be (5, 5)")
-
-	bound2, _ := NewBound(NewPosition(0, 0), NewPosition(11, 11))
-	assert.True(t, bound2.GetCenterPos().IsEqual(expectedCenterPos), "center position of the bound should be (5, 5)")
-}
