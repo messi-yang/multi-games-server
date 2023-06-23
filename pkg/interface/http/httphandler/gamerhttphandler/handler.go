@@ -3,9 +3,9 @@ package gamerhttphandler
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/game/application/service/gamerappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/gamerappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/gin-gonic/gin"
 )
 
