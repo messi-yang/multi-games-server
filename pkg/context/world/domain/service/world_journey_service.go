@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
@@ -8,6 +10,12 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/google/uuid"
+)
+
+var (
+	errPlayerExceededBoundary          = fmt.Errorf("player exceeded the boundary of the world")
+	errPositionAlreadyHasUnitOrPlayers = fmt.Errorf("the position already has an unit or players")
+	errPositionDoesNotHaveUnit         = fmt.Errorf("the position does not have an unit")
 )
 
 type WorldJourneyService interface {
@@ -65,7 +73,8 @@ func (worldJourneyServe *worldJourneyServe) EnterWorld(worldId sharedkernelmodel
 func (worldJourneyServe *worldJourneyServe) Move(
 	worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId, direction commonmodel.Direction,
 ) error {
-	if _, err := worldJourneyServe.worldRepo.Get(worldId); err != nil {
+	world, err := worldJourneyServe.worldRepo.Get(worldId)
+	if err != nil {
 		return err
 	}
 
@@ -97,6 +106,10 @@ func (worldJourneyServe *worldJourneyServe) Move(
 		}
 	} else {
 		player.Move(newItemPos, direction)
+	}
+
+	if !world.GetBound().CoversPosition(player.GetPosition()) {
+		return errPlayerExceededBoundary
 	}
 
 	return worldJourneyServe.playerRepo.Update(player)
@@ -164,7 +177,7 @@ func (worldJourneyServe *worldJourneyServe) PlaceItem(worldId sharedkernelmodel.
 		return err
 	}
 	if unit != nil {
-		return nil
+		return errPositionAlreadyHasUnitOrPlayers
 	}
 
 	players, err := worldJourneyServe.playerRepo.GetPlayersAt(worldId, newItemPos)
@@ -173,7 +186,7 @@ func (worldJourneyServe *worldJourneyServe) PlaceItem(worldId sharedkernelmodel.
 	}
 
 	if !item.GetTraversable() && len(players) > 0 {
-		return nil
+		return errPositionAlreadyHasUnitOrPlayers
 	}
 
 	newUnitDirection := player.GetDirection().Rotate().Rotate()
@@ -198,7 +211,7 @@ func (worldJourneyServe *worldJourneyServe) RemoveItem(worldId sharedkernelmodel
 		return err
 	}
 	if unit == nil {
-		return nil
+		return errPositionDoesNotHaveUnit
 	}
 	unit.Delete()
 	return worldJourneyServe.unitRepo.Delete(*unit)

@@ -60,11 +60,14 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	closeConnection := func() {
 		closeConnFlag.Done()
 	}
-	closeConnectionOnError := func(err error) {
+	sendError := func(err error) {
 		sendMessage(errorHappenedResponse{
 			Type:    errorHappenedResponseType,
 			Message: err.Error(),
 		})
+	}
+	closeConnectionOnError := func(err error) {
+		sendError(err)
 		closeConnection()
 	}
 
@@ -155,7 +158,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
-					closeConnectionOnError(err)
+					sendError(err)
 				}
 			case changeHeldItemRequestType:
 				requestDto, err := jsonutil.Unmarshal[changeHeldItemRequest](message)
@@ -164,7 +167,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeChangeHeldItemCommand(worldIdDto, playerIdDto, requestDto.ItemId); err != nil {
-					closeConnectionOnError(err)
+					sendError(err)
 				}
 			case placeItemRequestType:
 				if _, err := jsonutil.Unmarshal[placeItemRequest](message); err != nil {
@@ -172,7 +175,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executePlaceItemCommand(worldIdDto, playerIdDto); err != nil {
-					closeConnectionOnError(err)
+					sendError(err)
 				}
 			case removeItemRequestType:
 				_, err := jsonutil.Unmarshal[removeItemRequest](message)
@@ -181,7 +184,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeRemoveItemCommand(worldIdDto, playerIdDto); err != nil {
-					closeConnectionOnError(err)
+					sendError(err)
 				}
 			default:
 			}
