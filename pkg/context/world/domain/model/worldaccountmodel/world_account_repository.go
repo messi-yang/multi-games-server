@@ -9,6 +9,6 @@ type WorldAccountRepo interface {
 	Update(WorldAccount) error
 	Get(WorldAccountId) (WorldAccount, error)
 	GetAll() ([]WorldAccount, error)
-	FindWorldAccountByUserId(sharedkernelmodel.UserId) (worldAccount WorldAccount, worldAccountFound bool, err error)
+	GetWorldAccountByUserId(sharedkernelmodel.UserId) (worldAccount *WorldAccount, err error)
 	GetWorldAccountOfUser(sharedkernelmodel.UserId) (worldAccount WorldAccount, err error)
 }

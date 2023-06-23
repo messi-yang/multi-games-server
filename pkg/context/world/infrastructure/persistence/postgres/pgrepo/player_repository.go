@@ -124,7 +124,7 @@ func (repo *playerRepo) Get(playerId playermodel.PlayerId) (player playermodel.P
 	return parsePlayerModel(playerModel), nil
 }
 
-func (repo *playerRepo) FindPlayersAt(worldId sharedkernelmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, playersFound bool, err error) {
+func (repo *playerRepo) GetPlayersAt(worldId sharedkernelmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, err error) {
 	var playerModels = []pgmodel.PlayerModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Joins("User").Where(
@@ -134,14 +134,12 @@ func (repo *playerRepo) FindPlayersAt(worldId sharedkernelmodel.WorldId, positio
 			position.GetZ(),
 		).Find(&playerModels).Error
 	}); err != nil {
-		return players, playersFound, err
+		return players, err
 	}
-
-	playersFound = len(playerModels) >= 1
 
 	return lo.Map(playerModels, func(playerModel pgmodel.PlayerModel, _ int) playermodel.Player {
 		return parsePlayerModel(playerModel)
-	}), playersFound, nil
+	}), nil
 }
 
 func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) (players []playermodel.Player, err error) {

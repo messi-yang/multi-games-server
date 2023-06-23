@@ -69,7 +69,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	userAppService := providedependency.ProvideUserAppService(pgUow)
 	authAppService := providedependency.ProvideAuthAppService(pgUow)
 
-	userDto, userFound, err := userAppService.FindUserByEmailAddress(userappsrv.FindUserByEmailAddressQuery{
+	userDto, err := userAppService.GetUserByEmailAddress(userappsrv.GetUserByEmailAddressQuery{
 		EmailAddress: userEmailAddress,
 	})
 	if err != nil {
@@ -78,7 +78,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	}
 
 	var userIdDto uuid.UUID
-	if userFound {
+	if userDto != nil {
 		userIdDto = userDto.Id
 	} else {
 		userIdDto, err = authAppService.Register(authappsrv.RegisterCommand{EmailAddress: userEmailAddress})

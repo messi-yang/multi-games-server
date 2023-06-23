@@ -1,7 +1,7 @@
 package pgrepo
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
 	"gorm.io/gorm"
@@ -73,25 +73,23 @@ func (repo *userRepo) Get(userId sharedkernelmodel.UserId) (user identitymodel.U
 	return parseUserModel(userModel)
 }
 
-func (repo *userRepo) FindUserByEmailAddress(emailAddress sharedkernelmodel.EmailAddress) (user identitymodel.User, userFound bool, err error) {
-	userModels := []pgmodel.UserModel{}
-	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Find(
-			&userModels,
-			pgmodel.UserModel{EmailAddress: emailAddress.String()},
-		).Error
+func (repo *userRepo) GetUserByEmailAddress(emailAddress sharedkernelmodel.EmailAddress) (*identitymodel.User, error) {
+	userModel := pgmodel.UserModel{}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"email_address = ?",
+			emailAddress.String(),
+		).First(&userModel).Error
 	}); err != nil {
-		return user, userFound, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 
-	userFound = len(userModels) >= 1
-	if !userFound {
-		return user, false, nil
-	}
-	user, err = parseUserModel(userModels[0])
-	fmt.Println("-----2", err)
+	user, err := parseUserModel(userModel)
 	if err != nil {
-		return user, userFound, err
+		return nil, err
 	}
-	return user, true, nil
+	return &user, nil
 }

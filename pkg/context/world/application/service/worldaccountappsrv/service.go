@@ -40,11 +40,11 @@ func (serve *serve) GetWorldAccountOfUser(query GetWorldAccountOfUserQuery) (wor
 
 func (serve *serve) CreateWorldAccount(command CreateWorldAccountCommand) (worldAccountIdDto uuid.UUID, err error) {
 	userId := sharedkernelmodel.NewUserId(command.UserId)
-	_, worldAccountFound, err := serve.worldAccountRepo.FindWorldAccountByUserId(userId)
+	worldAccount, err := serve.worldAccountRepo.GetWorldAccountByUserId(userId)
 	if err != nil {
 		return worldAccountIdDto, err
 	}
-	if worldAccountFound {
+	if worldAccount != nil {
 		return worldAccountIdDto, fmt.Errorf("already has a worldAccount with userId of %s", userId.Uuid().String())
 	}
 	newWorldAccount := worldaccountmodel.NewWorldAccount(userId, 0, 1)

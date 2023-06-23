@@ -1,7 +1,10 @@
 package pgrepo
 
 import (
+	"errors"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
@@ -82,19 +85,21 @@ func (repo *worldAccountRepo) GetWorldAccountOfUser(userId sharedkernelmodel.Use
 	return parseWorldAccountModel(worldAccountModel), nil
 }
 
-func (repo *worldAccountRepo) FindWorldAccountByUserId(userId sharedkernelmodel.UserId) (worldAccount worldaccountmodel.WorldAccount, worldAccountFound bool, err error) {
-	worldAccountModels := []pgmodel.WorldAccountModel{}
-	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Find(&worldAccountModels, pgmodel.WorldAccountModel{UserId: userId.Uuid()}).Error
+func (repo *worldAccountRepo) GetWorldAccountByUserId(userId sharedkernelmodel.UserId) (*worldaccountmodel.WorldAccount, error) {
+	worldAccountModel := pgmodel.WorldAccountModel{}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"user_id = ?",
+			userId.Uuid(),
+		).First(&worldAccountModel).Error
 	}); err != nil {
-		return worldAccount, worldAccountFound, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 
-	worldAccountFound = len(worldAccountModels) >= 1
-	if !worldAccountFound {
-		return worldAccount, false, nil
-	}
-	return parseWorldAccountModel(worldAccountModels[0]), true, nil
+	return commonutil.ToPointer(parseWorldAccountModel(worldAccountModel)), nil
 }
 
 func (repo *worldAccountRepo) GetAll() (worldAccounts []worldaccountmodel.WorldAccount, err error) {

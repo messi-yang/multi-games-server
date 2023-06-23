@@ -35,21 +35,21 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 		return userIdDto, err
 	}
 
-	_, userFound, err := serve.userRepo.FindUserByEmailAddress(emailAddress)
+	user, err := serve.userRepo.GetUserByEmailAddress(emailAddress)
 	if err != nil {
 		return userIdDto, err
 	}
 
-	if userFound {
+	if user != nil {
 		return userIdDto, fmt.Errorf("user with email address of %s already exists", command.EmailAddress)
 	}
 
-	user, err := serve.identityService.Register(emailAddress, sharedkernelmodel.NewRandomUsername())
+	newUser, err := serve.identityService.Register(emailAddress, sharedkernelmodel.NewRandomUsername())
 	if err != nil {
 		return userIdDto, err
 	}
 
-	return user.GetId().Uuid(), nil
+	return newUser.GetId().Uuid(), nil
 }
 
 func (serve *serve) Login(command LoginCommand) (accessToken string, err error) {

@@ -81,12 +81,12 @@ func (worldJourneyServe *worldJourneyServe) Move(
 
 	newItemPos := player.GetPositionOneStepFoward()
 
-	unit, unitFound, err := worldJourneyServe.unitRepo.FindUnitAt(worldId, newItemPos)
+	unit, err := worldJourneyServe.unitRepo.GetUnitAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
 
-	if unitFound {
+	if unit != nil {
 		itemId := unit.GetItemId()
 		item, err := worldJourneyServe.itemRepo.Get(itemId)
 		if err != nil {
@@ -159,20 +159,20 @@ func (worldJourneyServe *worldJourneyServe) PlaceItem(worldId sharedkernelmodel.
 		return nil
 	}
 
-	_, unitFound, err := worldJourneyServe.unitRepo.FindUnitAt(worldId, newItemPos)
+	unit, err := worldJourneyServe.unitRepo.GetUnitAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
-	if unitFound {
+	if unit != nil {
 		return nil
 	}
 
-	_, playerFound, err := worldJourneyServe.playerRepo.FindPlayersAt(worldId, newItemPos)
+	players, err := worldJourneyServe.playerRepo.GetPlayersAt(worldId, newItemPos)
 	if err != nil {
 		return err
 	}
 
-	if !item.GetTraversable() && playerFound {
+	if !item.GetTraversable() && len(players) > 0 {
 		return nil
 	}
 
@@ -193,13 +193,13 @@ func (worldJourneyServe *worldJourneyServe) RemoveItem(worldId sharedkernelmodel
 
 	targetUnitPos := player.GetPositionOneStepFoward()
 
-	unit, unitFound, err := worldJourneyServe.unitRepo.FindUnitAt(worldId, targetUnitPos)
+	unit, err := worldJourneyServe.unitRepo.GetUnitAt(worldId, targetUnitPos)
 	if err != nil {
 		return err
 	}
-	if !unitFound {
+	if unit == nil {
 		return nil
 	}
 	unit.Delete()
-	return worldJourneyServe.unitRepo.Delete(unit)
+	return worldJourneyServe.unitRepo.Delete(*unit)
 }

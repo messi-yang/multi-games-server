@@ -9,6 +9,6 @@ type UnitRepo interface {
 	Add(Unit) error
 	Get(UnitId) (Unit, error)
 	Delete(Unit) error
-	FindUnitAt(sharedkernelmodel.WorldId, commonmodel.Position) (unit Unit, found bool, err error)
+	GetUnitAt(sharedkernelmodel.WorldId, commonmodel.Position) (unit *Unit, err error)
 	GetUnitsOfWorld(sharedkernelmodel.WorldId) ([]Unit, error)
 }

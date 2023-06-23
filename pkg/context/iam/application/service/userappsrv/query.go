@@ -2,7 +2,7 @@ package userappsrv
 
 import "github.com/google/uuid"
 
-type FindUserByEmailAddressQuery struct {
+type GetUserByEmailAddressQuery struct {
 	EmailAddress string
 }
 

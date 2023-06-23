@@ -4,10 +4,12 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/samber/lo"
 )
 
 type Service interface {
-	FindUserByEmailAddress(FindUserByEmailAddressQuery) (userDto dto.UserDto, found bool, err error)
+	GetUserByEmailAddress(GetUserByEmailAddressQuery) (userDto *dto.UserDto, err error)
 	GetUserQuery(GetUserQuery) (userDto dto.UserDto, err error)
 }
 
@@ -21,20 +23,25 @@ func NewService(userRepo identitymodel.UserRepo) Service {
 	}
 }
 
-func (serve *serve) FindUserByEmailAddress(query FindUserByEmailAddressQuery) (userDto dto.UserDto, found bool, err error) {
+func (serve *serve) GetUserByEmailAddress(query GetUserByEmailAddressQuery) (*dto.UserDto, error) {
 	emailAddress, err := sharedkernelmodel.NewEmailAddress(query.EmailAddress)
 	if err != nil {
-		return userDto, found, err
+		return nil, err
 	}
 
-	user, found, err := serve.userRepo.FindUserByEmailAddress(emailAddress)
+	user, err := serve.userRepo.GetUserByEmailAddress(emailAddress)
 	if err != nil {
-		return userDto, found, err
+		return nil, err
 	}
-	if !found {
-		return userDto, false, err
-	}
-	return dto.NewUserDto(user), true, nil
+	return lo.TernaryF(
+		user == nil,
+		func() *dto.UserDto {
+			return nil
+		},
+		func() *dto.UserDto {
+			return commonutil.ToPointer(dto.NewUserDto(*user))
+		},
+	), nil
 }
 
 func (serve *serve) GetUserQuery(query GetUserQuery) (userDto dto.UserDto, err error) {

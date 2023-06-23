@@ -1,8 +1,11 @@
 package pgrepo
 
 import (
+	"errors"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
@@ -85,26 +88,25 @@ func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
 	return repo.domainEventDispatcher.Dispatch(&unit)
 }
 
-func (repo *unitRepo) FindUnitAt(
+func (repo *unitRepo) GetUnitAt(
 	worldId sharedkernelmodel.WorldId, position commonmodel.Position,
-) (unit unitmodel.Unit, found bool, err error) {
-	unitModels := []pgmodel.UnitModel{}
-	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+) (*unitmodel.Unit, error) {
+	unitModel := pgmodel.UnitModel{}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
 			worldId.Uuid(),
 			position.GetX(),
 			position.GetZ(),
-		).Find(&unitModels).Error
+		).First(&unitModel).Error
 	}); err != nil {
-		return unit, found, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 
-	found = len(unitModels) >= 1
-	if found {
-		unit = parseUnitModel(unitModels[0])
-	}
-	return unit, found, nil
+	return commonutil.ToPointer(parseUnitModel(unitModel)), nil
 }
 
 func (repo *unitRepo) GetUnitsOfWorld(
