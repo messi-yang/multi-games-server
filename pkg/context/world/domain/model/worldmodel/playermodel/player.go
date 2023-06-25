@@ -8,20 +8,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 )
 
-func calculatePlayerVisionBound(pos commonmodel.Position) commonmodel.Bound {
-	fromX := pos.GetX() - 50
-	toX := pos.GetX() + 50
-
-	fromY := pos.GetZ() - 50
-	toY := pos.GetZ() + 50
-
-	from := commonmodel.NewPosition(fromX, fromY)
-	to := commonmodel.NewPosition(toX, toY)
-	bound, _ := commonmodel.NewBound(from, to)
-
-	return bound
-}
-
 type Player struct {
 	id                   PlayerId                  // Id of the player
 	worldId              sharedkernelmodel.WorldId // The id of the world the player belongs to
@@ -119,10 +105,6 @@ func (player *Player) Move(position commonmodel.Position, direction commonmodel.
 
 func (player *Player) GetDirection() commonmodel.Direction {
 	return player.direction
-}
-
-func (player *Player) GetVisionBound() commonmodel.Bound {
-	return calculatePlayerVisionBound(player.position)
 }
 
 func (player *Player) GetPositionOneStepFoward() commonmodel.Position {
