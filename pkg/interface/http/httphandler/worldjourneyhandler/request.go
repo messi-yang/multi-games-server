@@ -8,8 +8,8 @@ const (
 	pingRequestType           RequestType = "PING"
 	moveRequestType           RequestType = "MOVE"
 	changeHeldItemRequestType RequestType = "CHANGE_HELD_ITEM"
-	placeItemRequestType      RequestType = "PLACE_ITEM"
-	removeItemRequestType     RequestType = "REMOVE_ITEM"
+	placeUnitRequestType      RequestType = "PLACE_UNIT"
+	removeUnitRequestType     RequestType = "REMOVE_UNIT"
 )
 
 type genericRequest struct {
@@ -26,10 +26,10 @@ type changeHeldItemRequest struct {
 	ItemId uuid.UUID   `json:"itemId"`
 }
 
-type placeItemRequest struct {
+type placeUnitRequest struct {
 	Type RequestType `json:"type"`
 }
 
-type removeItemRequest struct {
+type removeUnitRequest struct {
 	Type RequestType `json:"type"`
 }

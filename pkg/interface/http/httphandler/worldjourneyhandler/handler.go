@@ -169,21 +169,21 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err = httpHandler.executeChangeHeldItemCommand(worldIdDto, playerIdDto, requestDto.ItemId); err != nil {
 					sendError(err)
 				}
-			case placeItemRequestType:
-				if _, err := jsonutil.Unmarshal[placeItemRequest](message); err != nil {
+			case placeUnitRequestType:
+				if _, err := jsonutil.Unmarshal[placeUnitRequest](message); err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executePlaceItemCommand(worldIdDto, playerIdDto); err != nil {
+				if err = httpHandler.executePlaceUnitCommand(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}
-			case removeItemRequestType:
-				_, err := jsonutil.Unmarshal[removeItemRequest](message)
+			case removeUnitRequestType:
+				_, err := jsonutil.Unmarshal[removeUnitRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemoveItemCommand(worldIdDto, playerIdDto); err != nil {
+				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}
 			default:
@@ -226,11 +226,11 @@ func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUI
 	return nil
 }
 
-func (httpHandler *HttpHandler) executePlaceItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) executePlaceUnitCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
-	if err := worldJourneyAppService.PlaceItem(worldjourneyappsrv.PlaceItemCommand{
+	if err := worldJourneyAppService.PlaceUnit(worldjourneyappsrv.PlaceUnitCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	}); err != nil {
@@ -241,11 +241,11 @@ func (httpHandler *HttpHandler) executePlaceItemCommand(worldIdDto uuid.UUID, pl
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemoveItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) executeRemoveUnitCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	pgUow := pguow.NewUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
-	if err := worldJourneyAppService.RemoveItem(worldjourneyappsrv.RemoveItemCommand{
+	if err := worldJourneyAppService.RemoveUnit(worldjourneyappsrv.RemoveUnitCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	}); err != nil {

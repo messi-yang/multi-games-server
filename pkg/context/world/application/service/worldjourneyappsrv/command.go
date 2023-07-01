@@ -10,12 +10,12 @@ type ChangeHeldItemCommand struct {
 	ItemId   uuid.UUID
 }
 
-type PlaceItemCommand struct {
+type PlaceUnitCommand struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }
 
-type RemoveItemCommand struct {
+type RemoveUnitCommand struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }

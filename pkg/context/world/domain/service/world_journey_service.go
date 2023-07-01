@@ -23,8 +23,8 @@ type WorldJourneyService interface {
 	Move(sharedkernelmodel.WorldId, playermodel.PlayerId, commonmodel.Direction) error
 	LeaveWorld(sharedkernelmodel.WorldId, playermodel.PlayerId) error
 	ChangeHeldItem(sharedkernelmodel.WorldId, playermodel.PlayerId, commonmodel.ItemId) error
-	PlaceItem(sharedkernelmodel.WorldId, playermodel.PlayerId) error
-	RemoveItem(sharedkernelmodel.WorldId, playermodel.PlayerId) error
+	PlaceUnit(sharedkernelmodel.WorldId, playermodel.PlayerId) error
+	RemoveUnit(sharedkernelmodel.WorldId, playermodel.PlayerId) error
 }
 
 type worldJourneyServe struct {
@@ -146,7 +146,7 @@ func (worldJourneyServe *worldJourneyServe) ChangeHeldItem(worldId sharedkernelm
 	return worldJourneyServe.playerRepo.Update(player)
 }
 
-func (worldJourneyServe *worldJourneyServe) PlaceItem(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) error {
+func (worldJourneyServe *worldJourneyServe) PlaceUnit(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) error {
 	if _, err := worldJourneyServe.worldRepo.Get(worldId); err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func (worldJourneyServe *worldJourneyServe) PlaceItem(worldId sharedkernelmodel.
 	return worldJourneyServe.unitRepo.Add(newUnit)
 }
 
-func (worldJourneyServe *worldJourneyServe) RemoveItem(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) error {
+func (worldJourneyServe *worldJourneyServe) RemoveUnit(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) error {
 	if _, err := worldJourneyServe.worldRepo.Get(worldId); err != nil {
 		return err
 	}

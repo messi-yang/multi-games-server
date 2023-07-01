@@ -22,8 +22,8 @@ type Service interface {
 	Move(MoveCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangeHeldItem(ChangeHeldItemCommand) error
-	PlaceItem(PlaceItemCommand) error
-	RemoveItem(RemoveItemCommand) error
+	PlaceUnit(PlaceUnitCommand) error
+	RemoveUnit(RemoveUnitCommand) error
 }
 
 type serve struct {
@@ -112,14 +112,14 @@ func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
 	return serve.worldJourneyService.LeaveWorld(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
 
-func (serve *serve) PlaceItem(command PlaceItemCommand) error {
-	return serve.worldJourneyService.PlaceItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+func (serve *serve) PlaceUnit(command PlaceUnitCommand) error {
+	return serve.worldJourneyService.PlaceUnit(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
 	return serve.worldJourneyService.ChangeHeldItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewItemId(command.ItemId))
 }
 
-func (serve *serve) RemoveItem(command RemoveItemCommand) error {
-	return serve.worldJourneyService.RemoveItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
+	return serve.worldJourneyService.RemoveUnit(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
