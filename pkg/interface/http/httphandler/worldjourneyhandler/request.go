@@ -1,6 +1,9 @@
 package worldjourneyhandler
 
-import "github.com/google/uuid"
+import (
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/google/uuid"
+)
 
 type RequestType string
 
@@ -31,5 +34,6 @@ type placeUnitRequest struct {
 }
 
 type removeUnitRequest struct {
-	Type RequestType `json:"type"`
+	Type     RequestType     `json:"type"`
+	Position dto.PositionDto `json:"position"`
 }

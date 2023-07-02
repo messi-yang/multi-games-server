@@ -24,7 +24,7 @@ type WorldJourneyService interface {
 	LeaveWorld(sharedkernelmodel.WorldId, playermodel.PlayerId) error
 	ChangeHeldItem(sharedkernelmodel.WorldId, playermodel.PlayerId, commonmodel.ItemId) error
 	PlaceUnit(sharedkernelmodel.WorldId, playermodel.PlayerId) error
-	RemoveUnit(sharedkernelmodel.WorldId, playermodel.PlayerId) error
+	RemoveUnit(sharedkernelmodel.WorldId, commonmodel.Position) error
 }
 
 type worldJourneyServe struct {
@@ -194,25 +194,18 @@ func (worldJourneyServe *worldJourneyServe) PlaceUnit(worldId sharedkernelmodel.
 	return worldJourneyServe.unitRepo.Add(newUnit)
 }
 
-func (worldJourneyServe *worldJourneyServe) RemoveUnit(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) error {
+func (worldJourneyServe *worldJourneyServe) RemoveUnit(worldId sharedkernelmodel.WorldId, position commonmodel.Position) error {
 	if _, err := worldJourneyServe.worldRepo.Get(worldId); err != nil {
 		return err
 	}
 
-	player, err := worldJourneyServe.playerRepo.Get(playerId)
-	if err != nil {
-		return err
-	}
-
-	targetUnitPos := player.GetPositionOneStepFoward()
-
-	unit, err := worldJourneyServe.unitRepo.GetUnitAt(worldId, targetUnitPos)
+	unit, err := worldJourneyServe.unitRepo.GetUnitAt(worldId, position)
 	if err != nil {
 		return err
 	}
 	if unit == nil {
 		return errPositionDoesNotHaveUnit
 	}
-	unit.Delete()
+	unit.Remove()
 	return worldJourneyServe.unitRepo.Delete(*unit)
 }

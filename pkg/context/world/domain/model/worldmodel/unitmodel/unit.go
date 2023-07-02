@@ -78,6 +78,6 @@ func (unit *Unit) GetDirection() commonmodel.Direction {
 	return unit.direction
 }
 
-func (unit *Unit) Delete() {
+func (unit *Unit) Remove() {
 	unit.domainEventCollector.Add(NewUnitDeleted(unit.id))
 }

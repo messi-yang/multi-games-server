@@ -121,5 +121,6 @@ func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
 }
 
 func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
-	return serve.worldJourneyService.RemoveUnit(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+	position := commonmodel.NewPosition(command.Position.X, command.Position.Z)
+	return serve.worldJourneyService.RemoveUnit(sharedkernelmodel.NewWorldId(command.WorldId), position)
 }

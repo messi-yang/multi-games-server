@@ -178,12 +178,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					sendError(err)
 				}
 			case removeUnitRequestType:
-				_, err := jsonutil.Unmarshal[removeUnitRequest](message)
+				requestDto, err := jsonutil.Unmarshal[removeUnitRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, playerIdDto); err != nil {
+				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
 			default:
@@ -241,13 +241,13 @@ func (httpHandler *HttpHandler) executePlaceUnitCommand(worldIdDto uuid.UUID, pl
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemoveUnitCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) executeRemoveUnitCommand(worldIdDto uuid.UUID, positionDto dto.PositionDto) error {
 	pgUow := pguow.NewUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
 	if err := worldJourneyAppService.RemoveUnit(worldjourneyappsrv.RemoveUnitCommand{
 		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
+		Position: positionDto,
 	}); err != nil {
 		pgUow.RevertChanges()
 		return err
