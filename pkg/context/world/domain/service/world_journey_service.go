@@ -74,10 +74,10 @@ func (worldJourneyServe *worldJourneyServe) EnterWorld(worldId sharedkernelmodel
 func (worldJourneyServe *worldJourneyServe) Move(
 	worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId, direction commonmodel.Direction,
 ) error {
-	world, err := worldJourneyServe.worldRepo.Get(worldId)
-	if err != nil {
-		return err
-	}
+	// world, err := worldJourneyServe.worldRepo.Get(worldId)
+	// if err != nil {
+	// 	return err
+	// }
 
 	player, err := worldJourneyServe.playerRepo.Get(playerId)
 	if err != nil {
@@ -91,27 +91,27 @@ func (worldJourneyServe *worldJourneyServe) Move(
 
 	newItemPos := player.GetPositionOneStepFoward()
 
-	unit, err := worldJourneyServe.unitRepo.GetUnitAt(worldId, newItemPos)
-	if err != nil {
-		return err
-	}
+	// unit, err := worldJourneyServe.unitRepo.GetUnitAt(worldId, newItemPos)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if unit != nil {
-		itemId := unit.GetItemId()
-		item, err := worldJourneyServe.itemRepo.Get(itemId)
-		if err != nil {
-			return err
-		}
-		if item.GetTraversable() {
-			player.Move(newItemPos, direction)
-		}
-	} else {
-		player.Move(newItemPos, direction)
-	}
+	// if unit != nil {
+	// 	itemId := unit.GetItemId()
+	// 	item, err := worldJourneyServe.itemRepo.Get(itemId)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	if item.GetTraversable() {
+	// 		player.Move(newItemPos, direction)
+	// 	}
+	// } else {
+	player.Move(newItemPos, direction)
+	// }
 
-	if !world.GetBound().CoversPosition(player.GetPosition()) {
-		return errPlayerExceededBoundary
-	}
+	// if !world.GetBound().CoversPosition(player.GetPosition()) {
+	// 	return errPlayerExceededBoundary
+	// }
 
 	return worldJourneyServe.playerRepo.Update(player)
 }

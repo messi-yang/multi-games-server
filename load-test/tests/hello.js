@@ -4,7 +4,7 @@ export let options = {
   scenarios: {
     helloWorld: {
       executor: 'constant-vus',
-      vus: 10,
+      vus: 40,
       duration: '60s',
       gracefulStop: '1s',
       tags: { test_type: 'helloWorld' },
@@ -33,7 +33,7 @@ export function helloWorld() {
           }),
         );
         tick += 1;
-      }, 300);
+      }, 1000);
     });
   });
 }
