@@ -25,8 +25,7 @@ func NewPlayerRepo(domainEventDispatcher domain.DomainEventDispatcher) (reposito
 }
 
 func (repo *playerRepo) Add(player playermodel.Player) error {
-	// repo.mutex.Lock()
-	// defer repo.mutex.Unlock()
+	repo.mutex.Lock()
 
 	_, found := worldPlayerMap[player.GetWorldId()]
 	if !found {
@@ -34,57 +33,70 @@ func (repo *playerRepo) Add(player playermodel.Player) error {
 	}
 
 	if _, exists := worldPlayerMap[player.GetWorldId()][player.GetId()]; exists {
+		repo.mutex.Unlock()
 		return fmt.Errorf("player already exists")
 	}
 
 	worldPlayerMap[player.GetWorldId()][player.GetId()] = player
+
+	repo.mutex.Unlock()
+
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
 func (repo *playerRepo) Update(player playermodel.Player) error {
-	// repo.mutex.Lock()
-	// defer repo.mutex.Unlock()
+	repo.mutex.Lock()
 
 	if _, exists := worldPlayerMap[player.GetWorldId()][player.GetId()]; !exists {
+		repo.mutex.Unlock()
 		return fmt.Errorf("player does not exists")
 	}
 
 	worldPlayerMap[player.GetWorldId()][player.GetId()] = player
+
+	repo.mutex.Unlock()
+
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
 func (repo *playerRepo) Delete(player playermodel.Player) error {
-	// repo.mutex.Lock()
-	// defer repo.mutex.Unlock()
+	repo.mutex.Lock()
 
 	if _, exists := worldPlayerMap[player.GetWorldId()][player.GetId()]; !exists {
+		repo.mutex.Unlock()
 		return fmt.Errorf("player does not exists")
 	}
 
 	delete(worldPlayerMap[player.GetWorldId()], player.GetId())
+
+	repo.mutex.Unlock()
+
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
 func (repo *playerRepo) Get(playerId playermodel.PlayerId) (player playermodel.Player, err error) {
-	// repo.mutex.RLock()
-	// defer repo.mutex.RUnlock()
+	repo.mutex.RLock()
 
 	for _, worldPlayers := range worldPlayerMap {
 		for _, player := range worldPlayers {
 			if player.GetId().IsEqual(playerId) {
+				repo.mutex.RUnlock()
 				return player, nil
 			}
 		}
 	}
+
+	repo.mutex.RUnlock()
+
 	return player, fmt.Errorf("player not found")
 }
 
 func (repo *playerRepo) GetPlayersAt(worldId sharedkernelmodel.WorldId, position commonmodel.Position) ([]playermodel.Player, error) {
-	// repo.mutex.RLock()
-	// defer repo.mutex.RUnlock()
+	repo.mutex.RLock()
 
 	playerMap, found := worldPlayerMap[worldId]
 	if !found {
+		repo.mutex.RUnlock()
 		return []playermodel.Player{}, nil
 	}
 
@@ -94,15 +106,18 @@ func (repo *playerRepo) GetPlayersAt(worldId sharedkernelmodel.WorldId, position
 			playersAtPosition = append(playersAtPosition, player)
 		}
 	}
+
+	repo.mutex.RUnlock()
+
 	return playersAtPosition, nil
 }
 
 func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) ([]playermodel.Player, error) {
-	// repo.mutex.RLock()
-	// defer repo.mutex.RUnlock()
+	repo.mutex.RLock()
 
 	playerMap, found := worldPlayerMap[worldId]
 	if !found {
+		repo.mutex.RUnlock()
 		return []playermodel.Player{}, nil
 	}
 
@@ -110,12 +125,14 @@ func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) ([]
 	for _, player := range playerMap {
 		playersOfWorld = append(playersOfWorld, player)
 	}
+
+	repo.mutex.RUnlock()
+
 	return playersOfWorld, nil
 }
 
 func (repo *playerRepo) GetAll(worldId sharedkernelmodel.WorldId) []playermodel.Player {
-	// repo.mutex.RLock()
-	// defer repo.mutex.RUnlock()
+	repo.mutex.RLock()
 
 	allPlayers := make([]playermodel.Player, 0)
 	for _, worldPlayers := range worldPlayerMap {
@@ -123,5 +140,8 @@ func (repo *playerRepo) GetAll(worldId sharedkernelmodel.WorldId) []playermodel.
 			allPlayers = append(allPlayers, player)
 		}
 	}
+
+	repo.mutex.RUnlock()
+
 	return allPlayers
 }
