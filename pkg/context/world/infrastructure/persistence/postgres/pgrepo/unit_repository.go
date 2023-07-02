@@ -1,8 +1,6 @@
 package pgrepo
 
 import (
-	"errors"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -91,22 +89,23 @@ func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
 func (repo *unitRepo) GetUnitAt(
 	worldId sharedkernelmodel.WorldId, position commonmodel.Position,
 ) (*unitmodel.Unit, error) {
-	unitModel := pgmodel.UnitModel{}
+	unitModels := []pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
 			worldId.Uuid(),
 			position.GetX(),
 			position.GetZ(),
-		).First(&unitModel).Error
+		).Limit(1).Find(&unitModels).Error
 	}); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
-	return commonutil.ToPointer(parseUnitModel(unitModel)), nil
+	if len(unitModels) == 0 {
+		return nil, nil
+	}
+
+	return commonutil.ToPointer(parseUnitModel(unitModels[0])), nil
 }
 
 func (repo *unitRepo) GetUnitsOfWorld(
