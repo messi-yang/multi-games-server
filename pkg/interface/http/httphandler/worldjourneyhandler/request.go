@@ -30,7 +30,10 @@ type changeHeldItemRequest struct {
 }
 
 type placeUnitRequest struct {
-	Type RequestType `json:"type"`
+	Type      RequestType     `json:"type"`
+	ItemId    uuid.UUID       `json:"itemId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
 }
 
 type removeUnitRequest struct {

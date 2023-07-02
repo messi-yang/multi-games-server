@@ -170,11 +170,17 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					sendError(err)
 				}
 			case placeUnitRequestType:
-				if _, err := jsonutil.Unmarshal[placeUnitRequest](message); err != nil {
+				requestDto, err := jsonutil.Unmarshal[placeUnitRequest](message)
+				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executePlaceUnitCommand(worldIdDto, playerIdDto); err != nil {
+				if err = httpHandler.executePlaceUnitCommand(
+					worldIdDto,
+					requestDto.ItemId,
+					requestDto.Position,
+					requestDto.Direction,
+				); err != nil {
 					sendError(err)
 				}
 			case removeUnitRequestType:
@@ -226,13 +232,20 @@ func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUI
 	return nil
 }
 
-func (httpHandler *HttpHandler) executePlaceUnitCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) executePlaceUnitCommand(
+	worldIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+	positionDto dto.PositionDto,
+	directionDto int8,
+) error {
 	pgUow := pguow.NewUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
 	if err := worldJourneyAppService.PlaceUnit(worldjourneyappsrv.PlaceUnitCommand{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
+		WorldId:   worldIdDto,
+		ItemId:    itemIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
 	}); err != nil {
 		pgUow.RevertChanges()
 		return err

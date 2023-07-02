@@ -113,7 +113,12 @@ func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
 }
 
 func (serve *serve) PlaceUnit(command PlaceUnitCommand) error {
-	return serve.worldJourneyService.PlaceUnit(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+	return serve.worldJourneyService.PlaceUnit(
+		sharedkernelmodel.NewWorldId(command.WorldId),
+		commonmodel.NewItemId(command.ItemId),
+		commonmodel.NewPosition(command.Position.X, command.Position.Z),
+		commonmodel.NewDirection(command.Direction),
+	)
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {

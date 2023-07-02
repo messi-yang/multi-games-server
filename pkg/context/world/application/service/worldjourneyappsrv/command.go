@@ -12,8 +12,10 @@ type ChangeHeldItemCommand struct {
 }
 
 type PlaceUnitCommand struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
+	WorldId   uuid.UUID
+	ItemId    uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
 }
 
 type RemoveUnitCommand struct {
