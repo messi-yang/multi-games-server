@@ -113,7 +113,7 @@ func (repo *playerRepo) Delete(player playermodel.Player) error {
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
-func (repo *playerRepo) Get(playerId playermodel.PlayerId) (player playermodel.Player, err error) {
+func (repo *playerRepo) Get(_ sharedkernelmodel.WorldId, playerId playermodel.PlayerId) (player playermodel.Player, err error) {
 	playerModel := pgmodel.PlayerModel{Id: playerId.Uuid()}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Joins("User").First(&playerModel).Error

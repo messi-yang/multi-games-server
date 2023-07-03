@@ -89,7 +89,7 @@ func (serve *serve) GetUnit(query GetUnitQuery) (unitDto dto.UnitDto, err error)
 }
 
 func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, err error) {
-	player, err := serve.playerRepo.Get(playermodel.NewPlayerId(query.PlayerId))
+	player, err := serve.playerRepo.Get(sharedkernelmodel.NewWorldId(query.WorldId), playermodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return playerDto, err
 	}

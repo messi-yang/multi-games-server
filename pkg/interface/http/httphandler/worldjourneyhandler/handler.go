@@ -160,6 +160,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
 					sendError(err)
 				}
+				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
+					sendError(err)
+				}
 			case changeHeldItemRequestType:
 				requestDto, err := jsonutil.Unmarshal[changeHeldItemRequest](message)
 				if err != nil {
@@ -198,6 +201,23 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}()
 
 	closeConnFlag.Wait()
+}
+
+func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+	pgUow := pguow.NewDummyUow()
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(pgUow)
+	playerDto, err := worldJourneyAppService.GetPlayer(worldjourneyappsrv.GetPlayerQuery{
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
+	})
+	if err != nil {
+		return err
+	}
+	httpHandler.redisServerMessageMediator.Send(
+		worldjourneyappsrv.NewWorldServerMessageChannel(worldIdDto),
+		jsonutil.Marshal(worldjourneyappsrv.NewPlayerJoinedServerMessage(playerDto)),
+	)
+	return nil
 }
 
 func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, directionDto int8) error {

@@ -9,7 +9,7 @@ type PlayerRepo interface {
 	Add(Player) error
 	Update(Player) error
 	Delete(Player) error
-	Get(PlayerId) (Player, error)
+	Get(sharedkernelmodel.WorldId, PlayerId) (Player, error)
 	GetPlayersAt(sharedkernelmodel.WorldId, commonmodel.Position) (players []Player, err error)
 	GetPlayersOfWorld(sharedkernelmodel.WorldId) ([]Player, error)
 }

@@ -16,6 +16,5 @@ func RegisterEvents() {
 	domainEventRegister.Register(unitmodel.UnitDeleted{}, NewUnitDeletedHandler(redisServerMessageMediator))
 	domainEventRegister.Register(playermodel.PlayerJoined{}, NewPlayerJoinedHandler(redisServerMessageMediator))
 	domainEventRegister.Register(playermodel.PlayerLeft{}, NewPlayerLeftHandler(redisServerMessageMediator))
-	domainEventRegister.Register(playermodel.PlayerMoved{}, NewPlayerMovedHandler(redisServerMessageMediator))
 	domainEventRegister.Register(sharedkernelmodel.UserCreated{}, NewUserCreatedHandler())
 }

@@ -11,6 +11,7 @@ type GetUnitQuery struct {
 }
 
 type GetPlayerQuery struct {
+	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 }
 

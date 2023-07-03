@@ -28,6 +28,7 @@ func (handler PlayerJoinedHandler) Handle(uow pguow.Uow, domainEvent domain.Doma
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
 	player, err := worldJourneyAppService.GetPlayer(worldjourneyappsrv.GetPlayerQuery{
+		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
 	if err != nil {

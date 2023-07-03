@@ -100,7 +100,6 @@ func (player *Player) GetPosition() commonmodel.Position {
 func (player *Player) Move(position commonmodel.Position, direction commonmodel.Direction) {
 	player.position = position
 	player.direction = direction
-	player.domainEventCollector.Add(NewPlayerMoved(player.id, player.worldId))
 }
 
 func (player *Player) GetDirection() commonmodel.Direction {
@@ -126,7 +125,6 @@ func (player *Player) GetPositionOneStepFoward() commonmodel.Position {
 
 func (player *Player) ChangeHeldItem(itemId commonmodel.ItemId) {
 	player.heldItemId = &itemId
-	player.domainEventCollector.Add(NewPlayerMoved(player.id, player.worldId))
 }
 
 func (player *Player) GetHeldItemId() *commonmodel.ItemId {

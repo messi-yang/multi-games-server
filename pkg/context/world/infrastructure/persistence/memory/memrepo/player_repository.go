@@ -75,21 +75,22 @@ func (repo *playerRepo) Delete(player playermodel.Player) error {
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
-func (repo *playerRepo) Get(playerId playermodel.PlayerId) (player playermodel.Player, err error) {
+func (repo *playerRepo) Get(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) (player playermodel.Player, err error) {
 	locker.RLock()
 
-	for _, worldPlayers := range worldPlayerMap {
-		for _, player := range worldPlayers {
-			if player.GetId().IsEqual(playerId) {
-				locker.RUnlock()
-				return player, nil
-			}
-		}
+	playerMap, found := worldPlayerMap[worldId]
+	if !found {
+		return player, fmt.Errorf("player not found")
+	}
+
+	player, found = playerMap[playerId]
+	if !found {
+		return player, fmt.Errorf("player not found")
 	}
 
 	locker.RUnlock()
 
-	return player, fmt.Errorf("player not found")
+	return player, nil
 }
 
 func (repo *playerRepo) GetPlayersAt(worldId sharedkernelmodel.WorldId, position commonmodel.Position) ([]playermodel.Player, error) {
