@@ -32,7 +32,7 @@ func NewPlayer(
 	direction commonmodel.Direction,
 	heldItemId *commonmodel.ItemId,
 ) Player {
-	player := Player{
+	return Player{
 		id:                   id,
 		worldId:              worldId,
 		name:                 name,
@@ -43,8 +43,6 @@ func NewPlayer(
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	player.domainEventCollector.Add(NewPlayerJoined(id, worldId))
-	return player
 }
 
 func LoadPlayer(
@@ -137,8 +135,4 @@ func (player *Player) GetCreatedAt() time.Time {
 
 func (player *Player) GetUpdatedAt() time.Time {
 	return player.updatedAt
-}
-
-func (player *Player) Delete() {
-	player.domainEventCollector.Add(NewPlayerLeft(player.id, player.worldId))
 }

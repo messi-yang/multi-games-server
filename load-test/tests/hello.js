@@ -4,7 +4,7 @@ export let options = {
   scenarios: {
     helloWorld: {
       executor: 'constant-vus',
-      vus: 13,
+      vus: 4,
       duration: '60s',
       gracefulStop: '1s',
       tags: { test_type: 'helloWorld' },

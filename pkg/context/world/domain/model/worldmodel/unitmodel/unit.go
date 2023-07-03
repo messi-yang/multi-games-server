@@ -25,7 +25,7 @@ func NewUnit(
 	itemId commonmodel.ItemId,
 	direction commonmodel.Direction,
 ) Unit {
-	unit := Unit{
+	return Unit{
 		id:                   id,
 		worldId:              worldId,
 		position:             position,
@@ -33,8 +33,6 @@ func NewUnit(
 		direction:            direction,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	unit.domainEventCollector.Add(NewUnitCreated(id))
-	return unit
 }
 
 func LoadUnit(
@@ -76,8 +74,4 @@ func (unit *Unit) GetItemId() commonmodel.ItemId {
 
 func (unit *Unit) GetDirection() commonmodel.Direction {
 	return unit.direction
-}
-
-func (unit *Unit) Remove() {
-	unit.domainEventCollector.Add(NewUnitDeleted(unit.id))
 }

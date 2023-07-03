@@ -9,8 +9,6 @@ type delayedWork func()
 
 type Uow interface {
 	Execute(func(transaction *gorm.DB) error) error
-	// The work that will be executed after all the changes saved to database
-	AddDelayedWork(delayedWork)
 	RevertChanges()
 	SaveChanges()
 }
@@ -41,10 +39,6 @@ func NewUow() Uow {
 
 func (uow *uow) Execute(execute func(transaction *gorm.DB) error) error {
 	return execute(uow.transaction)
-}
-
-func (uow *uow) AddDelayedWork(work delayedWork) {
-	uow.delayedWorks = append(uow.delayedWorks, work)
 }
 
 func (uow *uow) RevertChanges() {
