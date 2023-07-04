@@ -160,15 +160,15 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			case pingRequestType:
 				continue
 			case moveRequestType:
-				_, err := jsonutil.Unmarshal[moveRequest](message)
+				requestDto, err := jsonutil.Unmarshal[moveRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				// if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
-				// 	sendError(err)
-				// }
-				if err = httpHandler.broadcastplayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
+				if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
+					sendError(err)
+				}
+				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}
 			case changeHeldItemRequestType:
@@ -178,6 +178,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeChangeHeldItemCommand(worldIdDto, playerIdDto, requestDto.ItemId); err != nil {
+					sendError(err)
+				}
+				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}
 			case placeUnitRequestType:
@@ -194,7 +197,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				); err != nil {
 					sendError(err)
 				}
-				if err = httpHandler.broadcastunitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.broadcastUnitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
 			case removeUnitRequestType:
@@ -206,7 +209,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
-				if err = httpHandler.broadcastunitDeletedServerMessage(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.broadcastUnitDeletedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
 			default:
@@ -217,7 +220,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	closeConnFlag.Wait()
 }
 
-func (httpHandler *HttpHandler) broadcastunitCreatedServerMessage(worldIdDto uuid.UUID, positionDto dto.PositionDto) error {
+func (httpHandler *HttpHandler) broadcastUnitCreatedServerMessage(worldIdDto uuid.UUID, positionDto dto.PositionDto) error {
 	uow := pguow.NewDummyUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
@@ -237,7 +240,7 @@ func (httpHandler *HttpHandler) broadcastunitCreatedServerMessage(worldIdDto uui
 	return nil
 }
 
-func (httpHandler *HttpHandler) broadcastunitDeletedServerMessage(worldIdDto uuid.UUID, positionDto dto.PositionDto) error {
+func (httpHandler *HttpHandler) broadcastUnitDeletedServerMessage(worldIdDto uuid.UUID, positionDto dto.PositionDto) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
 		jsonutil.Marshal(newunitDeletedServerMessage(worldIdDto, positionDto)),
@@ -264,7 +267,7 @@ func (httpHandler *HttpHandler) broadcastplayerJoinedServerMessage(worldIdDto uu
 	return nil
 }
 
-func (httpHandler *HttpHandler) broadcastplayerMovedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	uow := pguow.NewDummyUow()
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
 	playerDto, err := worldJourneyAppService.GetPlayer(worldjourneyappsrv.GetPlayerQuery{
