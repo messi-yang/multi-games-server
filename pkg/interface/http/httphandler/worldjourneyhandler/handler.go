@@ -89,35 +89,35 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 
 			switch serverMessage.Name {
 			case unitCreatedServerMessageName:
-				unitCreatedServerMessage, err := jsonutil.Unmarshal[unitCreatedServerMessage](serverMessageBytes)
+				serverMessage, err := jsonutil.Unmarshal[unitCreatedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendunitCreatedServerMessageNameResponse(unitCreatedServerMessage.Unit, sendMessage)
+				httpHandler.sendunitCreatedServerMessageNameResponse(serverMessage.Unit, sendMessage)
 			case unitDeletedServerMessageName:
-				unitDeletedServerMessage, err := jsonutil.Unmarshal[unitDeletedServerMessage](serverMessageBytes)
+				serverMessage, err := jsonutil.Unmarshal[unitDeletedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendunitDeletedServerMessageNameResponse(unitDeletedServerMessage.Position, sendMessage)
+				httpHandler.sendunitDeletedServerMessageNameResponse(serverMessage.Position, sendMessage)
 			case playerJoinedServerMessageName:
-				playerJoinedServerMessage, err := jsonutil.Unmarshal[playerJoinedServerMessage](serverMessageBytes)
+				serverMessage, err := jsonutil.Unmarshal[playerJoinedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendplayerJoinedServerMessageNameResponse(playerJoinedServerMessage.Player, sendMessage)
+				httpHandler.sendplayerJoinedServerMessageNameResponse(serverMessage.Player, sendMessage)
 			case playerMovedServerMessageName:
-				playerMovedServerMessage, err := jsonutil.Unmarshal[playerMovedServerMessage](serverMessageBytes)
+				serverMessage, err := jsonutil.Unmarshal[playerMovedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendplayerMovedServerMessageNameResponse(playerMovedServerMessage.Player, sendMessage)
+				httpHandler.sendplayerMovedServerMessageNameResponse(serverMessage.Player, sendMessage)
 			case playerLeftServerMessageName:
-				playerLeftServerMessage, err := jsonutil.Unmarshal[playerLeftServerMessage](serverMessageBytes)
+				serverMessage, err := jsonutil.Unmarshal[playerLeftServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendplayerLeftServerMessageNameResponse(playerLeftServerMessage.PlayerId, sendMessage)
+				httpHandler.sendplayerLeftServerMessageNameResponse(serverMessage.PlayerId, sendMessage)
 			default:
 			}
 		},
@@ -160,14 +160,14 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			case pingRequestType:
 				continue
 			case moveRequestType:
-				requestDto, err := jsonutil.Unmarshal[moveRequest](message)
+				_, err := jsonutil.Unmarshal[moveRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
-					sendError(err)
-				}
+				// if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
+				// 	sendError(err)
+				// }
 				if err = httpHandler.broadcastplayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}

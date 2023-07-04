@@ -1,7 +1,6 @@
 package authhttphandler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -29,13 +28,9 @@ func NewHttpHandler() *HttpHandler {
 
 func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
 	clientRedirectPath := c.Query("client_redirect_path")
-	stateInBytes, err := json.Marshal(GoogleOauthState{
+	stateInBytes := jsonutil.Marshal(GoogleOauthState{
 		ClientRedirectPath: clientRedirectPath,
 	})
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
 	state := string(stateInBytes)
 
 	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()

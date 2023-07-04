@@ -1,6 +1,8 @@
 package jsonutil
 
-import "encoding/json"
+import jsoniter "github.com/json-iterator/go"
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func Unmarshal[T any](bytes []byte) (T, error) {
 	var data T
