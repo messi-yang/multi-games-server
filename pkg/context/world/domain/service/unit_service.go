@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	errPlayerExceededBoundary          = fmt.Errorf("player exceeded the boundary of the world")
 	errUnitExceededBoundary            = fmt.Errorf("unit exceeded the boundary of the world")
 	errPositionAlreadyHasUnitOrPlayers = fmt.Errorf("the position already has an unit or players")
 	errPositionDoesNotHaveUnit         = fmt.Errorf("the position does not have an unit")

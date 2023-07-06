@@ -1,6 +1,8 @@
 package worldjourneyappsrv
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
@@ -11,6 +13,10 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+)
+
+var (
+	errPlayerExceededBoundary = fmt.Errorf("player exceeded the boundary of the world")
 )
 
 type Service interface {
@@ -27,12 +33,11 @@ type Service interface {
 }
 
 type serve struct {
-	worldRepo           worldmodel.WorldRepo
-	playerRepo          playermodel.PlayerRepo
-	unitRepo            unitmodel.UnitRepo
-	itemRepo            itemmodel.ItemRepo
-	worldJourneyService service.WorldJourneyService
-	unitService         service.UnitService
+	worldRepo   worldmodel.WorldRepo
+	playerRepo  playermodel.PlayerRepo
+	unitRepo    unitmodel.UnitRepo
+	itemRepo    itemmodel.ItemRepo
+	unitService service.UnitService
 }
 
 func NewService(
@@ -40,16 +45,14 @@ func NewService(
 	playerRepo playermodel.PlayerRepo,
 	unitRepo unitmodel.UnitRepo,
 	itemRepo itemmodel.ItemRepo,
-	worldJourneyService service.WorldJourneyService,
 	unitService service.UnitService,
 ) Service {
 	return &serve{
-		worldRepo:           worldRepo,
-		playerRepo:          playerRepo,
-		unitRepo:            unitRepo,
-		itemRepo:            itemRepo,
-		worldJourneyService: worldJourneyService,
-		unitService:         unitService,
+		worldRepo:   worldRepo,
+		playerRepo:  playerRepo,
+		unitRepo:    unitRepo,
+		itemRepo:    itemRepo,
+		unitService: unitService,
 	}
 }
 
@@ -100,19 +103,81 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, er
 }
 
 func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID, err error) {
-	playerId, err := serve.worldJourneyService.EnterWorld(sharedkernelmodel.NewWorldId(command.WorldId))
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+
+	firstItem, err := serve.itemRepo.GetFirstItem()
 	if err != nil {
 		return plyaerIdDto, err
 	}
-	return playerId.Uuid(), nil
+	firstItemId := firstItem.GetId()
+
+	direction := commonmodel.NewDownDirection()
+	newPlayer := playermodel.NewPlayer(
+		playermodel.NewPlayerId(uuid.New()), worldId, "Hello", commonmodel.NewPosition(0, 0), direction, &firstItemId,
+	)
+
+	if err = serve.playerRepo.Add(newPlayer); err != nil {
+		return plyaerIdDto, err
+	}
+	return newPlayer.GetId().Uuid(), nil
 }
 
 func (serve *serve) Move(command MoveCommand) error {
-	return serve.worldJourneyService.Move(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewDirection(command.Direction))
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	playerId := playermodel.NewPlayerId(command.PlayerId)
+	direction := commonmodel.NewDirection(command.Direction)
+
+	world, err := serve.worldRepo.Get(worldId)
+	if err != nil {
+		return err
+	}
+
+	player, err := serve.playerRepo.Get(worldId, playerId)
+	if err != nil {
+		return err
+	}
+
+	if !direction.IsEqual(player.GetDirection()) {
+		player.Move(player.GetPosition(), direction)
+		return serve.playerRepo.Update(player)
+	}
+
+	newItemPos := player.GetPositionOneStepFoward()
+
+	unit, err := serve.unitRepo.GetUnitAt(worldId, newItemPos)
+	if err != nil {
+		return err
+	}
+
+	if unit != nil {
+		itemId := unit.GetItemId()
+		item, err := serve.itemRepo.Get(itemId)
+		if err != nil {
+			return err
+		}
+		if item.GetTraversable() {
+			player.Move(newItemPos, direction)
+		}
+	} else {
+		player.Move(newItemPos, direction)
+	}
+
+	if !world.GetBound().CoversPosition(player.GetPosition()) {
+		return errPlayerExceededBoundary
+	}
+
+	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	return serve.worldJourneyService.LeaveWorld(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	playerId := playermodel.NewPlayerId(command.PlayerId)
+
+	player, err := serve.playerRepo.Get(worldId, playerId)
+	if err != nil {
+		return err
+	}
+	return serve.playerRepo.Delete(player)
 }
 
 func (serve *serve) CreateUnit(command CreateUnitCommand) error {
@@ -125,7 +190,17 @@ func (serve *serve) CreateUnit(command CreateUnitCommand) error {
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
-	return serve.worldJourneyService.ChangeHeldItem(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId), commonmodel.NewItemId(command.ItemId))
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	playerId := playermodel.NewPlayerId(command.PlayerId)
+	itemId := commonmodel.NewItemId(command.ItemId)
+
+	player, err := serve.playerRepo.Get(worldId, playerId)
+	if err != nil {
+		return err
+	}
+
+	player.ChangeHeldItem(itemId)
+	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
