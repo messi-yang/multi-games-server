@@ -190,13 +190,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}
-			case placeUnitRequestType:
-				requestDto, err := jsonutil.Unmarshal[placeUnitRequest](message)
+			case createUnitRequestType:
+				requestDto, err := jsonutil.Unmarshal[createUnitRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executePlaceUnitCommand(
+				if err = httpHandler.executeCreateUnitCommand(
 					worldIdDto,
 					requestDto.ItemId,
 					requestDto.Position,
@@ -331,7 +331,7 @@ func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUI
 	return nil
 }
 
-func (httpHandler *HttpHandler) executePlaceUnitCommand(
+func (httpHandler *HttpHandler) executeCreateUnitCommand(
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
 	positionDto dto.PositionDto,
@@ -340,7 +340,7 @@ func (httpHandler *HttpHandler) executePlaceUnitCommand(
 	uow := pguow.NewUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
-	if err := worldJourneyAppService.PlaceUnit(worldjourneyappsrv.PlaceUnitCommand{
+	if err := worldJourneyAppService.CreateUnit(worldjourneyappsrv.CreateUnitCommand{
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,

@@ -11,7 +11,7 @@ const (
 	pingRequestType           RequestType = "PING"
 	moveRequestType           RequestType = "MOVE"
 	changeHeldItemRequestType RequestType = "CHANGE_HELD_ITEM"
-	placeUnitRequestType      RequestType = "PLACE_UNIT"
+	createUnitRequestType     RequestType = "CREATE_UNIT"
 	removeUnitRequestType     RequestType = "REMOVE_UNIT"
 )
 
@@ -29,7 +29,7 @@ type changeHeldItemRequest struct {
 	ItemId uuid.UUID   `json:"itemId"`
 }
 
-type placeUnitRequest struct {
+type createUnitRequest struct {
 	Type      RequestType     `json:"type"`
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`

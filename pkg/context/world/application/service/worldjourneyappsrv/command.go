@@ -11,7 +11,7 @@ type ChangeHeldItemCommand struct {
 	ItemId   uuid.UUID
 }
 
-type PlaceUnitCommand struct {
+type CreateUnitCommand struct {
 	WorldId   uuid.UUID
 	ItemId    uuid.UUID
 	Position  dto.PositionDto

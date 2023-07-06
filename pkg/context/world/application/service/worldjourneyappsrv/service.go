@@ -22,7 +22,7 @@ type Service interface {
 	Move(MoveCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangeHeldItem(ChangeHeldItemCommand) error
-	PlaceUnit(PlaceUnitCommand) error
+	CreateUnit(CreateUnitCommand) error
 	RemoveUnit(RemoveUnitCommand) error
 }
 
@@ -112,8 +112,8 @@ func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
 	return serve.worldJourneyService.LeaveWorld(sharedkernelmodel.NewWorldId(command.WorldId), playermodel.NewPlayerId(command.PlayerId))
 }
 
-func (serve *serve) PlaceUnit(command PlaceUnitCommand) error {
-	return serve.worldJourneyService.PlaceUnit(
+func (serve *serve) CreateUnit(command CreateUnitCommand) error {
+	return serve.worldJourneyService.CreateUnit(
 		sharedkernelmodel.NewWorldId(command.WorldId),
 		commonmodel.NewItemId(command.ItemId),
 		commonmodel.NewPosition(command.Position.X, command.Position.Z),

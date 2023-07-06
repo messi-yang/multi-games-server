@@ -24,7 +24,7 @@ type WorldJourneyService interface {
 	Move(sharedkernelmodel.WorldId, playermodel.PlayerId, commonmodel.Direction) error
 	LeaveWorld(sharedkernelmodel.WorldId, playermodel.PlayerId) error
 	ChangeHeldItem(sharedkernelmodel.WorldId, playermodel.PlayerId, commonmodel.ItemId) error
-	PlaceUnit(sharedkernelmodel.WorldId, commonmodel.ItemId, commonmodel.Position, commonmodel.Direction) error
+	CreateUnit(sharedkernelmodel.WorldId, commonmodel.ItemId, commonmodel.Position, commonmodel.Direction) error
 	RemoveUnit(sharedkernelmodel.WorldId, commonmodel.Position) error
 }
 
@@ -130,7 +130,7 @@ func (worldJourneyServe *worldJourneyServe) ChangeHeldItem(worldId sharedkernelm
 	return worldJourneyServe.playerRepo.Update(player)
 }
 
-func (worldJourneyServe *worldJourneyServe) PlaceUnit(
+func (worldJourneyServe *worldJourneyServe) CreateUnit(
 	worldId sharedkernelmodel.WorldId,
 	itemId commonmodel.ItemId,
 	position commonmodel.Position,
