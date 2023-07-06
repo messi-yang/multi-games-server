@@ -32,6 +32,7 @@ type serve struct {
 	unitRepo            unitmodel.UnitRepo
 	itemRepo            itemmodel.ItemRepo
 	worldJourneyService service.WorldJourneyService
+	unitService         service.UnitService
 }
 
 func NewService(
@@ -40,6 +41,7 @@ func NewService(
 	unitRepo unitmodel.UnitRepo,
 	itemRepo itemmodel.ItemRepo,
 	worldJourneyService service.WorldJourneyService,
+	unitService service.UnitService,
 ) Service {
 	return &serve{
 		worldRepo:           worldRepo,
@@ -47,6 +49,7 @@ func NewService(
 		unitRepo:            unitRepo,
 		itemRepo:            itemRepo,
 		worldJourneyService: worldJourneyService,
+		unitService:         unitService,
 	}
 }
 
@@ -113,7 +116,7 @@ func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
 }
 
 func (serve *serve) CreateUnit(command CreateUnitCommand) error {
-	return serve.worldJourneyService.CreateUnit(
+	return serve.unitService.CreateUnit(
 		sharedkernelmodel.NewWorldId(command.WorldId),
 		commonmodel.NewItemId(command.ItemId),
 		commonmodel.NewPosition(command.Position.X, command.Position.Z),
@@ -126,6 +129,8 @@ func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
 }
 
 func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
-	position := commonmodel.NewPosition(command.Position.X, command.Position.Z)
-	return serve.worldJourneyService.RemoveUnit(sharedkernelmodel.NewWorldId(command.WorldId), position)
+	return serve.unitService.RemoveUnit(
+		sharedkernelmodel.NewWorldId(command.WorldId),
+		commonmodel.NewPosition(command.Position.X, command.Position.Z),
+	)
 }
