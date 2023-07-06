@@ -129,8 +129,18 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		closeConnectionOnError(err)
 		return
 	}
-	err = httpHandler.sendWorldEnteredResponse(worldIdDto, playerIdDto, sendMessage)
-	if err != nil {
+	safelyLeaveWorldInAllCases := func() {
+		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
+			fmt.Println(err)
+		}
+		if err = httpHandler.broadcastPlayerLeftServerMessage(worldIdDto, playerIdDto); err != nil {
+			closeConnectionOnError(err)
+			return
+		}
+	}
+	defer safelyLeaveWorldInAllCases()
+
+	if err = httpHandler.sendWorldEnteredResponse(worldIdDto, playerIdDto, sendMessage); err != nil {
 		closeConnectionOnError(err)
 		return
 	}
@@ -139,15 +149,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		closeConnectionOnError(err)
 		return
 	}
-	defer func() {
-		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
-			fmt.Println(err)
-		}
-		if err = httpHandler.broadcastPlayerLeftServerMessage(worldIdDto, playerIdDto); err != nil {
-			closeConnectionOnError(err)
-			return
-		}
-	}()
 
 	go func() {
 		for {
