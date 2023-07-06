@@ -22,7 +22,7 @@ type errorHappenedResponse struct {
 	Message string          `json:"message"`
 }
 
-type worldsEnteredResponse struct {
+type worldEnteredResponse struct {
 	Type       responseDtoType `json:"type"`
 	World      dto.WorldDto    `json:"world"`
 	Units      []dto.UnitDto   `json:"units"`

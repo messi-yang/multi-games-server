@@ -93,42 +93,49 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				httpHandler.sendunitCreatedServerMessageNameResponse(serverMessage.Unit, sendMessage)
+				httpHandler.sendUnitCreatedResponse(serverMessage.Unit, sendMessage)
 			case unitDeletedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[unitDeletedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendunitDeletedServerMessageNameResponse(serverMessage.Position, sendMessage)
+				httpHandler.sendUnitDeletedResponse(serverMessage.Position, sendMessage)
 			case playerJoinedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[playerJoinedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendplayerJoinedServerMessageNameResponse(serverMessage.Player, sendMessage)
+				httpHandler.sendPlayerJoinedResponse(serverMessage.Player, sendMessage)
 			case playerMovedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[playerMovedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendplayerMovedServerMessageNameResponse(serverMessage.Player, sendMessage)
+				httpHandler.sendPlayerMovedResponse(serverMessage.Player, sendMessage)
 			case playerLeftServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[playerLeftServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendplayerLeftServerMessageNameResponse(serverMessage.PlayerId, sendMessage)
+				httpHandler.sendPlayerLeftResponse(serverMessage.PlayerId, sendMessage)
 			default:
 			}
 		},
 	)
 	defer worldServerMessageUnusbscriber()
 
-	if playerIdDto, err = httpHandler.executeEnterWorldCommand(worldIdDto, sendMessage); err != nil {
+	playerIdDto, err = httpHandler.executeEnterWorldCommand(worldIdDto)
+	if err != nil {
 		closeConnectionOnError(err)
 		return
 	}
-	if err = httpHandler.broadcastplayerJoinedServerMessage(worldIdDto, playerIdDto); err != nil {
+	err = httpHandler.sendWorldEnteredResponse(worldIdDto, playerIdDto, sendMessage)
+	if err != nil {
+		closeConnectionOnError(err)
+		return
+	}
+
+	if err = httpHandler.broadcastPlayerJoinedServerMessage(worldIdDto, playerIdDto); err != nil {
 		closeConnectionOnError(err)
 		return
 	}
@@ -136,7 +143,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
 			fmt.Println(err)
 		}
-		if err = httpHandler.broadcastplayerLeftServerMessage(worldIdDto, playerIdDto); err != nil {
+		if err = httpHandler.broadcastPlayerLeftServerMessage(worldIdDto, playerIdDto); err != nil {
 			closeConnectionOnError(err)
 			return
 		}
@@ -249,7 +256,7 @@ func (httpHandler *HttpHandler) broadcastUnitDeletedServerMessage(worldIdDto uui
 	return nil
 }
 
-func (httpHandler *HttpHandler) broadcastplayerJoinedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) broadcastPlayerJoinedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	uow := pguow.NewDummyUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
@@ -284,7 +291,7 @@ func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uui
 	return nil
 }
 
-func (httpHandler *HttpHandler) broadcastplayerLeftServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) broadcastPlayerLeftServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
 		jsonutil.Marshal(newplayerLeftServerMessage(playerIdDto)),
@@ -361,18 +368,10 @@ func (httpHandler *HttpHandler) executeRemoveUnitCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, sendMessage func(any)) (playerIdDto uuid.UUID, err error) {
+func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (playerIdDto uuid.UUID, err error) {
 	uow := pguow.NewUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
-	worldAppService := providedependency.ProvideWorldAppService(uow)
-
-	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
-		WorldId: worldIdDto,
-	})
-	if err != nil {
-		return playerIdDto, err
-	}
 
 	if playerIdDto, err = worldJourneyAppService.EnterWorld(worldjourneyappsrv.EnterWorldCommand{
 		WorldId: worldIdDto,
@@ -380,36 +379,8 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, s
 		uow.RevertChanges()
 		return playerIdDto, err
 	}
-
-	unitDtos, err := worldJourneyAppService.GetUnits(
-		worldjourneyappsrv.GetUnitsQuery{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		},
-	)
-	if err != nil {
-		return playerIdDto, err
-	}
-
-	playerDtos, err := worldJourneyAppService.GetPlayers(
-		worldjourneyappsrv.GetPlayersQuery{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		},
-	)
-	if err != nil {
-		return playerIdDto, err
-	}
-
 	uow.SaveChanges()
 
-	sendMessage(worldsEnteredResponse{
-		Type:       worldEnteredResponseType,
-		World:      worldDto,
-		Units:      unitDtos,
-		MyPlayerId: playerIdDto,
-		Players:    playerDtos,
-	})
 	return playerIdDto, nil
 }
 
@@ -428,7 +399,50 @@ func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendunitCreatedServerMessageNameResponse(unitDto dto.UnitDto, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
+	uow := pguow.NewDummyUow()
+
+	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
+	worldAppService := providedependency.ProvideWorldAppService(uow)
+
+	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
+		WorldId: worldIdDto,
+	})
+	if err != nil {
+		return err
+	}
+
+	unitDtos, err := worldJourneyAppService.GetUnits(
+		worldjourneyappsrv.GetUnitsQuery{
+			WorldId:  worldIdDto,
+			PlayerId: playerIdDto,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	playerDtos, err := worldJourneyAppService.GetPlayers(
+		worldjourneyappsrv.GetPlayersQuery{
+			WorldId:  worldIdDto,
+			PlayerId: playerIdDto,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	sendMessage(worldEnteredResponse{
+		Type:       worldEnteredResponseType,
+		World:      worldDto,
+		Units:      unitDtos,
+		MyPlayerId: playerIdDto,
+		Players:    playerDtos,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendUnitCreatedResponse(unitDto dto.UnitDto, sendMessage func(any)) error {
 	sendMessage(unitCreatedResponse{
 		Type: unitCreatedResponseType,
 		Unit: unitDto,
@@ -436,7 +450,7 @@ func (httpHandler *HttpHandler) sendunitCreatedServerMessageNameResponse(unitDto
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendunitDeletedServerMessageNameResponse(positionDto dto.PositionDto, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendUnitDeletedResponse(positionDto dto.PositionDto, sendMessage func(any)) error {
 	sendMessage(unitDeletedResponse{
 		Type:     unitDeletedResponseType,
 		Position: positionDto,
@@ -444,7 +458,7 @@ func (httpHandler *HttpHandler) sendunitDeletedServerMessageNameResponse(positio
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendplayerJoinedServerMessageNameResponse(playerDto dto.PlayerDto, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendPlayerJoinedResponse(playerDto dto.PlayerDto, sendMessage func(any)) error {
 	sendMessage(playerJoinedResponse{
 		Type:   playerJoinedResponseType,
 		Player: playerDto,
@@ -452,7 +466,7 @@ func (httpHandler *HttpHandler) sendplayerJoinedServerMessageNameResponse(player
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendplayerLeftServerMessageNameResponse(playerIdDto uuid.UUID, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendPlayerLeftResponse(playerIdDto uuid.UUID, sendMessage func(any)) error {
 	sendMessage(playerLeftResponse{
 		Type:     playerLeftResponseType,
 		PlayerId: playerIdDto,
@@ -460,7 +474,7 @@ func (httpHandler *HttpHandler) sendplayerLeftServerMessageNameResponse(playerId
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendplayerMovedServerMessageNameResponse(playerDto dto.PlayerDto, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendPlayerMovedResponse(playerDto dto.PlayerDto, sendMessage func(any)) error {
 	sendMessage(playerMovedResponse{
 		Type:   playerMovedResponseType,
 		Player: playerDto,
