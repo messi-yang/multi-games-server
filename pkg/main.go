@@ -15,15 +15,15 @@ func main() {
 	pgclient.Connect()
 	redisclient.Connect()
 
+	world_mem_domain_event_handler.RegisterEvents()
+	iam_mem_domain_event_handler.RegisterEvents()
+
 	flag.Parse()
 	args := flag.Args()
 	if len(args) > 0 {
 		clirouter.Run(args)
 		return
 	}
-
-	world_mem_domain_event_handler.RegisterEvents()
-	iam_mem_domain_event_handler.RegisterEvents()
 
 	err := httprouter.Run()
 	if err != nil {
