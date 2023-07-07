@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	errPositionHasPlayers     = fmt.Errorf("this position has players")
 	errPlayerExceededBoundary = fmt.Errorf("player exceeded the boundary of the world")
 )
 
@@ -113,7 +114,12 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 
 	direction := commonmodel.NewDownDirection()
 	newPlayer := playermodel.NewPlayer(
-		playermodel.NewPlayerId(uuid.New()), worldId, "Hello", commonmodel.NewPosition(0, 0), direction, &firstItemId,
+		playermodel.NewPlayerId(uuid.New()),
+		worldId,
+		"Hello",
+		commonmodel.NewPosition(0, 0),
+		direction,
+		&firstItemId,
 	)
 
 	if err = serve.playerRepo.Add(newPlayer); err != nil {
@@ -127,11 +133,6 @@ func (serve *serve) Move(command MoveCommand) error {
 	playerId := playermodel.NewPlayerId(command.PlayerId)
 	direction := commonmodel.NewDirection(command.Direction)
 
-	world, err := serve.worldRepo.Get(worldId)
-	if err != nil {
-		return err
-	}
-
 	player, err := serve.playerRepo.Get(worldId, playerId)
 	if err != nil {
 		return err
@@ -144,27 +145,7 @@ func (serve *serve) Move(command MoveCommand) error {
 
 	newItemPos := player.GetPositionOneStepFoward()
 
-	unit, err := serve.unitRepo.GetUnitAt(worldId, newItemPos)
-	if err != nil {
-		return err
-	}
-
-	if unit != nil {
-		itemId := unit.GetItemId()
-		item, err := serve.itemRepo.Get(itemId)
-		if err != nil {
-			return err
-		}
-		if item.GetTraversable() {
-			player.Move(newItemPos, direction)
-		}
-	} else {
-		player.Move(newItemPos, direction)
-	}
-
-	if !world.GetBound().CoversPosition(player.GetPosition()) {
-		return errPlayerExceededBoundary
-	}
+	player.Move(newItemPos, direction)
 
 	return serve.playerRepo.Update(player)
 }
@@ -180,15 +161,6 @@ func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
 	return serve.playerRepo.Delete(player)
 }
 
-func (serve *serve) CreateUnit(command CreateUnitCommand) error {
-	return serve.unitService.CreateUnit(
-		sharedkernelmodel.NewWorldId(command.WorldId),
-		commonmodel.NewItemId(command.ItemId),
-		commonmodel.NewPosition(command.Position.X, command.Position.Z),
-		commonmodel.NewDirection(command.Direction),
-	)
-}
-
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
 	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
@@ -201,6 +173,26 @@ func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
 
 	player.ChangeHeldItem(itemId)
 	return serve.playerRepo.Update(player)
+}
+
+func (serve *serve) CreateUnit(command CreateUnitCommand) error {
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	position := commonmodel.NewPosition(command.Position.X, command.Position.Z)
+	players, err := serve.playerRepo.GetPlayersAt(worldId, position)
+	if err != nil {
+		return err
+	}
+
+	if len(players) > 0 {
+		return errPositionHasPlayers
+	}
+
+	return serve.unitService.CreateUnit(
+		worldId,
+		commonmodel.NewItemId(command.ItemId),
+		position,
+		commonmodel.NewDirection(command.Direction),
+	)
 }
 
 func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
