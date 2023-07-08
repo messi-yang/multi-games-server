@@ -124,24 +124,6 @@ func (repo *playerRepo) Get(_ sharedkernelmodel.WorldId, playerId playermodel.Pl
 	return parsePlayerModel(playerModel), nil
 }
 
-func (repo *playerRepo) GetPlayersAt(worldId sharedkernelmodel.WorldId, position commonmodel.Position) (players []playermodel.Player, err error) {
-	var playerModels = []pgmodel.PlayerModel{}
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Joins("User").Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
-			worldId.Uuid(),
-			position.GetX(),
-			position.GetZ(),
-		).Find(&playerModels).Error
-	}); err != nil {
-		return players, err
-	}
-
-	return lo.Map(playerModels, func(playerModel pgmodel.PlayerModel, _ int) playermodel.Player {
-		return parsePlayerModel(playerModel)
-	}), nil
-}
-
 func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) (players []playermodel.Player, err error) {
 	playerModels := []pgmodel.PlayerModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
@@ -158,17 +140,4 @@ func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) (pl
 	return lo.Map(playerModels, func(playerModel pgmodel.PlayerModel, _ int) playermodel.Player {
 		return parsePlayerModel(playerModel)
 	}), nil
-}
-
-func (repo *playerRepo) GetAll(worldId sharedkernelmodel.WorldId) []playermodel.Player {
-	var playerModels []pgmodel.PlayerModel
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Joins("User").Find(&playerModels).Error
-	}); err != nil {
-		return []playermodel.Player{}
-	}
-
-	return lo.Map(playerModels, func(playerModel pgmodel.PlayerModel, _ int) playermodel.Player {
-		return parsePlayerModel(playerModel)
-	})
 }

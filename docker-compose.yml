@@ -9,9 +9,10 @@ services:
     image: 'bitnami/redis:latest'
     ports:
       - '6379:6379'
+    volumes:
+      - ./cache/config.conf:/opt/bitnami/redis/mounted-etc/redis.conf
     environment:
       - REDIS_REPLICATION_MODE=master
-      - REDIS_PASSWORD=main
     networks:
       - base
   postgres:

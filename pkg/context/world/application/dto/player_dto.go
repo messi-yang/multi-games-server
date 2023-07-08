@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/google/uuid"
@@ -9,6 +11,7 @@ import (
 
 type PlayerDto struct {
 	Id         uuid.UUID   `json:"id"`
+	WorldId    uuid.UUID   `json:"worldId"`
 	UserId     *uuid.UUID  `json:"userId"`
 	Name       string      `json:"name"`
 	Position   PositionDto `json:"position"`
@@ -18,7 +21,8 @@ type PlayerDto struct {
 
 func NewPlayerDto(player playermodel.Player) PlayerDto {
 	dto := PlayerDto{
-		Id: player.GetId().Uuid(),
+		Id:      player.GetId().Uuid(),
+		WorldId: player.GetWorldId().Uuid(),
 		UserId: lo.TernaryF(
 			player.GetUserId() == nil,
 			func() *uuid.UUID { return nil },
@@ -34,4 +38,19 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 		),
 	}
 	return dto
+}
+
+func ParsePlayerDto(playerDto PlayerDto) playermodel.Player {
+	return playermodel.NewPlayer(
+		playermodel.NewPlayerId(playerDto.Id),
+		sharedkernelmodel.NewWorldId(playerDto.WorldId),
+		playerDto.Name,
+		commonmodel.NewPosition(playerDto.Position.X, playerDto.Position.Z),
+		commonmodel.NewDirection(playerDto.Direction),
+		lo.TernaryF(
+			playerDto.HeldItemId == nil,
+			func() *commonmodel.ItemId { return nil },
+			func() *commonmodel.ItemId { return commonutil.ToPointer(commonmodel.NewItemId(*playerDto.HeldItemId)) },
+		),
+	)
 }

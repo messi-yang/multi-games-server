@@ -6,7 +6,6 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 )
 
@@ -93,27 +92,6 @@ func (repo *playerRepo) Get(worldId sharedkernelmodel.WorldId, playerId playermo
 	return player, nil
 }
 
-func (repo *playerRepo) GetPlayersAt(worldId sharedkernelmodel.WorldId, position commonmodel.Position) ([]playermodel.Player, error) {
-	locker.RLock()
-
-	playerMap, found := worldPlayerMap[worldId]
-	if !found {
-		locker.RUnlock()
-		return []playermodel.Player{}, nil
-	}
-
-	playersAtPosition := make([]playermodel.Player, 0)
-	for _, player := range playerMap {
-		if player.GetPosition().IsEqual(position) {
-			playersAtPosition = append(playersAtPosition, player)
-		}
-	}
-
-	locker.RUnlock()
-
-	return playersAtPosition, nil
-}
-
 func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) ([]playermodel.Player, error) {
 	locker.RLock()
 
@@ -131,19 +109,4 @@ func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) ([]
 	locker.RUnlock()
 
 	return playersOfWorld, nil
-}
-
-func (repo *playerRepo) GetAll(worldId sharedkernelmodel.WorldId) []playermodel.Player {
-	locker.RLock()
-
-	allPlayers := make([]playermodel.Player, 0)
-	for _, worldPlayers := range worldPlayerMap {
-		for _, player := range worldPlayers {
-			allPlayers = append(allPlayers, player)
-		}
-	}
-
-	locker.RUnlock()
-
-	return allPlayers
 }

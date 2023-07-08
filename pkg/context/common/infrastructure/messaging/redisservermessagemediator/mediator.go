@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/redisclient"
-	"github.com/go-redis/redis/v9"
+	"github.com/go-redis/redis/v8"
 )
 
 // Server Message Mediator, used for the messages going between servers and okay to be lost

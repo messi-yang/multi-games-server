@@ -32,6 +32,14 @@ docker compose exec web make test
 docker compose exec web make db-seed
 ```
 
+## Redis
+
+### Connect to Redis
+
+```bash
+docker compose exec redis redis-cli
+```
+
 ## Postgres Database
 
 ### Update Postgres Schema

@@ -178,14 +178,6 @@ func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
 func (serve *serve) CreateUnit(command CreateUnitCommand) error {
 	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
 	position := commonmodel.NewPosition(command.Position.X, command.Position.Z)
-	players, err := serve.playerRepo.GetPlayersAt(worldId, position)
-	if err != nil {
-		return err
-	}
-
-	if len(players) > 0 {
-		return errPositionHasPlayers
-	}
 
 	return serve.unitService.CreateUnit(
 		worldId,

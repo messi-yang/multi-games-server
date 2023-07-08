@@ -301,7 +301,7 @@ func (httpHandler *HttpHandler) broadcastPlayerLeftServerMessage(worldIdDto uuid
 }
 
 func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, directionDto int8) error {
-	uow := pguow.NewUow()
+	uow := pguow.NewDummyUow()
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
 	if err := worldJourneyAppService.Move(worldjourneyappsrv.MoveCommand{
@@ -309,10 +309,8 @@ func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerI
 		PlayerId:  playerIdDto,
 		Direction: directionDto,
 	}); err != nil {
-		uow.RevertChanges()
 		return err
 	}
-	uow.SaveChanges()
 	return nil
 }
 
