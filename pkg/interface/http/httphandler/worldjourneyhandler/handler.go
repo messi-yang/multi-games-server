@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldjourneyappsrv"
@@ -372,9 +373,17 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (
 	uow := pguow.NewUow()
 
 	playerAppService := providedependency.ProvidePlayerAppService(uow)
+	itemAppService := providedependency.ProvideItemAppService(uow)
+
+	itemDtos, err := itemAppService.QueryItems(itemappsrv.QueryItemsQuery{})
+	if err != nil {
+		uow.RevertChanges()
+		return playerIdDto, err
+	}
 
 	if playerIdDto, err = playerAppService.EnterWorld(playerappsrv.EnterWorldCommand{
-		WorldId: worldIdDto,
+		WorldId:          worldIdDto,
+		PlayerHeldItemId: itemDtos[0].Id,
 	}); err != nil {
 		uow.RevertChanges()
 		return playerIdDto, err

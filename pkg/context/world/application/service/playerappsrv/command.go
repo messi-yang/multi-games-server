@@ -11,7 +11,8 @@ type ChangeHeldItemCommand struct {
 }
 
 type EnterWorldCommand struct {
-	WorldId uuid.UUID
+	WorldId          uuid.UUID
+	PlayerHeldItemId uuid.UUID
 }
 
 type MoveCommand struct {

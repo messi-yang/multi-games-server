@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -21,16 +20,13 @@ type Service interface {
 
 type serve struct {
 	playerRepo playermodel.PlayerRepo
-	itemRepo   itemmodel.ItemRepo
 }
 
 func NewService(
 	playerRepo playermodel.PlayerRepo,
-	itemRepo itemmodel.ItemRepo,
 ) Service {
 	return &serve{
 		playerRepo: playerRepo,
-		itemRepo:   itemRepo,
 	}
 }
 
@@ -58,12 +54,7 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, er
 
 func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID, err error) {
 	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
-
-	firstItem, err := serve.itemRepo.GetFirstItem()
-	if err != nil {
-		return plyaerIdDto, err
-	}
-	firstItemId := firstItem.GetId()
+	playerHeldItemId := commonmodel.NewItemId(command.PlayerHeldItemId)
 
 	direction := commonmodel.NewDownDirection()
 	newPlayer := playermodel.NewPlayer(
@@ -72,7 +63,7 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 		"Hello",
 		commonmodel.NewPosition(0, 0),
 		direction,
-		&firstItemId,
+		&playerHeldItemId,
 	)
 
 	if err = serve.playerRepo.Add(newPlayer); err != nil {
