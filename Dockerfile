@@ -2,7 +2,7 @@ FROM golang:1.20
 
 # Install "redis"
 RUN apt update
-RUN apt install -y redis-tools
+RUN apt install -y redis-tools postgresql-client
 
 # Install "migrate" https://github.com/golang-migrate/migrate
 RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest

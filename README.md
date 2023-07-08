@@ -40,6 +40,12 @@ docker compose exec web make db-seed
 docker compose exec postgres /usr/local/bin/pg_dump -U main --schema-only main > db/postgres/schema.sql
 ```
 
+### Connect to Postgres
+
+```bash
+docker compose exec web make postgres-connect
+```
+
 ### Plan New Postgres Migration
 
 Create new Postgres migration file.

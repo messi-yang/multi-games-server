@@ -1,3 +1,7 @@
+#.PHONY: postgres-connect
+postgres-connect:
+	psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+
 # .PHONY: postgres-plan-migrate
 postgres-plan-migrate:
 	migrate create -ext sql -dir db/postgres/migrations ${FILE_NAME}
