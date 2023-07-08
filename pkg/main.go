@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 
-	iam_mem_domain_event_handler "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/event/mem/memdomaineventhandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/messaging/redis/redisclient"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/postgres/pgclient"
-	world_mem_domain_event_handler "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/event/mem/memdomaineventhandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pgclient"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/redisclient"
+	iam_mem_domain_event_handler "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/domainevent/memdomaineventhandler"
+	world_mem_domain_event_handler "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/domainevent/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/cli/clirouter"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httprouter"
 )

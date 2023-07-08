@@ -1,6 +1,6 @@
 package commonmodel
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 
 type Position struct {
 	x int
