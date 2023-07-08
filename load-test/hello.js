@@ -6,7 +6,7 @@ export let options = {
   scenarios: {
     helloWorld: {
       executor: 'constant-vus',
-      vus: 10,
+      vus: 30,
       duration: '60s',
       gracefulStop: '1s',
       tags: { test_type: 'helloWorld' },
@@ -18,8 +18,8 @@ export let options = {
 };
 
 export function helloWorld() {
-  // const url = 'wss://api.zossi.xyz/api/world-journey/?id=b01848b1-1047-4831-889d-b2bcbaf4ed8b';
-  const url = 'ws://web:8080/api/world-journey/?id=dc4ef400-5f8f-45cb-b373-68ed789b5d46';
+  const url = 'wss://api.zossi.xyz/api/world-journey/?id=b01848b1-1047-4831-889d-b2bcbaf4ed8b';
+  // const url = 'ws://web:8080/api/world-journey/?id=dc4ef400-5f8f-45cb-b373-68ed789b5d46';
 
   ws.connect(url, {}, function (socket) {
     socket.on('open', function open() {

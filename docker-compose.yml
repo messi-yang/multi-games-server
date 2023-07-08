@@ -13,6 +13,7 @@ services:
       - ./cache/config.conf:/opt/bitnami/redis/mounted-etc/redis.conf
     environment:
       - REDIS_REPLICATION_MODE=master
+      - ALLOW_EMPTY_PASSWORD=yes
     networks:
       - base
   postgres:

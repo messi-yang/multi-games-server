@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldjourneyappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
@@ -260,8 +261,8 @@ func (httpHandler *HttpHandler) broadcastUnitDeletedServerMessage(worldIdDto uui
 func (httpHandler *HttpHandler) broadcastPlayerJoinedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	uow := pguow.NewDummyUow()
 
-	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
-	playerDto, err := worldJourneyAppService.GetPlayer(worldjourneyappsrv.GetPlayerQuery{
+	playerAppService := providedependency.ProvidePlayerAppService(uow)
+	playerDto, err := playerAppService.GetPlayer(playerappsrv.GetPlayerQuery{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
@@ -277,8 +278,8 @@ func (httpHandler *HttpHandler) broadcastPlayerJoinedServerMessage(worldIdDto uu
 
 func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	uow := pguow.NewDummyUow()
-	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
-	playerDto, err := worldJourneyAppService.GetPlayer(worldjourneyappsrv.GetPlayerQuery{
+	playerAppService := providedependency.ProvidePlayerAppService(uow)
+	playerDto, err := playerAppService.GetPlayer(playerappsrv.GetPlayerQuery{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
@@ -303,8 +304,8 @@ func (httpHandler *HttpHandler) broadcastPlayerLeftServerMessage(worldIdDto uuid
 func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, directionDto int8) error {
 	uow := pguow.NewDummyUow()
 
-	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
-	if err := worldJourneyAppService.Move(worldjourneyappsrv.MoveCommand{
+	playerAppService := providedependency.ProvidePlayerAppService(uow)
+	if err := playerAppService.Move(playerappsrv.MoveCommand{
 		WorldId:   worldIdDto,
 		PlayerId:  playerIdDto,
 		Direction: directionDto,
@@ -317,8 +318,8 @@ func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerI
 func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
-	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
-	if err := worldJourneyAppService.ChangeHeldItem(worldjourneyappsrv.ChangeHeldItemCommand{
+	playerAppService := providedependency.ProvidePlayerAppService(uow)
+	if err := playerAppService.ChangeHeldItem(playerappsrv.ChangeHeldItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 		ItemId:   itemIdDto,
@@ -370,9 +371,9 @@ func (httpHandler *HttpHandler) executeRemoveUnitCommand(worldIdDto uuid.UUID, p
 func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (playerIdDto uuid.UUID, err error) {
 	uow := pguow.NewUow()
 
-	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
+	playerAppService := providedependency.ProvidePlayerAppService(uow)
 
-	if playerIdDto, err = worldJourneyAppService.EnterWorld(worldjourneyappsrv.EnterWorldCommand{
+	if playerIdDto, err = playerAppService.EnterWorld(playerappsrv.EnterWorldCommand{
 		WorldId: worldIdDto,
 	}); err != nil {
 		uow.RevertChanges()
@@ -386,8 +387,8 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID) (
 func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
-	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
-	if err := worldJourneyAppService.LeaveWorld(worldjourneyappsrv.LeaveWorldCommand{
+	playerAppService := providedependency.ProvidePlayerAppService(uow)
+	if err := playerAppService.LeaveWorld(playerappsrv.LeaveWorldCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	}); err != nil {
@@ -403,6 +404,7 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 
 	worldJourneyAppService := providedependency.ProvideWorldJourneyAppService(uow)
 	worldAppService := providedependency.ProvideWorldAppService(uow)
+	playerAppService := providedependency.ProvidePlayerAppService(uow)
 
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
 		WorldId: worldIdDto,
@@ -421,8 +423,8 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 		return err
 	}
 
-	playerDtos, err := worldJourneyAppService.GetPlayers(
-		worldjourneyappsrv.GetPlayersQuery{
+	playerDtos, err := playerAppService.GetPlayers(
+		playerappsrv.GetPlayersQuery{
 			WorldId:  worldIdDto,
 			PlayerId: playerIdDto,
 		},
