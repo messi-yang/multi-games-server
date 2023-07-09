@@ -93,7 +93,7 @@ func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, 
 	var worldModels []pgmodel.WorldModel
 
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Limit(limit).Offset(offset).Order("created_at DESC").Find(&worldModels).Error
+		return transaction.Limit(limit).Offset(offset).Order("created_at desc").Find(&worldModels).Error
 	}); err != nil {
 		return worlds, err
 	}
@@ -107,7 +107,7 @@ func (repo *worldRepo) GetWorldsOfUser(userId sharedkernelmodel.UserId) (worlds 
 	var worldModels []pgmodel.WorldModel
 
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Find(
+		return transaction.Order("created_at desc").Find(
 			&worldModels,
 			pgmodel.WorldModel{
 				UserId: userId.Uuid(),
