@@ -52,26 +52,6 @@ CREATE TABLE public.items (
 ALTER TABLE public.items OWNER TO main;
 
 --
--- Name: players; Type: TABLE; Schema: public; Owner: main
---
-
-CREATE TABLE public.players (
-    id uuid NOT NULL,
-    user_id uuid,
-    world_id uuid NOT NULL,
-    name character varying(50) NOT NULL,
-    pos_x integer NOT NULL,
-    pos_z integer NOT NULL,
-    direction integer NOT NULL,
-    held_item_id uuid NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
-);
-
-
-ALTER TABLE public.players OWNER TO main;
-
---
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -197,14 +177,6 @@ ALTER TABLE ONLY public.items
 
 
 --
--- Name: players players_pkey; Type: CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.players
-    ADD CONSTRAINT players_pkey PRIMARY KEY (id);
-
-
---
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -269,13 +241,6 @@ ALTER TABLE ONLY public.worlds
 
 
 --
--- Name: players_world_id_pos_x_pos_z; Type: INDEX; Schema: public; Owner: main
---
-
-CREATE INDEX players_world_id_pos_x_pos_z ON public.players USING btree (world_id, pos_x, pos_z);
-
-
---
 -- Name: unit_world_id_pos_x_pos_z; Type: INDEX; Schema: public; Owner: main
 --
 
@@ -295,22 +260,6 @@ CREATE INDEX world_roles_world_id_user_id ON public.world_members USING btree (w
 
 ALTER TABLE ONLY public.units
     ADD CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES public.items(id);
-
-
---
--- Name: players fk_item; Type: FK CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.players
-    ADD CONSTRAINT fk_item FOREIGN KEY (held_item_id) REFERENCES public.items(id);
-
-
---
--- Name: players fk_players_user; Type: FK CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.players
-    ADD CONSTRAINT fk_players_user FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -342,14 +291,6 @@ ALTER TABLE ONLY public.world_members
 --
 
 ALTER TABLE ONLY public.units
-    ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
-
-
---
--- Name: players fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.players
     ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
 
 
