@@ -1,4 +1,4 @@
-package worldjourneyappsrv
+package unitappsrv
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"

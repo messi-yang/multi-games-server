@@ -7,7 +7,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/redisrepo"
 )
 
-func ProvidePlayerAppService(uow pguow.Uow) playerappsrv.Service {
+func ProvidePlayerAppService() playerappsrv.Service {
+	uow := pguow.NewDummyUow()
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	playerRepo := redisrepo.NewPlayerRepo(domainEventDispatcher)
 	return playerappsrv.NewService(

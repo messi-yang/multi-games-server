@@ -1,4 +1,4 @@
-package worldjourneyappsrv
+package unitappsrv
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
@@ -8,16 +8,6 @@ import (
 type GetUnitQuery struct {
 	WorldId  uuid.UUID
 	Position dto.PositionDto
-}
-
-type GetPlayerQuery struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
-}
-
-type GetPlayersQuery struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
 }
 
 type GetUnitsQuery struct {
