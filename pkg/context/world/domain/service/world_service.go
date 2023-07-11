@@ -50,10 +50,6 @@ func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name 
 	if !worldAccount.CanAddNewWorld() {
 		return worldId, ErrWorldsCountReachLimit
 	}
-	worldAccount.AddWorldsCount()
-	if err = worldServe.worldAccountRepo.Update(worldAccount); err != nil {
-		return worldId, err
-	}
 
 	worldBound, err := commonmodel.NewBound(
 		commonmodel.NewPosition(-50, -50),

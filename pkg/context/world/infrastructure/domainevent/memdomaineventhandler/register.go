@@ -8,4 +8,5 @@ import (
 func RegisterEvents() {
 	domainEventRegister := memdomainevent.NewRegister()
 	domainEventRegister.Register(sharedkernelmodel.UserCreated{}, NewUserCreatedHandler())
+	domainEventRegister.Register(sharedkernelmodel.WorldCreated{}, NewWorldCreatedHandler())
 }

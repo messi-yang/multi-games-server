@@ -14,6 +14,7 @@ type Service interface {
 	GetWorldAccountOfUser(GetWorldAccountOfUserQuery) (dto.WorldAccountDto, error)
 	CreateWorldAccount(CreateWorldAccountCommand) (worldAccountIdDto uuid.UUID, err error)
 	QueryWorldAccounts(QueryWorldAccountsQuery) ([]dto.WorldAccountDto, error)
+	HandleWorldCreatedDomainEvent(sharedkernelmodel.WorldCreated) error
 }
 
 type serve struct {
@@ -63,4 +64,13 @@ func (serve *serve) QueryWorldAccounts(query QueryWorldAccountsQuery) (itemDtos 
 	return lo.Map(worldAccounts, func(worldAccount worldaccountmodel.WorldAccount, _ int) dto.WorldAccountDto {
 		return dto.NewWorldAccountDto(worldAccount)
 	}), nil
+}
+
+func (serve *serve) HandleWorldCreatedDomainEvent(worldCreated sharedkernelmodel.WorldCreated) error {
+	worldAccount, err := serve.worldAccountRepo.GetWorldAccountOfUser(worldCreated.GetUserId())
+	if err != nil {
+		return err
+	}
+	worldAccount.AddWorldsCount()
+	return serve.worldAccountRepo.Update(worldAccount)
 }
