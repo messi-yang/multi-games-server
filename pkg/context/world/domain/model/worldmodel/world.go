@@ -36,7 +36,7 @@ func NewWorld(
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	newWorld.domainEventCollector.Add(sharedkernelmodel.NewWorldCreated(
+	newWorld.domainEventCollector.Add(NewWorldCreated(
 		newWorld.id,
 		newWorld.userId,
 	))

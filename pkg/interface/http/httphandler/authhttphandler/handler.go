@@ -8,8 +8,10 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/authappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/userappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
+	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/service/googleauthinfrasrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldaccountappsrv"
+	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/jsonutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -33,7 +35,7 @@ func (httpHandler *HttpHandler) GoToGoogleAuthUrl(c *gin.Context) {
 	})
 	state := string(stateInBytes)
 
-	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()
+	googleAuthInfraService := iam_provide_dependency.ProvideGoogleAuthInfraService()
 	authUrl, err := googleAuthInfraService.GenerateAuthUrl(googleauthinfrasrv.GenerateAuthUrlCommand{
 		State: state,
 	})
@@ -51,7 +53,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 		return
 	}
 
-	googleAuthInfraService := providedependency.ProvideGoogleAuthInfraService()
+	googleAuthInfraService := iam_provide_dependency.ProvideGoogleAuthInfraService()
 	userEmailAddress, err := googleAuthInfraService.GetUserEmailAddress(googleauthinfrasrv.GetUserEmailAddressQuery{
 		Code: code,
 	})
@@ -61,8 +63,9 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 
 	pgUow := pguow.NewUow()
 
-	userAppService := providedependency.ProvideUserAppService(pgUow)
-	authAppService := providedependency.ProvideAuthAppService(pgUow)
+	userAppService := iam_provide_dependency.ProvideUserAppService(pgUow)
+	authAppService := iam_provide_dependency.ProvideAuthAppService(pgUow)
+	worldAccountAppService := world_provide_dependency.ProvideWorldAccountAppService(pgUow)
 
 	userDto, err := userAppService.GetUserByEmailAddress(userappsrv.GetUserByEmailAddressQuery{
 		EmailAddress: userEmailAddress,
@@ -78,6 +81,14 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 	} else {
 		userIdDto, err = authAppService.Register(authappsrv.RegisterCommand{EmailAddress: userEmailAddress})
 		if err != nil {
+			pgUow.RevertChanges()
+			return
+		}
+
+		// TODO - Remove this two phase commits across contexts by using integration events
+		if err := worldAccountAppService.CreateWorldAccount(worldaccountappsrv.CreateWorldAccountCommand{
+			UserId: userIdDto,
+		}); err != nil {
 			pgUow.RevertChanges()
 			return
 		}

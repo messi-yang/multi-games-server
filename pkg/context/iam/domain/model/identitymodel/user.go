@@ -24,7 +24,7 @@ func NewUser(
 	emailAddress sharedkernelmodel.EmailAddress,
 	username sharedkernelmodel.Username,
 ) User {
-	newUser := User{
+	return User{
 		id:                   id,
 		emailAddress:         emailAddress,
 		username:             username,
@@ -32,8 +32,6 @@ func NewUser(
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	newUser.domainEventCollector.Add(sharedkernelmodel.NewUserCreated(id))
-	return newUser
 }
 
 func LoadUser(

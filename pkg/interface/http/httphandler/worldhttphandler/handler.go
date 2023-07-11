@@ -9,7 +9,7 @@ import (
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldpermissionappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
+	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/gin-gonic/gin"
@@ -26,16 +26,16 @@ func NewHttpHandler() *HttpHandler {
 func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 	worldIdDto, err := uuid.Parse(c.Param("worldId"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	pgUow := pguow.NewDummyUow()
 
-	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -46,25 +46,25 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 	limitQuery := c.Query("limit")
 	limit, err := strconv.Atoi(limitQuery)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	offsetQuery := c.Query("offset")
 	offset, err := strconv.Atoi(offsetQuery)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	pgUow := pguow.NewDummyUow()
 
-	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
 	worldDtos, err := worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{
 		Limit:  limit,
 		Offset: offset,
 	})
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -76,7 +76,7 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 
 	pgUow := pguow.NewDummyUow()
 
-	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
 	worldDtos, err := worldAppService.GetMyWorlds(worldappsrv.GetMyWorldsQuery{
 		UserId: userIdDto,
 	})
@@ -93,13 +93,14 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	var requestBody createWorldRequestBody
 	if err := c.BindJSON(&requestBody); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	pgUow := pguow.NewUow()
 
-	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
+	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
 
 	newWorldIdDto, err := worldAppService.CreateWorld(
 		worldappsrv.CreateWorldCommand{
@@ -109,13 +110,25 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 	)
 	if err != nil {
 		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
+
+	// TODO - Remove this two phase commits across contexts by using integration events
+	if err := worldAccessAppService.AddWorldMember(worldaccessappsrv.AddWorldMemberCommand{
+		UserId:  userIdDto,
+		WorldId: newWorldIdDto,
+		Role:    "owner",
+	}); err != nil {
+		pgUow.RevertChanges()
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: newWorldIdDto})
 	if err != nil {
 		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -128,21 +141,21 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	var requestBody updateWorldRequestBody
 	if err := c.BindJSON(&requestBody); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	worldIdDto, err := uuid.Parse(c.Param("worldId"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	pgUow := pguow.NewUow()
 
-	worldAppService := providedependency.ProvideWorldAppService(pgUow)
+	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
 	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
-	worldPermissionAppService := providedependency.ProvideWorldPermissionAppService(pgUow)
+	worldPermissionAppService := world_provide_dependency.ProvideWorldPermissionAppService(pgUow)
 
 	worldMemberDto, err := worldAccessAppService.GetUserWorldMember(worldaccessappsrv.GetUserWorldMemberQuery{
 		WorldId: worldIdDto,
@@ -150,7 +163,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	})
 	if err != nil {
 		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -163,7 +176,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	})
 	if err != nil {
 		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	if !canUpdateWorldInfo {
@@ -177,14 +190,14 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 		Name:    requestBody.Name,
 	}); err != nil {
 		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	updatedWorldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
 	if err != nil {
 		pgUow.RevertChanges()
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 

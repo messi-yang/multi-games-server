@@ -2,11 +2,10 @@ package memdomaineventhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 )
 
 func RegisterEvents() {
 	domainEventRegister := memdomainevent.NewRegister()
-	domainEventRegister.Register(sharedkernelmodel.UserCreated{}, NewUserCreatedHandler())
-	domainEventRegister.Register(sharedkernelmodel.WorldCreated{}, NewWorldCreatedHandler())
+	domainEventRegister.Register(worldmodel.WorldCreated{}, NewWorldCreatedHandler())
 }

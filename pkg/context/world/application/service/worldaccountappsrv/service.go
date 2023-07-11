@@ -6,15 +6,15 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
-	"github.com/google/uuid"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/samber/lo"
 )
 
 type Service interface {
 	GetWorldAccountOfUser(GetWorldAccountOfUserQuery) (dto.WorldAccountDto, error)
-	CreateWorldAccount(CreateWorldAccountCommand) (worldAccountIdDto uuid.UUID, err error)
+	CreateWorldAccount(CreateWorldAccountCommand) error
 	QueryWorldAccounts(QueryWorldAccountsQuery) ([]dto.WorldAccountDto, error)
-	HandleWorldCreatedDomainEvent(sharedkernelmodel.WorldCreated) error
+	HandleWorldCreatedDomainEvent(worldmodel.WorldCreated) error
 }
 
 type serve struct {
@@ -39,20 +39,17 @@ func (serve *serve) GetWorldAccountOfUser(query GetWorldAccountOfUserQuery) (wor
 	return dto.NewWorldAccountDto(worldAccount), nil
 }
 
-func (serve *serve) CreateWorldAccount(command CreateWorldAccountCommand) (worldAccountIdDto uuid.UUID, err error) {
+func (serve *serve) CreateWorldAccount(command CreateWorldAccountCommand) (err error) {
 	userId := sharedkernelmodel.NewUserId(command.UserId)
 	worldAccount, err := serve.worldAccountRepo.GetWorldAccountByUserId(userId)
 	if err != nil {
-		return worldAccountIdDto, err
+		return err
 	}
 	if worldAccount != nil {
-		return worldAccountIdDto, fmt.Errorf("already has a worldAccount with userId of %s", userId.Uuid().String())
+		return fmt.Errorf("already has a worldAccount with userId of %s", userId.Uuid().String())
 	}
 	newWorldAccount := worldaccountmodel.NewWorldAccount(userId)
-	if err = serve.worldAccountRepo.Add(newWorldAccount); err != nil {
-		return worldAccountIdDto, err
-	}
-	return newWorldAccount.GetId().Uuid(), nil
+	return serve.worldAccountRepo.Add(newWorldAccount)
 }
 
 func (serve *serve) QueryWorldAccounts(query QueryWorldAccountsQuery) (itemDtos []dto.WorldAccountDto, err error) {
@@ -66,7 +63,7 @@ func (serve *serve) QueryWorldAccounts(query QueryWorldAccountsQuery) (itemDtos 
 	}), nil
 }
 
-func (serve *serve) HandleWorldCreatedDomainEvent(worldCreated sharedkernelmodel.WorldCreated) error {
+func (serve *serve) HandleWorldCreatedDomainEvent(worldCreated worldmodel.WorldCreated) error {
 	worldAccount, err := serve.worldAccountRepo.GetWorldAccountOfUser(worldCreated.GetUserId())
 	if err != nil {
 		return err
