@@ -3,10 +3,9 @@ package seedclihandler
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/dbseedappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 )
 
 type Handler struct{}
@@ -16,14 +15,12 @@ func NewHandler() *Handler {
 }
 
 func (handler *Handler) Exec() {
-	pgUow := pguow.NewUow()
-
-	domainEventDispatcher := memdomainevent.NewDispatcher(pgUow)
-	itemRepo := pgrepo.NewItemRepo(pgUow, domainEventDispatcher)
-	dbSeedAppService := dbseedappsrv.NewService(itemRepo)
-
 	fmt.Println("Start seeding Postgres database")
-	err := dbSeedAppService.AddDefaultItems()
+
+	pgUow := pguow.NewUow()
+	itemAppService := providedependency.ProvideItemAppService(pgUow)
+
+	err := itemAppService.CreateDefaultItems(itemappsrv.CreateDefaultItemsCommand{})
 	if err != nil {
 		pgUow.RevertChanges()
 		panic(err)

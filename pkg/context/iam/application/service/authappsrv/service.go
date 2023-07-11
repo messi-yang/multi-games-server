@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/service"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"
@@ -20,13 +19,12 @@ type Service interface {
 }
 
 type serve struct {
-	userRepo        identitymodel.UserRepo
-	identityService service.IdentityService
-	authSecret      string
+	userRepo   identitymodel.UserRepo
+	authSecret string
 }
 
-func NewService(userRepo identitymodel.UserRepo, identityService service.IdentityService, authSecret string) Service {
-	return &serve{userRepo: userRepo, identityService: identityService, authSecret: authSecret}
+func NewService(userRepo identitymodel.UserRepo, authSecret string) Service {
+	return &serve{userRepo: userRepo, authSecret: authSecret}
 }
 
 func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err error) {
@@ -44,11 +42,10 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 		return userIdDto, fmt.Errorf("user with email address of %s already exists", command.EmailAddress)
 	}
 
-	newUser, err := serve.identityService.Register(emailAddress, sharedkernelmodel.NewRandomUsername())
-	if err != nil {
+	newUser := identitymodel.NewUser(sharedkernelmodel.NewUserId(uuid.New()), emailAddress, sharedkernelmodel.NewRandomUsername())
+	if err = serve.userRepo.Add(newUser); err != nil {
 		return userIdDto, err
 	}
-
 	return newUser.GetId().Uuid(), nil
 }
 

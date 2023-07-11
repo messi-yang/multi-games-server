@@ -3,7 +3,6 @@ package worldaccessappsrv
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/service"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/samber/lo"
 )
@@ -15,14 +14,12 @@ type Service interface {
 }
 
 type serve struct {
-	worldMemberRepo    worldaccessmodel.WorldMemberRepo
-	worldAccessService service.WorldAccessService
+	worldMemberRepo worldaccessmodel.WorldMemberRepo
 }
 
-func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo, worldAccessService service.WorldAccessService) Service {
+func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo) Service {
 	return &serve{
-		worldMemberRepo:    worldMemberRepo,
-		worldAccessService: worldAccessService,
+		worldMemberRepo: worldMemberRepo,
 	}
 }
 
@@ -31,11 +28,12 @@ func (serve *serve) AddWorldMember(command AddWorldMemberCommand) error {
 	if err != nil {
 		return err
 	}
-	return serve.worldAccessService.AddWorldMember(
+	newWorldMember := worldaccessmodel.NewWorldMember(
 		sharedkernelmodel.NewWorldId(command.WorldId),
 		sharedkernelmodel.NewUserId(command.UserId),
 		worldRole,
 	)
+	return serve.worldMemberRepo.Add(newWorldMember)
 }
 
 func (serve *serve) GetUserWorldMember(query GetUserWorldMemberQuery) (*dto.WorldMemberDto, error) {

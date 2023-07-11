@@ -10,9 +10,7 @@ import (
 )
 
 var (
-	errUnitExceededBoundary            = fmt.Errorf("unit exceeded the boundary of the world")
-	errPositionAlreadyHasUnitOrPlayers = fmt.Errorf("the position already has an unit or players")
-	errPositionDoesNotHaveUnit         = fmt.Errorf("the position does not have an unit")
+	errUnitExceededBoundary = fmt.Errorf("unit exceeded the boundary of the world")
 )
 
 type UnitService interface {
@@ -59,7 +57,7 @@ func (unitServe *unitServe) CreateUnit(
 		return err
 	}
 	if unit != nil {
-		return errPositionAlreadyHasUnitOrPlayers
+		return nil
 	}
 
 	newUnit := unitmodel.NewUnit(unitmodel.NewUnitId(worldId, position), worldId, position, itemId, direction)
@@ -76,7 +74,7 @@ func (unitServe *unitServe) RemoveUnit(worldId sharedkernelmodel.WorldId, positi
 		return err
 	}
 	if unit == nil {
-		return errPositionDoesNotHaveUnit
+		return nil
 	}
 	return unitServe.unitRepo.Delete(*unit)
 }

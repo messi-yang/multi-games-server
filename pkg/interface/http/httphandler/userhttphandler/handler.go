@@ -28,6 +28,7 @@ func (httpHandler *HttpHandler) GetMyUser(c *gin.Context) {
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, getMyUserResponse(userDto))

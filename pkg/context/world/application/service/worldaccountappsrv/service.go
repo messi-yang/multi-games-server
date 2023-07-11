@@ -47,7 +47,7 @@ func (serve *serve) CreateWorldAccount(command CreateWorldAccountCommand) (world
 	if worldAccount != nil {
 		return worldAccountIdDto, fmt.Errorf("already has a worldAccount with userId of %s", userId.Uuid().String())
 	}
-	newWorldAccount := worldaccountmodel.NewWorldAccount(userId, 0, 1)
+	newWorldAccount := worldaccountmodel.NewWorldAccount(userId)
 	if err = serve.worldAccountRepo.Add(newWorldAccount); err != nil {
 		return worldAccountIdDto, err
 	}

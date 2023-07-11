@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"math/rand"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
@@ -10,6 +11,10 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+)
+
+var (
+	ErrWorldsCountReachLimit = errors.New("worlds count has reached the limit")
 )
 
 type WorldService interface {
@@ -42,9 +47,10 @@ func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name 
 	if err != nil {
 		return worldId, err
 	}
-	if err = worldAccount.AddWorldsCount(); err != nil {
-		return worldId, err
+	if !worldAccount.CanAddNewWorld() {
+		return worldId, ErrWorldsCountReachLimit
 	}
+	worldAccount.AddWorldsCount()
 	if err = worldServe.worldAccountRepo.Update(worldAccount); err != nil {
 		return worldId, err
 	}

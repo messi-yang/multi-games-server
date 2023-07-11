@@ -1,15 +1,9 @@
 package worldaccountmodel
 
 import (
-	"errors"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
-)
-
-var (
-	ErrWorldsCountExceedsLimit = errors.New("worlds count has reached the limit")
 )
 
 type WorldAccount struct {
@@ -25,14 +19,12 @@ var _ domain.Aggregate = (*WorldAccount)(nil)
 
 func NewWorldAccount(
 	userId sharedkernelmodel.UserId,
-	worldsCount int8,
-	worldsCountLimit int8,
 ) WorldAccount {
 	return WorldAccount{
 		id:                   NewWorldAccountId(uuid.New()),
 		userId:               userId,
-		worldsCount:          worldsCount,
-		worldsCountLimit:     worldsCountLimit,
+		worldsCount:          0,
+		worldsCountLimit:     1,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -68,14 +60,14 @@ func (worldAccount *WorldAccount) GetWorldsCount() int8 {
 	return worldAccount.worldsCount
 }
 
+func (worldAccount *WorldAccount) AddWorldsCount() {
+	worldAccount.worldsCount += 1
+}
+
 func (worldAccount *WorldAccount) GetWorldsCountLimit() int8 {
 	return worldAccount.worldsCountLimit
 }
 
-func (worldAccount *WorldAccount) AddWorldsCount() error {
-	if worldAccount.GetWorldsCount() >= worldAccount.GetWorldsCountLimit() {
-		return ErrWorldsCountExceedsLimit
-	}
-	worldAccount.worldsCount += 1
-	return nil
+func (worldAccount *WorldAccount) CanAddNewWorld() bool {
+	return worldAccount.GetWorldsCount() < worldAccount.GetWorldsCountLimit()
 }
