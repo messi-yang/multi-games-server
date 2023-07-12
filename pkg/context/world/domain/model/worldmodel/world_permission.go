@@ -21,6 +21,7 @@ func NewWorldPermission(role sharedkernelmodel.WorldRole) WorldPermission {
 func (worldPermission WorldPermission) IsEqual(otherWorldPermission WorldPermission) bool {
 	return worldPermission.role.IsEqual(otherWorldPermission.role)
 }
+
 func (worldPermission WorldPermission) CanUpdateWorldInfo() bool {
 	return worldPermission.role.IsOwner() || worldPermission.role.IsAdmin()
 }
