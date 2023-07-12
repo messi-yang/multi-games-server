@@ -22,6 +22,6 @@ func (worldPermission WorldPermission) IsEqual(otherWorldPermission WorldPermiss
 	return worldPermission.role.IsEqual(otherWorldPermission.role)
 }
 
-func (worldPermission WorldPermission) CanUpdateWorldInfo() bool {
+func (worldPermission WorldPermission) CanUpdateWorld() bool {
 	return worldPermission.role.IsOwner() || worldPermission.role.IsAdmin()
 }

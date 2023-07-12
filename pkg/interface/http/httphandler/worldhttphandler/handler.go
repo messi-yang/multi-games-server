@@ -1,6 +1,7 @@
 package worldhttphandler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldaccessappsrv"
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldpermissionappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -155,7 +155,6 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
 	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
-	worldPermissionAppService := world_provide_dependency.ProvideWorldPermissionAppService(pgUow)
 
 	worldMemberDto, err := worldAccessAppService.GetUserWorldMember(worldaccessappsrv.GetUserWorldMemberQuery{
 		WorldId: worldIdDto,
@@ -167,30 +166,23 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 		return
 	}
 
-	canUpdateWorldInfo, err := worldPermissionAppService.CanUpdateWorldInfo(worldpermissionappsrv.CanUpdateWorldInfoQuery{
-		Role: lo.TernaryF(
-			worldMemberDto == nil,
-			func() *string { return nil },
-			func() *string { return commonutil.ToPointer(worldMemberDto.Role) },
-		),
-	})
-	if err != nil {
-		pgUow.RevertChanges()
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-	if !canUpdateWorldInfo {
-		pgUow.RevertChanges()
-		c.String(http.StatusForbidden, "not permitted")
-		return
-	}
+	roleDto := lo.TernaryF(
+		worldMemberDto == nil,
+		func() *string { return nil },
+		func() *string { return commonutil.ToPointer(worldMemberDto.Role) },
+	)
 
 	if err = worldAppService.UpdateWorld(worldappsrv.UpdateWorldCommand{
 		WorldId: worldIdDto,
+		Role:    roleDto,
 		Name:    requestBody.Name,
 	}); err != nil {
 		pgUow.RevertChanges()
-		c.String(http.StatusBadRequest, err.Error())
+		if errors.Is(err, worldappsrv.ErrNotPermitted) {
+			c.String(http.StatusForbidden, err.Error())
+		} else {
+			c.String(http.StatusBadRequest, err.Error())
+		}
 		return
 	}
 

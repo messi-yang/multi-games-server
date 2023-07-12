@@ -1,12 +1,18 @@
 package worldappsrv
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+)
+
+var (
+	ErrNotPermitted = fmt.Errorf("not permitted to perform this action")
 )
 
 type Service interface {
@@ -75,6 +81,20 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 }
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
+	if command.Role == nil {
+		return ErrNotPermitted
+	}
+
+	role, err := sharedkernelmodel.NewWorldRole(*command.Role)
+	if err != nil {
+		return err
+	}
+
+	worldPermission := worldmodel.NewWorldPermission(role)
+	if !worldPermission.CanUpdateWorld() {
+		return ErrNotPermitted
+	}
+
 	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {

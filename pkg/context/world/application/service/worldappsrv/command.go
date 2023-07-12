@@ -11,5 +11,6 @@ type CreateWorldCommand struct {
 
 type UpdateWorldCommand struct {
 	WorldId uuid.UUID
+	Role    *string
 	Name    string
 }
