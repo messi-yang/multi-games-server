@@ -93,3 +93,10 @@ func (world *World) GetCreatedAt() time.Time {
 func (world *World) GetUpdatedAt() time.Time {
 	return world.updatedAt
 }
+
+func (world *World) Delete() {
+	world.domainEventCollector.Add(NewWorldDeleted(
+		world.id,
+		world.userId,
+	))
+}

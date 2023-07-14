@@ -19,6 +19,7 @@ var (
 
 type WorldService interface {
 	CreateWorld(userId sharedkernelmodel.UserId, name string) (sharedkernelmodel.WorldId, error)
+	DeleteWorld(worldId sharedkernelmodel.WorldId) error
 }
 
 type worldServe struct {
@@ -88,4 +89,24 @@ func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name 
 	}
 
 	return newWorld.GetId(), nil
+}
+
+func (worldServe *worldServe) DeleteWorld(worldId sharedkernelmodel.WorldId) error {
+	unitsInWorld, err := worldServe.unitRepo.GetUnitsOfWorld(worldId)
+	if err != nil {
+		return err
+	}
+
+	for _, unit := range unitsInWorld {
+		if err = worldServe.unitRepo.Delete(unit); err != nil {
+			return err
+		}
+	}
+
+	world, err := worldServe.worldRepo.Get(worldId)
+	if err != nil {
+		return err
+	}
+	world.Delete()
+	return worldServe.worldRepo.Delete(world)
 }

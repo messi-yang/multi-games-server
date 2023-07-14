@@ -14,12 +14,14 @@ import (
 	"github.com/samber/lo"
 )
 
-func newWorldAccountModel(user worldaccountmodel.WorldAccount) pgmodel.WorldAccountModel {
+func newWorldAccountModel(worldAccount worldaccountmodel.WorldAccount) pgmodel.WorldAccountModel {
 	return pgmodel.WorldAccountModel{
-		Id:               user.GetId().Uuid(),
-		UserId:           user.GetUserId().Uuid(),
-		WorldsCount:      user.GetWorldsCount(),
-		WorldsCountLimit: user.GetWorldsCountLimit(),
+		Id:               worldAccount.GetId().Uuid(),
+		UserId:           worldAccount.GetUserId().Uuid(),
+		WorldsCount:      worldAccount.GetWorldsCount(),
+		WorldsCountLimit: worldAccount.GetWorldsCountLimit(),
+		CreatedAt:        worldAccount.GetCreatedAt(),
+		UpdatedAt:        worldAccount.GetUpdatedAt(),
 	}
 }
 
@@ -29,6 +31,8 @@ func parseWorldAccountModel(worldAccountModel pgmodel.WorldAccountModel) worldac
 		sharedkernelmodel.NewUserId(worldAccountModel.UserId),
 		worldAccountModel.WorldsCount,
 		worldAccountModel.WorldsCountLimit,
+		worldAccountModel.CreatedAt,
+		worldAccountModel.UpdatedAt,
 	)
 }
 

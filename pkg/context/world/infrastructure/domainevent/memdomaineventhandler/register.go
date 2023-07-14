@@ -8,4 +8,5 @@ import (
 func RegisterEvents() {
 	domainEventRegister := memdomainevent.NewRegister()
 	domainEventRegister.Register(worldmodel.WorldCreated{}, NewWorldCreatedHandler())
+	domainEventRegister.Register(worldmodel.WorldDeleted{}, NewWorldDeletedHandler())
 }

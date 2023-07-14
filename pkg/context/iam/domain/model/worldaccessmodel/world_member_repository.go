@@ -5,6 +5,7 @@ import "github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/m
 type WorldMemberRepo interface {
 	Add(WorldMember) error
 	Get(WorldMemberId) (WorldMember, error)
-	GetUserWorldMember(sharedkernelmodel.WorldId, sharedkernelmodel.UserId) (worldMember *WorldMember, err error)
+	Delete(WorldMember) error
+	GetWorldMemberOfUser(sharedkernelmodel.WorldId, sharedkernelmodel.UserId) (worldMember *WorldMember, err error)
 	GetWorldMembersInWorld(sharedkernelmodel.WorldId) ([]WorldMember, error)
 }

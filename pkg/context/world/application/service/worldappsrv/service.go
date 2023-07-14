@@ -21,6 +21,7 @@ type Service interface {
 	QueryWorlds(QueryWorldsQuery) ([]dto.WorldDto, error)
 	CreateWorld(CreateWorldCommand) (uuid.UUID, error)
 	UpdateWorld(UpdateWorldCommand) error
+	DeleteWorld(DeleteWorldCommand) error
 }
 
 type serve struct {
@@ -81,20 +82,6 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 }
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
-	if command.Role == nil {
-		return ErrNotPermitted
-	}
-
-	role, err := sharedkernelmodel.NewWorldRole(*command.Role)
-	if err != nil {
-		return err
-	}
-
-	worldPermission := worldmodel.NewWorldPermission(role)
-	if !worldPermission.CanUpdateWorld() {
-		return ErrNotPermitted
-	}
-
 	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
@@ -102,4 +89,9 @@ func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
 	}
 	world.ChangeName(command.Name)
 	return serve.worldRepo.Update(world)
+}
+
+func (serve *serve) DeleteWorld(command DeleteWorldCommand) error {
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	return serve.worldService.DeleteWorld(worldId)
 }

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldaccessappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
 	"github.com/gin-gonic/gin"
@@ -26,9 +26,9 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 	}
 
 	pgUow := pguow.NewDummyUow()
-	worldAccessAppService := providedependency.ProvideWorldAccessAppService(pgUow)
+	worldMemberAppService := providedependency.ProvideWorldMemberAppService(pgUow)
 
-	worldMemberDto, err := worldAccessAppService.GetUserWorldMember(worldaccessappsrv.GetUserWorldMemberQuery{
+	worldMemberDto, err := worldMemberAppService.GetWorldMemberOfUser(worldmemberappsrv.GetWorldMemberOfUserQuery{
 		WorldId: worldIdDto,
 		UserId:  userIdDto,
 	})
@@ -41,7 +41,7 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 		return
 	}
 
-	worldMemberDtos, err := worldAccessAppService.GetWorldMembers(worldaccessappsrv.GetWorldMembersQuery{
+	worldMemberDtos, err := worldMemberAppService.GetWorldMembers(worldmemberappsrv.GetWorldMembersQuery{
 		WorldId: worldIdDto,
 	})
 	if err != nil {

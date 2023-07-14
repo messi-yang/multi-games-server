@@ -1,4 +1,4 @@
-package worldaccessappsrv
+package worldmemberappsrv
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
@@ -9,7 +9,8 @@ import (
 
 type Service interface {
 	AddWorldMember(AddWorldMemberCommand) error
-	GetUserWorldMember(GetUserWorldMemberQuery) (worldMemberDto *dto.WorldMemberDto, err error)
+	DeleteAllWorldMembersInWorld(DeleteAllWorldMembersInWorldCommand) error
+	GetWorldMemberOfUser(GetWorldMemberOfUserQuery) (worldMemberDto *dto.WorldMemberDto, err error)
 	GetWorldMembers(GetWorldMembersQuery) ([]dto.WorldMemberDto, error)
 }
 
@@ -36,10 +37,26 @@ func (serve *serve) AddWorldMember(command AddWorldMemberCommand) error {
 	return serve.worldMemberRepo.Add(newWorldMember)
 }
 
-func (serve *serve) GetUserWorldMember(query GetUserWorldMemberQuery) (*dto.WorldMemberDto, error) {
+func (serve *serve) DeleteAllWorldMembersInWorld(command DeleteAllWorldMembersInWorldCommand) error {
+	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+
+	worldMembersInWorld, err := serve.worldMemberRepo.GetWorldMembersInWorld(worldId)
+	if err != nil {
+		return err
+	}
+
+	for _, worldMember := range worldMembersInWorld {
+		if err = serve.worldMemberRepo.Delete(worldMember); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (serve *serve) GetWorldMemberOfUser(query GetWorldMemberOfUserQuery) (*dto.WorldMemberDto, error) {
 	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
 	userId := sharedkernelmodel.NewUserId(query.UserId)
-	worldMember, err := serve.worldMemberRepo.GetUserWorldMember(worldId, userId)
+	worldMember, err := serve.worldMemberRepo.GetWorldMemberOfUser(worldId, userId)
 	if err != nil {
 		return nil, err
 	}

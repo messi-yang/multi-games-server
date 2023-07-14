@@ -6,15 +6,14 @@ import (
 	"strconv"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldaccessappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
-	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 type HttpHandler struct{}
@@ -100,7 +99,7 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 	pgUow := pguow.NewUow()
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
+	worldMemberAppService := iam_provide_dependency.ProvideWorldMemberAppService(pgUow)
 
 	newWorldIdDto, err := worldAppService.CreateWorld(
 		worldappsrv.CreateWorldCommand{
@@ -114,8 +113,8 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 		return
 	}
 
-	// TODO - Remove this two phase commits across contexts by using integration events
-	if err := worldAccessAppService.AddWorldMember(worldaccessappsrv.AddWorldMemberCommand{
+	// TODO - handle this side effects by using integration events
+	if err := worldMemberAppService.AddWorldMember(worldmemberappsrv.AddWorldMemberCommand{
 		UserId:  userIdDto,
 		WorldId: newWorldIdDto,
 		Role:    "owner",
@@ -154,9 +153,9 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	pgUow := pguow.NewUow()
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-	worldAccessAppService := iam_provide_dependency.ProvideWorldAccessAppService(pgUow)
+	worldPermissionAppService := iam_provide_dependency.ProvideWorldPermissionAppService(pgUow)
 
-	worldMemberDto, err := worldAccessAppService.GetUserWorldMember(worldaccessappsrv.GetUserWorldMemberQuery{
+	canUpdateWorld, err := worldPermissionAppService.CanUpdateWorld(worldpermissionappsrv.CanUpdateWorldQuery{
 		WorldId: worldIdDto,
 		UserId:  userIdDto,
 	})
@@ -165,16 +164,14 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-
-	roleDto := lo.TernaryF(
-		worldMemberDto == nil,
-		func() *string { return nil },
-		func() *string { return commonutil.ToPointer(worldMemberDto.Role) },
-	)
+	if !canUpdateWorld {
+		pgUow.RevertChanges()
+		c.String(http.StatusForbidden, "not permitted")
+		return
+	}
 
 	if err = worldAppService.UpdateWorld(worldappsrv.UpdateWorldCommand{
 		WorldId: worldIdDto,
-		Role:    roleDto,
 		Name:    requestBody.Name,
 	}); err != nil {
 		pgUow.RevertChanges()
@@ -195,4 +192,59 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	pgUow.SaveChanges()
 	c.JSON(http.StatusOK, updateWorldResponse(updatedWorldDto))
+}
+
+func (httpHandler *HttpHandler) DeleteWorld(c *gin.Context) {
+	userIdDto := httputil.GetUserId(c)
+
+	worldIdDto, err := uuid.Parse(c.Param("worldId"))
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	pgUow := pguow.NewUow()
+
+	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
+	worldMemberAppService := iam_provide_dependency.ProvideWorldMemberAppService(pgUow)
+	worldPermissionAppService := iam_provide_dependency.ProvideWorldPermissionAppService(pgUow)
+
+	canDeleteWorld, err := worldPermissionAppService.CanDeleteWorld(worldpermissionappsrv.CanDeleteWorldQuery{
+		WorldId: worldIdDto,
+		UserId:  userIdDto,
+	})
+	if err != nil {
+		pgUow.RevertChanges()
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	if !canDeleteWorld {
+		pgUow.RevertChanges()
+		c.String(http.StatusForbidden, "not permitted")
+		return
+	}
+
+	// TODO - handle this side effects by using integration events
+	if err := worldMemberAppService.DeleteAllWorldMembersInWorld(worldmemberappsrv.DeleteAllWorldMembersInWorldCommand{
+		WorldId: worldIdDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = worldAppService.DeleteWorld(worldappsrv.DeleteWorldCommand{
+		WorldId: worldIdDto,
+	}); err != nil {
+		pgUow.RevertChanges()
+		if errors.Is(err, worldappsrv.ErrNotPermitted) {
+			c.String(http.StatusForbidden, err.Error())
+		} else {
+			c.String(http.StatusBadRequest, err.Error())
+		}
+		return
+	}
+
+	pgUow.SaveChanges()
+	c.String(http.StatusOK, "")
 }

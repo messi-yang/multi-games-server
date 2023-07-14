@@ -15,6 +15,7 @@ type Service interface {
 	CreateWorldAccount(CreateWorldAccountCommand) error
 	QueryWorldAccounts(QueryWorldAccountsQuery) ([]dto.WorldAccountDto, error)
 	HandleWorldCreatedDomainEvent(worldmodel.WorldCreated) error
+	HandleWorldDeletedDomainEvent(worldmodel.WorldDeleted) error
 }
 
 type serve struct {
@@ -69,5 +70,14 @@ func (serve *serve) HandleWorldCreatedDomainEvent(worldCreated worldmodel.WorldC
 		return err
 	}
 	worldAccount.AddWorldsCount()
+	return serve.worldAccountRepo.Update(worldAccount)
+}
+
+func (serve *serve) HandleWorldDeletedDomainEvent(worldDeleted worldmodel.WorldDeleted) error {
+	worldAccount, err := serve.worldAccountRepo.GetWorldAccountOfUser(worldDeleted.GetUserId())
+	if err != nil {
+		return err
+	}
+	worldAccount.SubtractWorldsCount()
 	return serve.worldAccountRepo.Update(worldAccount)
 }

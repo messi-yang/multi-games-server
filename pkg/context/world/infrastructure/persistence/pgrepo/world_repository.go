@@ -79,6 +79,15 @@ func (repo *worldRepo) Update(world worldmodel.World) error {
 	return repo.domainEventDispatcher.Dispatch(&world)
 }
 
+func (repo *worldRepo) Delete(world worldmodel.World) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Delete(&pgmodel.WorldModel{}, world.GetId().Uuid()).Error
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&world)
+}
+
 func (repo *worldRepo) Get(worldId sharedkernelmodel.WorldId) (world worldmodel.World, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {

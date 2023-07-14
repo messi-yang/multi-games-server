@@ -1,6 +1,8 @@
 package worldaccountmodel
 
 import (
+	"time"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/google/uuid"
@@ -11,6 +13,8 @@ type WorldAccount struct {
 	userId               sharedkernelmodel.UserId
 	worldsCount          int8
 	worldsCountLimit     int8
+	createdAt            time.Time
+	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -25,6 +29,8 @@ func NewWorldAccount(
 		userId:               userId,
 		worldsCount:          0,
 		worldsCountLimit:     1,
+		createdAt:            time.Now(),
+		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -34,12 +40,16 @@ func LoadPlayer(
 	userId sharedkernelmodel.UserId,
 	worldsCount int8,
 	worldsCountLimit int8,
+	createdAt time.Time,
+	updatedAt time.Time,
 ) WorldAccount {
 	return WorldAccount{
 		id:                   id,
 		userId:               userId,
 		worldsCount:          worldsCount,
 		worldsCountLimit:     worldsCountLimit,
+		createdAt:            createdAt,
+		updatedAt:            updatedAt,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -64,10 +74,22 @@ func (worldAccount *WorldAccount) AddWorldsCount() {
 	worldAccount.worldsCount += 1
 }
 
+func (worldAccount *WorldAccount) SubtractWorldsCount() {
+	worldAccount.worldsCount -= 1
+}
+
 func (worldAccount *WorldAccount) GetWorldsCountLimit() int8 {
 	return worldAccount.worldsCountLimit
 }
 
 func (worldAccount *WorldAccount) CanAddNewWorld() bool {
 	return worldAccount.GetWorldsCount() < worldAccount.GetWorldsCountLimit()
+}
+
+func (worldAccount *WorldAccount) GetCreatedAt() time.Time {
+	return worldAccount.createdAt
+}
+
+func (worldAccount *WorldAccount) GetUpdatedAt() time.Time {
+	return worldAccount.updatedAt
 }

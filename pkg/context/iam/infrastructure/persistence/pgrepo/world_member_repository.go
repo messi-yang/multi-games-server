@@ -76,7 +76,16 @@ func (repo *worldMemberRepo) Get(worldMemberId worldaccessmodel.WorldMemberId) (
 	return worldMember, nil
 }
 
-func (repo *worldMemberRepo) GetUserWorldMember(
+func (repo *worldMemberRepo) Delete(worldMember worldaccessmodel.WorldMember) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Delete(&pgmodel.WorldMemberModel{}, worldMember.GetId().Uuid()).Error
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&worldMember)
+}
+
+func (repo *worldMemberRepo) GetWorldMemberOfUser(
 	worldId sharedkernelmodel.WorldId,
 	userId sharedkernelmodel.UserId,
 ) (*worldaccessmodel.WorldMember, error) {

@@ -1,4 +1,4 @@
-package worldmodel
+package worldaccessmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
@@ -24,4 +24,8 @@ func (worldPermission WorldPermission) IsEqual(otherWorldPermission WorldPermiss
 
 func (worldPermission WorldPermission) CanUpdateWorld() bool {
 	return worldPermission.role.IsOwner() || worldPermission.role.IsAdmin()
+}
+
+func (worldPermission WorldPermission) CanDeleteWorld() bool {
+	return worldPermission.role.IsOwner()
 }

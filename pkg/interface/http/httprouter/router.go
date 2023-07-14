@@ -72,6 +72,7 @@ func Run() error {
 	worldRouterGroup.GET("/mine", authorizeAccessTokenMiddleware, worldHttpHandler.GetMyWorlds)
 	worldRouterGroup.POST("/", authorizeAccessTokenMiddleware, worldHttpHandler.CreateWorld)
 	worldRouterGroup.PATCH("/:worldId", authorizeAccessTokenMiddleware, worldHttpHandler.UpdateWorld)
+	worldRouterGroup.DELETE("/:worldId", authorizeAccessTokenMiddleware, worldHttpHandler.DeleteWorld)
 
 	worldMemberHttpHandler := worldmemberhttphandler.NewHttpHandler()
 	worldMemberRouterGroup := router.Group("/api/worlds/:worldId/members")

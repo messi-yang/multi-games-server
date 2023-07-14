@@ -85,7 +85,7 @@ func (httpHandler *HttpHandler) HandleGoogleAuthCallback(c *gin.Context) {
 			return
 		}
 
-		// TODO - Remove this two phase commits across contexts by using integration events
+		// TODO - handle this side effects by using integration events
 		if err := worldAccountAppService.CreateWorldAccount(worldaccountappsrv.CreateWorldAccountCommand{
 			UserId: userIdDto,
 		}); err != nil {

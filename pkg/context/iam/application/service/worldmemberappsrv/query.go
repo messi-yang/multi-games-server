@@ -1,8 +1,8 @@
-package worldaccessappsrv
+package worldmemberappsrv
 
 import "github.com/google/uuid"
 
-type GetUserWorldMemberQuery struct {
+type GetWorldMemberOfUserQuery struct {
 	WorldId uuid.UUID
 	UserId  uuid.UUID
 }
