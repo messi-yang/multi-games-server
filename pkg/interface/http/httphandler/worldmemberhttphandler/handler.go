@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
 	"github.com/gin-gonic/gin"
@@ -27,8 +28,9 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 
 	pgUow := pguow.NewDummyUow()
 	worldMemberAppService := providedependency.ProvideWorldMemberAppService(pgUow)
+	worldPermissionAppService := providedependency.ProvideWorldPermissionAppService(pgUow)
 
-	worldMemberDto, err := worldMemberAppService.GetWorldMemberOfUser(worldmemberappsrv.GetWorldMemberOfUserQuery{
+	canGetWorldMembers, err := worldPermissionAppService.CanGetWorldMembers(worldpermissionappsrv.CanGetWorldMembersQuery{
 		WorldId: worldIdDto,
 		UserId:  userIdDto,
 	})
@@ -36,7 +38,7 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	if worldMemberDto == nil {
+	if !canGetWorldMembers {
 		c.String(http.StatusForbidden, "you're not permitted to do this")
 		return
 	}

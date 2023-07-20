@@ -10,7 +10,6 @@ import (
 type Service interface {
 	AddWorldMember(AddWorldMemberCommand) error
 	DeleteAllWorldMembersInWorld(DeleteAllWorldMembersInWorldCommand) error
-	GetWorldMemberOfUser(GetWorldMemberOfUserQuery) (worldMemberDto *dto.WorldMemberDto, err error)
 	GetWorldMembers(GetWorldMembersQuery) ([]dto.WorldMemberDto, error)
 }
 
@@ -51,20 +50,6 @@ func (serve *serve) DeleteAllWorldMembersInWorld(command DeleteAllWorldMembersIn
 		}
 	}
 	return nil
-}
-
-func (serve *serve) GetWorldMemberOfUser(query GetWorldMemberOfUserQuery) (*dto.WorldMemberDto, error) {
-	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
-	userId := sharedkernelmodel.NewUserId(query.UserId)
-	worldMember, err := serve.worldMemberRepo.GetWorldMemberOfUser(worldId, userId)
-	if err != nil {
-		return nil, err
-	}
-	if worldMember == nil {
-		return nil, nil
-	}
-	worldMemberDto := dto.NewWorldMemberDto(*worldMember)
-	return &worldMemberDto, nil
 }
 
 func (serve *serve) GetWorldMembers(query GetWorldMembersQuery) (worldMemberDtos []dto.WorldMemberDto, err error) {

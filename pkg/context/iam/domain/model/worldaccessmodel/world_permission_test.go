@@ -29,6 +29,22 @@ func TestWorldPermission(t *testing.T) {
 			assert.False(t, worldPermission1.IsEqual(worldPermission3), "worldPermission1 should not be equal to worldPermission3")
 		})
 
+		t.Run("CanGetWorldMembers", func(t *testing.T) {
+			worldRoleOwner, _ := sharedkernelmodel.NewWorldRole("owner")
+			worldRoleAdmin, _ := sharedkernelmodel.NewWorldRole("admin")
+			worldRoleEditor, _ := sharedkernelmodel.NewWorldRole("editor")
+			worldRoleViewer, _ := sharedkernelmodel.NewWorldRole("viewer")
+			worldPermission1 := NewWorldPermission(worldRoleOwner)
+			worldPermission2 := NewWorldPermission(worldRoleAdmin)
+			worldPermission3 := NewWorldPermission(worldRoleEditor)
+			worldPermission4 := NewWorldPermission(worldRoleViewer)
+
+			assert.True(t, worldPermission1.CanGetWorldMembers(), "owner should be able to get world members")
+			assert.True(t, worldPermission2.CanGetWorldMembers(), "admin should be able to get world members")
+			assert.True(t, worldPermission3.CanGetWorldMembers(), "editor should be able to get world members")
+			assert.True(t, worldPermission4.CanGetWorldMembers(), "viewer should be able to get world members")
+		})
+
 		t.Run("CanUpdateWorld", func(t *testing.T) {
 			worldRoleOwner, _ := sharedkernelmodel.NewWorldRole("owner")
 			worldRoleAdmin, _ := sharedkernelmodel.NewWorldRole("admin")

@@ -6,6 +6,7 @@ import (
 )
 
 type Service interface {
+	CanGetWorldMembers(CanGetWorldMembersQuery) (bool, error)
 	CanUpdateWorld(CanUpdateWorldQuery) (bool, error)
 	CanDeleteWorld(CanDeleteWorldQuery) (bool, error)
 }
@@ -18,6 +19,22 @@ func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo) Service {
 	return &serve{
 		worldMemberRepo: worldMemberRepo,
 	}
+}
+
+func (serve *serve) CanGetWorldMembers(query CanGetWorldMembersQuery) (bool, error) {
+	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
+	userId := sharedkernelmodel.NewUserId(query.UserId)
+	worldMember, err := serve.worldMemberRepo.GetWorldMemberOfUser(worldId, userId)
+	if err != nil {
+		return false, err
+	}
+
+	if worldMember == nil {
+		return false, nil
+	}
+
+	worldPermission := worldaccessmodel.NewWorldPermission(worldMember.GetRole())
+	return worldPermission.CanGetWorldMembers(), nil
 }
 
 func (serve *serve) CanUpdateWorld(query CanUpdateWorldQuery) (bool, error) {
