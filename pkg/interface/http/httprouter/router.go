@@ -60,6 +60,7 @@ func Run() error {
 	userHttpHandler := userhttphandler.NewHttpHandler()
 	userRouterGroup := router.Group("/api/users")
 	userRouterGroup.GET("/me", authorizeAccessTokenMiddleware, userHttpHandler.GetMyUser)
+	userRouterGroup.PATCH("/me", authorizeAccessTokenMiddleware, userHttpHandler.UpdateMyUser)
 
 	worldAccountHttpHandler := worldaccounthttphandler.NewHttpHandler()
 	worldAccountsRouterGroup := router.Group("/api/world-accounts")

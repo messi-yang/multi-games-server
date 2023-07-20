@@ -68,6 +68,10 @@ func (user *User) GetUsername() sharedkernelmodel.Username {
 	return user.username
 }
 
+func (user *User) UpdateUsername(username sharedkernelmodel.Username) {
+	user.username = username
+}
+
 func (user *User) GetCreatedAt() time.Time {
 	return user.createdAt
 }

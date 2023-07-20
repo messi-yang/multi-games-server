@@ -2,6 +2,7 @@ package pgrepo
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
 	"gorm.io/gorm"
@@ -56,6 +57,17 @@ func (repo *userRepo) Add(user identitymodel.User) error {
 	userModel := newUserModel(user)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&userModel).Error
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&user)
+}
+
+func (repo *userRepo) Update(user identitymodel.User) error {
+	userModel := newUserModel(user)
+	userModel.UpdatedAt = time.Now()
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Save(&userModel).Error
 	}); err != nil {
 		return err
 	}

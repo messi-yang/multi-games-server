@@ -23,7 +23,7 @@ func (httpHandler *HttpHandler) GetMyUser(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 	userAppService := providedependency.ProvideUserAppService(pgUow)
 
-	userDto, err := userAppService.GetUserQuery(userappsrv.GetUserQuery{
+	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{
 		UserId: userIdDto,
 	})
 	if err != nil {
@@ -32,4 +32,38 @@ func (httpHandler *HttpHandler) GetMyUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getMyUserResponse(userDto))
+}
+
+func (httpHandler *HttpHandler) UpdateMyUser(c *gin.Context) {
+	userIdDto := httputil.GetUserId(c)
+
+	var requestBody updateMyUserRequestBody
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	pgUow := pguow.NewUow()
+	userAppService := providedependency.ProvideUserAppService(pgUow)
+
+	if err := userAppService.UpdateUser(userappsrv.UpdateUserCommand{
+		UserId:   userIdDto,
+		Username: requestBody.Username,
+	}); err != nil {
+		pgUow.RevertChanges()
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	updatedUserDto, err := userAppService.GetUser(userappsrv.GetUserQuery{
+		UserId: userIdDto,
+	})
+	if err != nil {
+		pgUow.RevertChanges()
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	pgUow.SaveChanges()
+	c.JSON(http.StatusOK, updateMyUserResponse(updatedUserDto))
 }
