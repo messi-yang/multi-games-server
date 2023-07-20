@@ -23,7 +23,7 @@ func Run() error {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
-		AllowMethods:    []string{"GET", "POST", "DELETE", "OPTIONS", "PUT"},
+		AllowMethods:    []string{"GET", "POST", "DELETE", "OPTIONS", "PUT", "PATCH"},
 		AllowHeaders:    []string{"Authorization", "Origin", "Content-Type"},
 	}))
 
