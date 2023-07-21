@@ -76,8 +76,7 @@ func Run() error {
 	worldRouterGroup.DELETE("/:worldId", authorizeAccessTokenMiddleware, worldHttpHandler.DeleteWorld)
 
 	worldMemberHttpHandler := worldmemberhttphandler.NewHttpHandler()
-	worldMemberRouterGroup := router.Group("/api/worlds/:worldId/members")
-	worldMemberRouterGroup.GET("/", authorizeAccessTokenMiddleware, worldMemberHttpHandler.GetWorldMembers)
+	worldRouterGroup.GET("/:worldId/members", authorizeAccessTokenMiddleware, worldMemberHttpHandler.GetWorldMembers)
 
 	itemHttpHandler := itemhttphandler.NewHttpHandler()
 	itemRouterGroup := router.Group("/api/items")
