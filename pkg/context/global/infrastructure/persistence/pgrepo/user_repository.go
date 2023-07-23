@@ -4,13 +4,14 @@ import (
 	"errors"
 	"time"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
-	"gorm.io/gorm"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
+	"gorm.io/gorm"
 )
 
 func newUserModel(user usermodel.User) pgmodel.UserModel {
@@ -104,4 +105,28 @@ func (repo *userRepo) GetUserByEmailAddress(emailAddress globalcommonmodel.Email
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (repo *userRepo) GetUsersInMap(userIds []globalcommonmodel.UserId) (map[globalcommonmodel.UserId]usermodel.User, error) {
+	userModels := []pgmodel.UserModel{}
+	userIdDtos := lo.Map(userIds, func(userId globalcommonmodel.UserId, _ int) uuid.UUID {
+		return userId.Uuid()
+	})
+	userMap := make(map[globalcommonmodel.UserId]usermodel.User)
+
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(userIdDtos).Find(&userModels).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	for _, userModel := range userModels {
+		user, err := parseUserModel(userModel)
+		if err != nil {
+			return nil, err
+		}
+		userMap[user.GetId()] = user
+	}
+
+	return userMap, nil
 }

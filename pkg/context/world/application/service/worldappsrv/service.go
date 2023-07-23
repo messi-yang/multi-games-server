@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -26,15 +27,18 @@ type Service interface {
 
 type serve struct {
 	worldRepo    worldmodel.WorldRepo
+	userRepo     usermodel.UserRepo
 	worldService service.WorldService
 }
 
 func NewService(
 	worldRepo worldmodel.WorldRepo,
+	userRepo usermodel.UserRepo,
 	worldService service.WorldService,
 ) Service {
 	return &serve{
 		worldRepo:    worldRepo,
+		userRepo:     userRepo,
 		worldService: worldService,
 	}
 }
@@ -45,7 +49,11 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldDto dto.WorldDto, err er
 	if err != nil {
 		return worldDto, err
 	}
-	return dto.NewWorldDto(world), nil
+	user, err := serve.userRepo.Get(world.GetUserId())
+	if err != nil {
+		return worldDto, err
+	}
+	return dto.NewWorldDto(world, user), nil
 }
 
 func (serve *serve) GetMyWorlds(query GetMyWorldsQuery) (worldDtos []dto.WorldDto, err error) {
@@ -55,8 +63,17 @@ func (serve *serve) GetMyWorlds(query GetMyWorldsQuery) (worldDtos []dto.WorldDt
 		return worldDtos, err
 	}
 
+	userIds := lo.Map(worlds, func(world worldmodel.World, _ int) globalcommonmodel.UserId {
+		return world.GetUserId()
+	})
+
+	userMap, err := serve.userRepo.GetUsersInMap(userIds)
+	if err != nil {
+		return worldDtos, err
+	}
+
 	return lo.Map(worlds, func(world worldmodel.World, _ int) dto.WorldDto {
-		return dto.NewWorldDto(world)
+		return dto.NewWorldDto(world, userMap[world.GetUserId()])
 	}), nil
 }
 
@@ -66,8 +83,17 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 		return worldDtos, err
 	}
 
+	userIds := lo.Map(worlds, func(world worldmodel.World, _ int) globalcommonmodel.UserId {
+		return world.GetUserId()
+	})
+
+	userMap, err := serve.userRepo.GetUsersInMap(userIds)
+	if err != nil {
+		return worldDtos, err
+	}
+
 	return lo.Map(worlds, func(world worldmodel.World, _ int) dto.WorldDto {
-		return dto.NewWorldDto(world)
+		return dto.NewWorldDto(world, userMap[world.GetUserId()])
 	}), nil
 }
 
