@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -19,16 +19,16 @@ type Service interface {
 }
 
 type serve struct {
-	userRepo   identitymodel.UserRepo
+	userRepo   usermodel.UserRepo
 	authSecret string
 }
 
-func NewService(userRepo identitymodel.UserRepo, authSecret string) Service {
+func NewService(userRepo usermodel.UserRepo, authSecret string) Service {
 	return &serve{userRepo: userRepo, authSecret: authSecret}
 }
 
 func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err error) {
-	emailAddress, err := sharedkernelmodel.NewEmailAddress(command.EmailAddress)
+	emailAddress, err := globalcommonmodel.NewEmailAddress(command.EmailAddress)
 	if err != nil {
 		return userIdDto, err
 	}
@@ -42,7 +42,7 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 		return userIdDto, fmt.Errorf("user with email address of %s already exists", command.EmailAddress)
 	}
 
-	newUser := identitymodel.NewUser(sharedkernelmodel.NewUserId(uuid.New()), emailAddress, sharedkernelmodel.NewRandomUsername())
+	newUser := usermodel.NewUser(globalcommonmodel.NewUserId(uuid.New()), emailAddress, globalcommonmodel.NewRandomUsername())
 	if err = serve.userRepo.Add(newUser); err != nil {
 		return userIdDto, err
 	}
@@ -50,7 +50,7 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 }
 
 func (serve *serve) Login(command LoginCommand) (accessToken string, err error) {
-	user, err := serve.userRepo.Get(sharedkernelmodel.NewUserId(command.UserId))
+	user, err := serve.userRepo.Get(globalcommonmodel.NewUserId(command.UserId))
 	if err != nil {
 		return accessToken, err
 	}

@@ -1,15 +1,15 @@
 package pgrepo
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 	"github.com/samber/lo"
 )
 
@@ -24,14 +24,14 @@ func newUnitModel(unit unitmodel.Unit) pgmodel.UnitModel {
 }
 
 func parseUnitModel(unitModel pgmodel.UnitModel) unitmodel.Unit {
-	worldId := sharedkernelmodel.NewWorldId(unitModel.WorldId)
-	pos := commonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
+	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
+	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 	return unitmodel.LoadUnit(
 		unitmodel.NewUnitId(worldId, pos),
 		worldId,
 		pos,
-		commonmodel.NewItemId(unitModel.ItemId),
-		commonmodel.NewDirection(unitModel.Direction),
+		worldcommonmodel.NewItemId(unitModel.ItemId),
+		worldcommonmodel.NewDirection(unitModel.Direction),
 	)
 }
 
@@ -87,7 +87,7 @@ func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
 }
 
 func (repo *unitRepo) GetUnitAt(
-	worldId sharedkernelmodel.WorldId, position commonmodel.Position,
+	worldId globalcommonmodel.WorldId, position worldcommonmodel.Position,
 ) (*unitmodel.Unit, error) {
 	unitModels := []pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
@@ -109,7 +109,7 @@ func (repo *unitRepo) GetUnitAt(
 }
 
 func (repo *unitRepo) GetUnitsOfWorld(
-	worldId sharedkernelmodel.WorldId,
+	worldId globalcommonmodel.WorldId,
 ) (units []unitmodel.Unit, err error) {
 	var unitModels []pgmodel.UnitModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {

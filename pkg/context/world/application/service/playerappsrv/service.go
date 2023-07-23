@@ -1,9 +1,9 @@
 package playerappsrv
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -33,7 +33,7 @@ func NewService(
 func (serve *serve) GetPlayers(query GetPlayersQuery) (
 	playerDtos []dto.PlayerDto, err error,
 ) {
-	players, err := serve.playerRepo.GetPlayersOfWorld(sharedkernelmodel.NewWorldId(query.WorldId))
+	players, err := serve.playerRepo.GetPlayersOfWorld(globalcommonmodel.NewWorldId(query.WorldId))
 	if err != nil {
 		return playerDtos, err
 	}
@@ -45,7 +45,7 @@ func (serve *serve) GetPlayers(query GetPlayersQuery) (
 }
 
 func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, err error) {
-	player, err := serve.playerRepo.Get(sharedkernelmodel.NewWorldId(query.WorldId), playermodel.NewPlayerId(query.PlayerId))
+	player, err := serve.playerRepo.Get(globalcommonmodel.NewWorldId(query.WorldId), playermodel.NewPlayerId(query.PlayerId))
 	if err != nil {
 		return playerDto, err
 	}
@@ -53,15 +53,15 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, er
 }
 
 func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID, err error) {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
-	playerHeldItemId := commonmodel.NewItemId(command.PlayerHeldItemId)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	playerHeldItemId := worldcommonmodel.NewItemId(command.PlayerHeldItemId)
 
-	direction := commonmodel.NewDownDirection()
+	direction := worldcommonmodel.NewDownDirection()
 	newPlayer := playermodel.NewPlayer(
 		playermodel.NewPlayerId(uuid.New()),
 		worldId,
 		"Hello",
-		commonmodel.NewPosition(0, 0),
+		worldcommonmodel.NewPosition(0, 0),
 		direction,
 		&playerHeldItemId,
 	)
@@ -73,9 +73,9 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 }
 
 func (serve *serve) Move(command MoveCommand) error {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
-	direction := commonmodel.NewDirection(command.Direction)
+	direction := worldcommonmodel.NewDirection(command.Direction)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
 	if err != nil {
@@ -95,7 +95,7 @@ func (serve *serve) Move(command MoveCommand) error {
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
@@ -106,9 +106,9 @@ func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
 }
 
 func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
-	itemId := commonmodel.NewItemId(command.ItemId)
+	itemId := worldcommonmodel.NewItemId(command.ItemId)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
 	if err != nil {

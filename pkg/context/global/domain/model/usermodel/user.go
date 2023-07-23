@@ -1,16 +1,16 @@
-package identitymodel
+package usermodel
 
 import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 )
 
 type User struct {
-	id                   sharedkernelmodel.UserId
-	emailAddress         sharedkernelmodel.EmailAddress
-	username             sharedkernelmodel.Username
+	id                   globalcommonmodel.UserId
+	emailAddress         globalcommonmodel.EmailAddress
+	username             globalcommonmodel.Username
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -20,9 +20,9 @@ type User struct {
 var _ domain.Aggregate = (*User)(nil)
 
 func NewUser(
-	id sharedkernelmodel.UserId,
-	emailAddress sharedkernelmodel.EmailAddress,
-	username sharedkernelmodel.Username,
+	id globalcommonmodel.UserId,
+	emailAddress globalcommonmodel.EmailAddress,
+	username globalcommonmodel.Username,
 ) User {
 	return User{
 		id:                   id,
@@ -35,9 +35,9 @@ func NewUser(
 }
 
 func LoadUser(
-	id sharedkernelmodel.UserId,
-	emailAddress sharedkernelmodel.EmailAddress,
-	username sharedkernelmodel.Username,
+	id globalcommonmodel.UserId,
+	emailAddress globalcommonmodel.EmailAddress,
+	username globalcommonmodel.Username,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) User {
@@ -56,19 +56,19 @@ func (user *User) PopDomainEvents() []domain.DomainEvent {
 	return user.domainEventCollector.PopAll()
 }
 
-func (user *User) GetId() sharedkernelmodel.UserId {
+func (user *User) GetId() globalcommonmodel.UserId {
 	return user.id
 }
 
-func (user *User) GetEmailAddress() sharedkernelmodel.EmailAddress {
+func (user *User) GetEmailAddress() globalcommonmodel.EmailAddress {
 	return user.emailAddress
 }
 
-func (user *User) GetUsername() sharedkernelmodel.Username {
+func (user *User) GetUsername() globalcommonmodel.Username {
 	return user.username
 }
 
-func (user *User) UpdateUsername(username sharedkernelmodel.Username) {
+func (user *User) UpdateUsername(username globalcommonmodel.Username) {
 	user.username = username
 }
 

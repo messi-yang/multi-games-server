@@ -2,11 +2,11 @@ package itemmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type Item struct {
-	id                   commonmodel.ItemId
+	id                   worldcommonmodel.ItemId
 	name                 string
 	traversable          bool
 	thumbnailSrc         string
@@ -17,7 +17,7 @@ type Item struct {
 // Interface Implementation Check
 var _ domain.Aggregate = (*Item)(nil)
 
-func NewItem(id commonmodel.ItemId, name string, traversable bool, thumbnailSrc string, modelSrc string) Item {
+func NewItem(id worldcommonmodel.ItemId, name string, traversable bool, thumbnailSrc string, modelSrc string) Item {
 	return Item{
 		id:                   id,
 		name:                 name,
@@ -32,7 +32,7 @@ func (item *Item) PopDomainEvents() []domain.DomainEvent {
 	return item.domainEventCollector.PopAll()
 }
 
-func (item *Item) GetId() commonmodel.ItemId {
+func (item *Item) GetId() worldcommonmodel.ItemId {
 	return item.id
 }
 

@@ -1,4 +1,4 @@
-package commonmodel
+package worldcommonmodel
 
 import (
 	"testing"

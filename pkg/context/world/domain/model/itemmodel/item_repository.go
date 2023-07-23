@@ -1,11 +1,11 @@
 package itemmodel
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 
 type ItemRepo interface {
 	Add(item Item) error
 	Update(item Item) error
-	Get(itemId commonmodel.ItemId) (Item, error)
+	Get(itemId worldcommonmodel.ItemId) (Item, error)
 	GetAll() ([]Item, error)
 	GetFirstItem() (Item, error)
 }

@@ -3,8 +3,8 @@ package service
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 )
@@ -14,8 +14,8 @@ var (
 )
 
 type UnitService interface {
-	CreateUnit(sharedkernelmodel.WorldId, commonmodel.ItemId, commonmodel.Position, commonmodel.Direction) error
-	RemoveUnit(sharedkernelmodel.WorldId, commonmodel.Position) error
+	CreateUnit(globalcommonmodel.WorldId, worldcommonmodel.ItemId, worldcommonmodel.Position, worldcommonmodel.Direction) error
+	RemoveUnit(globalcommonmodel.WorldId, worldcommonmodel.Position) error
 }
 
 type unitServe struct {
@@ -34,10 +34,10 @@ func NewUnitService(
 }
 
 func (unitServe *unitServe) CreateUnit(
-	worldId sharedkernelmodel.WorldId,
-	itemId commonmodel.ItemId,
-	position commonmodel.Position,
-	direction commonmodel.Direction,
+	worldId globalcommonmodel.WorldId,
+	itemId worldcommonmodel.ItemId,
+	position worldcommonmodel.Position,
+	direction worldcommonmodel.Direction,
 ) error {
 	world, err := unitServe.worldRepo.Get(worldId)
 	if err != nil {
@@ -48,7 +48,7 @@ func (unitServe *unitServe) CreateUnit(
 		return errUnitExceededBoundary
 	}
 
-	if position.IsEqual(commonmodel.NewPosition(0, 0)) {
+	if position.IsEqual(worldcommonmodel.NewPosition(0, 0)) {
 		return nil
 	}
 
@@ -64,7 +64,7 @@ func (unitServe *unitServe) CreateUnit(
 	return unitServe.unitRepo.Add(newUnit)
 }
 
-func (unitServe *unitServe) RemoveUnit(worldId sharedkernelmodel.WorldId, position commonmodel.Position) error {
+func (unitServe *unitServe) RemoveUnit(worldId globalcommonmodel.WorldId, position worldcommonmodel.Position) error {
 	if _, err := unitServe.worldRepo.Get(worldId); err != nil {
 		return err
 	}

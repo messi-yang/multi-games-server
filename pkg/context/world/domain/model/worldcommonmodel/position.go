@@ -1,4 +1,4 @@
-package commonmodel
+package worldcommonmodel
 
 import "github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 

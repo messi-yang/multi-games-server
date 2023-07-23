@@ -2,17 +2,17 @@ package worldaccessmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 )
 
 type WorldPermission struct {
-	role sharedkernelmodel.WorldRole
+	role globalcommonmodel.WorldRole
 }
 
 // Interface Implementation Check
 var _ domain.ValueObject[WorldPermission] = (*WorldPermission)(nil)
 
-func NewWorldPermission(role sharedkernelmodel.WorldRole) WorldPermission {
+func NewWorldPermission(role globalcommonmodel.WorldRole) WorldPermission {
 	return WorldPermission{
 		role: role,
 	}

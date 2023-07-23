@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/google/uuid"
@@ -43,14 +43,16 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 func ParsePlayerDto(playerDto PlayerDto) playermodel.Player {
 	return playermodel.NewPlayer(
 		playermodel.NewPlayerId(playerDto.Id),
-		sharedkernelmodel.NewWorldId(playerDto.WorldId),
+		globalcommonmodel.NewWorldId(playerDto.WorldId),
 		playerDto.Name,
-		commonmodel.NewPosition(playerDto.Position.X, playerDto.Position.Z),
-		commonmodel.NewDirection(playerDto.Direction),
+		worldcommonmodel.NewPosition(playerDto.Position.X, playerDto.Position.Z),
+		worldcommonmodel.NewDirection(playerDto.Direction),
 		lo.TernaryF(
 			playerDto.HeldItemId == nil,
-			func() *commonmodel.ItemId { return nil },
-			func() *commonmodel.ItemId { return commonutil.ToPointer(commonmodel.NewItemId(*playerDto.HeldItemId)) },
+			func() *worldcommonmodel.ItemId { return nil },
+			func() *worldcommonmodel.ItemId {
+				return commonutil.ToPointer(worldcommonmodel.NewItemId(*playerDto.HeldItemId))
+			},
 		),
 	)
 }

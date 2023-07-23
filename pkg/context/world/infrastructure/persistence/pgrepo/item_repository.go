@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 	"github.com/samber/lo"
 )
 
@@ -27,7 +27,7 @@ func newItemModel(item itemmodel.Item) pgmodel.ItemModel {
 func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.Item {
 	serverUrl := os.Getenv("SERVER_URL")
 	return itemmodel.NewItem(
-		commonmodel.NewItemId(itemModel.Id),
+		worldcommonmodel.NewItemId(itemModel.Id),
 		itemModel.Name,
 		itemModel.Traversable,
 		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
@@ -67,7 +67,7 @@ func (repo *itemRepo) Update(item itemmodel.Item) error {
 	return repo.domainEventDispatcher.Dispatch(&item)
 }
 
-func (repo *itemRepo) Get(itemId commonmodel.ItemId) (item itemmodel.Item, err error) {
+func (repo *itemRepo) Get(itemId worldcommonmodel.ItemId) (item itemmodel.Item, err error) {
 	itemModel := pgmodel.ItemModel{Id: itemId.Uuid()}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.First(&itemModel).Error

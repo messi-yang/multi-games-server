@@ -4,16 +4,16 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/google/uuid"
 )
 
 type World struct {
-	id                   sharedkernelmodel.WorldId
-	userId               sharedkernelmodel.UserId
+	id                   globalcommonmodel.WorldId
+	userId               globalcommonmodel.UserId
 	name                 string
-	bound                commonmodel.Bound
+	bound                worldcommonmodel.Bound
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -23,12 +23,12 @@ type World struct {
 var _ domain.Aggregate = (*World)(nil)
 
 func NewWorld(
-	userId sharedkernelmodel.UserId,
+	userId globalcommonmodel.UserId,
 	name string,
-	bound commonmodel.Bound,
+	bound worldcommonmodel.Bound,
 ) World {
 	newWorld := World{
-		id:                   sharedkernelmodel.NewWorldId(uuid.New()),
+		id:                   globalcommonmodel.NewWorldId(uuid.New()),
 		userId:               userId,
 		name:                 name,
 		bound:                bound,
@@ -44,10 +44,10 @@ func NewWorld(
 }
 
 func LoadWorld(
-	worldId sharedkernelmodel.WorldId,
-	userId sharedkernelmodel.UserId,
+	worldId globalcommonmodel.WorldId,
+	userId globalcommonmodel.UserId,
 	name string,
-	bound commonmodel.Bound,
+	bound worldcommonmodel.Bound,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) World {
@@ -66,11 +66,11 @@ func (world *World) PopDomainEvents() []domain.DomainEvent {
 	return world.domainEventCollector.PopAll()
 }
 
-func (world *World) GetId() sharedkernelmodel.WorldId {
+func (world *World) GetId() globalcommonmodel.WorldId {
 	return world.id
 }
 
-func (world *World) GetUserId() sharedkernelmodel.UserId {
+func (world *World) GetUserId() globalcommonmodel.UserId {
 	return world.userId
 }
 
@@ -78,7 +78,7 @@ func (world *World) GetName() string {
 	return world.name
 }
 
-func (world *World) GetBound() commonmodel.Bound {
+func (world *World) GetBound() worldcommonmodel.Bound {
 	return world.bound
 }
 

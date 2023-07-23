@@ -3,13 +3,13 @@ package worldaccessmodel
 import (
 	"testing"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestWorldPermission(t *testing.T) {
 	t.Run("NewWorldPermission", func(t *testing.T) {
-		worldRole, _ := sharedkernelmodel.NewWorldRole("owner")
+		worldRole, _ := globalcommonmodel.NewWorldRole("owner")
 		worldPermission := NewWorldPermission(worldRole)
 
 		assert.Equal(t, worldPermission, WorldPermission{
@@ -19,8 +19,8 @@ func TestWorldPermission(t *testing.T) {
 
 	t.Run("WorldPermission", func(t *testing.T) {
 		t.Run("IsEqual", func(t *testing.T) {
-			worldRoleOwner, _ := sharedkernelmodel.NewWorldRole("owner")
-			worldRoleAdmin, _ := sharedkernelmodel.NewWorldRole("admin")
+			worldRoleOwner, _ := globalcommonmodel.NewWorldRole("owner")
+			worldRoleAdmin, _ := globalcommonmodel.NewWorldRole("admin")
 			worldPermission1 := NewWorldPermission(worldRoleOwner)
 			worldPermission2 := NewWorldPermission(worldRoleOwner)
 			worldPermission3 := NewWorldPermission(worldRoleAdmin)
@@ -30,10 +30,10 @@ func TestWorldPermission(t *testing.T) {
 		})
 
 		t.Run("CanGetWorldMembers", func(t *testing.T) {
-			worldRoleOwner, _ := sharedkernelmodel.NewWorldRole("owner")
-			worldRoleAdmin, _ := sharedkernelmodel.NewWorldRole("admin")
-			worldRoleEditor, _ := sharedkernelmodel.NewWorldRole("editor")
-			worldRoleViewer, _ := sharedkernelmodel.NewWorldRole("viewer")
+			worldRoleOwner, _ := globalcommonmodel.NewWorldRole("owner")
+			worldRoleAdmin, _ := globalcommonmodel.NewWorldRole("admin")
+			worldRoleEditor, _ := globalcommonmodel.NewWorldRole("editor")
+			worldRoleViewer, _ := globalcommonmodel.NewWorldRole("viewer")
 			worldPermission1 := NewWorldPermission(worldRoleOwner)
 			worldPermission2 := NewWorldPermission(worldRoleAdmin)
 			worldPermission3 := NewWorldPermission(worldRoleEditor)
@@ -46,10 +46,10 @@ func TestWorldPermission(t *testing.T) {
 		})
 
 		t.Run("CanUpdateWorld", func(t *testing.T) {
-			worldRoleOwner, _ := sharedkernelmodel.NewWorldRole("owner")
-			worldRoleAdmin, _ := sharedkernelmodel.NewWorldRole("admin")
-			worldRoleEditor, _ := sharedkernelmodel.NewWorldRole("editor")
-			worldRoleViewer, _ := sharedkernelmodel.NewWorldRole("viewer")
+			worldRoleOwner, _ := globalcommonmodel.NewWorldRole("owner")
+			worldRoleAdmin, _ := globalcommonmodel.NewWorldRole("admin")
+			worldRoleEditor, _ := globalcommonmodel.NewWorldRole("editor")
+			worldRoleViewer, _ := globalcommonmodel.NewWorldRole("viewer")
 			worldPermission1 := NewWorldPermission(worldRoleOwner)
 			worldPermission2 := NewWorldPermission(worldRoleAdmin)
 			worldPermission3 := NewWorldPermission(worldRoleEditor)
@@ -62,10 +62,10 @@ func TestWorldPermission(t *testing.T) {
 		})
 
 		t.Run("CanDeleteWorld", func(t *testing.T) {
-			worldRoleOwner, _ := sharedkernelmodel.NewWorldRole("owner")
-			worldRoleAdmin, _ := sharedkernelmodel.NewWorldRole("admin")
-			worldRoleEditor, _ := sharedkernelmodel.NewWorldRole("editor")
-			worldRoleViewer, _ := sharedkernelmodel.NewWorldRole("viewer")
+			worldRoleOwner, _ := globalcommonmodel.NewWorldRole("owner")
+			worldRoleAdmin, _ := globalcommonmodel.NewWorldRole("admin")
+			worldRoleEditor, _ := globalcommonmodel.NewWorldRole("editor")
+			worldRoleViewer, _ := globalcommonmodel.NewWorldRole("viewer")
 			worldPermission1 := NewWorldPermission(worldRoleOwner)
 			worldPermission2 := NewWorldPermission(worldRoleAdmin)
 			worldPermission3 := NewWorldPermission(worldRoleEditor)

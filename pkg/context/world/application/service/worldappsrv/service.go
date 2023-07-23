@@ -3,7 +3,7 @@ package worldappsrv
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -40,7 +40,7 @@ func NewService(
 }
 
 func (serve *serve) GetWorld(query GetWorldQuery) (worldDto dto.WorldDto, err error) {
-	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
+	worldId := globalcommonmodel.NewWorldId(query.WorldId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
 		return worldDto, err
@@ -49,7 +49,7 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldDto dto.WorldDto, err er
 }
 
 func (serve *serve) GetMyWorlds(query GetMyWorldsQuery) (worldDtos []dto.WorldDto, err error) {
-	userId := sharedkernelmodel.NewUserId(query.UserId)
+	userId := globalcommonmodel.NewUserId(query.UserId)
 	worlds, err := serve.worldRepo.GetWorldsOfUser(userId)
 	if err != nil {
 		return worldDtos, err
@@ -72,7 +72,7 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 }
 
 func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
-	userId := sharedkernelmodel.NewUserId(command.UserId)
+	userId := globalcommonmodel.NewUserId(command.UserId)
 	newWorldId, err := serve.worldService.CreateWorld(userId, command.Name)
 	if err != nil {
 		return newWorldIdDto, err
@@ -82,7 +82,7 @@ func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.
 }
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	world, err := serve.worldRepo.Get(worldId)
 	if err != nil {
 		return err
@@ -92,6 +92,6 @@ func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
 }
 
 func (serve *serve) DeleteWorld(command DeleteWorldCommand) error {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	return serve.worldService.DeleteWorld(worldId)
 }

@@ -4,18 +4,18 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type Player struct {
 	id                   PlayerId                  // Id of the player
-	worldId              sharedkernelmodel.WorldId // The id of the world the player belongs to
-	userId               *sharedkernelmodel.UserId
-	name                 string                // The name of the player
-	position             commonmodel.Position  // The current position of the player
-	direction            commonmodel.Direction // The direction where the player is facing
-	heldItemId           *commonmodel.ItemId   // Optional, The item held by the player
+	worldId              globalcommonmodel.WorldId // The id of the world the player belongs to
+	userId               *globalcommonmodel.UserId
+	name                 string                     // The name of the player
+	position             worldcommonmodel.Position  // The current position of the player
+	direction            worldcommonmodel.Direction // The direction where the player is facing
+	heldItemId           *worldcommonmodel.ItemId   // Optional, The item held by the player
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -26,11 +26,11 @@ var _ domain.Aggregate = (*Player)(nil)
 
 func NewPlayer(
 	id PlayerId,
-	worldId sharedkernelmodel.WorldId,
+	worldId globalcommonmodel.WorldId,
 	name string,
-	position commonmodel.Position,
-	direction commonmodel.Direction,
-	heldItemId *commonmodel.ItemId,
+	position worldcommonmodel.Position,
+	direction worldcommonmodel.Direction,
+	heldItemId *worldcommonmodel.ItemId,
 ) Player {
 	return Player{
 		id:                   id,
@@ -47,12 +47,12 @@ func NewPlayer(
 
 func LoadPlayer(
 	id PlayerId,
-	worldId sharedkernelmodel.WorldId,
-	userId *sharedkernelmodel.UserId,
+	worldId globalcommonmodel.WorldId,
+	userId *globalcommonmodel.UserId,
 	name string,
-	position commonmodel.Position,
-	direction commonmodel.Direction,
-	heldItemId *commonmodel.ItemId,
+	position worldcommonmodel.Position,
+	direction worldcommonmodel.Direction,
+	heldItemId *worldcommonmodel.ItemId,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) Player {
@@ -79,11 +79,11 @@ func (player *Player) GetId() PlayerId {
 	return player.id
 }
 
-func (player *Player) GetWorldId() sharedkernelmodel.WorldId {
+func (player *Player) GetWorldId() globalcommonmodel.WorldId {
 	return player.worldId
 }
 
-func (player *Player) GetUserId() *sharedkernelmodel.UserId {
+func (player *Player) GetUserId() *globalcommonmodel.UserId {
 	return player.userId
 }
 
@@ -91,20 +91,20 @@ func (player *Player) GetName() string {
 	return player.name
 }
 
-func (player *Player) GetPosition() commonmodel.Position {
+func (player *Player) GetPosition() worldcommonmodel.Position {
 	return player.position
 }
 
-func (player *Player) Move(position commonmodel.Position, direction commonmodel.Direction) {
+func (player *Player) Move(position worldcommonmodel.Position, direction worldcommonmodel.Direction) {
 	player.position = position
 	player.direction = direction
 }
 
-func (player *Player) GetDirection() commonmodel.Direction {
+func (player *Player) GetDirection() worldcommonmodel.Direction {
 	return player.direction
 }
 
-func (player *Player) GetPositionOneStepFoward() commonmodel.Position {
+func (player *Player) GetPositionOneStepFoward() worldcommonmodel.Position {
 	direction := player.direction
 	position := player.position
 
@@ -121,11 +121,11 @@ func (player *Player) GetPositionOneStepFoward() commonmodel.Position {
 	}
 }
 
-func (player *Player) ChangeHeldItem(itemId commonmodel.ItemId) {
+func (player *Player) ChangeHeldItem(itemId worldcommonmodel.ItemId) {
 	player.heldItemId = &itemId
 }
 
-func (player *Player) GetHeldItemId() *commonmodel.ItemId {
+func (player *Player) GetHeldItemId() *worldcommonmodel.ItemId {
 	return player.heldItemId
 }
 

@@ -7,17 +7,17 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/cache/rediscache"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/jsonutil"
 )
 
-func getPlayerCacheKey(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) string {
+func getPlayerCacheKey(worldId globalcommonmodel.WorldId, playerId playermodel.PlayerId) string {
 	return fmt.Sprintf("world:%s:player:%s", worldId.Uuid(), playerId.Uuid())
 }
 
-func getWorldPlayersScanPattern(worldId sharedkernelmodel.WorldId) string {
+func getWorldPlayersScanPattern(worldId globalcommonmodel.WorldId) string {
 	return fmt.Sprintf("world:%s:player:*", worldId.Uuid())
 }
 
@@ -71,7 +71,7 @@ func (repo *playerRepo) Delete(player playermodel.Player) error {
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
-func (repo *playerRepo) Get(worldId sharedkernelmodel.WorldId, playerId playermodel.PlayerId) (player playermodel.Player, err error) {
+func (repo *playerRepo) Get(worldId globalcommonmodel.WorldId, playerId playermodel.PlayerId) (player playermodel.Player, err error) {
 	playerDtoString, err := repo.redisCache.Get(getPlayerCacheKey(worldId, playerId))
 	if err != nil {
 		return player, err
@@ -84,7 +84,7 @@ func (repo *playerRepo) Get(worldId sharedkernelmodel.WorldId, playerId playermo
 	return dto.ParsePlayerDto(playerDto), nil
 }
 
-func (repo *playerRepo) GetPlayersOfWorld(worldId sharedkernelmodel.WorldId) (players []playermodel.Player, err error) {
+func (repo *playerRepo) GetPlayersOfWorld(worldId globalcommonmodel.WorldId) (players []playermodel.Player, err error) {
 	playerDtoStrings, err := repo.redisCache.Scan(getWorldPlayersScanPattern(worldId))
 	if err != nil {
 		return players, err

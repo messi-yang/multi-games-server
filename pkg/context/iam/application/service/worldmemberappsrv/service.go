@@ -1,9 +1,9 @@
 package worldmemberappsrv
 
 import (
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/samber/lo"
 )
 
@@ -24,20 +24,20 @@ func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo) Service {
 }
 
 func (serve *serve) AddWorldMember(command AddWorldMemberCommand) error {
-	worldRole, err := sharedkernelmodel.NewWorldRole(string(command.Role))
+	worldRole, err := globalcommonmodel.NewWorldRole(string(command.Role))
 	if err != nil {
 		return err
 	}
 	newWorldMember := worldaccessmodel.NewWorldMember(
-		sharedkernelmodel.NewWorldId(command.WorldId),
-		sharedkernelmodel.NewUserId(command.UserId),
+		globalcommonmodel.NewWorldId(command.WorldId),
+		globalcommonmodel.NewUserId(command.UserId),
 		worldRole,
 	)
 	return serve.worldMemberRepo.Add(newWorldMember)
 }
 
 func (serve *serve) DeleteAllWorldMembersInWorld(command DeleteAllWorldMembersInWorldCommand) error {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 
 	worldMembersInWorld, err := serve.worldMemberRepo.GetWorldMembersInWorld(worldId)
 	if err != nil {
@@ -53,7 +53,7 @@ func (serve *serve) DeleteAllWorldMembersInWorld(command DeleteAllWorldMembersIn
 }
 
 func (serve *serve) GetWorldMembers(query GetWorldMembersQuery) (worldMemberDtos []dto.WorldMemberDto, err error) {
-	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
+	worldId := globalcommonmodel.NewWorldId(query.WorldId)
 	worldMembers, err := serve.worldMemberRepo.GetWorldMembersInWorld(worldId)
 	if err != nil {
 		return worldMemberDtos, err

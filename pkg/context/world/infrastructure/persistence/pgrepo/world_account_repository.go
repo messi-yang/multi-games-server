@@ -9,8 +9,8 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 	"github.com/samber/lo"
 )
 
@@ -28,7 +28,7 @@ func newWorldAccountModel(worldAccount worldaccountmodel.WorldAccount) pgmodel.W
 func parseWorldAccountModel(worldAccountModel pgmodel.WorldAccountModel) worldaccountmodel.WorldAccount {
 	return worldaccountmodel.LoadPlayer(
 		worldaccountmodel.NewWorldAccountId(worldAccountModel.Id),
-		sharedkernelmodel.NewUserId(worldAccountModel.UserId),
+		globalcommonmodel.NewUserId(worldAccountModel.UserId),
 		worldAccountModel.WorldsCount,
 		worldAccountModel.WorldsCountLimit,
 		worldAccountModel.CreatedAt,
@@ -78,7 +78,7 @@ func (repo *worldAccountRepo) Get(worldAccountId worldaccountmodel.WorldAccountI
 	return parseWorldAccountModel(worldAccountModel), nil
 }
 
-func (repo *worldAccountRepo) GetWorldAccountOfUser(userId sharedkernelmodel.UserId) (worldAccount worldaccountmodel.WorldAccount, err error) {
+func (repo *worldAccountRepo) GetWorldAccountOfUser(userId globalcommonmodel.UserId) (worldAccount worldaccountmodel.WorldAccount, err error) {
 	var worldAccountModel pgmodel.WorldAccountModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.First(&worldAccountModel, pgmodel.WorldAccountModel{UserId: userId.Uuid()}).Error
@@ -89,7 +89,7 @@ func (repo *worldAccountRepo) GetWorldAccountOfUser(userId sharedkernelmodel.Use
 	return parseWorldAccountModel(worldAccountModel), nil
 }
 
-func (repo *worldAccountRepo) GetWorldAccountByUserId(userId sharedkernelmodel.UserId) (*worldaccountmodel.WorldAccount, error) {
+func (repo *worldAccountRepo) GetWorldAccountByUserId(userId globalcommonmodel.UserId) (*worldaccountmodel.WorldAccount, error) {
 	worldAccountModel := pgmodel.WorldAccountModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(

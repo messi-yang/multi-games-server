@@ -1,8 +1,8 @@
 package worldpermissionappsrv
 
 import (
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 )
 
 type Service interface {
@@ -22,8 +22,8 @@ func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo) Service {
 }
 
 func (serve *serve) CanGetWorldMembers(query CanGetWorldMembersQuery) (bool, error) {
-	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
-	userId := sharedkernelmodel.NewUserId(query.UserId)
+	worldId := globalcommonmodel.NewWorldId(query.WorldId)
+	userId := globalcommonmodel.NewUserId(query.UserId)
 	worldMember, err := serve.worldMemberRepo.GetWorldMemberOfUser(worldId, userId)
 	if err != nil {
 		return false, err
@@ -38,8 +38,8 @@ func (serve *serve) CanGetWorldMembers(query CanGetWorldMembersQuery) (bool, err
 }
 
 func (serve *serve) CanUpdateWorld(query CanUpdateWorldQuery) (bool, error) {
-	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
-	userId := sharedkernelmodel.NewUserId(query.UserId)
+	worldId := globalcommonmodel.NewWorldId(query.WorldId)
+	userId := globalcommonmodel.NewUserId(query.UserId)
 	worldMember, err := serve.worldMemberRepo.GetWorldMemberOfUser(worldId, userId)
 	if err != nil {
 		return false, err
@@ -54,8 +54,8 @@ func (serve *serve) CanUpdateWorld(query CanUpdateWorldQuery) (bool, error) {
 }
 
 func (serve *serve) CanDeleteWorld(query CanDeleteWorldQuery) (bool, error) {
-	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
-	userId := sharedkernelmodel.NewUserId(query.UserId)
+	worldId := globalcommonmodel.NewWorldId(query.WorldId)
+	userId := globalcommonmodel.NewUserId(query.UserId)
 	worldMember, err := serve.worldMemberRepo.GetWorldMemberOfUser(worldId, userId)
 	if err != nil {
 		return false, err

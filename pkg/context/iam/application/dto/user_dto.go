@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
 	"github.com/google/uuid"
 )
 
@@ -15,7 +15,7 @@ type UserDto struct {
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
-func NewUserDto(user identitymodel.User) UserDto {
+func NewUserDto(user usermodel.User) UserDto {
 	dto := UserDto{
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress().String(),

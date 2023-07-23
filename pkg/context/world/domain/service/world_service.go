@@ -4,10 +4,10 @@ import (
 	"errors"
 	"math/rand"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -18,8 +18,8 @@ var (
 )
 
 type WorldService interface {
-	CreateWorld(userId sharedkernelmodel.UserId, name string) (sharedkernelmodel.WorldId, error)
-	DeleteWorld(worldId sharedkernelmodel.WorldId) error
+	CreateWorld(userId globalcommonmodel.UserId, name string) (globalcommonmodel.WorldId, error)
+	DeleteWorld(worldId globalcommonmodel.WorldId) error
 }
 
 type worldServe struct {
@@ -43,7 +43,7 @@ func NewWorldService(
 	}
 }
 
-func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name string) (worldId sharedkernelmodel.WorldId, err error) {
+func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name string) (worldId globalcommonmodel.WorldId, err error) {
 	worldAccount, err := worldServe.worldAccountRepo.GetWorldAccountOfUser(userId)
 	if err != nil {
 		return worldId, err
@@ -52,9 +52,9 @@ func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name 
 		return worldId, ErrWorldsCountReachLimit
 	}
 
-	worldBound, err := commonmodel.NewBound(
-		commonmodel.NewPosition(-50, -50),
-		commonmodel.NewPosition(50, 50),
+	worldBound, err := worldcommonmodel.NewBound(
+		worldcommonmodel.NewPosition(-50, -50),
+		worldcommonmodel.NewPosition(50, 50),
 	)
 	if err != nil {
 		return worldId, err
@@ -74,10 +74,10 @@ func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name 
 
 	if err = commonutil.RangeMatrix(100, 100, func(x int, z int) error {
 		randomInt := rand.Intn(len(items) * 5)
-		position := commonmodel.NewPosition(x-50, z-50)
+		position := worldcommonmodel.NewPosition(x-50, z-50)
 		if randomInt < len(items) {
 			newUnit := unitmodel.NewUnit(
-				unitmodel.NewUnitId(worldId, position), worldId, position, items[randomInt].GetId(), commonmodel.NewDownDirection(),
+				unitmodel.NewUnitId(worldId, position), worldId, position, items[randomInt].GetId(), worldcommonmodel.NewDownDirection(),
 			)
 			if err = worldServe.unitRepo.Add(newUnit); err != nil {
 				return err
@@ -91,7 +91,7 @@ func (worldServe *worldServe) CreateWorld(userId sharedkernelmodel.UserId, name 
 	return newWorld.GetId(), nil
 }
 
-func (worldServe *worldServe) DeleteWorld(worldId sharedkernelmodel.WorldId) error {
+func (worldServe *worldServe) DeleteWorld(worldId globalcommonmodel.WorldId) error {
 	unitsInWorld, err := worldServe.unitRepo.GetUnitsOfWorld(worldId)
 	if err != nil {
 		return err

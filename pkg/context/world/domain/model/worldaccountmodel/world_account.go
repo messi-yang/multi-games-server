@@ -4,13 +4,13 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/google/uuid"
 )
 
 type WorldAccount struct {
 	id                   WorldAccountId
-	userId               sharedkernelmodel.UserId
+	userId               globalcommonmodel.UserId
 	worldsCount          int8
 	worldsCountLimit     int8
 	createdAt            time.Time
@@ -22,7 +22,7 @@ type WorldAccount struct {
 var _ domain.Aggregate = (*WorldAccount)(nil)
 
 func NewWorldAccount(
-	userId sharedkernelmodel.UserId,
+	userId globalcommonmodel.UserId,
 ) WorldAccount {
 	return WorldAccount{
 		id:                   NewWorldAccountId(uuid.New()),
@@ -37,7 +37,7 @@ func NewWorldAccount(
 
 func LoadPlayer(
 	id WorldAccountId,
-	userId sharedkernelmodel.UserId,
+	userId globalcommonmodel.UserId,
 	worldsCount int8,
 	worldsCountLimit int8,
 	createdAt time.Time,
@@ -62,7 +62,7 @@ func (worldAccount *WorldAccount) GetId() WorldAccountId {
 	return worldAccount.id
 }
 
-func (worldAccount *WorldAccount) GetUserId() sharedkernelmodel.UserId {
+func (worldAccount *WorldAccount) GetUserId() globalcommonmodel.UserId {
 	return worldAccount.userId
 }
 

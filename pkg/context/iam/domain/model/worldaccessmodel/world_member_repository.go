@@ -1,11 +1,11 @@
 package worldaccessmodel
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 
 type WorldMemberRepo interface {
 	Add(WorldMember) error
 	Get(WorldMemberId) (WorldMember, error)
 	Delete(WorldMember) error
-	GetWorldMemberOfUser(sharedkernelmodel.WorldId, sharedkernelmodel.UserId) (worldMember *WorldMember, err error)
-	GetWorldMembersInWorld(sharedkernelmodel.WorldId) ([]WorldMember, error)
+	GetWorldMemberOfUser(globalcommonmodel.WorldId, globalcommonmodel.UserId) (worldMember *WorldMember, err error)
+	GetWorldMembersInWorld(globalcommonmodel.WorldId) ([]WorldMember, error)
 }

@@ -4,15 +4,15 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/google/uuid"
 )
 
 type WorldMember struct {
 	id                   WorldMemberId
-	worldId              sharedkernelmodel.WorldId
-	userId               sharedkernelmodel.UserId
-	role                 sharedkernelmodel.WorldRole
+	worldId              globalcommonmodel.WorldId
+	userId               globalcommonmodel.UserId
+	role                 globalcommonmodel.WorldRole
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -22,9 +22,9 @@ type WorldMember struct {
 var _ domain.Aggregate = (*WorldMember)(nil)
 
 func NewWorldMember(
-	worldId sharedkernelmodel.WorldId,
-	userId sharedkernelmodel.UserId,
-	role sharedkernelmodel.WorldRole,
+	worldId globalcommonmodel.WorldId,
+	userId globalcommonmodel.UserId,
+	role globalcommonmodel.WorldRole,
 ) WorldMember {
 	newWorldRole := WorldMember{
 		id:                   NewWorldMemberId(uuid.New()),
@@ -40,9 +40,9 @@ func NewWorldMember(
 
 func LoadWorldMember(
 	id WorldMemberId,
-	worldId sharedkernelmodel.WorldId,
-	userId sharedkernelmodel.UserId,
-	role sharedkernelmodel.WorldRole,
+	worldId globalcommonmodel.WorldId,
+	userId globalcommonmodel.UserId,
+	role globalcommonmodel.WorldRole,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) WorldMember {
@@ -65,15 +65,15 @@ func (worldMember *WorldMember) GetId() WorldMemberId {
 	return worldMember.id
 }
 
-func (worldMember *WorldMember) GeWorldId() sharedkernelmodel.WorldId {
+func (worldMember *WorldMember) GeWorldId() globalcommonmodel.WorldId {
 	return worldMember.worldId
 }
 
-func (worldMember *WorldMember) GeUserId() sharedkernelmodel.UserId {
+func (worldMember *WorldMember) GeUserId() globalcommonmodel.UserId {
 	return worldMember.userId
 }
 
-func (worldMember *WorldMember) GetRole() sharedkernelmodel.WorldRole {
+func (worldMember *WorldMember) GetRole() globalcommonmodel.WorldRole {
 	return worldMember.role
 }
 

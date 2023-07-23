@@ -1,7 +1,7 @@
 package worldaccountmodel
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 )
 
 type WorldAccountRepo interface {
@@ -9,6 +9,6 @@ type WorldAccountRepo interface {
 	Update(WorldAccount) error
 	Get(WorldAccountId) (WorldAccount, error)
 	GetAll() ([]WorldAccount, error)
-	GetWorldAccountByUserId(sharedkernelmodel.UserId) (worldAccount *WorldAccount, err error)
-	GetWorldAccountOfUser(sharedkernelmodel.UserId) (worldAccount WorldAccount, err error)
+	GetWorldAccountByUserId(globalcommonmodel.UserId) (worldAccount *WorldAccount, err error)
+	GetWorldAccountOfUser(globalcommonmodel.UserId) (worldAccount WorldAccount, err error)
 }

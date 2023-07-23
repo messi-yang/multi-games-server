@@ -3,15 +3,15 @@ package unitmodel
 import (
 	"testing"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewUnitId(t *testing.T) {
-	worldId := sharedkernelmodel.NewWorldId(uuid.New())
-	position := commonmodel.NewPosition(10, 20)
+	worldId := globalcommonmodel.NewWorldId(uuid.New())
+	position := worldcommonmodel.NewPosition(10, 20)
 
 	unitId := NewUnitId(worldId, position)
 
@@ -23,10 +23,10 @@ func TestNewUnitId(t *testing.T) {
 }
 
 func TestUnitId_IsEqual(t *testing.T) {
-	worldId1 := sharedkernelmodel.NewWorldId(uuid.New())
-	worldId2 := sharedkernelmodel.NewWorldId(uuid.New())
-	position1 := commonmodel.NewPosition(10, 20)
-	position2 := commonmodel.NewPosition(30, 40)
+	worldId1 := globalcommonmodel.NewWorldId(uuid.New())
+	worldId2 := globalcommonmodel.NewWorldId(uuid.New())
+	position1 := worldcommonmodel.NewPosition(10, 20)
+	position2 := worldcommonmodel.NewPosition(30, 40)
 
 	unitId1 := NewUnitId(worldId1, position1)
 	unitId2 := NewUnitId(worldId1, position1)
@@ -39,16 +39,16 @@ func TestUnitId_IsEqual(t *testing.T) {
 }
 
 func TestUnitId_GetWorldId(t *testing.T) {
-	worldId := sharedkernelmodel.NewWorldId(uuid.New())
-	position := commonmodel.NewPosition(10, 20)
+	worldId := globalcommonmodel.NewWorldId(uuid.New())
+	position := worldcommonmodel.NewPosition(10, 20)
 	unitId := NewUnitId(worldId, position)
 
 	assert.Equal(t, worldId, unitId.GetWorldId(), "GetWorldId() should return the worldId of the unitId")
 }
 
 func TestUnitId_GetPosition(t *testing.T) {
-	worldId := sharedkernelmodel.NewWorldId(uuid.New())
-	position := commonmodel.NewPosition(10, 20)
+	worldId := globalcommonmodel.NewWorldId(uuid.New())
+	position := worldcommonmodel.NewPosition(10, 20)
 	unitId := NewUnitId(worldId, position)
 
 	assert.Equal(t, position, unitId.GetPosition(), "GetPosition() should return the position of the unitId")

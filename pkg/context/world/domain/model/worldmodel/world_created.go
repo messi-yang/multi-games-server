@@ -4,19 +4,19 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 )
 
 type WorldCreated struct {
 	occurredOn time.Time
-	worldId    sharedkernelmodel.WorldId
-	userId     sharedkernelmodel.UserId
+	worldId    globalcommonmodel.WorldId
+	userId     globalcommonmodel.UserId
 }
 
 // Interface Implementation Check
 var _ domain.DomainEvent = (*WorldCreated)(nil)
 
-func NewWorldCreated(worldId sharedkernelmodel.WorldId, userId sharedkernelmodel.UserId) WorldCreated {
+func NewWorldCreated(worldId globalcommonmodel.WorldId, userId globalcommonmodel.UserId) WorldCreated {
 	return WorldCreated{
 		occurredOn: time.Now(),
 		worldId:    worldId,
@@ -32,10 +32,10 @@ func (domainEvent WorldCreated) GetOccurredOn() time.Time {
 	return domainEvent.occurredOn
 }
 
-func (domainEvent WorldCreated) GetWorldId() sharedkernelmodel.WorldId {
+func (domainEvent WorldCreated) GetWorldId() globalcommonmodel.WorldId {
 	return domainEvent.worldId
 }
 
-func (domainEvent WorldCreated) GetUserId() sharedkernelmodel.UserId {
+func (domainEvent WorldCreated) GetUserId() globalcommonmodel.UserId {
 	return domainEvent.userId
 }

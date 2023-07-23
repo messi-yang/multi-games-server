@@ -2,16 +2,16 @@ package unitmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type Unit struct {
 	id                   UnitId
-	worldId              sharedkernelmodel.WorldId
-	position             commonmodel.Position
-	itemId               commonmodel.ItemId
-	direction            commonmodel.Direction
+	worldId              globalcommonmodel.WorldId
+	position             worldcommonmodel.Position
+	itemId               worldcommonmodel.ItemId
+	direction            worldcommonmodel.Direction
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -20,10 +20,10 @@ var _ domain.Aggregate = (*Unit)(nil)
 
 func NewUnit(
 	id UnitId,
-	worldId sharedkernelmodel.WorldId,
-	position commonmodel.Position,
-	itemId commonmodel.ItemId,
-	direction commonmodel.Direction,
+	worldId globalcommonmodel.WorldId,
+	position worldcommonmodel.Position,
+	itemId worldcommonmodel.ItemId,
+	direction worldcommonmodel.Direction,
 ) Unit {
 	return Unit{
 		id:                   id,
@@ -37,10 +37,10 @@ func NewUnit(
 
 func LoadUnit(
 	id UnitId,
-	worldId sharedkernelmodel.WorldId,
-	position commonmodel.Position,
-	itemId commonmodel.ItemId,
-	direction commonmodel.Direction,
+	worldId globalcommonmodel.WorldId,
+	position worldcommonmodel.Position,
+	itemId worldcommonmodel.ItemId,
+	direction worldcommonmodel.Direction,
 ) Unit {
 	return Unit{
 		id:                   id,
@@ -60,18 +60,18 @@ func (unit *Unit) GetId() UnitId {
 	return unit.id
 }
 
-func (unit *Unit) GetWorldId() sharedkernelmodel.WorldId {
+func (unit *Unit) GetWorldId() globalcommonmodel.WorldId {
 	return unit.worldId
 }
 
-func (unit *Unit) GetPosition() commonmodel.Position {
+func (unit *Unit) GetPosition() worldcommonmodel.Position {
 	return unit.position
 }
 
-func (unit *Unit) GetItemId() commonmodel.ItemId {
+func (unit *Unit) GetItemId() worldcommonmodel.ItemId {
 	return unit.itemId
 }
 
-func (unit *Unit) GetDirection() commonmodel.Direction {
+func (unit *Unit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
 }

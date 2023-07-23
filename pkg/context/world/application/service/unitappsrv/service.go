@@ -1,10 +1,10 @@
 package unitappsrv
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -42,7 +42,7 @@ func NewService(
 func (serve *serve) GetUnits(query GetUnitsQuery) (
 	unitDtos []dto.UnitDto, err error,
 ) {
-	units, err := serve.unitRepo.GetUnitsOfWorld(sharedkernelmodel.NewWorldId(query.WorldId))
+	units, err := serve.unitRepo.GetUnitsOfWorld(globalcommonmodel.NewWorldId(query.WorldId))
 	if err != nil {
 		return unitDtos, err
 	}
@@ -54,8 +54,8 @@ func (serve *serve) GetUnits(query GetUnitsQuery) (
 }
 
 func (serve *serve) GetUnit(query GetUnitQuery) (unitDto dto.UnitDto, err error) {
-	worldId := sharedkernelmodel.NewWorldId(query.WorldId)
-	position := commonmodel.NewPosition(query.Position.X, query.Position.Z)
+	worldId := globalcommonmodel.NewWorldId(query.WorldId)
+	position := worldcommonmodel.NewPosition(query.Position.X, query.Position.Z)
 	unit, err := serve.unitRepo.Get(unitmodel.NewUnitId(worldId, position))
 	if err != nil {
 		return unitDto, err
@@ -64,20 +64,20 @@ func (serve *serve) GetUnit(query GetUnitQuery) (unitDto dto.UnitDto, err error)
 }
 
 func (serve *serve) CreateUnit(command CreateUnitCommand) error {
-	worldId := sharedkernelmodel.NewWorldId(command.WorldId)
-	position := commonmodel.NewPosition(command.Position.X, command.Position.Z)
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
 
 	return serve.unitService.CreateUnit(
 		worldId,
-		commonmodel.NewItemId(command.ItemId),
+		worldcommonmodel.NewItemId(command.ItemId),
 		position,
-		commonmodel.NewDirection(command.Direction),
+		worldcommonmodel.NewDirection(command.Direction),
 	)
 }
 
 func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
 	return serve.unitService.RemoveUnit(
-		sharedkernelmodel.NewWorldId(command.WorldId),
-		commonmodel.NewPosition(command.Position.X, command.Position.Z),
+		globalcommonmodel.NewWorldId(command.WorldId),
+		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
 	)
 }

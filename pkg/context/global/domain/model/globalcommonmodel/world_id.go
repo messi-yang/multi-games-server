@@ -1,4 +1,4 @@
-package sharedkernelmodel
+package globalcommonmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"

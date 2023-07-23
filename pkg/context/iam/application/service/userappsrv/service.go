@@ -3,9 +3,9 @@ package userappsrv
 import (
 	"fmt"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/identitymodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/samber/lo"
 )
@@ -17,17 +17,17 @@ type Service interface {
 }
 
 type serve struct {
-	userRepo identitymodel.UserRepo
+	userRepo usermodel.UserRepo
 }
 
-func NewService(userRepo identitymodel.UserRepo) Service {
+func NewService(userRepo usermodel.UserRepo) Service {
 	return &serve{
 		userRepo: userRepo,
 	}
 }
 
 func (serve *serve) GetUserByEmailAddress(query GetUserByEmailAddressQuery) (*dto.UserDto, error) {
-	emailAddress, err := sharedkernelmodel.NewEmailAddress(query.EmailAddress)
+	emailAddress, err := globalcommonmodel.NewEmailAddress(query.EmailAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (serve *serve) GetUserByEmailAddress(query GetUserByEmailAddressQuery) (*dt
 }
 
 func (serve *serve) GetUser(query GetUserQuery) (userDto dto.UserDto, err error) {
-	userId := sharedkernelmodel.NewUserId(query.UserId)
+	userId := globalcommonmodel.NewUserId(query.UserId)
 	user, err := serve.userRepo.Get(userId)
 	if err != nil {
 		return userDto, err
@@ -58,8 +58,8 @@ func (serve *serve) GetUser(query GetUserQuery) (userDto dto.UserDto, err error)
 
 func (serve *serve) UpdateUser(command UpdateUserCommand) (err error) {
 	fmt.Println(command.Username)
-	userId := sharedkernelmodel.NewUserId(command.UserId)
-	username, err := sharedkernelmodel.NewUsername(command.Username)
+	userId := globalcommonmodel.NewUserId(command.UserId)
+	username, err := globalcommonmodel.NewUsername(command.Username)
 	if err != nil {
 		return err
 	}

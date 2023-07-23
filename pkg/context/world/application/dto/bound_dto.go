@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type BoundDto struct {
@@ -9,16 +9,16 @@ type BoundDto struct {
 	To   PositionDto `json:"to"`
 }
 
-func NewBoundDto(bound commonmodel.Bound) BoundDto {
+func NewBoundDto(bound worldcommonmodel.Bound) BoundDto {
 	return BoundDto{
 		From: NewPositionDto(bound.GetFrom()),
 		To:   NewPositionDto(bound.GetTo()),
 	}
 }
 
-func (dto BoundDto) ToValueObject() (bound commonmodel.Bound, err error) {
-	return commonmodel.NewBound(
-		commonmodel.NewPosition(dto.From.X, dto.From.Z),
-		commonmodel.NewPosition(dto.To.X, dto.To.Z),
+func (dto BoundDto) ToValueObject() (bound worldcommonmodel.Bound, err error) {
+	return worldcommonmodel.NewBound(
+		worldcommonmodel.NewPosition(dto.From.X, dto.From.Z),
+		worldcommonmodel.NewPosition(dto.To.X, dto.To.Z),
 	)
 }

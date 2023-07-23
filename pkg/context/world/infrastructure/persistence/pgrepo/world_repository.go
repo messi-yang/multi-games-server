@@ -3,15 +3,15 @@ package pgrepo
 import (
 	"time"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
 func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
@@ -29,16 +29,16 @@ func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 }
 
 func parseWorldModel(worldModel pgmodel.WorldModel) (world worldmodel.World, err error) {
-	bound, err := commonmodel.NewBound(
-		commonmodel.NewPosition(worldModel.BoundFromX, worldModel.BoundFromZ),
-		commonmodel.NewPosition(worldModel.BoundToX, worldModel.BoundToZ),
+	bound, err := worldcommonmodel.NewBound(
+		worldcommonmodel.NewPosition(worldModel.BoundFromX, worldModel.BoundFromZ),
+		worldcommonmodel.NewPosition(worldModel.BoundToX, worldModel.BoundToZ),
 	)
 	if err != nil {
 		return world, err
 	}
 	return worldmodel.LoadWorld(
-		sharedkernelmodel.NewWorldId(worldModel.Id),
-		sharedkernelmodel.NewUserId(worldModel.UserId),
+		globalcommonmodel.NewWorldId(worldModel.Id),
+		globalcommonmodel.NewUserId(worldModel.UserId),
 		worldModel.Name,
 		bound,
 		worldModel.CreatedAt,
@@ -88,7 +88,7 @@ func (repo *worldRepo) Delete(world worldmodel.World) error {
 	return repo.domainEventDispatcher.Dispatch(&world)
 }
 
-func (repo *worldRepo) Get(worldId sharedkernelmodel.WorldId) (world worldmodel.World, err error) {
+func (repo *worldRepo) Get(worldId globalcommonmodel.WorldId) (world worldmodel.World, err error) {
 	worldModel := pgmodel.WorldModel{Id: worldId.Uuid()}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.First(&worldModel).Error
@@ -112,7 +112,7 @@ func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, 
 	})
 }
 
-func (repo *worldRepo) GetWorldsOfUser(userId sharedkernelmodel.UserId) (worlds []worldmodel.World, err error) {
+func (repo *worldRepo) GetWorldsOfUser(userId globalcommonmodel.UserId) (worlds []worldmodel.World, err error) {
 	var worldModels []pgmodel.WorldModel
 
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {

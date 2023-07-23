@@ -3,7 +3,7 @@ package worldaccountappsrv
 import (
 	"fmt"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
@@ -31,7 +31,7 @@ func NewService(
 }
 
 func (serve *serve) GetWorldAccountOfUser(query GetWorldAccountOfUserQuery) (worldAccountDto dto.WorldAccountDto, err error) {
-	userId := sharedkernelmodel.NewUserId(query.UserId)
+	userId := globalcommonmodel.NewUserId(query.UserId)
 	worldAccount, err := serve.worldAccountRepo.GetWorldAccountOfUser(userId)
 	if err != nil {
 		return worldAccountDto, err
@@ -41,7 +41,7 @@ func (serve *serve) GetWorldAccountOfUser(query GetWorldAccountOfUserQuery) (wor
 }
 
 func (serve *serve) CreateWorldAccount(command CreateWorldAccountCommand) (err error) {
-	userId := sharedkernelmodel.NewUserId(command.UserId)
+	userId := globalcommonmodel.NewUserId(command.UserId)
 	worldAccount, err := serve.worldAccountRepo.GetWorldAccountByUserId(userId)
 	if err != nil {
 		return err

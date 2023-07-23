@@ -7,9 +7,9 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/domain/model/sharedkernelmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/sharedkernel/infrastructure/persistence/pgmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 )
 
@@ -25,14 +25,14 @@ func newWorldMemberModel(worldMember worldaccessmodel.WorldMember) pgmodel.World
 }
 
 func parseWorldMemberModel(worldMemberModel pgmodel.WorldMemberModel) (worldMember worldaccessmodel.WorldMember, err error) {
-	worldRole, err := sharedkernelmodel.NewWorldRole(string(worldMemberModel.Role))
+	worldRole, err := globalcommonmodel.NewWorldRole(string(worldMemberModel.Role))
 	if err != nil {
 		return worldMember, err
 	}
 	return worldaccessmodel.LoadWorldMember(
 		worldaccessmodel.NewWorldMemberId(worldMemberModel.Id),
-		sharedkernelmodel.NewWorldId(worldMemberModel.WorldId),
-		sharedkernelmodel.NewUserId(worldMemberModel.UserId),
+		globalcommonmodel.NewWorldId(worldMemberModel.WorldId),
+		globalcommonmodel.NewUserId(worldMemberModel.UserId),
 		worldRole,
 		worldMemberModel.CreatedAt,
 		worldMemberModel.UpdatedAt,
@@ -86,8 +86,8 @@ func (repo *worldMemberRepo) Delete(worldMember worldaccessmodel.WorldMember) er
 }
 
 func (repo *worldMemberRepo) GetWorldMemberOfUser(
-	worldId sharedkernelmodel.WorldId,
-	userId sharedkernelmodel.UserId,
+	worldId globalcommonmodel.WorldId,
+	userId globalcommonmodel.UserId,
 ) (*worldaccessmodel.WorldMember, error) {
 	worldMemberModel := pgmodel.WorldMemberModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
@@ -109,7 +109,7 @@ func (repo *worldMemberRepo) GetWorldMemberOfUser(
 	return &worldMember, nil
 }
 
-func (repo *worldMemberRepo) GetWorldMembersInWorld(worldId sharedkernelmodel.WorldId) (worldMembers []worldaccessmodel.WorldMember, err error) {
+func (repo *worldMemberRepo) GetWorldMembersInWorld(worldId globalcommonmodel.WorldId) (worldMembers []worldaccessmodel.WorldMember, err error) {
 	worldMemberModels := []pgmodel.WorldMemberModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
