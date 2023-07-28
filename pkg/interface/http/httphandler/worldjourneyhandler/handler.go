@@ -7,12 +7,15 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/userappsrv"
+	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/jsonutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -401,6 +404,7 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 	unitAppService := providedependency.ProvideUnitAppService(uow)
 	worldAppService := providedependency.ProvideWorldAppService(uow)
 	playerAppService := providedependency.ProvidePlayerAppService()
+	userAppService := iam_provide_dependency.ProvideUserAppService(uow)
 
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
 		WorldId: worldIdDto,
@@ -408,6 +412,8 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 	if err != nil {
 		return err
 	}
+
+	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{UserId: worldDto.UserId})
 
 	unitDtos, err := unitAppService.GetUnits(
 		unitappsrv.GetUnitsQuery{
@@ -431,7 +437,7 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 
 	sendMessage(worldEnteredResponse{
 		Type:       worldEnteredResponseType,
-		World:      worldDto,
+		World:      viewmodel.WorldViewModel{WorldDto: worldDto, UserDto: userDto},
 		Units:      unitDtos,
 		MyPlayerId: playerIdDto,
 		Players:    playerDtos,

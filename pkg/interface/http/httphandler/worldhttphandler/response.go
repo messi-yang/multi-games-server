@@ -1,21 +1,13 @@
 package worldhttphandler
 
-import (
-	iam_dto "github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-)
+import "github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 
-type worldViewModel struct {
-	dto.WorldDto
-	User iam_dto.UserDto `json:"user"`
-}
+type getWorldResponse viewmodel.WorldViewModel
 
-type getWorldResponse worldViewModel
+type queryWorldsResponse []viewmodel.WorldViewModel
 
-type queryWorldsResponse []worldViewModel
+type getMyWorldsResponse []viewmodel.WorldViewModel
 
-type getMyWorldsResponse []worldViewModel
+type createWorldResponse viewmodel.WorldViewModel
 
-type createWorldResponse worldViewModel
-
-type updateWorldResponse worldViewModel
+type updateWorldResponse viewmodel.WorldViewModel

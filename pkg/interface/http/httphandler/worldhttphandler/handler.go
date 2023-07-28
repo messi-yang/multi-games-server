@@ -14,6 +14,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -50,9 +51,9 @@ func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getWorldResponse(
-		worldViewModel{
-			worldDto,
-			userDto,
+		viewmodel.WorldViewModel{
+			WorldDto: worldDto,
+			UserDto:  userDto,
 		},
 	))
 }
@@ -93,10 +94,10 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	worldViewModels := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) worldViewModel {
-		return worldViewModel{
-			worldDto,
-			userDtoMap[worldDto.UserId],
+	worldViewModels := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) viewmodel.WorldViewModel {
+		return viewmodel.WorldViewModel{
+			WorldDto: worldDto,
+			UserDto:  userDtoMap[worldDto.UserId],
 		}
 	})
 
@@ -127,10 +128,10 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	worldViewModels := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) worldViewModel {
-		return worldViewModel{
-			worldDto,
-			userDtoMap[worldDto.UserId],
+	worldViewModels := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) viewmodel.WorldViewModel {
+		return viewmodel.WorldViewModel{
+			WorldDto: worldDto,
+			UserDto:  userDtoMap[worldDto.UserId],
 		}
 	})
 
@@ -189,9 +190,9 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 	}
 
 	pgUow.SaveChanges()
-	c.JSON(http.StatusOK, createWorldResponse(worldViewModel{
-		worldDto,
-		userDto,
+	c.JSON(http.StatusOK, createWorldResponse(viewmodel.WorldViewModel{
+		WorldDto: worldDto,
+		UserDto:  userDto,
 	}))
 }
 
@@ -258,9 +259,9 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	}
 
 	pgUow.SaveChanges()
-	c.JSON(http.StatusOK, updateWorldResponse(worldViewModel{
-		updatedWorldDto,
-		userDto,
+	c.JSON(http.StatusOK, updateWorldResponse(viewmodel.WorldViewModel{
+		WorldDto: updatedWorldDto,
+		UserDto:  userDto,
 	}))
 }
 

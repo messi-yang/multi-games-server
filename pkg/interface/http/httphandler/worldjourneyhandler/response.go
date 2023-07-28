@@ -2,6 +2,7 @@ package worldjourneyhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/google/uuid"
 )
 
@@ -23,11 +24,11 @@ type errorHappenedResponse struct {
 }
 
 type worldEnteredResponse struct {
-	Type       responseDtoType `json:"type"`
-	World      dto.WorldDto    `json:"world"`
-	Units      []dto.UnitDto   `json:"units"`
-	MyPlayerId uuid.UUID       `json:"myPlayerId"`
-	Players    []dto.PlayerDto `json:"players"`
+	Type       responseDtoType          `json:"type"`
+	World      viewmodel.WorldViewModel `json:"world"`
+	Units      []dto.UnitDto            `json:"units"`
+	MyPlayerId uuid.UUID                `json:"myPlayerId"`
+	Players    []dto.PlayerDto          `json:"players"`
 }
 
 type unitCreatedResponse struct {
