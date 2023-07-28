@@ -7,8 +7,9 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -107,12 +108,11 @@ func (repo *userRepo) GetUserByEmailAddress(emailAddress globalcommonmodel.Email
 	return &user, nil
 }
 
-func (repo *userRepo) GetUsersInMap(userIds []globalcommonmodel.UserId) (map[globalcommonmodel.UserId]usermodel.User, error) {
+func (repo *userRepo) GetUsersOfIds(userIds []globalcommonmodel.UserId) ([]usermodel.User, error) {
 	userModels := []pgmodel.UserModel{}
 	userIdDtos := lo.Map(userIds, func(userId globalcommonmodel.UserId, _ int) uuid.UUID {
 		return userId.Uuid()
 	})
-	userMap := make(map[globalcommonmodel.UserId]usermodel.User)
 
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(userIdDtos).Find(&userModels).Error
@@ -120,13 +120,12 @@ func (repo *userRepo) GetUsersInMap(userIds []globalcommonmodel.UserId) (map[glo
 		return nil, err
 	}
 
-	for _, userModel := range userModels {
-		user, err := parseUserModel(userModel)
-		if err != nil {
-			return nil, err
-		}
-		userMap[user.GetId()] = user
+	users, err := commonutil.MapWithError(userModels, func(_ int, userModel pgmodel.UserModel) (usermodel.User, error) {
+		return parseUserModel(userModel)
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	return userMap, nil
+	return users, nil
 }

@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
 	"github.com/google/uuid"
 )
 

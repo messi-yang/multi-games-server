@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/usermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/uuidutil"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"

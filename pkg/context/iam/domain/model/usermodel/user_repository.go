@@ -7,5 +7,5 @@ type UserRepo interface {
 	Update(User) error
 	Get(globalcommonmodel.UserId) (user User, err error)
 	GetUserByEmailAddress(emailAddress globalcommonmodel.EmailAddress) (user *User, err error)
-	GetUsersInMap([]globalcommonmodel.UserId) (userMap map[globalcommonmodel.UserId]User, err error)
+	GetUsersOfIds([]globalcommonmodel.UserId) (users []User, err error)
 }

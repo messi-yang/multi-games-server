@@ -9,3 +9,7 @@ type GetUserByEmailAddressQuery struct {
 type GetUserQuery struct {
 	UserId uuid.UUID
 }
+
+type GetUsersOfIdsQuery struct {
+	UserIds []uuid.UUID
+}

@@ -1,6 +1,6 @@
 package userhttphandler
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/global/application/dto"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 
 type getMyUserResponse dto.UserDto
 

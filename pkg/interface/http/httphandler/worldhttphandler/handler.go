@@ -6,14 +6,17 @@ import (
 	"strconv"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/userappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type HttpHandler struct{}
@@ -32,13 +35,26 @@ func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
+	userAppService := iam_provide_dependency.ProvideUserAppService(pgUow)
+
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getWorldResponse(worldDto))
+	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{UserId: worldDto.UserId})
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getWorldResponse(
+		worldViewModel{
+			worldDto,
+			userDto,
+		},
+	))
 }
 
 func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
@@ -58,6 +74,8 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
+	userAppService := iam_provide_dependency.ProvideUserAppService(pgUow)
+
 	worldDtos, err := worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{
 		Limit:  limit,
 		Offset: offset,
@@ -67,7 +85,22 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, queryWorldsResponse(worldDtos))
+	userIdDtos := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) uuid.UUID {
+		return worldDto.UserId
+	})
+	userDtoMap, err := userAppService.GetUsersOfIds(userappsrv.GetUsersOfIdsQuery{UserIds: userIdDtos})
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	worldViewModels := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) worldViewModel {
+		return worldViewModel{
+			worldDto,
+			userDtoMap[worldDto.UserId],
+		}
+	})
+
+	c.JSON(http.StatusOK, queryWorldsResponse(worldViewModels))
 }
 
 func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
@@ -76,6 +109,8 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
+	userAppService := iam_provide_dependency.ProvideUserAppService(pgUow)
+
 	worldDtos, err := worldAppService.GetMyWorlds(worldappsrv.GetMyWorldsQuery{
 		UserId: userIdDto,
 	})
@@ -84,7 +119,22 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, getMyWorldsResponse(worldDtos))
+	userIdDtos := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) uuid.UUID {
+		return worldDto.UserId
+	})
+	userDtoMap, err := userAppService.GetUsersOfIds(userappsrv.GetUsersOfIdsQuery{UserIds: userIdDtos})
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	worldViewModels := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) worldViewModel {
+		return worldViewModel{
+			worldDto,
+			userDtoMap[worldDto.UserId],
+		}
+	})
+
+	c.JSON(http.StatusOK, getMyWorldsResponse(worldViewModels))
 }
 
 func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
@@ -100,6 +150,7 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
 	worldMemberAppService := iam_provide_dependency.ProvideWorldMemberAppService(pgUow)
+	userAppService := iam_provide_dependency.ProvideUserAppService(pgUow)
 
 	newWorldIdDto, err := worldAppService.CreateWorld(
 		worldappsrv.CreateWorldCommand{
@@ -131,8 +182,17 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 		return
 	}
 
+	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{UserId: worldDto.UserId})
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	pgUow.SaveChanges()
-	c.JSON(http.StatusOK, createWorldResponse(worldDto))
+	c.JSON(http.StatusOK, createWorldResponse(worldViewModel{
+		worldDto,
+		userDto,
+	}))
 }
 
 func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
@@ -154,6 +214,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
 	worldPermissionAppService := iam_provide_dependency.ProvideWorldPermissionAppService(pgUow)
+	userAppService := iam_provide_dependency.ProvideUserAppService(pgUow)
 
 	canUpdateWorld, err := worldPermissionAppService.CanUpdateWorld(worldpermissionappsrv.CanUpdateWorldQuery{
 		WorldId: worldIdDto,
@@ -190,8 +251,17 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 		return
 	}
 
+	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{UserId: updatedWorldDto.UserId})
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	pgUow.SaveChanges()
-	c.JSON(http.StatusOK, updateWorldResponse(updatedWorldDto))
+	c.JSON(http.StatusOK, updateWorldResponse(worldViewModel{
+		updatedWorldDto,
+		userDto,
+	}))
 }
 
 func (httpHandler *HttpHandler) DeleteWorld(c *gin.Context) {
