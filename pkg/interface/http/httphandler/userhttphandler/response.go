@@ -1,7 +1,7 @@
 package userhttphandler
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
+import "github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 
-type getMyUserResponse dto.UserDto
+type getMyUserResponse viewmodel.UserViewModel
 
-type updateMyUserResponse dto.UserDto
+type updateMyUserResponse viewmodel.UserViewModel

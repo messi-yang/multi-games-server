@@ -1,5 +1,5 @@
 package itemhttphandler
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+import "github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 
-type queryItemsReponse []dto.ItemDto
+type queryItemsReponse []viewmodel.ItemViewModel

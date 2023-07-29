@@ -4,12 +4,15 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type HttpHandler struct{}
@@ -51,5 +54,9 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, getWorldMembersResponse(worldMemberDtos))
+	worldMemberViewModels := lo.Map(worldMemberDtos, func(worldMemberDto dto.WorldMemberDto, _ int) viewmodel.WorldMemberViewModel {
+		return viewmodel.WorldMemberViewModel(worldMemberDto)
+	})
+
+	c.JSON(http.StatusOK, getWorldMembersResponse(worldMemberViewModels))
 }

@@ -4,9 +4,12 @@ import (
 	"net/http"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 )
 
 type HttpHandler struct{}
@@ -25,5 +28,9 @@ func (httpHandler *HttpHandler) QueryItems(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, queryItemsReponse(itemDtos))
+	itemViewModels := lo.Map(itemDtos, func(itemDto dto.ItemDto, _ int) viewmodel.ItemViewModel {
+		return viewmodel.ItemViewModel(itemDto)
+	})
+
+	c.JSON(http.StatusOK, queryItemsReponse(itemViewModels))
 }
