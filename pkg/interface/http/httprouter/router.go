@@ -28,18 +28,34 @@ func Run() error {
 
 	router.Static("/asset", "./asset")
 
-	parseAccessTokenMiddleware := func(ctx *gin.Context) {
+	parseHttpAccessTokenMiddleware := func(ctx *gin.Context) {
 		authorizationHeader := ctx.Request.Header.Get("Authorization")
 		if authorizationHeader == "" {
 			ctx.Next()
 			return
 		}
-		authToken := strings.Split(authorizationHeader, " ")[1]
+		accessToken := strings.Split(authorizationHeader, " ")[1]
 
 		pgUow := pguow.NewDummyUow()
 
 		authAppService := providedependency.ProvideAuthAppService(pgUow)
-		userId, err := authAppService.Validate(authToken)
+		userId, err := authAppService.Validate(accessToken)
+		if err != nil {
+			ctx.Next()
+			return
+		}
+
+		httpsession.SetAuthrorizedUserId(ctx, userId)
+		ctx.Next()
+	}
+
+	parseSocketAccessTokenMiddleware := func(ctx *gin.Context) {
+		accessToken := ctx.Request.URL.Query().Get("access-token")
+
+		pgUow := pguow.NewDummyUow()
+
+		authAppService := providedependency.ProvideAuthAppService(pgUow)
+		userId, err := authAppService.Validate(accessToken)
 		if err != nil {
 			ctx.Next()
 			return
@@ -56,32 +72,38 @@ func Run() error {
 
 	userHttpHandler := userhttphandler.NewHttpHandler()
 	userRouterGroup := router.Group("/api/users")
-	userRouterGroup.GET("/me", parseAccessTokenMiddleware, userHttpHandler.GetMyUser)
-	userRouterGroup.PATCH("/me", parseAccessTokenMiddleware, userHttpHandler.UpdateMyUser)
+	userRouterGroup.Use(parseHttpAccessTokenMiddleware)
+	userRouterGroup.GET("/me", userHttpHandler.GetMyUser)
+	userRouterGroup.PATCH("/me", userHttpHandler.UpdateMyUser)
 
 	worldAccountHttpHandler := worldaccounthttphandler.NewHttpHandler()
 	worldAccountsRouterGroup := router.Group("/api/world-accounts")
+	worldAccountsRouterGroup.Use(parseHttpAccessTokenMiddleware)
 	worldAccountsRouterGroup.GET("/", worldAccountHttpHandler.QueryWorldAccounts)
 
 	worldHttpHandler := worldhttphandler.NewHttpHandler()
 	worldRouterGroup := router.Group("/api/worlds")
+	worldRouterGroup.Use(parseHttpAccessTokenMiddleware)
+
 	worldRouterGroup.GET("/:worldId", worldHttpHandler.GetWorld)
 	worldRouterGroup.GET("/", worldHttpHandler.QueryWorlds)
-	worldRouterGroup.GET("/mine", parseAccessTokenMiddleware, worldHttpHandler.GetMyWorlds)
-	worldRouterGroup.POST("/", parseAccessTokenMiddleware, worldHttpHandler.CreateWorld)
-	worldRouterGroup.PATCH("/:worldId", parseAccessTokenMiddleware, worldHttpHandler.UpdateWorld)
-	worldRouterGroup.DELETE("/:worldId", parseAccessTokenMiddleware, worldHttpHandler.DeleteWorld)
+	worldRouterGroup.GET("/mine", worldHttpHandler.GetMyWorlds)
+	worldRouterGroup.POST("/", worldHttpHandler.CreateWorld)
+	worldRouterGroup.PATCH("/:worldId", worldHttpHandler.UpdateWorld)
+	worldRouterGroup.DELETE("/:worldId", worldHttpHandler.DeleteWorld)
 
 	worldMemberHttpHandler := worldmemberhttphandler.NewHttpHandler()
-	worldRouterGroup.GET("/:worldId/members", parseAccessTokenMiddleware, worldMemberHttpHandler.GetWorldMembers)
+	worldRouterGroup.GET("/:worldId/members", worldMemberHttpHandler.GetWorldMembers)
 
 	itemHttpHandler := itemhttphandler.NewHttpHandler()
 	itemRouterGroup := router.Group("/api/items")
+	itemRouterGroup.Use(parseHttpAccessTokenMiddleware)
 	itemRouterGroup.GET("/", itemHttpHandler.QueryItems)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
 	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)
 	worldJourneyGroup := router.Group("/api/world-journey")
+	worldJourneyGroup.Use(parseSocketAccessTokenMiddleware)
 	worldJourneyGroup.GET("/", worldJourneyHandler.StartJourney)
 
 	return router.Run()

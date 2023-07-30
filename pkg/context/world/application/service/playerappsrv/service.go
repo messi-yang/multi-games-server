@@ -60,7 +60,7 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 	newPlayer := playermodel.NewPlayer(
 		playermodel.NewPlayerId(uuid.New()),
 		worldId,
-		"Hello",
+		command.PlayerName,
 		worldcommonmodel.NewPosition(0, 0),
 		direction,
 		&playerHeldItemId,
