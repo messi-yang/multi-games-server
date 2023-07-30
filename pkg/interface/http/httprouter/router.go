@@ -1,7 +1,6 @@
 package httprouter
 
 import (
-	"net/http"
 	"strings"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
@@ -14,7 +13,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldjourneyhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldmemberhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -29,11 +28,10 @@ func Run() error {
 
 	router.Static("/asset", "./asset")
 
-	authorizeAccessTokenMiddleware := func(ctx *gin.Context) {
+	parseAccessTokenMiddleware := func(ctx *gin.Context) {
 		authorizationHeader := ctx.Request.Header.Get("Authorization")
 		if authorizationHeader == "" {
-			ctx.String(http.StatusUnauthorized, "token is not found in authorization header")
-			ctx.Abort()
+			ctx.Next()
 			return
 		}
 		authToken := strings.Split(authorizationHeader, " ")[1]
@@ -43,12 +41,11 @@ func Run() error {
 		authAppService := providedependency.ProvideAuthAppService(pgUow)
 		userId, err := authAppService.Validate(authToken)
 		if err != nil {
-			ctx.String(http.StatusUnauthorized, err.Error())
-			ctx.Abort()
+			ctx.Next()
 			return
 		}
 
-		httputil.SetUserId(ctx, userId)
+		httpsession.SetAuthrorizedUserId(ctx, userId)
 		ctx.Next()
 	}
 
@@ -59,8 +56,8 @@ func Run() error {
 
 	userHttpHandler := userhttphandler.NewHttpHandler()
 	userRouterGroup := router.Group("/api/users")
-	userRouterGroup.GET("/me", authorizeAccessTokenMiddleware, userHttpHandler.GetMyUser)
-	userRouterGroup.PATCH("/me", authorizeAccessTokenMiddleware, userHttpHandler.UpdateMyUser)
+	userRouterGroup.GET("/me", parseAccessTokenMiddleware, userHttpHandler.GetMyUser)
+	userRouterGroup.PATCH("/me", parseAccessTokenMiddleware, userHttpHandler.UpdateMyUser)
 
 	worldAccountHttpHandler := worldaccounthttphandler.NewHttpHandler()
 	worldAccountsRouterGroup := router.Group("/api/world-accounts")
@@ -70,13 +67,13 @@ func Run() error {
 	worldRouterGroup := router.Group("/api/worlds")
 	worldRouterGroup.GET("/:worldId", worldHttpHandler.GetWorld)
 	worldRouterGroup.GET("/", worldHttpHandler.QueryWorlds)
-	worldRouterGroup.GET("/mine", authorizeAccessTokenMiddleware, worldHttpHandler.GetMyWorlds)
-	worldRouterGroup.POST("/", authorizeAccessTokenMiddleware, worldHttpHandler.CreateWorld)
-	worldRouterGroup.PATCH("/:worldId", authorizeAccessTokenMiddleware, worldHttpHandler.UpdateWorld)
-	worldRouterGroup.DELETE("/:worldId", authorizeAccessTokenMiddleware, worldHttpHandler.DeleteWorld)
+	worldRouterGroup.GET("/mine", parseAccessTokenMiddleware, worldHttpHandler.GetMyWorlds)
+	worldRouterGroup.POST("/", parseAccessTokenMiddleware, worldHttpHandler.CreateWorld)
+	worldRouterGroup.PATCH("/:worldId", parseAccessTokenMiddleware, worldHttpHandler.UpdateWorld)
+	worldRouterGroup.DELETE("/:worldId", parseAccessTokenMiddleware, worldHttpHandler.DeleteWorld)
 
 	worldMemberHttpHandler := worldmemberhttphandler.NewHttpHandler()
-	worldRouterGroup.GET("/:worldId/members", authorizeAccessTokenMiddleware, worldMemberHttpHandler.GetWorldMembers)
+	worldRouterGroup.GET("/:worldId/members", parseAccessTokenMiddleware, worldMemberHttpHandler.GetWorldMembers)
 
 	itemHttpHandler := itemhttphandler.NewHttpHandler()
 	itemRouterGroup := router.Group("/api/items")

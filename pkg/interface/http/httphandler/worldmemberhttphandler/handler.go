@@ -8,7 +8,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -22,7 +22,12 @@ func NewHttpHandler() *HttpHandler {
 }
 
 func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
-	userIdDto := httputil.GetUserId(c)
+	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
+	if authorizedUserIdDto == nil {
+		c.String(http.StatusUnauthorized, "not authorized")
+		return
+	}
+
 	worldIdDto, err := uuid.Parse(c.Param("worldId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
@@ -35,7 +40,7 @@ func (httpHandler *HttpHandler) GetWorldMembers(c *gin.Context) {
 
 	canGetWorldMembers, err := worldPermissionAppService.CanGetWorldMembers(worldpermissionappsrv.CanGetWorldMembersQuery{
 		WorldId: worldIdDto,
-		UserId:  userIdDto,
+		UserId:  *authorizedUserIdDto,
 	})
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())

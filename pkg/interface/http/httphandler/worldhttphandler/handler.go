@@ -13,7 +13,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httputil"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -105,7 +105,11 @@ func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
-	userIdDto := httputil.GetUserId(c)
+	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
+	if authorizedUserIdDto == nil {
+		c.String(http.StatusUnauthorized, "not authorized")
+		return
+	}
 
 	pgUow := pguow.NewDummyUow()
 
@@ -113,7 +117,7 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 	userAppService := iam_provide_dependency.ProvideUserAppService(pgUow)
 
 	worldDtos, err := worldAppService.GetMyWorlds(worldappsrv.GetMyWorldsQuery{
-		UserId: userIdDto,
+		UserId: *authorizedUserIdDto,
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
@@ -139,7 +143,11 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
-	userIdDto := httputil.GetUserId(c)
+	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
+	if authorizedUserIdDto == nil {
+		c.String(http.StatusUnauthorized, "not authorized")
+		return
+	}
 
 	var requestBody createWorldRequestBody
 	if err := c.BindJSON(&requestBody); err != nil {
@@ -155,7 +163,7 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	newWorldIdDto, err := worldAppService.CreateWorld(
 		worldappsrv.CreateWorldCommand{
-			UserId: userIdDto,
+			UserId: *authorizedUserIdDto,
 			Name:   requestBody.Name,
 		},
 	)
@@ -167,7 +175,7 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 
 	// TODO - handle this side effects by using integration events
 	if err := worldMemberAppService.AddWorldMember(worldmemberappsrv.AddWorldMemberCommand{
-		UserId:  userIdDto,
+		UserId:  *authorizedUserIdDto,
 		WorldId: newWorldIdDto,
 		Role:    "owner",
 	}); err != nil {
@@ -197,7 +205,11 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
-	userIdDto := httputil.GetUserId(c)
+	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
+	if authorizedUserIdDto == nil {
+		c.String(http.StatusUnauthorized, "not authorized")
+		return
+	}
 
 	var requestBody updateWorldRequestBody
 	if err := c.BindJSON(&requestBody); err != nil {
@@ -219,7 +231,7 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 
 	canUpdateWorld, err := worldPermissionAppService.CanUpdateWorld(worldpermissionappsrv.CanUpdateWorldQuery{
 		WorldId: worldIdDto,
-		UserId:  userIdDto,
+		UserId:  *authorizedUserIdDto,
 	})
 	if err != nil {
 		pgUow.RevertChanges()
@@ -266,7 +278,11 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) DeleteWorld(c *gin.Context) {
-	userIdDto := httputil.GetUserId(c)
+	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
+	if authorizedUserIdDto == nil {
+		c.String(http.StatusUnauthorized, "not authorized")
+		return
+	}
 
 	worldIdDto, err := uuid.Parse(c.Param("worldId"))
 	if err != nil {
@@ -282,7 +298,7 @@ func (httpHandler *HttpHandler) DeleteWorld(c *gin.Context) {
 
 	canDeleteWorld, err := worldPermissionAppService.CanDeleteWorld(worldpermissionappsrv.CanDeleteWorldQuery{
 		WorldId: worldIdDto,
-		UserId:  userIdDto,
+		UserId:  *authorizedUserIdDto,
 	})
 	if err != nil {
 		pgUow.RevertChanges()
