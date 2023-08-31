@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/google/uuid"
 )
 
 type Player struct {
@@ -25,7 +26,6 @@ type Player struct {
 var _ domain.Aggregate = (*Player)(nil)
 
 func NewPlayer(
-	id PlayerId,
 	worldId globalcommonmodel.WorldId,
 	name string,
 	position worldcommonmodel.Position,
@@ -33,7 +33,7 @@ func NewPlayer(
 	heldItemId *worldcommonmodel.ItemId,
 ) Player {
 	return Player{
-		id:                   id,
+		id:                   NewPlayerId(uuid.New()),
 		worldId:              worldId,
 		name:                 name,
 		position:             position,

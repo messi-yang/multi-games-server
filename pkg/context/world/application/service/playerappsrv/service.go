@@ -58,7 +58,6 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 
 	direction := worldcommonmodel.NewDownDirection()
 	newPlayer := playermodel.NewPlayer(
-		playermodel.NewPlayerId(uuid.New()),
 		worldId,
 		command.PlayerName,
 		worldcommonmodel.NewPosition(0, 0),

@@ -35,7 +35,7 @@ func NewWorldAccount(
 	}
 }
 
-func LoadPlayer(
+func LoadWorldAccount(
 	id WorldAccountId,
 	userId globalcommonmodel.UserId,
 	worldsCount int8,

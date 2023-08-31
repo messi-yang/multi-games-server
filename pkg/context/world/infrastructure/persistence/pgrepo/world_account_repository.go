@@ -26,7 +26,7 @@ func newWorldAccountModel(worldAccount worldaccountmodel.WorldAccount) pgmodel.W
 }
 
 func parseWorldAccountModel(worldAccountModel pgmodel.WorldAccountModel) worldaccountmodel.WorldAccount {
-	return worldaccountmodel.LoadPlayer(
+	return worldaccountmodel.LoadWorldAccount(
 		worldaccountmodel.NewWorldAccountId(worldAccountModel.Id),
 		globalcommonmodel.NewUserId(worldAccountModel.UserId),
 		worldAccountModel.WorldsCount,

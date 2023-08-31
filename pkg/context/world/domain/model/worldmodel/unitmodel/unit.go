@@ -19,14 +19,13 @@ type Unit struct {
 var _ domain.Aggregate = (*Unit)(nil)
 
 func NewUnit(
-	id UnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 ) Unit {
 	return Unit{
-		id:                   id,
+		id:                   NewUnitId(worldId, position),
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,

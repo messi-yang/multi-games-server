@@ -77,7 +77,7 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 		position := worldcommonmodel.NewPosition(x-50, z-50)
 		if randomInt < len(items) {
 			newUnit := unitmodel.NewUnit(
-				unitmodel.NewUnitId(worldId, position), worldId, position, items[randomInt].GetId(), worldcommonmodel.NewDownDirection(),
+				worldId, position, items[randomInt].GetId(), worldcommonmodel.NewDownDirection(),
 			)
 			if err = worldServe.unitRepo.Add(newUnit); err != nil {
 				return err

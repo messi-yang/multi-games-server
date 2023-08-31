@@ -74,7 +74,7 @@ func (unitServe *unitServe) CreateStaticUnit(
 		return nil
 	}
 
-	newUnit := unitmodel.NewUnit(unitmodel.NewUnitId(worldId, position), worldId, position, itemId, direction)
+	newUnit := unitmodel.NewUnit(worldId, position, itemId, direction)
 	return unitServe.unitRepo.Add(newUnit)
 }
 
