@@ -4,36 +4,41 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 )
 
 var (
-	errUnitExceededBoundary = fmt.Errorf("unit exceeded the boundary of the world")
+	errUnitExceededBoundary              = fmt.Errorf("unit exceeded the boundary of the world")
+	errItemCompatibleUnitTypeIsNotStatic = fmt.Errorf("compatible unit type of the item is not static")
 )
 
 type UnitService interface {
-	CreateUnit(globalcommonmodel.WorldId, worldcommonmodel.ItemId, worldcommonmodel.Position, worldcommonmodel.Direction) error
+	CreateStaticUnit(globalcommonmodel.WorldId, worldcommonmodel.ItemId, worldcommonmodel.Position, worldcommonmodel.Direction) error
 	RemoveUnit(globalcommonmodel.WorldId, worldcommonmodel.Position) error
 }
 
 type unitServe struct {
 	worldRepo worldmodel.WorldRepo
 	unitRepo  unitmodel.UnitRepo
+	itemRepo  itemmodel.ItemRepo
 }
 
 func NewUnitService(
 	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
+	itemRepo itemmodel.ItemRepo,
 ) UnitService {
 	return &unitServe{
 		worldRepo: worldRepo,
 		unitRepo:  unitRepo,
+		itemRepo:  itemRepo,
 	}
 }
 
-func (unitServe *unitServe) CreateUnit(
+func (unitServe *unitServe) CreateStaticUnit(
 	worldId globalcommonmodel.WorldId,
 	itemId worldcommonmodel.ItemId,
 	position worldcommonmodel.Position,
@@ -42,6 +47,15 @@ func (unitServe *unitServe) CreateUnit(
 	world, err := unitServe.worldRepo.Get(worldId)
 	if err != nil {
 		return err
+	}
+
+	item, err := unitServe.itemRepo.Get(itemId)
+	if err != nil {
+		return err
+	}
+
+	if !item.GetCompatibleUnitType().IsStatic() {
+		return errItemCompatibleUnitTypeIsNotStatic
 	}
 
 	if !world.GetBound().CoversPosition(position) {

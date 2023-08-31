@@ -6,33 +6,39 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
-	"github.com/samber/lo"
 )
 
 func newItemModel(item itemmodel.Item) pgmodel.ItemModel {
 	return pgmodel.ItemModel{
-		Id:           item.GetId().Uuid(),
-		Name:         item.GetName(),
-		Traversable:  item.GetTraversable(),
-		ThumbnailSrc: item.GetThumbnailSrc(),
-		ModelSrc:     item.GetModelSrc(),
+		Id:                 item.GetId().Uuid(),
+		CompatibleUnitType: pgmodel.UnitTypeEnum(item.GetCompatibleUnitType().String()),
+		Name:               item.GetName(),
+		Traversable:        item.GetTraversable(),
+		ThumbnailSrc:       item.GetThumbnailSrc(),
+		ModelSrc:           item.GetModelSrc(),
 	}
 }
 
-func parseItemModel(itemModel pgmodel.ItemModel) itemmodel.Item {
+func parseItemModel(itemModel pgmodel.ItemModel) (item itemmodel.Item, err error) {
 	serverUrl := os.Getenv("SERVER_URL")
-	return itemmodel.NewItem(
+	compatibleUnitType, err := worldcommonmodel.NewUnitType(string(itemModel.CompatibleUnitType))
+	if err != nil {
+		return item, err
+	}
+	return itemmodel.LoadItem(
 		worldcommonmodel.NewItemId(itemModel.Id),
+		compatibleUnitType,
 		itemModel.Name,
 		itemModel.Traversable,
 		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
 		fmt.Sprintf("%s%s", serverUrl, itemModel.ModelSrc),
-	)
+	), nil
 }
 
 type itemRepo struct {
@@ -75,7 +81,7 @@ func (repo *itemRepo) Get(itemId worldcommonmodel.ItemId) (item itemmodel.Item, 
 		return item, err
 	}
 
-	return parseItemModel(itemModel), nil
+	return parseItemModel(itemModel)
 }
 
 func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
@@ -86,10 +92,9 @@ func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 		return items, err
 	}
 
-	items = lo.Map(itemModels, func(itemModel pgmodel.ItemModel, _ int) itemmodel.Item {
+	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
 		return parseItemModel(itemModel)
 	})
-	return items, nil
 }
 
 func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
@@ -100,5 +105,5 @@ func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
 		return item, err
 	}
 
-	return parseItemModel(itemModel), nil
+	return parseItemModel(itemModel)
 }

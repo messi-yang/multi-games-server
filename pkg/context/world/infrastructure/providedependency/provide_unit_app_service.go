@@ -13,7 +13,7 @@ func ProvideUnitAppService(uow pguow.Uow) unitappsrv.Service {
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
-	unitService := service.NewUnitService(worldRepo, unitRepo)
+	unitService := service.NewUnitService(worldRepo, unitRepo, itemRepo)
 	return unitappsrv.NewService(
 		worldRepo,
 		unitRepo,

@@ -7,6 +7,7 @@ import (
 
 type Item struct {
 	id                   worldcommonmodel.ItemId
+	compatibleUnitType   worldcommonmodel.UnitType
 	name                 string
 	traversable          bool
 	thumbnailSrc         string
@@ -17,9 +18,10 @@ type Item struct {
 // Interface Implementation Check
 var _ domain.Aggregate = (*Item)(nil)
 
-func NewItem(id worldcommonmodel.ItemId, name string, traversable bool, thumbnailSrc string, modelSrc string) Item {
+func LoadItem(id worldcommonmodel.ItemId, compatibleUnitType worldcommonmodel.UnitType, name string, traversable bool, thumbnailSrc string, modelSrc string) Item {
 	return Item{
 		id:                   id,
+		compatibleUnitType:   compatibleUnitType,
 		name:                 name,
 		traversable:          traversable,
 		thumbnailSrc:         thumbnailSrc,
@@ -34,6 +36,10 @@ func (item *Item) PopDomainEvents() []domain.DomainEvent {
 
 func (item *Item) GetId() worldcommonmodel.ItemId {
 	return item.id
+}
+
+func (item *Item) GetCompatibleUnitType() worldcommonmodel.UnitType {
+	return item.compatibleUnitType
 }
 
 func (item *Item) GetName() string {

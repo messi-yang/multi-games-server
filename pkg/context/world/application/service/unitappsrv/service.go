@@ -14,7 +14,7 @@ import (
 type Service interface {
 	GetUnits(GetUnitsQuery) (unitDtos []dto.UnitDto, err error)
 	GetUnit(GetUnitQuery) (dto.UnitDto, error)
-	CreateUnit(CreateUnitCommand) error
+	CreateStaticUnit(CreateStaticUnitCommand) error
 	RemoveUnit(RemoveUnitCommand) error
 }
 
@@ -63,11 +63,11 @@ func (serve *serve) GetUnit(query GetUnitQuery) (unitDto dto.UnitDto, err error)
 	return dto.NewUnitDto(unit), nil
 }
 
-func (serve *serve) CreateUnit(command CreateUnitCommand) error {
+func (serve *serve) CreateStaticUnit(command CreateStaticUnitCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
 
-	return serve.unitService.CreateUnit(
+	return serve.unitService.CreateStaticUnit(
 		worldId,
 		worldcommonmodel.NewItemId(command.ItemId),
 		position,

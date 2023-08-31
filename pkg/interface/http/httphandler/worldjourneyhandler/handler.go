@@ -182,6 +182,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
 					sendError(err)
+					break
 				}
 				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
@@ -194,23 +195,25 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				if err = httpHandler.executeChangeHeldItemCommand(worldIdDto, playerIdDto, requestDto.ItemId); err != nil {
 					sendError(err)
+					break
 				}
 				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}
-			case createUnitRequestType:
-				requestDto, err := jsonutil.Unmarshal[createUnitRequest](message)
+			case createStaticUnitRequestType:
+				requestDto, err := jsonutil.Unmarshal[createStaticUnitRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeCreateUnitCommand(
+				if err = httpHandler.executeCreateStaticUnitCommand(
 					worldIdDto,
 					requestDto.ItemId,
 					requestDto.Position,
 					requestDto.Direction,
 				); err != nil {
 					sendError(err)
+					break
 				}
 				if err = httpHandler.broadcastUnitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
@@ -223,6 +226,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
+					break
 				}
 				if err = httpHandler.broadcastUnitDeletedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
@@ -328,7 +332,7 @@ func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUI
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeCreateUnitCommand(
+func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
@@ -337,7 +341,7 @@ func (httpHandler *HttpHandler) executeCreateUnitCommand(
 	uow := pguow.NewUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.CreateUnit(unitappsrv.CreateUnitCommand{
+	if err := unitAppService.CreateStaticUnit(unitappsrv.CreateStaticUnitCommand{
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,

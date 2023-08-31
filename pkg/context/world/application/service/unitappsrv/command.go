@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type CreateUnitCommand struct {
+type CreateStaticUnitCommand struct {
 	WorldId   uuid.UUID
 	ItemId    uuid.UUID
 	Position  dto.PositionDto

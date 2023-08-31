@@ -8,11 +8,11 @@ import (
 type RequestType string
 
 const (
-	pingRequestType           RequestType = "PING"
-	moveRequestType           RequestType = "MOVE"
-	changeHeldItemRequestType RequestType = "CHANGE_HELD_ITEM"
-	createUnitRequestType     RequestType = "CREATE_UNIT"
-	removeUnitRequestType     RequestType = "REMOVE_UNIT"
+	pingRequestType             RequestType = "PING"
+	moveRequestType             RequestType = "MOVE"
+	changeHeldItemRequestType   RequestType = "CHANGE_HELD_ITEM"
+	createStaticUnitRequestType RequestType = "CREATE_STATIC_UNIT"
+	removeUnitRequestType       RequestType = "REMOVE_UNIT"
 )
 
 type genericRequest struct {
@@ -29,7 +29,7 @@ type changeHeldItemRequest struct {
 	ItemId uuid.UUID   `json:"itemId"`
 }
 
-type createUnitRequest struct {
+type createStaticUnitRequest struct {
 	Type      RequestType     `json:"type"`
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`

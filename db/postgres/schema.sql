@@ -17,6 +17,18 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: unit_type; Type: TYPE; Schema: public; Owner: main
+--
+
+CREATE TYPE public.unit_type AS ENUM (
+    'static',
+    'portal'
+);
+
+
+ALTER TYPE public.unit_type OWNER TO main;
+
+--
 -- Name: world_role; Type: TYPE; Schema: public; Owner: main
 --
 
@@ -45,7 +57,8 @@ CREATE TABLE public.items (
     model_src character varying(255) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    thumbnail_src character varying(255) NOT NULL
+    thumbnail_src character varying(255) NOT NULL,
+    compatible_unit_type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
 );
 
 
@@ -72,7 +85,8 @@ CREATE TABLE public.units (
     pos_x integer NOT NULL,
     pos_z integer NOT NULL,
     item_id uuid NOT NULL,
-    direction integer NOT NULL
+    direction integer NOT NULL,
+    type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
 );
 
 
@@ -238,6 +252,20 @@ ALTER TABLE ONLY public.world_members
 
 ALTER TABLE ONLY public.worlds
     ADD CONSTRAINT worlds_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: item_compatible_unit_type; Type: INDEX; Schema: public; Owner: main
+--
+
+CREATE INDEX item_compatible_unit_type ON public.items USING btree (compatible_unit_type);
+
+
+--
+-- Name: unit_type; Type: INDEX; Schema: public; Owner: main
+--
+
+CREATE INDEX unit_type ON public.units USING btree (type);
 
 
 --
