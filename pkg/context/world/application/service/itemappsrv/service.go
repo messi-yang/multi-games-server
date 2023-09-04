@@ -7,7 +7,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/uuidutil"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -39,6 +38,11 @@ func (serve *serve) QueryItems(query QueryItemsQuery) (itemDtos []dto.ItemDto, e
 
 func (serve *serve) CreateDefaultItems(command CreateDefaultItemsCommand) error {
 	items := []itemmodel.Item{
+		itemmodel.LoadItem(
+			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("6f127ae8-f1f8-4ff3-8148-fa8d2fef307a")),
+			worldcommonmodel.NewStaticUnitType(),
+			"test", true, "/asset/item/test/thumbnail.png", "/asset/item/test/model.gltf",
+		),
 		itemmodel.LoadItem(
 			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("3c28537a-80c2-4ac1-917b-b1cd517c6b5e")),
 			worldcommonmodel.NewStaticUnitType(),
@@ -95,13 +99,11 @@ func (serve *serve) CreateDefaultItems(command CreateDefaultItemsCommand) error 
 			"fence", false, "/asset/item/fence/thumbnail.png", "/asset/item/fence/model.gltf",
 		),
 		itemmodel.LoadItem(
-			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("6f127ae8-f1f8-4ff3-8148-fa8d2fef307a")),
+			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("c64f732c-9494-4693-b17b-43a2736aa67b")),
 			worldcommonmodel.NewPortalUnitType(),
-			"portal", true, "/asset/item/grass/thumbnail.png", "/asset/item/grass/model.gltf",
+			"portal", true, "/asset/item/portal/thumbnail.png", "/asset/item/portal/model.gltf",
 		),
 	}
-
-	fmt.Println(uuid.New())
 
 	for _, item := range items {
 		if _, err := serve.itemRepo.Get(item.GetId()); err != nil {

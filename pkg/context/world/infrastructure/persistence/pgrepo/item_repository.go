@@ -97,6 +97,22 @@ func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 	})
 }
 
+func (repo *itemRepo) GetItemsOfCompatibleUnitType(compatibleUnitType worldcommonmodel.UnitType) (items []itemmodel.Item, err error) {
+	var itemModels []pgmodel.ItemModel
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"compatible_unit_type = ?",
+			compatibleUnitType.String(),
+		).Find(&itemModels, pgmodel.UnitModel{}).Error
+	}); err != nil {
+		return items, err
+	}
+
+	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
+		return parseItemModel(itemModel)
+	})
+}
+
 func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
 	itemModel := pgmodel.ItemModel{}
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {

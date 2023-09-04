@@ -218,6 +218,24 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err = httpHandler.broadcastUnitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
+			case createPortalUnitRequestType:
+				requestDto, err := jsonutil.Unmarshal[createPortalUnitRequest](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeCreatePortalUnitCommand(
+					worldIdDto,
+					requestDto.ItemId,
+					requestDto.Position,
+					requestDto.Direction,
+				); err != nil {
+					sendError(err)
+					break
+				}
+				if err = httpHandler.broadcastUnitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
+					sendError(err)
+				}
 			case removeUnitRequestType:
 				requestDto, err := jsonutil.Unmarshal[removeUnitRequest](message)
 				if err != nil {
@@ -295,7 +313,7 @@ func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uui
 	}
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newplayerMovedServerMessage(playerDto)),
+		jsonutil.Marshal(newPlayerMovedServerMessage(playerDto)),
 	)
 	return nil
 }
@@ -342,6 +360,28 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.CreateStaticUnit(unitappsrv.CreateStaticUnitCommand{
+		WorldId:   worldIdDto,
+		ItemId:    itemIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
+	worldIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+) error {
+	uow := pguow.NewUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	if err := unitAppService.CreatePortalUnit(unitappsrv.CreatePortalUnitCommand{
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,

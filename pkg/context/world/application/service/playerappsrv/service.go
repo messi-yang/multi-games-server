@@ -3,8 +3,9 @@ package playerappsrv
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/playermodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
@@ -19,14 +20,20 @@ type Service interface {
 }
 
 type serve struct {
-	playerRepo playermodel.PlayerRepo
+	playerRepo     playermodel.PlayerRepo
+	unitRepo       unitmodel.UnitRepo
+	portalUnitRepo unitmodel.PortalUnitRepo
 }
 
 func NewService(
 	playerRepo playermodel.PlayerRepo,
+	unitRepo unitmodel.UnitRepo,
+	portalUnitRepo unitmodel.PortalUnitRepo,
 ) Service {
 	return &serve{
-		playerRepo: playerRepo,
+		playerRepo:     playerRepo,
+		unitRepo:       unitRepo,
+		portalUnitRepo: portalUnitRepo,
 	}
 }
 
@@ -86,9 +93,24 @@ func (serve *serve) Move(command MoveCommand) error {
 		return serve.playerRepo.Update(player)
 	}
 
-	newItemPos := player.GetPositionOneStepFoward()
+	nextPosition := player.GetPositionOneStepFoward()
+	player.Move(nextPosition, direction)
 
-	player.Move(newItemPos, direction)
+	unitAtNextPosition, err := serve.unitRepo.GetUnitAt(worldId, nextPosition)
+	if err != nil {
+		return err
+	}
+
+	if unitAtNextPosition != nil && unitAtNextPosition.GetType().IsPortal() {
+		portalUnit, err := serve.portalUnitRepo.Get(unitmodel.NewPortalUnitId(*unitAtNextPosition.GetLinkedUnitId()))
+		if err != nil {
+			return err
+		}
+		portalPosition := portalUnit.GetTargetPosition()
+		if portalPosition != nil {
+			player.Teleport(*portalPosition)
+		}
+	}
 
 	return serve.playerRepo.Update(player)
 }

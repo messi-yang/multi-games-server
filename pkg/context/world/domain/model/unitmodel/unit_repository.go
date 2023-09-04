@@ -10,5 +10,6 @@ type UnitRepo interface {
 	Get(UnitId) (Unit, error)
 	Delete(Unit) error
 	GetUnitAt(globalcommonmodel.WorldId, worldcommonmodel.Position) (unit *Unit, err error)
+	GetRandomPortalUnit(globalcommonmodel.WorldId) (unit *Unit, err error)
 	GetUnitsOfWorld(globalcommonmodel.WorldId) ([]Unit, error)
 }

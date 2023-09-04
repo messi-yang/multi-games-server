@@ -1,8 +1,6 @@
 package userappsrv
 
 import (
-	"fmt"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
@@ -77,7 +75,6 @@ func (serve *serve) GetUsersOfIds(query GetUsersOfIdsQuery) (userDtoMap map[uuid
 }
 
 func (serve *serve) UpdateUser(command UpdateUserCommand) (err error) {
-	fmt.Println(command.Username)
 	userId := globalcommonmodel.NewUserId(command.UserId)
 	username, err := globalcommonmodel.NewUsername(command.Username)
 	if err != nil {

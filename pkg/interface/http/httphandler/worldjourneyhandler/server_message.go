@@ -76,7 +76,7 @@ type playerMovedServerMessage struct {
 	Player dto.PlayerDto
 }
 
-func newplayerMovedServerMessage(player dto.PlayerDto) playerMovedServerMessage {
+func newPlayerMovedServerMessage(player dto.PlayerDto) playerMovedServerMessage {
 	return playerMovedServerMessage{
 		Name:   playerMovedServerMessageName,
 		Player: player,

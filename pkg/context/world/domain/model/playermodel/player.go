@@ -100,6 +100,10 @@ func (player *Player) Move(position worldcommonmodel.Position, direction worldco
 	player.direction = direction
 }
 
+func (player *Player) Teleport(position worldcommonmodel.Position) {
+	player.position = position
+}
+
 func (player *Player) GetDirection() worldcommonmodel.Direction {
 	return player.direction
 }

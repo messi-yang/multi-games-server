@@ -6,10 +6,10 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 )
 
@@ -67,17 +67,22 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 		return worldId, err
 	}
 
-	items, err := worldServe.itemRepo.GetAll()
+	itemsForStaticUnitType, err := worldServe.itemRepo.GetItemsOfCompatibleUnitType(worldcommonmodel.NewStaticUnitType())
 	if err != nil {
 		return worldId, err
 	}
 
 	if err = commonutil.RangeMatrix(100, 100, func(x int, z int) error {
-		randomInt := rand.Intn(len(items) * 5)
+		randomInt := rand.Intn(len(itemsForStaticUnitType) * 5)
 		position := worldcommonmodel.NewPosition(x-50, z-50)
-		if randomInt < len(items) {
+		if randomInt < len(itemsForStaticUnitType) {
 			newUnit := unitmodel.NewUnit(
-				worldId, position, items[randomInt].GetId(), worldcommonmodel.NewDownDirection(),
+				worldId,
+				position,
+				itemsForStaticUnitType[randomInt].GetId(),
+				worldcommonmodel.NewDownDirection(),
+				itemsForStaticUnitType[randomInt].GetCompatibleUnitType(),
+				nil,
 			)
 			if err = worldServe.unitRepo.Add(newUnit); err != nil {
 				return err

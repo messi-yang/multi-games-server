@@ -4,9 +4,9 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
 	"github.com/samber/lo"
 )
@@ -15,6 +15,7 @@ type Service interface {
 	GetUnits(GetUnitsQuery) (unitDtos []dto.UnitDto, err error)
 	GetUnit(GetUnitQuery) (dto.UnitDto, error)
 	CreateStaticUnit(CreateStaticUnitCommand) error
+	CreatePortalUnit(CreatePortalUnitCommand) error
 	RemoveUnit(RemoveUnitCommand) error
 }
 
@@ -68,6 +69,18 @@ func (serve *serve) CreateStaticUnit(command CreateStaticUnitCommand) error {
 	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
 
 	return serve.unitService.CreateStaticUnit(
+		worldId,
+		worldcommonmodel.NewItemId(command.ItemId),
+		position,
+		worldcommonmodel.NewDirection(command.Direction),
+	)
+}
+
+func (serve *serve) CreatePortalUnit(command CreatePortalUnitCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+
+	return serve.unitService.CreatePortalUnit(
 		worldId,
 		worldcommonmodel.NewItemId(command.ItemId),
 		position,

@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/google/uuid"
 )
 
 type Unit struct {
@@ -12,6 +13,8 @@ type Unit struct {
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
 	direction            worldcommonmodel.Direction
+	_type                worldcommonmodel.UnitType
+	linkedUnitId         *uuid.UUID
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -23,6 +26,8 @@ func NewUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	_type worldcommonmodel.UnitType,
+	linkedUnitId *uuid.UUID,
 ) Unit {
 	return Unit{
 		id:                   NewUnitId(worldId, position),
@@ -30,6 +35,8 @@ func NewUnit(
 		position:             position,
 		itemId:               itemId,
 		direction:            direction,
+		_type:                _type,
+		linkedUnitId:         linkedUnitId,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -40,6 +47,8 @@ func LoadUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	_type worldcommonmodel.UnitType,
+	linkedUnitId *uuid.UUID,
 ) Unit {
 	return Unit{
 		id:                   id,
@@ -47,6 +56,8 @@ func LoadUnit(
 		position:             position,
 		itemId:               itemId,
 		direction:            direction,
+		_type:                _type,
+		linkedUnitId:         linkedUnitId,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -73,4 +84,12 @@ func (unit *Unit) GetItemId() worldcommonmodel.ItemId {
 
 func (unit *Unit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
+}
+
+func (unit *Unit) GetType() worldcommonmodel.UnitType {
+	return unit._type
+}
+
+func (unit *Unit) GetLinkedUnitId() *uuid.UUID {
+	return unit.linkedUnitId
 }

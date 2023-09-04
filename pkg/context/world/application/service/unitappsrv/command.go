@@ -12,6 +12,14 @@ type CreateStaticUnitCommand struct {
 	Direction int8
 }
 
+type CreatePortalUnitCommand struct {
+	WorldId        uuid.UUID
+	ItemId         uuid.UUID
+	Position       dto.PositionDto
+	Direction      int8
+	TargetPosition *dto.PositionDto
+}
+
 type RemoveUnitCommand struct {
 	WorldId  uuid.UUID
 	Position dto.PositionDto
