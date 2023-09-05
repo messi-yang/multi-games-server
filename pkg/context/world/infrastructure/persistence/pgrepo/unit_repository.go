@@ -1,8 +1,6 @@
 package pgrepo
 
 import (
-	"math/rand"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -16,13 +14,12 @@ import (
 
 func newUnitModel(unit unitmodel.Unit) pgmodel.UnitModel {
 	return pgmodel.UnitModel{
-		WorldId:      unit.GetWorldId().Uuid(),
-		PosX:         unit.GetPosition().GetX(),
-		PosZ:         unit.GetPosition().GetZ(),
-		ItemId:       unit.GetItemId().Uuid(),
-		Direction:    unit.GetDirection().Int8(),
-		Type:         pgmodel.UnitTypeEnum(unit.GetType().String()),
-		LinkedUnitId: unit.GetLinkedUnitId(),
+		WorldId:   unit.GetWorldId().Uuid(),
+		PosX:      unit.GetPosition().GetX(),
+		PosZ:      unit.GetPosition().GetZ(),
+		ItemId:    unit.GetItemId().Uuid(),
+		Direction: unit.GetDirection().Int8(),
+		Type:      pgmodel.UnitTypeEnum(unit.GetType().String()),
 	}
 }
 
@@ -40,7 +37,6 @@ func parseUnitModel(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err error
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		unitType,
-		unitModel.LinkedUnitId,
 	), nil
 }
 
@@ -95,16 +91,16 @@ func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
 	return repo.domainEventDispatcher.Dispatch(&unit)
 }
 
-func (repo *unitRepo) GetUnitAt(
-	worldId globalcommonmodel.WorldId, position worldcommonmodel.Position,
+func (repo *unitRepo) Find(
+	unitId unitmodel.UnitId,
 ) (*unitmodel.Unit, error) {
 	unitModels := []pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
-			worldId.Uuid(),
-			position.GetX(),
-			position.GetZ(),
+			unitId.GetWorldId().Uuid(),
+			unitId.GetPosition().GetX(),
+			unitId.GetPosition().GetZ(),
 		).Limit(1).Find(&unitModels).Error
 	}); err != nil {
 		return nil, err
@@ -120,29 +116,6 @@ func (repo *unitRepo) GetUnitAt(
 	}
 
 	return commonutil.ToPointer(unit), nil
-}
-func (repo *unitRepo) GetRandomPortalUnit(worldId globalcommonmodel.WorldId) (unit *unitmodel.Unit, err error) {
-	var unitModels []pgmodel.UnitModel
-	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Where(
-			"world_id = ? AND type = ?",
-			worldId.Uuid(),
-			worldcommonmodel.NewPortalUnitType().String(),
-		).Find(&unitModels, pgmodel.UnitModel{}).Error
-	}); err != nil {
-		return unit, err
-	}
-
-	if len(unitModels) == 0 {
-		return nil, nil
-	}
-
-	randomInt := rand.Intn(len(unitModels))
-	randomUnitModel, err := parseUnitModel(unitModels[randomInt])
-	if err != nil {
-		return nil, err
-	}
-	return commonutil.ToPointer(randomUnitModel), err
 }
 
 func (repo *unitRepo) GetUnitsOfWorld(

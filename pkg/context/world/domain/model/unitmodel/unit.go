@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/google/uuid"
 )
 
 type Unit struct {
@@ -14,7 +13,6 @@ type Unit struct {
 	itemId               worldcommonmodel.ItemId
 	direction            worldcommonmodel.Direction
 	_type                worldcommonmodel.UnitType
-	linkedUnitId         *uuid.UUID
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -27,7 +25,6 @@ func NewUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 	_type worldcommonmodel.UnitType,
-	linkedUnitId *uuid.UUID,
 ) Unit {
 	return Unit{
 		id:                   NewUnitId(worldId, position),
@@ -36,7 +33,6 @@ func NewUnit(
 		itemId:               itemId,
 		direction:            direction,
 		_type:                _type,
-		linkedUnitId:         linkedUnitId,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -48,7 +44,6 @@ func LoadUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 	_type worldcommonmodel.UnitType,
-	linkedUnitId *uuid.UUID,
 ) Unit {
 	return Unit{
 		id:                   id,
@@ -57,7 +52,6 @@ func LoadUnit(
 		itemId:               itemId,
 		direction:            direction,
 		_type:                _type,
-		linkedUnitId:         linkedUnitId,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -88,8 +82,4 @@ func (unit *Unit) GetDirection() worldcommonmodel.Direction {
 
 func (unit *Unit) GetType() worldcommonmodel.UnitType {
 	return unit._type
-}
-
-func (unit *Unit) GetLinkedUnitId() *uuid.UUID {
-	return unit.linkedUnitId
 }

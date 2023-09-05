@@ -96,13 +96,14 @@ func (serve *serve) Move(command MoveCommand) error {
 	nextPosition := player.GetPositionOneStepFoward()
 	player.Move(nextPosition, direction)
 
-	unitAtNextPosition, err := serve.unitRepo.GetUnitAt(worldId, nextPosition)
+	unitAtNextPosition, err := serve.unitRepo.Find(unitmodel.NewUnitId(worldId, nextPosition))
 	if err != nil {
 		return err
 	}
 
 	if unitAtNextPosition != nil && unitAtNextPosition.GetType().IsPortal() {
-		portalUnit, err := serve.portalUnitRepo.Get(unitmodel.NewPortalUnitId(*unitAtNextPosition.GetLinkedUnitId()))
+		portalUnitId := unitmodel.NewUnitId(worldId, nextPosition)
+		portalUnit, err := serve.portalUnitRepo.Get(portalUnitId)
 		if err != nil {
 			return err
 		}

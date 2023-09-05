@@ -9,13 +9,15 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/samber/lo"
 )
 
 var (
-	errUnitExceededBoundary          = fmt.Errorf("unit exceeded the boundary of the world")
-	errItemIsNotForStaticUnit        = fmt.Errorf("item is not for static unit")
-	errItemIsNotForPortalUnit        = fmt.Errorf("item is not for portal unit")
-	errTargetPositionHasNoPortalUnit = fmt.Errorf("target position has no portal unit")
+	errUnitExceededBoundary   = fmt.Errorf("unit exceeded the boundary of the world")
+	errItemIsNotForStaticUnit = fmt.Errorf("item is not for static unit")
+	errItemIsNotForPortalUnit = fmt.Errorf("item is not for portal unit")
+	errUnitIsNotStatic        = fmt.Errorf("unit is not static")
+	// errTargetPositionHasNoPortalUnit = fmt.Errorf("target position has no portal unit")
 )
 
 type UnitService interface {
@@ -26,7 +28,8 @@ type UnitService interface {
 		position worldcommonmodel.Position,
 		direction worldcommonmodel.Direction,
 	) error
-	RemoveUnit(globalcommonmodel.WorldId, worldcommonmodel.Position) error
+	RemovePortalUnit(unitmodel.UnitId) error
+	RemoveStaticUnit(unitmodel.UnitId) error
 }
 
 type unitServe struct {
@@ -78,7 +81,7 @@ func (unitServe *unitServe) CreateStaticUnit(
 		return nil
 	}
 
-	unit, err := unitServe.unitRepo.GetUnitAt(worldId, position)
+	unit, err := unitServe.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
 	if err != nil {
 		return err
 	}
@@ -86,7 +89,7 @@ func (unitServe *unitServe) CreateStaticUnit(
 		return nil
 	}
 
-	newUnit := unitmodel.NewUnit(worldId, position, itemId, direction, item.GetCompatibleUnitType(), nil)
+	newUnit := unitmodel.NewUnit(worldId, position, itemId, direction, item.GetCompatibleUnitType())
 	return unitServe.unitRepo.Add(newUnit)
 }
 
@@ -118,45 +121,36 @@ func (unitServe *unitServe) CreatePortalUnit(
 		return nil
 	}
 
-	unit, err := unitServe.unitRepo.GetUnitAt(worldId, position)
+	existingUnit, err := unitServe.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
 	if err != nil {
 		return err
 	}
-	if unit != nil {
+	if existingUnit != nil {
 		return nil
 	}
 
-	portalUnit := unitmodel.NewPortalUnit(nil)
-
-	randomPortalUnit, err := unitServe.unitRepo.GetRandomPortalUnit(worldId)
+	randomPortalUnit, err := unitServe.portalUnitRepo.GetRandomPortalUnit(worldId)
 	if err != nil {
 		return err
 	}
 
-	if randomPortalUnit != nil {
-		portalUnit.UpdateTargetPosition(commonutil.ToPointer(randomPortalUnit.GetPosition()))
-	}
-	if err = unitServe.portalUnitRepo.Add(portalUnit); err != nil {
-		return err
-	}
-
-	newUnit := unitmodel.NewUnit(
+	newPortalUnit := unitmodel.NewPortalUnit(
 		worldId,
 		position,
 		itemId,
 		direction,
-		item.GetCompatibleUnitType(),
-		commonutil.ToPointer(portalUnit.GetId().Uuid()),
+		lo.TernaryF[*worldcommonmodel.Position](
+			randomPortalUnit == nil,
+			func() *worldcommonmodel.Position { return nil },
+			func() *worldcommonmodel.Position { return commonutil.ToPointer(randomPortalUnit.GetPosition()) },
+		),
 	)
-	return unitServe.unitRepo.Add(newUnit)
+
+	return unitServe.portalUnitRepo.Add(newPortalUnit)
 }
 
-func (unitServe *unitServe) RemoveUnit(worldId globalcommonmodel.WorldId, position worldcommonmodel.Position) error {
-	if _, err := unitServe.worldRepo.Get(worldId); err != nil {
-		return err
-	}
-
-	unit, err := unitServe.unitRepo.GetUnitAt(worldId, position)
+func (unitServe *unitServe) RemoveStaticUnit(unitId unitmodel.UnitId) error {
+	unit, err := unitServe.unitRepo.Find(unitId)
 	if err != nil {
 		return err
 	}
@@ -164,15 +158,19 @@ func (unitServe *unitServe) RemoveUnit(worldId globalcommonmodel.WorldId, positi
 		return nil
 	}
 
-	if unit.GetType().IsPortal() {
-		portalUnit, err := unitServe.portalUnitRepo.Get(unitmodel.NewPortalUnitId(*unit.GetLinkedUnitId()))
-		if err != nil {
-			return err
-		}
-		if err = unitServe.portalUnitRepo.Delete(portalUnit); err != nil {
-			return err
-		}
+	if !unit.GetType().IsEqual(worldcommonmodel.NewStaticUnitType()) {
+		return errUnitIsNotStatic
 	}
 
 	return unitServe.unitRepo.Delete(*unit)
+}
+
+func (unitServe *unitServe) RemovePortalUnit(unitId unitmodel.UnitId) error {
+	portalUnit, err := unitServe.portalUnitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+
+	portalUnit.Delete()
+	return unitServe.portalUnitRepo.Delete(portalUnit)
 }

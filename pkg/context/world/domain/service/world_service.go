@@ -82,7 +82,6 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 				itemsForStaticUnitType[randomInt].GetId(),
 				worldcommonmodel.NewDownDirection(),
 				itemsForStaticUnitType[randomInt].GetCompatibleUnitType(),
-				nil,
 			)
 			if err = worldServe.unitRepo.Add(newUnit); err != nil {
 				return err

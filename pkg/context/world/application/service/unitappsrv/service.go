@@ -17,6 +17,8 @@ type Service interface {
 	CreateStaticUnit(CreateStaticUnitCommand) error
 	CreatePortalUnit(CreatePortalUnitCommand) error
 	RemoveUnit(RemoveUnitCommand) error
+	HandlePortalUnitCreatedDomainEvent(unitmodel.PortalUnitCreated) error
+	HandlePortalUnitDeletedDomainEvent(unitmodel.PortalUnitDeleted) error
 }
 
 type serve struct {
@@ -89,8 +91,40 @@ func (serve *serve) CreatePortalUnit(command CreatePortalUnitCommand) error {
 }
 
 func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
-	return serve.unitService.RemoveUnit(
-		globalcommonmodel.NewWorldId(command.WorldId),
-		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+	unitId := unitmodel.NewUnitId(worldId, position)
+	unit, err := serve.unitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+
+	if unit.GetType().IsEqual(worldcommonmodel.NewPortalUnitType()) {
+		return serve.unitService.RemovePortalUnit(unitId)
+	} else if unit.GetType().IsEqual(worldcommonmodel.NewStaticUnitType()) {
+		return serve.unitService.RemoveStaticUnit(unitId)
+	}
+
+	return nil
+}
+func (serve *serve) HandlePortalUnitCreatedDomainEvent(portalCreated unitmodel.PortalUnitCreated) error {
+	portalUnit := portalCreated.GetPortalUnit()
+
+	newUnit := unitmodel.NewUnit(
+		portalUnit.GetWorldId(),
+		portalUnit.GetPosition(),
+		portalUnit.GetItemId(),
+		portalUnit.GetDirection(),
+		worldcommonmodel.NewPortalUnitType(),
 	)
+	return serve.unitRepo.Add(newUnit)
+}
+
+func (serve *serve) HandlePortalUnitDeletedDomainEvent(portalDeleted unitmodel.PortalUnitDeleted) error {
+	portalUnit := portalDeleted.GetPortalUnit()
+	unit, err := serve.unitRepo.Get(portalUnit.GetId())
+	if err != nil {
+		return err
+	}
+	return serve.unitRepo.Delete(unit)
 }

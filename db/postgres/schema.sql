@@ -65,6 +65,23 @@ CREATE TABLE public.items (
 ALTER TABLE public.items OWNER TO main;
 
 --
+-- Name: portal_units; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.portal_units (
+    world_id uuid NOT NULL,
+    pos_x integer NOT NULL,
+    pos_z integer NOT NULL,
+    item_id uuid NOT NULL,
+    direction integer NOT NULL,
+    target_pos_x integer,
+    target_pos_z integer
+);
+
+
+ALTER TABLE public.portal_units OWNER TO main;
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -191,6 +208,14 @@ ALTER TABLE ONLY public.items
 
 
 --
+-- Name: portal_units portal_unit_world_id_pos_x_pos_z; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.portal_units
+    ADD CONSTRAINT portal_unit_world_id_pos_x_pos_z UNIQUE (world_id, pos_x, pos_z);
+
+
+--
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -291,6 +316,14 @@ ALTER TABLE ONLY public.units
 
 
 --
+-- Name: portal_units fk_item; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.portal_units
+    ADD CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES public.items(id);
+
+
+--
 -- Name: world_accounts fk_user; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -327,6 +360,14 @@ ALTER TABLE ONLY public.units
 --
 
 ALTER TABLE ONLY public.world_members
+    ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
+
+
+--
+-- Name: portal_units fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.portal_units
     ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
 
 
