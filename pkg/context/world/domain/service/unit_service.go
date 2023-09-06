@@ -207,6 +207,20 @@ func (unitServe *unitServe) RemovePortalUnit(unitId unitmodel.UnitId) error {
 		return err
 	}
 
+	unitPointingToDeletedUnit, err := unitServe.portalUnitRepo.FindPortalUnitWithTargetPosition(
+		portalUnit.GetWorldId(),
+		portalUnit.GetPosition(),
+	)
+	if err != nil {
+		return err
+	}
+	if unitPointingToDeletedUnit != nil {
+		unitPointingToDeletedUnit.UpdateTargetPosition(nil)
+		if err = unitServe.portalUnitRepo.Update(*unitPointingToDeletedUnit); err != nil {
+			return err
+		}
+	}
+
 	portalUnit.Delete()
 	return unitServe.portalUnitRepo.Delete(portalUnit)
 }

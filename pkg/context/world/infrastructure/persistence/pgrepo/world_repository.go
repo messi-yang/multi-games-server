@@ -72,7 +72,7 @@ func (repo *worldRepo) Update(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
 	worldModel.UpdatedAt = time.Now()
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Save(&worldModel).Error
+		return transaction.Updates(&worldModel).Error
 	}); err != nil {
 		return err
 	}

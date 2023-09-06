@@ -69,7 +69,7 @@ func (repo *userRepo) Update(user usermodel.User) error {
 	userModel := newUserModel(user)
 	userModel.UpdatedAt = time.Now()
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Save(&userModel).Error
+		return transaction.Updates(&userModel).Error
 	}); err != nil {
 		return err
 	}

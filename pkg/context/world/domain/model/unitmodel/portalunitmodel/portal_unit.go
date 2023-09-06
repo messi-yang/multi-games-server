@@ -87,6 +87,10 @@ func (portalUnit *PortalUnit) GetTargetPosition() *worldcommonmodel.Position {
 	return portalUnit.targetPosition
 }
 
+func (portalUnit *PortalUnit) UpdateTargetPosition(targetPosition *worldcommonmodel.Position) {
+	portalUnit.targetPosition = targetPosition
+}
+
 func (portalUnit *PortalUnit) Delete() {
 	portalUnit.domainEventCollector.Add(NewPortalUnitDeleted(*portalUnit))
 }

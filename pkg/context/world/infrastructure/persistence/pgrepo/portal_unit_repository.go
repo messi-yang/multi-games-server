@@ -98,6 +98,21 @@ func (repo *portalUnitRepo) Get(unitId unitmodel.UnitId) (unit portalunitmodel.P
 	return parsePortalUnitModel(portalUnitModel)
 }
 
+func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error {
+	portalUnitModel := newPortalUnitModel(portalUnit)
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Model(&pgmodel.PortalUnitModel{}).Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			portalUnit.GetWorldId().Uuid(),
+			portalUnit.GetPosition().GetX(),
+			portalUnit.GetPosition().GetZ(),
+		).Select("*").Updates(portalUnitModel).Error
+	}); err != nil {
+		return err
+	}
+	return repo.domainEventDispatcher.Dispatch(&portalUnit)
+}
+
 func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error {
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
@@ -133,4 +148,29 @@ func (repo *portalUnitRepo) GetRandomPortalUnit(worldId globalcommonmodel.WorldI
 		return nil, err
 	}
 	return commonutil.ToPointer(randomPortalUnit), err
+}
+
+func (repo *portalUnitRepo) FindPortalUnitWithTargetPosition(worldId globalcommonmodel.WorldId, targetPosition worldcommonmodel.Position) (*portalunitmodel.PortalUnit, error) {
+	portalUnitModels := []pgmodel.PortalUnitModel{}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND target_pos_x = ? AND target_pos_z = ?",
+			worldId.Uuid(),
+			targetPosition.GetX(),
+			targetPosition.GetZ(),
+		).Limit(1).Find(&portalUnitModels).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	if len(portalUnitModels) == 0 {
+		return nil, nil
+	}
+
+	portalUnit, err := parsePortalUnitModel(portalUnitModels[0])
+	if err != nil {
+		return nil, err
+	}
+
+	return commonutil.ToPointer(portalUnit), nil
 }

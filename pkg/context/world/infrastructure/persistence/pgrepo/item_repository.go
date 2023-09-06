@@ -66,7 +66,7 @@ func (repo *itemRepo) Add(item itemmodel.Item) error {
 func (repo *itemRepo) Update(item itemmodel.Item) error {
 	itemModel := newItemModel(item)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Save(&itemModel).Error
+		return transaction.Updates(&itemModel).Error
 	}); err != nil {
 		return err
 	}
