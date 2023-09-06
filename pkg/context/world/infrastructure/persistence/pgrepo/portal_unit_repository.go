@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/samber/lo"
@@ -15,7 +16,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newPortalUnitModel(portalUnit unitmodel.PortalUnit) pgmodel.PortalUnitModel {
+func newPortalUnitModel(portalUnit portalunitmodel.PortalUnit) pgmodel.PortalUnitModel {
 	targetPosition := portalUnit.GetTargetPosition()
 	return pgmodel.PortalUnitModel{
 		WorldId:   portalUnit.GetWorldId().Uuid(),
@@ -36,7 +37,7 @@ func newPortalUnitModel(portalUnit unitmodel.PortalUnit) pgmodel.PortalUnitModel
 	}
 }
 
-func parsePortalUnitModel(portalUnitModel pgmodel.PortalUnitModel) (unit unitmodel.PortalUnit, err error) {
+func parsePortalUnitModel(portalUnitModel pgmodel.PortalUnitModel) (unit portalunitmodel.PortalUnit, err error) {
 	worldId := globalcommonmodel.NewWorldId(portalUnitModel.WorldId)
 	pos := worldcommonmodel.NewPosition(portalUnitModel.PosX, portalUnitModel.PosZ)
 	targetPosition := lo.TernaryF(
@@ -49,7 +50,7 @@ func parsePortalUnitModel(portalUnitModel pgmodel.PortalUnitModel) (unit unitmod
 		},
 	)
 
-	return unitmodel.LoadPortalUnit(
+	return portalunitmodel.LoadPortalUnit(
 		unitmodel.NewUnitId(worldId, pos),
 		worldId,
 		pos,
@@ -64,14 +65,14 @@ type portalUnitRepo struct {
 	domainEventDispatcher domain.DomainEventDispatcher
 }
 
-func NewPortalUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository unitmodel.PortalUnitRepo) {
+func NewPortalUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatcher) (repository portalunitmodel.PortalUnitRepo) {
 	return &portalUnitRepo{
 		uow:                   uow,
 		domainEventDispatcher: domainEventDispatcher,
 	}
 }
 
-func (repo *portalUnitRepo) Add(portalUnit unitmodel.PortalUnit) error {
+func (repo *portalUnitRepo) Add(portalUnit portalunitmodel.PortalUnit) error {
 	portalUnitModel := newPortalUnitModel(portalUnit)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&portalUnitModel).Error
@@ -81,7 +82,7 @@ func (repo *portalUnitRepo) Add(portalUnit unitmodel.PortalUnit) error {
 	return repo.domainEventDispatcher.Dispatch(&portalUnit)
 }
 
-func (repo *portalUnitRepo) Get(unitId unitmodel.UnitId) (unit unitmodel.PortalUnit, err error) {
+func (repo *portalUnitRepo) Get(unitId unitmodel.UnitId) (unit portalunitmodel.PortalUnit, err error) {
 	portalUnitModel := pgmodel.PortalUnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
@@ -97,7 +98,7 @@ func (repo *portalUnitRepo) Get(unitId unitmodel.UnitId) (unit unitmodel.PortalU
 	return parsePortalUnitModel(portalUnitModel)
 }
 
-func (repo *portalUnitRepo) Delete(portalUnit unitmodel.PortalUnit) error {
+func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error {
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
@@ -111,7 +112,7 @@ func (repo *portalUnitRepo) Delete(portalUnit unitmodel.PortalUnit) error {
 	return repo.domainEventDispatcher.Dispatch(&portalUnit)
 }
 
-func (repo *portalUnitRepo) GetRandomPortalUnit(worldId globalcommonmodel.WorldId) (portalUnit *unitmodel.PortalUnit, err error) {
+func (repo *portalUnitRepo) GetRandomPortalUnit(worldId globalcommonmodel.WorldId) (portalUnit *portalunitmodel.PortalUnit, err error) {
 	var portalUnitModels []pgmodel.PortalUnitModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(

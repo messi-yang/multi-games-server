@@ -6,6 +6,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -21,7 +23,21 @@ var (
 )
 
 type UnitService interface {
-	CreateStaticUnit(globalcommonmodel.WorldId, worldcommonmodel.ItemId, worldcommonmodel.Position, worldcommonmodel.Direction) error
+	CreateUnit(
+		globalcommonmodel.WorldId,
+		worldcommonmodel.ItemId,
+		worldcommonmodel.Position,
+		worldcommonmodel.Direction,
+		worldcommonmodel.UnitType,
+	) error
+	RemoveUnit(unitmodel.UnitId) error
+	CreateStaticUnit(
+		globalcommonmodel.WorldId,
+		worldcommonmodel.ItemId,
+		worldcommonmodel.Position,
+		worldcommonmodel.Direction,
+	) error
+	RemoveStaticUnit(unitmodel.UnitId) error
 	CreatePortalUnit(
 		worldId globalcommonmodel.WorldId,
 		itemId worldcommonmodel.ItemId,
@@ -29,28 +45,48 @@ type UnitService interface {
 		direction worldcommonmodel.Direction,
 	) error
 	RemovePortalUnit(unitmodel.UnitId) error
-	RemoveStaticUnit(unitmodel.UnitId) error
 }
 
 type unitServe struct {
 	worldRepo      worldmodel.WorldRepo
 	unitRepo       unitmodel.UnitRepo
-	portalUnitRepo unitmodel.PortalUnitRepo
+	staticUnitRepo staticunitmodel.StaticUnitRepo
+	portalUnitRepo portalunitmodel.PortalUnitRepo
 	itemRepo       itemmodel.ItemRepo
 }
 
 func NewUnitService(
 	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
-	portalUnitRepo unitmodel.PortalUnitRepo,
+	staticUnitRepo staticunitmodel.StaticUnitRepo,
+	portalUnitRepo portalunitmodel.PortalUnitRepo,
 	itemRepo itemmodel.ItemRepo,
 ) UnitService {
 	return &unitServe{
 		worldRepo:      worldRepo,
 		unitRepo:       unitRepo,
+		staticUnitRepo: staticUnitRepo,
 		portalUnitRepo: portalUnitRepo,
 		itemRepo:       itemRepo,
 	}
+}
+
+func (unitServe *unitServe) CreateUnit(
+	worldId globalcommonmodel.WorldId,
+	itemId worldcommonmodel.ItemId,
+	position worldcommonmodel.Position,
+	direction worldcommonmodel.Direction,
+	_type worldcommonmodel.UnitType,
+) error {
+	return unitServe.unitRepo.Add(unitmodel.NewUnit(worldId, position, itemId, direction, _type))
+}
+
+func (unitServe *unitServe) RemoveUnit(unitId unitmodel.UnitId) error {
+	unit, err := unitServe.unitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+	return unitServe.unitRepo.Delete(unit)
 }
 
 func (unitServe *unitServe) CreateStaticUnit(
@@ -89,8 +125,8 @@ func (unitServe *unitServe) CreateStaticUnit(
 		return nil
 	}
 
-	newUnit := unitmodel.NewUnit(worldId, position, itemId, direction, item.GetCompatibleUnitType())
-	return unitServe.unitRepo.Add(newUnit)
+	newStaticUnit := staticunitmodel.NewStaticUnit(worldId, position, itemId, direction)
+	return unitServe.staticUnitRepo.Add(newStaticUnit)
 }
 
 func (unitServe *unitServe) CreatePortalUnit(
@@ -134,7 +170,7 @@ func (unitServe *unitServe) CreatePortalUnit(
 		return err
 	}
 
-	newPortalUnit := unitmodel.NewPortalUnit(
+	newPortalUnit := portalunitmodel.NewPortalUnit(
 		worldId,
 		position,
 		itemId,

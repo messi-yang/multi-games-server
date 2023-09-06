@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -22,13 +23,13 @@ type Service interface {
 type serve struct {
 	playerRepo     playermodel.PlayerRepo
 	unitRepo       unitmodel.UnitRepo
-	portalUnitRepo unitmodel.PortalUnitRepo
+	portalUnitRepo portalunitmodel.PortalUnitRepo
 }
 
 func NewService(
 	playerRepo playermodel.PlayerRepo,
 	unitRepo unitmodel.UnitRepo,
-	portalUnitRepo unitmodel.PortalUnitRepo,
+	portalUnitRepo portalunitmodel.PortalUnitRepo,
 ) Service {
 	return &serve{
 		playerRepo:     playerRepo,

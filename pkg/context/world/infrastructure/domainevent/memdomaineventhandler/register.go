@@ -2,7 +2,8 @@ package memdomaineventhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 )
 
@@ -10,6 +11,8 @@ func RegisterEvents() {
 	domainEventRegister := memdomainevent.NewRegister()
 	domainEventRegister.Register(worldmodel.WorldCreated{}, NewWorldCreatedHandler())
 	domainEventRegister.Register(worldmodel.WorldDeleted{}, NewWorldDeletedHandler())
-	domainEventRegister.Register(unitmodel.PortalUnitCreated{}, NewPortalUnitCreatedHandler())
-	domainEventRegister.Register(unitmodel.PortalUnitDeleted{}, NewPortalUnitDeletedHandler())
+	domainEventRegister.Register(portalunitmodel.PortalUnitCreated{}, NewPortalUnitCreatedHandler())
+	domainEventRegister.Register(portalunitmodel.PortalUnitDeleted{}, NewPortalUnitDeletedHandler())
+	domainEventRegister.Register(staticunitmodel.StaticUnitCreated{}, NewStaticUnitCreatedHandler())
+	domainEventRegister.Register(staticunitmodel.StaticUnitDeleted{}, NewPortalUnitDeletedHandler())
 }

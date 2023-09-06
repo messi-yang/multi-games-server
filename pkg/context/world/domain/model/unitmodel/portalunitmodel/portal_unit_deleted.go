@@ -1,4 +1,4 @@
-package unitmodel
+package portalunitmodel
 
 import (
 	"time"
