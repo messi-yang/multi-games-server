@@ -125,6 +125,7 @@ func (serve *serve) HandlePortalUnitCreatedDomainEvent(portalCreated portalunitm
 
 func (serve *serve) HandlePortalUnitDeletedDomainEvent(portalDeleted portalunitmodel.PortalUnitDeleted) error {
 	portalUnit := portalDeleted.GetPortalUnit()
+
 	return serve.unitService.RemoveUnit(portalUnit.GetId())
 }
 
@@ -142,5 +143,6 @@ func (serve *serve) HandleStaticUnitCreatedDomainEvent(staticCreated staticunitm
 
 func (serve *serve) HandleStaticUnitDeletedDomainEvent(staticDeleted staticunitmodel.StaticUnitDeleted) error {
 	staticUnit := staticDeleted.GetStaticUnit()
+
 	return serve.unitService.RemoveUnit(staticUnit.GetId())
 }

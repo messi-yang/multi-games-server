@@ -11,7 +11,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
-	"github.com/samber/lo"
 )
 
 var (
@@ -165,7 +164,7 @@ func (unitServe *unitServe) CreatePortalUnit(
 		return nil
 	}
 
-	randomPortalUnit, err := unitServe.portalUnitRepo.GetRandomPortalUnit(worldId)
+	portalUnitWithNoTarget, err := unitServe.portalUnitRepo.GetFirstPortalUnitWithNoTarget(worldId)
 	if err != nil {
 		return err
 	}
@@ -175,12 +174,16 @@ func (unitServe *unitServe) CreatePortalUnit(
 		position,
 		itemId,
 		direction,
-		lo.TernaryF[*worldcommonmodel.Position](
-			randomPortalUnit == nil,
-			func() *worldcommonmodel.Position { return nil },
-			func() *worldcommonmodel.Position { return commonutil.ToPointer(randomPortalUnit.GetPosition()) },
-		),
+		nil,
 	)
+
+	if portalUnitWithNoTarget != nil {
+		newPortalUnit.UpdateTargetPosition(commonutil.ToPointer(portalUnitWithNoTarget.GetPosition()))
+		portalUnitWithNoTarget.UpdateTargetPosition(&position)
+		if err = unitServe.portalUnitRepo.Update(*portalUnitWithNoTarget); err != nil {
+			return err
+		}
+	}
 
 	return unitServe.portalUnitRepo.Add(newPortalUnit)
 }
@@ -207,16 +210,17 @@ func (unitServe *unitServe) RemovePortalUnit(unitId unitmodel.UnitId) error {
 		return err
 	}
 
-	unitPointingToDeletedUnit, err := unitServe.portalUnitRepo.FindPortalUnitWithTargetPosition(
-		portalUnit.GetWorldId(),
-		portalUnit.GetPosition(),
-	)
-	if err != nil {
-		return err
-	}
-	if unitPointingToDeletedUnit != nil {
-		unitPointingToDeletedUnit.UpdateTargetPosition(nil)
-		if err = unitServe.portalUnitRepo.Update(*unitPointingToDeletedUnit); err != nil {
+	targetPosition := portalUnit.GetTargetPosition()
+	if targetPosition != nil {
+		portalUnitAtTargetPosition, err := unitServe.portalUnitRepo.Get(unitmodel.NewUnitId(
+			portalUnit.GetWorldId(),
+			*targetPosition,
+		))
+		if err != nil {
+			return err
+		}
+		portalUnitAtTargetPosition.UpdateTargetPosition(nil)
+		if err = unitServe.portalUnitRepo.Update(portalUnitAtTargetPosition); err != nil {
 			return err
 		}
 	}
