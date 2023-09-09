@@ -80,6 +80,10 @@ func (unit *Unit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
 }
 
+func (unit *Unit) UpdateDirection(newDirection worldcommonmodel.Direction) {
+	unit.direction = newDirection
+}
+
 func (unit *Unit) GetType() worldcommonmodel.UnitType {
 	return unit._type
 }

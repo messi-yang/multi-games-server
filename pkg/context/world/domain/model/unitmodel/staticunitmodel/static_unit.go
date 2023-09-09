@@ -25,7 +25,7 @@ func NewStaticUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 ) StaticUnit {
-	portalUnit := StaticUnit{
+	staticUnit := StaticUnit{
 		id:                   unitmodel.NewUnitId(worldId, position),
 		worldId:              worldId,
 		position:             position,
@@ -33,8 +33,8 @@ func NewStaticUnit(
 		direction:            direction,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	portalUnit.domainEventCollector.Add(NewStaticUnitCreated(portalUnit))
-	return portalUnit
+	staticUnit.domainEventCollector.Add(NewStaticUnitCreated(staticUnit))
+	return staticUnit
 }
 
 func LoadStaticUnit(
@@ -54,30 +54,35 @@ func LoadStaticUnit(
 	}
 }
 
-func (portalUnit *StaticUnit) PopDomainEvents() []domain.DomainEvent {
-	return portalUnit.domainEventCollector.PopAll()
+func (staticUnit *StaticUnit) PopDomainEvents() []domain.DomainEvent {
+	return staticUnit.domainEventCollector.PopAll()
 }
 
-func (portalUnit *StaticUnit) GetId() unitmodel.UnitId {
-	return portalUnit.id
+func (staticUnit *StaticUnit) GetId() unitmodel.UnitId {
+	return staticUnit.id
 }
 
-func (portalUnit *StaticUnit) GetWorldId() globalcommonmodel.WorldId {
-	return portalUnit.worldId
+func (staticUnit *StaticUnit) GetWorldId() globalcommonmodel.WorldId {
+	return staticUnit.worldId
 }
 
-func (portalUnit *StaticUnit) GetPosition() worldcommonmodel.Position {
-	return portalUnit.position
+func (staticUnit *StaticUnit) GetPosition() worldcommonmodel.Position {
+	return staticUnit.position
 }
 
-func (portalUnit *StaticUnit) GetItemId() worldcommonmodel.ItemId {
-	return portalUnit.itemId
+func (staticUnit *StaticUnit) GetItemId() worldcommonmodel.ItemId {
+	return staticUnit.itemId
 }
 
-func (portalUnit *StaticUnit) GetDirection() worldcommonmodel.Direction {
-	return portalUnit.direction
+func (staticUnit *StaticUnit) GetDirection() worldcommonmodel.Direction {
+	return staticUnit.direction
 }
 
-func (portalUnit *StaticUnit) Delete() {
-	portalUnit.domainEventCollector.Add(NewStaticUnitDeleted(*portalUnit))
+func (staticUnit *StaticUnit) Rotate() {
+	staticUnit.direction = staticUnit.direction.Rotate()
+	staticUnit.domainEventCollector.Add(NewStaticUnitUpdated(*staticUnit))
+}
+
+func (staticUnit *StaticUnit) Delete() {
+	staticUnit.domainEventCollector.Add(NewStaticUnitDeleted(*staticUnit))
 }

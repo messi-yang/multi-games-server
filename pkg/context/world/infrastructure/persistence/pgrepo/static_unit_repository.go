@@ -41,6 +41,10 @@ func (repo *staticUnitRepo) Add(staticUnit staticunitmodel.StaticUnit) error {
 	return repo.domainEventDispatcher.Dispatch(&staticUnit)
 }
 
+func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error {
+	return repo.domainEventDispatcher.Dispatch(&staticUnit)
+}
+
 func (repo *staticUnitRepo) Get(unitId unitmodel.UnitId) (unit staticunitmodel.StaticUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {

@@ -11,6 +11,7 @@ type serverMessageName string
 
 const (
 	unitCreatedServerMessageName  serverMessageName = "UNIT_CREATED"
+	unitUpdatedServerMessageName  serverMessageName = "UNIT_UPDATED"
 	unitDeletedServerMessageName  serverMessageName = "UNIT_DELETED"
 	playerJoinedServerMessageName serverMessageName = "PLAYER_JOINED"
 	playerLeftServerMessageName   serverMessageName = "PLAYER_LEFT"
@@ -26,9 +27,21 @@ type unitCreatedServerMessage struct {
 	Unit dto.UnitDto
 }
 
-func newunitCreatedServerMessage(unit dto.UnitDto) unitCreatedServerMessage {
+func newUnitCreatedServerMessage(unit dto.UnitDto) unitCreatedServerMessage {
 	return unitCreatedServerMessage{
 		Name: unitCreatedServerMessageName,
+		Unit: unit,
+	}
+}
+
+type unitUpdatedServerMessage struct {
+	Name serverMessageName
+	Unit dto.UnitDto
+}
+
+func newUnitUpdatedServerMessage(unit dto.UnitDto) unitUpdatedServerMessage {
+	return unitUpdatedServerMessage{
+		Name: unitUpdatedServerMessageName,
 		Unit: unit,
 	}
 }
@@ -39,7 +52,7 @@ type unitDeletedServerMessage struct {
 	Position dto.PositionDto
 }
 
-func newunitDeletedServerMessage(worldId uuid.UUID, position dto.PositionDto) unitDeletedServerMessage {
+func newUnitDeletedServerMessage(worldId uuid.UUID, position dto.PositionDto) unitDeletedServerMessage {
 	return unitDeletedServerMessage{
 		Name:     unitDeletedServerMessageName,
 		WorldId:  worldId,
@@ -52,7 +65,7 @@ type playerJoinedServerMessage struct {
 	Player dto.PlayerDto
 }
 
-func newplayerJoinedServerMessage(player dto.PlayerDto) playerJoinedServerMessage {
+func newPlayerJoinedServerMessage(player dto.PlayerDto) playerJoinedServerMessage {
 	return playerJoinedServerMessage{
 		Name:   playerJoinedServerMessageName,
 		Player: player,
@@ -64,7 +77,7 @@ type playerLeftServerMessage struct {
 	PlayerId uuid.UUID
 }
 
-func newplayerLeftServerMessage(playerId uuid.UUID) playerLeftServerMessage {
+func newPlayerLeftServerMessage(playerId uuid.UUID) playerLeftServerMessage {
 	return playerLeftServerMessage{
 		Name:     playerLeftServerMessageName,
 		PlayerId: playerId,

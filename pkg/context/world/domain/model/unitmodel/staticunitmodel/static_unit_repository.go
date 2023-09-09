@@ -6,6 +6,7 @@ import (
 
 type StaticUnitRepo interface {
 	Add(StaticUnit) error
+	Update(StaticUnit) error
 	Get(unitmodel.UnitId) (StaticUnit, error)
 	Delete(StaticUnit) error
 }

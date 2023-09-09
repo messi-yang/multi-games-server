@@ -91,6 +91,11 @@ func (portalUnit *PortalUnit) UpdateTargetPosition(targetPosition *worldcommonmo
 	portalUnit.targetPosition = targetPosition
 }
 
+func (portalUnit *PortalUnit) Rotate() {
+	portalUnit.direction = portalUnit.direction.Rotate()
+	portalUnit.domainEventCollector.Add(NewPortalUnitUpdated(*portalUnit))
+}
+
 func (portalUnit *PortalUnit) Delete() {
 	portalUnit.domainEventCollector.Add(NewPortalUnitDeleted(*portalUnit))
 }

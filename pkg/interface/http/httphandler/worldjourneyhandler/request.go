@@ -13,6 +13,7 @@ const (
 	changeHeldItemRequestType   RequestType = "CHANGE_HELD_ITEM"
 	createStaticUnitRequestType RequestType = "CREATE_STATIC_UNIT"
 	createPortalUnitRequestType RequestType = "CREATE_PORTAL_UNIT"
+	rotateUnitRequestType       RequestType = "ROTATE_UNIT"
 	removeUnitRequestType       RequestType = "REMOVE_UNIT"
 )
 
@@ -42,6 +43,11 @@ type createPortalUnitRequest struct {
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`
 	Direction int8            `json:"direction"`
+}
+
+type rotateUnitRequest struct {
+	Type     RequestType     `json:"type"`
+	Position dto.PositionDto `json:"position"`
 }
 
 type removeUnitRequest struct {

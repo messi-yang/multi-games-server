@@ -29,6 +29,10 @@ type UnitService interface {
 		worldcommonmodel.Direction,
 		worldcommonmodel.UnitType,
 	) error
+	UpdateUnit(
+		unitmodel.UnitId,
+		worldcommonmodel.Direction,
+	) error
 	RemoveUnit(unitmodel.UnitId) error
 	CreateStaticUnit(
 		globalcommonmodel.WorldId,
@@ -36,6 +40,7 @@ type UnitService interface {
 		worldcommonmodel.Position,
 		worldcommonmodel.Direction,
 	) error
+	RotateStaticUnit(unitmodel.UnitId) error
 	RemoveStaticUnit(unitmodel.UnitId) error
 	CreatePortalUnit(
 		worldId globalcommonmodel.WorldId,
@@ -43,6 +48,7 @@ type UnitService interface {
 		position worldcommonmodel.Position,
 		direction worldcommonmodel.Direction,
 	) error
+	RotatePortalUnit(unitmodel.UnitId) error
 	RemovePortalUnit(unitmodel.UnitId) error
 }
 
@@ -78,6 +84,15 @@ func (unitServe *unitServe) CreateUnit(
 	_type worldcommonmodel.UnitType,
 ) error {
 	return unitServe.unitRepo.Add(unitmodel.NewUnit(worldId, position, itemId, direction, _type))
+}
+
+func (unitServe *unitServe) UpdateUnit(unitId unitmodel.UnitId, direction worldcommonmodel.Direction) error {
+	unit, err := unitServe.unitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+	unit.UpdateDirection(direction)
+	return unitServe.unitRepo.Update(unit)
 }
 
 func (unitServe *unitServe) RemoveUnit(unitId unitmodel.UnitId) error {
@@ -126,6 +141,26 @@ func (unitServe *unitServe) CreateStaticUnit(
 
 	newStaticUnit := staticunitmodel.NewStaticUnit(worldId, position, itemId, direction)
 	return unitServe.staticUnitRepo.Add(newStaticUnit)
+}
+
+func (unitServe *unitServe) RotateStaticUnit(unitId unitmodel.UnitId) error {
+	unit, err := unitServe.staticUnitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+	unit.Rotate()
+
+	return unitServe.staticUnitRepo.Update(unit)
+}
+
+func (unitServe *unitServe) RemoveStaticUnit(unitId unitmodel.UnitId) error {
+	unit, err := unitServe.staticUnitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+
+	unit.Delete()
+	return unitServe.staticUnitRepo.Delete(unit)
 }
 
 func (unitServe *unitServe) CreatePortalUnit(
@@ -188,43 +223,37 @@ func (unitServe *unitServe) CreatePortalUnit(
 	return unitServe.portalUnitRepo.Add(newPortalUnit)
 }
 
-func (unitServe *unitServe) RemoveStaticUnit(unitId unitmodel.UnitId) error {
-	unit, err := unitServe.unitRepo.Find(unitId)
+func (unitServe *unitServe) RotatePortalUnit(unitId unitmodel.UnitId) error {
+	unit, err := unitServe.portalUnitRepo.Get(unitId)
 	if err != nil {
 		return err
 	}
-	if unit == nil {
-		return nil
-	}
+	unit.Rotate()
 
-	if !unit.GetType().IsEqual(worldcommonmodel.NewStaticUnitType()) {
-		return errUnitIsNotStatic
-	}
-
-	return unitServe.unitRepo.Delete(*unit)
+	return unitServe.portalUnitRepo.Update(unit)
 }
 
 func (unitServe *unitServe) RemovePortalUnit(unitId unitmodel.UnitId) error {
-	portalUnit, err := unitServe.portalUnitRepo.Get(unitId)
+	unit, err := unitServe.portalUnitRepo.Get(unitId)
 	if err != nil {
 		return err
 	}
 
-	targetPosition := portalUnit.GetTargetPosition()
+	targetPosition := unit.GetTargetPosition()
 	if targetPosition != nil {
-		portalUnitAtTargetPosition, err := unitServe.portalUnitRepo.Get(unitmodel.NewUnitId(
-			portalUnit.GetWorldId(),
+		unitAtTargetPosition, err := unitServe.portalUnitRepo.Get(unitmodel.NewUnitId(
+			unit.GetWorldId(),
 			*targetPosition,
 		))
 		if err != nil {
 			return err
 		}
-		portalUnitAtTargetPosition.UpdateTargetPosition(nil)
-		if err = unitServe.portalUnitRepo.Update(portalUnitAtTargetPosition); err != nil {
+		unitAtTargetPosition.UpdateTargetPosition(nil)
+		if err = unitServe.portalUnitRepo.Update(unitAtTargetPosition); err != nil {
 			return err
 		}
 	}
 
-	portalUnit.Delete()
-	return unitServe.portalUnitRepo.Delete(portalUnit)
+	unit.Delete()
+	return unitServe.portalUnitRepo.Delete(unit)
 }

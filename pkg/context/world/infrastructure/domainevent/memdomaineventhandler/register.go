@@ -11,8 +11,12 @@ func RegisterEvents() {
 	domainEventRegister := memdomainevent.NewRegister()
 	domainEventRegister.Register(worldmodel.WorldCreated{}, NewWorldCreatedHandler())
 	domainEventRegister.Register(worldmodel.WorldDeleted{}, NewWorldDeletedHandler())
+
 	domainEventRegister.Register(portalunitmodel.PortalUnitCreated{}, NewPortalUnitCreatedHandler())
+	domainEventRegister.Register(portalunitmodel.PortalUnitUpdated{}, NewPortalUnitUpdatedHandler())
 	domainEventRegister.Register(portalunitmodel.PortalUnitDeleted{}, NewPortalUnitDeletedHandler())
+
 	domainEventRegister.Register(staticunitmodel.StaticUnitCreated{}, NewStaticUnitCreatedHandler())
-	domainEventRegister.Register(staticunitmodel.StaticUnitDeleted{}, NewPortalUnitDeletedHandler())
+	domainEventRegister.Register(staticunitmodel.StaticUnitUpdated{}, NewStaticUnitUpdatedHandler())
+	domainEventRegister.Register(staticunitmodel.StaticUnitDeleted{}, NewStaticUnitDeletedHandler())
 }

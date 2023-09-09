@@ -20,6 +20,11 @@ type CreatePortalUnitCommand struct {
 	TargetPosition *dto.PositionDto
 }
 
+type RotateUnitCommand struct {
+	WorldId  uuid.UUID
+	Position dto.PositionDto
+}
+
 type RemoveUnitCommand struct {
 	WorldId  uuid.UUID
 	Position dto.PositionDto

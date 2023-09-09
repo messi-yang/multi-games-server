@@ -101,6 +101,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				httpHandler.sendUnitCreatedResponse(serverMessage.Unit, sendMessage)
+			case unitUpdatedServerMessageName:
+				serverMessage, err := jsonutil.Unmarshal[unitUpdatedServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendUnitUpdatedResponse(serverMessage.Unit, sendMessage)
 			case unitDeletedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[unitDeletedServerMessage](serverMessageBytes)
 				if err != nil {
@@ -236,6 +242,19 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err = httpHandler.broadcastUnitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
+			case rotateUnitRequestType:
+				requestDto, err := jsonutil.Unmarshal[rotateUnitRequest](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeRotateUnitCommand(worldIdDto, requestDto.Position); err != nil {
+					sendError(err)
+					break
+				}
+				if err = httpHandler.broadcastUnitUpdatedServerMessage(worldIdDto, requestDto.Position); err != nil {
+					sendError(err)
+				}
 			case removeUnitRequestType:
 				requestDto, err := jsonutil.Unmarshal[removeUnitRequest](message)
 				if err != nil {
@@ -271,7 +290,27 @@ func (httpHandler *HttpHandler) broadcastUnitCreatedServerMessage(worldIdDto uui
 
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newunitCreatedServerMessage(unitDto)),
+		jsonutil.Marshal(newUnitCreatedServerMessage(unitDto)),
+	)
+
+	return nil
+}
+
+func (httpHandler *HttpHandler) broadcastUnitUpdatedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+	uow := pguow.NewDummyUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	unitDto, err := unitAppService.GetUnit(unitappsrv.GetUnitQuery{
+		WorldId:  worldIdDto,
+		Position: positionDto,
+	})
+	if err != nil {
+		return err
+	}
+
+	httpHandler.redisServerMessageMediator.Send(
+		newWorldServerMessageChannel(worldIdDto),
+		jsonutil.Marshal(newUnitUpdatedServerMessage(unitDto)),
 	)
 
 	return nil
@@ -280,7 +319,7 @@ func (httpHandler *HttpHandler) broadcastUnitCreatedServerMessage(worldIdDto uui
 func (httpHandler *HttpHandler) broadcastUnitDeletedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newunitDeletedServerMessage(worldIdDto, positionDto)),
+		jsonutil.Marshal(newUnitDeletedServerMessage(worldIdDto, positionDto)),
 	)
 
 	return nil
@@ -297,7 +336,7 @@ func (httpHandler *HttpHandler) broadcastPlayerJoinedServerMessage(worldIdDto uu
 	}
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newplayerJoinedServerMessage(playerDto)),
+		jsonutil.Marshal(newPlayerJoinedServerMessage(playerDto)),
 	)
 	return nil
 }
@@ -321,7 +360,7 @@ func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uui
 func (httpHandler *HttpHandler) broadcastPlayerLeftServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newplayerLeftServerMessage(playerIdDto)),
+		jsonutil.Marshal(newPlayerLeftServerMessage(playerIdDto)),
 	)
 	return nil
 }
@@ -386,6 +425,21 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 		ItemId:    itemIdDto,
 		Position:  positionDto,
 		Direction: directionDto,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeRotateUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+	uow := pguow.NewUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	if err := unitAppService.RotateUnit(unitappsrv.RotateUnitCommand{
+		WorldId:  worldIdDto,
+		Position: positionDto,
 	}); err != nil {
 		uow.RevertChanges()
 		return err
@@ -475,6 +529,9 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 	}
 
 	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{UserId: worldDto.UserId})
+	if err != nil {
+		return err
+	}
 
 	unitDtos, err := unitAppService.GetUnits(
 		unitappsrv.GetUnitsQuery{
@@ -509,6 +566,14 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 func (httpHandler *HttpHandler) sendUnitCreatedResponse(unitDto world_dto.UnitDto, sendMessage func(any)) error {
 	sendMessage(unitCreatedResponse{
 		Type: unitCreatedResponseType,
+		Unit: unitDto,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendUnitUpdatedResponse(unitDto world_dto.UnitDto, sendMessage func(any)) error {
+	sendMessage(unitUpdatedResponse{
+		Type: unitUpdatedResponseType,
 		Unit: unitDto,
 	})
 	return nil
