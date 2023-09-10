@@ -15,11 +15,15 @@ func ProvideUnitAppService(uow pguow.Uow) unitappsrv.Service {
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepo := pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
-	unitService := service.NewUnitService(worldRepo, unitRepo, staticUnitRepo, portalUnitRepo, itemRepo)
+	unitService := service.NewUnitService(worldRepo, unitRepo, itemRepo)
+	staticUnitService := service.NewStaticUnitService(worldRepo, unitRepo, staticUnitRepo, itemRepo)
+	portalUnitService := service.NewPortalUnitService(worldRepo, unitRepo, portalUnitRepo, itemRepo)
 	return unitappsrv.NewService(
 		worldRepo,
 		unitRepo,
 		itemRepo,
 		unitService,
+		staticUnitService,
+		portalUnitService,
 	)
 }

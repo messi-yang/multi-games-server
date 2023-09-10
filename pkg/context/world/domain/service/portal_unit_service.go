@@ -1,0 +1,144 @@
+package service
+
+import (
+	"fmt"
+
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+)
+
+var (
+	errItemIsNotForPortalUnit = fmt.Errorf("item is not for portal unit")
+)
+
+type PortalUnitService interface {
+	CreatePortalUnit(
+		worldId globalcommonmodel.WorldId,
+		itemId worldcommonmodel.ItemId,
+		position worldcommonmodel.Position,
+		direction worldcommonmodel.Direction,
+	) error
+	RotatePortalUnit(unitmodel.UnitId) error
+	RemovePortalUnit(unitmodel.UnitId) error
+}
+
+type portalUnitServe struct {
+	worldRepo      worldmodel.WorldRepo
+	unitRepo       unitmodel.UnitRepo
+	portalUnitRepo portalunitmodel.PortalUnitRepo
+	itemRepo       itemmodel.ItemRepo
+}
+
+func NewPortalUnitService(
+	worldRepo worldmodel.WorldRepo,
+	unitRepo unitmodel.UnitRepo,
+	portalUnitRepo portalunitmodel.PortalUnitRepo,
+	itemRepo itemmodel.ItemRepo,
+) PortalUnitService {
+	return &portalUnitServe{
+		worldRepo:      worldRepo,
+		unitRepo:       unitRepo,
+		portalUnitRepo: portalUnitRepo,
+		itemRepo:       itemRepo,
+	}
+}
+
+func (portalUnitServe *portalUnitServe) CreatePortalUnit(
+	worldId globalcommonmodel.WorldId,
+	itemId worldcommonmodel.ItemId,
+	position worldcommonmodel.Position,
+	direction worldcommonmodel.Direction,
+) error {
+	world, err := portalUnitServe.worldRepo.Get(worldId)
+	if err != nil {
+		return err
+	}
+
+	item, err := portalUnitServe.itemRepo.Get(itemId)
+	if err != nil {
+		return err
+	}
+
+	if !item.GetCompatibleUnitType().IsPortal() {
+		return errItemIsNotForPortalUnit
+	}
+
+	if !world.GetBound().CoversPosition(position) {
+		return errUnitExceededBoundary
+	}
+
+	if position.IsEqual(worldcommonmodel.NewPosition(0, 0)) {
+		return nil
+	}
+
+	existingUnit, err := portalUnitServe.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
+	if err != nil {
+		return err
+	}
+	if existingUnit != nil {
+		return nil
+	}
+
+	portalUnitWithNoTarget, err := portalUnitServe.portalUnitRepo.GetFirstPortalUnitWithNoTarget(worldId)
+	if err != nil {
+		return err
+	}
+
+	newPortalUnit := portalunitmodel.NewPortalUnit(
+		worldId,
+		position,
+		itemId,
+		direction,
+		nil,
+	)
+
+	if portalUnitWithNoTarget != nil {
+		newPortalUnit.UpdateTargetPosition(commonutil.ToPointer(portalUnitWithNoTarget.GetPosition()))
+		portalUnitWithNoTarget.UpdateTargetPosition(&position)
+		if err = portalUnitServe.portalUnitRepo.Update(*portalUnitWithNoTarget); err != nil {
+			return err
+		}
+	}
+
+	return portalUnitServe.portalUnitRepo.Add(newPortalUnit)
+}
+
+func (portalUnitServe *portalUnitServe) RotatePortalUnit(unitId unitmodel.UnitId) error {
+	unit, err := portalUnitServe.portalUnitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+	unit.Rotate()
+
+	return portalUnitServe.portalUnitRepo.Update(unit)
+}
+
+func (portalUnitServe *portalUnitServe) RemovePortalUnit(unitId unitmodel.UnitId) error {
+	unit, err := portalUnitServe.portalUnitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+
+	targetPosition := unit.GetTargetPosition()
+	if targetPosition != nil {
+		unitAtTargetPosition, err := portalUnitServe.portalUnitRepo.Get(unitmodel.NewUnitId(
+			unit.GetWorldId(),
+			*targetPosition,
+		))
+		if err != nil {
+			return err
+		}
+		unitAtTargetPosition.UpdateTargetPosition(nil)
+		if err = portalUnitServe.portalUnitRepo.Update(unitAtTargetPosition); err != nil {
+			return err
+		}
+	}
+
+	unit.Delete()
+	return portalUnitServe.portalUnitRepo.Delete(unit)
+}
