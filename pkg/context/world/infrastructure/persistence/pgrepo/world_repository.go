@@ -72,7 +72,10 @@ func (repo *worldRepo) Update(world worldmodel.World) error {
 	worldModel := newWorldModel(world)
 	worldModel.UpdatedAt = time.Now()
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Updates(&worldModel).Error
+		return transaction.Model(&pgmodel.WorldModel{}).Where(
+			"id = ?",
+			world.GetId().Uuid(),
+		).Select("*").Updates(&worldModel).Error
 	}); err != nil {
 		return err
 	}

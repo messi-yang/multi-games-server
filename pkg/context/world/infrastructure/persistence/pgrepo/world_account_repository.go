@@ -61,7 +61,10 @@ func (repo *worldAccountRepo) Add(worldAccount worldaccountmodel.WorldAccount) e
 func (repo *worldAccountRepo) Update(worldAccount worldaccountmodel.WorldAccount) error {
 	worldAccountModel := newWorldAccountModel(worldAccount)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Updates(&worldAccountModel).Error
+		return transaction.Model(&pgmodel.WorldAccountModel{}).Where(
+			"id = ?",
+			worldAccount.GetId().Uuid(),
+		).Select("*").Updates(worldAccountModel).Error
 	}); err != nil {
 		return err
 	}
