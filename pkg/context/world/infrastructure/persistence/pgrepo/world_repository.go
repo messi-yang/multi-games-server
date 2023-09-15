@@ -14,7 +14,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
+func newModelFromWorld(world worldmodel.World) pgmodel.WorldModel {
 	return pgmodel.WorldModel{
 		Id:         world.GetId().Uuid(),
 		UserId:     world.GetUserId().Uuid(),
@@ -28,7 +28,7 @@ func newWorldModel(world worldmodel.World) pgmodel.WorldModel {
 	}
 }
 
-func parseWorldModel(worldModel pgmodel.WorldModel) (world worldmodel.World, err error) {
+func parseModelToWorld(worldModel pgmodel.WorldModel) (world worldmodel.World, err error) {
 	bound, err := worldcommonmodel.NewBound(
 		worldcommonmodel.NewPosition(worldModel.BoundFromX, worldModel.BoundFromZ),
 		worldcommonmodel.NewPosition(worldModel.BoundToX, worldModel.BoundToZ),
@@ -59,7 +59,7 @@ func NewWorldRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatc
 }
 
 func (repo *worldRepo) Add(world worldmodel.World) error {
-	worldModel := newWorldModel(world)
+	worldModel := newModelFromWorld(world)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&worldModel).Error
 	}); err != nil {
@@ -69,7 +69,7 @@ func (repo *worldRepo) Add(world worldmodel.World) error {
 }
 
 func (repo *worldRepo) Update(world worldmodel.World) error {
-	worldModel := newWorldModel(world)
+	worldModel := newModelFromWorld(world)
 	worldModel.UpdatedAt = time.Now()
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.WorldModel{}).Where(
@@ -98,7 +98,7 @@ func (repo *worldRepo) Get(worldId globalcommonmodel.WorldId) (world worldmodel.
 	}); err != nil {
 		return world, err
 	}
-	return parseWorldModel(worldModel)
+	return parseModelToWorld(worldModel)
 }
 
 func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, err error) {
@@ -111,7 +111,7 @@ func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, 
 	}
 
 	return commonutil.MapWithError[pgmodel.WorldModel](worldModels, func(_ int, worldModel pgmodel.WorldModel) (worldmodel.World, error) {
-		return parseWorldModel(worldModel)
+		return parseModelToWorld(worldModel)
 	})
 }
 
@@ -130,6 +130,6 @@ func (repo *worldRepo) GetWorldsOfUser(userId globalcommonmodel.UserId) (worlds 
 	}
 
 	return commonutil.MapWithError[pgmodel.WorldModel](worldModels, func(_ int, worldModel pgmodel.WorldModel) (worldmodel.World, error) {
-		return parseWorldModel(worldModel)
+		return parseModelToWorld(worldModel)
 	})
 }

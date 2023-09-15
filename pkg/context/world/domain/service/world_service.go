@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
@@ -15,6 +16,7 @@ import (
 
 var (
 	ErrWorldsCountReachLimit = errors.New("worlds count has reached the limit")
+	ErrDeleteNotWorking      = errors.New("world delete is not working now")
 )
 
 type WorldService interface {
@@ -26,6 +28,7 @@ type worldServe struct {
 	worldAccountRepo worldaccountmodel.WorldAccountRepo
 	worldRepo        worldmodel.WorldRepo
 	unitRepo         unitmodel.UnitRepo
+	staticUnitRepo   staticunitmodel.StaticUnitRepo
 	itemRepo         itemmodel.ItemRepo
 }
 
@@ -33,12 +36,14 @@ func NewWorldService(
 	worldAccountRepo worldaccountmodel.WorldAccountRepo,
 	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
+	staticUnitRepo staticunitmodel.StaticUnitRepo,
 	itemRepo itemmodel.ItemRepo,
 ) WorldService {
 	return &worldServe{
 		worldAccountRepo: worldAccountRepo,
 		worldRepo:        worldRepo,
 		unitRepo:         unitRepo,
+		staticUnitRepo:   staticUnitRepo,
 		itemRepo:         itemRepo,
 	}
 }
@@ -76,14 +81,13 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 		randomInt := rand.Intn(len(itemsForStaticUnitType) * 5)
 		position := worldcommonmodel.NewPosition(x-50, z-50)
 		if randomInt < len(itemsForStaticUnitType) {
-			newUnit := unitmodel.NewUnit(
+			newStaticUnit := staticunitmodel.NewStaticUnit(
 				worldId,
 				position,
 				itemsForStaticUnitType[randomInt].GetId(),
 				worldcommonmodel.NewDownDirection(),
-				itemsForStaticUnitType[randomInt].GetCompatibleUnitType(),
 			)
-			if err = worldServe.unitRepo.Add(newUnit); err != nil {
+			if err = worldServe.staticUnitRepo.Add(newStaticUnit); err != nil {
 				return err
 			}
 		}
@@ -96,21 +100,22 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 }
 
 func (worldServe *worldServe) DeleteWorld(worldId globalcommonmodel.WorldId) error {
-	unitsInWorld, err := worldServe.unitRepo.GetUnitsOfWorld(worldId)
-	if err != nil {
-		return err
-	}
+	return ErrDeleteNotWorking
+	// unitsInWorld, err := worldServe.unitRepo.GetUnitsOfWorld(worldId)
+	// if err != nil {
+	// 	return err
+	// }
 
-	for _, unit := range unitsInWorld {
-		if err = worldServe.unitRepo.Delete(unit); err != nil {
-			return err
-		}
-	}
+	// for _, unit := range unitsInWorld {
+	// 	if err = worldServe.unitRepo.Delete(unit); err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	world, err := worldServe.worldRepo.Get(worldId)
-	if err != nil {
-		return err
-	}
-	world.Delete()
-	return worldServe.worldRepo.Delete(world)
+	// world, err := worldServe.worldRepo.Get(worldId)
+	// if err != nil {
+	// 	return err
+	// }
+	// world.Delete()
+	// return worldServe.worldRepo.Delete(world)
 }

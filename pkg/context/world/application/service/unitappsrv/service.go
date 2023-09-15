@@ -5,8 +5,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -21,21 +19,12 @@ type Service interface {
 
 	CreateStaticUnit(CreateStaticUnitCommand) error
 	CreatePortalUnit(CreatePortalUnitCommand) error
-
-	HandlePortalUnitCreatedDomainEvent(portalunitmodel.PortalUnitCreated) error
-	HandlePortalUnitUpdatedDomainEvent(portalunitmodel.PortalUnitUpdated) error
-	HandlePortalUnitDeletedDomainEvent(portalunitmodel.PortalUnitDeleted) error
-
-	HandleStaticUnitCreatedDomainEvent(staticunitmodel.StaticUnitCreated) error
-	HandleStaticUnitUpdatedDomainEvent(staticunitmodel.StaticUnitUpdated) error
-	HandleStaticUnitDeletedDomainEvent(staticunitmodel.StaticUnitDeleted) error
 }
 
 type serve struct {
 	worldRepo         worldmodel.WorldRepo
 	unitRepo          unitmodel.UnitRepo
 	itemRepo          itemmodel.ItemRepo
-	unitService       service.UnitService
 	staticUnitService service.StaticUnitService
 	portalUnitService service.PortalUnitService
 }
@@ -44,7 +33,6 @@ func NewService(
 	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
 	itemRepo itemmodel.ItemRepo,
-	unitService service.UnitService,
 	staticUnitService service.StaticUnitService,
 	portalUnitService service.PortalUnitService,
 ) Service {
@@ -52,7 +40,6 @@ func NewService(
 		worldRepo:         worldRepo,
 		unitRepo:          unitRepo,
 		itemRepo:          itemRepo,
-		unitService:       unitService,
 		staticUnitService: staticUnitService,
 		portalUnitService: portalUnitService,
 	}
@@ -140,58 +127,4 @@ func (serve *serve) RemoveUnit(command RemoveUnitCommand) error {
 	}
 
 	return nil
-}
-
-func (serve *serve) HandlePortalUnitCreatedDomainEvent(portalUnitCreated portalunitmodel.PortalUnitCreated) error {
-	portalUnit := portalUnitCreated.GetPortalUnit()
-
-	return serve.unitService.CreateUnit(
-		portalUnit.GetWorldId(),
-		portalUnit.GetItemId(),
-		portalUnit.GetPosition(),
-		portalUnit.GetDirection(),
-		worldcommonmodel.NewPortalUnitType(),
-	)
-}
-
-func (serve *serve) HandlePortalUnitUpdatedDomainEvent(portalUnitUpdated portalunitmodel.PortalUnitUpdated) error {
-	portalUnit := portalUnitUpdated.GetPortalUnit()
-
-	return serve.unitService.UpdateUnit(
-		portalUnit.GetId(),
-		portalUnit.GetDirection(),
-	)
-}
-
-func (serve *serve) HandlePortalUnitDeletedDomainEvent(portalUnitDeleted portalunitmodel.PortalUnitDeleted) error {
-	portalUnit := portalUnitDeleted.GetPortalUnit()
-
-	return serve.unitService.RemoveUnit(portalUnit.GetId())
-}
-
-func (serve *serve) HandleStaticUnitCreatedDomainEvent(staticCreated staticunitmodel.StaticUnitCreated) error {
-	staticUnit := staticCreated.GetStaticUnit()
-
-	return serve.unitService.CreateUnit(
-		staticUnit.GetWorldId(),
-		staticUnit.GetItemId(),
-		staticUnit.GetPosition(),
-		staticUnit.GetDirection(),
-		worldcommonmodel.NewStaticUnitType(),
-	)
-}
-
-func (serve *serve) HandleStaticUnitUpdatedDomainEvent(staticUnitUpdated staticunitmodel.StaticUnitUpdated) error {
-	portalUnit := staticUnitUpdated.GetStaticUnit()
-
-	return serve.unitService.UpdateUnit(
-		portalUnit.GetId(),
-		portalUnit.GetDirection(),
-	)
-}
-
-func (serve *serve) HandleStaticUnitDeletedDomainEvent(staticDeleted staticunitmodel.StaticUnitDeleted) error {
-	staticUnit := staticDeleted.GetStaticUnit()
-
-	return serve.unitService.RemoveUnit(staticUnit.GetId())
 }

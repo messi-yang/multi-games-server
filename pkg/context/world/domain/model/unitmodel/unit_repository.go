@@ -5,10 +5,7 @@ import (
 )
 
 type UnitRepo interface {
-	Add(Unit) error
-	Update(Unit) error
 	Get(UnitId) (Unit, error)
-	Delete(Unit) error
 	Find(UnitId) (unit *Unit, err error)
 	GetUnitsOfWorld(globalcommonmodel.WorldId) ([]Unit, error)
 }

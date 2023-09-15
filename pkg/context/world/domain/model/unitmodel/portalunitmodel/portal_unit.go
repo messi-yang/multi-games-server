@@ -3,12 +3,12 @@ package portalunitmodel
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/google/uuid"
 )
 
 type PortalUnit struct {
-	id                   unitmodel.UnitId
+	id                   PortalUnitId
 	worldId              globalcommonmodel.WorldId
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
@@ -28,7 +28,7 @@ func NewPortalUnit(
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	portalUnit := PortalUnit{
-		id:                   unitmodel.NewUnitId(worldId, position),
+		id:                   NewPortalUnitId(uuid.New()),
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,
@@ -41,7 +41,7 @@ func NewPortalUnit(
 }
 
 func LoadPortalUnit(
-	id unitmodel.UnitId,
+	id PortalUnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
@@ -63,7 +63,7 @@ func (portalUnit *PortalUnit) PopDomainEvents() []domain.DomainEvent {
 	return portalUnit.domainEventCollector.PopAll()
 }
 
-func (portalUnit *PortalUnit) GetId() unitmodel.UnitId {
+func (portalUnit *PortalUnit) GetId() PortalUnitId {
 	return portalUnit.id
 }
 

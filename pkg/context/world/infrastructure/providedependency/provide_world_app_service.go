@@ -14,6 +14,7 @@ func ProvideWorldAppService(uow pguow.Uow) worldappsrv.Service {
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
-	worldService := service.NewWorldService(worldAccountRepo, worldRepo, unitRepo, itemRepo)
+	staticUnitRepo := pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
+	worldService := service.NewWorldService(worldAccountRepo, worldRepo, unitRepo, staticUnitRepo, itemRepo)
 	return worldappsrv.NewService(worldRepo, worldService)
 }

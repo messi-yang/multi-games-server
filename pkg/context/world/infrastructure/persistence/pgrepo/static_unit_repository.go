@@ -12,7 +12,19 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func parseStaticUnitFromUnitModel(unitModel pgmodel.UnitModel) (unit staticunitmodel.StaticUnit, err error) {
+func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitModel {
+	return pgmodel.UnitModel{
+		WorldId:   staticUnit.GetWorldId().Uuid(),
+		PosX:      staticUnit.GetPosition().GetX(),
+		PosZ:      staticUnit.GetPosition().GetZ(),
+		ItemId:    staticUnit.GetItemId().Uuid(),
+		Direction: staticUnit.GetDirection().Int8(),
+		Type:      pgmodel.UnitTypeEnumStatic,
+		InfoId:    nil,
+	}
+}
+
+func parseModelToStaticUnit(unitModel pgmodel.UnitModel) (staticunitmodel.StaticUnit, error) {
 	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 
@@ -38,10 +50,29 @@ func NewStaticUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDi
 }
 
 func (repo *staticUnitRepo) Add(staticUnit staticunitmodel.StaticUnit) error {
+	unitModel := newModelFromStaticUnit(staticUnit)
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Create(&unitModel).Error
+	}); err != nil {
+		return err
+	}
+
 	return repo.domainEventDispatcher.Dispatch(&staticUnit)
 }
 
 func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error {
+	unitModel := newModelFromStaticUnit(staticUnit)
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Model(&pgmodel.UnitModel{}).Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			unitModel.WorldId,
+			unitModel.PosX,
+			unitModel.PosZ,
+		).Select("*").Updates(unitModel).Error
+	}); err != nil {
+		return err
+	}
+
 	return repo.domainEventDispatcher.Dispatch(&staticUnit)
 }
 
@@ -58,9 +89,19 @@ func (repo *staticUnitRepo) Get(unitId unitmodel.UnitId) (unit staticunitmodel.S
 		return unit, err
 	}
 
-	return parseStaticUnitFromUnitModel(unitModel)
+	return parseModelToStaticUnit(unitModel)
 }
 
 func (repo *staticUnitRepo) Delete(staticUnit staticunitmodel.StaticUnit) error {
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			staticUnit.GetWorldId().Uuid(),
+			staticUnit.GetPosition().GetX(),
+			staticUnit.GetPosition().GetZ(),
+		).Delete(&pgmodel.UnitModel{}).Error
+	}); err != nil {
+		return err
+	}
 	return repo.domainEventDispatcher.Dispatch(&staticUnit)
 }

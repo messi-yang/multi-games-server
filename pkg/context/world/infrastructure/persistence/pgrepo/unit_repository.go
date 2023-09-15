@@ -12,18 +12,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newUnitModel(unit unitmodel.Unit) pgmodel.UnitModel {
-	return pgmodel.UnitModel{
-		WorldId:   unit.GetWorldId().Uuid(),
-		PosX:      unit.GetPosition().GetX(),
-		PosZ:      unit.GetPosition().GetZ(),
-		ItemId:    unit.GetItemId().Uuid(),
-		Direction: unit.GetDirection().Int8(),
-		Type:      pgmodel.UnitTypeEnum(unit.GetType().String()),
-	}
-}
-
-func parseUnitModel(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err error) {
+func parseModelToUnit(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err error) {
 	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 	unitType, err := worldcommonmodel.NewUnitType(string(unitModel.Type))
@@ -52,31 +41,6 @@ func NewUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 	}
 }
 
-func (repo *unitRepo) Add(unit unitmodel.Unit) error {
-	unitModel := newUnitModel(unit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Create(&unitModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&unit)
-}
-
-func (repo *unitRepo) Update(unit unitmodel.Unit) error {
-	unitModel := newUnitModel(unit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
-			unit.GetWorldId().Uuid(),
-			unit.GetPosition().GetX(),
-			unit.GetPosition().GetZ(),
-		).Select("*").Updates(unitModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&unit)
-}
-
 func (repo *unitRepo) Get(unitId unitmodel.UnitId) (unit unitmodel.Unit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
@@ -89,21 +53,7 @@ func (repo *unitRepo) Get(unitId unitmodel.UnitId) (unit unitmodel.Unit, err err
 	}); err != nil {
 		return unit, err
 	}
-	return parseUnitModel(unitModel)
-}
-
-func (repo *unitRepo) Delete(unit unitmodel.Unit) error {
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
-			unit.GetWorldId().Uuid(),
-			unit.GetPosition().GetX(),
-			unit.GetPosition().GetZ(),
-		).Delete(&pgmodel.UnitModel{}).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&unit)
+	return parseModelToUnit(unitModel)
 }
 
 func (repo *unitRepo) Find(
@@ -125,7 +75,7 @@ func (repo *unitRepo) Find(
 		return nil, nil
 	}
 
-	unit, err := parseUnitModel(unitModels[0])
+	unit, err := parseModelToUnit(unitModels[0])
 	if err != nil {
 		return nil, err
 	}
@@ -147,6 +97,6 @@ func (repo *unitRepo) GetUnitsOfWorld(
 	}
 
 	return commonutil.MapWithError(unitModels, func(_ int, unitModel pgmodel.UnitModel) (unitmodel.Unit, error) {
-		return parseUnitModel(unitModel)
+		return parseModelToUnit(unitModel)
 	})
 }

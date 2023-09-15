@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func newUserModel(user usermodel.User) pgmodel.UserModel {
+func newModelFromUser(user usermodel.User) pgmodel.UserModel {
 	return pgmodel.UserModel{
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress().String(),
@@ -25,7 +25,7 @@ func newUserModel(user usermodel.User) pgmodel.UserModel {
 	}
 }
 
-func parseUserModel(userModel pgmodel.UserModel) (user usermodel.User, err error) {
+func parseModelToUser(userModel pgmodel.UserModel) (user usermodel.User, err error) {
 	emailAddress, err := globalcommonmodel.NewEmailAddress(userModel.EmailAddress)
 	if err != nil {
 		return user, err
@@ -56,7 +56,7 @@ func NewUserRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 }
 
 func (repo *userRepo) Add(user usermodel.User) error {
-	userModel := newUserModel(user)
+	userModel := newModelFromUser(user)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&userModel).Error
 	}); err != nil {
@@ -66,7 +66,7 @@ func (repo *userRepo) Add(user usermodel.User) error {
 }
 
 func (repo *userRepo) Update(user usermodel.User) error {
-	userModel := newUserModel(user)
+	userModel := newModelFromUser(user)
 	userModel.UpdatedAt = time.Now()
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UserModel{}).Where(
@@ -87,7 +87,7 @@ func (repo *userRepo) Get(userId globalcommonmodel.UserId) (user usermodel.User,
 		return user, err
 	}
 
-	return parseUserModel(userModel)
+	return parseModelToUser(userModel)
 }
 
 func (repo *userRepo) GetUserByEmailAddress(emailAddress globalcommonmodel.EmailAddress) (*usermodel.User, error) {
@@ -104,7 +104,7 @@ func (repo *userRepo) GetUserByEmailAddress(emailAddress globalcommonmodel.Email
 		return nil, err
 	}
 
-	user, err := parseUserModel(userModel)
+	user, err := parseModelToUser(userModel)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (repo *userRepo) GetUsersOfIds(userIds []globalcommonmodel.UserId) ([]userm
 	}
 
 	users, err := commonutil.MapWithError(userModels, func(_ int, userModel pgmodel.UserModel) (usermodel.User, error) {
-		return parseUserModel(userModel)
+		return parseModelToUser(userModel)
 	})
 	if err != nil {
 		return nil, err

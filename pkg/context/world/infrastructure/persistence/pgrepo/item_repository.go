@@ -14,7 +14,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newItemModel(item itemmodel.Item) pgmodel.ItemModel {
+func newModelFromItem(item itemmodel.Item) pgmodel.ItemModel {
 	return pgmodel.ItemModel{
 		Id:                 item.GetId().Uuid(),
 		CompatibleUnitType: pgmodel.UnitTypeEnum(item.GetCompatibleUnitType().String()),
@@ -25,7 +25,7 @@ func newItemModel(item itemmodel.Item) pgmodel.ItemModel {
 	}
 }
 
-func parseItemModel(itemModel pgmodel.ItemModel) (item itemmodel.Item, err error) {
+func parseModelToItem(itemModel pgmodel.ItemModel) (item itemmodel.Item, err error) {
 	serverUrl := os.Getenv("SERVER_URL")
 	compatibleUnitType, err := worldcommonmodel.NewUnitType(string(itemModel.CompatibleUnitType))
 	if err != nil {
@@ -54,7 +54,7 @@ func NewItemRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 }
 
 func (repo *itemRepo) Add(item itemmodel.Item) error {
-	itemModel := newItemModel(item)
+	itemModel := newModelFromItem(item)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&itemModel).Error
 	}); err != nil {
@@ -64,7 +64,7 @@ func (repo *itemRepo) Add(item itemmodel.Item) error {
 }
 
 func (repo *itemRepo) Update(item itemmodel.Item) error {
-	itemModel := newItemModel(item)
+	itemModel := newModelFromItem(item)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.ItemModel{}).Where(
 			"id = ?",
@@ -84,7 +84,7 @@ func (repo *itemRepo) Get(itemId worldcommonmodel.ItemId) (item itemmodel.Item, 
 		return item, err
 	}
 
-	return parseItemModel(itemModel)
+	return parseModelToItem(itemModel)
 }
 
 func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
@@ -96,7 +96,7 @@ func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 	}
 
 	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
-		return parseItemModel(itemModel)
+		return parseModelToItem(itemModel)
 	})
 }
 
@@ -112,7 +112,7 @@ func (repo *itemRepo) GetItemsOfCompatibleUnitType(compatibleUnitType worldcommo
 	}
 
 	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
-		return parseItemModel(itemModel)
+		return parseModelToItem(itemModel)
 	})
 }
 
@@ -124,5 +124,5 @@ func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
 		return item, err
 	}
 
-	return parseItemModel(itemModel)
+	return parseModelToItem(itemModel)
 }
