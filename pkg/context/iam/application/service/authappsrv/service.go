@@ -42,7 +42,17 @@ func (serve *serve) Register(command RegisterCommand) (userIdDto uuid.UUID, err 
 		return userIdDto, fmt.Errorf("user with email address of %s already exists", command.EmailAddress)
 	}
 
-	newUser := usermodel.NewUser(globalcommonmodel.NewUserId(uuid.New()), emailAddress, globalcommonmodel.NewRandomUsername())
+	randomUsername := globalcommonmodel.NewRandomUsername()
+	randomeFriendlyName, err := usermodel.NewFriendlyName(randomUsername.String())
+	if err != nil {
+		return userIdDto, err
+	}
+	newUser := usermodel.NewUser(
+		globalcommonmodel.NewUserId(uuid.New()),
+		emailAddress,
+		globalcommonmodel.NewRandomUsername(),
+		randomeFriendlyName,
+	)
 	if err = serve.userRepo.Add(newUser); err != nil {
 		return userIdDto, err
 	}

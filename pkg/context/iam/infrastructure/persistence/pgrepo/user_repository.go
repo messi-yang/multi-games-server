@@ -20,6 +20,7 @@ func newModelFromUser(user usermodel.User) pgmodel.UserModel {
 		Id:           user.GetId().Uuid(),
 		EmailAddress: user.GetEmailAddress().String(),
 		Username:     user.GetUsername().String(),
+		FriendlyName: user.GetFriendlyName().String(),
 		CreatedAt:    user.GetCreatedAt(),
 		UpdatedAt:    user.GetUpdatedAt(),
 	}
@@ -34,10 +35,15 @@ func parseModelToUser(userModel pgmodel.UserModel) (user usermodel.User, err err
 	if err != nil {
 		return user, err
 	}
+	friendlyName, err := usermodel.NewFriendlyName(userModel.FriendlyName)
+	if err != nil {
+		return user, err
+	}
 	return usermodel.LoadUser(
 		globalcommonmodel.NewUserId(userModel.Id),
 		emailAddress,
 		username,
+		friendlyName,
 		userModel.CreatedAt,
 		userModel.UpdatedAt,
 	), nil

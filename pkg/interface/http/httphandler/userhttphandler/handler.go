@@ -56,8 +56,9 @@ func (httpHandler *HttpHandler) UpdateMyUser(c *gin.Context) {
 	userAppService := providedependency.ProvideUserAppService(pgUow)
 
 	if err := userAppService.UpdateUser(userappsrv.UpdateUserCommand{
-		UserId:   *authorizedUserIdDto,
-		Username: requestBody.Username,
+		UserId:       *authorizedUserIdDto,
+		Username:     requestBody.Username,
+		FriendlyName: requestBody.FriendlyName,
 	}); err != nil {
 		pgUow.RevertChanges()
 		c.String(http.StatusBadRequest, err.Error())

@@ -81,12 +81,18 @@ func (serve *serve) UpdateUser(command UpdateUserCommand) (err error) {
 		return err
 	}
 
+	friendlyName, err := usermodel.NewFriendlyName(command.FriendlyName)
+	if err != nil {
+		return err
+	}
+
 	user, err := serve.userRepo.Get(userId)
 	if err != nil {
 		return err
 	}
 
 	user.UpdateUsername(username)
+	user.UpdateFriendlyName(friendlyName)
 
 	return serve.userRepo.Update(user)
 }

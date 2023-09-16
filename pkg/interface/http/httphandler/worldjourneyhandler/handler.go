@@ -485,7 +485,7 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, u
 			uow.RevertChanges()
 			return playerIdDto, err
 		}
-		playerName = user.Username
+		playerName = user.FriendlyName
 	}
 
 	if playerIdDto, err = playerAppService.EnterWorld(playerappsrv.EnterWorldCommand{

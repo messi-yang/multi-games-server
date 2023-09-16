@@ -11,6 +11,7 @@ type User struct {
 	id                   globalcommonmodel.UserId
 	emailAddress         globalcommonmodel.EmailAddress
 	username             globalcommonmodel.Username
+	friendlyName         FriendlyName
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -23,11 +24,13 @@ func NewUser(
 	id globalcommonmodel.UserId,
 	emailAddress globalcommonmodel.EmailAddress,
 	username globalcommonmodel.Username,
+	friendlyName FriendlyName,
 ) User {
 	return User{
 		id:                   id,
 		emailAddress:         emailAddress,
 		username:             username,
+		friendlyName:         friendlyName,
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -38,6 +41,7 @@ func LoadUser(
 	id globalcommonmodel.UserId,
 	emailAddress globalcommonmodel.EmailAddress,
 	username globalcommonmodel.Username,
+	friendlyName FriendlyName,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) User {
@@ -45,6 +49,7 @@ func LoadUser(
 		id:                   id,
 		emailAddress:         emailAddress,
 		username:             username,
+		friendlyName:         friendlyName,
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -70,6 +75,14 @@ func (user *User) GetUsername() globalcommonmodel.Username {
 
 func (user *User) UpdateUsername(username globalcommonmodel.Username) {
 	user.username = username
+}
+
+func (user *User) GetFriendlyName() FriendlyName {
+	return user.friendlyName
+}
+
+func (user *User) UpdateFriendlyName(friendlyName FriendlyName) {
+	user.friendlyName = friendlyName
 }
 
 func (user *User) GetCreatedAt() time.Time {
