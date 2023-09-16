@@ -65,21 +65,18 @@ CREATE TABLE public.items (
 ALTER TABLE public.items OWNER TO main;
 
 --
--- Name: portal_units; Type: TABLE; Schema: public; Owner: main
+-- Name: portal_unit_infos; Type: TABLE; Schema: public; Owner: main
 --
 
-CREATE TABLE public.portal_units (
+CREATE TABLE public.portal_unit_infos (
     world_id uuid NOT NULL,
-    pos_x integer NOT NULL,
-    pos_z integer NOT NULL,
-    item_id uuid NOT NULL,
-    direction integer NOT NULL,
     target_pos_x integer,
-    target_pos_z integer
+    target_pos_z integer,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
-ALTER TABLE public.portal_units OWNER TO main;
+ALTER TABLE public.portal_unit_infos OWNER TO main;
 
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: main
@@ -103,7 +100,8 @@ CREATE TABLE public.units (
     pos_z integer NOT NULL,
     item_id uuid NOT NULL,
     direction integer NOT NULL,
-    type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
+    type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL,
+    info_id uuid
 );
 
 
@@ -208,11 +206,11 @@ ALTER TABLE ONLY public.items
 
 
 --
--- Name: portal_units portal_unit_world_id_pos_x_pos_z; Type: CONSTRAINT; Schema: public; Owner: main
+-- Name: portal_unit_infos portal_unit_infos_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.portal_units
-    ADD CONSTRAINT portal_unit_world_id_pos_x_pos_z UNIQUE (world_id, pos_x, pos_z);
+ALTER TABLE ONLY public.portal_unit_infos
+    ADD CONSTRAINT portal_unit_infos_pkey PRIMARY KEY (id);
 
 
 --
@@ -287,6 +285,13 @@ CREATE INDEX item_compatible_unit_type ON public.items USING btree (compatible_u
 
 
 --
+-- Name: portal_unit_infos_world_id_target_pos_x_target_pos_z; Type: INDEX; Schema: public; Owner: main
+--
+
+CREATE INDEX portal_unit_infos_world_id_target_pos_x_target_pos_z ON public.portal_unit_infos USING btree (world_id, target_pos_x, target_pos_z);
+
+
+--
 -- Name: unit_type; Type: INDEX; Schema: public; Owner: main
 --
 
@@ -312,14 +317,6 @@ CREATE INDEX world_roles_world_id_user_id ON public.world_members USING btree (w
 --
 
 ALTER TABLE ONLY public.units
-    ADD CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES public.items(id);
-
-
---
--- Name: portal_units fk_item; Type: FK CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.portal_units
     ADD CONSTRAINT fk_item FOREIGN KEY (item_id) REFERENCES public.items(id);
 
 
@@ -364,10 +361,10 @@ ALTER TABLE ONLY public.world_members
 
 
 --
--- Name: portal_units fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
+-- Name: portal_unit_infos fk_world; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
-ALTER TABLE ONLY public.portal_units
+ALTER TABLE ONLY public.portal_unit_infos
     ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
 
 
