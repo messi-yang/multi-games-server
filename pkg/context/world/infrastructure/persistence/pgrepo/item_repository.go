@@ -7,6 +7,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
@@ -91,6 +93,22 @@ func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 	var itemModels []pgmodel.ItemModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Find(&itemModels).Error
+	}); err != nil {
+		return items, err
+	}
+
+	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
+		return parseModelToItem(itemModel)
+	})
+}
+
+func (repo *itemRepo) GetItemsOfIds(itemIds []worldcommonmodel.ItemId) (items []itemmodel.Item, err error) {
+	itemIdDtos := lo.Map(itemIds, func(itemId worldcommonmodel.ItemId, _ int) uuid.UUID {
+		return itemId.Uuid()
+	})
+	var itemModels []pgmodel.ItemModel
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(itemIdDtos).Find(&itemModels).Error
 	}); err != nil {
 		return items, err
 	}
