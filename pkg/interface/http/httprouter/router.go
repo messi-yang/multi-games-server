@@ -99,6 +99,7 @@ func Run() error {
 	itemRouterGroup := router.Group("/api/items")
 	itemRouterGroup.Use(parseHttpAccessTokenMiddleware)
 	itemRouterGroup.GET("/", itemHttpHandler.QueryItems)
+	itemRouterGroup.GET("/with-ids", itemHttpHandler.GetItemsOfIds)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
 	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)

@@ -34,3 +34,28 @@ func (httpHandler *HttpHandler) QueryItems(c *gin.Context) {
 
 	c.JSON(http.StatusOK, queryItemsReponse(itemViewModels))
 }
+
+func (httpHandler *HttpHandler) GetItemsOfIds(c *gin.Context) {
+	var requestBody getItemsOfIdsRequestBody
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	pgUow := pguow.NewDummyUow()
+
+	itemAppService := providedependency.ProvideItemAppService(pgUow)
+	itemDtos, err := itemAppService.GetItemsOfIds(itemappsrv.GetItemsOfIdsQuery{
+		ItemIds: requestBody.ItemIds,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	itemViewModels := lo.Map(itemDtos, func(itemDto dto.ItemDto, _ int) viewmodel.ItemViewModel {
+		return viewmodel.ItemViewModel(itemDto)
+	})
+
+	c.JSON(http.StatusOK, queryItemsReponse(itemViewModels))
+}
