@@ -2,13 +2,16 @@ package itemhttphandler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -36,17 +39,17 @@ func (httpHandler *HttpHandler) QueryItems(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) GetItemsOfIds(c *gin.Context) {
-	var requestBody getItemsOfIdsRequestBody
-	if err := c.BindJSON(&requestBody); err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
+	itemIdsQueryString := c.Request.URL.Query().Get("itemIds")
+	itemIdStrings := strings.Split(itemIdsQueryString, ",")
+	itemIdDtos, err := commonutil.MapWithError(itemIdStrings, func(_ int, itemIdString string) (uuid.UUID, error) {
+		return uuid.Parse(itemIdString)
+	})
 
 	pgUow := pguow.NewDummyUow()
 
 	itemAppService := providedependency.ProvideItemAppService(pgUow)
 	itemDtos, err := itemAppService.GetItemsOfIds(itemappsrv.GetItemsOfIdsQuery{
-		ItemIds: requestBody.ItemIds,
+		ItemIds: itemIdDtos,
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
