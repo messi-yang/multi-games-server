@@ -106,6 +106,7 @@ func (repo *itemRepo) GetItemsOfIds(itemIds []worldcommonmodel.ItemId) (items []
 	itemIdDtos := lo.Map(itemIds, func(itemId worldcommonmodel.ItemId, _ int) uuid.UUID {
 		return itemId.Uuid()
 	})
+
 	var itemModels []pgmodel.ItemModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(itemIdDtos).Find(&itemModels).Error

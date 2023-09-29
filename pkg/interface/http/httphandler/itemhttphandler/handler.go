@@ -39,11 +39,15 @@ func (httpHandler *HttpHandler) QueryItems(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) GetItemsOfIds(c *gin.Context) {
-	itemIdsQueryString := c.Request.URL.Query().Get("itemIds")
+	itemIdsQueryString := c.Request.URL.Query().Get("ids")
 	itemIdStrings := strings.Split(itemIdsQueryString, ",")
 	itemIdDtos, err := commonutil.MapWithError(itemIdStrings, func(_ int, itemIdString string) (uuid.UUID, error) {
 		return uuid.Parse(itemIdString)
 	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
 
 	pgUow := pguow.NewDummyUow()
 

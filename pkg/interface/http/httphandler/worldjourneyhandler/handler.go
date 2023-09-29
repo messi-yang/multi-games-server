@@ -119,6 +119,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err != nil {
 					return
 				}
+				if serverMessage.Player.Id == playerIdDto {
+					return
+				}
 				httpHandler.sendPlayerJoinedResponse(serverMessage.Player, sendMessage)
 			case playerMovedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[playerMovedServerMessage](serverMessageBytes)
