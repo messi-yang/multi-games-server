@@ -13,7 +13,7 @@ const (
 	worldEnteredResponseType  responseDtoType = "WORLD_ENTERED"
 	unitCreatedResponseType   responseDtoType = "UNIT_CREATED"
 	unitUpdatedResponseType   responseDtoType = "UNIT_UPDATED"
-	unitDeletedResponseType   responseDtoType = "UNIT_DELETED"
+	unitRemovedResponseType   responseDtoType = "UNIT_REMOVED"
 	playerJoinedResponseType  responseDtoType = "PLAYER_JOINED"
 	playerLeftResponseType    responseDtoType = "PLAYER_LEFT"
 	playerMovedResponseType   responseDtoType = "PLAYER_MOVED"
@@ -42,7 +42,7 @@ type unitUpdatedResponse struct {
 	Unit dto.UnitDto     `json:"unit"`
 }
 
-type unitDeletedResponse struct {
+type unitRemovedResponse struct {
 	Type     responseDtoType `json:"type"`
 	Position dto.PositionDto `json:"position"`
 }

@@ -12,7 +12,7 @@ type serverMessageName string
 const (
 	unitCreatedServerMessageName  serverMessageName = "UNIT_CREATED"
 	unitUpdatedServerMessageName  serverMessageName = "UNIT_UPDATED"
-	unitDeletedServerMessageName  serverMessageName = "UNIT_DELETED"
+	unitRemovedServerMessageName  serverMessageName = "UNIT_REMOVED"
 	playerJoinedServerMessageName serverMessageName = "PLAYER_JOINED"
 	playerLeftServerMessageName   serverMessageName = "PLAYER_LEFT"
 	playerMovedServerMessageName  serverMessageName = "PLAYER_MOVED"
@@ -46,15 +46,15 @@ func newUnitUpdatedServerMessage(unit dto.UnitDto) unitUpdatedServerMessage {
 	}
 }
 
-type unitDeletedServerMessage struct {
+type unitRemovedServerMessage struct {
 	Name     serverMessageName
 	WorldId  uuid.UUID
 	Position dto.PositionDto
 }
 
-func newUnitDeletedServerMessage(worldId uuid.UUID, position dto.PositionDto) unitDeletedServerMessage {
-	return unitDeletedServerMessage{
-		Name:     unitDeletedServerMessageName,
+func newUnitRemovedServerMessage(worldId uuid.UUID, position dto.PositionDto) unitRemovedServerMessage {
+	return unitRemovedServerMessage{
+		Name:     unitRemovedServerMessageName,
 		WorldId:  worldId,
 		Position: position,
 	}

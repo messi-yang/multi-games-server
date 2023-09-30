@@ -107,12 +107,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				httpHandler.sendUnitUpdatedResponse(serverMessage.Unit, sendMessage)
-			case unitDeletedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[unitDeletedServerMessage](serverMessageBytes)
+			case unitRemovedServerMessageName:
+				serverMessage, err := jsonutil.Unmarshal[unitRemovedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendUnitDeletedResponse(serverMessage.Position, sendMessage)
+				httpHandler.sendUnitRemovedResponse(serverMessage.Position, sendMessage)
 			case playerJoinedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[playerJoinedServerMessage](serverMessageBytes)
 				if err != nil {
@@ -268,7 +268,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastUnitDeletedServerMessage(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.broadcastUnitRemovedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
 			default:
@@ -319,10 +319,10 @@ func (httpHandler *HttpHandler) broadcastUnitUpdatedServerMessage(worldIdDto uui
 	return nil
 }
 
-func (httpHandler *HttpHandler) broadcastUnitDeletedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) broadcastUnitRemovedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newUnitDeletedServerMessage(worldIdDto, positionDto)),
+		jsonutil.Marshal(newUnitRemovedServerMessage(worldIdDto, positionDto)),
 	)
 
 	return nil
@@ -582,9 +582,9 @@ func (httpHandler *HttpHandler) sendUnitUpdatedResponse(unitDto world_dto.UnitDt
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendUnitDeletedResponse(positionDto world_dto.PositionDto, sendMessage func(any)) error {
-	sendMessage(unitDeletedResponse{
-		Type:     unitDeletedResponseType,
+func (httpHandler *HttpHandler) sendUnitRemovedResponse(positionDto world_dto.PositionDto, sendMessage func(any)) error {
+	sendMessage(unitRemovedResponse{
+		Type:     unitRemovedResponseType,
 		Position: positionDto,
 	})
 	return nil
