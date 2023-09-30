@@ -25,12 +25,11 @@ type errorHappenedResponse struct {
 }
 
 type worldEnteredResponse struct {
-	Type           responseDtoType           `json:"type"`
-	World          viewmodel.WorldViewModel  `json:"world"`
-	Units          []dto.UnitDto             `json:"units"`
-	MyPlayerId     uuid.UUID                 `json:"myPlayerId"`
-	Players        []dto.PlayerDto           `json:"players"`
-	AppearingItems []viewmodel.ItemViewModel `json:"appearingItems"`
+	Type       responseDtoType          `json:"type"`
+	World      viewmodel.WorldViewModel `json:"world"`
+	Units      []dto.UnitDto            `json:"units"`
+	MyPlayerId uuid.UUID                `json:"myPlayerId"`
+	Players    []dto.PlayerDto          `json:"players"`
 }
 
 type unitCreatedResponse struct {

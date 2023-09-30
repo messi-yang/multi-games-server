@@ -21,7 +21,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/samber/lo"
 )
 
 var websocketUpgrader = websocket.Upgrader{
@@ -521,7 +520,6 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 	uow := pguow.NewDummyUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	itemAppService := world_provide_dependency.ProvideItemAppService(uow)
 	worldAppService := world_provide_dependency.ProvideWorldAppService(uow)
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
 	userAppService := iam_provide_dependency.ProvideUserAppService(uow)
@@ -548,19 +546,6 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 		return err
 	}
 
-	allAppearingItemIdDtos := lo.Map(unitDtos, func(unitDto world_dto.UnitDto, _ int) uuid.UUID {
-		return unitDto.ItemId
-	})
-	appearingItemIdDtos := lo.UniqBy(allAppearingItemIdDtos, func(itemIdDto uuid.UUID) uuid.UUID {
-		return itemIdDto
-	})
-	itemDtos, err := itemAppService.GetItemsOfIds(itemappsrv.GetItemsOfIdsQuery{
-		ItemIds: appearingItemIdDtos,
-	})
-	if err != nil {
-		return err
-	}
-
 	playerDtos, err := playerAppService.GetPlayers(
 		playerappsrv.GetPlayersQuery{
 			WorldId:  worldIdDto,
@@ -577,9 +562,6 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 		Units:      unitDtos,
 		MyPlayerId: playerIdDto,
 		Players:    playerDtos,
-		AppearingItems: lo.Map(itemDtos, func(itemDto world_dto.ItemDto, _ int) viewmodel.ItemViewModel {
-			return viewmodel.ItemViewModel(itemDto)
-		}),
 	})
 	return nil
 }
