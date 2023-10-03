@@ -12,7 +12,7 @@ const (
 	errorHappenedResponseType responseDtoType = "ERROR_HAPPENED"
 	worldEnteredResponseType  responseDtoType = "WORLD_ENTERED"
 	unitCreatedResponseType   responseDtoType = "UNIT_CREATED"
-	unitUpdatedResponseType   responseDtoType = "UNIT_UPDATED"
+	unitRotatedResponseType   responseDtoType = "UNIT_ROTATED"
 	unitRemovedResponseType   responseDtoType = "UNIT_REMOVED"
 	playerJoinedResponseType  responseDtoType = "PLAYER_JOINED"
 	playerLeftResponseType    responseDtoType = "PLAYER_LEFT"
@@ -37,9 +37,9 @@ type unitCreatedResponse struct {
 	Unit dto.UnitDto     `json:"unit"`
 }
 
-type unitUpdatedResponse struct {
-	Type responseDtoType `json:"type"`
-	Unit dto.UnitDto     `json:"unit"`
+type unitRotatedResponse struct {
+	Type     responseDtoType `json:"type"`
+	Position dto.PositionDto `json:"position"`
 }
 
 type unitRemovedResponse struct {

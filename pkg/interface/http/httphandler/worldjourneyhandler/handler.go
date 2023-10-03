@@ -101,12 +101,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				httpHandler.sendUnitCreatedResponse(serverMessage.Unit, sendMessage)
-			case unitUpdatedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[unitUpdatedServerMessage](serverMessageBytes)
+			case unitRotatedServerMessageName:
+				serverMessage, err := jsonutil.Unmarshal[unitRotateServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendUnitUpdatedResponse(serverMessage.Unit, sendMessage)
+				httpHandler.sendUnitRotatedResponse(serverMessage.Position, sendMessage)
 			case unitRemovedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[unitRemovedServerMessage](serverMessageBytes)
 				if err != nil {
@@ -255,7 +255,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastUnitUpdatedServerMessage(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.broadcastUnitRotatedServerMessage(worldIdDto, requestDto.Position); err != nil {
 					sendError(err)
 				}
 			case removeUnitRequestType:
@@ -299,21 +299,10 @@ func (httpHandler *HttpHandler) broadcastUnitCreatedServerMessage(worldIdDto uui
 	return nil
 }
 
-func (httpHandler *HttpHandler) broadcastUnitUpdatedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
-	uow := pguow.NewDummyUow()
-
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	unitDto, err := unitAppService.GetUnit(unitappsrv.GetUnitQuery{
-		WorldId:  worldIdDto,
-		Position: positionDto,
-	})
-	if err != nil {
-		return err
-	}
-
+func (httpHandler *HttpHandler) broadcastUnitRotatedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newUnitUpdatedServerMessage(unitDto)),
+		jsonutil.Marshal(newUnitRotatedServerMessage(positionDto)),
 	)
 
 	return nil
@@ -574,10 +563,10 @@ func (httpHandler *HttpHandler) sendUnitCreatedResponse(unitDto world_dto.UnitDt
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendUnitUpdatedResponse(unitDto world_dto.UnitDto, sendMessage func(any)) error {
-	sendMessage(unitUpdatedResponse{
-		Type: unitUpdatedResponseType,
-		Unit: unitDto,
+func (httpHandler *HttpHandler) sendUnitRotatedResponse(positionDto world_dto.PositionDto, sendMessage func(any)) error {
+	sendMessage(unitRotatedResponse{
+		Type:     unitRotatedResponseType,
+		Position: positionDto,
 	})
 	return nil
 }

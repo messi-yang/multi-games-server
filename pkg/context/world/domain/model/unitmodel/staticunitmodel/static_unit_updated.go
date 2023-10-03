@@ -24,7 +24,7 @@ func NewStaticUnitUpdated(
 }
 
 func (domainEvent StaticUnitUpdated) GetEventName() string {
-	return "STATIC_UNIT_UPDATED"
+	return "STATIC_UNIT_ROTATED"
 }
 
 func (domainEvent StaticUnitUpdated) GetOccurredOn() time.Time {

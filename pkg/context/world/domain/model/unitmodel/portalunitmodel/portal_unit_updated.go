@@ -24,7 +24,7 @@ func NewPortalUnitUpdated(
 }
 
 func (domainEvent PortalUnitUpdated) GetEventName() string {
-	return "PORTAL_UNIT_UPDATED"
+	return "PORTAL_UNIT_ROTATED"
 }
 
 func (domainEvent PortalUnitUpdated) GetOccurredOn() time.Time {
