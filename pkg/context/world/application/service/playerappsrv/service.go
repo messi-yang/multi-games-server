@@ -15,7 +15,7 @@ type Service interface {
 	GetPlayers(GetPlayersQuery) (playerDtos []dto.PlayerDto, err error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
-	Move(MoveCommand) error
+	MovePlayer(MovePlayerCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
 }
@@ -79,9 +79,10 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 	return newPlayer.GetId().Uuid(), nil
 }
 
-func (serve *serve) Move(command MoveCommand) error {
+func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
 	direction := worldcommonmodel.NewDirection(command.Direction)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
@@ -89,30 +90,24 @@ func (serve *serve) Move(command MoveCommand) error {
 		return err
 	}
 
-	if !direction.IsEqual(player.GetDirection()) {
-		player.Move(player.GetPosition(), direction)
-		return serve.playerRepo.Update(player)
-	}
+	player.Move(position, direction)
 
-	nextPosition := player.GetPositionOneStepFoward()
-	player.Move(nextPosition, direction)
+	// unitAtNextPosition, err := serve.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
+	// if err != nil {
+	// 	return err
+	// }
 
-	unitAtNextPosition, err := serve.unitRepo.Find(unitmodel.NewUnitId(worldId, nextPosition))
-	if err != nil {
-		return err
-	}
-
-	if unitAtNextPosition != nil && unitAtNextPosition.GetType().IsPortal() {
-		portalUnitId := unitmodel.NewUnitId(worldId, nextPosition)
-		portalUnit, err := serve.portalUnitRepo.Get(portalUnitId)
-		if err != nil {
-			return err
-		}
-		portalPosition := portalUnit.GetTargetPosition()
-		if portalPosition != nil {
-			player.Teleport(*portalPosition)
-		}
-	}
+	// if unitAtNextPosition != nil && unitAtNextPosition.GetType().IsPortal() {
+	// 	portalUnitId := unitmodel.NewUnitId(worldId, position)
+	// 	portalUnit, err := serve.portalUnitRepo.Get(portalUnitId)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	portalPosition := portalUnit.GetTargetPosition()
+	// 	if portalPosition != nil {
+	// 		player.Teleport(*portalPosition)
+	// 	}
+	// }
 
 	return serve.playerRepo.Update(player)
 }

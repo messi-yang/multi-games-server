@@ -9,7 +9,7 @@ type RequestType string
 
 const (
 	pingRequestType                 RequestType = "PING"
-	moveRequestType                 RequestType = "MOVE"
+	movePlayerRequestType           RequestType = "MOVE_PLAYER"
 	changePlayerHeldItemRequestType RequestType = "CHANGE_PLAYER_HELD_ITEM"
 	createStaticUnitRequestType     RequestType = "CREATE_STATIC_UNIT"
 	createPortalUnitRequestType     RequestType = "CREATE_PORTAL_UNIT"
@@ -21,9 +21,11 @@ type genericRequest struct {
 	Type RequestType `json:"type"`
 }
 
-type moveRequest struct {
-	Type      RequestType `json:"type"`
-	Direction int8        `json:"direction"`
+type movePlayerRequest struct {
+	Type      RequestType     `json:"type"`
+	PlayerId  uuid.UUID       `json:"playerId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
 }
 
 type changePlayerHeldItemRequest struct {

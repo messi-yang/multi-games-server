@@ -86,14 +86,18 @@ func newPlayerLeftServerMessage(playerId uuid.UUID) playerLeftServerMessage {
 }
 
 type playerMovedServerMessage struct {
-	Name   serverMessageName
-	Player dto.PlayerDto
+	Name      serverMessageName
+	PlayerId  uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
 }
 
-func newPlayerMovedServerMessage(player dto.PlayerDto) playerMovedServerMessage {
+func newPlayerMovedServerMessage(playerId uuid.UUID, position dto.PositionDto, direction int8) playerMovedServerMessage {
 	return playerMovedServerMessage{
-		Name:   playerMovedServerMessageName,
-		Player: player,
+		Name:      playerMovedServerMessageName,
+		PlayerId:  playerId,
+		Position:  position,
+		Direction: direction,
 	}
 }
 

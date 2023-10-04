@@ -127,7 +127,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				httpHandler.sendPlayerMovedResponse(serverMessage.Player, sendMessage)
+				httpHandler.sendPlayerMovedResponse(serverMessage.PlayerId, serverMessage.Position, serverMessage.Direction, sendMessage)
 			case playerHeldItemChangedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[playerHeldItemChangedServerMessage](serverMessageBytes)
 				if err != nil {
@@ -189,17 +189,21 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			switch genericRequest.Type {
 			case pingRequestType:
 				continue
-			case moveRequestType:
-				requestDto, err := jsonutil.Unmarshal[moveRequest](message)
+			case movePlayerRequestType:
+				requestDto, err := jsonutil.Unmarshal[movePlayerRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeMoveCommand(worldIdDto, playerIdDto, requestDto.Direction); err != nil {
+				if requestDto.PlayerId != playerIdDto {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeMovePlayerCommand(worldIdDto, requestDto.PlayerId, requestDto.Position, requestDto.Direction); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
+				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, requestDto.PlayerId, requestDto.Position, requestDto.Direction); err != nil {
 					sendError(err)
 				}
 			case changePlayerHeldItemRequestType:
@@ -343,18 +347,15 @@ func (httpHandler *HttpHandler) broadcastPlayerJoinedServerMessage(worldIdDto uu
 	return nil
 }
 
-func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	playerDto, err := playerAppService.GetPlayer(playerappsrv.GetPlayerQuery{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
-	})
-	if err != nil {
-		return err
-	}
+func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(
+	worldIdDto uuid.UUID,
+	playerIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newPlayerMovedServerMessage(playerDto)),
+		jsonutil.Marshal(newPlayerMovedServerMessage(playerIdDto, positionDto, directionDto)),
 	)
 	return nil
 }
@@ -379,11 +380,12 @@ func (httpHandler *HttpHandler) broadcastPlayerLeftServerMessage(worldIdDto uuid
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, directionDto int8) error {
+func (httpHandler *HttpHandler) executeMovePlayerCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, positionDto world_dto.PositionDto, directionDto int8) error {
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.Move(playerappsrv.MoveCommand{
+	if err := playerAppService.MovePlayer(playerappsrv.MovePlayerCommand{
 		WorldId:   worldIdDto,
 		PlayerId:  playerIdDto,
+		Position:  positionDto,
 		Direction: directionDto,
 	}); err != nil {
 		return err
@@ -617,10 +619,12 @@ func (httpHandler *HttpHandler) sendPlayerLeftResponse(playerIdDto uuid.UUID, se
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendPlayerMovedResponse(playerDto world_dto.PlayerDto, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendPlayerMovedResponse(playerIdDto uuid.UUID, positionDto world_dto.PositionDto, directionDto int8, sendMessage func(any)) error {
 	sendMessage(playerMovedResponse{
-		Type:   playerMovedResponseType,
-		Player: playerDto,
+		Type:      playerMovedResponseType,
+		PlayerId:  playerIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
 	})
 	return nil
 }

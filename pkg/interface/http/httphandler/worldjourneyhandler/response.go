@@ -59,8 +59,10 @@ type playerLeftResponse struct {
 }
 
 type playerMovedResponse struct {
-	Type   responseDtoType `json:"type"`
-	Player dto.PlayerDto   `json:"player"`
+	Type      responseDtoType `json:"type"`
+	PlayerId  uuid.UUID       `json:"playerId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
 }
 
 type playerHeldItemChangedResponse struct {
