@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type ChangeHeldItemCommand struct {
+type ChangePlayerHeldItemCommand struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
 	ItemId   uuid.UUID

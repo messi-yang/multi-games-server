@@ -128,6 +128,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				httpHandler.sendPlayerMovedResponse(serverMessage.Player, sendMessage)
+			case playerHeldItemChangedServerMessageName:
+				serverMessage, err := jsonutil.Unmarshal[playerHeldItemChangedServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendPlayerHeldItemChangedResponse(serverMessage.PlayerId, serverMessage.ItemId, sendMessage)
 			case playerLeftServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[playerLeftServerMessage](serverMessageBytes)
 				if err != nil {
@@ -196,17 +202,21 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
 					sendError(err)
 				}
-			case changeHeldItemRequestType:
-				requestDto, err := jsonutil.Unmarshal[changeHeldItemRequest](message)
+			case changePlayerHeldItemRequestType:
+				requestDto, err := jsonutil.Unmarshal[changePlayerHeldItemRequest](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeChangeHeldItemCommand(worldIdDto, playerIdDto, requestDto.ItemId); err != nil {
+				if requestDto.PlayerId != playerIdDto {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, requestDto.PlayerId, requestDto.ItemId); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, playerIdDto); err != nil {
+				if err = httpHandler.broadcastPlayerHeldItemChangedServerMessage(worldIdDto, requestDto.PlayerId, requestDto.ItemId); err != nil {
 					sendError(err)
 				}
 			case createStaticUnitRequestType:
@@ -349,6 +359,18 @@ func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(worldIdDto uui
 	return nil
 }
 
+func (httpHandler *HttpHandler) broadcastPlayerHeldItemChangedServerMessage(
+	worldIdDto uuid.UUID,
+	playerIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+) error {
+	httpHandler.redisServerMessageMediator.Send(
+		newWorldServerMessageChannel(worldIdDto),
+		jsonutil.Marshal(newPlayerHeldItemChangedServerMessage(playerIdDto, itemIdDto)),
+	)
+	return nil
+}
+
 func (httpHandler *HttpHandler) broadcastPlayerLeftServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
@@ -369,9 +391,9 @@ func (httpHandler *HttpHandler) executeMoveCommand(worldIdDto uuid.UUID, playerI
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeChangeHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) executeChangePlayerHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.ChangeHeldItem(playerappsrv.ChangeHeldItemCommand{
+	if err := playerAppService.ChangePlayerHeldItem(playerappsrv.ChangePlayerHeldItemCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 		ItemId:   itemIdDto,
@@ -599,6 +621,15 @@ func (httpHandler *HttpHandler) sendPlayerMovedResponse(playerDto world_dto.Play
 	sendMessage(playerMovedResponse{
 		Type:   playerMovedResponseType,
 		Player: playerDto,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendPlayerHeldItemChangedResponse(playerIdDto uuid.UUID, itemIdDto uuid.UUID, sendMessage func(any)) error {
+	sendMessage(playerHeldItemChangedResponse{
+		Type:     playerHeldItemChangedResponseType,
+		PlayerId: playerIdDto,
+		ItemId:   itemIdDto,
 	})
 	return nil
 }

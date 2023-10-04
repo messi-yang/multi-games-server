@@ -8,13 +8,13 @@ import (
 type RequestType string
 
 const (
-	pingRequestType             RequestType = "PING"
-	moveRequestType             RequestType = "MOVE"
-	changeHeldItemRequestType   RequestType = "CHANGE_HELD_ITEM"
-	createStaticUnitRequestType RequestType = "CREATE_STATIC_UNIT"
-	createPortalUnitRequestType RequestType = "CREATE_PORTAL_UNIT"
-	rotateUnitRequestType       RequestType = "ROTATE_UNIT"
-	removeUnitRequestType       RequestType = "REMOVE_UNIT"
+	pingRequestType                 RequestType = "PING"
+	moveRequestType                 RequestType = "MOVE"
+	changePlayerHeldItemRequestType RequestType = "CHANGE_PLAYER_HELD_ITEM"
+	createStaticUnitRequestType     RequestType = "CREATE_STATIC_UNIT"
+	createPortalUnitRequestType     RequestType = "CREATE_PORTAL_UNIT"
+	rotateUnitRequestType           RequestType = "ROTATE_UNIT"
+	removeUnitRequestType           RequestType = "REMOVE_UNIT"
 )
 
 type genericRequest struct {
@@ -26,9 +26,10 @@ type moveRequest struct {
 	Direction int8        `json:"direction"`
 }
 
-type changeHeldItemRequest struct {
-	Type   RequestType `json:"type"`
-	ItemId uuid.UUID   `json:"itemId"`
+type changePlayerHeldItemRequest struct {
+	Type     RequestType `json:"type"`
+	PlayerId uuid.UUID   `json:"playerId"`
+	ItemId   uuid.UUID   `json:"itemId"`
 }
 
 type createStaticUnitRequest struct {

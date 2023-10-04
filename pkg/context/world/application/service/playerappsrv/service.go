@@ -17,7 +17,7 @@ type Service interface {
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
 	Move(MoveCommand) error
 	LeaveWorld(LeaveWorldCommand) error
-	ChangeHeldItem(ChangeHeldItemCommand) error
+	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
 }
 
 type serve struct {
@@ -128,7 +128,7 @@ func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
 	return serve.playerRepo.Delete(player)
 }
 
-func (serve *serve) ChangeHeldItem(command ChangeHeldItemCommand) error {
+func (serve *serve) ChangePlayerHeldItem(command ChangePlayerHeldItemCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
 	itemId := worldcommonmodel.NewItemId(command.ItemId)

@@ -9,14 +9,15 @@ import (
 type responseDtoType string
 
 const (
-	errorHappenedResponseType responseDtoType = "ERROR_HAPPENED"
-	worldEnteredResponseType  responseDtoType = "WORLD_ENTERED"
-	unitCreatedResponseType   responseDtoType = "UNIT_CREATED"
-	unitRotatedResponseType   responseDtoType = "UNIT_ROTATED"
-	unitRemovedResponseType   responseDtoType = "UNIT_REMOVED"
-	playerJoinedResponseType  responseDtoType = "PLAYER_JOINED"
-	playerLeftResponseType    responseDtoType = "PLAYER_LEFT"
-	playerMovedResponseType   responseDtoType = "PLAYER_MOVED"
+	errorHappenedResponseType         responseDtoType = "ERROR_HAPPENED"
+	worldEnteredResponseType          responseDtoType = "WORLD_ENTERED"
+	unitCreatedResponseType           responseDtoType = "UNIT_CREATED"
+	unitRotatedResponseType           responseDtoType = "UNIT_ROTATED"
+	unitRemovedResponseType           responseDtoType = "UNIT_REMOVED"
+	playerJoinedResponseType          responseDtoType = "PLAYER_JOINED"
+	playerLeftResponseType            responseDtoType = "PLAYER_LEFT"
+	playerMovedResponseType           responseDtoType = "PLAYER_MOVED"
+	playerHeldItemChangedResponseType responseDtoType = "PLAYER_HELD_ITEM_CHANGED"
 )
 
 type errorHappenedResponse struct {
@@ -60,4 +61,10 @@ type playerLeftResponse struct {
 type playerMovedResponse struct {
 	Type   responseDtoType `json:"type"`
 	Player dto.PlayerDto   `json:"player"`
+}
+
+type playerHeldItemChangedResponse struct {
+	Type     responseDtoType `json:"type"`
+	PlayerId uuid.UUID       `json:"playerId"`
+	ItemId   uuid.UUID       `json:"itemId"`
 }

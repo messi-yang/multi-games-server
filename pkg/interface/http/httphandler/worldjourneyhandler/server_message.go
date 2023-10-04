@@ -10,12 +10,13 @@ import (
 type serverMessageName string
 
 const (
-	unitCreatedServerMessageName  serverMessageName = "UNIT_CREATED"
-	unitRotatedServerMessageName  serverMessageName = "UNIT_ROTATED"
-	unitRemovedServerMessageName  serverMessageName = "UNIT_REMOVED"
-	playerJoinedServerMessageName serverMessageName = "PLAYER_JOINED"
-	playerLeftServerMessageName   serverMessageName = "PLAYER_LEFT"
-	playerMovedServerMessageName  serverMessageName = "PLAYER_MOVED"
+	unitCreatedServerMessageName           serverMessageName = "UNIT_CREATED"
+	unitRotatedServerMessageName           serverMessageName = "UNIT_ROTATED"
+	unitRemovedServerMessageName           serverMessageName = "UNIT_REMOVED"
+	playerJoinedServerMessageName          serverMessageName = "PLAYER_JOINED"
+	playerLeftServerMessageName            serverMessageName = "PLAYER_LEFT"
+	playerMovedServerMessageName           serverMessageName = "PLAYER_MOVED"
+	playerHeldItemChangedServerMessageName serverMessageName = "PLAYER_HELD_ITEM_CHANGED"
 )
 
 type ServerMessage struct {
@@ -93,6 +94,20 @@ func newPlayerMovedServerMessage(player dto.PlayerDto) playerMovedServerMessage 
 	return playerMovedServerMessage{
 		Name:   playerMovedServerMessageName,
 		Player: player,
+	}
+}
+
+type playerHeldItemChangedServerMessage struct {
+	Name     serverMessageName
+	PlayerId uuid.UUID
+	ItemId   uuid.UUID
+}
+
+func newPlayerHeldItemChangedServerMessage(playerId uuid.UUID, itemId uuid.UUID) playerHeldItemChangedServerMessage {
+	return playerHeldItemChangedServerMessage{
+		Name:     playerHeldItemChangedServerMessageName,
+		PlayerId: playerId,
+		ItemId:   itemId,
 	}
 }
 
