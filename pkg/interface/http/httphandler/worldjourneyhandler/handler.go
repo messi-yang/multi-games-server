@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
@@ -67,9 +68,11 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		closeConnFlag.Done()
 	}
 	sendError := func(err error) {
-		sendMessage(errorHappenedResponse{
-			Type:    errorHappenedResponseType,
-			Message: err.Error(),
+		sendMessage(displayerErrorCommand{
+			Id:        uuid.New(),
+			Timestamp: time.Now().UnixMilli(),
+			Name:      displayerErrorCommandName,
+			Message:   err.Error(),
 		})
 	}
 	closeConnectionOnError := func(err error) {
@@ -89,67 +92,110 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	worldServerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		newWorldServerMessageChannel(worldIdDto),
 		func(serverMessageBytes []byte) {
-			serverMessage, err := jsonutil.Unmarshal[ServerMessage](serverMessageBytes)
+			command, err := jsonutil.Unmarshal[command](serverMessageBytes)
 			if err != nil {
 				return
 			}
 
-			switch serverMessage.Name {
-			case staticUnitCreatedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[staticUnitCreatedServerMessage](serverMessageBytes)
+			switch command.Name {
+			case createStaticUnitCommandName:
+				command, err := jsonutil.Unmarshal[createStaticUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendStaticUnitCreatedResponse(
-					serverMessage.ItemId, serverMessage.Position, serverMessage.Direction, sendMessage,
-				)
-			case portalUnitCreatedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[portalUnitCreatedServerMessage](serverMessageBytes)
+				sendMessage(createStaticUnitCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					ItemId:    command.ItemId,
+					Position:  command.Position,
+					Direction: command.Direction,
+				})
+			case createPortalUnitCommandName:
+				command, err := jsonutil.Unmarshal[createPortalUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendPortalUnitCreatedResponse(
-					serverMessage.ItemId, serverMessage.Position, serverMessage.Direction, sendMessage,
-				)
-			case unitRotatedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[unitRotateServerMessage](serverMessageBytes)
+				sendMessage(createPortalUnitCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					ItemId:    command.ItemId,
+					Position:  command.Position,
+					Direction: command.Direction,
+				})
+			case rotateUnitCommandName:
+				command, err := jsonutil.Unmarshal[rotateUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendUnitRotatedResponse(serverMessage.Position, sendMessage)
-			case unitRemovedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[unitRemovedServerMessage](serverMessageBytes)
+				sendMessage(rotateUnitCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					Position:  command.Position,
+				})
+			case removeUnitCommandName:
+				command, err := jsonutil.Unmarshal[removeUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendUnitRemovedResponse(serverMessage.Position, sendMessage)
-			case playerJoinedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[playerJoinedServerMessage](serverMessageBytes)
+				sendMessage(removeUnitCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					Position:  command.Position,
+				})
+			case addPlayerCommandName:
+				command, err := jsonutil.Unmarshal[addPlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				if serverMessage.Player.Id == playerIdDto {
+				if command.Player.Id == playerIdDto {
 					return
 				}
-				httpHandler.sendPlayerJoinedResponse(serverMessage.Player, sendMessage)
-			case playerMovedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[playerMovedServerMessage](serverMessageBytes)
+				sendMessage(addPlayerCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					Player:    command.Player,
+				})
+			case movePlayerCommandName:
+				command, err := jsonutil.Unmarshal[movePlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendPlayerMovedResponse(serverMessage.PlayerId, serverMessage.Position, serverMessage.Direction, sendMessage)
-			case playerHeldItemChangedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[playerHeldItemChangedServerMessage](serverMessageBytes)
+				sendMessage(movePlayerCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					PlayerId:  command.PlayerId,
+					Position:  command.Position,
+					Direction: command.Direction,
+				})
+			case changePlayerHeldItemCommandName:
+				command, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendPlayerHeldItemChangedResponse(serverMessage.PlayerId, serverMessage.ItemId, sendMessage)
-			case playerLeftServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[playerLeftServerMessage](serverMessageBytes)
+				sendMessage(changePlayerHeldItemCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					PlayerId:  command.PlayerId,
+					ItemId:    command.ItemId,
+				})
+			case removePlayerCommandName:
+				command, err := jsonutil.Unmarshal[removePlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendPlayerLeftResponse(serverMessage.PlayerId, sendMessage)
+				sendMessage(removePlayerCommand{
+					Id:        command.Id,
+					Timestamp: command.Timestamp,
+					Name:      command.Name,
+					PlayerId:  command.PlayerId,
+				})
 			default:
 			}
 		},
@@ -165,22 +211,33 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
 			fmt.Println(err)
 		}
-		if err = httpHandler.broadcastPlayerLeftServerMessage(worldIdDto, playerIdDto); err != nil {
-			closeConnectionOnError(err)
-			return
-		}
+		httpHandler.redisServerMessageMediator.Send(
+			newWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(removePlayerCommand{
+				Id:        uuid.New(),
+				Timestamp: time.Now().UnixMilli(),
+				Name:      removePlayerCommandName,
+				PlayerId:  playerIdDto,
+			}),
+		)
 	}
 	defer safelyLeaveWorldInAllCases()
 
-	if err = httpHandler.sendWorldEnteredResponse(worldIdDto, playerIdDto, sendMessage); err != nil {
+	if err = httpHandler.sendAddWorldCommandResponse(worldIdDto, playerIdDto, sendMessage); err != nil {
 		closeConnectionOnError(err)
 		return
 	}
 
-	if err = httpHandler.broadcastPlayerJoinedServerMessage(worldIdDto, playerIdDto); err != nil {
-		closeConnectionOnError(err)
-		return
-	}
+	playerDto, err := httpHandler.queryPlayer(worldIdDto, playerIdDto)
+	httpHandler.redisServerMessageMediator.Send(
+		newWorldServerMessageChannel(worldIdDto),
+		jsonutil.Marshal(addPlayerCommand{
+			Id:        uuid.New(),
+			Timestamp: time.Now().UnixMilli(),
+			Name:      addPlayerCommandName,
+			Player:    playerDto,
+		}),
+	)
 
 	go func() {
 		for {
@@ -190,115 +247,154 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				return
 			}
 
-			genericRequest, err := jsonutil.Unmarshal[genericRequest](message)
+			command, err := jsonutil.Unmarshal[command](message)
 			if err != nil {
 				closeConnectionOnError(err)
 				return
 			}
 
-			switch genericRequest.Type {
-			case pingRequestType:
+			switch command.Name {
+			case pingCommandName:
 				continue
-			case movePlayerRequestType:
-				requestDto, err := jsonutil.Unmarshal[movePlayerRequest](message)
+			case movePlayerCommandName:
+				commandDto, err := jsonutil.Unmarshal[movePlayerCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if requestDto.PlayerId != playerIdDto {
+				if commandDto.PlayerId != playerIdDto {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeMovePlayerCommand(worldIdDto, requestDto.PlayerId, requestDto.Position, requestDto.Direction); err != nil {
+				if err = httpHandler.executeMovePlayerCommand(worldIdDto, commandDto.PlayerId, commandDto.Position, commandDto.Direction); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastPlayerMovedServerMessage(worldIdDto, requestDto.PlayerId, requestDto.Position, requestDto.Direction); err != nil {
-					sendError(err)
-				}
-			case changePlayerHeldItemRequestType:
-				requestDto, err := jsonutil.Unmarshal[changePlayerHeldItemRequest](message)
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(movePlayerCommand{
+						Id:        commandDto.Id,
+						Timestamp: commandDto.Timestamp,
+						Name:      commandDto.Name,
+						PlayerId:  commandDto.PlayerId,
+						Position:  commandDto.Position,
+						Direction: commandDto.Direction,
+					}),
+				)
+			case changePlayerHeldItemCommandName:
+				commandDto, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if requestDto.PlayerId != playerIdDto {
+				if commandDto.PlayerId != playerIdDto {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, requestDto.PlayerId, requestDto.ItemId); err != nil {
+				if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, commandDto.PlayerId, commandDto.ItemId); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastPlayerHeldItemChangedServerMessage(worldIdDto, requestDto.PlayerId, requestDto.ItemId); err != nil {
-					sendError(err)
-				}
-			case createStaticUnitRequestType:
-				requestDto, err := jsonutil.Unmarshal[createStaticUnitRequest](message)
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(changePlayerHeldItemCommand{
+						Id:        commandDto.Id,
+						Timestamp: commandDto.Timestamp,
+						Name:      commandDto.Name,
+						PlayerId:  commandDto.PlayerId,
+						ItemId:    commandDto.ItemId,
+					}),
+				)
+			case createStaticUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[createStaticUnitCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
 				if err = httpHandler.executeCreateStaticUnitCommand(
 					worldIdDto,
-					requestDto.ItemId,
-					requestDto.Position,
-					requestDto.Direction,
+					commandDto.ItemId,
+					commandDto.Position,
+					commandDto.Direction,
 				); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastStaticUnitCreatedServerMessage(
-					worldIdDto, requestDto.ItemId, requestDto.Position, requestDto.Direction,
-				); err != nil {
-					sendError(err)
-				}
-			case createPortalUnitRequestType:
-				requestDto, err := jsonutil.Unmarshal[createPortalUnitRequest](message)
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(createStaticUnitCommand{
+						Id:        commandDto.Id,
+						Timestamp: commandDto.Timestamp,
+						Name:      commandDto.Name,
+						ItemId:    commandDto.ItemId,
+						Position:  commandDto.Position,
+						Direction: commandDto.Direction,
+					}),
+				)
+			case createPortalUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[createPortalUnitCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
 				if err = httpHandler.executeCreatePortalUnitCommand(
 					worldIdDto,
-					requestDto.ItemId,
-					requestDto.Position,
-					requestDto.Direction,
+					commandDto.ItemId,
+					commandDto.Position,
+					commandDto.Direction,
 				); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastPortalUnitCreatedServerMessage(
-					worldIdDto, requestDto.ItemId, requestDto.Position, requestDto.Direction,
-				); err != nil {
-					sendError(err)
-				}
-			case rotateUnitRequestType:
-				requestDto, err := jsonutil.Unmarshal[rotateUnitRequest](message)
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(createPortalUnitCommand{
+						Id:        commandDto.Id,
+						Timestamp: commandDto.Timestamp,
+						Name:      commandDto.Name,
+						ItemId:    commandDto.ItemId,
+						Position:  commandDto.Position,
+						Direction: commandDto.Direction,
+					}),
+				)
+			case rotateUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[rotateUnitCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRotateUnitCommand(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.executeRotateUnitCommand(worldIdDto, commandDto.Position); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastUnitRotatedServerMessage(worldIdDto, requestDto.Position); err != nil {
-					sendError(err)
-				}
-			case removeUnitRequestType:
-				requestDto, err := jsonutil.Unmarshal[removeUnitRequest](message)
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(rotateUnitCommand{
+						Id:        commandDto.Id,
+						Timestamp: commandDto.Timestamp,
+						Name:      commandDto.Name,
+						Position:  commandDto.Position,
+					}),
+				)
+			case removeUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[removeUnitCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, commandDto.Position); err != nil {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastUnitRemovedServerMessage(worldIdDto, requestDto.Position); err != nil {
-					sendError(err)
-				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(removeUnitCommand{
+						Id:        commandDto.Id,
+						Timestamp: commandDto.Timestamp,
+						Name:      commandDto.Name,
+						Position:  commandDto.Position,
+					}),
+				)
 			default:
 			}
 		}
@@ -307,101 +403,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	closeConnFlag.Wait()
 }
 
-func (httpHandler *HttpHandler) broadcastStaticUnitCreatedServerMessage(
-	worldIdDto uuid.UUID,
-	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
-	directionDto int8,
-) error {
-
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newStaticUnitCreatedServerMessage(itemIdDto, positionDto, directionDto)),
-	)
-
-	return nil
-}
-
-func (httpHandler *HttpHandler) broadcastPortalUnitCreatedServerMessage(
-	worldIdDto uuid.UUID,
-	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
-	directionDto int8,
-) error {
-
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newPortalUnitCreatedServerMessage(itemIdDto, positionDto, directionDto)),
-	)
-
-	return nil
-}
-
-func (httpHandler *HttpHandler) broadcastUnitRotatedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newUnitRotatedServerMessage(positionDto)),
-	)
-
-	return nil
-}
-
-func (httpHandler *HttpHandler) broadcastUnitRemovedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newUnitRemovedServerMessage(worldIdDto, positionDto)),
-	)
-
-	return nil
-}
-
-func (httpHandler *HttpHandler) broadcastPlayerJoinedServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) queryPlayer(worldIdDto uuid.UUID, playerIdDto uuid.UUID) (playerDto world_dto.PlayerDto, err error) {
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	playerDto, err := playerAppService.GetPlayer(playerappsrv.GetPlayerQuery{
+	return playerAppService.GetPlayer(playerappsrv.GetPlayerQuery{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 	})
-	if err != nil {
-		return err
-	}
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newPlayerJoinedServerMessage(playerDto)),
-	)
-	return nil
-}
-
-func (httpHandler *HttpHandler) broadcastPlayerMovedServerMessage(
-	worldIdDto uuid.UUID,
-	playerIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
-	directionDto int8,
-) error {
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newPlayerMovedServerMessage(playerIdDto, positionDto, directionDto)),
-	)
-	return nil
-}
-
-func (httpHandler *HttpHandler) broadcastPlayerHeldItemChangedServerMessage(
-	worldIdDto uuid.UUID,
-	playerIdDto uuid.UUID,
-	itemIdDto uuid.UUID,
-) error {
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newPlayerHeldItemChangedServerMessage(playerIdDto, itemIdDto)),
-	)
-	return nil
-}
-
-func (httpHandler *HttpHandler) broadcastPlayerLeftServerMessage(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newPlayerLeftServerMessage(playerIdDto)),
-	)
-	return nil
 }
 
 func (httpHandler *HttpHandler) executeMovePlayerCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, positionDto world_dto.PositionDto, directionDto int8) error {
@@ -553,7 +560,7 @@ func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendAddWorldCommandResponse(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
 	uow := pguow.NewDummyUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
@@ -593,93 +600,14 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 		return err
 	}
 
-	sendMessage(worldEnteredResponse{
-		Type:       worldEnteredResponseType,
+	sendMessage(enterWorldCommand{
+		Id:         uuid.New(),
+		Timestamp:  time.Now().UnixMilli(),
+		Name:       enterWorldCommandName,
 		World:      viewmodel.WorldViewModel{WorldDto: worldDto, UserDto: userDto},
 		Units:      unitDtos,
 		MyPlayerId: playerIdDto,
 		Players:    playerDtos,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendStaticUnitCreatedResponse(
-	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
-	directionDto int8,
-	sendMessage func(any),
-) error {
-	sendMessage(staticUnitCreatedResponse{
-		Type:      staticUnitCreatedResponseType,
-		ItemId:    itemIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendPortalUnitCreatedResponse(
-	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
-	directionDto int8,
-	sendMessage func(any),
-) error {
-	sendMessage(portalUnitCreatedResponse{
-		Type:      portalUnitCreatedResponseType,
-		ItemId:    itemIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendUnitRotatedResponse(positionDto world_dto.PositionDto, sendMessage func(any)) error {
-	sendMessage(unitRotatedResponse{
-		Type:     unitRotatedResponseType,
-		Position: positionDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendUnitRemovedResponse(positionDto world_dto.PositionDto, sendMessage func(any)) error {
-	sendMessage(unitRemovedResponse{
-		Type:     unitRemovedResponseType,
-		Position: positionDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendPlayerJoinedResponse(playerDto world_dto.PlayerDto, sendMessage func(any)) error {
-	sendMessage(playerJoinedResponse{
-		Type:   playerJoinedResponseType,
-		Player: playerDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendPlayerLeftResponse(playerIdDto uuid.UUID, sendMessage func(any)) error {
-	sendMessage(playerLeftResponse{
-		Type:     playerLeftResponseType,
-		PlayerId: playerIdDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendPlayerMovedResponse(playerIdDto uuid.UUID, positionDto world_dto.PositionDto, directionDto int8, sendMessage func(any)) error {
-	sendMessage(playerMovedResponse{
-		Type:      playerMovedResponseType,
-		PlayerId:  playerIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-	})
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendPlayerHeldItemChangedResponse(playerIdDto uuid.UUID, itemIdDto uuid.UUID, sendMessage func(any)) error {
-	sendMessage(playerHeldItemChangedResponse{
-		Type:     playerHeldItemChangedResponseType,
-		PlayerId: playerIdDto,
-		ItemId:   itemIdDto,
 	})
 	return nil
 }
