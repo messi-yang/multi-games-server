@@ -95,12 +95,22 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			}
 
 			switch serverMessage.Name {
-			case unitCreatedServerMessageName:
-				serverMessage, err := jsonutil.Unmarshal[unitCreatedServerMessage](serverMessageBytes)
+			case staticUnitCreatedServerMessageName:
+				serverMessage, err := jsonutil.Unmarshal[staticUnitCreatedServerMessage](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				httpHandler.sendUnitCreatedResponse(serverMessage.Unit, sendMessage)
+				httpHandler.sendStaticUnitCreatedResponse(
+					serverMessage.ItemId, serverMessage.Position, serverMessage.Direction, sendMessage,
+				)
+			case portalUnitCreatedServerMessageName:
+				serverMessage, err := jsonutil.Unmarshal[portalUnitCreatedServerMessage](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				httpHandler.sendPortalUnitCreatedResponse(
+					serverMessage.ItemId, serverMessage.Position, serverMessage.Direction, sendMessage,
+				)
 			case unitRotatedServerMessageName:
 				serverMessage, err := jsonutil.Unmarshal[unitRotateServerMessage](serverMessageBytes)
 				if err != nil {
@@ -238,7 +248,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastUnitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.broadcastStaticUnitCreatedServerMessage(
+					worldIdDto, requestDto.ItemId, requestDto.Position, requestDto.Direction,
+				); err != nil {
 					sendError(err)
 				}
 			case createPortalUnitRequestType:
@@ -256,7 +268,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					sendError(err)
 					break
 				}
-				if err = httpHandler.broadcastUnitCreatedServerMessage(worldIdDto, requestDto.Position); err != nil {
+				if err = httpHandler.broadcastPortalUnitCreatedServerMessage(
+					worldIdDto, requestDto.ItemId, requestDto.Position, requestDto.Direction,
+				); err != nil {
 					sendError(err)
 				}
 			case rotateUnitRequestType:
@@ -293,21 +307,31 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	closeConnFlag.Wait()
 }
 
-func (httpHandler *HttpHandler) broadcastUnitCreatedServerMessage(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
-	uow := pguow.NewDummyUow()
-
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	unitDto, err := unitAppService.GetUnit(unitappsrv.GetUnitQuery{
-		WorldId:  worldIdDto,
-		Position: positionDto,
-	})
-	if err != nil {
-		return err
-	}
+func (httpHandler *HttpHandler) broadcastStaticUnitCreatedServerMessage(
+	worldIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+) error {
 
 	httpHandler.redisServerMessageMediator.Send(
 		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(newUnitCreatedServerMessage(unitDto)),
+		jsonutil.Marshal(newStaticUnitCreatedServerMessage(itemIdDto, positionDto, directionDto)),
+	)
+
+	return nil
+}
+
+func (httpHandler *HttpHandler) broadcastPortalUnitCreatedServerMessage(
+	worldIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+) error {
+
+	httpHandler.redisServerMessageMediator.Send(
+		newWorldServerMessageChannel(worldIdDto),
+		jsonutil.Marshal(newPortalUnitCreatedServerMessage(itemIdDto, positionDto, directionDto)),
 	)
 
 	return nil
@@ -579,10 +603,32 @@ func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendUnitCreatedResponse(unitDto world_dto.UnitDto, sendMessage func(any)) error {
-	sendMessage(unitCreatedResponse{
-		Type: unitCreatedResponseType,
-		Unit: unitDto,
+func (httpHandler *HttpHandler) sendStaticUnitCreatedResponse(
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+	sendMessage func(any),
+) error {
+	sendMessage(staticUnitCreatedResponse{
+		Type:      staticUnitCreatedResponseType,
+		ItemId:    itemIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
+	})
+	return nil
+}
+
+func (httpHandler *HttpHandler) sendPortalUnitCreatedResponse(
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+	sendMessage func(any),
+) error {
+	sendMessage(portalUnitCreatedResponse{
+		Type:      portalUnitCreatedResponseType,
+		ItemId:    itemIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
 	})
 	return nil
 }

@@ -10,7 +10,8 @@ import (
 type serverMessageName string
 
 const (
-	unitCreatedServerMessageName           serverMessageName = "UNIT_CREATED"
+	staticUnitCreatedServerMessageName     serverMessageName = "STATIC_UNIT_CREATED"
+	portalUnitCreatedServerMessageName     serverMessageName = "PORTAL_UNIT_CREATED"
 	unitRotatedServerMessageName           serverMessageName = "UNIT_ROTATED"
 	unitRemovedServerMessageName           serverMessageName = "UNIT_REMOVED"
 	playerJoinedServerMessageName          serverMessageName = "PLAYER_JOINED"
@@ -23,15 +24,35 @@ type ServerMessage struct {
 	Name serverMessageName
 }
 
-type unitCreatedServerMessage struct {
-	Name serverMessageName
-	Unit dto.UnitDto
+type staticUnitCreatedServerMessage struct {
+	Name      serverMessageName
+	ItemId    uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
 }
 
-func newUnitCreatedServerMessage(unit dto.UnitDto) unitCreatedServerMessage {
-	return unitCreatedServerMessage{
-		Name: unitCreatedServerMessageName,
-		Unit: unit,
+func newStaticUnitCreatedServerMessage(itemId uuid.UUID, position dto.PositionDto, direction int8) staticUnitCreatedServerMessage {
+	return staticUnitCreatedServerMessage{
+		Name:      staticUnitCreatedServerMessageName,
+		ItemId:    itemId,
+		Position:  position,
+		Direction: direction,
+	}
+}
+
+type portalUnitCreatedServerMessage struct {
+	Name      serverMessageName
+	ItemId    uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
+}
+
+func newPortalUnitCreatedServerMessage(itemId uuid.UUID, position dto.PositionDto, direction int8) portalUnitCreatedServerMessage {
+	return portalUnitCreatedServerMessage{
+		Name:      portalUnitCreatedServerMessageName,
+		ItemId:    itemId,
+		Position:  position,
+		Direction: direction,
 	}
 }
 

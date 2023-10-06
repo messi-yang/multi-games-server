@@ -11,7 +11,8 @@ type responseDtoType string
 const (
 	errorHappenedResponseType         responseDtoType = "ERROR_HAPPENED"
 	worldEnteredResponseType          responseDtoType = "WORLD_ENTERED"
-	unitCreatedResponseType           responseDtoType = "UNIT_CREATED"
+	staticUnitCreatedResponseType     responseDtoType = "STATIC_UNIT_CREATED"
+	portalUnitCreatedResponseType     responseDtoType = "PORTAL_UNIT_CREATED"
 	unitRotatedResponseType           responseDtoType = "UNIT_ROTATED"
 	unitRemovedResponseType           responseDtoType = "UNIT_REMOVED"
 	playerJoinedResponseType          responseDtoType = "PLAYER_JOINED"
@@ -33,9 +34,18 @@ type worldEnteredResponse struct {
 	Players    []dto.PlayerDto          `json:"players"`
 }
 
-type unitCreatedResponse struct {
-	Type responseDtoType `json:"type"`
-	Unit dto.UnitDto     `json:"unit"`
+type staticUnitCreatedResponse struct {
+	Type      responseDtoType `json:"type"`
+	ItemId    uuid.UUID       `json:"itemId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
+}
+
+type portalUnitCreatedResponse struct {
+	Type      responseDtoType `json:"type"`
+	ItemId    uuid.UUID       `json:"itemId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
 }
 
 type unitRotatedResponse struct {
