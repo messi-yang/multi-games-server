@@ -68,11 +68,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		closeConnFlag.Done()
 	}
 	sendError := func(err error) {
-		sendMessage(displayerErrorCommand{
-			Id:        uuid.New(),
-			Timestamp: time.Now().UnixMilli(),
-			Name:      displayerErrorCommandName,
-			Message:   err.Error(),
+		sendMessage(erroredEvent{
+			Name:    erroredEventName,
+			Message: err.Error(),
 		})
 	}
 	closeConnectionOnError := func(err error) {
@@ -103,49 +101,57 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if err != nil {
 					return
 				}
-				sendMessage(createStaticUnitCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					ItemId:    command.ItemId,
-					Position:  command.Position,
-					Direction: command.Direction,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: createStaticUnitCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						ItemId:    command.ItemId,
+						Position:  command.Position,
+						Direction: command.Direction,
+					}})
 			case createPortalUnitCommandName:
 				command, err := jsonutil.Unmarshal[createPortalUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				sendMessage(createPortalUnitCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					ItemId:    command.ItemId,
-					Position:  command.Position,
-					Direction: command.Direction,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: createPortalUnitCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						ItemId:    command.ItemId,
+						Position:  command.Position,
+						Direction: command.Direction,
+					}})
 			case rotateUnitCommandName:
 				command, err := jsonutil.Unmarshal[rotateUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				sendMessage(rotateUnitCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					Position:  command.Position,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: rotateUnitCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						Position:  command.Position,
+					}})
 			case removeUnitCommandName:
 				command, err := jsonutil.Unmarshal[removeUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				sendMessage(removeUnitCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					Position:  command.Position,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: removeUnitCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						Position:  command.Position,
+					}})
 			case addPlayerCommandName:
 				command, err := jsonutil.Unmarshal[addPlayerCommand](serverMessageBytes)
 				if err != nil {
@@ -154,48 +160,56 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				if command.Player.Id == playerIdDto {
 					return
 				}
-				sendMessage(addPlayerCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					Player:    command.Player,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: addPlayerCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						Player:    command.Player,
+					}})
 			case movePlayerCommandName:
 				command, err := jsonutil.Unmarshal[movePlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				sendMessage(movePlayerCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					PlayerId:  command.PlayerId,
-					Position:  command.Position,
-					Direction: command.Direction,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: movePlayerCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						PlayerId:  command.PlayerId,
+						Position:  command.Position,
+						Direction: command.Direction,
+					}})
 			case changePlayerHeldItemCommandName:
 				command, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				sendMessage(changePlayerHeldItemCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					PlayerId:  command.PlayerId,
-					ItemId:    command.ItemId,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: changePlayerHeldItemCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						PlayerId:  command.PlayerId,
+						ItemId:    command.ItemId,
+					}})
 			case removePlayerCommandName:
 				command, err := jsonutil.Unmarshal[removePlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				sendMessage(removePlayerCommand{
-					Id:        command.Id,
-					Timestamp: command.Timestamp,
-					Name:      command.Name,
-					PlayerId:  command.PlayerId,
-				})
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: removePlayerCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						PlayerId:  command.PlayerId,
+					}})
 			default:
 			}
 		},
@@ -600,10 +614,8 @@ func (httpHandler *HttpHandler) sendAddWorldCommandResponse(worldIdDto uuid.UUID
 		return err
 	}
 
-	sendMessage(enterWorldCommand{
-		Id:         uuid.New(),
-		Timestamp:  time.Now().UnixMilli(),
-		Name:       enterWorldCommandName,
+	sendMessage(worldEnteredEvent{
+		Name:       worldEnteredEventName,
 		World:      viewmodel.WorldViewModel{WorldDto: worldDto, UserDto: userDto},
 		Units:      unitDtos,
 		MyPlayerId: playerIdDto,

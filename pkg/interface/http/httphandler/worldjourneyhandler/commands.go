@@ -2,7 +2,6 @@ package worldjourneyhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/google/uuid"
 )
 
@@ -26,23 +25,6 @@ type command struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-}
-
-type displayerErrorCommand struct {
-	Id        uuid.UUID   `json:"id"`
-	Timestamp int64       `json:"timestamp"`
-	Name      commandName `json:"name"`
-	Message   string      `json:"message"`
-}
-
-type enterWorldCommand struct {
-	Id         uuid.UUID                `json:"id"`
-	Timestamp  int64                    `json:"timestamp"`
-	Name       commandName              `json:"name"`
-	World      viewmodel.WorldViewModel `json:"world"`
-	Units      []dto.UnitDto            `json:"units"`
-	MyPlayerId uuid.UUID                `json:"myPlayerId"`
-	Players    []dto.PlayerDto          `json:"players"`
 }
 
 type addPlayerCommand struct {
