@@ -1,6 +1,8 @@
 package playerappsrv
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
@@ -11,11 +13,17 @@ import (
 	"github.com/samber/lo"
 )
 
+var (
+	ErrPosHasNoUnits       = fmt.Errorf("the position has no units")
+	ErrUnitIsNotPortalType = fmt.Errorf("the unit is not in type of portal")
+)
+
 type Service interface {
 	GetPlayers(GetPlayersQuery) (playerDtos []dto.PlayerDto, err error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
 	MovePlayer(MovePlayerCommand) error
+	TeleportPlayer(TeleportPlayerCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
 }
@@ -92,24 +100,45 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 
 	player.Move(position, direction)
 
-	// unitAtNextPosition, err := serve.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if unitAtNextPosition != nil && unitAtNextPosition.GetType().IsPortal() {
-	// 	portalUnitId := unitmodel.NewUnitId(worldId, position)
-	// 	portalUnit, err := serve.portalUnitRepo.Get(portalUnitId)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	portalPosition := portalUnit.GetTargetPosition()
-	// 	if portalPosition != nil {
-	// 		player.Teleport(*portalPosition)
-	// 	}
-	// }
-
 	return serve.playerRepo.Update(player)
+}
+
+func (serve *serve) TeleportPlayer(command TeleportPlayerCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	playerId := playermodel.NewPlayerId(command.PlayerId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+
+	player, err := serve.playerRepo.Get(worldId, playerId)
+	if err != nil {
+		return err
+	}
+
+	unitId := unitmodel.NewUnitId(worldId, position)
+
+	unitAtPosition, err := serve.unitRepo.Find(unitId)
+	if err != nil {
+		return err
+	}
+
+	if unitAtPosition == nil {
+		return ErrPosHasNoUnits
+	}
+
+	if !unitAtPosition.GetType().IsPortal() {
+		return ErrUnitIsNotPortalType
+	}
+
+	portalUnit, err := serve.portalUnitRepo.Get(unitId)
+	if err != nil {
+		return err
+	}
+	targetPosition := portalUnit.GetTargetPosition()
+	if targetPosition != nil {
+		player.Teleport(*targetPosition)
+	}
+
+	err = serve.playerRepo.Update(player)
+	return err
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {

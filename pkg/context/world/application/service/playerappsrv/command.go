@@ -24,6 +24,12 @@ type MovePlayerCommand struct {
 	Direction int8
 }
 
+type TeleportPlayerCommand struct {
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
+	Position dto.PositionDto
+}
+
 type LeaveWorldCommand struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID

@@ -45,13 +45,13 @@ func (repo *playerRepo) Add(player playermodel.Player) error {
 	); err != nil {
 		return err
 	}
-
 	return repo.domainEventDispatcher.Dispatch(&player)
 }
 
 func (repo *playerRepo) Update(player playermodel.Player) error {
 	playerDto := dto.NewPlayerDto(player)
 	playerDtoBytes := string(jsonutil.Marshal(playerDto))
+
 	if err := repo.redisCache.Set(
 		getPlayerCacheKey(player.GetWorldId(), player.GetId()),
 		playerDtoBytes,

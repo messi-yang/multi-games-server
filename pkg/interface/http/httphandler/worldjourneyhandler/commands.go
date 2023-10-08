@@ -9,10 +9,10 @@ type commandName string
 
 const (
 	pingCommandName                 commandName = "PING"
-	displayerErrorCommandName       commandName = "DISPLAY_ERROR"
-	enterWorldCommandName           commandName = "ENTER_WORLD"
 	addPlayerCommandName            commandName = "ADD_PLAYER"
 	movePlayerCommandName           commandName = "MOVE_PLAYER"
+	sendPlayerIntoPortalCommandName commandName = "SEND_PLAYER_INTO_PORTAL"
+	teleportPlayerCommandName       commandName = "TELEPORT_PLAYER"
 	changePlayerHeldItemCommandName commandName = "CHANGE_PLAYER_HELD_ITEM"
 	removePlayerCommandName         commandName = "REMOVE_PLAYER"
 	createStaticUnitCommandName     commandName = "CREATE_STATIC_UNIT"
@@ -35,6 +35,23 @@ type addPlayerCommand struct {
 }
 
 type movePlayerCommand struct {
+	Id        uuid.UUID       `json:"id"`
+	Timestamp int64           `json:"timestamp"`
+	Name      commandName     `json:"name"`
+	PlayerId  uuid.UUID       `json:"playerId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
+}
+
+type sendPlayerIntoPortalCommand struct {
+	Id        uuid.UUID       `json:"id"`
+	Timestamp int64           `json:"timestamp"`
+	Name      commandName     `json:"name"`
+	PlayerId  uuid.UUID       `json:"playerId"`
+	Position  dto.PositionDto `json:"position"`
+}
+
+type teleportPlayerCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`

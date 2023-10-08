@@ -14,10 +14,6 @@ const (
 	erroredEventName          eventName = "ERRORED"
 )
 
-type event struct {
-	Name eventName `json:"name"`
-}
-
 type worldEnteredEvent struct {
 	Name       eventName                `json:"name"`
 	World      viewmodel.WorldViewModel `json:"world"`
