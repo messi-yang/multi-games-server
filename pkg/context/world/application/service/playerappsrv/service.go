@@ -135,6 +135,8 @@ func (serve *serve) TeleportPlayer(command TeleportPlayerCommand) error {
 	targetPosition := portalUnit.GetTargetPosition()
 	if targetPosition != nil {
 		player.Teleport(*targetPosition)
+	} else {
+		player.Teleport(portalUnit.GetPosition())
 	}
 
 	err = serve.playerRepo.Update(player)
