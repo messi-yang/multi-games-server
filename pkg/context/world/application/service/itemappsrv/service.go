@@ -58,7 +58,7 @@ func (serve *serve) CreateDefaultItems(command CreateDefaultItemsCommand) error 
 		itemmodel.LoadItem(
 			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("6f127ae8-f1f8-4ff3-8148-fa8d2fef307a")),
 			worldcommonmodel.NewStaticUnitType(),
-			"test", true, "/asset/item/test/thumbnail.png", "/asset/item/test/model.gltf",
+			"ghost", false, "/asset/item/ghost/thumbnail.png", "/asset/item/ghost/model.gltf",
 		),
 		itemmodel.LoadItem(
 			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("3c28537a-80c2-4ac1-917b-b1cd517c6b5e")),
