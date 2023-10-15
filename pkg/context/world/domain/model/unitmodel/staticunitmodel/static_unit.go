@@ -25,7 +25,7 @@ func NewStaticUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 ) StaticUnit {
-	staticUnit := StaticUnit{
+	return StaticUnit{
 		id:                   unitmodel.NewUnitId(worldId, position),
 		worldId:              worldId,
 		position:             position,
@@ -33,8 +33,6 @@ func NewStaticUnit(
 		direction:            direction,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	staticUnit.domainEventCollector.Add(NewStaticUnitCreated(staticUnit))
-	return staticUnit
 }
 
 func LoadStaticUnit(
@@ -80,9 +78,7 @@ func (staticUnit *StaticUnit) GetDirection() worldcommonmodel.Direction {
 
 func (staticUnit *StaticUnit) Rotate() {
 	staticUnit.direction = staticUnit.direction.Rotate()
-	staticUnit.domainEventCollector.Add(NewStaticUnitUpdated(*staticUnit))
 }
 
 func (staticUnit *StaticUnit) Delete() {
-	staticUnit.domainEventCollector.Add(NewStaticUnitDeleted(*staticUnit))
 }

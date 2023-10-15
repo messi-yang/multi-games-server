@@ -27,7 +27,7 @@ func NewPortalUnit(
 	direction worldcommonmodel.Direction,
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
-	portalUnit := PortalUnit{
+	return PortalUnit{
 		id:                   NewPortalUnitId(uuid.New()),
 		worldId:              worldId,
 		position:             position,
@@ -36,8 +36,6 @@ func NewPortalUnit(
 		targetPosition:       targetPosition,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	portalUnit.domainEventCollector.Add(NewPortalUnitCreated(portalUnit))
-	return portalUnit
 }
 
 func LoadPortalUnit(
@@ -93,9 +91,7 @@ func (portalUnit *PortalUnit) UpdateTargetPosition(targetPosition *worldcommonmo
 
 func (portalUnit *PortalUnit) Rotate() {
 	portalUnit.direction = portalUnit.direction.Rotate()
-	portalUnit.domainEventCollector.Add(NewPortalUnitUpdated(*portalUnit))
 }
 
 func (portalUnit *PortalUnit) Delete() {
-	portalUnit.domainEventCollector.Add(NewPortalUnitDeleted(*portalUnit))
 }
