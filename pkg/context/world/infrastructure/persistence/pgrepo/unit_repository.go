@@ -19,8 +19,6 @@ func parseModelToUnit(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err err
 	if err != nil {
 		return unit, err
 	}
-	var unitInfo any
-	unitModel.InfoSnapshot.AssignTo(&unitInfo)
 	return unitmodel.LoadUnit(
 		unitmodel.NewUnitId(worldId, pos),
 		worldId,
@@ -28,7 +26,7 @@ func parseModelToUnit(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err err
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		unitType,
-		unitInfo,
+		unitModel.InfoSnapshot,
 	), nil
 }
 

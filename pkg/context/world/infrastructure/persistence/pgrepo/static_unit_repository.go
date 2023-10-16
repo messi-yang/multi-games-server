@@ -15,8 +15,7 @@ import (
 
 func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set(nil)
-
+	unitInfoSnapshotJsonb.Set("null")
 	return pgmodel.UnitModel{
 		WorldId:      staticUnit.GetWorldId().Uuid(),
 		PosX:         staticUnit.GetPosition().GetX(),
