@@ -13,6 +13,7 @@ type Unit struct {
 	itemId               worldcommonmodel.ItemId
 	direction            worldcommonmodel.Direction
 	_type                worldcommonmodel.UnitType
+	info                 *any
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -25,6 +26,7 @@ func NewUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 	_type worldcommonmodel.UnitType,
+	info *any,
 ) Unit {
 	return Unit{
 		id:                   NewUnitId(worldId, position),
@@ -33,6 +35,7 @@ func NewUnit(
 		itemId:               itemId,
 		direction:            direction,
 		_type:                _type,
+		info:                 info,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -44,6 +47,7 @@ func LoadUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 	_type worldcommonmodel.UnitType,
+	info *any,
 ) Unit {
 	return Unit{
 		id:                   id,
@@ -52,6 +56,7 @@ func LoadUnit(
 		itemId:               itemId,
 		direction:            direction,
 		_type:                _type,
+		info:                 info,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -80,8 +85,8 @@ func (unit *Unit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
 }
 
-func (unit *Unit) UpdateDirection(newDirection worldcommonmodel.Direction) {
-	unit.direction = newDirection
+func (unit *Unit) GetInfo() *any {
+	return unit.info
 }
 
 func (unit *Unit) GetType() worldcommonmodel.UnitType {

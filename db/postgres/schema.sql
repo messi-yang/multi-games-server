@@ -101,7 +101,8 @@ CREATE TABLE public.units (
     item_id uuid NOT NULL,
     direction integer NOT NULL,
     type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL,
-    info_id uuid
+    info_id uuid,
+    info_snapshot jsonb
 );
 
 
@@ -116,7 +117,8 @@ CREATE TABLE public.users (
     email_address character varying(255) NOT NULL,
     username character varying(50) NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone NOT NULL,
+    friendly_name character varying(20) DEFAULT ''::character varying NOT NULL
 );
 
 

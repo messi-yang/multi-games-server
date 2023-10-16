@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/jackc/pgtype"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 
@@ -16,6 +17,9 @@ import (
 
 func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.PortalUnitInfoModel, pgmodel.UnitModel) {
 	targetPosition := portalUnit.GetTargetPosition()
+	unitInfoSnapshotJsonb := pgtype.JSONB{}
+	unitInfoSnapshotJsonb.Set(portalUnit.GetInfoSnapshot())
+
 	return pgmodel.PortalUnitInfoModel{
 			Id:      portalUnit.GetId().Uuid(),
 			WorldId: portalUnit.GetWorldId().Uuid(),
@@ -31,13 +35,14 @@ func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.Por
 			),
 		},
 		pgmodel.UnitModel{
-			WorldId:   portalUnit.GetWorldId().Uuid(),
-			PosX:      portalUnit.GetPosition().GetX(),
-			PosZ:      portalUnit.GetPosition().GetZ(),
-			ItemId:    portalUnit.GetItemId().Uuid(),
-			Direction: portalUnit.GetDirection().Int8(),
-			Type:      pgmodel.UnitTypeEnumPositionPortal,
-			InfoId:    commonutil.ToPointer(portalUnit.GetId().Uuid()),
+			WorldId:      portalUnit.GetWorldId().Uuid(),
+			PosX:         portalUnit.GetPosition().GetX(),
+			PosZ:         portalUnit.GetPosition().GetZ(),
+			ItemId:       portalUnit.GetItemId().Uuid(),
+			Direction:    portalUnit.GetDirection().Int8(),
+			Type:         pgmodel.UnitTypeEnumPositionPortal,
+			InfoId:       commonutil.ToPointer(portalUnit.GetId().Uuid()),
+			InfoSnapshot: &unitInfoSnapshotJsonb,
 		}
 }
 

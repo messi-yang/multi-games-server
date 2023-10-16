@@ -93,5 +93,9 @@ func (portalUnit *PortalUnit) Rotate() {
 	portalUnit.direction = portalUnit.direction.Rotate()
 }
 
+func (portalUnit *PortalUnit) GetInfoSnapshot() PortalUnitSnapshot {
+	return NewPortalUnitSnapshot(portalUnit.targetPosition)
+}
+
 func (portalUnit *PortalUnit) Delete() {
 }
