@@ -4,6 +4,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
@@ -13,14 +14,18 @@ import (
 )
 
 func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitModel {
+	unitInfoSnapshotJsonb := pgtype.JSONB{}
+	unitInfoSnapshotJsonb.Set(nil)
+
 	return pgmodel.UnitModel{
-		WorldId:   staticUnit.GetWorldId().Uuid(),
-		PosX:      staticUnit.GetPosition().GetX(),
-		PosZ:      staticUnit.GetPosition().GetZ(),
-		ItemId:    staticUnit.GetItemId().Uuid(),
-		Direction: staticUnit.GetDirection().Int8(),
-		Type:      pgmodel.UnitTypeEnumStatic,
-		InfoId:    nil,
+		WorldId:      staticUnit.GetWorldId().Uuid(),
+		PosX:         staticUnit.GetPosition().GetX(),
+		PosZ:         staticUnit.GetPosition().GetZ(),
+		ItemId:       staticUnit.GetItemId().Uuid(),
+		Direction:    staticUnit.GetDirection().Int8(),
+		Type:         pgmodel.UnitTypeEnumStatic,
+		InfoId:       nil,
+		InfoSnapshot: unitInfoSnapshotJsonb,
 	}
 }
 

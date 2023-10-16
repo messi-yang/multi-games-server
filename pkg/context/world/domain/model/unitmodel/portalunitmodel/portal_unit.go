@@ -93,8 +93,22 @@ func (portalUnit *PortalUnit) Rotate() {
 	portalUnit.direction = portalUnit.direction.Rotate()
 }
 
-func (portalUnit *PortalUnit) GetInfoSnapshot() PortalUnitSnapshot {
-	return NewPortalUnitSnapshot(portalUnit.targetPosition)
+func (portalUnit *PortalUnit) GetInfoSnapshot() PortalUnitInfo {
+	if portalUnit.targetPosition == nil {
+		return PortalUnitInfo{
+			TargetPos: nil,
+		}
+	} else {
+		return PortalUnitInfo{
+			TargetPos: &struct {
+				X int `json:"x"`
+				Z int `json:"z"`
+			}{
+				X: portalUnit.targetPosition.GetX(),
+				Z: portalUnit.targetPosition.GetZ(),
+			},
+		}
+	}
 }
 
 func (portalUnit *PortalUnit) Delete() {

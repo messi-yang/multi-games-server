@@ -42,7 +42,7 @@ func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.Por
 			Direction:    portalUnit.GetDirection().Int8(),
 			Type:         pgmodel.UnitTypeEnumPositionPortal,
 			InfoId:       commonutil.ToPointer(portalUnit.GetId().Uuid()),
-			InfoSnapshot: &unitInfoSnapshotJsonb,
+			InfoSnapshot: unitInfoSnapshotJsonb,
 		}
 }
 
