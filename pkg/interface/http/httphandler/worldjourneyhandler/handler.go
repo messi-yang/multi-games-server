@@ -94,104 +94,14 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	worldServerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		newWorldServerMessageChannel(worldIdDto),
 		func(serverMessageBytes []byte) {
-			command, err := jsonutil.Unmarshal[command](serverMessageBytes)
+			command, err := jsonutil.Unmarshal[any](serverMessageBytes)
 			if err != nil {
 				return
 			}
-
-			switch command.Name {
-			case createStaticUnitCommandName:
-				command, err := jsonutil.Unmarshal[createStaticUnitCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case removeStaticUnitCommandName:
-				command, err := jsonutil.Unmarshal[removeStaticUnitCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case createPortalUnitCommandName:
-				command, err := jsonutil.Unmarshal[createPortalUnitCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case removePortalUnitCommandName:
-				command, err := jsonutil.Unmarshal[removePortalUnitCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case rotateUnitCommandName:
-				command, err := jsonutil.Unmarshal[rotateUnitCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case addPlayerCommandName:
-				command, err := jsonutil.Unmarshal[addPlayerCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case movePlayerCommandName:
-				command, err := jsonutil.Unmarshal[movePlayerCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case sendPlayerIntoPortalCommandName:
-				command, err := jsonutil.Unmarshal[sendPlayerIntoPortalCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case changePlayerHeldItemCommandName:
-				command, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			case removePlayerCommandName:
-				command, err := jsonutil.Unmarshal[removePlayerCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name:    commandSucceededEventName,
-					Command: command,
-				})
-			default:
-			}
+			sendMessage(commandSucceededEvent{
+				Name:    commandSucceededEventName,
+				Command: command,
+			})
 		},
 	)
 	defer worldServerMessageUnusbscriber()
