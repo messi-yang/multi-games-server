@@ -15,9 +15,10 @@ const (
 	changePlayerHeldItemCommandName commandName = "CHANGE_PLAYER_HELD_ITEM"
 	removePlayerCommandName         commandName = "REMOVE_PLAYER"
 	createStaticUnitCommandName     commandName = "CREATE_STATIC_UNIT"
+	removeStaticUnitCommandName     commandName = "REMOVE_STATIC_UNIT"
 	createPortalUnitCommandName     commandName = "CREATE_PORTAL_UNIT"
+	removePortalUnitCommandName     commandName = "REMOVE_PORTAL_UNIT"
 	rotateUnitCommandName           commandName = "ROTATE_UNIT"
-	removeUnitCommandName           commandName = "REMOVE_UNIT"
 )
 
 type command struct {
@@ -73,6 +74,13 @@ type createStaticUnitCommand struct {
 	Direction int8            `json:"direction"`
 }
 
+type removeStaticUnitCommand struct {
+	Id        uuid.UUID       `json:"id"`
+	Timestamp int64           `json:"timestamp"`
+	Name      commandName     `json:"name"`
+	Position  dto.PositionDto `json:"position"`
+}
+
 type createPortalUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
@@ -82,14 +90,14 @@ type createPortalUnitCommand struct {
 	Direction int8            `json:"direction"`
 }
 
-type rotateUnitCommand struct {
+type removePortalUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`
 	Position  dto.PositionDto `json:"position"`
 }
 
-type removeUnitCommand struct {
+type rotateUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`

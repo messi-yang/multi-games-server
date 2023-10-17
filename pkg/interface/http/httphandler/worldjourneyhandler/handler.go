@@ -115,6 +115,19 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						Position:  command.Position,
 						Direction: command.Direction,
 					}})
+			case removeStaticUnitCommandName:
+				command, err := jsonutil.Unmarshal[removeStaticUnitCommand](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: removeStaticUnitCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						Position:  command.Position,
+					}})
 			case createPortalUnitCommandName:
 				command, err := jsonutil.Unmarshal[createPortalUnitCommand](serverMessageBytes)
 				if err != nil {
@@ -130,6 +143,19 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						Position:  command.Position,
 						Direction: command.Direction,
 					}})
+			case removePortalUnitCommandName:
+				command, err := jsonutil.Unmarshal[removePortalUnitCommand](serverMessageBytes)
+				if err != nil {
+					return
+				}
+				sendMessage(commandSucceededEvent{
+					Name: commandSucceededEventName,
+					Command: removePortalUnitCommand{
+						Id:        command.Id,
+						Timestamp: command.Timestamp,
+						Name:      command.Name,
+						Position:  command.Position,
+					}})
 			case rotateUnitCommandName:
 				command, err := jsonutil.Unmarshal[rotateUnitCommand](serverMessageBytes)
 				if err != nil {
@@ -138,19 +164,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				sendMessage(commandSucceededEvent{
 					Name: commandSucceededEventName,
 					Command: rotateUnitCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						Position:  command.Position,
-					}})
-			case removeUnitCommandName:
-				command, err := jsonutil.Unmarshal[removeUnitCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: removeUnitCommand{
 						Id:        command.Id,
 						Timestamp: command.Timestamp,
 						Name:      command.Name,
@@ -432,19 +445,38 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						Position:  commandDto.Position,
 					}),
 				)
-			case removeUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[removeUnitCommand](message)
+			case removeStaticUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[removeStaticUnitCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemoveUnitCommand(worldIdDto, commandDto.Position); err != nil {
+				if err = httpHandler.executeRemoveStaticUnitCommand(worldIdDto, commandDto.Position); err != nil {
 					sendError(err)
 					break
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(removeUnitCommand{
+					jsonutil.Marshal(removeStaticUnitCommand{
+						Id:        commandDto.Id,
+						Timestamp: commandDto.Timestamp,
+						Name:      commandDto.Name,
+						Position:  commandDto.Position,
+					}),
+				)
+			case removePortalUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[removePortalUnitCommand](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeRemovePortalUnitCommand(worldIdDto, commandDto.Position); err != nil {
+					sendError(err)
+					break
+				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(removePortalUnitCommand{
 						Id:        commandDto.Id,
 						Timestamp: commandDto.Timestamp,
 						Name:      commandDto.Name,
@@ -527,6 +559,21 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 	return nil
 }
 
+func (httpHandler *HttpHandler) executeRemoveStaticUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+	uow := pguow.NewUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	if err := unitAppService.RemoveStaticUnit(unitappsrv.RemoveStaticUnitCommand{
+		WorldId:  worldIdDto,
+		Position: positionDto,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
 func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
@@ -549,11 +596,11 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRotateUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) executeRemovePortalUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
 	uow := pguow.NewUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.RotateUnit(unitappsrv.RotateUnitCommand{
+	if err := unitAppService.RemovePortalUnit(unitappsrv.RemovePortalUnitCommand{
 		WorldId:  worldIdDto,
 		Position: positionDto,
 	}); err != nil {
@@ -564,11 +611,11 @@ func (httpHandler *HttpHandler) executeRotateUnitCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemoveUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) executeRotateUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
 	uow := pguow.NewUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.RemoveUnit(unitappsrv.RemoveUnitCommand{
+	if err := unitAppService.RotateUnit(unitappsrv.RotateUnitCommand{
 		WorldId:  worldIdDto,
 		Position: positionDto,
 	}); err != nil {

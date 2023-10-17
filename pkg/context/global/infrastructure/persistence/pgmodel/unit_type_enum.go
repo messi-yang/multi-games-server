@@ -3,6 +3,6 @@ package pgmodel
 type UnitTypeEnum string
 
 const (
-	UnitTypeEnumStatic         UnitTypeEnum = "static"
-	UnitTypeEnumPositionPortal UnitTypeEnum = "portal"
+	UnitTypeEnumStatic UnitTypeEnum = "static"
+	UnitTypeEnumPortal UnitTypeEnum = "portal"
 )

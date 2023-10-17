@@ -68,10 +68,11 @@ func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error 
 	unitModel := newModelFromStaticUnit(staticUnit)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			unitModel.WorldId,
 			unitModel.PosX,
 			unitModel.PosZ,
+			pgmodel.UnitTypeEnumStatic,
 		).Select("*").Updates(unitModel).Error
 	}); err != nil {
 		return err
@@ -84,10 +85,11 @@ func (repo *staticUnitRepo) Get(unitId unitmodel.UnitId) (unit staticunitmodel.S
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			unitId.GetWorldId().Uuid(),
 			unitId.GetPosition().GetX(),
 			unitId.GetPosition().GetZ(),
+			pgmodel.UnitTypeEnumStatic,
 		).First(&unitModel).Error
 	}); err != nil {
 		return unit, err
@@ -99,10 +101,11 @@ func (repo *staticUnitRepo) Get(unitId unitmodel.UnitId) (unit staticunitmodel.S
 func (repo *staticUnitRepo) Delete(staticUnit staticunitmodel.StaticUnit) error {
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			staticUnit.GetWorldId().Uuid(),
 			staticUnit.GetPosition().GetX(),
 			staticUnit.GetPosition().GetZ(),
+			pgmodel.UnitTypeEnumStatic,
 		).Delete(&pgmodel.UnitModel{}).Error
 	}); err != nil {
 		return err

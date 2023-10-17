@@ -40,7 +40,7 @@ func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.Por
 			PosZ:         portalUnit.GetPosition().GetZ(),
 			ItemId:       portalUnit.GetItemId().Uuid(),
 			Direction:    portalUnit.GetDirection().Int8(),
-			Type:         pgmodel.UnitTypeEnumPositionPortal,
+			Type:         pgmodel.UnitTypeEnumPortal,
 			InfoId:       commonutil.ToPointer(portalUnit.GetId().Uuid()),
 			InfoSnapshot: unitInfoSnapshotJsonb,
 		}
@@ -99,10 +99,11 @@ func (repo *portalUnitRepo) Get(unitId unitmodel.UnitId) (unit portalunitmodel.P
 	portalUnitInfoModel := pgmodel.PortalUnitInfoModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			unitId.GetWorldId().Uuid(),
 			unitId.GetPosition().GetX(),
 			unitId.GetPosition().GetZ(),
+			pgmodel.UnitTypeEnumPortal,
 		).First(&unitModel).Error; err != nil {
 			return err
 		}
@@ -121,10 +122,11 @@ func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error 
 	portalUnitInfoModel, unitModel := newModelsFromPortalUnit(portalUnit)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			portalUnit.GetWorldId().Uuid(),
 			portalUnit.GetPosition().GetX(),
 			portalUnit.GetPosition().GetZ(),
+			pgmodel.UnitTypeEnumPortal,
 		).Select("*").Updates(unitModel).Error; err != nil {
 			return err
 		}
@@ -141,10 +143,11 @@ func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error 
 func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error {
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			portalUnit.GetWorldId().Uuid(),
 			portalUnit.GetPosition().GetX(),
 			portalUnit.GetPosition().GetZ(),
+			pgmodel.UnitTypeEnumPortal,
 		).Delete(&pgmodel.UnitModel{}).Error; err != nil {
 			return err
 		}
