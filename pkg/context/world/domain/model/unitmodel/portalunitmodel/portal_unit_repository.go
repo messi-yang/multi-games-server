@@ -10,5 +10,5 @@ type PortalUnitRepo interface {
 	Get(unitmodel.UnitId) (PortalUnit, error)
 	Update(PortalUnit) error
 	Delete(PortalUnit) error
-	GetFirstPortalUnitWithNoTarget(worldId globalcommonmodel.WorldId) (*PortalUnit, error)
+	GetTopLeftMostUnitWithoutTarget(worldId globalcommonmodel.WorldId) (*PortalUnit, error)
 }

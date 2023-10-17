@@ -84,7 +84,7 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		return nil
 	}
 
-	portalUnitWithNoTarget, err := portalUnitServe.portalUnitRepo.GetFirstPortalUnitWithNoTarget(worldId)
+	portalUnitWithNoTarget, err := portalUnitServe.portalUnitRepo.GetTopLeftMostUnitWithoutTarget(worldId)
 	if err != nil {
 		return err
 	}

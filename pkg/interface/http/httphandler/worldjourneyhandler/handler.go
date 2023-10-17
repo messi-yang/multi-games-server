@@ -201,21 +201,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						PlayerId:  command.PlayerId,
 						Position:  command.Position,
 					}})
-			case teleportPlayerCommandName:
-				command, err := jsonutil.Unmarshal[teleportPlayerCommand](serverMessageBytes)
-				if err != nil {
-					return
-				}
-				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: teleportPlayerCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						PlayerId:  command.PlayerId,
-						Position:  command.Position,
-						Direction: command.Direction,
-					}})
 			case changePlayerHeldItemCommandName:
 				command, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](serverMessageBytes)
 				if err != nil {
@@ -338,6 +323,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
 					return
 				}
+				if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.Position); err != nil {
+					sendError(err)
+					break
+				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
 					jsonutil.Marshal(sendPlayerIntoPortalCommand{
@@ -346,22 +335,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						Name:      commandDto.Name,
 						PlayerId:  commandDto.PlayerId,
 						Position:  commandDto.Position,
-					}),
-				)
-				newPosition, newDirection, err := httpHandler.executeTeleportPlayerCommand(worldIdDto, commandDto.PlayerId, commandDto.Position)
-				if err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(teleportPlayerCommand{
-						Id:        uuid.New(),
-						Timestamp: time.Now().UnixMilli(),
-						Name:      teleportPlayerCommandName,
-						PlayerId:  commandDto.PlayerId,
-						Position:  newPosition,
-						Direction: newDirection,
 					}),
 				)
 			case changePlayerHeldItemCommandName:
@@ -507,29 +480,17 @@ func (httpHandler *HttpHandler) executeMovePlayerCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeTeleportPlayerCommand(
+func (httpHandler *HttpHandler) executeSendPlayerIntoPortalCommand(
 	worldIdDto uuid.UUID,
 	playerIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
-) (newPosition world_dto.PositionDto, newDirection int8, err error) {
+) error {
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.TeleportPlayer(playerappsrv.TeleportPlayerCommand{
+	return playerAppService.SendPlayerIntoPortal(playerappsrv.SendPlayerIntoPortalCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
 		Position: positionDto,
-	}); err != nil {
-		return newPosition, newDirection, err
-	}
-
-	updatedPlayer, err := playerAppService.GetPlayer(playerappsrv.GetPlayerQuery{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
 	})
-	if err != nil {
-		return newPosition, newDirection, err
-	}
-
-	return updatedPlayer.Position, updatedPlayer.Direction, nil
 }
 
 func (httpHandler *HttpHandler) executeChangePlayerHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {

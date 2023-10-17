@@ -23,7 +23,7 @@ type Service interface {
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
 	MovePlayer(MovePlayerCommand) error
-	TeleportPlayer(TeleportPlayerCommand) error
+	SendPlayerIntoPortal(SendPlayerIntoPortalCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
 }
@@ -103,7 +103,7 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 	return serve.playerRepo.Update(player)
 }
 
-func (serve *serve) TeleportPlayer(command TeleportPlayerCommand) error {
+func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
 	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
@@ -136,11 +136,10 @@ func (serve *serve) TeleportPlayer(command TeleportPlayerCommand) error {
 	if targetPosition != nil {
 		player.Teleport(*targetPosition)
 	} else {
-		player.Teleport(portalUnit.GetPosition())
+		return nil
 	}
 
-	err = serve.playerRepo.Update(player)
-	return err
+	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {

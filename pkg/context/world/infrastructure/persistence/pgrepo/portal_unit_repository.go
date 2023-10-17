@@ -158,13 +158,15 @@ func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error 
 	return repo.domainEventDispatcher.Dispatch(&portalUnit)
 }
 
-func (repo *portalUnitRepo) GetFirstPortalUnitWithNoTarget(worldId globalcommonmodel.WorldId) (portalUnit *portalunitmodel.PortalUnit, err error) {
+func (repo *portalUnitRepo) GetTopLeftMostUnitWithoutTarget(worldId globalcommonmodel.WorldId) (portalUnit *portalunitmodel.PortalUnit, err error) {
 	var portalUnitInfoModels []pgmodel.PortalUnitInfoModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Where(
-			"world_id = ? AND target_pos_x IS NULL AND target_pos_z IS NULL",
+		return transaction.Select("units.pos_x, units.pos_z, portal_unit_infos.*").Joins(
+			"left join units on units.info_id = portal_unit_infos.id",
+		).Where(
+			"portal_unit_infos.world_id = ? AND portal_unit_infos.target_pos_x IS NULL AND portal_unit_infos.target_pos_z IS NULL",
 			worldId.Uuid(),
-		).Limit(1).Find(&portalUnitInfoModels).Error
+		).Order("units.pos_z asc, units.pos_x asc").Limit(1).Find(&portalUnitInfoModels).Error
 	}); err != nil {
 		return portalUnit, err
 	}
