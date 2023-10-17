@@ -106,141 +106,90 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: createStaticUnitCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						ItemId:    command.ItemId,
-						Position:  command.Position,
-						Direction: command.Direction,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case removeStaticUnitCommandName:
 				command, err := jsonutil.Unmarshal[removeStaticUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: removeStaticUnitCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						Position:  command.Position,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case createPortalUnitCommandName:
 				command, err := jsonutil.Unmarshal[createPortalUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: createPortalUnitCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						ItemId:    command.ItemId,
-						Position:  command.Position,
-						Direction: command.Direction,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case removePortalUnitCommandName:
 				command, err := jsonutil.Unmarshal[removePortalUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: removePortalUnitCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						Position:  command.Position,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case rotateUnitCommandName:
 				command, err := jsonutil.Unmarshal[rotateUnitCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: rotateUnitCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						Position:  command.Position,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case addPlayerCommandName:
 				command, err := jsonutil.Unmarshal[addPlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
-				if command.Player.Id == playerIdDto {
-					return
-				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: addPlayerCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						Player:    command.Player,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case movePlayerCommandName:
 				command, err := jsonutil.Unmarshal[movePlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: movePlayerCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						PlayerId:  command.PlayerId,
-						Position:  command.Position,
-						Direction: command.Direction,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case sendPlayerIntoPortalCommandName:
 				command, err := jsonutil.Unmarshal[sendPlayerIntoPortalCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: sendPlayerIntoPortalCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						PlayerId:  command.PlayerId,
-						Position:  command.Position,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case changePlayerHeldItemCommandName:
 				command, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: changePlayerHeldItemCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						PlayerId:  command.PlayerId,
-						ItemId:    command.ItemId,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			case removePlayerCommandName:
 				command, err := jsonutil.Unmarshal[removePlayerCommand](serverMessageBytes)
 				if err != nil {
 					return
 				}
 				sendMessage(commandSucceededEvent{
-					Name: commandSucceededEventName,
-					Command: removePlayerCommand{
-						Id:        command.Id,
-						Timestamp: command.Timestamp,
-						Name:      command.Name,
-						PlayerId:  command.PlayerId,
-					}})
+					Name:    commandSucceededEventName,
+					Command: command,
+				})
 			default:
 			}
 		},
@@ -317,14 +266,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(movePlayerCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						PlayerId:  commandDto.PlayerId,
-						Position:  commandDto.Position,
-						Direction: commandDto.Direction,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			case sendPlayerIntoPortalCommandName:
 				commandDto, err := jsonutil.Unmarshal[sendPlayerIntoPortalCommand](message)
@@ -342,13 +284,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(sendPlayerIntoPortalCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						PlayerId:  commandDto.PlayerId,
-						Position:  commandDto.Position,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			case changePlayerHeldItemCommandName:
 				commandDto, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](message)
@@ -366,13 +302,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(changePlayerHeldItemCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						PlayerId:  commandDto.PlayerId,
-						ItemId:    commandDto.ItemId,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			case createStaticUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[createStaticUnitCommand](message)
@@ -391,14 +321,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(createStaticUnitCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						ItemId:    commandDto.ItemId,
-						Position:  commandDto.Position,
-						Direction: commandDto.Direction,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			case createPortalUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[createPortalUnitCommand](message)
@@ -417,14 +340,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(createPortalUnitCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						ItemId:    commandDto.ItemId,
-						Position:  commandDto.Position,
-						Direction: commandDto.Direction,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			case rotateUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[rotateUnitCommand](message)
@@ -438,12 +354,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(rotateUnitCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						Position:  commandDto.Position,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			case removeStaticUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[removeStaticUnitCommand](message)
@@ -457,12 +368,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(removeStaticUnitCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						Position:  commandDto.Position,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			case removePortalUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[removePortalUnitCommand](message)
@@ -476,12 +382,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				}
 				httpHandler.redisServerMessageMediator.Send(
 					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(removePortalUnitCommand{
-						Id:        commandDto.Id,
-						Timestamp: commandDto.Timestamp,
-						Name:      commandDto.Name,
-						Position:  commandDto.Position,
-					}),
+					jsonutil.Marshal(commandDto),
 				)
 			default:
 			}
