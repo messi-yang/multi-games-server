@@ -19,6 +19,8 @@ type PlayerDto struct {
 	Position   PositionDto `json:"position"`
 	Direction  int8        `json:"direction"`
 	HeldItemId *uuid.UUID  `json:"heldItemId"`
+	Action     string      `json:"action"`
+	ActedAt    time.Time   `json:"actedAt"`
 	CreatedAt  time.Time   `json:"createdAt"`
 	UpdatedAt  time.Time   `json:"updatedAt"`
 }
@@ -40,13 +42,20 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 			func() *uuid.UUID { return nil },
 			func() *uuid.UUID { return commonutil.ToPointer((*player.GetHeldItemId()).Uuid()) },
 		),
+		Action:    player.GetAction().String(),
+		ActedAt:   player.GetActedAt(),
 		CreatedAt: player.GetCreatedAt(),
 		UpdatedAt: player.GetCreatedAt(),
 	}
 	return dto
 }
 
-func ParsePlayerDto(playerDto PlayerDto) playermodel.Player {
+func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) {
+	playerAction, err := playermodel.NewPlayerAction(playerDto.Action)
+	if err != nil {
+		return player, err
+	}
+
 	return playermodel.LoadPlayer(
 		playermodel.NewPlayerId(playerDto.Id),
 		globalcommonmodel.NewWorldId(playerDto.WorldId),
@@ -67,7 +76,9 @@ func ParsePlayerDto(playerDto PlayerDto) playermodel.Player {
 				return commonutil.ToPointer(worldcommonmodel.NewItemId(*playerDto.HeldItemId))
 			},
 		),
+		playerAction,
+		playerDto.ActedAt,
 		playerDto.CreatedAt,
 		playerDto.UpdatedAt,
-	)
+	), nil
 }

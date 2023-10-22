@@ -81,7 +81,7 @@ func (repo *playerRepo) Get(worldId globalcommonmodel.WorldId, playerId playermo
 		return player, err
 	}
 
-	return dto.ParsePlayerDto(playerDto), nil
+	return dto.ParsePlayerDto(playerDto)
 }
 
 func (repo *playerRepo) GetPlayersOfWorld(worldId globalcommonmodel.WorldId) (players []playermodel.Player, err error) {
@@ -97,7 +97,11 @@ func (repo *playerRepo) GetPlayersOfWorld(worldId globalcommonmodel.WorldId) (pl
 		if err != nil {
 			return players, err
 		}
-		players = append(players, dto.ParsePlayerDto(playerDto))
+		player, err := dto.ParsePlayerDto(playerDto)
+		if err != nil {
+			return players, err
+		}
+		players = append(players, player)
 	}
 
 	return players, nil

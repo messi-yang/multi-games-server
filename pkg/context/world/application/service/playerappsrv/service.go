@@ -23,6 +23,8 @@ type Service interface {
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
 	MovePlayer(MovePlayerCommand) error
+	MakePlayerStand(MakePlayerStandCommand) error
+	MakePlayerWalk(MakePlayerWalkCommand) error
 	SendPlayerIntoPortal(SendPlayerIntoPortalCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
@@ -99,6 +101,39 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 	}
 
 	player.Move(position, direction)
+
+	return serve.playerRepo.Update(player)
+}
+
+func (serve *serve) MakePlayerStand(command MakePlayerStandCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	playerId := playermodel.NewPlayerId(command.PlayerId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+	direction := worldcommonmodel.NewDirection(command.Direction)
+
+	player, err := serve.playerRepo.Get(worldId, playerId)
+	if err != nil {
+		return err
+	}
+
+	player.Stand(position, direction)
+
+	return serve.playerRepo.Update(player)
+
+}
+
+func (serve *serve) MakePlayerWalk(command MakePlayerWalkCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	playerId := playermodel.NewPlayerId(command.PlayerId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+	direction := worldcommonmodel.NewDirection(command.Direction)
+
+	player, err := serve.playerRepo.Get(worldId, playerId)
+	if err != nil {
+		return err
+	}
+
+	player.Walk(position, direction)
 
 	return serve.playerRepo.Update(player)
 }

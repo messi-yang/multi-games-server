@@ -24,6 +24,20 @@ type MovePlayerCommand struct {
 	Direction int8
 }
 
+type MakePlayerWalkCommand struct {
+	WorldId   uuid.UUID
+	PlayerId  uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
+}
+
+type MakePlayerStandCommand struct {
+	WorldId   uuid.UUID
+	PlayerId  uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
+}
+
 type SendPlayerIntoPortalCommand struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
