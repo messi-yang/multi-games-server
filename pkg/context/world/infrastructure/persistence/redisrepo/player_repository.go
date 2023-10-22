@@ -41,7 +41,7 @@ func (repo *playerRepo) Add(player playermodel.Player) error {
 	if err := repo.redisCache.Set(
 		getPlayerCacheKey(player.GetWorldId(), player.GetId()),
 		playerDtoBytes,
-		5*time.Minute,
+		60*time.Minute,
 	); err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (repo *playerRepo) Update(player playermodel.Player) error {
 	if err := repo.redisCache.Set(
 		getPlayerCacheKey(player.GetWorldId(), player.GetId()),
 		playerDtoBytes,
-		5*time.Minute,
+		60*time.Minute,
 	); err != nil {
 		return err
 	}
