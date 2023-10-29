@@ -17,13 +17,6 @@ type EnterWorldCommand struct {
 	PlayerHeldItemId uuid.UUID
 }
 
-type MovePlayerCommand struct {
-	WorldId   uuid.UUID
-	PlayerId  uuid.UUID
-	Position  dto.PositionDto
-	Direction int8
-}
-
 type MakePlayerWalkCommand struct {
 	WorldId        uuid.UUID
 	PlayerId       uuid.UUID

@@ -98,11 +98,6 @@ func (player *Player) GetName() string {
 	return player.name
 }
 
-func (player *Player) Move(position worldcommonmodel.Position, direction worldcommonmodel.Direction) {
-	// player.position = position
-	player.direction = direction
-}
-
 func (player *Player) GetDirection() worldcommonmodel.Direction {
 	return player.direction
 }

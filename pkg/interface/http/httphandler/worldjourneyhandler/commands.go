@@ -10,7 +10,6 @@ type commandName string
 const (
 	pingCommandName                 commandName = "PING"
 	addPlayerCommandName            commandName = "ADD_PLAYER"
-	movePlayerCommandName           commandName = "MOVE_PLAYER"
 	makePlayerStandCommandName      commandName = "MAKE_PLAYER_STAND"
 	makePlayerWalkCommandName       commandName = "MAKE_PLAYER_WALK"
 	sendPlayerIntoPortalCommandName commandName = "SEND_PLAYER_INTO_PORTAL"
@@ -34,15 +33,6 @@ type addPlayerCommand struct {
 	Timestamp int64         `json:"timestamp"`
 	Name      commandName   `json:"name"`
 	Player    dto.PlayerDto `json:"player"`
-}
-
-type movePlayerCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	PlayerId  uuid.UUID       `json:"playerId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
 }
 
 type makePlayerStandCommand struct {
