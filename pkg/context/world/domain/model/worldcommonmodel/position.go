@@ -32,3 +32,7 @@ func (position Position) GetZ() int {
 func (position Position) Shift(x int, z int) Position {
 	return NewPosition(position.x+x, position.z+z)
 }
+
+func (position Position) PrecisePosition() PrecisePosition {
+	return NewPrecisePosition(float32(position.x), float32(position.z))
+}

@@ -12,17 +12,17 @@ import (
 )
 
 type PlayerDto struct {
-	Id         uuid.UUID   `json:"id"`
-	WorldId    uuid.UUID   `json:"worldId"`
-	UserId     *uuid.UUID  `json:"userId"`
-	Name       string      `json:"name"`
-	Position   PositionDto `json:"position"`
-	Direction  int8        `json:"direction"`
-	HeldItemId *uuid.UUID  `json:"heldItemId"`
-	Action     string      `json:"action"`
-	ActedAt    time.Time   `json:"actedAt"`
-	CreatedAt  time.Time   `json:"createdAt"`
-	UpdatedAt  time.Time   `json:"updatedAt"`
+	Id             uuid.UUID   `json:"id"`
+	WorldId        uuid.UUID   `json:"worldId"`
+	UserId         *uuid.UUID  `json:"userId"`
+	Name           string      `json:"name"`
+	Direction      int8        `json:"direction"`
+	HeldItemId     *uuid.UUID  `json:"heldItemId"`
+	Action         string      `json:"action"`
+	ActionPosition PositionDto `json:"actionPosition"`
+	ActedAt        time.Time   `json:"actedAt"`
+	CreatedAt      time.Time   `json:"createdAt"`
+	UpdatedAt      time.Time   `json:"updatedAt"`
 }
 
 func NewPlayerDto(player playermodel.Player) PlayerDto {
@@ -35,17 +35,17 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 			func() *uuid.UUID { return commonutil.ToPointer((*player.GetUserId()).Uuid()) },
 		),
 		Name:      player.GetName(),
-		Position:  NewPositionDto(player.GetPosition()),
 		Direction: player.GetDirection().Int8(),
 		HeldItemId: lo.TernaryF(
 			player.GetHeldItemId() == nil,
 			func() *uuid.UUID { return nil },
 			func() *uuid.UUID { return commonutil.ToPointer((*player.GetHeldItemId()).Uuid()) },
 		),
-		Action:    player.GetAction().String(),
-		ActedAt:   player.GetActedAt(),
-		CreatedAt: player.GetCreatedAt(),
-		UpdatedAt: player.GetCreatedAt(),
+		Action:         player.GetAction().String(),
+		ActionPosition: NewPositionDto(player.GetActionPosition()),
+		ActedAt:        player.GetActedAt(),
+		CreatedAt:      player.GetCreatedAt(),
+		UpdatedAt:      player.GetCreatedAt(),
 	}
 	return dto
 }
@@ -67,7 +67,6 @@ func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) 
 			},
 		),
 		playerDto.Name,
-		worldcommonmodel.NewPosition(playerDto.Position.X, playerDto.Position.Z),
 		worldcommonmodel.NewDirection(playerDto.Direction),
 		lo.TernaryF(
 			playerDto.HeldItemId == nil,
@@ -77,6 +76,7 @@ func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) 
 			},
 		),
 		playerAction,
+		worldcommonmodel.NewPosition(playerDto.ActionPosition.X, playerDto.ActionPosition.Z),
 		playerDto.ActedAt,
 		playerDto.CreatedAt,
 		playerDto.UpdatedAt,

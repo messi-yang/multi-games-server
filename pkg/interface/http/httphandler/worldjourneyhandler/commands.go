@@ -46,21 +46,21 @@ type movePlayerCommand struct {
 }
 
 type makePlayerStandCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	PlayerId  uuid.UUID       `json:"playerId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
+	Id             uuid.UUID       `json:"id"`
+	Timestamp      int64           `json:"timestamp"`
+	Name           commandName     `json:"name"`
+	PlayerId       uuid.UUID       `json:"playerId"`
+	Direction      int8            `json:"direction"`
+	ActionPosition dto.PositionDto `json:"actionPosition"`
 }
 
 type makePlayerWalkCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	PlayerId  uuid.UUID       `json:"playerId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
+	Id             uuid.UUID       `json:"id"`
+	Timestamp      int64           `json:"timestamp"`
+	Name           commandName     `json:"name"`
+	PlayerId       uuid.UUID       `json:"playerId"`
+	Direction      int8            `json:"direction"`
+	ActionPosition dto.PositionDto `json:"actionPosition"`
 }
 
 type sendPlayerIntoPortalCommand struct {

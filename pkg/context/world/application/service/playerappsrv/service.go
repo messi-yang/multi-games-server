@@ -78,7 +78,6 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 	newPlayer := playermodel.NewPlayer(
 		worldId,
 		command.PlayerName,
-		worldcommonmodel.NewPosition(0, 0),
 		direction,
 		&playerHeldItemId,
 	)
@@ -108,7 +107,7 @@ func (serve *serve) MovePlayer(command MovePlayerCommand) error {
 func (serve *serve) MakePlayerStand(command MakePlayerStandCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+	actionPosition := worldcommonmodel.NewPosition(command.ActionPosition.X, command.ActionPosition.Z)
 	direction := worldcommonmodel.NewDirection(command.Direction)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
@@ -116,7 +115,7 @@ func (serve *serve) MakePlayerStand(command MakePlayerStandCommand) error {
 		return err
 	}
 
-	player.Stand(position, direction)
+	player.Stand(actionPosition, direction)
 
 	return serve.playerRepo.Update(player)
 
@@ -125,7 +124,7 @@ func (serve *serve) MakePlayerStand(command MakePlayerStandCommand) error {
 func (serve *serve) MakePlayerWalk(command MakePlayerWalkCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+	actionPosition := worldcommonmodel.NewPosition(command.ActionPosition.X, command.ActionPosition.Z)
 	direction := worldcommonmodel.NewDirection(command.Direction)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
@@ -133,7 +132,7 @@ func (serve *serve) MakePlayerWalk(command MakePlayerWalkCommand) error {
 		return err
 	}
 
-	player.Walk(position, direction)
+	player.Walk(actionPosition, direction)
 
 	return serve.playerRepo.Update(player)
 }

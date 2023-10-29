@@ -14,10 +14,10 @@ type Player struct {
 	worldId              globalcommonmodel.WorldId // The id of the world the player belongs to
 	userId               *globalcommonmodel.UserId
 	name                 string                     // The name of the player
-	position             worldcommonmodel.Position  // The current position of the player
 	direction            worldcommonmodel.Direction // The direction where the player is facing
 	heldItemId           *worldcommonmodel.ItemId   // Optional, The item held by the player
 	action               PlayerAction
+	actionPosition       worldcommonmodel.Position
 	actedAt              time.Time
 	createdAt            time.Time
 	updatedAt            time.Time
@@ -30,7 +30,6 @@ var _ domain.Aggregate = (*Player)(nil)
 func NewPlayer(
 	worldId globalcommonmodel.WorldId,
 	name string,
-	position worldcommonmodel.Position,
 	direction worldcommonmodel.Direction,
 	heldItemId *worldcommonmodel.ItemId,
 ) Player {
@@ -38,10 +37,10 @@ func NewPlayer(
 		id:                   NewPlayerId(uuid.New()),
 		worldId:              worldId,
 		name:                 name,
-		position:             position,
 		direction:            direction,
 		heldItemId:           heldItemId,
 		action:               NewPlayerActionStand(),
+		actionPosition:       worldcommonmodel.NewPosition(0, 0),
 		actedAt:              time.Now(),
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
@@ -54,10 +53,10 @@ func LoadPlayer(
 	worldId globalcommonmodel.WorldId,
 	userId *globalcommonmodel.UserId,
 	name string,
-	position worldcommonmodel.Position,
 	direction worldcommonmodel.Direction,
 	heldItemId *worldcommonmodel.ItemId,
 	action PlayerAction,
+	actionPosition worldcommonmodel.Position,
 	actedAt time.Time,
 	createdAt time.Time,
 	updatedAt time.Time,
@@ -67,10 +66,10 @@ func LoadPlayer(
 		worldId:              worldId,
 		userId:               userId,
 		name:                 name,
-		position:             position,
 		direction:            direction,
 		heldItemId:           heldItemId,
 		action:               action,
+		actionPosition:       actionPosition,
 		actedAt:              actedAt,
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
@@ -99,34 +98,13 @@ func (player *Player) GetName() string {
 	return player.name
 }
 
-func (player *Player) GetPosition() worldcommonmodel.Position {
-	return player.position
-}
-
 func (player *Player) Move(position worldcommonmodel.Position, direction worldcommonmodel.Direction) {
-	player.position = position
+	// player.position = position
 	player.direction = direction
 }
 
 func (player *Player) GetDirection() worldcommonmodel.Direction {
 	return player.direction
-}
-
-func (player *Player) GetPositionOneStepFoward() worldcommonmodel.Position {
-	direction := player.direction
-	position := player.position
-
-	if direction.IsUp() {
-		return position.Shift(0, -1)
-	} else if direction.IsRight() {
-		return position.Shift(1, 0)
-	} else if direction.IsDown() {
-		return position.Shift(0, 1)
-	} else if direction.IsLeft() {
-		return position.Shift(-1, 0)
-	} else {
-		return position.Shift(0, 1)
-	}
 }
 
 func (player *Player) ChangeHeldItem(itemId worldcommonmodel.ItemId) {
@@ -141,22 +119,26 @@ func (player *Player) GetAction() PlayerAction {
 	return player.action
 }
 
+func (player *Player) GetActionPosition() worldcommonmodel.Position {
+	return player.actionPosition
+}
+
 func (player *Player) Teleport(position worldcommonmodel.Position) {
-	player.position = position
+	player.actionPosition = position
 	player.actedAt = time.Now()
 }
 
-func (player *Player) Walk(position worldcommonmodel.Position, direction worldcommonmodel.Direction) {
+func (player *Player) Walk(actionPosition worldcommonmodel.Position, direction worldcommonmodel.Direction) {
 	player.action = NewPlayerActionWalk()
 	player.actedAt = time.Now()
-	player.position = position
+	player.actionPosition = actionPosition
 	player.direction = direction
 }
 
-func (player *Player) Stand(position worldcommonmodel.Position, direction worldcommonmodel.Direction) {
+func (player *Player) Stand(actionPosition worldcommonmodel.Position, direction worldcommonmodel.Direction) {
 	player.action = NewPlayerActionWalk()
 	player.actedAt = time.Now()
-	player.position = position
+	player.actionPosition = actionPosition
 	player.direction = direction
 }
 
