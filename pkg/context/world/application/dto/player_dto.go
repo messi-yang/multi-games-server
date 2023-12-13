@@ -12,17 +12,16 @@ import (
 )
 
 type PlayerDto struct {
-	Id             uuid.UUID   `json:"id"`
-	WorldId        uuid.UUID   `json:"worldId"`
-	UserId         *uuid.UUID  `json:"userId"`
-	Name           string      `json:"name"`
-	Direction      int8        `json:"direction"`
-	HeldItemId     *uuid.UUID  `json:"heldItemId"`
-	Action         string      `json:"action"`
-	ActionPosition PositionDto `json:"actionPosition"`
-	ActedAt        time.Time   `json:"actedAt"`
-	CreatedAt      time.Time   `json:"createdAt"`
-	UpdatedAt      time.Time   `json:"updatedAt"`
+	Id         uuid.UUID       `json:"id"`
+	WorldId    uuid.UUID       `json:"worldId"`
+	UserId     *uuid.UUID      `json:"userId"`
+	Name       string          `json:"name"`
+	Direction  int8            `json:"direction"`
+	HeldItemId *uuid.UUID      `json:"heldItemId"`
+	Action     PlayerActionDto `json:"action"`
+	Position   PositionDto     `json:"position"`
+	CreatedAt  time.Time       `json:"createdAt"`
+	UpdatedAt  time.Time       `json:"updatedAt"`
 }
 
 func NewPlayerDto(player playermodel.Player) PlayerDto {
@@ -34,24 +33,22 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 			func() *uuid.UUID { return nil },
 			func() *uuid.UUID { return commonutil.ToPointer((*player.GetUserId()).Uuid()) },
 		),
-		Name:      player.GetName(),
-		Direction: player.GetDirection().Int8(),
+		Name: player.GetName(),
 		HeldItemId: lo.TernaryF(
 			player.GetHeldItemId() == nil,
 			func() *uuid.UUID { return nil },
 			func() *uuid.UUID { return commonutil.ToPointer((*player.GetHeldItemId()).Uuid()) },
 		),
-		Action:         player.GetAction().String(),
-		ActionPosition: NewPositionDto(player.GetActionPosition()),
-		ActedAt:        player.GetActedAt(),
-		CreatedAt:      player.GetCreatedAt(),
-		UpdatedAt:      player.GetCreatedAt(),
+		Action:    NewPlayerActionDto(player.GetAction()),
+		Position:  NewPositionDto(player.GetPosition()),
+		CreatedAt: player.GetCreatedAt(),
+		UpdatedAt: player.GetCreatedAt(),
 	}
 	return dto
 }
 
 func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) {
-	playerAction, err := playermodel.NewPlayerAction(playerDto.Action)
+	action, err := ParsePlayerActionDto(playerDto.Action)
 	if err != nil {
 		return player, err
 	}
@@ -75,9 +72,8 @@ func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) 
 				return commonutil.ToPointer(worldcommonmodel.NewItemId(*playerDto.HeldItemId))
 			},
 		),
-		playerAction,
-		worldcommonmodel.NewPosition(playerDto.ActionPosition.X, playerDto.ActionPosition.Z),
-		playerDto.ActedAt,
+		action,
+		worldcommonmodel.NewPosition(playerDto.Position.X, playerDto.Position.Z),
 		playerDto.CreatedAt,
 		playerDto.UpdatedAt,
 	), nil

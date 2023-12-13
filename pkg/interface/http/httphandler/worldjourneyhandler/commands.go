@@ -10,8 +10,7 @@ type commandName string
 const (
 	pingCommandName                 commandName = "PING"
 	addPlayerCommandName            commandName = "ADD_PLAYER"
-	makePlayerStandCommandName      commandName = "MAKE_PLAYER_STAND"
-	makePlayerWalkCommandName       commandName = "MAKE_PLAYER_WALK"
+	changePlayerActionCommandName   commandName = "CHANGE_PLAYER_ACTION"
 	sendPlayerIntoPortalCommandName commandName = "SEND_PLAYER_INTO_PORTAL"
 	changePlayerHeldItemCommandName commandName = "CHANGE_PLAYER_HELD_ITEM"
 	removePlayerCommandName         commandName = "REMOVE_PLAYER"
@@ -35,22 +34,12 @@ type addPlayerCommand struct {
 	Player    dto.PlayerDto `json:"player"`
 }
 
-type makePlayerStandCommand struct {
-	Id             uuid.UUID       `json:"id"`
-	Timestamp      int64           `json:"timestamp"`
-	Name           commandName     `json:"name"`
-	PlayerId       uuid.UUID       `json:"playerId"`
-	Direction      int8            `json:"direction"`
-	ActionPosition dto.PositionDto `json:"actionPosition"`
-}
-
-type makePlayerWalkCommand struct {
-	Id             uuid.UUID       `json:"id"`
-	Timestamp      int64           `json:"timestamp"`
-	Name           commandName     `json:"name"`
-	PlayerId       uuid.UUID       `json:"playerId"`
-	Direction      int8            `json:"direction"`
-	ActionPosition dto.PositionDto `json:"actionPosition"`
+type changePlayerActionCommand struct {
+	Id        uuid.UUID           `json:"id"`
+	Timestamp int64               `json:"timestamp"`
+	Name      commandName         `json:"name"`
+	PlayerId  uuid.UUID           `json:"playerId"`
+	Action    dto.PlayerActionDto `json:"action"`
 }
 
 type sendPlayerIntoPortalCommand struct {

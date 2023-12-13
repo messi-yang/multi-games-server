@@ -160,8 +160,8 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			switch command.Name {
 			case pingCommandName:
 				continue
-			case makePlayerStandCommandName:
-				commandDto, err := jsonutil.Unmarshal[makePlayerStandCommand](message)
+			case changePlayerActionCommandName:
+				commandDto, err := jsonutil.Unmarshal[changePlayerActionCommand](message)
 				if err != nil {
 					closeConnectionOnError(err)
 					return
@@ -170,28 +170,8 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
 					return
 				}
-				if err = httpHandler.executeMakePlayerStandCommand(
-					worldIdDto, commandDto.PlayerId, commandDto.ActionPosition, commandDto.Direction,
-				); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case makePlayerWalkCommandName:
-				commandDto, err := jsonutil.Unmarshal[makePlayerWalkCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if commandDto.PlayerId != playerIdDto {
-					closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
-					return
-				}
-				if err = httpHandler.executeMakePlayerWalkCommand(
-					worldIdDto, commandDto.PlayerId, commandDto.ActionPosition, commandDto.Direction,
+				if err = httpHandler.executeChangePlayerActionCommand(
+					worldIdDto, commandDto.PlayerId, commandDto.Action,
 				); err != nil {
 					sendError(err)
 					break
@@ -332,30 +312,14 @@ func (httpHandler *HttpHandler) queryPlayer(worldIdDto uuid.UUID, playerIdDto uu
 	})
 }
 
-func (httpHandler *HttpHandler) executeMakePlayerStandCommand(
-	worldIdDto uuid.UUID, playerIdDto uuid.UUID, actionPositionDto world_dto.PositionDto, directionDto int8,
+func (httpHandler *HttpHandler) executeChangePlayerActionCommand(
+	worldIdDto uuid.UUID, playerIdDto uuid.UUID, actionDto world_dto.PlayerActionDto,
 ) error {
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.MakePlayerStand(playerappsrv.MakePlayerStandCommand{
-		WorldId:        worldIdDto,
-		PlayerId:       playerIdDto,
-		ActionPosition: actionPositionDto,
-		Direction:      directionDto,
-	}); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (httpHandler *HttpHandler) executeMakePlayerWalkCommand(
-	worldIdDto uuid.UUID, playerIdDto uuid.UUID, actionPositionDto world_dto.PositionDto, directionDto int8,
-) error {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.MakePlayerWalk(playerappsrv.MakePlayerWalkCommand{
-		WorldId:        worldIdDto,
-		PlayerId:       playerIdDto,
-		ActionPosition: actionPositionDto,
-		Direction:      directionDto,
+	if err := playerAppService.ChangePlayerAction(playerappsrv.ChangePlayerActionCommand{
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
+		Action:   actionDto,
 	}); err != nil {
 		return err
 	}

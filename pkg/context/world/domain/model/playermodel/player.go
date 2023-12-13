@@ -13,12 +13,10 @@ type Player struct {
 	id                   PlayerId                  // Id of the player
 	worldId              globalcommonmodel.WorldId // The id of the world the player belongs to
 	userId               *globalcommonmodel.UserId
-	name                 string                     // The name of the player
-	direction            worldcommonmodel.Direction // The direction where the player is facing
-	heldItemId           *worldcommonmodel.ItemId   // Optional, The item held by the player
+	name                 string                   // The name of the player
+	heldItemId           *worldcommonmodel.ItemId // Optional, The item held by the player
 	action               PlayerAction
-	actionPosition       worldcommonmodel.Position
-	actedAt              time.Time
+	position             worldcommonmodel.Position
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -34,14 +32,17 @@ func NewPlayer(
 	heldItemId *worldcommonmodel.ItemId,
 ) Player {
 	return Player{
-		id:                   NewPlayerId(uuid.New()),
-		worldId:              worldId,
-		name:                 name,
-		direction:            direction,
-		heldItemId:           heldItemId,
-		action:               NewPlayerActionStand(),
-		actionPosition:       worldcommonmodel.NewPosition(0, 0),
-		actedAt:              time.Now(),
+		id:         NewPlayerId(uuid.New()),
+		worldId:    worldId,
+		name:       name,
+		heldItemId: heldItemId,
+		action: NewPlayerAction(
+			PlayerActionNameEnumStand,
+			worldcommonmodel.NewPosition(0, 0),
+			worldcommonmodel.NewDirection(0),
+			time.Now(),
+		),
+		position:             worldcommonmodel.NewPosition(0, 0),
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -56,8 +57,7 @@ func LoadPlayer(
 	direction worldcommonmodel.Direction,
 	heldItemId *worldcommonmodel.ItemId,
 	action PlayerAction,
-	actionPosition worldcommonmodel.Position,
-	actedAt time.Time,
+	position worldcommonmodel.Position,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) Player {
@@ -66,11 +66,9 @@ func LoadPlayer(
 		worldId:              worldId,
 		userId:               userId,
 		name:                 name,
-		direction:            direction,
 		heldItemId:           heldItemId,
 		action:               action,
-		actionPosition:       actionPosition,
-		actedAt:              actedAt,
+		position:             position,
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -98,10 +96,6 @@ func (player *Player) GetName() string {
 	return player.name
 }
 
-func (player *Player) GetDirection() worldcommonmodel.Direction {
-	return player.direction
-}
-
 func (player *Player) ChangeHeldItem(itemId worldcommonmodel.ItemId) {
 	player.heldItemId = &itemId
 }
@@ -114,31 +108,16 @@ func (player *Player) GetAction() PlayerAction {
 	return player.action
 }
 
-func (player *Player) GetActionPosition() worldcommonmodel.Position {
-	return player.actionPosition
+func (player *Player) GetPosition() worldcommonmodel.Position {
+	return player.position
 }
 
 func (player *Player) Teleport(position worldcommonmodel.Position) {
-	player.actionPosition = position
-	player.actedAt = time.Now()
+	player.action = player.action.UpdatePosition(position)
 }
 
-func (player *Player) Walk(actionPosition worldcommonmodel.Position, direction worldcommonmodel.Direction) {
-	player.action = NewPlayerActionWalk()
-	player.actedAt = time.Now()
-	player.actionPosition = actionPosition
-	player.direction = direction
-}
-
-func (player *Player) Stand(actionPosition worldcommonmodel.Position, direction worldcommonmodel.Direction) {
-	player.action = NewPlayerActionWalk()
-	player.actedAt = time.Now()
-	player.actionPosition = actionPosition
-	player.direction = direction
-}
-
-func (player *Player) GetActedAt() time.Time {
-	return player.actedAt
+func (player *Player) ChangeAction(action PlayerAction) {
+	player.action = action
 }
 
 func (player *Player) GetCreatedAt() time.Time {

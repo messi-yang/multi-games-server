@@ -17,18 +17,10 @@ type EnterWorldCommand struct {
 	PlayerHeldItemId uuid.UUID
 }
 
-type MakePlayerWalkCommand struct {
-	WorldId        uuid.UUID
-	PlayerId       uuid.UUID
-	ActionPosition dto.PositionDto
-	Direction      int8
-}
-
-type MakePlayerStandCommand struct {
-	WorldId        uuid.UUID
-	PlayerId       uuid.UUID
-	ActionPosition dto.PositionDto
-	Direction      int8
+type ChangePlayerActionCommand struct {
+	WorldId  uuid.UUID
+	PlayerId uuid.UUID
+	Action   dto.PlayerActionDto
 }
 
 type SendPlayerIntoPortalCommand struct {

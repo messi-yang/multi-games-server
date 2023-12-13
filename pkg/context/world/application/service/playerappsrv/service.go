@@ -22,8 +22,7 @@ type Service interface {
 	GetPlayers(GetPlayersQuery) (playerDtos []dto.PlayerDto, err error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
-	MakePlayerStand(MakePlayerStandCommand) error
-	MakePlayerWalk(MakePlayerWalkCommand) error
+	ChangePlayerAction(ChangePlayerActionCommand) error
 	SendPlayerIntoPortal(SendPlayerIntoPortalCommand) error
 	LeaveWorld(LeaveWorldCommand) error
 	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
@@ -87,37 +86,23 @@ func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID
 	return newPlayer.GetId().Uuid(), nil
 }
 
-func (serve *serve) MakePlayerStand(command MakePlayerStandCommand) error {
+func (serve *serve) ChangePlayerAction(command ChangePlayerActionCommand) error {
+	action, err := dto.ParsePlayerActionDto(command.Action)
+	if err != nil {
+		return err
+	}
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
-	actionPosition := worldcommonmodel.NewPosition(command.ActionPosition.X, command.ActionPosition.Z)
-	direction := worldcommonmodel.NewDirection(command.Direction)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
 	if err != nil {
 		return err
 	}
 
-	player.Stand(actionPosition, direction)
+	player.ChangeAction(action)
 
 	return serve.playerRepo.Update(player)
 
-}
-
-func (serve *serve) MakePlayerWalk(command MakePlayerWalkCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	playerId := playermodel.NewPlayerId(command.PlayerId)
-	actionPosition := worldcommonmodel.NewPosition(command.ActionPosition.X, command.ActionPosition.Z)
-	direction := worldcommonmodel.NewDirection(command.Direction)
-
-	player, err := serve.playerRepo.Get(worldId, playerId)
-	if err != nil {
-		return err
-	}
-
-	player.Walk(actionPosition, direction)
-
-	return serve.playerRepo.Update(player)
 }
 
 func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) error {
