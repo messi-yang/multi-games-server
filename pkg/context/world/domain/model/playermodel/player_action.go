@@ -8,21 +8,21 @@ import (
 )
 
 type PlayerAction struct {
-	name      PlayerActionNameEnum
-	position  worldcommonmodel.Position
-	direction worldcommonmodel.Direction
-	time      time.Time
+	name            PlayerActionNameEnum
+	precisePosition worldcommonmodel.PrecisePosition
+	direction       worldcommonmodel.Direction
+	time            time.Time
 }
 
 // Interface Implementation Check
 var _ domain.ValueObject[PlayerAction] = (*PlayerAction)(nil)
 
-func NewPlayerAction(name PlayerActionNameEnum, position worldcommonmodel.Position, direction worldcommonmodel.Direction, time time.Time) PlayerAction {
+func NewPlayerAction(name PlayerActionNameEnum, precisePosition worldcommonmodel.PrecisePosition, direction worldcommonmodel.Direction, time time.Time) PlayerAction {
 	return PlayerAction{
-		name:      name,
-		position:  position,
-		direction: direction,
-		time:      time,
+		name:            name,
+		precisePosition: precisePosition,
+		direction:       direction,
+		time:            time,
 	}
 }
 
@@ -38,12 +38,12 @@ func (playerAction PlayerAction) GetName() PlayerActionNameEnum {
 	return playerAction.name
 }
 
-func (playerAction PlayerAction) GetPosition() worldcommonmodel.Position {
-	return playerAction.position
+func (playerAction PlayerAction) GetPrecisePosition() worldcommonmodel.PrecisePosition {
+	return playerAction.precisePosition
 }
 
-func (playerAction PlayerAction) UpdatePosition(position worldcommonmodel.Position) PlayerAction {
-	return NewPlayerAction(playerAction.name, position, playerAction.direction, playerAction.time)
+func (playerAction PlayerAction) UpdatePrecisePosition(precisePosition worldcommonmodel.PrecisePosition) PlayerAction {
+	return NewPlayerAction(playerAction.name, precisePosition, playerAction.direction, playerAction.time)
 }
 
 func (playerAction PlayerAction) GetDirection() worldcommonmodel.Direction {
@@ -51,7 +51,7 @@ func (playerAction PlayerAction) GetDirection() worldcommonmodel.Direction {
 }
 
 func (playerAction PlayerAction) UpdateDirection(direction worldcommonmodel.Direction) PlayerAction {
-	return NewPlayerAction(playerAction.name, playerAction.position, direction, playerAction.time)
+	return NewPlayerAction(playerAction.name, playerAction.precisePosition, direction, playerAction.time)
 }
 
 func (playerAction PlayerAction) GetTime() time.Time {
@@ -59,5 +59,5 @@ func (playerAction PlayerAction) GetTime() time.Time {
 }
 
 func (playerAction PlayerAction) UpdateTime(time time.Time) PlayerAction {
-	return NewPlayerAction(playerAction.name, playerAction.position, playerAction.direction, time)
+	return NewPlayerAction(playerAction.name, playerAction.precisePosition, playerAction.direction, time)
 }

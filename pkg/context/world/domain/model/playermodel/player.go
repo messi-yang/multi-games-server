@@ -16,7 +16,7 @@ type Player struct {
 	name                 string                   // The name of the player
 	heldItemId           *worldcommonmodel.ItemId // Optional, The item held by the player
 	action               PlayerAction
-	position             worldcommonmodel.Position
+	precisePosition      worldcommonmodel.PrecisePosition
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -38,11 +38,11 @@ func NewPlayer(
 		heldItemId: heldItemId,
 		action: NewPlayerAction(
 			PlayerActionNameEnumStand,
-			worldcommonmodel.NewPosition(0, 0),
+			worldcommonmodel.NewPrecisePosition(0, 0),
 			worldcommonmodel.NewDirection(0),
 			time.Now(),
 		),
-		position:             worldcommonmodel.NewPosition(0, 0),
+		precisePosition:      worldcommonmodel.NewPrecisePosition(0, 0),
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -57,7 +57,7 @@ func LoadPlayer(
 	direction worldcommonmodel.Direction,
 	heldItemId *worldcommonmodel.ItemId,
 	action PlayerAction,
-	position worldcommonmodel.Position,
+	precisePosition worldcommonmodel.PrecisePosition,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) Player {
@@ -68,7 +68,7 @@ func LoadPlayer(
 		name:                 name,
 		heldItemId:           heldItemId,
 		action:               action,
-		position:             position,
+		precisePosition:      precisePosition,
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -108,12 +108,12 @@ func (player *Player) GetAction() PlayerAction {
 	return player.action
 }
 
-func (player *Player) GetPosition() worldcommonmodel.Position {
-	return player.position
+func (player *Player) GetPrecisePosition() worldcommonmodel.PrecisePosition {
+	return player.precisePosition
 }
 
-func (player *Player) Teleport(position worldcommonmodel.Position) {
-	player.action = player.action.UpdatePosition(position)
+func (player *Player) Teleport(precisePosition worldcommonmodel.PrecisePosition) {
+	player.action = player.action.UpdatePrecisePosition(precisePosition)
 }
 
 func (player *Player) ChangeAction(action PlayerAction) {

@@ -136,7 +136,7 @@ func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) er
 	}
 	targetPosition := portalUnit.GetTargetPosition()
 	if targetPosition != nil {
-		player.Teleport(*targetPosition)
+		player.Teleport(targetPosition.PrecisePosition())
 	} else {
 		return nil
 	}

@@ -12,16 +12,16 @@ import (
 )
 
 type PlayerDto struct {
-	Id         uuid.UUID       `json:"id"`
-	WorldId    uuid.UUID       `json:"worldId"`
-	UserId     *uuid.UUID      `json:"userId"`
-	Name       string          `json:"name"`
-	Direction  int8            `json:"direction"`
-	HeldItemId *uuid.UUID      `json:"heldItemId"`
-	Action     PlayerActionDto `json:"action"`
-	Position   PositionDto     `json:"position"`
-	CreatedAt  time.Time       `json:"createdAt"`
-	UpdatedAt  time.Time       `json:"updatedAt"`
+	Id              uuid.UUID          `json:"id"`
+	WorldId         uuid.UUID          `json:"worldId"`
+	UserId          *uuid.UUID         `json:"userId"`
+	Name            string             `json:"name"`
+	Direction       int8               `json:"direction"`
+	HeldItemId      *uuid.UUID         `json:"heldItemId"`
+	Action          PlayerActionDto    `json:"action"`
+	PrecisePosition PrecisePositionDto `json:"precisePosition"`
+	CreatedAt       time.Time          `json:"createdAt"`
+	UpdatedAt       time.Time          `json:"updatedAt"`
 }
 
 func NewPlayerDto(player playermodel.Player) PlayerDto {
@@ -39,10 +39,10 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 			func() *uuid.UUID { return nil },
 			func() *uuid.UUID { return commonutil.ToPointer((*player.GetHeldItemId()).Uuid()) },
 		),
-		Action:    NewPlayerActionDto(player.GetAction()),
-		Position:  NewPositionDto(player.GetPosition()),
-		CreatedAt: player.GetCreatedAt(),
-		UpdatedAt: player.GetCreatedAt(),
+		Action:          NewPlayerActionDto(player.GetAction()),
+		PrecisePosition: NewPrecisePositionDto(player.GetPrecisePosition()),
+		CreatedAt:       player.GetCreatedAt(),
+		UpdatedAt:       player.GetCreatedAt(),
 	}
 	return dto
 }
@@ -73,7 +73,7 @@ func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) 
 			},
 		),
 		action,
-		worldcommonmodel.NewPosition(playerDto.Position.X, playerDto.Position.Z),
+		worldcommonmodel.NewPrecisePosition(playerDto.PrecisePosition.X, playerDto.PrecisePosition.Z),
 		playerDto.CreatedAt,
 		playerDto.UpdatedAt,
 	), nil
