@@ -17,7 +17,7 @@ var _ domain.ValueObject[PrecisePosition] = (*PrecisePosition)(nil)
 func NewPrecisePosition(x float32, z float32) PrecisePosition {
 	return PrecisePosition{
 		x: float32(math.Round(float64(x*100)) / 100),
-		z: float32(math.Round(float64(x*100)) / 100),
+		z: float32(math.Round(float64(z*100)) / 100),
 	}
 }
 

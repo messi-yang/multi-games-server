@@ -91,6 +91,7 @@ func (serve *serve) ChangePlayerAction(command ChangePlayerActionCommand) error 
 	if err != nil {
 		return err
 	}
+
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
 
