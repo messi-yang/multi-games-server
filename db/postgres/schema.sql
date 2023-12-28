@@ -102,7 +102,7 @@ CREATE TABLE public.units (
     direction integer NOT NULL,
     type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL,
     info_id uuid,
-    info_snapshot jsonb
+    info_snapshot jsonb NOT NULL
 );
 
 
