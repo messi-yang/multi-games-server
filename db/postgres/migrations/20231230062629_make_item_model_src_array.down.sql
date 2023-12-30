@@ -6,7 +6,7 @@ DECLARE
 BEGIN
   FOR itemRow IN SELECT * FROM items LOOP
     UPDATE items
-        SET model_src = model_sources[0]
+        SET model_src = model_sources[1]
         WHERE id = itemRow.id;
   END LOOP;
 END $$;

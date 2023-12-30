@@ -54,11 +54,11 @@ CREATE TABLE public.items (
     id uuid NOT NULL,
     name character varying(50) NOT NULL,
     traversable boolean NOT NULL,
-    model_src character varying(255) NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     thumbnail_src character varying(255) NOT NULL,
-    compatible_unit_type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
+    compatible_unit_type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL,
+    model_sources character varying(150)[] DEFAULT '{}'::character varying[] NOT NULL
 );
 
 
