@@ -113,7 +113,13 @@ func (serve *serve) CreateDefaultItems(command CreateDefaultItemsCommand) error 
 		itemmodel.LoadItem(
 			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("d4d0850a-dbe0-451c-9e50-6ac280108d1c")),
 			worldcommonmodel.NewStaticUnitType(),
-			"fence", false, "/asset/item/fence/thumbnail.png", []string{"/asset/item/fence/model.gltf"},
+			"fence", false, "/asset/item/fence/thumbnail.png",
+			[]string{
+				"/asset/item/fence/model_1.gltf",
+				"/asset/item/fence/model_2.gltf",
+				"/asset/item/fence/model_3.gltf",
+				"/asset/item/fence/model_4.gltf",
+			},
 		),
 		itemmodel.LoadItem(
 			worldcommonmodel.NewItemId(uuidutil.UnsafelyNewUuid("c64f732c-9494-4693-b17b-43a2736aa67b")),
