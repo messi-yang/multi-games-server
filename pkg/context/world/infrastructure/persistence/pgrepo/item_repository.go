@@ -23,7 +23,7 @@ func newModelFromItem(item itemmodel.Item) pgmodel.ItemModel {
 		Name:               item.GetName(),
 		Traversable:        item.GetTraversable(),
 		ThumbnailSrc:       item.GetThumbnailSrc(),
-		ModelSrc:           item.GetModelSrc(),
+		ModelSources:       item.GetModelSources(),
 	}
 }
 
@@ -39,7 +39,9 @@ func parseModelToItem(itemModel pgmodel.ItemModel) (item itemmodel.Item, err err
 		itemModel.Name,
 		itemModel.Traversable,
 		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
-		fmt.Sprintf("%s%s", serverUrl, itemModel.ModelSrc),
+		lo.Map(itemModel.ModelSources, func(modelSource string, _ int) string {
+			return fmt.Sprintf("%s%s", serverUrl, modelSource)
+		}),
 	), nil
 }
 

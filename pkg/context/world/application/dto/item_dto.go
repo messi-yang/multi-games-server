@@ -11,7 +11,7 @@ type ItemDto struct {
 	Name               string    `json:"name"`
 	Traversable        bool      `json:"traversable"`
 	AssetSrc           string    `json:"thumbnailSrc"`
-	ModelSrc           string    `json:"modelSrc"`
+	ModelSources       []string  `json:"modelSources"`
 }
 
 func NewItemDto(item itemmodel.Item) ItemDto {
@@ -21,6 +21,6 @@ func NewItemDto(item itemmodel.Item) ItemDto {
 		Name:               item.GetName(),
 		Traversable:        item.GetTraversable(),
 		AssetSrc:           item.GetThumbnailSrc(),
-		ModelSrc:           item.GetModelSrc(),
+		ModelSources:       item.GetModelSources(),
 	}
 }

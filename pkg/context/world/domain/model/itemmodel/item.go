@@ -11,21 +11,28 @@ type Item struct {
 	name                 string
 	traversable          bool
 	thumbnailSrc         string
-	modelSrc             string
+	modelSources         []string
 	domainEventCollector *domain.DomainEventCollector
 }
 
 // Interface Implementation Check
 var _ domain.Aggregate = (*Item)(nil)
 
-func LoadItem(id worldcommonmodel.ItemId, compatibleUnitType worldcommonmodel.UnitType, name string, traversable bool, thumbnailSrc string, modelSrc string) Item {
+func LoadItem(
+	id worldcommonmodel.ItemId,
+	compatibleUnitType worldcommonmodel.UnitType,
+	name string,
+	traversable bool,
+	thumbnailSrc string,
+	modelSources []string,
+) Item {
 	return Item{
 		id:                   id,
 		compatibleUnitType:   compatibleUnitType,
 		name:                 name,
 		traversable:          traversable,
 		thumbnailSrc:         thumbnailSrc,
-		modelSrc:             modelSrc,
+		modelSources:         modelSources,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -54,6 +61,6 @@ func (item *Item) GetThumbnailSrc() string {
 	return item.thumbnailSrc
 }
 
-func (item *Item) GetModelSrc() string {
-	return item.modelSrc
+func (item *Item) GetModelSources() []string {
+	return item.modelSources
 }
