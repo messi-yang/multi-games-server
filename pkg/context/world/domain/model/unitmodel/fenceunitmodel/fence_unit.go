@@ -1,96 +1,84 @@
-package unitmodel
+package fenceunitmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
-// Unit here is only for reading purpose, for writing units,
-// please check the unit model of the type you are looking for.
-type Unit struct {
-	id                   UnitId
+type FenceUnit struct {
+	id                   unitmodel.UnitId
 	worldId              globalcommonmodel.WorldId
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
 	direction            worldcommonmodel.Direction
-	_type                worldcommonmodel.UnitType
-	info                 any
 	domainEventCollector *domain.DomainEventCollector
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*Unit)(nil)
+var _ domain.Aggregate = (*FenceUnit)(nil)
 
-func NewUnit(
+func NewFenceUnit(
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
-	_type worldcommonmodel.UnitType,
-	info any,
-) Unit {
-	return Unit{
-		id:                   NewUnitId(worldId, position),
+) FenceUnit {
+	return FenceUnit{
+		id:                   unitmodel.NewUnitId(worldId, position),
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,
 		direction:            direction,
-		_type:                _type,
-		info:                 info,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
 
-func LoadUnit(
-	id UnitId,
+func LoadFenceUnit(
+	id unitmodel.UnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
-	_type worldcommonmodel.UnitType,
-	info any,
-) Unit {
-	return Unit{
+) FenceUnit {
+	return FenceUnit{
 		id:                   id,
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,
 		direction:            direction,
-		_type:                _type,
-		info:                 info,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
 
-func (unit *Unit) PopDomainEvents() []domain.DomainEvent {
+func (unit *FenceUnit) PopDomainEvents() []domain.DomainEvent {
 	return unit.domainEventCollector.PopAll()
 }
 
-func (unit *Unit) GetId() UnitId {
+func (unit *FenceUnit) GetId() unitmodel.UnitId {
 	return unit.id
 }
 
-func (unit *Unit) GetWorldId() globalcommonmodel.WorldId {
+func (unit *FenceUnit) GetWorldId() globalcommonmodel.WorldId {
 	return unit.worldId
 }
 
-func (unit *Unit) GetPosition() worldcommonmodel.Position {
+func (unit *FenceUnit) GetPosition() worldcommonmodel.Position {
 	return unit.position
 }
 
-func (unit *Unit) GetItemId() worldcommonmodel.ItemId {
+func (unit *FenceUnit) GetItemId() worldcommonmodel.ItemId {
 	return unit.itemId
 }
 
-func (unit *Unit) GetDirection() worldcommonmodel.Direction {
+func (unit *FenceUnit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
 }
 
-func (unit *Unit) GetInfo() any {
-	return unit.info
+func (unit *FenceUnit) Rotate() {
+	unit.direction = unit.direction.Rotate()
 }
 
-func (unit *Unit) GetType() worldcommonmodel.UnitType {
-	return unit._type
+func (unit *FenceUnit) Delete() {
 }

@@ -20,6 +20,9 @@ type Service interface {
 	CreateStaticUnit(CreateStaticUnitCommand) error
 	RemoveStaticUnit(RemoveStaticUnitCommand) error
 
+	CreateFenceUnit(CreateFenceUnitCommand) error
+	RemoveFenceUnit(RemoveFenceUnitCommand) error
+
 	CreatePortalUnit(CreatePortalUnitCommand) error
 	RemovePortalUnit(RemovePortalUnitCommand) error
 }
@@ -29,6 +32,7 @@ type serve struct {
 	unitRepo          unitmodel.UnitRepo
 	itemRepo          itemmodel.ItemRepo
 	staticUnitService service.StaticUnitService
+	fenceUnitService  service.FenceUnitService
 	portalUnitService service.PortalUnitService
 }
 
@@ -37,6 +41,7 @@ func NewService(
 	unitRepo unitmodel.UnitRepo,
 	itemRepo itemmodel.ItemRepo,
 	staticUnitService service.StaticUnitService,
+	fenceUnitService service.FenceUnitService,
 	portalUnitService service.PortalUnitService,
 ) Service {
 	return &serve{
@@ -44,6 +49,7 @@ func NewService(
 		unitRepo:          unitRepo,
 		itemRepo:          itemRepo,
 		staticUnitService: staticUnitService,
+		fenceUnitService:  fenceUnitService,
 		portalUnitService: portalUnitService,
 	}
 }
@@ -90,6 +96,26 @@ func (serve *serve) RemoveStaticUnit(command RemoveStaticUnitCommand) error {
 	unitId := unitmodel.NewUnitId(worldId, position)
 
 	return serve.staticUnitService.RemoveStaticUnit(unitId)
+}
+
+func (serve *serve) CreateFenceUnit(command CreateFenceUnitCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+
+	return serve.fenceUnitService.CreateFenceUnit(
+		worldId,
+		worldcommonmodel.NewItemId(command.ItemId),
+		position,
+		worldcommonmodel.NewDirection(command.Direction),
+	)
+}
+
+func (serve *serve) RemoveFenceUnit(command RemoveFenceUnitCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+	unitId := unitmodel.NewUnitId(worldId, position)
+
+	return serve.fenceUnitService.RemoveFenceUnit(unitId)
 }
 
 func (serve *serve) CreatePortalUnit(command CreatePortalUnitCommand) error {

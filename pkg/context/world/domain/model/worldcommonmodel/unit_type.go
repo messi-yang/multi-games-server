@@ -10,6 +10,7 @@ type unitTypeValue string
 
 const (
 	unitTypeStatic unitTypeValue = "static"
+	unitTypeFence  unitTypeValue = "fence"
 	unitTypePortal unitTypeValue = "portal"
 )
 
@@ -26,6 +27,10 @@ func NewUnitType(value string) (UnitType, error) {
 		return UnitType{
 			value: unitTypeStatic,
 		}, nil
+	case "fence":
+		return UnitType{
+			value: unitTypeFence,
+		}, nil
 	case "portal":
 		return UnitType{
 			value: unitTypePortal,
@@ -37,6 +42,11 @@ func NewUnitType(value string) (UnitType, error) {
 
 func NewStaticUnitType() UnitType {
 	unitType, _ := NewUnitType(string(unitTypeStatic))
+	return unitType
+}
+
+func NewFenceUnitType() UnitType {
+	unitType, _ := NewUnitType(string(unitTypeFence))
 	return unitType
 }
 
@@ -55,6 +65,10 @@ func (unitType UnitType) String() string {
 
 func (unitType UnitType) IsStatic() bool {
 	return unitType.value == unitTypeStatic
+}
+
+func (unitType UnitType) IsFence() bool {
+	return unitType.value == unitTypeFence
 }
 
 func (unitType UnitType) IsPortal() bool {

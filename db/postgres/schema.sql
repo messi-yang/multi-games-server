@@ -57,8 +57,8 @@ CREATE TABLE public.items (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     thumbnail_src character varying(255) NOT NULL,
-    compatible_unit_type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL,
-    model_sources character varying(150)[] DEFAULT '{}'::character varying[] NOT NULL
+    model_sources character varying(150)[] DEFAULT '{}'::character varying[] NOT NULL,
+    compatible_unit_type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
 );
 
 
@@ -100,9 +100,9 @@ CREATE TABLE public.units (
     pos_z integer NOT NULL,
     item_id uuid NOT NULL,
     direction integer NOT NULL,
-    type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL,
     info_id uuid,
-    info_snapshot jsonb NOT NULL
+    info_snapshot jsonb NOT NULL,
+    type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
 );
 
 
@@ -280,24 +280,10 @@ ALTER TABLE ONLY public.worlds
 
 
 --
--- Name: item_compatible_unit_type; Type: INDEX; Schema: public; Owner: main
---
-
-CREATE INDEX item_compatible_unit_type ON public.items USING btree (compatible_unit_type);
-
-
---
 -- Name: portal_unit_infos_world_id_target_pos_x_target_pos_z; Type: INDEX; Schema: public; Owner: main
 --
 
 CREATE INDEX portal_unit_infos_world_id_target_pos_x_target_pos_z ON public.portal_unit_infos USING btree (world_id, target_pos_x, target_pos_z);
-
-
---
--- Name: unit_type; Type: INDEX; Schema: public; Owner: main
---
-
-CREATE INDEX unit_type ON public.units USING btree (type);
 
 
 --

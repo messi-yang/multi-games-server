@@ -16,6 +16,8 @@ const (
 	removePlayerCommandName         commandName = "REMOVE_PLAYER"
 	createStaticUnitCommandName     commandName = "CREATE_STATIC_UNIT"
 	removeStaticUnitCommandName     commandName = "REMOVE_STATIC_UNIT"
+	createFenceUnitCommandName      commandName = "CREATE_FENCE_UNIT"
+	removeFenceUnitCommandName      commandName = "REMOVE_FENCE_UNIT"
 	createPortalUnitCommandName     commandName = "CREATE_PORTAL_UNIT"
 	removePortalUnitCommandName     commandName = "REMOVE_PORTAL_UNIT"
 	rotateUnitCommandName           commandName = "ROTATE_UNIT"
@@ -74,6 +76,22 @@ type createStaticUnitCommand struct {
 }
 
 type removeStaticUnitCommand struct {
+	Id        uuid.UUID       `json:"id"`
+	Timestamp int64           `json:"timestamp"`
+	Name      commandName     `json:"name"`
+	Position  dto.PositionDto `json:"position"`
+}
+
+type createFenceUnitCommand struct {
+	Id        uuid.UUID       `json:"id"`
+	Timestamp int64           `json:"timestamp"`
+	Name      commandName     `json:"name"`
+	ItemId    uuid.UUID       `json:"itemId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
+}
+
+type removeFenceUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`

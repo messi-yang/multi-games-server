@@ -17,6 +17,18 @@ type RemoveStaticUnitCommand struct {
 	Position dto.PositionDto
 }
 
+type CreateFenceUnitCommand struct {
+	WorldId   uuid.UUID
+	ItemId    uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
+}
+
+type RemoveFenceUnitCommand struct {
+	WorldId  uuid.UUID
+	Position dto.PositionDto
+}
+
 type CreatePortalUnitCommand struct {
 	WorldId        uuid.UUID
 	ItemId         uuid.UUID

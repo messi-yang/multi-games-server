@@ -235,6 +235,25 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					newWorldServerMessageChannel(worldIdDto),
 					jsonutil.Marshal(commandDto),
 				)
+			case createFenceUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[createFenceUnitCommand](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeCreateFenceUnitCommand(
+					worldIdDto,
+					commandDto.ItemId,
+					commandDto.Position,
+					commandDto.Direction,
+				); err != nil {
+					sendError(err)
+					break
+				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(commandDto),
+				)
 			case createPortalUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[createPortalUnitCommand](message)
 				if err != nil {
@@ -275,6 +294,20 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeRemoveStaticUnitCommand(worldIdDto, commandDto.Position); err != nil {
+					sendError(err)
+					break
+				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(commandDto),
+				)
+			case removeFenceUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[removeFenceUnitCommand](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeRemoveFenceUnitCommand(worldIdDto, commandDto.Position); err != nil {
 					sendError(err)
 					break
 				}
@@ -378,6 +411,43 @@ func (httpHandler *HttpHandler) executeRemoveStaticUnitCommand(worldIdDto uuid.U
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.RemoveStaticUnit(unitappsrv.RemoveStaticUnitCommand{
+		WorldId:  worldIdDto,
+		Position: positionDto,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
+	worldIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+) error {
+	uow := pguow.NewUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	if err := unitAppService.CreateFenceUnit(unitappsrv.CreateFenceUnitCommand{
+		WorldId:   worldIdDto,
+		ItemId:    itemIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeRemoveFenceUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+	uow := pguow.NewUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	if err := unitAppService.RemoveFenceUnit(unitappsrv.RemoveFenceUnitCommand{
 		WorldId:  worldIdDto,
 		Position: positionDto,
 	}); err != nil {
