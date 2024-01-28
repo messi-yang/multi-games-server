@@ -17,18 +17,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: unit_type; Type: TYPE; Schema: public; Owner: main
---
-
-CREATE TYPE public.unit_type AS ENUM (
-    'static',
-    'portal'
-);
-
-
-ALTER TYPE public.unit_type OWNER TO main;
-
---
 -- Name: world_role; Type: TYPE; Schema: public; Owner: main
 --
 
@@ -58,11 +46,24 @@ CREATE TABLE public.items (
     updated_at timestamp with time zone NOT NULL,
     thumbnail_src character varying(255) NOT NULL,
     model_sources character varying(150)[] DEFAULT '{}'::character varying[] NOT NULL,
-    compatible_unit_type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
+    compatible_unit_type character varying(20) DEFAULT 'static'::character varying NOT NULL
 );
 
 
 ALTER TABLE public.items OWNER TO main;
+
+--
+-- Name: link_unit_infos; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.link_unit_infos (
+    world_id uuid NOT NULL,
+    url character varying(2048),
+    id uuid NOT NULL
+);
+
+
+ALTER TABLE public.link_unit_infos OWNER TO main;
 
 --
 -- Name: portal_unit_infos; Type: TABLE; Schema: public; Owner: main
@@ -91,6 +92,17 @@ CREATE TABLE public.schema_migrations (
 ALTER TABLE public.schema_migrations OWNER TO main;
 
 --
+-- Name: unit_types; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.unit_types (
+    name character varying(20) NOT NULL
+);
+
+
+ALTER TABLE public.unit_types OWNER TO main;
+
+--
 -- Name: units; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -102,7 +114,7 @@ CREATE TABLE public.units (
     direction integer NOT NULL,
     info_id uuid,
     info_snapshot jsonb NOT NULL,
-    type public.unit_type DEFAULT 'static'::public.unit_type NOT NULL
+    type character varying(20) DEFAULT 'static'::character varying NOT NULL
 );
 
 
@@ -232,6 +244,14 @@ ALTER TABLE ONLY public.units
 
 
 --
+-- Name: unit_types unit_types_pkey; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.unit_types
+    ADD CONSTRAINT unit_types_pkey PRIMARY KEY (name);
+
+
+--
 -- Name: users users_email_address_key; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -354,6 +374,22 @@ ALTER TABLE ONLY public.world_members
 
 ALTER TABLE ONLY public.portal_unit_infos
     ADD CONSTRAINT fk_world FOREIGN KEY (world_id) REFERENCES public.worlds(id);
+
+
+--
+-- Name: items items_compatible_unit_type_unit_types_name; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.items
+    ADD CONSTRAINT items_compatible_unit_type_unit_types_name FOREIGN KEY (compatible_unit_type) REFERENCES public.unit_types(name);
+
+
+--
+-- Name: units units_type_unit_types_name; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.units
+    ADD CONSTRAINT units_type_unit_types_name FOREIGN KEY (type) REFERENCES public.unit_types(name);
 
 
 --

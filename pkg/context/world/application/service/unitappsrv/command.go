@@ -42,6 +42,19 @@ type RemovePortalUnitCommand struct {
 	Position dto.PositionDto
 }
 
+type CreateLinkUnitCommand struct {
+	WorldId   uuid.UUID
+	ItemId    uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
+	Url       string
+}
+
+type RemoveLinkUnitCommand struct {
+	WorldId  uuid.UUID
+	Position dto.PositionDto
+}
+
 type RotateUnitCommand struct {
 	WorldId  uuid.UUID
 	Position dto.PositionDto

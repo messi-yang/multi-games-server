@@ -20,7 +20,7 @@ postgres-migrate-force:
 
 # .PHONY: db-seed
 db-seed:
-	go run pkg/main.go db-seed
+	PGPASSWORD=${POSTGRES_PASSWORD} psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f db/postgres/seed.sql
 
 # .PHONY: dev
 dev:

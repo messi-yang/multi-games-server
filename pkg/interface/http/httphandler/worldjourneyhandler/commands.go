@@ -20,6 +20,8 @@ const (
 	removeFenceUnitCommandName      commandName = "REMOVE_FENCE_UNIT"
 	createPortalUnitCommandName     commandName = "CREATE_PORTAL_UNIT"
 	removePortalUnitCommandName     commandName = "REMOVE_PORTAL_UNIT"
+	createLinkUnitCommandName       commandName = "CREATE_LINK_UNIT"
+	removeLinkUnitCommandName       commandName = "REMOVE_LINK_UNIT"
 	rotateUnitCommandName           commandName = "ROTATE_UNIT"
 )
 
@@ -108,6 +110,23 @@ type createPortalUnitCommand struct {
 }
 
 type removePortalUnitCommand struct {
+	Id        uuid.UUID       `json:"id"`
+	Timestamp int64           `json:"timestamp"`
+	Name      commandName     `json:"name"`
+	Position  dto.PositionDto `json:"position"`
+}
+
+type createLinkUnitCommand struct {
+	Id        uuid.UUID       `json:"id"`
+	Timestamp int64           `json:"timestamp"`
+	Name      commandName     `json:"name"`
+	ItemId    uuid.UUID       `json:"itemId"`
+	Position  dto.PositionDto `json:"position"`
+	Direction int8            `json:"direction"`
+	Url       string          `json:"url"`
+}
+
+type removeLinkUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`

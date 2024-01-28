@@ -273,6 +273,27 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					newWorldServerMessageChannel(worldIdDto),
 					jsonutil.Marshal(commandDto),
 				)
+			case createLinkUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[createLinkUnitCommand](message)
+				fmt.Println("??????")
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeCreateLinkUnitCommand(
+					worldIdDto,
+					commandDto.ItemId,
+					commandDto.Position,
+					commandDto.Direction,
+					commandDto.Url,
+				); err != nil {
+					sendError(err)
+					break
+				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(commandDto),
+				)
 			case rotateUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[rotateUnitCommand](message)
 				if err != nil {
@@ -322,6 +343,20 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeRemovePortalUnitCommand(worldIdDto, commandDto.Position); err != nil {
+					sendError(err)
+					break
+				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(commandDto),
+				)
+			case removeLinkUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[removeLinkUnitCommand](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeRemoveLinkUnitCommand(worldIdDto, commandDto.Position); err != nil {
 					sendError(err)
 					break
 				}
@@ -485,6 +520,45 @@ func (httpHandler *HttpHandler) executeRemovePortalUnitCommand(worldIdDto uuid.U
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.RemovePortalUnit(unitappsrv.RemovePortalUnitCommand{
+		WorldId:  worldIdDto,
+		Position: positionDto,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
+	worldIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+	url string,
+) error {
+	uow := pguow.NewUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	if err := unitAppService.CreateLinkUnit(unitappsrv.CreateLinkUnitCommand{
+		WorldId:   worldIdDto,
+		ItemId:    itemIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
+		Url:       url,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeRemoveLinkUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+	uow := pguow.NewUow()
+
+	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
+	if err := unitAppService.RemoveLinkUnit(unitappsrv.RemoveLinkUnitCommand{
 		WorldId:  worldIdDto,
 		Position: positionDto,
 	}); err != nil {

@@ -13,12 +13,14 @@ func ProvideUnitAppService(uow pguow.Uow) unitappsrv.Service {
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
-	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepo := pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
 	fenceUnitRepo := pgrepo.NewFenceUnitRepo(uow, domainEventDispatcher)
+	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
+	linkUnitRepo := pgrepo.NewLinkUnitRepo(uow, domainEventDispatcher)
 	staticUnitService := service.NewStaticUnitService(worldRepo, unitRepo, staticUnitRepo, itemRepo)
 	fenceUnitService := service.NewFenceUnitService(worldRepo, unitRepo, fenceUnitRepo, itemRepo)
 	portalUnitService := service.NewPortalUnitService(worldRepo, unitRepo, portalUnitRepo, itemRepo)
+	linkUnitService := service.NewLinkUnitService(worldRepo, unitRepo, linkUnitRepo, itemRepo)
 	return unitappsrv.NewService(
 		worldRepo,
 		unitRepo,
@@ -26,5 +28,6 @@ func ProvideUnitAppService(uow pguow.Uow) unitappsrv.Service {
 		staticUnitService,
 		fenceUnitService,
 		portalUnitService,
+		linkUnitService,
 	)
 }

@@ -25,6 +25,9 @@ type Service interface {
 
 	CreatePortalUnit(CreatePortalUnitCommand) error
 	RemovePortalUnit(RemovePortalUnitCommand) error
+
+	CreateLinkUnit(CreateLinkUnitCommand) error
+	RemoveLinkUnit(RemoveLinkUnitCommand) error
 }
 
 type serve struct {
@@ -34,6 +37,7 @@ type serve struct {
 	staticUnitService service.StaticUnitService
 	fenceUnitService  service.FenceUnitService
 	portalUnitService service.PortalUnitService
+	linkUnitService   service.LinkUnitService
 }
 
 func NewService(
@@ -43,6 +47,7 @@ func NewService(
 	staticUnitService service.StaticUnitService,
 	fenceUnitService service.FenceUnitService,
 	portalUnitService service.PortalUnitService,
+	linkUnitService service.LinkUnitService,
 ) Service {
 	return &serve{
 		worldRepo:         worldRepo,
@@ -51,6 +56,7 @@ func NewService(
 		staticUnitService: staticUnitService,
 		fenceUnitService:  fenceUnitService,
 		portalUnitService: portalUnitService,
+		linkUnitService:   linkUnitService,
 	}
 }
 
@@ -136,6 +142,27 @@ func (serve *serve) RemovePortalUnit(command RemovePortalUnitCommand) error {
 	unitId := unitmodel.NewUnitId(worldId, position)
 
 	return serve.portalUnitService.RemovePortalUnit(unitId)
+}
+
+func (serve *serve) CreateLinkUnit(command CreateLinkUnitCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+
+	return serve.linkUnitService.CreateLinkUnit(
+		worldId,
+		worldcommonmodel.NewItemId(command.ItemId),
+		position,
+		worldcommonmodel.NewDirection(command.Direction),
+		command.Url,
+	)
+}
+
+func (serve *serve) RemoveLinkUnit(command RemoveLinkUnitCommand) error {
+	worldId := globalcommonmodel.NewWorldId(command.WorldId)
+	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
+	unitId := unitmodel.NewUnitId(worldId, position)
+
+	return serve.linkUnitService.RemoveLinkUnit(unitId)
 }
 
 func (serve *serve) RotateUnit(command RotateUnitCommand) error {
