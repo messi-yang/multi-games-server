@@ -93,11 +93,5 @@ func (unit *LinkUnit) Rotate() {
 	unit.direction = unit.direction.Rotate()
 }
 
-func (unit *LinkUnit) GetInfoSnapshot() LinkUnitInfo {
-	return LinkUnitInfo{
-		Url: unit.url,
-	}
-}
-
 func (unit *LinkUnit) Delete() {
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/linkunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldaccounthttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
@@ -100,6 +101,10 @@ func Run() error {
 	itemRouterGroup.Use(parseHttpAccessTokenMiddleware)
 	itemRouterGroup.GET("/", itemHttpHandler.QueryItems)
 	itemRouterGroup.GET("/with-ids", itemHttpHandler.GetItemsOfIds)
+
+	linkUnitHttpHandler := linkunithttphandler.NewHttpHandler()
+	linkUnitRouterGroup := router.Group("/api/link-units")
+	linkUnitRouterGroup.POST("/get-url", linkUnitHttpHandler.GetLinkUnitUrl)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
 	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)

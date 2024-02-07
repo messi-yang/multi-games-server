@@ -11,6 +11,7 @@ type UnitDto struct {
 	Direction int8        `json:"direction"`
 	Type      string      `json:"type"`
 	Info      any         `json:"info"`
+	InfoId    *uuid.UUID  `json:"infoId"`
 }
 
 func NewUnitDto(unit unitmodel.Unit) UnitDto {
@@ -20,5 +21,6 @@ func NewUnitDto(unit unitmodel.Unit) UnitDto {
 		Direction: unit.GetDirection().Int8(),
 		Type:      unit.GetType().String(),
 		Info:      unit.GetInfo(),
+		InfoId:    unit.GetInfoId(),
 	}
 }

@@ -16,7 +16,7 @@ import (
 
 func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInfoModel, pgmodel.UnitModel) {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set(linkUnit.GetInfoSnapshot())
+	unitInfoSnapshotJsonb.Set("null")
 
 	return pgmodel.LinkUnitInfoModel{
 			Id:      linkUnit.GetId().Uuid(),

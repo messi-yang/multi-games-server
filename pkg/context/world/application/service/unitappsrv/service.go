@@ -25,9 +25,6 @@ type Service interface {
 
 	CreatePortalUnit(CreatePortalUnitCommand) error
 	RemovePortalUnit(RemovePortalUnitCommand) error
-
-	CreateLinkUnit(CreateLinkUnitCommand) error
-	RemoveLinkUnit(RemoveLinkUnitCommand) error
 }
 
 type serve struct {
@@ -144,27 +141,6 @@ func (serve *serve) RemovePortalUnit(command RemovePortalUnitCommand) error {
 	return serve.portalUnitService.RemovePortalUnit(unitId)
 }
 
-func (serve *serve) CreateLinkUnit(command CreateLinkUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-
-	return serve.linkUnitService.CreateLinkUnit(
-		worldId,
-		worldcommonmodel.NewItemId(command.ItemId),
-		position,
-		worldcommonmodel.NewDirection(command.Direction),
-		command.Url,
-	)
-}
-
-func (serve *serve) RemoveLinkUnit(command RemoveLinkUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-	unitId := unitmodel.NewUnitId(worldId, position)
-
-	return serve.linkUnitService.RemoveLinkUnit(unitId)
-}
-
 func (serve *serve) RotateUnit(command RotateUnitCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
@@ -178,6 +154,10 @@ func (serve *serve) RotateUnit(command RotateUnitCommand) error {
 		return serve.portalUnitService.RotatePortalUnit(unitId)
 	} else if unit.GetType().IsEqual(worldcommonmodel.NewStaticUnitType()) {
 		return serve.staticUnitService.RotateStaticUnit(unitId)
+	} else if unit.GetType().IsEqual(worldcommonmodel.NewFenceUnitType()) {
+		return serve.fenceUnitService.RotateFenceUnit(unitId)
+	} else if unit.GetType().IsEqual(worldcommonmodel.NewLinkUnitType()) {
+		return serve.linkUnitService.RotateLinkUnit(unitId)
 	}
 
 	return nil

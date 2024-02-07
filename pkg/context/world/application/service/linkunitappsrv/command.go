@@ -1,0 +1,19 @@
+package linkunitappsrv
+
+import (
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/google/uuid"
+)
+
+type CreateLinkUnitCommand struct {
+	WorldId   uuid.UUID
+	ItemId    uuid.UUID
+	Position  dto.PositionDto
+	Direction int8
+	Url       string
+}
+
+type RemoveLinkUnitCommand struct {
+	WorldId  uuid.UUID
+	Position dto.PositionDto
+}

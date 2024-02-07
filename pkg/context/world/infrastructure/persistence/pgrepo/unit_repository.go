@@ -27,6 +27,7 @@ func parseModelToUnit(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err err
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		unitType,
 		unitModel.InfoSnapshot,
+		unitModel.InfoId,
 	), nil
 }
 

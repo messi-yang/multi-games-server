@@ -12,6 +12,7 @@ import (
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
@@ -539,8 +540,8 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 ) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.CreateLinkUnit(unitappsrv.CreateLinkUnitCommand{
+	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(uow)
+	if err := linkUnitAppService.CreateLinkUnit(linkunitappsrv.CreateLinkUnitCommand{
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,
@@ -557,8 +558,8 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 func (httpHandler *HttpHandler) executeRemoveLinkUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.RemoveLinkUnit(unitappsrv.RemoveLinkUnitCommand{
+	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(uow)
+	if err := linkUnitAppService.RemoveLinkUnit(linkunitappsrv.RemoveLinkUnitCommand{
 		WorldId:  worldIdDto,
 		Position: positionDto,
 	}); err != nil {
