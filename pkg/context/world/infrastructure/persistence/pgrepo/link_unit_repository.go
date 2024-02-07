@@ -21,7 +21,7 @@ func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInf
 	return pgmodel.LinkUnitInfoModel{
 			Id:      linkUnit.GetId().Uuid(),
 			WorldId: linkUnit.GetWorldId().Uuid(),
-			Url:     linkUnit.GetUrl(),
+			Url:     linkUnit.GetUrl().String(),
 		},
 		pgmodel.UnitModel{
 			WorldId:      linkUnit.GetWorldId().Uuid(),
@@ -38,6 +38,10 @@ func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInf
 func parseModelsToLinkUnit(unitModel pgmodel.UnitModel, linkUnitInfoModel pgmodel.LinkUnitInfoModel) (unit linkunitmodel.LinkUnit, err error) {
 	worldId := globalcommonmodel.NewWorldId(linkUnitInfoModel.WorldId)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
+	url, err := globalcommonmodel.NewUrl(linkUnitInfoModel.Url)
+	if err != nil {
+		return unit, err
+	}
 
 	return linkunitmodel.LoadLinkUnit(
 		linkunitmodel.NewLinkUnitId(linkUnitInfoModel.Id),
@@ -45,7 +49,7 @@ func parseModelsToLinkUnit(unitModel pgmodel.UnitModel, linkUnitInfoModel pgmode
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
-		linkUnitInfoModel.Url,
+		url,
 	), nil
 }
 

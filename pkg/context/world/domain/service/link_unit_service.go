@@ -21,7 +21,7 @@ type LinkUnitService interface {
 		worldcommonmodel.ItemId,
 		worldcommonmodel.Position,
 		worldcommonmodel.Direction,
-		string,
+		globalcommonmodel.Url,
 	) error
 	RotateLinkUnit(unitmodel.UnitId) error
 	RemoveLinkUnit(unitmodel.UnitId) error
@@ -53,7 +53,7 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 	itemId worldcommonmodel.ItemId,
 	position worldcommonmodel.Position,
 	direction worldcommonmodel.Direction,
-	url string,
+	url globalcommonmodel.Url,
 ) error {
 	world, err := linkUnitServe.worldRepo.Get(worldId)
 	if err != nil {

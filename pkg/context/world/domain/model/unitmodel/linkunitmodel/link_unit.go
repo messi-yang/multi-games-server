@@ -13,7 +13,7 @@ type LinkUnit struct {
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
 	direction            worldcommonmodel.Direction
-	url                  string
+	url                  globalcommonmodel.Url
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -25,7 +25,7 @@ func NewLinkUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
-	url string,
+	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
 		id:                   NewLinkUnitId(uuid.New()),
@@ -44,7 +44,7 @@ func LoadLinkUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
-	url string,
+	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
 		id:                   id,
@@ -81,12 +81,8 @@ func (unit *LinkUnit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
 }
 
-func (unit *LinkUnit) GetUrl() string {
+func (unit *LinkUnit) GetUrl() globalcommonmodel.Url {
 	return unit.url
-}
-
-func (unit *LinkUnit) UpdateUrl(url string) {
-	unit.url = url
 }
 
 func (unit *LinkUnit) Rotate() {
