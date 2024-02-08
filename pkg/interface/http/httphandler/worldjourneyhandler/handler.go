@@ -276,7 +276,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				)
 			case createLinkUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[createLinkUnitCommand](message)
-				fmt.Println("??????")
 				if err != nil {
 					closeConnectionOnError(err)
 					return
