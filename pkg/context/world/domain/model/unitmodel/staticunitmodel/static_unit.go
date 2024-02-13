@@ -3,12 +3,12 @@ package staticunitmodel
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/google/uuid"
 )
 
 type StaticUnit struct {
-	id                   unitmodel.UnitId
+	id                   StaticUnitId
 	worldId              globalcommonmodel.WorldId
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
@@ -26,7 +26,7 @@ func NewStaticUnit(
 	direction worldcommonmodel.Direction,
 ) StaticUnit {
 	return StaticUnit{
-		id:                   unitmodel.NewUnitId(worldId, position),
+		id:                   NewStaticUnitId(uuid.New()),
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,
@@ -36,7 +36,7 @@ func NewStaticUnit(
 }
 
 func LoadStaticUnit(
-	id unitmodel.UnitId,
+	id StaticUnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
@@ -56,7 +56,7 @@ func (staticUnit *StaticUnit) PopDomainEvents() []domain.DomainEvent {
 	return staticUnit.domainEventCollector.PopAll()
 }
 
-func (staticUnit *StaticUnit) GetId() unitmodel.UnitId {
+func (staticUnit *StaticUnit) GetId() StaticUnitId {
 	return staticUnit.id
 }
 

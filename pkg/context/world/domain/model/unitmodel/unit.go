@@ -17,7 +17,7 @@ type Unit struct {
 	direction            worldcommonmodel.Direction
 	_type                worldcommonmodel.UnitType
 	info                 any
-	infoId               *uuid.UUID
+	infoId               uuid.UUID
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -32,7 +32,7 @@ func LoadUnit(
 	direction worldcommonmodel.Direction,
 	_type worldcommonmodel.UnitType,
 	info any,
-	infoId *uuid.UUID,
+	infoId uuid.UUID,
 ) Unit {
 	return Unit{
 		id:                   id,
@@ -75,7 +75,7 @@ func (unit *Unit) GetInfo() any {
 	return unit.info
 }
 
-func (unit *Unit) GetInfoId() *uuid.UUID {
+func (unit *Unit) GetInfoId() uuid.UUID {
 	return unit.infoId
 }
 

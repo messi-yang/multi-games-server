@@ -41,7 +41,7 @@ func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.Por
 			ItemId:       portalUnit.GetItemId().Uuid(),
 			Direction:    portalUnit.GetDirection().Int8(),
 			Type:         pgmodel.UnitTypeEnumPortal,
-			InfoId:       commonutil.ToPointer(portalUnit.GetId().Uuid()),
+			InfoId:       portalUnit.GetId().Uuid(),
 			InfoSnapshot: unitInfoSnapshotJsonb,
 		}
 }

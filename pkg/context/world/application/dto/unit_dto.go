@@ -11,7 +11,7 @@ type UnitDto struct {
 	Direction int8        `json:"direction"`
 	Type      string      `json:"type"`
 	Info      any         `json:"info"`
-	InfoId    *uuid.UUID  `json:"infoId"`
+	InfoId    uuid.UUID   `json:"infoId"`
 }
 
 func NewUnitDto(unit unitmodel.Unit) UnitDto {

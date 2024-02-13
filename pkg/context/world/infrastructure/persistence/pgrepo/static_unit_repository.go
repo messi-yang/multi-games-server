@@ -23,7 +23,7 @@ func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitM
 		ItemId:       staticUnit.GetItemId().Uuid(),
 		Direction:    staticUnit.GetDirection().Int8(),
 		Type:         pgmodel.UnitTypeEnumStatic,
-		InfoId:       nil,
+		InfoId:       staticUnit.GetId().Uuid(),
 		InfoSnapshot: unitInfoSnapshotJsonb,
 	}
 }
@@ -33,7 +33,7 @@ func parseModelToStaticUnit(unitModel pgmodel.UnitModel) (staticunitmodel.Static
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 
 	return staticunitmodel.LoadStaticUnit(
-		unitmodel.NewUnitId(worldId, pos),
+		staticunitmodel.NewStaticUnitId(unitModel.InfoId),
 		worldId,
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),

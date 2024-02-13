@@ -23,7 +23,7 @@ func newModelFromFenceUnit(fenceUnit fenceunitmodel.FenceUnit) pgmodel.UnitModel
 		ItemId:       fenceUnit.GetItemId().Uuid(),
 		Direction:    fenceUnit.GetDirection().Int8(),
 		Type:         pgmodel.UnitTypeEnumFence,
-		InfoId:       nil,
+		InfoId:       fenceUnit.GetId().Uuid(),
 		InfoSnapshot: unitInfoSnapshotJsonb,
 	}
 }
@@ -33,7 +33,7 @@ func parseModelToFenceUnit(unitModel pgmodel.UnitModel) (fenceunitmodel.FenceUni
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 
 	return fenceunitmodel.LoadFenceUnit(
-		unitmodel.NewUnitId(worldId, pos),
+		fenceunitmodel.NewFenceUnitId(unitModel.InfoId),
 		worldId,
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),

@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 
@@ -30,7 +29,7 @@ func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInf
 			ItemId:       linkUnit.GetItemId().Uuid(),
 			Direction:    linkUnit.GetDirection().Int8(),
 			Type:         pgmodel.UnitTypeEnumLink,
-			InfoId:       commonutil.ToPointer(linkUnit.GetId().Uuid()),
+			InfoId:       linkUnit.GetId().Uuid(),
 			InfoSnapshot: unitInfoSnapshotJsonb,
 		}
 }

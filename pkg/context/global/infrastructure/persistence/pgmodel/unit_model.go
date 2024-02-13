@@ -12,7 +12,7 @@ type UnitModel struct {
 	ItemId       uuid.UUID    `gorm:"not null"`
 	Direction    int8         `gorm:"not null"`
 	Type         UnitTypeEnum `gorm:"not null"`
-	InfoId       *uuid.UUID   `gorm:"not null"`
+	InfoId       uuid.UUID    `gorm:"not null"`
 	InfoSnapshot pgtype.JSONB `gorm:"type:jsonb;not null"`
 }
 

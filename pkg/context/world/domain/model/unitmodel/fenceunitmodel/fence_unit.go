@@ -3,12 +3,12 @@ package fenceunitmodel
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/google/uuid"
 )
 
 type FenceUnit struct {
-	id                   unitmodel.UnitId
+	id                   FenceUnitId
 	worldId              globalcommonmodel.WorldId
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
@@ -26,7 +26,7 @@ func NewFenceUnit(
 	direction worldcommonmodel.Direction,
 ) FenceUnit {
 	return FenceUnit{
-		id:                   unitmodel.NewUnitId(worldId, position),
+		id:                   NewFenceUnitId(uuid.New()),
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,
@@ -36,7 +36,7 @@ func NewFenceUnit(
 }
 
 func LoadFenceUnit(
-	id unitmodel.UnitId,
+	id FenceUnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
@@ -56,7 +56,7 @@ func (unit *FenceUnit) PopDomainEvents() []domain.DomainEvent {
 	return unit.domainEventCollector.PopAll()
 }
 
-func (unit *FenceUnit) GetId() unitmodel.UnitId {
+func (unit *FenceUnit) GetId() FenceUnitId {
 	return unit.id
 }
 
