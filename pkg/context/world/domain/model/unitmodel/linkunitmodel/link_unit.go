@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/google/uuid"
 )
 
 type LinkUnit struct {
@@ -21,6 +20,7 @@ type LinkUnit struct {
 var _ domain.Aggregate = (*LinkUnit)(nil)
 
 func NewLinkUnit(
+	id LinkUnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
@@ -28,7 +28,7 @@ func NewLinkUnit(
 	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
-		id:                   NewLinkUnitId(uuid.New()),
+		id:                   id,
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,

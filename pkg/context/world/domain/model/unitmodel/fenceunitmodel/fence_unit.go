@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/google/uuid"
 )
 
 type FenceUnit struct {
@@ -20,13 +19,14 @@ type FenceUnit struct {
 var _ domain.Aggregate = (*FenceUnit)(nil)
 
 func NewFenceUnit(
+	id FenceUnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 ) FenceUnit {
 	return FenceUnit{
-		id:                   NewFenceUnitId(uuid.New()),
+		id:                   id,
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,

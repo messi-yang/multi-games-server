@@ -18,10 +18,11 @@ var (
 
 type PortalUnitService interface {
 	CreatePortalUnit(
-		worldId globalcommonmodel.WorldId,
-		itemId worldcommonmodel.ItemId,
-		position worldcommonmodel.Position,
-		direction worldcommonmodel.Direction,
+		portalunitmodel.PortalUnitId,
+		globalcommonmodel.WorldId,
+		worldcommonmodel.ItemId,
+		worldcommonmodel.Position,
+		worldcommonmodel.Direction,
 	) error
 	RotatePortalUnit(unitmodel.UnitId) error
 	RemovePortalUnit(unitmodel.UnitId) error
@@ -49,6 +50,7 @@ func NewPortalUnitService(
 }
 
 func (portalUnitServe *portalUnitServe) CreatePortalUnit(
+	id portalunitmodel.PortalUnitId,
 	worldId globalcommonmodel.WorldId,
 	itemId worldcommonmodel.ItemId,
 	position worldcommonmodel.Position,
@@ -76,7 +78,7 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		return nil
 	}
 
-	existingUnit, err := portalUnitServe.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
+	existingUnit, err := portalUnitServe.unitRepo.Find(worldId, position)
 	if err != nil {
 		return err
 	}
@@ -90,6 +92,7 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 	}
 
 	newPortalUnit := portalunitmodel.NewPortalUnit(
+		id,
 		worldId,
 		position,
 		itemId,

@@ -1,6 +1,8 @@
 package pgrepo
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
@@ -16,6 +18,10 @@ import (
 func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
+
+	fmt.Println("???????")
+	fmt.Println(staticUnit.GetId().Uuid())
+
 	return pgmodel.UnitModel{
 		WorldId:      staticUnit.GetWorldId().Uuid(),
 		PosX:         staticUnit.GetPosition().GetX(),

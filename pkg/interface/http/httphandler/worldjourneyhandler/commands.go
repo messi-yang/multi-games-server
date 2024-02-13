@@ -72,6 +72,7 @@ type createStaticUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`
+	UnitId    uuid.UUID       `json:"unitId"`
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`
 	Direction int8            `json:"direction"`
@@ -88,6 +89,7 @@ type createFenceUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`
+	UnitId    uuid.UUID       `json:"unitId"`
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`
 	Direction int8            `json:"direction"`
@@ -104,6 +106,7 @@ type createPortalUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`
+	UnitId    uuid.UUID       `json:"unitId"`
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`
 	Direction int8            `json:"direction"`
@@ -120,6 +123,7 @@ type createLinkUnitCommand struct {
 	Id        uuid.UUID       `json:"id"`
 	Timestamp int64           `json:"timestamp"`
 	Name      commandName     `json:"name"`
+	UnitId    uuid.UUID       `json:"unitId"`
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`
 	Direction int8            `json:"direction"`

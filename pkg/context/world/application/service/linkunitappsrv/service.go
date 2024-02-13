@@ -31,17 +31,16 @@ func NewService(
 }
 
 func (serve *serve) CreateLinkUnit(command CreateLinkUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
 	url, err := globalcommonmodel.NewUrl(command.Url)
 	if err != nil {
 		return err
 	}
 
 	return serve.linkUnitService.CreateLinkUnit(
-		worldId,
+		linkunitmodel.NewLinkUnitId(command.Id),
+		globalcommonmodel.NewWorldId(command.WorldId),
 		worldcommonmodel.NewItemId(command.ItemId),
-		position,
+		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
 		worldcommonmodel.NewDirection(command.Direction),
 		url,
 	)

@@ -118,7 +118,7 @@ func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) er
 
 	unitId := unitmodel.NewUnitId(worldId, position)
 
-	unitAtPosition, err := serve.unitRepo.Find(unitId)
+	unitAtPosition, err := serve.unitRepo.Find(worldId, position)
 	if err != nil {
 		return err
 	}

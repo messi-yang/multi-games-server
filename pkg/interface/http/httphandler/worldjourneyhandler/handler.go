@@ -224,6 +224,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeCreateStaticUnitCommand(
+					commandDto.UnitId,
 					worldIdDto,
 					commandDto.ItemId,
 					commandDto.Position,
@@ -243,6 +244,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeCreateFenceUnitCommand(
+					commandDto.UnitId,
 					worldIdDto,
 					commandDto.ItemId,
 					commandDto.Position,
@@ -262,6 +264,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeCreatePortalUnitCommand(
+					commandDto.UnitId,
 					worldIdDto,
 					commandDto.ItemId,
 					commandDto.Position,
@@ -281,6 +284,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeCreateLinkUnitCommand(
+					commandDto.UnitId,
 					worldIdDto,
 					commandDto.ItemId,
 					commandDto.Position,
@@ -420,6 +424,7 @@ func (httpHandler *HttpHandler) executeChangePlayerHeldItemCommand(worldIdDto uu
 }
 
 func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
+	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
@@ -429,6 +434,7 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.CreateStaticUnit(unitappsrv.CreateStaticUnitCommand{
+		Id:        idDto,
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,
@@ -457,6 +463,7 @@ func (httpHandler *HttpHandler) executeRemoveStaticUnitCommand(worldIdDto uuid.U
 }
 
 func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
+	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
@@ -466,6 +473,7 @@ func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.CreateFenceUnit(unitappsrv.CreateFenceUnitCommand{
+		Id:        idDto,
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,
@@ -494,6 +502,7 @@ func (httpHandler *HttpHandler) executeRemoveFenceUnitCommand(worldIdDto uuid.UU
 }
 
 func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
+	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
@@ -503,6 +512,7 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.CreatePortalUnit(unitappsrv.CreatePortalUnitCommand{
+		Id:        idDto,
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,
@@ -531,6 +541,7 @@ func (httpHandler *HttpHandler) executeRemovePortalUnitCommand(worldIdDto uuid.U
 }
 
 func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
+	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
@@ -541,6 +552,7 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 
 	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(uow)
 	if err := linkUnitAppService.CreateLinkUnit(linkunitappsrv.CreateLinkUnitCommand{
+		Id:        idDto,
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
 		Position:  positionDto,

@@ -6,6 +6,7 @@ import (
 )
 
 type CreateStaticUnitCommand struct {
+	Id        uuid.UUID
 	WorldId   uuid.UUID
 	ItemId    uuid.UUID
 	Position  dto.PositionDto
@@ -18,6 +19,7 @@ type RemoveStaticUnitCommand struct {
 }
 
 type CreateFenceUnitCommand struct {
+	Id        uuid.UUID
 	WorldId   uuid.UUID
 	ItemId    uuid.UUID
 	Position  dto.PositionDto
@@ -30,6 +32,7 @@ type RemoveFenceUnitCommand struct {
 }
 
 type CreatePortalUnitCommand struct {
+	Id             uuid.UUID
 	WorldId        uuid.UUID
 	ItemId         uuid.UUID
 	Position       dto.PositionDto

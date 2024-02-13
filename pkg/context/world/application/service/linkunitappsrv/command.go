@@ -6,6 +6,7 @@ import (
 )
 
 type CreateLinkUnitCommand struct {
+	Id        uuid.UUID
 	WorldId   uuid.UUID
 	ItemId    uuid.UUID
 	Position  dto.PositionDto

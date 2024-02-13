@@ -59,15 +59,16 @@ func (repo *unitRepo) Get(unitId unitmodel.UnitId) (unit unitmodel.Unit, err err
 }
 
 func (repo *unitRepo) Find(
-	unitId unitmodel.UnitId,
+	worldId globalcommonmodel.WorldId,
+	position worldcommonmodel.Position,
 ) (*unitmodel.Unit, error) {
 	unitModels := []pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
-			unitId.GetWorldId().Uuid(),
-			unitId.GetPosition().GetX(),
-			unitId.GetPosition().GetZ(),
+			worldId.Uuid(),
+			position.GetX(),
+			position.GetZ(),
 		).Limit(1).Find(&unitModels).Error
 	}); err != nil {
 		return nil, err

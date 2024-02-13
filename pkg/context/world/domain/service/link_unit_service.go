@@ -17,6 +17,7 @@ var (
 
 type LinkUnitService interface {
 	CreateLinkUnit(
+		linkunitmodel.LinkUnitId,
 		globalcommonmodel.WorldId,
 		worldcommonmodel.ItemId,
 		worldcommonmodel.Position,
@@ -49,6 +50,7 @@ func NewLinkUnitService(
 }
 
 func (linkUnitServe *linkUnitServe) CreateLinkUnit(
+	id linkunitmodel.LinkUnitId,
 	worldId globalcommonmodel.WorldId,
 	itemId worldcommonmodel.ItemId,
 	position worldcommonmodel.Position,
@@ -77,7 +79,7 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 		return nil
 	}
 
-	unit, err := linkUnitServe.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
+	unit, err := linkUnitServe.unitRepo.Find(worldId, position)
 	if err != nil {
 		return err
 	}
@@ -85,7 +87,7 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 		return nil
 	}
 
-	newLinkUnit := linkunitmodel.NewLinkUnit(worldId, position, itemId, direction, url)
+	newLinkUnit := linkunitmodel.NewLinkUnit(id, worldId, position, itemId, direction, url)
 	return linkUnitServe.linkUnitRepo.Add(newLinkUnit)
 }
 

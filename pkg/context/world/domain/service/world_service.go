@@ -12,6 +12,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/google/uuid"
 )
 
 var (
@@ -82,6 +83,7 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 		position := worldcommonmodel.NewPosition(x-50, z-50)
 		if randomInt < len(itemsForStaticUnitType) {
 			newStaticUnit := staticunitmodel.NewStaticUnit(
+				staticunitmodel.NewStaticUnitId(uuid.New()),
 				worldId,
 				position,
 				itemsForStaticUnitType[randomInt].GetId(),

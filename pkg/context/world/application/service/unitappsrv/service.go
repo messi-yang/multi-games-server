@@ -5,6 +5,9 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -82,13 +85,11 @@ func (serve *serve) GetUnit(query GetUnitQuery) (unitDto dto.UnitDto, err error)
 }
 
 func (serve *serve) CreateStaticUnit(command CreateStaticUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-
 	return serve.staticUnitService.CreateStaticUnit(
-		worldId,
+		staticunitmodel.NewStaticUnitId(command.Id),
+		globalcommonmodel.NewWorldId(command.WorldId),
 		worldcommonmodel.NewItemId(command.ItemId),
-		position,
+		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
 		worldcommonmodel.NewDirection(command.Direction),
 	)
 }
@@ -102,13 +103,11 @@ func (serve *serve) RemoveStaticUnit(command RemoveStaticUnitCommand) error {
 }
 
 func (serve *serve) CreateFenceUnit(command CreateFenceUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-
 	return serve.fenceUnitService.CreateFenceUnit(
-		worldId,
+		fenceunitmodel.NewFenceUnitId(command.Id),
+		globalcommonmodel.NewWorldId(command.WorldId),
 		worldcommonmodel.NewItemId(command.ItemId),
-		position,
+		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
 		worldcommonmodel.NewDirection(command.Direction),
 	)
 }
@@ -122,13 +121,11 @@ func (serve *serve) RemoveFenceUnit(command RemoveFenceUnitCommand) error {
 }
 
 func (serve *serve) CreatePortalUnit(command CreatePortalUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-
 	return serve.portalUnitService.CreatePortalUnit(
-		worldId,
+		portalunitmodel.NewPortalUnitId(command.Id),
+		globalcommonmodel.NewWorldId(command.WorldId),
 		worldcommonmodel.NewItemId(command.ItemId),
-		position,
+		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
 		worldcommonmodel.NewDirection(command.Direction),
 	)
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/google/uuid"
 )
 
 type StaticUnit struct {
@@ -20,13 +19,14 @@ type StaticUnit struct {
 var _ domain.Aggregate = (*StaticUnit)(nil)
 
 func NewStaticUnit(
+	id StaticUnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 ) StaticUnit {
 	return StaticUnit{
-		id:                   NewStaticUnitId(uuid.New()),
+		id:                   id,
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,

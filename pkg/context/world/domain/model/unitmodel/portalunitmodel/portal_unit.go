@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/google/uuid"
 )
 
 type PortalUnit struct {
@@ -21,6 +20,7 @@ type PortalUnit struct {
 var _ domain.Aggregate = (*PortalUnit)(nil)
 
 func NewPortalUnit(
+	id PortalUnitId,
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
@@ -28,7 +28,7 @@ func NewPortalUnit(
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	return PortalUnit{
-		id:                   NewPortalUnitId(uuid.New()),
+		id:                   id,
 		worldId:              worldId,
 		position:             position,
 		itemId:               itemId,

@@ -17,6 +17,7 @@ var (
 
 type StaticUnitService interface {
 	CreateStaticUnit(
+		staticunitmodel.StaticUnitId,
 		globalcommonmodel.WorldId,
 		worldcommonmodel.ItemId,
 		worldcommonmodel.Position,
@@ -48,6 +49,7 @@ func NewStaticUnitService(
 }
 
 func (staticUnitServe *staticUnitServe) CreateStaticUnit(
+	id staticunitmodel.StaticUnitId,
 	worldId globalcommonmodel.WorldId,
 	itemId worldcommonmodel.ItemId,
 	position worldcommonmodel.Position,
@@ -75,7 +77,7 @@ func (staticUnitServe *staticUnitServe) CreateStaticUnit(
 		return nil
 	}
 
-	unit, err := staticUnitServe.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
+	unit, err := staticUnitServe.unitRepo.Find(worldId, position)
 	if err != nil {
 		return err
 	}
@@ -83,7 +85,7 @@ func (staticUnitServe *staticUnitServe) CreateStaticUnit(
 		return nil
 	}
 
-	newStaticUnit := staticunitmodel.NewStaticUnit(worldId, position, itemId, direction)
+	newStaticUnit := staticunitmodel.NewStaticUnit(id, worldId, position, itemId, direction)
 	return staticUnitServe.staticUnitRepo.Add(newStaticUnit)
 }
 

@@ -17,6 +17,7 @@ var (
 
 type FenceUnitService interface {
 	CreateFenceUnit(
+		fenceunitmodel.FenceUnitId,
 		globalcommonmodel.WorldId,
 		worldcommonmodel.ItemId,
 		worldcommonmodel.Position,
@@ -48,6 +49,7 @@ func NewFenceUnitService(
 }
 
 func (fenceUnitServe *fenceUnitServe) CreateFenceUnit(
+	id fenceunitmodel.FenceUnitId,
 	worldId globalcommonmodel.WorldId,
 	itemId worldcommonmodel.ItemId,
 	position worldcommonmodel.Position,
@@ -75,7 +77,7 @@ func (fenceUnitServe *fenceUnitServe) CreateFenceUnit(
 		return nil
 	}
 
-	unit, err := fenceUnitServe.unitRepo.Find(unitmodel.NewUnitId(worldId, position))
+	unit, err := fenceUnitServe.unitRepo.Find(worldId, position)
 	if err != nil {
 		return err
 	}
@@ -83,7 +85,7 @@ func (fenceUnitServe *fenceUnitServe) CreateFenceUnit(
 		return nil
 	}
 
-	newFenceUnit := fenceunitmodel.NewFenceUnit(worldId, position, itemId, direction)
+	newFenceUnit := fenceunitmodel.NewFenceUnit(id, worldId, position, itemId, direction)
 	return fenceUnitServe.fenceUnitRepo.Add(newFenceUnit)
 }
 
