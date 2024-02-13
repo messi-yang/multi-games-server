@@ -1,5 +1,5 @@
 package linkunithttphandler
 
-type getLinkUnitUrlResponse struct {
+type getLinkUnitResponse struct {
 	Url string `json:"url"`
 }

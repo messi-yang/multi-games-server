@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type HttpHandler struct{}
@@ -16,8 +17,8 @@ func NewHttpHandler() *HttpHandler {
 }
 
 func (httpHandler *HttpHandler) GetLinkUnitUrl(c *gin.Context) {
-	var requestBody getLinkUnitUrlRequestBody
-	if err := c.BindJSON(&requestBody); err != nil {
+	idDto, err := uuid.Parse(c.Param("id"))
+	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -26,14 +27,14 @@ func (httpHandler *HttpHandler) GetLinkUnitUrl(c *gin.Context) {
 
 	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(pgUow)
 	url, err := linkUnitAppService.GetLinkUnitUrl(linkunitappsrv.GetLinkUnitUrlQuery{
-		Id: requestBody.Id,
+		Id: idDto,
 	})
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getLinkUnitUrlResponse{
+	c.JSON(http.StatusOK, getLinkUnitResponse{
 		Url: url,
 	})
 }

@@ -104,7 +104,7 @@ func Run() error {
 
 	linkUnitHttpHandler := linkunithttphandler.NewHttpHandler()
 	linkUnitRouterGroup := router.Group("/api/link-units")
-	linkUnitRouterGroup.POST("/get-url", linkUnitHttpHandler.GetLinkUnitUrl)
+	linkUnitRouterGroup.GET("/:id", linkUnitHttpHandler.GetLinkUnitUrl)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
 	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)
