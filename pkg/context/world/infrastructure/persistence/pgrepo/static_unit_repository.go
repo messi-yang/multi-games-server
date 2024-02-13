@@ -1,9 +1,6 @@
 package pgrepo
 
 import (
-	"fmt"
-
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/jackc/pgtype"
@@ -18,9 +15,6 @@ import (
 func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
-
-	fmt.Println("???????")
-	fmt.Println(staticUnit.GetId().Uuid())
 
 	return pgmodel.UnitModel{
 		WorldId:      staticUnit.GetWorldId().Uuid(),
@@ -87,14 +81,12 @@ func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error 
 	return repo.domainEventDispatcher.Dispatch(&staticUnit)
 }
 
-func (repo *staticUnitRepo) Get(unitId unitmodel.UnitId) (unit staticunitmodel.StaticUnit, err error) {
+func (repo *staticUnitRepo) Get(id staticunitmodel.StaticUnitId) (unit staticunitmodel.StaticUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			unitId.GetWorldId().Uuid(),
-			unitId.GetPosition().GetX(),
-			unitId.GetPosition().GetZ(),
+			"info_id = ? AND type = ?",
+			id.Uuid(),
 			pgmodel.UnitTypeEnumStatic,
 		).First(&unitModel).Error
 	}); err != nil {

@@ -24,8 +24,8 @@ type LinkUnitService interface {
 		worldcommonmodel.Direction,
 		globalcommonmodel.Url,
 	) error
-	RotateLinkUnit(unitmodel.UnitId) error
-	RemoveLinkUnit(unitmodel.UnitId) error
+	RotateLinkUnit(linkunitmodel.LinkUnitId) error
+	RemoveLinkUnit(linkunitmodel.LinkUnitId) error
 }
 
 type linkUnitServe struct {
@@ -91,8 +91,8 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 	return linkUnitServe.linkUnitRepo.Add(newLinkUnit)
 }
 
-func (linkUnitServe *linkUnitServe) RotateLinkUnit(unitId unitmodel.UnitId) error {
-	unit, err := linkUnitServe.linkUnitRepo.Get(unitId)
+func (linkUnitServe *linkUnitServe) RotateLinkUnit(id linkunitmodel.LinkUnitId) error {
+	unit, err := linkUnitServe.linkUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}
@@ -101,8 +101,8 @@ func (linkUnitServe *linkUnitServe) RotateLinkUnit(unitId unitmodel.UnitId) erro
 	return linkUnitServe.linkUnitRepo.Update(unit)
 }
 
-func (linkUnitServe *linkUnitServe) RemoveLinkUnit(unitId unitmodel.UnitId) error {
-	unit, err := linkUnitServe.linkUnitRepo.Get(unitId)
+func (linkUnitServe *linkUnitServe) RemoveLinkUnit(id linkunitmodel.LinkUnitId) error {
+	unit, err := linkUnitServe.linkUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}

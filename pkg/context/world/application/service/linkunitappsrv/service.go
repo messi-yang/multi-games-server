@@ -2,7 +2,6 @@ package linkunitappsrv
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -47,19 +46,11 @@ func (serve *serve) CreateLinkUnit(command CreateLinkUnitCommand) error {
 }
 
 func (serve *serve) RemoveLinkUnit(command RemoveLinkUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-	unitId := unitmodel.NewUnitId(worldId, position)
-
-	return serve.linkUnitService.RemoveLinkUnit(unitId)
+	return serve.linkUnitService.RemoveLinkUnit(linkunitmodel.NewLinkUnitId(command.Id))
 }
 
 func (serve *serve) GetLinkUnitUrl(query GetLinkUnitUrlQuery) (string, error) {
-	worldId := globalcommonmodel.NewWorldId(query.WorldId)
-	position := worldcommonmodel.NewPosition(query.Position.X, query.Position.Z)
-	unitId := unitmodel.NewUnitId(worldId, position)
-
-	linkUnit, err := serve.linkUnitRepo.Get(unitId)
+	linkUnit, err := serve.linkUnitRepo.Get(linkunitmodel.NewLinkUnitId(query.Id))
 	if err != nil {
 		return "", err
 	}

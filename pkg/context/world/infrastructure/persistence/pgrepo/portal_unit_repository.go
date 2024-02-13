@@ -1,7 +1,6 @@
 package pgrepo
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -94,15 +93,13 @@ func (repo *portalUnitRepo) Add(portalUnit portalunitmodel.PortalUnit) error {
 	return repo.domainEventDispatcher.Dispatch(&portalUnit)
 }
 
-func (repo *portalUnitRepo) Get(unitId unitmodel.UnitId) (unit portalunitmodel.PortalUnit, err error) {
+func (repo *portalUnitRepo) Get(id portalunitmodel.PortalUnitId) (unit portalunitmodel.PortalUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	portalUnitInfoModel := pgmodel.PortalUnitInfoModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			unitId.GetWorldId().Uuid(),
-			unitId.GetPosition().GetX(),
-			unitId.GetPosition().GetZ(),
+			"info_id = ? AND type = ?",
+			id.Uuid(),
 			pgmodel.UnitTypeEnumPortal,
 		).First(&unitModel).Error; err != nil {
 			return err
@@ -116,6 +113,45 @@ func (repo *portalUnitRepo) Get(unitId unitmodel.UnitId) (unit portalunitmodel.P
 	}
 
 	return parseModelsToPortalUnit(unitModel, portalUnitInfoModel)
+}
+
+func (repo *portalUnitRepo) Find(
+	worldId globalcommonmodel.WorldId,
+	position worldcommonmodel.Position,
+) (*portalunitmodel.PortalUnit, error) {
+	unitModels := []pgmodel.UnitModel{}
+	unitModel := pgmodel.UnitModel{}
+	portalUnitInfoModel := pgmodel.PortalUnitInfoModel{}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			worldId.Uuid(),
+			position.GetX(),
+			position.GetZ(),
+		).Limit(1).Find(&unitModels).Error; err != nil {
+			return err
+		}
+
+		if len(unitModels) == 0 {
+			return nil
+		}
+
+		unitModel = unitModels[0]
+
+		return transaction.Where(
+			"id = ?",
+			unitModel.InfoId,
+		).First(&portalUnitInfoModel).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	portalUnit, err := parseModelsToPortalUnit(unitModel, portalUnitInfoModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return &portalUnit, nil
 }
 
 func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error {

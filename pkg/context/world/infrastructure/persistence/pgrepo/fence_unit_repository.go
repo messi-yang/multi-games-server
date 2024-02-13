@@ -1,7 +1,6 @@
 package pgrepo
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/jackc/pgtype"
@@ -81,14 +80,12 @@ func (repo *fenceUnitRepo) Update(fenceUnit fenceunitmodel.FenceUnit) error {
 	return repo.domainEventDispatcher.Dispatch(&fenceUnit)
 }
 
-func (repo *fenceUnitRepo) Get(unitId unitmodel.UnitId) (unit fenceunitmodel.FenceUnit, err error) {
+func (repo *fenceUnitRepo) Get(id fenceunitmodel.FenceUnitId) (unit fenceunitmodel.FenceUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			unitId.GetWorldId().Uuid(),
-			unitId.GetPosition().GetX(),
-			unitId.GetPosition().GetZ(),
+			"info_id = ? AND type = ?",
+			id.Uuid(),
 			pgmodel.UnitTypeEnumFence,
 		).First(&unitModel).Error
 	}); err != nil {

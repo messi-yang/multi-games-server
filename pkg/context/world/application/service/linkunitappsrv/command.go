@@ -15,6 +15,5 @@ type CreateLinkUnitCommand struct {
 }
 
 type RemoveLinkUnitCommand struct {
-	WorldId  uuid.UUID
-	Position dto.PositionDto
+	Id uuid.UUID
 }

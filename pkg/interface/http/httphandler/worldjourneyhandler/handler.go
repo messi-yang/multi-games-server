@@ -128,7 +128,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}
 	defer safelyLeaveWorldInAllCases()
 
-	if err = httpHandler.sendAddWorldCommandResponse(worldIdDto, playerIdDto, sendMessage); err != nil {
+	if err = httpHandler.sendEnterWorldCommandResponse(worldIdDto, playerIdDto, sendMessage); err != nil {
 		closeConnectionOnError(err)
 		return
 	}
@@ -304,7 +304,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRotateUnitCommand(worldIdDto, commandDto.Position); err != nil {
+				if err = httpHandler.executeRotateUnitCommand(commandDto.UnitId); err != nil {
 					sendError(err)
 					break
 				}
@@ -318,7 +318,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemoveStaticUnitCommand(worldIdDto, commandDto.Position); err != nil {
+				if err = httpHandler.executeRemoveStaticUnitCommand(commandDto.UnitId); err != nil {
 					sendError(err)
 					break
 				}
@@ -332,7 +332,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemoveFenceUnitCommand(worldIdDto, commandDto.Position); err != nil {
+				if err = httpHandler.executeRemoveFenceUnitCommand(commandDto.UniId); err != nil {
 					sendError(err)
 					break
 				}
@@ -346,7 +346,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemovePortalUnitCommand(worldIdDto, commandDto.Position); err != nil {
+				if err = httpHandler.executeRemovePortalUnitCommand(commandDto.UnitId); err != nil {
 					sendError(err)
 					break
 				}
@@ -360,7 +360,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(err)
 					return
 				}
-				if err = httpHandler.executeRemoveLinkUnitCommand(worldIdDto, commandDto.Position); err != nil {
+				if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.UnitId); err != nil {
 					sendError(err)
 					break
 				}
@@ -447,13 +447,12 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemoveStaticUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) executeRemoveStaticUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.RemoveStaticUnit(unitappsrv.RemoveStaticUnitCommand{
-		WorldId:  worldIdDto,
-		Position: positionDto,
+		Id: idDto,
 	}); err != nil {
 		uow.RevertChanges()
 		return err
@@ -486,13 +485,12 @@ func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemoveFenceUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) executeRemoveFenceUnitCommand(unidIdDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.RemoveFenceUnit(unitappsrv.RemoveFenceUnitCommand{
-		WorldId:  worldIdDto,
-		Position: positionDto,
+		Id: unidIdDto,
 	}); err != nil {
 		uow.RevertChanges()
 		return err
@@ -525,13 +523,12 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemovePortalUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) executeRemovePortalUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.RemovePortalUnit(unitappsrv.RemovePortalUnitCommand{
-		WorldId:  worldIdDto,
-		Position: positionDto,
+		Id: idDto,
 	}); err != nil {
 		uow.RevertChanges()
 		return err
@@ -566,13 +563,12 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemoveLinkUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) executeRemoveLinkUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
 	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(uow)
 	if err := linkUnitAppService.RemoveLinkUnit(linkunitappsrv.RemoveLinkUnitCommand{
-		WorldId:  worldIdDto,
-		Position: positionDto,
+		Id: idDto,
 	}); err != nil {
 		uow.RevertChanges()
 		return err
@@ -581,13 +577,12 @@ func (httpHandler *HttpHandler) executeRemoveLinkUnitCommand(worldIdDto uuid.UUI
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRotateUnitCommand(worldIdDto uuid.UUID, positionDto world_dto.PositionDto) error {
+func (httpHandler *HttpHandler) executeRotateUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	if err := unitAppService.RotateUnit(unitappsrv.RotateUnitCommand{
-		WorldId:  worldIdDto,
-		Position: positionDto,
+		Id: idDto,
 	}); err != nil {
 		uow.RevertChanges()
 		return err
@@ -646,7 +641,7 @@ func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) sendAddWorldCommandResponse(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendEnterWorldCommandResponse(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
 	uow := pguow.NewDummyUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)

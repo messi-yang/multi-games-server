@@ -79,10 +79,10 @@ type createStaticUnitCommand struct {
 }
 
 type removeStaticUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	Position  dto.PositionDto `json:"position"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	UnitId    uuid.UUID   `json:"unitId"`
 }
 
 type createFenceUnitCommand struct {
@@ -96,10 +96,10 @@ type createFenceUnitCommand struct {
 }
 
 type removeFenceUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	Position  dto.PositionDto `json:"position"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	UniId     uuid.UUID   `json:"unitId"`
 }
 
 type createPortalUnitCommand struct {
@@ -113,10 +113,10 @@ type createPortalUnitCommand struct {
 }
 
 type removePortalUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	Position  dto.PositionDto `json:"position"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	UnitId    uuid.UUID   `json:"unitId"`
 }
 
 type createLinkUnitCommand struct {
@@ -131,15 +131,15 @@ type createLinkUnitCommand struct {
 }
 
 type removeLinkUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	Position  dto.PositionDto `json:"position"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	UnitId    uuid.UUID   `json:"unitId"`
 }
 
 type rotateUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	Position  dto.PositionDto `json:"position"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	UnitId    uuid.UUID   `json:"unitId"`
 }

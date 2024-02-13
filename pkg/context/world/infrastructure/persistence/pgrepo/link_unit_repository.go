@@ -1,7 +1,6 @@
 package pgrepo
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/jackc/pgtype"
@@ -80,15 +79,13 @@ func (repo *linkUnitRepo) Add(linkUnit linkunitmodel.LinkUnit) error {
 	return repo.domainEventDispatcher.Dispatch(&linkUnit)
 }
 
-func (repo *linkUnitRepo) Get(unitId unitmodel.UnitId) (unit linkunitmodel.LinkUnit, err error) {
+func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.LinkUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	linkUnitInfoModel := pgmodel.LinkUnitInfoModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			unitId.GetWorldId().Uuid(),
-			unitId.GetPosition().GetX(),
-			unitId.GetPosition().GetZ(),
+			"info_id = ? AND type = ?",
+			id.Uuid(),
 			pgmodel.UnitTypeEnumLink,
 		).First(&unitModel).Error; err != nil {
 			return err

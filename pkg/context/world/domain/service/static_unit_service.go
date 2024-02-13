@@ -23,8 +23,8 @@ type StaticUnitService interface {
 		worldcommonmodel.Position,
 		worldcommonmodel.Direction,
 	) error
-	RotateStaticUnit(unitmodel.UnitId) error
-	RemoveStaticUnit(unitmodel.UnitId) error
+	RotateStaticUnit(staticunitmodel.StaticUnitId) error
+	RemoveStaticUnit(staticunitmodel.StaticUnitId) error
 }
 
 type staticUnitServe struct {
@@ -89,8 +89,8 @@ func (staticUnitServe *staticUnitServe) CreateStaticUnit(
 	return staticUnitServe.staticUnitRepo.Add(newStaticUnit)
 }
 
-func (staticUnitServe *staticUnitServe) RotateStaticUnit(unitId unitmodel.UnitId) error {
-	unit, err := staticUnitServe.staticUnitRepo.Get(unitId)
+func (staticUnitServe *staticUnitServe) RotateStaticUnit(id staticunitmodel.StaticUnitId) error {
+	unit, err := staticUnitServe.staticUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}
@@ -99,8 +99,8 @@ func (staticUnitServe *staticUnitServe) RotateStaticUnit(unitId unitmodel.UnitId
 	return staticUnitServe.staticUnitRepo.Update(unit)
 }
 
-func (staticUnitServe *staticUnitServe) RemoveStaticUnit(unitId unitmodel.UnitId) error {
-	unit, err := staticUnitServe.staticUnitRepo.Get(unitId)
+func (staticUnitServe *staticUnitServe) RemoveStaticUnit(id staticunitmodel.StaticUnitId) error {
+	unit, err := staticUnitServe.staticUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}

@@ -24,8 +24,8 @@ type PortalUnitService interface {
 		worldcommonmodel.Position,
 		worldcommonmodel.Direction,
 	) error
-	RotatePortalUnit(unitmodel.UnitId) error
-	RemovePortalUnit(unitmodel.UnitId) error
+	RotatePortalUnit(portalunitmodel.PortalUnitId) error
+	RemovePortalUnit(portalunitmodel.PortalUnitId) error
 }
 
 type portalUnitServe struct {
@@ -111,8 +111,8 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 	return portalUnitServe.portalUnitRepo.Add(newPortalUnit)
 }
 
-func (portalUnitServe *portalUnitServe) RotatePortalUnit(unitId unitmodel.UnitId) error {
-	unit, err := portalUnitServe.portalUnitRepo.Get(unitId)
+func (portalUnitServe *portalUnitServe) RotatePortalUnit(id portalunitmodel.PortalUnitId) error {
+	unit, err := portalUnitServe.portalUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}
@@ -121,24 +121,26 @@ func (portalUnitServe *portalUnitServe) RotatePortalUnit(unitId unitmodel.UnitId
 	return portalUnitServe.portalUnitRepo.Update(unit)
 }
 
-func (portalUnitServe *portalUnitServe) RemovePortalUnit(unitId unitmodel.UnitId) error {
-	unit, err := portalUnitServe.portalUnitRepo.Get(unitId)
+func (portalUnitServe *portalUnitServe) RemovePortalUnit(id portalunitmodel.PortalUnitId) error {
+	unit, err := portalUnitServe.portalUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}
 
 	targetPosition := unit.GetTargetPosition()
 	if targetPosition != nil {
-		unitAtTargetPosition, err := portalUnitServe.portalUnitRepo.Get(unitmodel.NewUnitId(
+		unitAtTargetPosition, err := portalUnitServe.portalUnitRepo.Find(
 			unit.GetWorldId(),
 			*targetPosition,
-		))
+		)
 		if err != nil {
 			return err
 		}
-		unitAtTargetPosition.UpdateTargetPosition(nil)
-		if err = portalUnitServe.portalUnitRepo.Update(unitAtTargetPosition); err != nil {
-			return err
+		if unitAtTargetPosition != nil {
+			unitAtTargetPosition.UpdateTargetPosition(nil)
+			if err = portalUnitServe.portalUnitRepo.Update(*unitAtTargetPosition); err != nil {
+				return err
+			}
 		}
 	}
 

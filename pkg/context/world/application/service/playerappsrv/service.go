@@ -116,8 +116,6 @@ func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) er
 		return err
 	}
 
-	unitId := unitmodel.NewUnitId(worldId, position)
-
 	unitAtPosition, err := serve.unitRepo.Find(worldId, position)
 	if err != nil {
 		return err
@@ -131,8 +129,11 @@ func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) er
 		return ErrUnitIsNotPortalType
 	}
 
-	portalUnit, err := serve.portalUnitRepo.Get(unitId)
+	portalUnit, err := serve.portalUnitRepo.Find(worldId, position)
 	if err != nil {
+		return err
+	}
+	if portalUnit == nil {
 		return err
 	}
 	targetPosition := portalUnit.GetTargetPosition()

@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
@@ -16,7 +17,6 @@ import (
 
 type Service interface {
 	GetUnits(GetUnitsQuery) (unitDtos []dto.UnitDto, err error)
-	GetUnit(GetUnitQuery) (dto.UnitDto, error)
 
 	RotateUnit(RotateUnitCommand) error
 
@@ -74,16 +74,6 @@ func (serve *serve) GetUnits(query GetUnitsQuery) (
 	return unitDtos, err
 }
 
-func (serve *serve) GetUnit(query GetUnitQuery) (unitDto dto.UnitDto, err error) {
-	worldId := globalcommonmodel.NewWorldId(query.WorldId)
-	position := worldcommonmodel.NewPosition(query.Position.X, query.Position.Z)
-	unit, err := serve.unitRepo.Get(unitmodel.NewUnitId(worldId, position))
-	if err != nil {
-		return unitDto, err
-	}
-	return dto.NewUnitDto(unit), nil
-}
-
 func (serve *serve) CreateStaticUnit(command CreateStaticUnitCommand) error {
 	return serve.staticUnitService.CreateStaticUnit(
 		staticunitmodel.NewStaticUnitId(command.Id),
@@ -95,11 +85,7 @@ func (serve *serve) CreateStaticUnit(command CreateStaticUnitCommand) error {
 }
 
 func (serve *serve) RemoveStaticUnit(command RemoveStaticUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-	unitId := unitmodel.NewUnitId(worldId, position)
-
-	return serve.staticUnitService.RemoveStaticUnit(unitId)
+	return serve.staticUnitService.RemoveStaticUnit(staticunitmodel.NewStaticUnitId(command.Id))
 }
 
 func (serve *serve) CreateFenceUnit(command CreateFenceUnitCommand) error {
@@ -113,11 +99,7 @@ func (serve *serve) CreateFenceUnit(command CreateFenceUnitCommand) error {
 }
 
 func (serve *serve) RemoveFenceUnit(command RemoveFenceUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-	unitId := unitmodel.NewUnitId(worldId, position)
-
-	return serve.fenceUnitService.RemoveFenceUnit(unitId)
+	return serve.fenceUnitService.RemoveFenceUnit(fenceunitmodel.NewFenceUnitId(command.Id))
 }
 
 func (serve *serve) CreatePortalUnit(command CreatePortalUnitCommand) error {
@@ -131,30 +113,24 @@ func (serve *serve) CreatePortalUnit(command CreatePortalUnitCommand) error {
 }
 
 func (serve *serve) RemovePortalUnit(command RemovePortalUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-	unitId := unitmodel.NewUnitId(worldId, position)
-
-	return serve.portalUnitService.RemovePortalUnit(unitId)
+	return serve.portalUnitService.RemovePortalUnit(portalunitmodel.NewPortalUnitId(command.Id))
 }
 
 func (serve *serve) RotateUnit(command RotateUnitCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
-	unitId := unitmodel.NewUnitId(worldId, position)
+	unitId := unitmodel.NewUnitId(command.Id)
 	unit, err := serve.unitRepo.Get(unitId)
 	if err != nil {
 		return err
 	}
 
 	if unit.GetType().IsEqual(worldcommonmodel.NewPortalUnitType()) {
-		return serve.portalUnitService.RotatePortalUnit(unitId)
+		return serve.portalUnitService.RotatePortalUnit(portalunitmodel.NewPortalUnitId(command.Id))
 	} else if unit.GetType().IsEqual(worldcommonmodel.NewStaticUnitType()) {
-		return serve.staticUnitService.RotateStaticUnit(unitId)
+		return serve.staticUnitService.RotateStaticUnit(staticunitmodel.NewStaticUnitId(command.Id))
 	} else if unit.GetType().IsEqual(worldcommonmodel.NewFenceUnitType()) {
-		return serve.fenceUnitService.RotateFenceUnit(unitId)
+		return serve.fenceUnitService.RotateFenceUnit(fenceunitmodel.NewFenceUnitId(command.Id))
 	} else if unit.GetType().IsEqual(worldcommonmodel.NewLinkUnitType()) {
-		return serve.linkUnitService.RotateLinkUnit(unitId)
+		return serve.linkUnitService.RotateLinkUnit(linkunitmodel.NewLinkUnitId(command.Id))
 	}
 
 	return nil

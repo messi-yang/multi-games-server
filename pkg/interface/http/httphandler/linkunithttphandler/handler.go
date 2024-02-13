@@ -26,8 +26,7 @@ func (httpHandler *HttpHandler) GetLinkUnitUrl(c *gin.Context) {
 
 	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(pgUow)
 	url, err := linkUnitAppService.GetLinkUnitUrl(linkunitappsrv.GetLinkUnitUrlQuery{
-		WorldId:  requestBody.WorldId,
-		Position: requestBody.Position,
+		Id: requestBody.Id,
 	})
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())

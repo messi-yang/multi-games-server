@@ -23,8 +23,8 @@ type FenceUnitService interface {
 		worldcommonmodel.Position,
 		worldcommonmodel.Direction,
 	) error
-	RotateFenceUnit(unitmodel.UnitId) error
-	RemoveFenceUnit(unitmodel.UnitId) error
+	RotateFenceUnit(fenceunitmodel.FenceUnitId) error
+	RemoveFenceUnit(fenceunitmodel.FenceUnitId) error
 }
 
 type fenceUnitServe struct {
@@ -89,8 +89,8 @@ func (fenceUnitServe *fenceUnitServe) CreateFenceUnit(
 	return fenceUnitServe.fenceUnitRepo.Add(newFenceUnit)
 }
 
-func (fenceUnitServe *fenceUnitServe) RotateFenceUnit(unitId unitmodel.UnitId) error {
-	unit, err := fenceUnitServe.fenceUnitRepo.Get(unitId)
+func (fenceUnitServe *fenceUnitServe) RotateFenceUnit(id fenceunitmodel.FenceUnitId) error {
+	unit, err := fenceUnitServe.fenceUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}
@@ -99,8 +99,8 @@ func (fenceUnitServe *fenceUnitServe) RotateFenceUnit(unitId unitmodel.UnitId) e
 	return fenceUnitServe.fenceUnitRepo.Update(unit)
 }
 
-func (fenceUnitServe *fenceUnitServe) RemoveFenceUnit(unitId unitmodel.UnitId) error {
-	unit, err := fenceUnitServe.fenceUnitRepo.Get(unitId)
+func (fenceUnitServe *fenceUnitServe) RemoveFenceUnit(id fenceunitmodel.FenceUnitId) error {
+	unit, err := fenceUnitServe.fenceUnitRepo.Get(id)
 	if err != nil {
 		return err
 	}

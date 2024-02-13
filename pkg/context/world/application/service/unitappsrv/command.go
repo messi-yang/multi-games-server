@@ -14,8 +14,7 @@ type CreateStaticUnitCommand struct {
 }
 
 type RemoveStaticUnitCommand struct {
-	WorldId  uuid.UUID
-	Position dto.PositionDto
+	Id uuid.UUID
 }
 
 type CreateFenceUnitCommand struct {
@@ -27,8 +26,7 @@ type CreateFenceUnitCommand struct {
 }
 
 type RemoveFenceUnitCommand struct {
-	WorldId  uuid.UUID
-	Position dto.PositionDto
+	Id uuid.UUID
 }
 
 type CreatePortalUnitCommand struct {
@@ -41,11 +39,9 @@ type CreatePortalUnitCommand struct {
 }
 
 type RemovePortalUnitCommand struct {
-	WorldId  uuid.UUID
-	Position dto.PositionDto
+	Id uuid.UUID
 }
 
 type RotateUnitCommand struct {
-	WorldId  uuid.UUID
-	Position dto.PositionDto
+	Id uuid.UUID
 }

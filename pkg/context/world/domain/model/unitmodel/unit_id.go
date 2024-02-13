@@ -2,33 +2,26 @@ package unitmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/google/uuid"
 )
 
 type UnitId struct {
-	worldId  globalcommonmodel.WorldId
-	position worldcommonmodel.Position
+	id uuid.UUID
 }
 
 // Interface Implementation Check
 var _ domain.ValueObject[UnitId] = (*UnitId)(nil)
 
-func NewUnitId(worldId globalcommonmodel.WorldId, position worldcommonmodel.Position) UnitId {
+func NewUnitId(id uuid.UUID) UnitId {
 	return UnitId{
-		worldId:  worldId,
-		position: position,
+		id: id,
 	}
 }
 
 func (unitId UnitId) IsEqual(otherUnitId UnitId) bool {
-	return unitId.worldId.IsEqual(otherUnitId.worldId) && unitId.position.IsEqual(otherUnitId.position)
+	return unitId.id == otherUnitId.id
 }
 
-func (unitId UnitId) GetWorldId() globalcommonmodel.WorldId {
-	return unitId.worldId
-}
-
-func (unitId UnitId) GetPosition() worldcommonmodel.Position {
-	return unitId.position
+func (unitId UnitId) Uuid() uuid.UUID {
+	return unitId.id
 }
