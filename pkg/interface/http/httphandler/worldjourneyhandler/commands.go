@@ -127,6 +127,7 @@ type createLinkUnitCommand struct {
 	ItemId    uuid.UUID       `json:"itemId"`
 	Position  dto.PositionDto `json:"position"`
 	Direction int8            `json:"direction"`
+	Label     *string         `json:"label"`
 	Url       string          `json:"url"`
 }
 

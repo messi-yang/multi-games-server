@@ -12,6 +12,7 @@ type LinkUnit struct {
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
 	direction            worldcommonmodel.Direction
+	label                *string
 	url                  globalcommonmodel.Url
 	domainEventCollector *domain.DomainEventCollector
 }
@@ -25,6 +26,7 @@ func NewLinkUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	label *string,
 	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
@@ -33,6 +35,7 @@ func NewLinkUnit(
 		position:             position,
 		itemId:               itemId,
 		direction:            direction,
+		label:                label,
 		url:                  url,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
@@ -44,6 +47,7 @@ func LoadLinkUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	label *string,
 	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
@@ -52,6 +56,7 @@ func LoadLinkUnit(
 		position:             position,
 		itemId:               itemId,
 		direction:            direction,
+		label:                label,
 		url:                  url,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
@@ -79,6 +84,10 @@ func (unit *LinkUnit) GetItemId() worldcommonmodel.ItemId {
 
 func (unit *LinkUnit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
+}
+
+func (unit *LinkUnit) GetLabel() *string {
+	return unit.label
 }
 
 func (unit *LinkUnit) GetUrl() globalcommonmodel.Url {

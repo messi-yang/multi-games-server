@@ -25,6 +25,7 @@ func parseModelToUnit(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err err
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		unitModel.Label,
 		unitType,
 		unitModel.InfoSnapshot,
 	), nil

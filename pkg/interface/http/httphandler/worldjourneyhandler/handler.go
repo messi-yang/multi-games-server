@@ -289,6 +289,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto.ItemId,
 					commandDto.Position,
 					commandDto.Direction,
+					commandDto.Label,
 					commandDto.Url,
 				); err != nil {
 					sendError(err)
@@ -543,6 +544,7 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
 	directionDto int8,
+	label *string,
 	url string,
 ) error {
 	uow := pguow.NewUow()
@@ -554,6 +556,7 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 		ItemId:    itemIdDto,
 		Position:  positionDto,
 		Direction: directionDto,
+		Label:     label,
 		Url:       url,
 	}); err != nil {
 		uow.RevertChanges()

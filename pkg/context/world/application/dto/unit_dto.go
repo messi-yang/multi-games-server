@@ -10,6 +10,7 @@ type UnitDto struct {
 	ItemId    uuid.UUID   `json:"itemId"`
 	Position  PositionDto `json:"position"`
 	Direction int8        `json:"direction"`
+	Label     *string     `json:"label"`
 	Type      string      `json:"type"`
 	Info      any         `json:"info"`
 }
@@ -20,6 +21,7 @@ func NewUnitDto(unit unitmodel.Unit) UnitDto {
 		ItemId:    unit.GetItemId().Uuid(),
 		Position:  NewPositionDto(unit.GetPosition()),
 		Direction: unit.GetDirection().Int8(),
+		Label:     unit.GetLabel(),
 		Type:      unit.GetType().String(),
 		Info:      unit.GetInfo(),
 	}

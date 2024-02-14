@@ -27,6 +27,7 @@ func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInf
 			PosZ:         linkUnit.GetPosition().GetZ(),
 			ItemId:       linkUnit.GetItemId().Uuid(),
 			Direction:    linkUnit.GetDirection().Int8(),
+			Label:        linkUnit.GetLabel(),
 			Type:         pgmodel.UnitTypeEnumLink,
 			Id:           linkUnit.GetId().Uuid(),
 			InfoSnapshot: unitInfoSnapshotJsonb,
@@ -47,6 +48,7 @@ func parseModelsToLinkUnit(unitModel pgmodel.UnitModel, linkUnitInfoModel pgmode
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		unitModel.Label,
 		url,
 	), nil
 }

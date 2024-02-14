@@ -22,6 +22,7 @@ type LinkUnitService interface {
 		worldcommonmodel.ItemId,
 		worldcommonmodel.Position,
 		worldcommonmodel.Direction,
+		*string,
 		globalcommonmodel.Url,
 	) error
 	RotateLinkUnit(linkunitmodel.LinkUnitId) error
@@ -55,6 +56,7 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 	itemId worldcommonmodel.ItemId,
 	position worldcommonmodel.Position,
 	direction worldcommonmodel.Direction,
+	label *string,
 	url globalcommonmodel.Url,
 ) error {
 	world, err := linkUnitServe.worldRepo.Get(worldId)
@@ -87,7 +89,7 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 		return nil
 	}
 
-	newLinkUnit := linkunitmodel.NewLinkUnit(id, worldId, position, itemId, direction, url)
+	newLinkUnit := linkunitmodel.NewLinkUnit(id, worldId, position, itemId, direction, label, url)
 	return linkUnitServe.linkUnitRepo.Add(newLinkUnit)
 }
 

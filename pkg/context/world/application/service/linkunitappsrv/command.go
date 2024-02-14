@@ -11,6 +11,7 @@ type CreateLinkUnitCommand struct {
 	ItemId    uuid.UUID
 	Position  dto.PositionDto
 	Direction int8
+	Label     *string
 	Url       string
 }
 

@@ -41,6 +41,7 @@ func (serve *serve) CreateLinkUnit(command CreateLinkUnitCommand) error {
 		worldcommonmodel.NewItemId(command.ItemId),
 		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
 		worldcommonmodel.NewDirection(command.Direction),
+		command.Label,
 		url,
 	)
 }

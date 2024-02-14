@@ -14,6 +14,7 @@ type Unit struct {
 	position             worldcommonmodel.Position
 	itemId               worldcommonmodel.ItemId
 	direction            worldcommonmodel.Direction
+	label                *string
 	_type                worldcommonmodel.UnitType
 	info                 any
 	domainEventCollector *domain.DomainEventCollector
@@ -28,6 +29,7 @@ func LoadUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	label *string,
 	_type worldcommonmodel.UnitType,
 	info any,
 ) Unit {
@@ -37,6 +39,7 @@ func LoadUnit(
 		position:             position,
 		itemId:               itemId,
 		direction:            direction,
+		label:                label,
 		_type:                _type,
 		info:                 info,
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -65,6 +68,10 @@ func (unit *Unit) GetItemId() worldcommonmodel.ItemId {
 
 func (unit *Unit) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
+}
+
+func (unit *Unit) GetLabel() *string {
+	return unit.label
 }
 
 func (unit *Unit) GetInfo() any {
