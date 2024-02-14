@@ -4,7 +4,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetLinkUnitUrlQuery struct {
-	Id      uuid.UUID
-	WorldId uuid.UUID
+type GetLinkUnitQuery struct {
+	Id uuid.UUID
 }

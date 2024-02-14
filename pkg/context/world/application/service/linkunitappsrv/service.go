@@ -11,7 +11,7 @@ type Service interface {
 	CreateLinkUnit(CreateLinkUnitCommand) error
 	RemoveLinkUnit(RemoveLinkUnitCommand) error
 
-	GetLinkUnitUrl(GetLinkUnitUrlQuery) (string, error)
+	GetLinkUnit(GetLinkUnitQuery) (string, error)
 }
 
 type serve struct {
@@ -49,7 +49,7 @@ func (serve *serve) RemoveLinkUnit(command RemoveLinkUnitCommand) error {
 	return serve.linkUnitService.RemoveLinkUnit(linkunitmodel.NewLinkUnitId(command.Id))
 }
 
-func (serve *serve) GetLinkUnitUrl(query GetLinkUnitUrlQuery) (string, error) {
+func (serve *serve) GetLinkUnit(query GetLinkUnitQuery) (string, error) {
 	linkUnit, err := serve.linkUnitRepo.Get(linkunitmodel.NewLinkUnitId(query.Id))
 	if err != nil {
 		return "", err

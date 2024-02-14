@@ -26,7 +26,7 @@ func (httpHandler *HttpHandler) GetLinkUnitUrl(c *gin.Context) {
 	pgUow := pguow.NewDummyUow()
 
 	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(pgUow)
-	url, err := linkUnitAppService.GetLinkUnitUrl(linkunitappsrv.GetLinkUnitUrlQuery{
+	url, err := linkUnitAppService.GetLinkUnit(linkunitappsrv.GetLinkUnitQuery{
 		Id: idDto,
 	})
 	if err != nil {
