@@ -112,7 +112,7 @@ CREATE TABLE public.units (
     pos_z integer NOT NULL,
     item_id uuid NOT NULL,
     direction integer NOT NULL,
-    info_id uuid,
+    id uuid NOT NULL,
     info_snapshot jsonb NOT NULL,
     type character varying(20) DEFAULT 'static'::character varying NOT NULL,
     label character varying(20)
@@ -253,19 +253,11 @@ ALTER TABLE ONLY public.unit_types
 
 
 --
--- Name: units units_unique_info_id; Type: CONSTRAINT; Schema: public; Owner: main
+-- Name: units units_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
 ALTER TABLE ONLY public.units
-    ADD CONSTRAINT units_unique_info_id UNIQUE (info_id);
-
-
---
--- Name: units units_unique_uuid; Type: CONSTRAINT; Schema: public; Owner: main
---
-
-ALTER TABLE ONLY public.units
-    ADD CONSTRAINT units_unique_uuid UNIQUE (info_id);
+    ADD CONSTRAINT units_pkey PRIMARY KEY (id);
 
 
 --

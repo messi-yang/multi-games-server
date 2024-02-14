@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/google/uuid"
 )
 
 // Unit here is only for reading purpose, for writing units,
@@ -17,7 +16,6 @@ type Unit struct {
 	direction            worldcommonmodel.Direction
 	_type                worldcommonmodel.UnitType
 	info                 any
-	infoId               uuid.UUID
 	domainEventCollector *domain.DomainEventCollector
 }
 
@@ -32,7 +30,6 @@ func LoadUnit(
 	direction worldcommonmodel.Direction,
 	_type worldcommonmodel.UnitType,
 	info any,
-	infoId uuid.UUID,
 ) Unit {
 	return Unit{
 		id:                   id,
@@ -42,7 +39,6 @@ func LoadUnit(
 		direction:            direction,
 		_type:                _type,
 		info:                 info,
-		infoId:               infoId,
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
 }
@@ -73,10 +69,6 @@ func (unit *Unit) GetDirection() worldcommonmodel.Direction {
 
 func (unit *Unit) GetInfo() any {
 	return unit.info
-}
-
-func (unit *Unit) GetInfoId() uuid.UUID {
-	return unit.infoId
 }
 
 func (unit *Unit) GetType() worldcommonmodel.UnitType {

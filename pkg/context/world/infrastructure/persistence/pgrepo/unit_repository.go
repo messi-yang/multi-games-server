@@ -20,14 +20,13 @@ func parseModelToUnit(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err err
 		return unit, err
 	}
 	return unitmodel.LoadUnit(
-		unitmodel.NewUnitId(unitModel.InfoId),
+		unitmodel.NewUnitId(unitModel.Id),
 		worldId,
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		unitType,
 		unitModel.InfoSnapshot,
-		unitModel.InfoId,
 	), nil
 }
 
@@ -47,7 +46,7 @@ func (repo *unitRepo) Get(id unitmodel.UnitId) (unit unitmodel.Unit, err error) 
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"info_id = ?",
+			"id = ?",
 			id.Uuid(),
 		).First(&unitModel).Error
 	}); err != nil {

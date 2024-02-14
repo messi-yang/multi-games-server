@@ -16,13 +16,13 @@ func newModelFromFenceUnit(fenceUnit fenceunitmodel.FenceUnit) pgmodel.UnitModel
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 	return pgmodel.UnitModel{
+		Id:           fenceUnit.GetId().Uuid(),
 		WorldId:      fenceUnit.GetWorldId().Uuid(),
 		PosX:         fenceUnit.GetPosition().GetX(),
 		PosZ:         fenceUnit.GetPosition().GetZ(),
 		ItemId:       fenceUnit.GetItemId().Uuid(),
 		Direction:    fenceUnit.GetDirection().Int8(),
 		Type:         pgmodel.UnitTypeEnumFence,
-		InfoId:       fenceUnit.GetId().Uuid(),
 		InfoSnapshot: unitInfoSnapshotJsonb,
 	}
 }
@@ -32,7 +32,7 @@ func parseModelToFenceUnit(unitModel pgmodel.UnitModel) (fenceunitmodel.FenceUni
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 
 	return fenceunitmodel.LoadFenceUnit(
-		fenceunitmodel.NewFenceUnitId(unitModel.InfoId),
+		fenceunitmodel.NewFenceUnitId(unitModel.Id),
 		worldId,
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
@@ -84,7 +84,7 @@ func (repo *fenceUnitRepo) Get(id fenceunitmodel.FenceUnitId) (unit fenceunitmod
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"info_id = ? AND type = ?",
+			"id = ? AND type = ?",
 			id.Uuid(),
 			pgmodel.UnitTypeEnumFence,
 		).First(&unitModel).Error

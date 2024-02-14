@@ -34,13 +34,13 @@ func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.Por
 			),
 		},
 		pgmodel.UnitModel{
+			Id:           portalUnit.GetId().Uuid(),
 			WorldId:      portalUnit.GetWorldId().Uuid(),
 			PosX:         portalUnit.GetPosition().GetX(),
 			PosZ:         portalUnit.GetPosition().GetZ(),
 			ItemId:       portalUnit.GetItemId().Uuid(),
 			Direction:    portalUnit.GetDirection().Int8(),
 			Type:         pgmodel.UnitTypeEnumPortal,
-			InfoId:       portalUnit.GetId().Uuid(),
 			InfoSnapshot: unitInfoSnapshotJsonb,
 		}
 }
@@ -98,7 +98,7 @@ func (repo *portalUnitRepo) Get(id portalunitmodel.PortalUnitId) (unit portaluni
 	portalUnitInfoModel := pgmodel.PortalUnitInfoModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
-			"info_id = ? AND type = ?",
+			"id = ? AND type = ?",
 			id.Uuid(),
 			pgmodel.UnitTypeEnumPortal,
 		).First(&unitModel).Error; err != nil {
@@ -106,7 +106,7 @@ func (repo *portalUnitRepo) Get(id portalunitmodel.PortalUnitId) (unit portaluni
 		}
 		return transaction.Where(
 			"id = ?",
-			unitModel.InfoId,
+			unitModel.Id,
 		).First(&portalUnitInfoModel).Error
 	}); err != nil {
 		return unit, err
@@ -140,7 +140,7 @@ func (repo *portalUnitRepo) Find(
 
 		return transaction.Where(
 			"id = ?",
-			unitModel.InfoId,
+			unitModel.Id,
 		).First(&portalUnitInfoModel).Error
 	}); err != nil {
 		return nil, err
@@ -201,7 +201,7 @@ func (repo *portalUnitRepo) GetTopLeftMostUnitWithoutTarget(worldId globalcommon
 	var portalUnitInfoModels []pgmodel.PortalUnitInfoModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Select("units.pos_x, units.pos_z, portal_unit_infos.*").Joins(
-			"left join units on units.info_id = portal_unit_infos.id",
+			"left join units on units.id = portal_unit_infos.id",
 		).Where(
 			"portal_unit_infos.world_id = ? AND portal_unit_infos.target_pos_x IS NULL AND portal_unit_infos.target_pos_z IS NULL",
 			worldId.Uuid(),
@@ -217,7 +217,7 @@ func (repo *portalUnitRepo) GetTopLeftMostUnitWithoutTarget(worldId globalcommon
 	var unitModel pgmodel.UnitModel
 	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"info_id = ?",
+			"id = ?",
 			portalUnitInfoModels[0].Id,
 		).First(&unitModel).Error
 	}); err != nil {

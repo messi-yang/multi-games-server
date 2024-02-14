@@ -17,13 +17,13 @@ func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitM
 	unitInfoSnapshotJsonb.Set("null")
 
 	return pgmodel.UnitModel{
+		Id:           staticUnit.GetId().Uuid(),
 		WorldId:      staticUnit.GetWorldId().Uuid(),
 		PosX:         staticUnit.GetPosition().GetX(),
 		PosZ:         staticUnit.GetPosition().GetZ(),
 		ItemId:       staticUnit.GetItemId().Uuid(),
 		Direction:    staticUnit.GetDirection().Int8(),
 		Type:         pgmodel.UnitTypeEnumStatic,
-		InfoId:       staticUnit.GetId().Uuid(),
 		InfoSnapshot: unitInfoSnapshotJsonb,
 	}
 }
@@ -33,7 +33,7 @@ func parseModelToStaticUnit(unitModel pgmodel.UnitModel) (staticunitmodel.Static
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 
 	return staticunitmodel.LoadStaticUnit(
-		staticunitmodel.NewStaticUnitId(unitModel.InfoId),
+		staticunitmodel.NewStaticUnitId(unitModel.Id),
 		worldId,
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
@@ -85,7 +85,7 @@ func (repo *staticUnitRepo) Get(id staticunitmodel.StaticUnitId) (unit staticuni
 	unitModel := pgmodel.UnitModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"info_id = ? AND type = ?",
+			"id = ? AND type = ?",
 			id.Uuid(),
 			pgmodel.UnitTypeEnumStatic,
 		).First(&unitModel).Error

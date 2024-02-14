@@ -28,7 +28,7 @@ func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInf
 			ItemId:       linkUnit.GetItemId().Uuid(),
 			Direction:    linkUnit.GetDirection().Int8(),
 			Type:         pgmodel.UnitTypeEnumLink,
-			InfoId:       linkUnit.GetId().Uuid(),
+			Id:           linkUnit.GetId().Uuid(),
 			InfoSnapshot: unitInfoSnapshotJsonb,
 		}
 }
@@ -84,7 +84,7 @@ func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.L
 	linkUnitInfoModel := pgmodel.LinkUnitInfoModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
-			"info_id = ? AND type = ?",
+			"id = ? AND type = ?",
 			id.Uuid(),
 			pgmodel.UnitTypeEnumLink,
 		).First(&unitModel).Error; err != nil {
@@ -92,7 +92,7 @@ func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.L
 		}
 		return transaction.Where(
 			"id = ?",
-			unitModel.InfoId,
+			unitModel.Id,
 		).First(&linkUnitInfoModel).Error
 	}); err != nil {
 		return unit, err

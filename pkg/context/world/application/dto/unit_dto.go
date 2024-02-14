@@ -6,21 +6,21 @@ import (
 )
 
 type UnitDto struct {
+	Id        uuid.UUID   `json:"id"`
 	ItemId    uuid.UUID   `json:"itemId"`
 	Position  PositionDto `json:"position"`
 	Direction int8        `json:"direction"`
 	Type      string      `json:"type"`
 	Info      any         `json:"info"`
-	InfoId    uuid.UUID   `json:"infoId"`
 }
 
 func NewUnitDto(unit unitmodel.Unit) UnitDto {
 	return UnitDto{
+		Id:        unit.GetId().Uuid(),
 		ItemId:    unit.GetItemId().Uuid(),
 		Position:  NewPositionDto(unit.GetPosition()),
 		Direction: unit.GetDirection().Int8(),
 		Type:      unit.GetType().String(),
 		Info:      unit.GetInfo(),
-		InfoId:    unit.GetInfoId(),
 	}
 }
