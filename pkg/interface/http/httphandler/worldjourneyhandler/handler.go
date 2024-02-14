@@ -191,7 +191,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
 					return
 				}
-				if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.Position); err != nil {
+				if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.UnitId); err != nil {
 					sendError(err)
 					break
 				}
@@ -401,13 +401,13 @@ func (httpHandler *HttpHandler) executeChangePlayerActionCommand(
 func (httpHandler *HttpHandler) executeSendPlayerIntoPortalCommand(
 	worldIdDto uuid.UUID,
 	playerIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
+	unitIdDto uuid.UUID,
 ) error {
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
 	return playerAppService.SendPlayerIntoPortal(playerappsrv.SendPlayerIntoPortalCommand{
 		WorldId:  worldIdDto,
 		PlayerId: playerIdDto,
-		Position: positionDto,
+		UnitId:   unitIdDto,
 	})
 }
 

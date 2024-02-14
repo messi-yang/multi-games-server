@@ -26,7 +26,7 @@ type ChangePlayerActionCommand struct {
 type SendPlayerIntoPortalCommand struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID
-	Position dto.PositionDto
+	UnitId   uuid.UUID
 }
 
 type LeaveWorldCommand struct {

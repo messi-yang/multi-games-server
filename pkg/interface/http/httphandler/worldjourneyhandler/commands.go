@@ -47,11 +47,11 @@ type changePlayerActionCommand struct {
 }
 
 type sendPlayerIntoPortalCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	PlayerId  uuid.UUID       `json:"playerId"`
-	Position  dto.PositionDto `json:"position"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	PlayerId  uuid.UUID   `json:"playerId"`
+	UnitId    uuid.UUID   `json:"unitId"`
 }
 
 type changePlayerHeldItemCommand struct {

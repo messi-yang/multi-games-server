@@ -109,31 +109,14 @@ func (serve *serve) ChangePlayerAction(command ChangePlayerActionCommand) error 
 func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) error {
 	worldId := globalcommonmodel.NewWorldId(command.WorldId)
 	playerId := playermodel.NewPlayerId(command.PlayerId)
-	position := worldcommonmodel.NewPosition(command.Position.X, command.Position.Z)
 
 	player, err := serve.playerRepo.Get(worldId, playerId)
 	if err != nil {
 		return err
 	}
 
-	unitAtPosition, err := serve.unitRepo.Find(worldId, position)
+	portalUnit, err := serve.portalUnitRepo.Get(portalunitmodel.NewPortalUnitId(command.UnitId))
 	if err != nil {
-		return err
-	}
-
-	if unitAtPosition == nil {
-		return ErrPosHasNoUnits
-	}
-
-	if !unitAtPosition.GetType().IsPortal() {
-		return ErrUnitIsNotPortalType
-	}
-
-	portalUnit, err := serve.portalUnitRepo.Find(worldId, position)
-	if err != nil {
-		return err
-	}
-	if portalUnit == nil {
 		return err
 	}
 	targetPosition := portalUnit.GetTargetPosition()
