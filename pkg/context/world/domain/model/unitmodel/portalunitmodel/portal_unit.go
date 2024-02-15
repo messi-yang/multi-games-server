@@ -3,15 +3,12 @@ package portalunitmodel
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type PortalUnit struct {
-	id             PortalUnitId
-	worldId        globalcommonmodel.WorldId
-	position       worldcommonmodel.Position
-	itemId         worldcommonmodel.ItemId
-	direction      worldcommonmodel.Direction
+	unitmodel.UnitEntity
 	targetPosition *worldcommonmodel.Position
 }
 
@@ -27,11 +24,16 @@ func NewPortalUnit(
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	return PortalUnit{
-		id:             id,
-		worldId:        worldId,
-		position:       position,
-		itemId:         itemId,
-		direction:      direction,
+		UnitEntity: unitmodel.NewUnitEntity(
+			unitmodel.NewUnitId(id.Uuid()),
+			worldId,
+			position,
+			itemId,
+			direction,
+			nil,
+			worldcommonmodel.NewPortalUnitType(),
+			nil,
+		),
 		targetPosition: targetPosition,
 	}
 }
@@ -45,49 +47,34 @@ func LoadPortalUnit(
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	return PortalUnit{
-		id:             id,
-		worldId:        worldId,
-		position:       position,
-		itemId:         itemId,
-		direction:      direction,
+		UnitEntity: unitmodel.LoadUnitEntity(
+			unitmodel.NewUnitId(id.Uuid()),
+			worldId,
+			position,
+			itemId,
+			direction,
+			nil,
+			worldcommonmodel.NewPortalUnitType(),
+			nil,
+		),
 		targetPosition: targetPosition,
 	}
 }
 
-func (portalUnit *PortalUnit) GetId() PortalUnitId {
-	return portalUnit.id
+func (unit *PortalUnit) GetId() PortalUnitId {
+	return NewPortalUnitId(unit.UnitEntity.GetId().Uuid())
 }
 
-func (portalUnit *PortalUnit) GetWorldId() globalcommonmodel.WorldId {
-	return portalUnit.worldId
+func (unit *PortalUnit) GetTargetPosition() *worldcommonmodel.Position {
+	return unit.targetPosition
 }
 
-func (portalUnit *PortalUnit) GetPosition() worldcommonmodel.Position {
-	return portalUnit.position
+func (unit *PortalUnit) UpdateTargetPosition(targetPosition *worldcommonmodel.Position) {
+	unit.targetPosition = targetPosition
 }
 
-func (portalUnit *PortalUnit) GetItemId() worldcommonmodel.ItemId {
-	return portalUnit.itemId
-}
-
-func (portalUnit *PortalUnit) GetDirection() worldcommonmodel.Direction {
-	return portalUnit.direction
-}
-
-func (portalUnit *PortalUnit) GetTargetPosition() *worldcommonmodel.Position {
-	return portalUnit.targetPosition
-}
-
-func (portalUnit *PortalUnit) UpdateTargetPosition(targetPosition *worldcommonmodel.Position) {
-	portalUnit.targetPosition = targetPosition
-}
-
-func (portalUnit *PortalUnit) Rotate() {
-	portalUnit.direction = portalUnit.direction.Rotate()
-}
-
-func (portalUnit *PortalUnit) GetInfoSnapshot() PortalUnitInfo {
-	if portalUnit.targetPosition == nil {
+func (unit *PortalUnit) GetInfoSnapshot() PortalUnitInfo {
+	if unit.targetPosition == nil {
 		return PortalUnitInfo{
 			TargetPos: nil,
 		}
@@ -97,12 +84,12 @@ func (portalUnit *PortalUnit) GetInfoSnapshot() PortalUnitInfo {
 				X int `json:"x"`
 				Z int `json:"z"`
 			}{
-				X: portalUnit.targetPosition.GetX(),
-				Z: portalUnit.targetPosition.GetZ(),
+				X: unit.targetPosition.GetX(),
+				Z: unit.targetPosition.GetZ(),
 			},
 		}
 	}
 }
 
-func (portalUnit *PortalUnit) Delete() {
+func (unit *PortalUnit) Delete() {
 }

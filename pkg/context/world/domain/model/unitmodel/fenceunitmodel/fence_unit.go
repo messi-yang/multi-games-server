@@ -3,15 +3,12 @@ package fenceunitmodel
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type FenceUnit struct {
-	id        FenceUnitId
-	worldId   globalcommonmodel.WorldId
-	position  worldcommonmodel.Position
-	itemId    worldcommonmodel.ItemId
-	direction worldcommonmodel.Direction
+	unitmodel.UnitEntity
 }
 
 // Interface Implementation Check
@@ -25,11 +22,16 @@ func NewFenceUnit(
 	direction worldcommonmodel.Direction,
 ) FenceUnit {
 	return FenceUnit{
-		id:        id,
-		worldId:   worldId,
-		position:  position,
-		itemId:    itemId,
-		direction: direction,
+		UnitEntity: unitmodel.NewUnitEntity(
+			unitmodel.NewUnitId(id.Uuid()),
+			worldId,
+			position,
+			itemId,
+			direction,
+			nil,
+			worldcommonmodel.NewFenceUnitType(),
+			nil,
+		),
 	}
 }
 
@@ -41,36 +43,21 @@ func LoadFenceUnit(
 	direction worldcommonmodel.Direction,
 ) FenceUnit {
 	return FenceUnit{
-		id:        id,
-		worldId:   worldId,
-		position:  position,
-		itemId:    itemId,
-		direction: direction,
+		UnitEntity: unitmodel.LoadUnitEntity(
+			unitmodel.NewUnitId(id.Uuid()),
+			worldId,
+			position,
+			itemId,
+			direction,
+			nil,
+			worldcommonmodel.NewFenceUnitType(),
+			nil,
+		),
 	}
 }
 
 func (unit *FenceUnit) GetId() FenceUnitId {
-	return unit.id
-}
-
-func (unit *FenceUnit) GetWorldId() globalcommonmodel.WorldId {
-	return unit.worldId
-}
-
-func (unit *FenceUnit) GetPosition() worldcommonmodel.Position {
-	return unit.position
-}
-
-func (unit *FenceUnit) GetItemId() worldcommonmodel.ItemId {
-	return unit.itemId
-}
-
-func (unit *FenceUnit) GetDirection() worldcommonmodel.Direction {
-	return unit.direction
-}
-
-func (unit *FenceUnit) Rotate() {
-	unit.direction = unit.direction.Rotate()
+	return NewFenceUnitId(unit.UnitEntity.GetId().Uuid())
 }
 
 func (unit *FenceUnit) Delete() {

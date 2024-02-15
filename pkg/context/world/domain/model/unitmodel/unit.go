@@ -9,14 +9,7 @@ import (
 // Unit here is only for reading purpose, for writing units,
 // please check the unit model of the type you are looking for.
 type Unit struct {
-	id        UnitId
-	worldId   globalcommonmodel.WorldId
-	position  worldcommonmodel.Position
-	itemId    worldcommonmodel.ItemId
-	direction worldcommonmodel.Direction
-	label     *string
-	_type     worldcommonmodel.UnitType
-	info      any
+	UnitEntity
 }
 
 // Interface Implementation Check
@@ -33,45 +26,18 @@ func LoadUnit(
 	info any,
 ) Unit {
 	return Unit{
-		id:        id,
-		worldId:   worldId,
-		position:  position,
-		itemId:    itemId,
-		direction: direction,
-		label:     label,
-		_type:     _type,
-		info:      info,
+		NewUnitEntity(id,
+			worldId,
+			position,
+			itemId,
+			direction,
+			label,
+			_type,
+			info,
+		),
 	}
 }
 
 func (unit *Unit) GetId() UnitId {
-	return unit.id
-}
-
-func (unit *Unit) GetWorldId() globalcommonmodel.WorldId {
-	return unit.worldId
-}
-
-func (unit *Unit) GetPosition() worldcommonmodel.Position {
-	return unit.position
-}
-
-func (unit *Unit) GetItemId() worldcommonmodel.ItemId {
-	return unit.itemId
-}
-
-func (unit *Unit) GetDirection() worldcommonmodel.Direction {
-	return unit.direction
-}
-
-func (unit *Unit) GetLabel() *string {
-	return unit.label
-}
-
-func (unit *Unit) GetInfo() any {
-	return unit.info
-}
-
-func (unit *Unit) GetType() worldcommonmodel.UnitType {
-	return unit._type
+	return unit.UnitEntity.GetId()
 }

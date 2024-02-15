@@ -3,17 +3,13 @@ package linkunitmodel
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type LinkUnit struct {
-	id        LinkUnitId
-	worldId   globalcommonmodel.WorldId
-	position  worldcommonmodel.Position
-	itemId    worldcommonmodel.ItemId
-	direction worldcommonmodel.Direction
-	label     *string
-	url       globalcommonmodel.Url
+	unitmodel.UnitEntity
+	url globalcommonmodel.Url
 }
 
 // Interface Implementation Check
@@ -29,13 +25,17 @@ func NewLinkUnit(
 	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
-		id:        id,
-		worldId:   worldId,
-		position:  position,
-		itemId:    itemId,
-		direction: direction,
-		label:     label,
-		url:       url,
+		UnitEntity: unitmodel.NewUnitEntity(
+			unitmodel.NewUnitId(id.Uuid()),
+			worldId,
+			position,
+			itemId,
+			direction,
+			nil,
+			worldcommonmodel.NewLinkUnitType(),
+			nil,
+		),
+		url: url,
 	}
 }
 
@@ -49,46 +49,26 @@ func LoadLinkUnit(
 	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
-		id:        id,
-		worldId:   worldId,
-		position:  position,
-		itemId:    itemId,
-		direction: direction,
-		label:     label,
-		url:       url,
+		UnitEntity: unitmodel.LoadUnitEntity(
+			unitmodel.NewUnitId(id.Uuid()),
+			worldId,
+			position,
+			itemId,
+			direction,
+			nil,
+			worldcommonmodel.NewLinkUnitType(),
+			nil,
+		),
+		url: url,
 	}
 }
 
 func (unit *LinkUnit) GetId() LinkUnitId {
-	return unit.id
-}
-
-func (unit *LinkUnit) GetWorldId() globalcommonmodel.WorldId {
-	return unit.worldId
-}
-
-func (unit *LinkUnit) GetPosition() worldcommonmodel.Position {
-	return unit.position
-}
-
-func (unit *LinkUnit) GetItemId() worldcommonmodel.ItemId {
-	return unit.itemId
-}
-
-func (unit *LinkUnit) GetDirection() worldcommonmodel.Direction {
-	return unit.direction
-}
-
-func (unit *LinkUnit) GetLabel() *string {
-	return unit.label
+	return NewLinkUnitId(unit.UnitEntity.GetId().Uuid())
 }
 
 func (unit *LinkUnit) GetUrl() globalcommonmodel.Url {
 	return unit.url
-}
-
-func (unit *LinkUnit) Rotate() {
-	unit.direction = unit.direction.Rotate()
 }
 
 func (unit *LinkUnit) Delete() {
