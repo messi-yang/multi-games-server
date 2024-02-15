@@ -6,17 +6,16 @@ import (
 )
 
 type Item struct {
-	id                   worldcommonmodel.ItemId
-	compatibleUnitType   worldcommonmodel.UnitType
-	name                 string
-	traversable          bool
-	thumbnailSrc         string
-	modelSources         []string
-	domainEventCollector *domain.DomainEventCollector
+	id                 worldcommonmodel.ItemId
+	compatibleUnitType worldcommonmodel.UnitType
+	name               string
+	traversable        bool
+	thumbnailSrc       string
+	modelSources       []string
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*Item)(nil)
+var _ domain.Aggregate[worldcommonmodel.ItemId] = (*Item)(nil)
 
 func LoadItem(
 	id worldcommonmodel.ItemId,
@@ -27,18 +26,13 @@ func LoadItem(
 	modelSources []string,
 ) Item {
 	return Item{
-		id:                   id,
-		compatibleUnitType:   compatibleUnitType,
-		name:                 name,
-		traversable:          traversable,
-		thumbnailSrc:         thumbnailSrc,
-		modelSources:         modelSources,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:                 id,
+		compatibleUnitType: compatibleUnitType,
+		name:               name,
+		traversable:        traversable,
+		thumbnailSrc:       thumbnailSrc,
+		modelSources:       modelSources,
 	}
-}
-
-func (item *Item) PopDomainEvents() []domain.DomainEvent {
-	return item.domainEventCollector.PopAll()
 }
 
 func (item *Item) GetId() worldcommonmodel.ItemId {

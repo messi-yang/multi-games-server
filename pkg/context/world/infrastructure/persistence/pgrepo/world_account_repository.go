@@ -50,25 +50,19 @@ func NewWorldAccountRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEvent
 
 func (repo *worldAccountRepo) Add(worldAccount worldaccountmodel.WorldAccount) error {
 	worldAccountModel := newModelFromWorldAccount(worldAccount)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&worldAccountModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&worldAccount)
+	})
 }
 
 func (repo *worldAccountRepo) Update(worldAccount worldaccountmodel.WorldAccount) error {
 	worldAccountModel := newModelFromWorldAccount(worldAccount)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.WorldAccountModel{}).Where(
 			"id = ?",
 			worldAccount.GetId().Uuid(),
 		).Select("*").Updates(worldAccountModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&worldAccount)
+	})
 }
 
 func (repo *worldAccountRepo) Get(worldAccountId worldaccountmodel.WorldAccountId) (worldAccount worldaccountmodel.WorldAccount, err error) {

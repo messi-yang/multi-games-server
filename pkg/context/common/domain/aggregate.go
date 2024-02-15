@@ -1,5 +1,5 @@
 package domain
 
-type Aggregate interface {
-	PopDomainEvents() []DomainEvent
+type Aggregate[T any] interface {
+	GetId() T
 }

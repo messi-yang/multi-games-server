@@ -7,16 +7,15 @@ import (
 )
 
 type FenceUnit struct {
-	id                   FenceUnitId
-	worldId              globalcommonmodel.WorldId
-	position             worldcommonmodel.Position
-	itemId               worldcommonmodel.ItemId
-	direction            worldcommonmodel.Direction
-	domainEventCollector *domain.DomainEventCollector
+	id        FenceUnitId
+	worldId   globalcommonmodel.WorldId
+	position  worldcommonmodel.Position
+	itemId    worldcommonmodel.ItemId
+	direction worldcommonmodel.Direction
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*FenceUnit)(nil)
+var _ domain.Aggregate[FenceUnitId] = (*FenceUnit)(nil)
 
 func NewFenceUnit(
 	id FenceUnitId,
@@ -26,12 +25,11 @@ func NewFenceUnit(
 	direction worldcommonmodel.Direction,
 ) FenceUnit {
 	return FenceUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		position:  position,
+		itemId:    itemId,
+		direction: direction,
 	}
 }
 
@@ -43,17 +41,12 @@ func LoadFenceUnit(
 	direction worldcommonmodel.Direction,
 ) FenceUnit {
 	return FenceUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		position:  position,
+		itemId:    itemId,
+		direction: direction,
 	}
-}
-
-func (unit *FenceUnit) PopDomainEvents() []domain.DomainEvent {
-	return unit.domainEventCollector.PopAll()
 }
 
 func (unit *FenceUnit) GetId() FenceUnitId {

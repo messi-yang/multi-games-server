@@ -82,15 +82,12 @@ func NewPortalUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDi
 
 func (repo *portalUnitRepo) Add(portalUnit portalunitmodel.PortalUnit) error {
 	portalUnitInfoModel, unitModel := newModelsFromPortalUnit(portalUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&portalUnitInfoModel).Error; err != nil {
 			return err
 		}
 		return transaction.Create(&unitModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&portalUnit)
+	})
 }
 
 func (repo *portalUnitRepo) Get(id portalunitmodel.PortalUnitId) (unit portalunitmodel.PortalUnit, err error) {
@@ -156,7 +153,7 @@ func (repo *portalUnitRepo) Find(
 
 func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error {
 	portalUnitInfoModel, unitModel := newModelsFromPortalUnit(portalUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			portalUnit.GetWorldId().Uuid(),
@@ -170,14 +167,11 @@ func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error 
 			"id = ?",
 			portalUnit.GetId().Uuid(),
 		).Select("*").Updates(portalUnitInfoModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&portalUnit)
+	})
 }
 
 func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error {
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			portalUnit.GetWorldId().Uuid(),
@@ -191,10 +185,7 @@ func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error 
 			"id = ?",
 			portalUnit.GetId().Uuid(),
 		).Delete(&pgmodel.PortalUnitInfoModel{}).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&portalUnit)
+	})
 }
 
 func (repo *portalUnitRepo) GetTopLeftMostUnitWithoutTarget(worldId globalcommonmodel.WorldId) (portalUnit *portalunitmodel.PortalUnit, err error) {

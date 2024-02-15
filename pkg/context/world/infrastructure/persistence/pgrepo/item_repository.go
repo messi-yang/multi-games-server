@@ -59,25 +59,19 @@ func NewItemRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 
 func (repo *itemRepo) Add(item itemmodel.Item) error {
 	itemModel := newModelFromItem(item)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&itemModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&item)
+	})
 }
 
 func (repo *itemRepo) Update(item itemmodel.Item) error {
 	itemModel := newModelFromItem(item)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.ItemModel{}).Where(
 			"id = ?",
 			item.GetId().Uuid(),
 		).Select("*").Updates(&itemModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&item)
+	})
 }
 
 func (repo *itemRepo) Get(itemId worldcommonmodel.ItemId) (item itemmodel.Item, err error) {

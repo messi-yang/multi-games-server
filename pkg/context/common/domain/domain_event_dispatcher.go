@@ -1,5 +1,5 @@
 package domain
 
 type DomainEventDispatcher interface {
-	Dispatch(Aggregate) error
+	Dispatch(DomainEventDispatchableAggregate) error
 }

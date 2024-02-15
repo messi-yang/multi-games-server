@@ -70,15 +70,12 @@ func NewLinkUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDisp
 
 func (repo *linkUnitRepo) Add(linkUnit linkunitmodel.LinkUnit) error {
 	linkUnitInfoModel, unitModel := newModelsFromLinkUnit(linkUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&linkUnitInfoModel).Error; err != nil {
 			return err
 		}
 		return transaction.Create(&unitModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&linkUnit)
+	})
 }
 
 func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.LinkUnit, err error) {
@@ -105,7 +102,7 @@ func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.L
 
 func (repo *linkUnitRepo) Update(linkUnit linkunitmodel.LinkUnit) error {
 	linkUnitInfoModel, unitModel := newModelsFromLinkUnit(linkUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			linkUnit.GetWorldId().Uuid(),
@@ -119,14 +116,11 @@ func (repo *linkUnitRepo) Update(linkUnit linkunitmodel.LinkUnit) error {
 			"id = ?",
 			linkUnit.GetId().Uuid(),
 		).Select("*").Updates(linkUnitInfoModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&linkUnit)
+	})
 }
 
 func (repo *linkUnitRepo) Delete(linkUnit linkunitmodel.LinkUnit) error {
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			linkUnit.GetWorldId().Uuid(),
@@ -140,8 +134,5 @@ func (repo *linkUnitRepo) Delete(linkUnit linkunitmodel.LinkUnit) error {
 			"id = ?",
 			linkUnit.GetId().Uuid(),
 		).Delete(&pgmodel.LinkUnitInfoModel{}).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&linkUnit)
+	})
 }

@@ -7,17 +7,16 @@ import (
 )
 
 type PortalUnit struct {
-	id                   PortalUnitId
-	worldId              globalcommonmodel.WorldId
-	position             worldcommonmodel.Position
-	itemId               worldcommonmodel.ItemId
-	direction            worldcommonmodel.Direction
-	targetPosition       *worldcommonmodel.Position
-	domainEventCollector *domain.DomainEventCollector
+	id             PortalUnitId
+	worldId        globalcommonmodel.WorldId
+	position       worldcommonmodel.Position
+	itemId         worldcommonmodel.ItemId
+	direction      worldcommonmodel.Direction
+	targetPosition *worldcommonmodel.Position
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*PortalUnit)(nil)
+var _ domain.Aggregate[PortalUnitId] = (*PortalUnit)(nil)
 
 func NewPortalUnit(
 	id PortalUnitId,
@@ -28,13 +27,12 @@ func NewPortalUnit(
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	return PortalUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		targetPosition:       targetPosition,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:             id,
+		worldId:        worldId,
+		position:       position,
+		itemId:         itemId,
+		direction:      direction,
+		targetPosition: targetPosition,
 	}
 }
 
@@ -47,18 +45,13 @@ func LoadPortalUnit(
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	return PortalUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		targetPosition:       targetPosition,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:             id,
+		worldId:        worldId,
+		position:       position,
+		itemId:         itemId,
+		direction:      direction,
+		targetPosition: targetPosition,
 	}
-}
-
-func (portalUnit *PortalUnit) PopDomainEvents() []domain.DomainEvent {
-	return portalUnit.domainEventCollector.PopAll()
 }
 
 func (portalUnit *PortalUnit) GetId() PortalUnitId {

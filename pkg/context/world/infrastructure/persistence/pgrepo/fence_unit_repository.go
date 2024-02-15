@@ -54,18 +54,14 @@ func NewFenceUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDis
 
 func (repo *fenceUnitRepo) Add(fenceUnit fenceunitmodel.FenceUnit) error {
 	unitModel := newModelFromFenceUnit(fenceUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&unitModel).Error
-	}); err != nil {
-		return err
-	}
-
-	return repo.domainEventDispatcher.Dispatch(&fenceUnit)
+	})
 }
 
 func (repo *fenceUnitRepo) Update(fenceUnit fenceunitmodel.FenceUnit) error {
 	unitModel := newModelFromFenceUnit(fenceUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			unitModel.WorldId,
@@ -73,11 +69,7 @@ func (repo *fenceUnitRepo) Update(fenceUnit fenceunitmodel.FenceUnit) error {
 			unitModel.PosZ,
 			pgmodel.UnitTypeEnumFence,
 		).Select("*").Updates(unitModel).Error
-	}); err != nil {
-		return err
-	}
-
-	return repo.domainEventDispatcher.Dispatch(&fenceUnit)
+	})
 }
 
 func (repo *fenceUnitRepo) Get(id fenceunitmodel.FenceUnitId) (unit fenceunitmodel.FenceUnit, err error) {
@@ -96,7 +88,7 @@ func (repo *fenceUnitRepo) Get(id fenceunitmodel.FenceUnitId) (unit fenceunitmod
 }
 
 func (repo *fenceUnitRepo) Delete(fenceUnit fenceunitmodel.FenceUnit) error {
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			fenceUnit.GetWorldId().Uuid(),
@@ -104,8 +96,5 @@ func (repo *fenceUnitRepo) Delete(fenceUnit fenceunitmodel.FenceUnit) error {
 			fenceUnit.GetPosition().GetZ(),
 			pgmodel.UnitTypeEnumFence,
 		).Delete(&pgmodel.UnitModel{}).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&fenceUnit)
+	})
 }

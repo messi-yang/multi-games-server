@@ -17,7 +17,7 @@ func NewDispatcher(uow pguow.Uow) domain.DomainEventDispatcher {
 	}
 }
 
-func (dispatch *Dispatch) Dispatch(aggregate domain.Aggregate) error {
+func (dispatch *Dispatch) Dispatch(aggregate domain.DomainEventDispatchableAggregate) error {
 	domainEvents := aggregate.PopDomainEvents()
 	for _, domainEvent := range domainEvents {
 		err := dispatch.mediator.Dispatch(dispatch.uow, domainEvent)

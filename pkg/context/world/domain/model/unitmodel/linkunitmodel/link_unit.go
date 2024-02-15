@@ -7,18 +7,17 @@ import (
 )
 
 type LinkUnit struct {
-	id                   LinkUnitId
-	worldId              globalcommonmodel.WorldId
-	position             worldcommonmodel.Position
-	itemId               worldcommonmodel.ItemId
-	direction            worldcommonmodel.Direction
-	label                *string
-	url                  globalcommonmodel.Url
-	domainEventCollector *domain.DomainEventCollector
+	id        LinkUnitId
+	worldId   globalcommonmodel.WorldId
+	position  worldcommonmodel.Position
+	itemId    worldcommonmodel.ItemId
+	direction worldcommonmodel.Direction
+	label     *string
+	url       globalcommonmodel.Url
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*LinkUnit)(nil)
+var _ domain.Aggregate[LinkUnitId] = (*LinkUnit)(nil)
 
 func NewLinkUnit(
 	id LinkUnitId,
@@ -30,14 +29,13 @@ func NewLinkUnit(
 	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		label:                label,
-		url:                  url,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		position:  position,
+		itemId:    itemId,
+		direction: direction,
+		label:     label,
+		url:       url,
 	}
 }
 
@@ -51,19 +49,14 @@ func LoadLinkUnit(
 	url globalcommonmodel.Url,
 ) LinkUnit {
 	return LinkUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		label:                label,
-		url:                  url,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		position:  position,
+		itemId:    itemId,
+		direction: direction,
+		label:     label,
+		url:       url,
 	}
-}
-
-func (unit *LinkUnit) PopDomainEvents() []domain.DomainEvent {
-	return unit.domainEventCollector.PopAll()
 }
 
 func (unit *LinkUnit) GetId() LinkUnitId {

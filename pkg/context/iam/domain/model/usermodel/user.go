@@ -8,17 +8,16 @@ import (
 )
 
 type User struct {
-	id                   globalcommonmodel.UserId
-	emailAddress         globalcommonmodel.EmailAddress
-	username             globalcommonmodel.Username
-	friendlyName         FriendlyName
-	createdAt            time.Time
-	updatedAt            time.Time
-	domainEventCollector *domain.DomainEventCollector
+	id           globalcommonmodel.UserId
+	emailAddress globalcommonmodel.EmailAddress
+	username     globalcommonmodel.Username
+	friendlyName FriendlyName
+	createdAt    time.Time
+	updatedAt    time.Time
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*User)(nil)
+var _ domain.Aggregate[globalcommonmodel.UserId] = (*User)(nil)
 
 func NewUser(
 	id globalcommonmodel.UserId,
@@ -27,13 +26,12 @@ func NewUser(
 	friendlyName FriendlyName,
 ) User {
 	return User{
-		id:                   id,
-		emailAddress:         emailAddress,
-		username:             username,
-		friendlyName:         friendlyName,
-		createdAt:            time.Now(),
-		updatedAt:            time.Now(),
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:           id,
+		emailAddress: emailAddress,
+		username:     username,
+		friendlyName: friendlyName,
+		createdAt:    time.Now(),
+		updatedAt:    time.Now(),
 	}
 }
 
@@ -46,19 +44,14 @@ func LoadUser(
 	updatedAt time.Time,
 ) User {
 	newUser := User{
-		id:                   id,
-		emailAddress:         emailAddress,
-		username:             username,
-		friendlyName:         friendlyName,
-		createdAt:            createdAt,
-		updatedAt:            updatedAt,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:           id,
+		emailAddress: emailAddress,
+		username:     username,
+		friendlyName: friendlyName,
+		createdAt:    createdAt,
+		updatedAt:    updatedAt,
 	}
 	return newUser
-}
-
-func (user *User) PopDomainEvents() []domain.DomainEvent {
-	return user.domainEventCollector.PopAll()
 }
 
 func (user *User) GetId() globalcommonmodel.UserId {

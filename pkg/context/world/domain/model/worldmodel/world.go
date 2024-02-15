@@ -20,7 +20,8 @@ type World struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*World)(nil)
+var _ domain.Aggregate[globalcommonmodel.WorldId] = (*World)(nil)
+var _ domain.DomainEventDispatchableAggregate = (*World)(nil)
 
 func NewWorld(
 	userId globalcommonmodel.UserId,

@@ -10,20 +10,19 @@ import (
 )
 
 type Player struct {
-	id                   PlayerId                  // Id of the player
-	worldId              globalcommonmodel.WorldId // The id of the world the player belongs to
-	userId               *globalcommonmodel.UserId
-	name                 string                   // The name of the player
-	heldItemId           *worldcommonmodel.ItemId // Optional, The item held by the player
-	action               PlayerAction
-	precisePosition      worldcommonmodel.PrecisePosition
-	createdAt            time.Time
-	updatedAt            time.Time
-	domainEventCollector *domain.DomainEventCollector
+	id              PlayerId                  // Id of the player
+	worldId         globalcommonmodel.WorldId // The id of the world the player belongs to
+	userId          *globalcommonmodel.UserId
+	name            string                   // The name of the player
+	heldItemId      *worldcommonmodel.ItemId // Optional, The item held by the player
+	action          PlayerAction
+	precisePosition worldcommonmodel.PrecisePosition
+	createdAt       time.Time
+	updatedAt       time.Time
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*Player)(nil)
+var _ domain.Aggregate[PlayerId] = (*Player)(nil)
 
 func NewPlayer(
 	worldId globalcommonmodel.WorldId,
@@ -42,10 +41,9 @@ func NewPlayer(
 			worldcommonmodel.NewDirection(0),
 			time.Now(),
 		),
-		precisePosition:      worldcommonmodel.NewPrecisePosition(0, 0),
-		createdAt:            time.Now(),
-		updatedAt:            time.Now(),
-		domainEventCollector: domain.NewDomainEventCollector(),
+		precisePosition: worldcommonmodel.NewPrecisePosition(0, 0),
+		createdAt:       time.Now(),
+		updatedAt:       time.Now(),
 	}
 }
 
@@ -62,22 +60,17 @@ func LoadPlayer(
 	updatedAt time.Time,
 ) Player {
 	player := Player{
-		id:                   id,
-		worldId:              worldId,
-		userId:               userId,
-		name:                 name,
-		heldItemId:           heldItemId,
-		action:               action,
-		precisePosition:      precisePosition,
-		createdAt:            createdAt,
-		updatedAt:            updatedAt,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:              id,
+		worldId:         worldId,
+		userId:          userId,
+		name:            name,
+		heldItemId:      heldItemId,
+		action:          action,
+		precisePosition: precisePosition,
+		createdAt:       createdAt,
+		updatedAt:       updatedAt,
 	}
 	return player
-}
-
-func (player *Player) PopDomainEvents() []domain.DomainEvent {
-	return player.domainEventCollector.PopAll()
 }
 
 func (player *Player) GetId() PlayerId {

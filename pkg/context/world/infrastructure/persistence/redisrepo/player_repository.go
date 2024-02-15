@@ -38,37 +38,26 @@ func NewPlayerRepo(domainEventDispatcher domain.DomainEventDispatcher) (reposito
 func (repo *playerRepo) Add(player playermodel.Player) error {
 	playerDto := dto.NewPlayerDto(player)
 	playerDtoBytes := string(jsonutil.Marshal(playerDto))
-	if err := repo.redisCache.Set(
+	return repo.redisCache.Set(
 		getPlayerCacheKey(player.GetWorldId(), player.GetId()),
 		playerDtoBytes,
 		60*time.Minute,
-	); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&player)
+	)
 }
 
 func (repo *playerRepo) Update(player playermodel.Player) error {
 	playerDto := dto.NewPlayerDto(player)
 	playerDtoBytes := string(jsonutil.Marshal(playerDto))
 
-	if err := repo.redisCache.Set(
+	return repo.redisCache.Set(
 		getPlayerCacheKey(player.GetWorldId(), player.GetId()),
 		playerDtoBytes,
 		60*time.Minute,
-	); err != nil {
-		return err
-	}
-
-	return repo.domainEventDispatcher.Dispatch(&player)
+	)
 }
 
 func (repo *playerRepo) Delete(player playermodel.Player) error {
-	if err := repo.redisCache.Del(getPlayerCacheKey(player.GetWorldId(), player.GetId())); err != nil {
-		return err
-	}
-
-	return repo.domainEventDispatcher.Dispatch(&player)
+	return repo.redisCache.Del(getPlayerCacheKey(player.GetWorldId(), player.GetId()))
 }
 
 func (repo *playerRepo) Get(worldId globalcommonmodel.WorldId, playerId playermodel.PlayerId) (player playermodel.Player, err error) {

@@ -9,19 +9,18 @@ import (
 // Unit here is only for reading purpose, for writing units,
 // please check the unit model of the type you are looking for.
 type Unit struct {
-	id                   UnitId
-	worldId              globalcommonmodel.WorldId
-	position             worldcommonmodel.Position
-	itemId               worldcommonmodel.ItemId
-	direction            worldcommonmodel.Direction
-	label                *string
-	_type                worldcommonmodel.UnitType
-	info                 any
-	domainEventCollector *domain.DomainEventCollector
+	id        UnitId
+	worldId   globalcommonmodel.WorldId
+	position  worldcommonmodel.Position
+	itemId    worldcommonmodel.ItemId
+	direction worldcommonmodel.Direction
+	label     *string
+	_type     worldcommonmodel.UnitType
+	info      any
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*Unit)(nil)
+var _ domain.Aggregate[UnitId] = (*Unit)(nil)
 
 func LoadUnit(
 	id UnitId,
@@ -34,20 +33,15 @@ func LoadUnit(
 	info any,
 ) Unit {
 	return Unit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		label:                label,
-		_type:                _type,
-		info:                 info,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		position:  position,
+		itemId:    itemId,
+		direction: direction,
+		label:     label,
+		_type:     _type,
+		info:      info,
 	}
-}
-
-func (unit *Unit) PopDomainEvents() []domain.DomainEvent {
-	return unit.domainEventCollector.PopAll()
 }
 
 func (unit *Unit) GetId() UnitId {

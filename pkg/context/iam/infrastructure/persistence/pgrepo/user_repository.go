@@ -63,26 +63,20 @@ func NewUserRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 
 func (repo *userRepo) Add(user usermodel.User) error {
 	userModel := newModelFromUser(user)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&userModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&user)
+	})
 }
 
 func (repo *userRepo) Update(user usermodel.User) error {
 	userModel := newModelFromUser(user)
 	userModel.UpdatedAt = time.Now()
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UserModel{}).Where(
 			"id = ?",
 			user.GetId().Uuid(),
 		).Select("*").Updates(&userModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&user)
+	})
 }
 
 func (repo *userRepo) Get(userId globalcommonmodel.UserId) (user usermodel.User, err error) {

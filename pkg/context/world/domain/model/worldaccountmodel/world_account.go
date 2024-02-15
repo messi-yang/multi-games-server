@@ -9,29 +9,27 @@ import (
 )
 
 type WorldAccount struct {
-	id                   WorldAccountId
-	userId               globalcommonmodel.UserId
-	worldsCount          int8
-	worldsCountLimit     int8
-	createdAt            time.Time
-	updatedAt            time.Time
-	domainEventCollector *domain.DomainEventCollector
+	id               WorldAccountId
+	userId           globalcommonmodel.UserId
+	worldsCount      int8
+	worldsCountLimit int8
+	createdAt        time.Time
+	updatedAt        time.Time
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*WorldAccount)(nil)
+var _ domain.Aggregate[WorldAccountId] = (*WorldAccount)(nil)
 
 func NewWorldAccount(
 	userId globalcommonmodel.UserId,
 ) WorldAccount {
 	return WorldAccount{
-		id:                   NewWorldAccountId(uuid.New()),
-		userId:               userId,
-		worldsCount:          0,
-		worldsCountLimit:     1,
-		createdAt:            time.Now(),
-		updatedAt:            time.Now(),
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:               NewWorldAccountId(uuid.New()),
+		userId:           userId,
+		worldsCount:      0,
+		worldsCountLimit: 1,
+		createdAt:        time.Now(),
+		updatedAt:        time.Now(),
 	}
 }
 
@@ -44,18 +42,13 @@ func LoadWorldAccount(
 	updatedAt time.Time,
 ) WorldAccount {
 	return WorldAccount{
-		id:                   id,
-		userId:               userId,
-		worldsCount:          worldsCount,
-		worldsCountLimit:     worldsCountLimit,
-		createdAt:            createdAt,
-		updatedAt:            updatedAt,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:               id,
+		userId:           userId,
+		worldsCount:      worldsCount,
+		worldsCountLimit: worldsCountLimit,
+		createdAt:        createdAt,
+		updatedAt:        updatedAt,
 	}
-}
-
-func (worldAccount *WorldAccount) PopDomainEvents() []domain.DomainEvent {
-	return worldAccount.domainEventCollector.PopAll()
 }
 
 func (worldAccount *WorldAccount) GetId() WorldAccountId {

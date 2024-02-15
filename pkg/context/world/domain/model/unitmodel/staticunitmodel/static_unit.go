@@ -7,16 +7,15 @@ import (
 )
 
 type StaticUnit struct {
-	id                   StaticUnitId
-	worldId              globalcommonmodel.WorldId
-	position             worldcommonmodel.Position
-	itemId               worldcommonmodel.ItemId
-	direction            worldcommonmodel.Direction
-	domainEventCollector *domain.DomainEventCollector
+	id        StaticUnitId
+	worldId   globalcommonmodel.WorldId
+	position  worldcommonmodel.Position
+	itemId    worldcommonmodel.ItemId
+	direction worldcommonmodel.Direction
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*StaticUnit)(nil)
+var _ domain.Aggregate[StaticUnitId] = (*StaticUnit)(nil)
 
 func NewStaticUnit(
 	id StaticUnitId,
@@ -26,12 +25,11 @@ func NewStaticUnit(
 	direction worldcommonmodel.Direction,
 ) StaticUnit {
 	return StaticUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		position:  position,
+		itemId:    itemId,
+		direction: direction,
 	}
 }
 
@@ -43,17 +41,12 @@ func LoadStaticUnit(
 	direction worldcommonmodel.Direction,
 ) StaticUnit {
 	return StaticUnit{
-		id:                   id,
-		worldId:              worldId,
-		position:             position,
-		itemId:               itemId,
-		direction:            direction,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		position:  position,
+		itemId:    itemId,
+		direction: direction,
 	}
-}
-
-func (staticUnit *StaticUnit) PopDomainEvents() []domain.DomainEvent {
-	return staticUnit.domainEventCollector.PopAll()
 }
 
 func (staticUnit *StaticUnit) GetId() StaticUnitId {

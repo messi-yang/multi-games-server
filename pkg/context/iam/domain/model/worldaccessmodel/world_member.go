@@ -9,17 +9,16 @@ import (
 )
 
 type WorldMember struct {
-	id                   WorldMemberId
-	worldId              globalcommonmodel.WorldId
-	userId               globalcommonmodel.UserId
-	role                 globalcommonmodel.WorldRole
-	createdAt            time.Time
-	updatedAt            time.Time
-	domainEventCollector *domain.DomainEventCollector
+	id        WorldMemberId
+	worldId   globalcommonmodel.WorldId
+	userId    globalcommonmodel.UserId
+	role      globalcommonmodel.WorldRole
+	createdAt time.Time
+	updatedAt time.Time
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate = (*WorldMember)(nil)
+var _ domain.Aggregate[WorldMemberId] = (*WorldMember)(nil)
 
 func NewWorldMember(
 	worldId globalcommonmodel.WorldId,
@@ -27,13 +26,12 @@ func NewWorldMember(
 	role globalcommonmodel.WorldRole,
 ) WorldMember {
 	newWorldRole := WorldMember{
-		id:                   NewWorldMemberId(uuid.New()),
-		worldId:              worldId,
-		userId:               userId,
-		role:                 role,
-		createdAt:            time.Now(),
-		updatedAt:            time.Now(),
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        NewWorldMemberId(uuid.New()),
+		worldId:   worldId,
+		userId:    userId,
+		role:      role,
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
 	}
 	return newWorldRole
 }
@@ -47,18 +45,13 @@ func LoadWorldMember(
 	updatedAt time.Time,
 ) WorldMember {
 	return WorldMember{
-		id:                   id,
-		worldId:              worldId,
-		userId:               userId,
-		role:                 role,
-		createdAt:            createdAt,
-		updatedAt:            updatedAt,
-		domainEventCollector: domain.NewDomainEventCollector(),
+		id:        id,
+		worldId:   worldId,
+		userId:    userId,
+		role:      role,
+		createdAt: createdAt,
+		updatedAt: updatedAt,
 	}
-}
-
-func (worldMember *WorldMember) PopDomainEvents() []domain.DomainEvent {
-	return worldMember.domainEventCollector.PopAll()
 }
 
 func (worldMember *WorldMember) GetId() WorldMemberId {

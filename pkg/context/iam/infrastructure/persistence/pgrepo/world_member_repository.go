@@ -53,12 +53,9 @@ func NewWorldMemberRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventD
 
 func (repo *worldMemberRepo) Add(worldMember worldaccessmodel.WorldMember) error {
 	worldMemberModel := newModelFromWorldMember(worldMember)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&worldMemberModel).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&worldMember)
+	})
 }
 
 func (repo *worldMemberRepo) Get(worldMemberId worldaccessmodel.WorldMemberId) (worldMember worldaccessmodel.WorldMember, err error) {
@@ -77,12 +74,9 @@ func (repo *worldMemberRepo) Get(worldMemberId worldaccessmodel.WorldMemberId) (
 }
 
 func (repo *worldMemberRepo) Delete(worldMember worldaccessmodel.WorldMember) error {
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Delete(&pgmodel.WorldMemberModel{}, worldMember.GetId().Uuid()).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&worldMember)
+	})
 }
 
 func (repo *worldMemberRepo) GetWorldMemberOfUser(

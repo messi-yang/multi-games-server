@@ -55,18 +55,14 @@ func NewStaticUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDi
 
 func (repo *staticUnitRepo) Add(staticUnit staticunitmodel.StaticUnit) error {
 	unitModel := newModelFromStaticUnit(staticUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&unitModel).Error
-	}); err != nil {
-		return err
-	}
-
-	return repo.domainEventDispatcher.Dispatch(&staticUnit)
+	})
 }
 
 func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error {
 	unitModel := newModelFromStaticUnit(staticUnit)
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			unitModel.WorldId,
@@ -74,11 +70,7 @@ func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error 
 			unitModel.PosZ,
 			pgmodel.UnitTypeEnumStatic,
 		).Select("*").Updates(unitModel).Error
-	}); err != nil {
-		return err
-	}
-
-	return repo.domainEventDispatcher.Dispatch(&staticUnit)
+	})
 }
 
 func (repo *staticUnitRepo) Get(id staticunitmodel.StaticUnitId) (unit staticunitmodel.StaticUnit, err error) {
@@ -97,7 +89,7 @@ func (repo *staticUnitRepo) Get(id staticunitmodel.StaticUnitId) (unit staticuni
 }
 
 func (repo *staticUnitRepo) Delete(staticUnit staticunitmodel.StaticUnit) error {
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			staticUnit.GetWorldId().Uuid(),
@@ -105,8 +97,5 @@ func (repo *staticUnitRepo) Delete(staticUnit staticunitmodel.StaticUnit) error 
 			staticUnit.GetPosition().GetZ(),
 			pgmodel.UnitTypeEnumStatic,
 		).Delete(&pgmodel.UnitModel{}).Error
-	}); err != nil {
-		return err
-	}
-	return repo.domainEventDispatcher.Dispatch(&staticUnit)
+	})
 }
