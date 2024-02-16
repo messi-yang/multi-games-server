@@ -31,7 +31,7 @@ func NewLinkUnit(
 			position,
 			itemId,
 			direction,
-			nil,
+			label,
 			worldcommonmodel.NewLinkUnitType(),
 			nil,
 		),
