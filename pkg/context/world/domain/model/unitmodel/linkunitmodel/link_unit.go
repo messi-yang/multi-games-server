@@ -55,7 +55,7 @@ func LoadLinkUnit(
 			position,
 			itemId,
 			direction,
-			nil,
+			label,
 			worldcommonmodel.NewLinkUnitType(),
 			nil,
 		),
