@@ -650,16 +650,10 @@ func (httpHandler *HttpHandler) sendEnterWorldCommandResponse(worldIdDto uuid.UU
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
 	worldAppService := world_provide_dependency.ProvideWorldAppService(uow)
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	userAppService := iam_provide_dependency.ProvideUserAppService(uow)
 
 	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
 		WorldId: worldIdDto,
 	})
-	if err != nil {
-		return err
-	}
-
-	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{UserId: worldDto.UserId})
 	if err != nil {
 		return err
 	}
@@ -686,7 +680,7 @@ func (httpHandler *HttpHandler) sendEnterWorldCommandResponse(worldIdDto uuid.UU
 
 	sendMessage(worldEnteredEvent{
 		Name:       worldEnteredEventName,
-		World:      viewmodel.WorldViewModel{WorldDto: worldDto, UserDto: userDto},
+		World:      viewmodel.WorldViewModel(worldDto),
 		Units:      unitDtos,
 		MyPlayerId: playerIdDto,
 		Players:    playerDtos,
