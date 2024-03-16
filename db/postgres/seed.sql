@@ -3,7 +3,8 @@ INSERT INTO unit_types (name)
         ('static'),
         ('portal'),
         ('fence'),
-        ('link')
+        ('link'),
+        ('embed')
     ON CONFLICT (name) DO NOTHING;
 
 
@@ -31,7 +32,8 @@ INSERT INTO items (id, name, traversable, created_at, updated_at, thumbnail_src,
         ('ea819f56-b710-441b-89ea-9941b8bb75a0', 'tetris square o', FALSE, Now(), Now(), '/asset/item/tetris_square_o/thumbnail.png', '{/asset/item/tetris_square_o/model.gltf}', 'static'),
         ('f00d5865-eedc-4b3a-ab46-d973a9e02010', 'tetris square s', FALSE, Now(), Now(), '/asset/item/tetris_square_s/thumbnail.png', '{/asset/item/tetris_square_s/model.gltf}', 'static'),
         ('13aeff97-4f5f-4c9c-9a4c-2a92d4ae6cf5', 'tetris square z', FALSE, Now(), Now(), '/asset/item/tetris_square_z/thumbnail.png', '{/asset/item/tetris_square_z/model.gltf}', 'static'),
-        ('2b694709-627a-4dfb-8f47-9435d46ef28f', 'tetris square t', FALSE, Now(), Now(), '/asset/item/tetris_square_t/thumbnail.png', '{/asset/item/tetris_square_t/model.gltf}', 'static')
+        ('2b694709-627a-4dfb-8f47-9435d46ef28f', 'tetris square t', FALSE, Now(), Now(), '/asset/item/tetris_square_t/thumbnail.png', '{/asset/item/tetris_square_t/model.gltf}', 'static'),
+        ('8e529a50-60b0-4b50-b165-49e0b5dbddc2', 'monitor', FALSE, Now(), Now(), '/asset/item/monitor/thumbnail.png', '{/asset/item/monitor/model.gltf}', 'embed')
     ON CONFLICT (id) DO UPDATE
         SET
             name = EXCLUDED.name,

@@ -1,10 +1,10 @@
-package linkunithttphandler
+package embedunithttphandler
 
 import (
 	"net/http"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/embedunitappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ func NewHttpHandler() *HttpHandler {
 	return &HttpHandler{}
 }
 
-func (httpHandler *HttpHandler) GetLinkUnitUrl(c *gin.Context) {
+func (httpHandler *HttpHandler) GetEmbedUnitEmbedCode(c *gin.Context) {
 	idDto, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
@@ -25,8 +25,8 @@ func (httpHandler *HttpHandler) GetLinkUnitUrl(c *gin.Context) {
 
 	pgUow := pguow.NewDummyUow()
 
-	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(pgUow)
-	url, err := linkUnitAppService.GetLinkUnitUrl(linkunitappsrv.GetLinkUnitUrlQuery{
+	embedUnitAppService := world_provide_dependency.ProvideEmbedUnitAppService(pgUow)
+	embedCode, err := embedUnitAppService.GetEmbedUnitEmbedCode(embedunitappsrv.GetEmbedUnitEmbedCodeQuery{
 		Id: idDto,
 	})
 	if err != nil {
@@ -34,7 +34,7 @@ func (httpHandler *HttpHandler) GetLinkUnitUrl(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, getLinkUnitResponse{
-		Url: url,
+	c.JSON(http.StatusOK, getEmbedUnitResponse{
+		EmbedCode: embedCode,
 	})
 }

@@ -35,6 +35,19 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: embed_unit_infos; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.embed_unit_infos (
+    id uuid NOT NULL,
+    world_id uuid NOT NULL,
+    embed_code character varying(2048)
+);
+
+
+ALTER TABLE public.embed_unit_infos OWNER TO main;
+
+--
 -- Name: items; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -58,7 +71,7 @@ ALTER TABLE public.items OWNER TO main;
 
 CREATE TABLE public.link_unit_infos (
     world_id uuid NOT NULL,
-    url character varying(2048),
+    url character varying(2048) NOT NULL,
     id uuid NOT NULL
 );
 
@@ -189,6 +202,14 @@ CREATE TABLE public.worlds (
 ALTER TABLE public.worlds OWNER TO main;
 
 --
+-- Name: embed_unit_infos embed_unit_infos_pkey; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.embed_unit_infos
+    ADD CONSTRAINT embed_unit_infos_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: world_accounts game_users_pkey; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -218,6 +239,14 @@ ALTER TABLE ONLY public.items
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: link_unit_infos link_unit_infos_pkey; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.link_unit_infos
+    ADD CONSTRAINT link_unit_infos_pkey PRIMARY KEY (id);
 
 
 --
@@ -330,6 +359,14 @@ CREATE INDEX world_roles_world_id_user_id ON public.world_members USING btree (w
 
 
 --
+-- Name: embed_unit_infos embed_unit_infos_world_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.embed_unit_infos
+    ADD CONSTRAINT embed_unit_infos_world_id_fkey FOREIGN KEY (world_id) REFERENCES public.worlds(id);
+
+
+--
 -- Name: units fk_item; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -391,6 +428,14 @@ ALTER TABLE ONLY public.portal_unit_infos
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT items_compatible_unit_type_unit_types_name FOREIGN KEY (compatible_unit_type) REFERENCES public.unit_types(name);
+
+
+--
+-- Name: link_unit_infos link_unit_infos_world_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.link_unit_infos
+    ADD CONSTRAINT link_unit_infos_world_id_fkey FOREIGN KEY (world_id) REFERENCES public.worlds(id);
 
 
 --

@@ -11,6 +11,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/userappsrv"
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/embedunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
@@ -299,6 +300,28 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					newWorldServerMessageChannel(worldIdDto),
 					jsonutil.Marshal(commandDto),
 				)
+			case createEmbedUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[createEmbedUnitCommand](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeCreateEmbedUnitCommand(
+					commandDto.UnitId,
+					worldIdDto,
+					commandDto.ItemId,
+					commandDto.Position,
+					commandDto.Direction,
+					commandDto.Label,
+					commandDto.EmbedCode,
+				); err != nil {
+					sendError(err)
+					break
+				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(commandDto),
+				)
 			case rotateUnitCommandName:
 				commandDto, err := jsonutil.Unmarshal[rotateUnitCommand](message)
 				if err != nil {
@@ -362,6 +385,20 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.UnitId); err != nil {
+					sendError(err)
+					break
+				}
+				httpHandler.redisServerMessageMediator.Send(
+					newWorldServerMessageChannel(worldIdDto),
+					jsonutil.Marshal(commandDto),
+				)
+			case removeEmbedUnitCommandName:
+				commandDto, err := jsonutil.Unmarshal[removeEmbedUnitCommand](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				if err = httpHandler.executeRemoveEmbedUnitCommand(commandDto.UnitId); err != nil {
 					sendError(err)
 					break
 				}
@@ -571,6 +608,48 @@ func (httpHandler *HttpHandler) executeRemoveLinkUnitCommand(idDto uuid.UUID) er
 
 	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(uow)
 	if err := linkUnitAppService.RemoveLinkUnit(linkunitappsrv.RemoveLinkUnitCommand{
+		Id: idDto,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeCreateEmbedUnitCommand(
+	idDto uuid.UUID,
+	worldIdDto uuid.UUID,
+	itemIdDto uuid.UUID,
+	positionDto world_dto.PositionDto,
+	directionDto int8,
+	label *string,
+	embedCode string,
+) error {
+	uow := pguow.NewUow()
+
+	embedUnitAppService := world_provide_dependency.ProvideEmbedUnitAppService(uow)
+	if err := embedUnitAppService.CreateEmbedUnit(embedunitappsrv.CreateEmbedUnitCommand{
+		Id:        idDto,
+		WorldId:   worldIdDto,
+		ItemId:    itemIdDto,
+		Position:  positionDto,
+		Direction: directionDto,
+		Label:     label,
+		EmbedCode: embedCode,
+	}); err != nil {
+		uow.RevertChanges()
+		return err
+	}
+	uow.SaveChanges()
+	return nil
+}
+
+func (httpHandler *HttpHandler) executeRemoveEmbedUnitCommand(idDto uuid.UUID) error {
+	uow := pguow.NewUow()
+
+	embedUnitAppService := world_provide_dependency.ProvideEmbedUnitAppService(uow)
+	if err := embedUnitAppService.RemoveEmbedUnit(embedunitappsrv.RemoveEmbedUnitCommand{
 		Id: idDto,
 	}); err != nil {
 		uow.RevertChanges()

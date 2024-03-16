@@ -13,6 +13,7 @@ const (
 	unitTypeFence  unitTypeValue = "fence"
 	unitTypePortal unitTypeValue = "portal"
 	unitTypeLink   unitTypeValue = "link"
+	unitTypeEmbed  unitTypeValue = "embed"
 )
 
 type UnitType struct {
@@ -40,6 +41,10 @@ func NewUnitType(value string) (UnitType, error) {
 		return UnitType{
 			value: unitTypeLink,
 		}, nil
+	case "embed":
+		return UnitType{
+			value: unitTypeEmbed,
+		}, nil
 	default:
 		return UnitType{}, fmt.Errorf("invalid UnitType: %s", value)
 	}
@@ -65,6 +70,11 @@ func NewLinkUnitType() UnitType {
 	return unitType
 }
 
+func NewEmbedUnitType() UnitType {
+	unitType, _ := NewUnitType(string(unitTypeEmbed))
+	return unitType
+}
+
 func (unitType UnitType) IsEqual(otherUnitType UnitType) bool {
 	return unitType.value == otherUnitType.value
 }
@@ -87,4 +97,8 @@ func (unitType UnitType) IsPortal() bool {
 
 func (unitType UnitType) IsLink() bool {
 	return unitType.value == unitTypeLink
+}
+
+func (unitType UnitType) IsEmbed() bool {
+	return unitType.value == unitTypeEmbed
 }

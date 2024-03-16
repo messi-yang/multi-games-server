@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/embedunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/linkunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
@@ -105,6 +106,10 @@ func Run() error {
 	linkUnitHttpHandler := linkunithttphandler.NewHttpHandler()
 	linkUnitRouterGroup := router.Group("/api/link-units")
 	linkUnitRouterGroup.GET("/:id", linkUnitHttpHandler.GetLinkUnitUrl)
+
+	embedUnitHttpHandler := embedunithttphandler.NewHttpHandler()
+	embedUnitRouterGroup := router.Group("/api/embed-units")
+	embedUnitRouterGroup.GET("/:id", embedUnitHttpHandler.GetEmbedUnitEmbedCode)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
 	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)
