@@ -25,7 +25,7 @@ INSERT INTO items (id, name, traversable, created_at, updated_at, thumbnail_src,
         ('d4d0850a-dbe0-451c-9e50-6ac280108d1c', 'cone', FALSE, Now(), Now(), '/asset/item/cone/thumbnail.png', '{/asset/item/cone/model.gltf}', 'static'),
         ('e495468b-e662-49cb-bc5b-96db204ad9d8', 'box', FALSE, Now(), Now(), '/asset/item/box/thumbnail.png', '{/asset/item/box/model.gltf}', 'static'),
         ('fb9d06f8-5d6d-4fa9-bdc5-ab760d55a442', 'potted plant', FALSE, Now(), Now(), '/asset/item/potted_plant/thumbnail.png', '{/asset/item/potted_plant/model.gltf}', 'static'), 
-        ('ec3bf2ba-6e38-4b68-8bb2-15ef4e2a60a3', 'link', FALSE, Now(), Now(), '/asset/item/link/thumbnail.png', '{/asset/item/link/model.gltf}', 'link'),
+        ('ec3bf2ba-6e38-4b68-8bb2-15ef4e2a60a3', 'telescope', FALSE, Now(), Now(), '/asset/item/telescope/thumbnail.png', '{/asset/item/telescope/model.gltf}', 'link'),
         ('bb767e60-a5ae-43e9-ae0f-2aea00a1684f', 'tetris square i', FALSE, Now(), Now(), '/asset/item/tetris_square_i/thumbnail.png', '{/asset/item/tetris_square_i/model.gltf}', 'static'),
         ('b8155233-7850-49ab-a155-46fdc6687210', 'tetris square j', FALSE, Now(), Now(), '/asset/item/tetris_square_j/thumbnail.png', '{/asset/item/tetris_square_j/model.gltf}', 'static'),
         ('4fb0af0c-d27c-4ca9-bf5d-b8eed40ac869', 'tetris square l', FALSE, Now(), Now(), '/asset/item/tetris_square_l/thumbnail.png', '{/asset/item/tetris_square_l/model.gltf}', 'static'),
@@ -33,7 +33,7 @@ INSERT INTO items (id, name, traversable, created_at, updated_at, thumbnail_src,
         ('f00d5865-eedc-4b3a-ab46-d973a9e02010', 'tetris square s', FALSE, Now(), Now(), '/asset/item/tetris_square_s/thumbnail.png', '{/asset/item/tetris_square_s/model.gltf}', 'static'),
         ('13aeff97-4f5f-4c9c-9a4c-2a92d4ae6cf5', 'tetris square z', FALSE, Now(), Now(), '/asset/item/tetris_square_z/thumbnail.png', '{/asset/item/tetris_square_z/model.gltf}', 'static'),
         ('2b694709-627a-4dfb-8f47-9435d46ef28f', 'tetris square t', FALSE, Now(), Now(), '/asset/item/tetris_square_t/thumbnail.png', '{/asset/item/tetris_square_t/model.gltf}', 'static'),
-        ('8e529a50-60b0-4b50-b165-49e0b5dbddc2', 'monitor', FALSE, Now(), Now(), '/asset/item/monitor/thumbnail.png', '{/asset/item/monitor/model.gltf}', 'embed')
+        ('8e529a50-60b0-4b50-b165-49e0b5dbddc2', 'television', FALSE, Now(), Now(), '/asset/item/television/thumbnail.png', '{/asset/item/television/model.gltf}', 'embed')
     ON CONFLICT (id) DO UPDATE
         SET
             name = EXCLUDED.name,
