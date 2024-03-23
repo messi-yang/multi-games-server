@@ -108,3 +108,9 @@ func (unit *UnitEntity) GetInfo() any {
 func (unit *UnitEntity) GetType() worldcommonmodel.UnitType {
 	return unit._type
 }
+
+func (unit *UnitEntity) GetOccupiedPositions() []worldcommonmodel.Position {
+	return []worldcommonmodel.Position{
+		unit.position,
+	}
+}

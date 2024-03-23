@@ -2,7 +2,9 @@ package pgmodel
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 )
 
 type OccupiedPositionModel struct {
@@ -17,12 +19,12 @@ func (OccupiedPositionModel) TableName() string {
 }
 
 func NewOccupiedPositionModels(unit unitmodel.UnitEntity) []OccupiedPositionModel {
-	return []OccupiedPositionModel{
-		{
+	return lo.Map(unit.GetOccupiedPositions(), func(position worldcommonmodel.Position, _ int) OccupiedPositionModel {
+		return OccupiedPositionModel{
 			WorldId: unit.GetWorldId().Uuid(),
 			PosX:    unit.GetPosition().GetX(),
 			PosZ:    unit.GetPosition().GetZ(),
 			UnitId:  unit.GetId().Uuid(),
-		},
-	}
+		}
+	})
 }
