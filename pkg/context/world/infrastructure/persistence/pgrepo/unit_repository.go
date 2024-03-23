@@ -12,25 +12,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func parseModelToUnit(unitModel pgmodel.UnitModel) (unit unitmodel.Unit, err error) {
-	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
-	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
-	unitType, err := worldcommonmodel.NewUnitType(string(unitModel.Type))
-	if err != nil {
-		return unit, err
-	}
-	return unitmodel.LoadUnit(
-		unitmodel.NewUnitId(unitModel.Id),
-		worldId,
-		pos,
-		worldcommonmodel.NewItemId(unitModel.ItemId),
-		worldcommonmodel.NewDirection(unitModel.Direction),
-		unitModel.Label,
-		unitType,
-		unitModel.InfoSnapshot,
-	), nil
-}
-
 type unitRepo struct {
 	uow                   pguow.Uow
 	domainEventDispatcher domain.DomainEventDispatcher
@@ -53,7 +34,7 @@ func (repo *unitRepo) Get(id unitmodel.UnitId) (unit unitmodel.Unit, err error) 
 	}); err != nil {
 		return unit, err
 	}
-	return parseModelToUnit(unitModel)
+	return pgmodel.ParseUnitModel(unitModel)
 }
 
 func (repo *unitRepo) Find(
@@ -76,7 +57,7 @@ func (repo *unitRepo) Find(
 		return nil, nil
 	}
 
-	unit, err := parseModelToUnit(unitModels[0])
+	unit, err := pgmodel.ParseUnitModel(unitModels[0])
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +79,6 @@ func (repo *unitRepo) GetUnitsOfWorld(
 	}
 
 	return commonutil.MapWithError(unitModels, func(_ int, unitModel pgmodel.UnitModel) (unitmodel.Unit, error) {
-		return parseModelToUnit(unitModel)
+		return pgmodel.ParseUnitModel(unitModel)
 	})
 }

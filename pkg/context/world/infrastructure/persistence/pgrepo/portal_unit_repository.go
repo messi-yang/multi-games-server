@@ -4,8 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
-	"github.com/jackc/pgtype"
-	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
@@ -13,61 +11,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
-
-func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.PortalUnitInfoModel, pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
-	targetPosition := portalUnit.GetTargetPosition()
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set(portalUnit.GetInfoSnapshot())
-
-	return pgmodel.PortalUnitInfoModel{
-			Id:      portalUnit.GetId().Uuid(),
-			WorldId: portalUnit.GetWorldId().Uuid(),
-			TargetPosX: lo.TernaryF(
-				targetPosition == nil,
-				func() *int { return nil },
-				func() *int { return commonutil.ToPointer(targetPosition.GetX()) },
-			),
-			TargetPosZ: lo.TernaryF(
-				targetPosition == nil,
-				func() *int { return nil },
-				func() *int { return commonutil.ToPointer(targetPosition.GetZ()) },
-			),
-		},
-		pgmodel.UnitModel{
-			Id:           portalUnit.GetId().Uuid(),
-			WorldId:      portalUnit.GetWorldId().Uuid(),
-			PosX:         portalUnit.GetPosition().GetX(),
-			PosZ:         portalUnit.GetPosition().GetZ(),
-			ItemId:       portalUnit.GetItemId().Uuid(),
-			Direction:    portalUnit.GetDirection().Int8(),
-			Type:         pgmodel.UnitTypeEnumPortal,
-			InfoSnapshot: unitInfoSnapshotJsonb,
-		},
-		pgmodel.NewOccupiedPositionsFromUnit(portalUnit.UnitEntity)
-}
-
-func parseModelsToPortalUnit(unitModel pgmodel.UnitModel, portalUnitInfoModel pgmodel.PortalUnitInfoModel) (unit portalunitmodel.PortalUnit, err error) {
-	worldId := globalcommonmodel.NewWorldId(portalUnitInfoModel.WorldId)
-	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
-	targetPosition := lo.TernaryF(
-		portalUnitInfoModel.TargetPosX == nil,
-		func() *worldcommonmodel.Position {
-			return nil
-		},
-		func() *worldcommonmodel.Position {
-			return commonutil.ToPointer(worldcommonmodel.NewPosition(*portalUnitInfoModel.TargetPosX, *portalUnitInfoModel.TargetPosZ))
-		},
-	)
-
-	return portalunitmodel.LoadPortalUnit(
-		portalunitmodel.NewPortalUnitId(portalUnitInfoModel.Id),
-		worldId,
-		pos,
-		worldcommonmodel.NewItemId(unitModel.ItemId),
-		worldcommonmodel.NewDirection(unitModel.Direction),
-		targetPosition,
-	), nil
-}
 
 type portalUnitRepo struct {
 	uow                   pguow.Uow
@@ -82,7 +25,10 @@ func NewPortalUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDi
 }
 
 func (repo *portalUnitRepo) Add(portalUnit portalunitmodel.PortalUnit) error {
-	portalUnitInfoModel, unitModel, occupiedPositionModels := newModelsFromPortalUnit(portalUnit)
+	portalUnitInfoModel := pgmodel.NewPortalUnitInfoModel(portalUnit)
+	unitModel := pgmodel.NewPortalUnitModel(portalUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(portalUnit.UnitEntity)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&portalUnitInfoModel).Error; err != nil {
 			return err
@@ -113,7 +59,7 @@ func (repo *portalUnitRepo) Get(id portalunitmodel.PortalUnitId) (unit portaluni
 		return unit, err
 	}
 
-	return parseModelsToPortalUnit(unitModel, portalUnitInfoModel)
+	return pgmodel.ParsePortalUnitModels(unitModel, portalUnitInfoModel)
 }
 
 func (repo *portalUnitRepo) Find(
@@ -147,7 +93,7 @@ func (repo *portalUnitRepo) Find(
 		return nil, err
 	}
 
-	portalUnit, err := parseModelsToPortalUnit(unitModel, portalUnitInfoModel)
+	portalUnit, err := pgmodel.ParsePortalUnitModels(unitModel, portalUnitInfoModel)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +102,9 @@ func (repo *portalUnitRepo) Find(
 }
 
 func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error {
-	portalUnitInfoModel, unitModel, _ := newModelsFromPortalUnit(portalUnit)
+	portalUnitInfoModel := pgmodel.NewPortalUnitInfoModel(portalUnit)
+	unitModel := pgmodel.NewPortalUnitModel(portalUnit)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
@@ -225,7 +173,7 @@ func (repo *portalUnitRepo) GetTopLeftMostUnitWithoutTarget(worldId globalcommon
 		return portalUnit, err
 	}
 
-	firstPortalUnitWithNoTarget, err := parseModelsToPortalUnit(unitModel, portalUnitInfoModels[0])
+	firstPortalUnitWithNoTarget, err := pgmodel.ParsePortalUnitModels(unitModel, portalUnitInfoModels[0])
 	if err != nil {
 		return nil, err
 	}

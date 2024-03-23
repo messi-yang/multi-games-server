@@ -2,57 +2,12 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
-
-func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInfoModel, pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-
-	return pgmodel.LinkUnitInfoModel{
-			Id:      linkUnit.GetId().Uuid(),
-			WorldId: linkUnit.GetWorldId().Uuid(),
-			Url:     linkUnit.GetUrl().String(),
-		},
-		pgmodel.UnitModel{
-			WorldId:      linkUnit.GetWorldId().Uuid(),
-			PosX:         linkUnit.GetPosition().GetX(),
-			PosZ:         linkUnit.GetPosition().GetZ(),
-			ItemId:       linkUnit.GetItemId().Uuid(),
-			Direction:    linkUnit.GetDirection().Int8(),
-			Label:        linkUnit.GetLabel(),
-			Type:         pgmodel.UnitTypeEnumLink,
-			Id:           linkUnit.GetId().Uuid(),
-			InfoSnapshot: unitInfoSnapshotJsonb,
-		},
-		pgmodel.NewOccupiedPositionsFromUnit(linkUnit.UnitEntity)
-}
-
-func parseModelsToLinkUnit(unitModel pgmodel.UnitModel, linkUnitInfoModel pgmodel.LinkUnitInfoModel) (unit linkunitmodel.LinkUnit, err error) {
-	worldId := globalcommonmodel.NewWorldId(linkUnitInfoModel.WorldId)
-	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
-	url, err := globalcommonmodel.NewUrl(linkUnitInfoModel.Url)
-	if err != nil {
-		return unit, err
-	}
-
-	return linkunitmodel.LoadLinkUnit(
-		linkunitmodel.NewLinkUnitId(linkUnitInfoModel.Id),
-		worldId,
-		pos,
-		worldcommonmodel.NewItemId(unitModel.ItemId),
-		worldcommonmodel.NewDirection(unitModel.Direction),
-		unitModel.Label,
-		url,
-	), nil
-}
 
 type linkUnitRepo struct {
 	uow                   pguow.Uow
@@ -70,7 +25,10 @@ func NewLinkUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDisp
 }
 
 func (repo *linkUnitRepo) Add(linkUnit linkunitmodel.LinkUnit) error {
-	linkUnitInfoModel, unitModel, occupiedPositionModels := newModelsFromLinkUnit(linkUnit)
+	linkUnitInfoModel := pgmodel.NewLinkUnitInfoModel(linkUnit)
+	unitModel := pgmodel.NewLinkUnitModel(linkUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(linkUnit.UnitEntity)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&linkUnitInfoModel).Error; err != nil {
 			return err
@@ -101,11 +59,13 @@ func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.L
 		return unit, err
 	}
 
-	return parseModelsToLinkUnit(unitModel, linkUnitInfoModel)
+	return pgmodel.ParseLinkUnitModels(unitModel, linkUnitInfoModel)
 }
 
 func (repo *linkUnitRepo) Update(linkUnit linkunitmodel.LinkUnit) error {
-	linkUnitInfoModel, unitModel, _ := newModelsFromLinkUnit(linkUnit)
+	linkUnitInfoModel := pgmodel.NewLinkUnitInfoModel(linkUnit)
+	unitModel := pgmodel.NewLinkUnitModel(linkUnit)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",

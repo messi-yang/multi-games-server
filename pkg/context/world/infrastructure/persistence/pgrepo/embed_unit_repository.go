@@ -2,57 +2,12 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/embedunitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
-
-func newModelsFromEmbedUnit(embedUnit embedunitmodel.EmbedUnit) (pgmodel.EmbedUnitInfoModel, pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-
-	return pgmodel.EmbedUnitInfoModel{
-			Id:        embedUnit.GetId().Uuid(),
-			WorldId:   embedUnit.GetWorldId().Uuid(),
-			EmbedCode: embedUnit.GetEmbedCode().String(),
-		},
-		pgmodel.UnitModel{
-			WorldId:      embedUnit.GetWorldId().Uuid(),
-			PosX:         embedUnit.GetPosition().GetX(),
-			PosZ:         embedUnit.GetPosition().GetZ(),
-			ItemId:       embedUnit.GetItemId().Uuid(),
-			Direction:    embedUnit.GetDirection().Int8(),
-			Label:        embedUnit.GetLabel(),
-			Type:         pgmodel.UnitTypeEnumEmbed,
-			Id:           embedUnit.GetId().Uuid(),
-			InfoSnapshot: unitInfoSnapshotJsonb,
-		},
-		pgmodel.NewOccupiedPositionsFromUnit(embedUnit.UnitEntity)
-}
-
-func parseModelsToEmbedUnit(unitModel pgmodel.UnitModel, embedUnitInfoModel pgmodel.EmbedUnitInfoModel) (unit embedunitmodel.EmbedUnit, err error) {
-	worldId := globalcommonmodel.NewWorldId(embedUnitInfoModel.WorldId)
-	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
-	embedCode, err := worldcommonmodel.NewEmbedCode(embedUnitInfoModel.EmbedCode)
-	if err != nil {
-		return unit, err
-	}
-
-	return embedunitmodel.LoadEmbedUnit(
-		embedunitmodel.NewEmbedUnitId(embedUnitInfoModel.Id),
-		worldId,
-		pos,
-		worldcommonmodel.NewItemId(unitModel.ItemId),
-		worldcommonmodel.NewDirection(unitModel.Direction),
-		unitModel.Label,
-		embedCode,
-	), nil
-}
 
 type embedUnitRepo struct {
 	uow                   pguow.Uow
@@ -70,7 +25,9 @@ func NewEmbedUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDis
 }
 
 func (repo *embedUnitRepo) Add(embedUnit embedunitmodel.EmbedUnit) error {
-	embedUnitInfoModel, unitModel, occupiedPositionModels := newModelsFromEmbedUnit(embedUnit)
+	embedUnitInfoModel := pgmodel.NewEmbedUnitInfoModel(embedUnit)
+	unitModel := pgmodel.NewEmbedUnitModel(embedUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(embedUnit.UnitEntity)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&embedUnitInfoModel).Error; err != nil {
 			return err
@@ -85,6 +42,7 @@ func (repo *embedUnitRepo) Add(embedUnit embedunitmodel.EmbedUnit) error {
 func (repo *embedUnitRepo) Get(id embedunitmodel.EmbedUnitId) (unit embedunitmodel.EmbedUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	embedUnitInfoModel := pgmodel.EmbedUnitInfoModel{}
+
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
 			"id = ? AND type = ?",
@@ -101,11 +59,13 @@ func (repo *embedUnitRepo) Get(id embedunitmodel.EmbedUnitId) (unit embedunitmod
 		return unit, err
 	}
 
-	return parseModelsToEmbedUnit(unitModel, embedUnitInfoModel)
+	return pgmodel.ParseEmbedUnitModels(unitModel, embedUnitInfoModel)
 }
 
 func (repo *embedUnitRepo) Update(embedUnit embedunitmodel.EmbedUnit) error {
-	embedUnitInfoModel, _, unitModel := newModelsFromEmbedUnit(embedUnit)
+	embedUnitInfoModel := pgmodel.NewEmbedUnitInfoModel(embedUnit)
+	unitModel := pgmodel.NewEmbedUnitModel(embedUnit)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",

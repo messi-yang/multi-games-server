@@ -1,9 +1,6 @@
 package pgrepo
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -15,35 +12,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
-
-func newModelFromItem(item itemmodel.Item) pgmodel.ItemModel {
-	return pgmodel.ItemModel{
-		Id:                 item.GetId().Uuid(),
-		CompatibleUnitType: pgmodel.UnitTypeEnum(item.GetCompatibleUnitType().String()),
-		Name:               item.GetName(),
-		Traversable:        item.GetTraversable(),
-		ThumbnailSrc:       item.GetThumbnailSrc(),
-		ModelSources:       item.GetModelSources(),
-	}
-}
-
-func parseModelToItem(itemModel pgmodel.ItemModel) (item itemmodel.Item, err error) {
-	serverUrl := os.Getenv("SERVER_URL")
-	compatibleUnitType, err := worldcommonmodel.NewUnitType(string(itemModel.CompatibleUnitType))
-	if err != nil {
-		return item, err
-	}
-	return itemmodel.LoadItem(
-		worldcommonmodel.NewItemId(itemModel.Id),
-		compatibleUnitType,
-		itemModel.Name,
-		itemModel.Traversable,
-		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
-		lo.Map(itemModel.ModelSources, func(modelSource string, _ int) string {
-			return fmt.Sprintf("%s%s", serverUrl, modelSource)
-		}),
-	), nil
-}
 
 type itemRepo struct {
 	uow                   pguow.Uow
@@ -58,14 +26,14 @@ func NewItemRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 }
 
 func (repo *itemRepo) Add(item itemmodel.Item) error {
-	itemModel := newModelFromItem(item)
+	itemModel := pgmodel.NewItemModel(item)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&itemModel).Error
 	})
 }
 
 func (repo *itemRepo) Update(item itemmodel.Item) error {
-	itemModel := newModelFromItem(item)
+	itemModel := pgmodel.NewItemModel(item)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.ItemModel{}).Where(
 			"id = ?",
@@ -82,7 +50,7 @@ func (repo *itemRepo) Get(itemId worldcommonmodel.ItemId) (item itemmodel.Item, 
 		return item, err
 	}
 
-	return parseModelToItem(itemModel)
+	return pgmodel.ParseItemModel(itemModel)
 }
 
 func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
@@ -94,7 +62,7 @@ func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 	}
 
 	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
-		return parseModelToItem(itemModel)
+		return pgmodel.ParseItemModel(itemModel)
 	})
 }
 
@@ -111,7 +79,7 @@ func (repo *itemRepo) GetItemsOfIds(itemIds []worldcommonmodel.ItemId) (items []
 	}
 
 	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
-		return parseModelToItem(itemModel)
+		return pgmodel.ParseItemModel(itemModel)
 	})
 }
 
@@ -127,7 +95,7 @@ func (repo *itemRepo) GetItemsOfCompatibleUnitType(compatibleUnitType worldcommo
 	}
 
 	return commonutil.MapWithError(itemModels, func(_ int, itemModel pgmodel.ItemModel) (itemmodel.Item, error) {
-		return parseModelToItem(itemModel)
+		return pgmodel.ParseItemModel(itemModel)
 	})
 }
 
@@ -139,5 +107,5 @@ func (repo *itemRepo) GetFirstItem() (item itemmodel.Item, err error) {
 		return item, err
 	}
 
-	return parseModelToItem(itemModel)
+	return pgmodel.ParseItemModel(itemModel)
 }

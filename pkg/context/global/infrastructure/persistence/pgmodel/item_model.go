@@ -1,10 +1,15 @@
 package pgmodel
 
 import (
+	"fmt"
+	"os"
 	"time"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/google/uuid"
 	pq "github.com/lib/pq"
+	"github.com/samber/lo"
 )
 
 type ItemModel struct {
@@ -20,4 +25,33 @@ type ItemModel struct {
 
 func (ItemModel) TableName() string {
 	return "items"
+}
+
+func NewItemModel(item itemmodel.Item) ItemModel {
+	return ItemModel{
+		Id:                 item.GetId().Uuid(),
+		CompatibleUnitType: UnitTypeEnum(item.GetCompatibleUnitType().String()),
+		Name:               item.GetName(),
+		Traversable:        item.GetTraversable(),
+		ThumbnailSrc:       item.GetThumbnailSrc(),
+		ModelSources:       item.GetModelSources(),
+	}
+}
+
+func ParseItemModel(itemModel ItemModel) (item itemmodel.Item, err error) {
+	serverUrl := os.Getenv("SERVER_URL")
+	compatibleUnitType, err := worldcommonmodel.NewUnitType(string(itemModel.CompatibleUnitType))
+	if err != nil {
+		return item, err
+	}
+	return itemmodel.LoadItem(
+		worldcommonmodel.NewItemId(itemModel.Id),
+		compatibleUnitType,
+		itemModel.Name,
+		itemModel.Traversable,
+		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
+		lo.Map(itemModel.ModelSources, func(modelSource string, _ int) string {
+			return fmt.Sprintf("%s%s", serverUrl, modelSource)
+		}),
+	), nil
 }

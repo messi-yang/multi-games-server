@@ -14,28 +14,6 @@ import (
 	"github.com/samber/lo"
 )
 
-func newModelFromWorldAccount(worldAccount worldaccountmodel.WorldAccount) pgmodel.WorldAccountModel {
-	return pgmodel.WorldAccountModel{
-		Id:               worldAccount.GetId().Uuid(),
-		UserId:           worldAccount.GetUserId().Uuid(),
-		WorldsCount:      worldAccount.GetWorldsCount(),
-		WorldsCountLimit: worldAccount.GetWorldsCountLimit(),
-		CreatedAt:        worldAccount.GetCreatedAt(),
-		UpdatedAt:        worldAccount.GetUpdatedAt(),
-	}
-}
-
-func parseModelToWorldAccount(worldAccountModel pgmodel.WorldAccountModel) worldaccountmodel.WorldAccount {
-	return worldaccountmodel.LoadWorldAccount(
-		worldaccountmodel.NewWorldAccountId(worldAccountModel.Id),
-		globalcommonmodel.NewUserId(worldAccountModel.UserId),
-		worldAccountModel.WorldsCount,
-		worldAccountModel.WorldsCountLimit,
-		worldAccountModel.CreatedAt,
-		worldAccountModel.UpdatedAt,
-	)
-}
-
 type worldAccountRepo struct {
 	uow                   pguow.Uow
 	domainEventDispatcher domain.DomainEventDispatcher
@@ -49,14 +27,14 @@ func NewWorldAccountRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEvent
 }
 
 func (repo *worldAccountRepo) Add(worldAccount worldaccountmodel.WorldAccount) error {
-	worldAccountModel := newModelFromWorldAccount(worldAccount)
+	worldAccountModel := pgmodel.NewWorldAccountModel(worldAccount)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&worldAccountModel).Error
 	})
 }
 
 func (repo *worldAccountRepo) Update(worldAccount worldaccountmodel.WorldAccount) error {
-	worldAccountModel := newModelFromWorldAccount(worldAccount)
+	worldAccountModel := pgmodel.NewWorldAccountModel(worldAccount)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.WorldAccountModel{}).Where(
 			"id = ?",
@@ -72,7 +50,7 @@ func (repo *worldAccountRepo) Get(worldAccountId worldaccountmodel.WorldAccountI
 	}); err != nil {
 		return worldAccount, err
 	}
-	return parseModelToWorldAccount(worldAccountModel), nil
+	return pgmodel.ParseWorldAccountModel(worldAccountModel), nil
 }
 
 func (repo *worldAccountRepo) GetWorldAccountOfUser(userId globalcommonmodel.UserId) (worldAccount worldaccountmodel.WorldAccount, err error) {
@@ -83,7 +61,7 @@ func (repo *worldAccountRepo) GetWorldAccountOfUser(userId globalcommonmodel.Use
 		return worldAccount, err
 	}
 
-	return parseModelToWorldAccount(worldAccountModel), nil
+	return pgmodel.ParseWorldAccountModel(worldAccountModel), nil
 }
 
 func (repo *worldAccountRepo) GetWorldAccountByUserId(userId globalcommonmodel.UserId) (*worldaccountmodel.WorldAccount, error) {
@@ -100,7 +78,7 @@ func (repo *worldAccountRepo) GetWorldAccountByUserId(userId globalcommonmodel.U
 		return nil, err
 	}
 
-	return commonutil.ToPointer(parseModelToWorldAccount(worldAccountModel)), nil
+	return commonutil.ToPointer(pgmodel.ParseWorldAccountModel(worldAccountModel)), nil
 }
 
 func (repo *worldAccountRepo) GetAll() (worldAccounts []worldaccountmodel.WorldAccount, err error) {
@@ -112,7 +90,7 @@ func (repo *worldAccountRepo) GetAll() (worldAccounts []worldaccountmodel.WorldA
 	}
 
 	worldAccounts = lo.Map(worldAccountModels, func(worldAccountModel pgmodel.WorldAccountModel, _ int) worldaccountmodel.WorldAccount {
-		return parseModelToWorldAccount(worldAccountModel)
+		return pgmodel.ParseWorldAccountModel(worldAccountModel)
 	})
 	return worldAccounts, nil
 }

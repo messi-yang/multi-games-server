@@ -3,6 +3,8 @@ package pgmodel
 import (
 	"time"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
 	"github.com/google/uuid"
 )
 
@@ -18,4 +20,26 @@ type WorldAccountModel struct {
 
 func (WorldAccountModel) TableName() string {
 	return "world_accounts"
+}
+
+func NewWorldAccountModel(worldAccount worldaccountmodel.WorldAccount) WorldAccountModel {
+	return WorldAccountModel{
+		Id:               worldAccount.GetId().Uuid(),
+		UserId:           worldAccount.GetUserId().Uuid(),
+		WorldsCount:      worldAccount.GetWorldsCount(),
+		WorldsCountLimit: worldAccount.GetWorldsCountLimit(),
+		CreatedAt:        worldAccount.GetCreatedAt(),
+		UpdatedAt:        worldAccount.GetUpdatedAt(),
+	}
+}
+
+func ParseWorldAccountModel(worldAccountModel WorldAccountModel) worldaccountmodel.WorldAccount {
+	return worldaccountmodel.LoadWorldAccount(
+		worldaccountmodel.NewWorldAccountId(worldAccountModel.Id),
+		globalcommonmodel.NewUserId(worldAccountModel.UserId),
+		worldAccountModel.WorldsCount,
+		worldAccountModel.WorldsCountLimit,
+		worldAccountModel.CreatedAt,
+		worldAccountModel.UpdatedAt,
+	)
 }

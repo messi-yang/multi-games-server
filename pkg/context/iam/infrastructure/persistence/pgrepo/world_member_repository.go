@@ -13,32 +13,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 )
 
-func newModelFromWorldMember(worldMember worldaccessmodel.WorldMember) pgmodel.WorldMemberModel {
-	return pgmodel.WorldMemberModel{
-		Id:        worldMember.GetId().Uuid(),
-		WorldId:   worldMember.GeWorldId().Uuid(),
-		UserId:    worldMember.GeUserId().Uuid(),
-		Role:      pgmodel.WorldRole(worldMember.GetRole().String()),
-		CreatedAt: worldMember.GetCreatedAt(),
-		UpdatedAt: worldMember.GetUpdatedAt(),
-	}
-}
-
-func parseModelToWorldMember(worldMemberModel pgmodel.WorldMemberModel) (worldMember worldaccessmodel.WorldMember, err error) {
-	worldRole, err := globalcommonmodel.NewWorldRole(string(worldMemberModel.Role))
-	if err != nil {
-		return worldMember, err
-	}
-	return worldaccessmodel.LoadWorldMember(
-		worldaccessmodel.NewWorldMemberId(worldMemberModel.Id),
-		globalcommonmodel.NewWorldId(worldMemberModel.WorldId),
-		globalcommonmodel.NewUserId(worldMemberModel.UserId),
-		worldRole,
-		worldMemberModel.CreatedAt,
-		worldMemberModel.UpdatedAt,
-	), nil
-}
-
 type worldMemberRepo struct {
 	uow                   pguow.Uow
 	domainEventDispatcher domain.DomainEventDispatcher
@@ -52,7 +26,7 @@ func NewWorldMemberRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventD
 }
 
 func (repo *worldMemberRepo) Add(worldMember worldaccessmodel.WorldMember) error {
-	worldMemberModel := newModelFromWorldMember(worldMember)
+	worldMemberModel := pgmodel.NewWorldMemberModel(worldMember)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&worldMemberModel).Error
 	})
@@ -65,7 +39,7 @@ func (repo *worldMemberRepo) Get(worldMemberId worldaccessmodel.WorldMemberId) (
 	}); err != nil {
 		return worldMember, err
 	}
-	worldMember, err = parseModelToWorldMember(worldMemberModel)
+	worldMember, err = pgmodel.ParseWorldMemberModel(worldMemberModel)
 	if err != nil {
 		return worldMember, err
 	}
@@ -96,7 +70,7 @@ func (repo *worldMemberRepo) GetWorldMemberOfUser(
 		}
 		return nil, err
 	}
-	worldMember, err := parseModelToWorldMember(worldMemberModel)
+	worldMember, err := pgmodel.ParseWorldMemberModel(worldMemberModel)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +89,7 @@ func (repo *worldMemberRepo) GetWorldMembersInWorld(worldId globalcommonmodel.Wo
 	}
 
 	worldMembers, err = commonutil.MapWithError(worldMemberModels, func(_ int, worldMemberModel pgmodel.WorldMemberModel) (worldMember worldaccessmodel.WorldMember, err error) {
-		return parseModelToWorldMember(worldMemberModel)
+		return pgmodel.ParseWorldMemberModel(worldMemberModel)
 	})
 	if err != nil {
 		return worldMembers, err

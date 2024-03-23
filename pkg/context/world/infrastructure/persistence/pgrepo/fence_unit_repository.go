@@ -2,43 +2,12 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
-
-func newModelFromFenceUnit(fenceUnit fenceunitmodel.FenceUnit) (pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-	return pgmodel.UnitModel{
-		Id:           fenceUnit.GetId().Uuid(),
-		WorldId:      fenceUnit.GetWorldId().Uuid(),
-		PosX:         fenceUnit.GetPosition().GetX(),
-		PosZ:         fenceUnit.GetPosition().GetZ(),
-		ItemId:       fenceUnit.GetItemId().Uuid(),
-		Direction:    fenceUnit.GetDirection().Int8(),
-		Type:         pgmodel.UnitTypeEnumFence,
-		InfoSnapshot: unitInfoSnapshotJsonb,
-	}, pgmodel.NewOccupiedPositionsFromUnit(fenceUnit.UnitEntity)
-}
-
-func parseModelToFenceUnit(unitModel pgmodel.UnitModel) (fenceunitmodel.FenceUnit, error) {
-	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
-	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
-
-	return fenceunitmodel.LoadFenceUnit(
-		fenceunitmodel.NewFenceUnitId(unitModel.Id),
-		worldId,
-		pos,
-		worldcommonmodel.NewItemId(unitModel.ItemId),
-		worldcommonmodel.NewDirection(unitModel.Direction),
-	), nil
-}
 
 type fenceUnitRepo struct {
 	uow                   pguow.Uow
@@ -53,7 +22,9 @@ func NewFenceUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDis
 }
 
 func (repo *fenceUnitRepo) Add(fenceUnit fenceunitmodel.FenceUnit) error {
-	unitModel, occupiedPositionModels := newModelFromFenceUnit(fenceUnit)
+	unitModel := pgmodel.NewFenceUnitModel(fenceUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(fenceUnit.UnitEntity)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&unitModel).Error; err != nil {
 			return err
@@ -63,7 +34,8 @@ func (repo *fenceUnitRepo) Add(fenceUnit fenceunitmodel.FenceUnit) error {
 }
 
 func (repo *fenceUnitRepo) Update(fenceUnit fenceunitmodel.FenceUnit) error {
-	unitModel, _ := newModelFromFenceUnit(fenceUnit)
+	unitModel := pgmodel.NewFenceUnitModel(fenceUnit)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
@@ -87,7 +59,7 @@ func (repo *fenceUnitRepo) Get(id fenceunitmodel.FenceUnitId) (unit fenceunitmod
 		return unit, err
 	}
 
-	return parseModelToFenceUnit(unitModel)
+	return pgmodel.ParseFenceUnitModels(unitModel)
 }
 
 func (repo *fenceUnitRepo) Delete(fenceUnit fenceunitmodel.FenceUnit) error {

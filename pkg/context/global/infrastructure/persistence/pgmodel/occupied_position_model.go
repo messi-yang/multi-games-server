@@ -16,7 +16,7 @@ func (OccupiedPositionModel) TableName() string {
 	return "occupied_positions"
 }
 
-func NewOccupiedPositionsFromUnit(unit unitmodel.UnitEntity) []OccupiedPositionModel {
+func NewOccupiedPositionModels(unit unitmodel.UnitEntity) []OccupiedPositionModel {
 	return []OccupiedPositionModel{
 		{
 			WorldId: unit.GetWorldId().Uuid(),

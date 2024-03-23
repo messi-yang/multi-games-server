@@ -15,40 +15,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func newModelFromUser(user usermodel.User) pgmodel.UserModel {
-	return pgmodel.UserModel{
-		Id:           user.GetId().Uuid(),
-		EmailAddress: user.GetEmailAddress().String(),
-		Username:     user.GetUsername().String(),
-		FriendlyName: user.GetFriendlyName().String(),
-		CreatedAt:    user.GetCreatedAt(),
-		UpdatedAt:    user.GetUpdatedAt(),
-	}
-}
-
-func parseModelToUser(userModel pgmodel.UserModel) (user usermodel.User, err error) {
-	emailAddress, err := globalcommonmodel.NewEmailAddress(userModel.EmailAddress)
-	if err != nil {
-		return user, err
-	}
-	username, err := globalcommonmodel.NewUsername(userModel.Username)
-	if err != nil {
-		return user, err
-	}
-	friendlyName, err := usermodel.NewFriendlyName(userModel.FriendlyName)
-	if err != nil {
-		return user, err
-	}
-	return usermodel.LoadUser(
-		globalcommonmodel.NewUserId(userModel.Id),
-		emailAddress,
-		username,
-		friendlyName,
-		userModel.CreatedAt,
-		userModel.UpdatedAt,
-	), nil
-}
-
 type userRepo struct {
 	uow                   pguow.Uow
 	domainEventDispatcher domain.DomainEventDispatcher
@@ -62,14 +28,14 @@ func NewUserRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 }
 
 func (repo *userRepo) Add(user usermodel.User) error {
-	userModel := newModelFromUser(user)
+	userModel := pgmodel.NewUserModel(user)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&userModel).Error
 	})
 }
 
 func (repo *userRepo) Update(user usermodel.User) error {
-	userModel := newModelFromUser(user)
+	userModel := pgmodel.NewUserModel(user)
 	userModel.UpdatedAt = time.Now()
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UserModel{}).Where(
@@ -87,7 +53,7 @@ func (repo *userRepo) Get(userId globalcommonmodel.UserId) (user usermodel.User,
 		return user, err
 	}
 
-	return parseModelToUser(userModel)
+	return pgmodel.ParseUserModel(userModel)
 }
 
 func (repo *userRepo) GetUserByEmailAddress(emailAddress globalcommonmodel.EmailAddress) (*usermodel.User, error) {
@@ -104,7 +70,7 @@ func (repo *userRepo) GetUserByEmailAddress(emailAddress globalcommonmodel.Email
 		return nil, err
 	}
 
-	user, err := parseModelToUser(userModel)
+	user, err := pgmodel.ParseUserModel(userModel)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +90,7 @@ func (repo *userRepo) GetUsersOfIds(userIds []globalcommonmodel.UserId) ([]userm
 	}
 
 	users, err := commonutil.MapWithError(userModels, func(_ int, userModel pgmodel.UserModel) (usermodel.User, error) {
-		return parseModelToUser(userModel)
+		return pgmodel.ParseUserModel(userModel)
 	})
 	if err != nil {
 		return nil, err
