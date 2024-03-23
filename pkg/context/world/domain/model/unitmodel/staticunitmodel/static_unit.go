@@ -20,6 +20,7 @@ func NewStaticUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 ) StaticUnit {
 	return StaticUnit{
 		unitmodel.NewUnitEntity(
@@ -28,6 +29,7 @@ func NewStaticUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			nil,
 			worldcommonmodel.NewStaticUnitType(),
 			nil,
@@ -41,6 +43,7 @@ func LoadStaticUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 ) StaticUnit {
 	return StaticUnit{
 		unitmodel.LoadUnitEntity(
@@ -49,6 +52,7 @@ func LoadStaticUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			nil,
 			worldcommonmodel.NewStaticUnitType(),
 			nil,

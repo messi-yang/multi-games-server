@@ -86,10 +86,10 @@ func (embedUnitServe *embedUnitServe) CreateEmbedUnit(
 		return err
 	}
 	if unit != nil {
-		return nil
+		return errPositionAlreadyHasUnit
 	}
 
-	newEmbedUnit := embedunitmodel.NewEmbedUnit(id, worldId, position, itemId, direction, label, embedCode)
+	newEmbedUnit := embedunitmodel.NewEmbedUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, embedCode)
 	return embedUnitServe.embedUnitRepo.Add(newEmbedUnit)
 }
 

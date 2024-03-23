@@ -16,15 +16,17 @@ import (
 )
 
 type UnitModel struct {
-	Id           uuid.UUID    `gorm:"not null"`
-	WorldId      uuid.UUID    `gorm:"not null"`
-	PosX         int          `gorm:"not null"`
-	PosZ         int          `gorm:"not null"`
-	ItemId       uuid.UUID    `gorm:"not null"`
-	Direction    int8         `gorm:"not null"`
-	Label        *string      `gorm:""`
-	Type         UnitTypeEnum `gorm:"not null"`
-	InfoSnapshot pgtype.JSONB `gorm:"type:jsonb;not null"`
+	Id             uuid.UUID    `gorm:"not null"`
+	WorldId        uuid.UUID    `gorm:"not null"`
+	PosX           int          `gorm:"not null"`
+	PosZ           int          `gorm:"not null"`
+	ItemId         uuid.UUID    `gorm:"not null"`
+	Direction      int8         `gorm:"not null"`
+	DimensionWidth int8         `gorm:"not null"`
+	DimensionDepth int8         `gorm:"not null"`
+	Label          *string      `gorm:""`
+	Type           UnitTypeEnum `gorm:"not null"`
+	InfoSnapshot   pgtype.JSONB `gorm:"type:jsonb;not null"`
 }
 
 func (UnitModel) TableName() string {
@@ -38,32 +40,40 @@ func ParseUnitModel(unitModel UnitModel) (unit unitmodel.Unit, err error) {
 	if err != nil {
 		return unit, err
 	}
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
+
 	return unitmodel.LoadUnit(
 		unitmodel.NewUnitId(unitModel.Id),
 		worldId,
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
 		unitModel.Label,
 		unitType,
 		unitModel.InfoSnapshot,
 	), nil
 }
 
-func NewEmbedUnitModel(embedUnit embedunitmodel.EmbedUnit) UnitModel {
+func NewEmbedUnitModel(unit embedunitmodel.EmbedUnit) UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 
 	return UnitModel{
-		WorldId:      embedUnit.GetWorldId().Uuid(),
-		PosX:         embedUnit.GetPosition().GetX(),
-		PosZ:         embedUnit.GetPosition().GetZ(),
-		ItemId:       embedUnit.GetItemId().Uuid(),
-		Direction:    embedUnit.GetDirection().Int8(),
-		Label:        embedUnit.GetLabel(),
-		Type:         UnitTypeEnumEmbed,
-		Id:           embedUnit.GetId().Uuid(),
-		InfoSnapshot: unitInfoSnapshotJsonb,
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Label:          unit.GetLabel(),
+		Type:           UnitTypeEnumEmbed,
+		Id:             unit.GetId().Uuid(),
+		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -74,6 +84,10 @@ func ParseEmbedUnitModels(unitModel UnitModel, embedUnitInfoModel EmbedUnitInfoM
 	if err != nil {
 		return unit, err
 	}
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
 
 	return embedunitmodel.LoadEmbedUnit(
 		embedunitmodel.NewEmbedUnitId(embedUnitInfoModel.Id),
@@ -81,30 +95,37 @@ func ParseEmbedUnitModels(unitModel UnitModel, embedUnitInfoModel EmbedUnitInfoM
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
 		unitModel.Label,
 		embedCode,
 	), nil
 }
 
-func NewFenceUnitModel(embedUnit fenceunitmodel.FenceUnit) UnitModel {
+func NewFenceUnitModel(unit fenceunitmodel.FenceUnit) UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 
 	return UnitModel{
-		Id:           embedUnit.GetId().Uuid(),
-		WorldId:      embedUnit.GetWorldId().Uuid(),
-		PosX:         embedUnit.GetPosition().GetX(),
-		PosZ:         embedUnit.GetPosition().GetZ(),
-		ItemId:       embedUnit.GetItemId().Uuid(),
-		Direction:    embedUnit.GetDirection().Int8(),
-		Type:         UnitTypeEnumFence,
-		InfoSnapshot: unitInfoSnapshotJsonb,
+		Id:             unit.GetId().Uuid(),
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Type:           UnitTypeEnumFence,
+		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
-func ParseFenceUnitModels(unitModel UnitModel) (fenceunitmodel.FenceUnit, error) {
+func ParseFenceUnitModels(unitModel UnitModel) (unit fenceunitmodel.FenceUnit, err error) {
 	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
 
 	return fenceunitmodel.LoadFenceUnit(
 		fenceunitmodel.NewFenceUnitId(unitModel.Id),
@@ -112,23 +133,26 @@ func ParseFenceUnitModels(unitModel UnitModel) (fenceunitmodel.FenceUnit, error)
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
 	), nil
 }
 
-func NewLinkUnitModel(linkUnit linkunitmodel.LinkUnit) UnitModel {
+func NewLinkUnitModel(unit linkunitmodel.LinkUnit) UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 
 	return UnitModel{
-		WorldId:      linkUnit.GetWorldId().Uuid(),
-		PosX:         linkUnit.GetPosition().GetX(),
-		PosZ:         linkUnit.GetPosition().GetZ(),
-		ItemId:       linkUnit.GetItemId().Uuid(),
-		Direction:    linkUnit.GetDirection().Int8(),
-		Label:        linkUnit.GetLabel(),
-		Type:         UnitTypeEnumLink,
-		Id:           linkUnit.GetId().Uuid(),
-		InfoSnapshot: unitInfoSnapshotJsonb,
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Label:          unit.GetLabel(),
+		Type:           UnitTypeEnumLink,
+		Id:             unit.GetId().Uuid(),
+		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -139,6 +163,10 @@ func ParseLinkUnitModels(unitModel UnitModel, linkUnitInfoModel LinkUnitInfoMode
 	if err != nil {
 		return unit, err
 	}
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
 
 	return linkunitmodel.LoadLinkUnit(
 		linkunitmodel.NewLinkUnitId(linkUnitInfoModel.Id),
@@ -146,24 +174,27 @@ func ParseLinkUnitModels(unitModel UnitModel, linkUnitInfoModel LinkUnitInfoMode
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
 		unitModel.Label,
 		url,
 	), nil
 }
 
-func NewPortalUnitModel(portalUnit portalunitmodel.PortalUnit) UnitModel {
+func NewPortalUnitModel(unit portalunitmodel.PortalUnit) UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set(portalUnit.GetInfoSnapshot())
+	unitInfoSnapshotJsonb.Set(unit.GetInfoSnapshot())
 
 	return UnitModel{
-		Id:           portalUnit.GetId().Uuid(),
-		WorldId:      portalUnit.GetWorldId().Uuid(),
-		PosX:         portalUnit.GetPosition().GetX(),
-		PosZ:         portalUnit.GetPosition().GetZ(),
-		ItemId:       portalUnit.GetItemId().Uuid(),
-		Direction:    portalUnit.GetDirection().Int8(),
-		Type:         UnitTypeEnumPortal,
-		InfoSnapshot: unitInfoSnapshotJsonb,
+		Id:             unit.GetId().Uuid(),
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Type:           UnitTypeEnumPortal,
+		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -179,6 +210,10 @@ func ParsePortalUnitModels(unitModel UnitModel, portalUnitInfoModel PortalUnitIn
 			return commonutil.ToPointer(worldcommonmodel.NewPosition(*portalUnitInfoModel.TargetPosX, *portalUnitInfoModel.TargetPosZ))
 		},
 	)
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
 
 	return portalunitmodel.LoadPortalUnit(
 		portalunitmodel.NewPortalUnitId(portalUnitInfoModel.Id),
@@ -186,29 +221,36 @@ func ParsePortalUnitModels(unitModel UnitModel, portalUnitInfoModel PortalUnitIn
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
 		targetPosition,
 	), nil
 }
 
-func NewStaticUnitModel(staticUnit staticunitmodel.StaticUnit) UnitModel {
+func NewStaticUnitModel(unit staticunitmodel.StaticUnit) UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 
 	return UnitModel{
-		Id:           staticUnit.GetId().Uuid(),
-		WorldId:      staticUnit.GetWorldId().Uuid(),
-		PosX:         staticUnit.GetPosition().GetX(),
-		PosZ:         staticUnit.GetPosition().GetZ(),
-		ItemId:       staticUnit.GetItemId().Uuid(),
-		Direction:    staticUnit.GetDirection().Int8(),
-		Type:         UnitTypeEnumStatic,
-		InfoSnapshot: unitInfoSnapshotJsonb,
+		Id:             unit.GetId().Uuid(),
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Type:           UnitTypeEnumStatic,
+		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
-func ParseStaticUnitModels(unitModel UnitModel) (staticunitmodel.StaticUnit, error) {
+func ParseStaticUnitModels(unitModel UnitModel) (unit staticunitmodel.StaticUnit, err error) {
 	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
 
 	return staticunitmodel.LoadStaticUnit(
 		staticunitmodel.NewStaticUnitId(unitModel.Id),
@@ -216,5 +258,6 @@ func ParseStaticUnitModels(unitModel UnitModel) (staticunitmodel.StaticUnit, err
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
 	), nil
 }

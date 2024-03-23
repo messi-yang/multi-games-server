@@ -88,6 +88,7 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 				position,
 				itemsForStaticUnitType[randomInt].GetId(),
 				worldcommonmodel.NewDownDirection(),
+				itemsForStaticUnitType[randomInt].GetDimension(),
 			)
 			if err = worldServe.staticUnitRepo.Add(newStaticUnit); err != nil {
 				return err
@@ -103,21 +104,4 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 
 func (worldServe *worldServe) DeleteWorld(worldId globalcommonmodel.WorldId) error {
 	return ErrDeleteNotWorking
-	// unitsInWorld, err := worldServe.unitRepo.GetUnitsOfWorld(worldId)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// for _, unit := range unitsInWorld {
-	// 	if err = worldServe.unitRepo.Delete(unit); err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// world, err := worldServe.worldRepo.Get(worldId)
-	// if err != nil {
-	// 	return err
-	// }
-	// world.Delete()
-	// return worldServe.worldRepo.Delete(world)
 }

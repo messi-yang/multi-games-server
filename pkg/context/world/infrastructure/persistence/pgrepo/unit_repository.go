@@ -41,23 +41,31 @@ func (repo *unitRepo) Find(
 	worldId globalcommonmodel.WorldId,
 	position worldcommonmodel.Position,
 ) (*unitmodel.Unit, error) {
-	unitModels := []pgmodel.UnitModel{}
+	occupiedPositionModels := []pgmodel.OccupiedPositionModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
 			worldId.Uuid(),
 			position.GetX(),
 			position.GetZ(),
-		).Limit(1).Find(&unitModels).Error
+		).Limit(1).Find(&occupiedPositionModels).Error
 	}); err != nil {
 		return nil, err
 	}
 
-	if len(unitModels) == 0 {
+	if len(occupiedPositionModels) == 0 {
 		return nil, nil
 	}
 
-	unit, err := pgmodel.ParseUnitModel(unitModels[0])
+	unitId := occupiedPositionModels[0].UnitId
+	unitModel := pgmodel.UnitModel{Id: unitId}
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.First(&unitModel).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	unit, err := pgmodel.ParseUnitModel(unitModel)
 	if err != nil {
 		return nil, err
 	}

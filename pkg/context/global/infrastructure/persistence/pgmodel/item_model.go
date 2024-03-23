@@ -16,6 +16,8 @@ type ItemModel struct {
 	Id                 uuid.UUID      `gorm:"primaryKey"`
 	CompatibleUnitType UnitTypeEnum   `gorm:"not null"`
 	Name               string         `gorm:"not null"`
+	DimensionWidth     int8           `gorm:"not null"`
+	DimensionDepth     int8           `gorm:"not null"`
 	Traversable        bool           `gorm:"not null"`
 	ModelSources       pq.StringArray `gorm:"not null;type:text[]"`
 	ThumbnailSrc       string         `gorm:"not null"`
@@ -32,6 +34,8 @@ func NewItemModel(item itemmodel.Item) ItemModel {
 		Id:                 item.GetId().Uuid(),
 		CompatibleUnitType: UnitTypeEnum(item.GetCompatibleUnitType().String()),
 		Name:               item.GetName(),
+		DimensionWidth:     item.GetDimension().GetWidth(),
+		DimensionDepth:     item.GetDimension().GetDepth(),
 		Traversable:        item.GetTraversable(),
 		ThumbnailSrc:       item.GetThumbnailSrc(),
 		ModelSources:       item.GetModelSources(),
@@ -44,10 +48,16 @@ func ParseItemModel(itemModel ItemModel) (item itemmodel.Item, err error) {
 	if err != nil {
 		return item, err
 	}
+	dimension, err := worldcommonmodel.NewDimension(itemModel.DimensionWidth, itemModel.DimensionDepth)
+	if err != nil {
+		return item, err
+	}
+
 	return itemmodel.LoadItem(
 		worldcommonmodel.NewItemId(itemModel.Id),
 		compatibleUnitType,
 		itemModel.Name,
+		dimension,
 		itemModel.Traversable,
 		fmt.Sprintf("%s%s", serverUrl, itemModel.ThumbnailSrc),
 		lo.Map(itemModel.ModelSources, func(modelSource string, _ int) string {

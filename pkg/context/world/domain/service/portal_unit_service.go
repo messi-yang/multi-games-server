@@ -78,12 +78,12 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		return nil
 	}
 
-	existingUnit, err := portalUnitServe.unitRepo.Find(worldId, position)
+	unit, err := portalUnitServe.unitRepo.Find(worldId, position)
 	if err != nil {
 		return err
 	}
-	if existingUnit != nil {
-		return nil
+	if unit != nil {
+		return errPositionAlreadyHasUnit
 	}
 
 	portalUnitWithNoTarget, err := portalUnitServe.portalUnitRepo.GetTopLeftMostUnitWithoutTarget(worldId)
@@ -97,6 +97,7 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		position,
 		itemId,
 		direction,
+		item.GetDimension(),
 		nil,
 	)
 

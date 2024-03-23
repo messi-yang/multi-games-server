@@ -144,7 +144,9 @@ CREATE TABLE public.units (
     id uuid NOT NULL,
     info_snapshot jsonb NOT NULL,
     type character varying(20) DEFAULT 'static'::character varying NOT NULL,
-    label character varying(20)
+    label character varying(20),
+    dimension_width integer DEFAULT 1 NOT NULL,
+    dimension_depth integer DEFAULT 1 NOT NULL
 );
 
 

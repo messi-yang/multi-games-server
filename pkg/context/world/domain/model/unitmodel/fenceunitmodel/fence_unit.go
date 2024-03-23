@@ -20,6 +20,7 @@ func NewFenceUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 ) FenceUnit {
 	return FenceUnit{
 		UnitEntity: unitmodel.NewUnitEntity(
@@ -28,6 +29,7 @@ func NewFenceUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			nil,
 			worldcommonmodel.NewFenceUnitType(),
 			nil,
@@ -41,6 +43,7 @@ func LoadFenceUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 ) FenceUnit {
 	return FenceUnit{
 		UnitEntity: unitmodel.LoadUnitEntity(
@@ -49,6 +52,7 @@ func LoadFenceUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			nil,
 			worldcommonmodel.NewFenceUnitType(),
 			nil,

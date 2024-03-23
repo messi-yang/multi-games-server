@@ -9,6 +9,7 @@ type Item struct {
 	id                 worldcommonmodel.ItemId
 	compatibleUnitType worldcommonmodel.UnitType
 	name               string
+	dimension          worldcommonmodel.Dimension
 	traversable        bool
 	thumbnailSrc       string
 	modelSources       []string
@@ -21,6 +22,7 @@ func LoadItem(
 	id worldcommonmodel.ItemId,
 	compatibleUnitType worldcommonmodel.UnitType,
 	name string,
+	dimension worldcommonmodel.Dimension,
 	traversable bool,
 	thumbnailSrc string,
 	modelSources []string,
@@ -29,6 +31,7 @@ func LoadItem(
 		id:                 id,
 		compatibleUnitType: compatibleUnitType,
 		name:               name,
+		dimension:          dimension,
 		traversable:        traversable,
 		thumbnailSrc:       thumbnailSrc,
 		modelSources:       modelSources,
@@ -45,6 +48,10 @@ func (item *Item) GetCompatibleUnitType() worldcommonmodel.UnitType {
 
 func (item *Item) GetName() string {
 	return item.name
+}
+
+func (item *Item) GetDimension() worldcommonmodel.Dimension {
+	return item.dimension
 }
 
 func (item *Item) GetTraversable() bool {

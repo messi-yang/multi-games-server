@@ -86,10 +86,10 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 		return err
 	}
 	if unit != nil {
-		return nil
+		return errPositionAlreadyHasUnit
 	}
 
-	newLinkUnit := linkunitmodel.NewLinkUnit(id, worldId, position, itemId, direction, label, url)
+	newLinkUnit := linkunitmodel.NewLinkUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, url)
 	return linkUnitServe.linkUnitRepo.Add(newLinkUnit)
 }
 

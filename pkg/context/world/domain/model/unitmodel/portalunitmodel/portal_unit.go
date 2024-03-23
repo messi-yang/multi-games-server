@@ -21,6 +21,7 @@ func NewPortalUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	return PortalUnit{
@@ -30,6 +31,7 @@ func NewPortalUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			nil,
 			worldcommonmodel.NewPortalUnitType(),
 			nil,
@@ -44,6 +46,7 @@ func LoadPortalUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	targetPosition *worldcommonmodel.Position,
 ) PortalUnit {
 	return PortalUnit{
@@ -53,6 +56,7 @@ func LoadPortalUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			nil,
 			worldcommonmodel.NewPortalUnitType(),
 			nil,

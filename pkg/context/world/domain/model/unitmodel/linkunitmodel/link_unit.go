@@ -21,6 +21,7 @@ func NewLinkUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	label *string,
 	url globalcommonmodel.Url,
 ) LinkUnit {
@@ -31,6 +32,7 @@ func NewLinkUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			label,
 			worldcommonmodel.NewLinkUnitType(),
 			nil,
@@ -45,6 +47,7 @@ func LoadLinkUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	label *string,
 	url globalcommonmodel.Url,
 ) LinkUnit {
@@ -55,6 +58,7 @@ func LoadLinkUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			label,
 			worldcommonmodel.NewLinkUnitType(),
 			nil,

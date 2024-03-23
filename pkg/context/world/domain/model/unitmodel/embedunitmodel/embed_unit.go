@@ -21,6 +21,7 @@ func NewEmbedUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	label *string,
 	embedCode worldcommonmodel.EmbedCode,
 ) EmbedUnit {
@@ -31,6 +32,7 @@ func NewEmbedUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			label,
 			worldcommonmodel.NewEmbedUnitType(),
 			nil,
@@ -45,6 +47,7 @@ func LoadEmbedUnit(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	label *string,
 	embedCode worldcommonmodel.EmbedCode,
 ) EmbedUnit {
@@ -55,6 +58,7 @@ func LoadEmbedUnit(
 			position,
 			itemId,
 			direction,
+			dimension,
 			label,
 			worldcommonmodel.NewEmbedUnitType(),
 			nil,

@@ -82,10 +82,10 @@ func (fenceUnitServe *fenceUnitServe) CreateFenceUnit(
 		return err
 	}
 	if unit != nil {
-		return nil
+		return errPositionAlreadyHasUnit
 	}
 
-	newFenceUnit := fenceunitmodel.NewFenceUnit(id, worldId, position, itemId, direction)
+	newFenceUnit := fenceunitmodel.NewFenceUnit(id, worldId, position, itemId, direction, item.GetDimension())
 	return fenceUnitServe.fenceUnitRepo.Add(newFenceUnit)
 }
 

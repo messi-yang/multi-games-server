@@ -82,10 +82,10 @@ func (staticUnitServe *staticUnitServe) CreateStaticUnit(
 		return err
 	}
 	if unit != nil {
-		return nil
+		return errPositionAlreadyHasUnit
 	}
 
-	newStaticUnit := staticunitmodel.NewStaticUnit(id, worldId, position, itemId, direction)
+	newStaticUnit := staticunitmodel.NewStaticUnit(id, worldId, position, itemId, direction, item.GetDimension())
 	return staticUnitServe.staticUnitRepo.Add(newStaticUnit)
 }
 

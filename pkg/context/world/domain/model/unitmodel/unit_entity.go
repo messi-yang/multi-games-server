@@ -12,6 +12,7 @@ type UnitEntity struct {
 	position  worldcommonmodel.Position
 	itemId    worldcommonmodel.ItemId
 	direction worldcommonmodel.Direction
+	dimension worldcommonmodel.Dimension
 	label     *string
 	_type     worldcommonmodel.UnitType
 	info      any
@@ -26,6 +27,7 @@ func NewUnitEntity(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	label *string,
 	_type worldcommonmodel.UnitType,
 	info any,
@@ -36,6 +38,7 @@ func NewUnitEntity(
 		position:  position,
 		itemId:    itemId,
 		direction: direction,
+		dimension: dimension,
 		label:     label,
 		_type:     _type,
 		info:      info,
@@ -48,6 +51,7 @@ func LoadUnitEntity(
 	position worldcommonmodel.Position,
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
+	dimension worldcommonmodel.Dimension,
 	label *string,
 	_type worldcommonmodel.UnitType,
 	info any,
@@ -58,6 +62,7 @@ func LoadUnitEntity(
 		position:  position,
 		itemId:    itemId,
 		direction: direction,
+		dimension: dimension,
 		label:     label,
 		_type:     _type,
 		info:      info,
@@ -82,6 +87,10 @@ func (unit *UnitEntity) GetItemId() worldcommonmodel.ItemId {
 
 func (unit *UnitEntity) GetDirection() worldcommonmodel.Direction {
 	return unit.direction
+}
+
+func (unit *UnitEntity) GetDimension() worldcommonmodel.Dimension {
+	return unit.dimension
 }
 
 func (unit *UnitEntity) Rotate() {
