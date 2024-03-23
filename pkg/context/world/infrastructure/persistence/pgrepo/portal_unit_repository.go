@@ -14,7 +14,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.PortalUnitInfoModel, pgmodel.UnitModel) {
+func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.PortalUnitInfoModel, pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
 	targetPosition := portalUnit.GetTargetPosition()
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set(portalUnit.GetInfoSnapshot())
@@ -42,7 +42,8 @@ func newModelsFromPortalUnit(portalUnit portalunitmodel.PortalUnit) (pgmodel.Por
 			Direction:    portalUnit.GetDirection().Int8(),
 			Type:         pgmodel.UnitTypeEnumPortal,
 			InfoSnapshot: unitInfoSnapshotJsonb,
-		}
+		},
+		pgmodel.NewOccupiedPositionsFromUnit(portalUnit.UnitEntity)
 }
 
 func parseModelsToPortalUnit(unitModel pgmodel.UnitModel, portalUnitInfoModel pgmodel.PortalUnitInfoModel) (unit portalunitmodel.PortalUnit, err error) {
@@ -81,12 +82,15 @@ func NewPortalUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDi
 }
 
 func (repo *portalUnitRepo) Add(portalUnit portalunitmodel.PortalUnit) error {
-	portalUnitInfoModel, unitModel := newModelsFromPortalUnit(portalUnit)
+	portalUnitInfoModel, unitModel, occupiedPositionModels := newModelsFromPortalUnit(portalUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&portalUnitInfoModel).Error; err != nil {
 			return err
 		}
-		return transaction.Create(&unitModel).Error
+		if err := transaction.Create(&unitModel).Error; err != nil {
+			return err
+		}
+		return transaction.Create(occupiedPositionModels).Error
 	})
 }
 
@@ -152,7 +156,7 @@ func (repo *portalUnitRepo) Find(
 }
 
 func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error {
-	portalUnitInfoModel, unitModel := newModelsFromPortalUnit(portalUnit)
+	portalUnitInfoModel, unitModel, _ := newModelsFromPortalUnit(portalUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
@@ -172,6 +176,12 @@ func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error 
 
 func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error {
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			portalUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
 		if err := transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			portalUnit.GetWorldId().Uuid(),

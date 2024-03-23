@@ -12,7 +12,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInfoModel, pgmodel.UnitModel) {
+func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInfoModel, pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 
@@ -31,7 +31,8 @@ func newModelsFromLinkUnit(linkUnit linkunitmodel.LinkUnit) (pgmodel.LinkUnitInf
 			Type:         pgmodel.UnitTypeEnumLink,
 			Id:           linkUnit.GetId().Uuid(),
 			InfoSnapshot: unitInfoSnapshotJsonb,
-		}
+		},
+		pgmodel.NewOccupiedPositionsFromUnit(linkUnit.UnitEntity)
 }
 
 func parseModelsToLinkUnit(unitModel pgmodel.UnitModel, linkUnitInfoModel pgmodel.LinkUnitInfoModel) (unit linkunitmodel.LinkUnit, err error) {
@@ -69,12 +70,15 @@ func NewLinkUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDisp
 }
 
 func (repo *linkUnitRepo) Add(linkUnit linkunitmodel.LinkUnit) error {
-	linkUnitInfoModel, unitModel := newModelsFromLinkUnit(linkUnit)
+	linkUnitInfoModel, unitModel, occupiedPositionModels := newModelsFromLinkUnit(linkUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&linkUnitInfoModel).Error; err != nil {
 			return err
 		}
-		return transaction.Create(&unitModel).Error
+		if err := transaction.Create(&unitModel).Error; err != nil {
+			return err
+		}
+		return transaction.Create(occupiedPositionModels).Error
 	})
 }
 
@@ -101,7 +105,7 @@ func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.L
 }
 
 func (repo *linkUnitRepo) Update(linkUnit linkunitmodel.LinkUnit) error {
-	linkUnitInfoModel, unitModel := newModelsFromLinkUnit(linkUnit)
+	linkUnitInfoModel, unitModel, _ := newModelsFromLinkUnit(linkUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
@@ -121,6 +125,12 @@ func (repo *linkUnitRepo) Update(linkUnit linkunitmodel.LinkUnit) error {
 
 func (repo *linkUnitRepo) Delete(linkUnit linkunitmodel.LinkUnit) error {
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			linkUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
 		if err := transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			linkUnit.GetWorldId().Uuid(),

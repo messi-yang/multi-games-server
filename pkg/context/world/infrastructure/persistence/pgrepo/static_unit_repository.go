@@ -12,20 +12,21 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) pgmodel.UnitModel {
+func newModelFromStaticUnit(staticUnit staticunitmodel.StaticUnit) (pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 
 	return pgmodel.UnitModel{
-		Id:           staticUnit.GetId().Uuid(),
-		WorldId:      staticUnit.GetWorldId().Uuid(),
-		PosX:         staticUnit.GetPosition().GetX(),
-		PosZ:         staticUnit.GetPosition().GetZ(),
-		ItemId:       staticUnit.GetItemId().Uuid(),
-		Direction:    staticUnit.GetDirection().Int8(),
-		Type:         pgmodel.UnitTypeEnumStatic,
-		InfoSnapshot: unitInfoSnapshotJsonb,
-	}
+			Id:           staticUnit.GetId().Uuid(),
+			WorldId:      staticUnit.GetWorldId().Uuid(),
+			PosX:         staticUnit.GetPosition().GetX(),
+			PosZ:         staticUnit.GetPosition().GetZ(),
+			ItemId:       staticUnit.GetItemId().Uuid(),
+			Direction:    staticUnit.GetDirection().Int8(),
+			Type:         pgmodel.UnitTypeEnumStatic,
+			InfoSnapshot: unitInfoSnapshotJsonb,
+		},
+		pgmodel.NewOccupiedPositionsFromUnit(staticUnit.UnitEntity)
 }
 
 func parseModelToStaticUnit(unitModel pgmodel.UnitModel) (staticunitmodel.StaticUnit, error) {
@@ -54,14 +55,17 @@ func NewStaticUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDi
 }
 
 func (repo *staticUnitRepo) Add(staticUnit staticunitmodel.StaticUnit) error {
-	unitModel := newModelFromStaticUnit(staticUnit)
+	unitModel, occupiedPositionModels := newModelFromStaticUnit(staticUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Create(&unitModel).Error
+		if err := transaction.Create(&unitModel).Error; err != nil {
+			return err
+		}
+		return transaction.Create(occupiedPositionModels).Error
 	})
 }
 
 func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error {
-	unitModel := newModelFromStaticUnit(staticUnit)
+	unitModel, _ := newModelFromStaticUnit(staticUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
@@ -90,6 +94,12 @@ func (repo *staticUnitRepo) Get(id staticunitmodel.StaticUnitId) (unit staticuni
 
 func (repo *staticUnitRepo) Delete(staticUnit staticunitmodel.StaticUnit) error {
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			staticUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			staticUnit.GetWorldId().Uuid(),

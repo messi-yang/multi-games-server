@@ -59,7 +59,9 @@ CREATE TABLE public.items (
     updated_at timestamp with time zone NOT NULL,
     thumbnail_src character varying(255) NOT NULL,
     model_sources character varying(150)[] DEFAULT '{}'::character varying[] NOT NULL,
-    compatible_unit_type character varying(20) DEFAULT 'static'::character varying NOT NULL
+    compatible_unit_type character varying(20) DEFAULT 'static'::character varying NOT NULL,
+    dimension_width integer DEFAULT 1 NOT NULL,
+    dimension_depth integer DEFAULT 1 NOT NULL
 );
 
 
@@ -77,6 +79,20 @@ CREATE TABLE public.link_unit_infos (
 
 
 ALTER TABLE public.link_unit_infos OWNER TO main;
+
+--
+-- Name: occupied_positions; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.occupied_positions (
+    world_id uuid NOT NULL,
+    pos_x integer NOT NULL,
+    pos_z integer NOT NULL,
+    unit_id uuid NOT NULL
+);
+
+
+ALTER TABLE public.occupied_positions OWNER TO main;
 
 --
 -- Name: portal_unit_infos; Type: TABLE; Schema: public; Owner: main
@@ -247,6 +263,14 @@ ALTER TABLE ONLY public.items
 
 ALTER TABLE ONLY public.link_unit_infos
     ADD CONSTRAINT link_unit_infos_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: occupied_positions occupied_positions_unique_world_id_pos_x_pos_z; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.occupied_positions
+    ADD CONSTRAINT occupied_positions_unique_world_id_pos_x_pos_z UNIQUE (world_id, pos_x, pos_z);
 
 
 --
@@ -436,6 +460,22 @@ ALTER TABLE ONLY public.items
 
 ALTER TABLE ONLY public.link_unit_infos
     ADD CONSTRAINT link_unit_infos_world_id_fkey FOREIGN KEY (world_id) REFERENCES public.worlds(id);
+
+
+--
+-- Name: occupied_positions occupied_positions_unit_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.occupied_positions
+    ADD CONSTRAINT occupied_positions_unit_id_fkey FOREIGN KEY (unit_id) REFERENCES public.units(id);
+
+
+--
+-- Name: occupied_positions occupied_positions_world_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.occupied_positions
+    ADD CONSTRAINT occupied_positions_world_id_fkey FOREIGN KEY (world_id) REFERENCES public.worlds(id);
 
 
 --

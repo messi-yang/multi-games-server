@@ -12,7 +12,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newModelFromFenceUnit(fenceUnit fenceunitmodel.FenceUnit) pgmodel.UnitModel {
+func newModelFromFenceUnit(fenceUnit fenceunitmodel.FenceUnit) (pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 	return pgmodel.UnitModel{
@@ -24,7 +24,7 @@ func newModelFromFenceUnit(fenceUnit fenceunitmodel.FenceUnit) pgmodel.UnitModel
 		Direction:    fenceUnit.GetDirection().Int8(),
 		Type:         pgmodel.UnitTypeEnumFence,
 		InfoSnapshot: unitInfoSnapshotJsonb,
-	}
+	}, pgmodel.NewOccupiedPositionsFromUnit(fenceUnit.UnitEntity)
 }
 
 func parseModelToFenceUnit(unitModel pgmodel.UnitModel) (fenceunitmodel.FenceUnit, error) {
@@ -53,14 +53,17 @@ func NewFenceUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDis
 }
 
 func (repo *fenceUnitRepo) Add(fenceUnit fenceunitmodel.FenceUnit) error {
-	unitModel := newModelFromFenceUnit(fenceUnit)
+	unitModel, occupiedPositionModels := newModelFromFenceUnit(fenceUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Create(&unitModel).Error
+		if err := transaction.Create(&unitModel).Error; err != nil {
+			return err
+		}
+		return transaction.Create(occupiedPositionModels).Error
 	})
 }
 
 func (repo *fenceUnitRepo) Update(fenceUnit fenceunitmodel.FenceUnit) error {
-	unitModel := newModelFromFenceUnit(fenceUnit)
+	unitModel, _ := newModelFromFenceUnit(fenceUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
@@ -89,6 +92,12 @@ func (repo *fenceUnitRepo) Get(id fenceunitmodel.FenceUnitId) (unit fenceunitmod
 
 func (repo *fenceUnitRepo) Delete(fenceUnit fenceunitmodel.FenceUnit) error {
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			fenceUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
 		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			fenceUnit.GetWorldId().Uuid(),

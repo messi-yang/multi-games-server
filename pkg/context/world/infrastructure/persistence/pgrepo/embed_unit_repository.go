@@ -12,7 +12,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
-func newModelsFromEmbedUnit(embedUnit embedunitmodel.EmbedUnit) (pgmodel.EmbedUnitInfoModel, pgmodel.UnitModel) {
+func newModelsFromEmbedUnit(embedUnit embedunitmodel.EmbedUnit) (pgmodel.EmbedUnitInfoModel, pgmodel.UnitModel, []pgmodel.OccupiedPositionModel) {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
 	unitInfoSnapshotJsonb.Set("null")
 
@@ -31,7 +31,8 @@ func newModelsFromEmbedUnit(embedUnit embedunitmodel.EmbedUnit) (pgmodel.EmbedUn
 			Type:         pgmodel.UnitTypeEnumEmbed,
 			Id:           embedUnit.GetId().Uuid(),
 			InfoSnapshot: unitInfoSnapshotJsonb,
-		}
+		},
+		pgmodel.NewOccupiedPositionsFromUnit(embedUnit.UnitEntity)
 }
 
 func parseModelsToEmbedUnit(unitModel pgmodel.UnitModel, embedUnitInfoModel pgmodel.EmbedUnitInfoModel) (unit embedunitmodel.EmbedUnit, err error) {
@@ -69,12 +70,15 @@ func NewEmbedUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDis
 }
 
 func (repo *embedUnitRepo) Add(embedUnit embedunitmodel.EmbedUnit) error {
-	embedUnitInfoModel, unitModel := newModelsFromEmbedUnit(embedUnit)
+	embedUnitInfoModel, unitModel, occupiedPositionModels := newModelsFromEmbedUnit(embedUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&embedUnitInfoModel).Error; err != nil {
 			return err
 		}
-		return transaction.Create(&unitModel).Error
+		if err := transaction.Create(&unitModel).Error; err != nil {
+			return err
+		}
+		return transaction.Create(occupiedPositionModels).Error
 	})
 }
 
@@ -101,7 +105,7 @@ func (repo *embedUnitRepo) Get(id embedunitmodel.EmbedUnitId) (unit embedunitmod
 }
 
 func (repo *embedUnitRepo) Update(embedUnit embedunitmodel.EmbedUnit) error {
-	embedUnitInfoModel, unitModel := newModelsFromEmbedUnit(embedUnit)
+	embedUnitInfoModel, _, unitModel := newModelsFromEmbedUnit(embedUnit)
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
@@ -121,6 +125,12 @@ func (repo *embedUnitRepo) Update(embedUnit embedunitmodel.EmbedUnit) error {
 
 func (repo *embedUnitRepo) Delete(embedUnit embedunitmodel.EmbedUnit) error {
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			embedUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
 		if err := transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			embedUnit.GetWorldId().Uuid(),
