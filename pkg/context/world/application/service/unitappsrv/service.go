@@ -5,6 +5,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/embedunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
@@ -38,6 +39,7 @@ type serve struct {
 	fenceUnitService  service.FenceUnitService
 	portalUnitService service.PortalUnitService
 	linkUnitService   service.LinkUnitService
+	embedUnitService  service.EmbedUnitService
 }
 
 func NewService(
@@ -48,6 +50,7 @@ func NewService(
 	fenceUnitService service.FenceUnitService,
 	portalUnitService service.PortalUnitService,
 	linkUnitService service.LinkUnitService,
+	embedUnitService service.EmbedUnitService,
 ) Service {
 	return &serve{
 		worldRepo:         worldRepo,
@@ -57,6 +60,7 @@ func NewService(
 		fenceUnitService:  fenceUnitService,
 		portalUnitService: portalUnitService,
 		linkUnitService:   linkUnitService,
+		embedUnitService:  embedUnitService,
 	}
 }
 
@@ -123,14 +127,16 @@ func (serve *serve) RotateUnit(command RotateUnitCommand) error {
 		return err
 	}
 
-	if unit.GetType().IsEqual(worldcommonmodel.NewPortalUnitType()) {
+	if unit.GetType().IsPortal() {
 		return serve.portalUnitService.RotatePortalUnit(portalunitmodel.NewPortalUnitId(command.Id))
-	} else if unit.GetType().IsEqual(worldcommonmodel.NewStaticUnitType()) {
+	} else if unit.GetType().IsStatic() {
 		return serve.staticUnitService.RotateStaticUnit(staticunitmodel.NewStaticUnitId(command.Id))
-	} else if unit.GetType().IsEqual(worldcommonmodel.NewFenceUnitType()) {
+	} else if unit.GetType().IsFence() {
 		return serve.fenceUnitService.RotateFenceUnit(fenceunitmodel.NewFenceUnitId(command.Id))
-	} else if unit.GetType().IsEqual(worldcommonmodel.NewLinkUnitType()) {
+	} else if unit.GetType().IsLink() {
 		return serve.linkUnitService.RotateLinkUnit(linkunitmodel.NewLinkUnitId(command.Id))
+	} else if unit.GetType().IsEmbed() {
+		return serve.embedUnitService.RotateEmbedUnit(embedunitmodel.NewEmbedUnitId(command.Id))
 	}
 
 	return nil

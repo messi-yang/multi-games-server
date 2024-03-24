@@ -28,6 +28,7 @@ func (repo *embedUnitRepo) Add(embedUnit embedunitmodel.EmbedUnit) error {
 	embedUnitInfoModel := pgmodel.NewEmbedUnitInfoModel(embedUnit)
 	unitModel := pgmodel.NewEmbedUnitModel(embedUnit)
 	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(embedUnit.UnitEntity)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&embedUnitInfoModel).Error; err != nil {
 			return err
@@ -65,8 +66,18 @@ func (repo *embedUnitRepo) Get(id embedunitmodel.EmbedUnitId) (unit embedunitmod
 func (repo *embedUnitRepo) Update(embedUnit embedunitmodel.EmbedUnit) error {
 	embedUnitInfoModel := pgmodel.NewEmbedUnitInfoModel(embedUnit)
 	unitModel := pgmodel.NewEmbedUnitModel(embedUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(embedUnit.UnitEntity)
 
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			embedUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
+		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
+			return err
+		}
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			embedUnit.GetWorldId().Uuid(),

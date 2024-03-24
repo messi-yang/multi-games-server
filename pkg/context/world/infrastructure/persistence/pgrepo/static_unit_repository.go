@@ -35,8 +35,18 @@ func (repo *staticUnitRepo) Add(staticUnit staticunitmodel.StaticUnit) error {
 
 func (repo *staticUnitRepo) Update(staticUnit staticunitmodel.StaticUnit) error {
 	unitModel := pgmodel.NewStaticUnitModel(staticUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(staticUnit.UnitEntity)
 
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			staticUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
+		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
+			return err
+		}
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			unitModel.WorldId,

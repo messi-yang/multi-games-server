@@ -43,6 +43,7 @@ func (repo *linkUnitRepo) Add(linkUnit linkunitmodel.LinkUnit) error {
 func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.LinkUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
 	linkUnitInfoModel := pgmodel.LinkUnitInfoModel{}
+
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
 			"id = ? AND type = ?",
@@ -65,8 +66,18 @@ func (repo *linkUnitRepo) Get(id linkunitmodel.LinkUnitId) (unit linkunitmodel.L
 func (repo *linkUnitRepo) Update(linkUnit linkunitmodel.LinkUnit) error {
 	linkUnitInfoModel := pgmodel.NewLinkUnitInfoModel(linkUnit)
 	unitModel := pgmodel.NewLinkUnitModel(linkUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(linkUnit.UnitEntity)
 
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			linkUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
+		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
+			return err
+		}
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			linkUnit.GetWorldId().Uuid(),

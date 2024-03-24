@@ -69,6 +69,7 @@ func (repo *portalUnitRepo) Find(
 	unitModels := []pgmodel.UnitModel{}
 	unitModel := pgmodel.UnitModel{}
 	portalUnitInfoModel := pgmodel.PortalUnitInfoModel{}
+
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		if err := transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ?",
@@ -104,8 +105,18 @@ func (repo *portalUnitRepo) Find(
 func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error {
 	portalUnitInfoModel := pgmodel.NewPortalUnitInfoModel(portalUnit)
 	unitModel := pgmodel.NewPortalUnitModel(portalUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(portalUnit.UnitEntity)
 
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			portalUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
+		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
+			return err
+		}
 		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			portalUnit.GetWorldId().Uuid(),

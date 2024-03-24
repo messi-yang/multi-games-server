@@ -35,8 +35,18 @@ func (repo *fenceUnitRepo) Add(fenceUnit fenceunitmodel.FenceUnit) error {
 
 func (repo *fenceUnitRepo) Update(fenceUnit fenceunitmodel.FenceUnit) error {
 	unitModel := pgmodel.NewFenceUnitModel(fenceUnit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(fenceUnit.UnitEntity)
 
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			fenceUnit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
+		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
+			return err
+		}
 		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			unitModel.WorldId,

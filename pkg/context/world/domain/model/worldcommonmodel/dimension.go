@@ -45,3 +45,7 @@ func (dimension Dimension) GetWidth() int8 {
 func (dimension Dimension) GetDepth() int8 {
 	return dimension.depth
 }
+
+func (dimension Dimension) IsSymmetric() bool {
+	return dimension.width == dimension.depth
+}

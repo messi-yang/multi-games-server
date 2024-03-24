@@ -25,6 +25,14 @@ func NewRightDirection() Direction {
 	return Direction(1)
 }
 
+func NewUpDirection() Direction {
+	return Direction(2)
+}
+
+func NewLeftDirection() Direction {
+	return Direction(3)
+}
+
 func (direction Direction) Int8() int8 {
 	return int8(direction)
 }
