@@ -6,13 +6,14 @@ import (
 )
 
 type UnitDto struct {
-	Id        uuid.UUID   `json:"id"`
-	ItemId    uuid.UUID   `json:"itemId"`
-	Position  PositionDto `json:"position"`
-	Direction int8        `json:"direction"`
-	Label     *string     `json:"label"`
-	Type      string      `json:"type"`
-	Info      any         `json:"info"`
+	Id        uuid.UUID    `json:"id"`
+	ItemId    uuid.UUID    `json:"itemId"`
+	Position  PositionDto  `json:"position"`
+	Direction int8         `json:"direction"`
+	Dimension DimensionDto `json:"dimension"`
+	Label     *string      `json:"label"`
+	Type      string       `json:"type"`
+	Info      any          `json:"info"`
 }
 
 func NewUnitDto(unit unitmodel.Unit) UnitDto {
@@ -21,6 +22,7 @@ func NewUnitDto(unit unitmodel.Unit) UnitDto {
 		ItemId:    unit.GetItemId().Uuid(),
 		Position:  NewPositionDto(unit.GetPosition()),
 		Direction: unit.GetDirection().Int8(),
+		Dimension: NewDimensionDto(unit.GetDimension()),
 		Label:     unit.GetLabel(),
 		Type:      unit.GetType().String(),
 		Info:      unit.GetInfo(),

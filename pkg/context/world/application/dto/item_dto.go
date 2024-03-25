@@ -6,12 +6,13 @@ import (
 )
 
 type ItemDto struct {
-	Id                 uuid.UUID `json:"id"`
-	CompatibleUnitType string    `json:"compatibleUnitType"`
-	Name               string    `json:"name"`
-	Traversable        bool      `json:"traversable"`
-	AssetSrc           string    `json:"thumbnailSrc"`
-	ModelSources       []string  `json:"modelSources"`
+	Id                 uuid.UUID    `json:"id"`
+	CompatibleUnitType string       `json:"compatibleUnitType"`
+	Name               string       `json:"name"`
+	Dimension          DimensionDto `json:"dimension"`
+	Traversable        bool         `json:"traversable"`
+	AssetSrc           string       `json:"thumbnailSrc"`
+	ModelSources       []string     `json:"modelSources"`
 }
 
 func NewItemDto(item itemmodel.Item) ItemDto {
@@ -19,6 +20,7 @@ func NewItemDto(item itemmodel.Item) ItemDto {
 		Id:                 item.GetId().Uuid(),
 		CompatibleUnitType: item.GetCompatibleUnitType().String(),
 		Name:               item.GetName(),
+		Dimension:          NewDimensionDto(item.GetDimension()),
 		Traversable:        item.GetTraversable(),
 		AssetSrc:           item.GetThumbnailSrc(),
 		ModelSources:       item.GetModelSources(),
