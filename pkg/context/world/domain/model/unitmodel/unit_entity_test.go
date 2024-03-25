@@ -12,7 +12,7 @@ import (
 func TestUnitEntity(t *testing.T) {
 	t.Run("Rotate", func(t *testing.T) {
 		t.Run("Symmetric unit", func(t *testing.T) {
-			t.Run("Should rotate unit by 90 degree and change its position to the next corner in its occupied bound", func(t *testing.T) {
+			t.Run("Should rotate unit by 90 degree", func(t *testing.T) {
 				dimension, _ := worldcommonmodel.NewDimension(3, 3)
 
 				unitEntity := NewUnitEntity(
@@ -29,20 +29,17 @@ func TestUnitEntity(t *testing.T) {
 
 				unitEntity.Rotate()
 				assert.True(t, unitEntity.GetDirection().IsEqual(worldcommonmodel.NewDirection(1)))
-				assert.True(t, unitEntity.GetPosition().IsEqual(worldcommonmodel.NewPosition(0, 2)))
 
 				unitEntity.Rotate()
 				assert.True(t, unitEntity.GetDirection().IsEqual(worldcommonmodel.NewDirection(2)))
-				assert.True(t, unitEntity.GetPosition().IsEqual(worldcommonmodel.NewPosition(2, 2)))
 
 				unitEntity.Rotate()
 				assert.True(t, unitEntity.GetDirection().IsEqual(worldcommonmodel.NewDirection(3)))
-				assert.True(t, unitEntity.GetPosition().IsEqual(worldcommonmodel.NewPosition(2, 0)))
 			})
 		})
 
 		t.Run("Non-symmetric unit", func(t *testing.T) {
-			t.Run("Should rotate unit by 180 degree and change its position to the diaganol corner in its occupied bound", func(t *testing.T) {
+			t.Run("Should rotate unit by 180 degree", func(t *testing.T) {
 				dimension, _ := worldcommonmodel.NewDimension(2, 3)
 
 				unitEntity1 := NewUnitEntity(
@@ -59,11 +56,9 @@ func TestUnitEntity(t *testing.T) {
 
 				unitEntity1.Rotate()
 				assert.True(t, unitEntity1.GetDirection().IsEqual(worldcommonmodel.NewDirection(2)))
-				assert.True(t, unitEntity1.GetPosition().IsEqual(worldcommonmodel.NewPosition(1, 2)))
 
 				unitEntity1.Rotate()
 				assert.True(t, unitEntity1.GetDirection().IsEqual(worldcommonmodel.NewDirection(0)))
-				assert.True(t, unitEntity1.GetPosition().IsEqual(worldcommonmodel.NewPosition(0, 0)))
 
 				unitEntity2 := NewUnitEntity(
 					NewUnitId(uuid.New()),
@@ -79,11 +74,9 @@ func TestUnitEntity(t *testing.T) {
 
 				unitEntity2.Rotate()
 				assert.True(t, unitEntity2.GetDirection().IsEqual(worldcommonmodel.NewDirection(3)))
-				assert.True(t, unitEntity2.GetPosition().IsEqual(worldcommonmodel.NewPosition(2, -1)))
 
 				unitEntity2.Rotate()
 				assert.True(t, unitEntity2.GetDirection().IsEqual(worldcommonmodel.NewDirection(1)))
-				assert.True(t, unitEntity2.GetPosition().IsEqual(worldcommonmodel.NewPosition(0, 0)))
 			})
 		})
 	})
@@ -147,8 +140,8 @@ func TestUnitEntity(t *testing.T) {
 
 				occupiedPositions := unitEntity1.GetOccupiedPositions()
 				assert.Equal(t, len(occupiedPositions), 6)
-				assert.True(t, occupiedPositions[0].IsEqual(worldcommonmodel.NewPosition(10, 9)))
-				assert.True(t, occupiedPositions[len(occupiedPositions)-1].IsEqual(worldcommonmodel.NewPosition(12, 10)))
+				assert.True(t, occupiedPositions[0].IsEqual(worldcommonmodel.NewPosition(10, 10)))
+				assert.True(t, occupiedPositions[len(occupiedPositions)-1].IsEqual(worldcommonmodel.NewPosition(12, 11)))
 			})
 
 			t.Run("When facing up", func(t *testing.T) {
@@ -167,8 +160,8 @@ func TestUnitEntity(t *testing.T) {
 
 				occupiedPositions := unitEntity1.GetOccupiedPositions()
 				assert.Equal(t, len(occupiedPositions), 6)
-				assert.True(t, occupiedPositions[0].IsEqual(worldcommonmodel.NewPosition(9, 8)))
-				assert.True(t, occupiedPositions[len(occupiedPositions)-1].IsEqual(worldcommonmodel.NewPosition(10, 10)))
+				assert.True(t, occupiedPositions[0].IsEqual(worldcommonmodel.NewPosition(10, 10)))
+				assert.True(t, occupiedPositions[len(occupiedPositions)-1].IsEqual(worldcommonmodel.NewPosition(11, 12)))
 			})
 
 			t.Run("When facing left", func(t *testing.T) {
@@ -187,8 +180,8 @@ func TestUnitEntity(t *testing.T) {
 
 				occupiedPositions := unitEntity1.GetOccupiedPositions()
 				assert.Equal(t, len(occupiedPositions), 6)
-				assert.True(t, occupiedPositions[0].IsEqual(worldcommonmodel.NewPosition(8, 10)))
-				assert.True(t, occupiedPositions[len(occupiedPositions)-1].IsEqual(worldcommonmodel.NewPosition(10, 11)))
+				assert.True(t, occupiedPositions[0].IsEqual(worldcommonmodel.NewPosition(10, 10)))
+				assert.True(t, occupiedPositions[len(occupiedPositions)-1].IsEqual(worldcommonmodel.NewPosition(12, 11)))
 			})
 		})
 	})

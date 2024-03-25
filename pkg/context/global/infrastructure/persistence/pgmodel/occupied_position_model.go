@@ -22,8 +22,8 @@ func NewOccupiedPositionModels(unit unitmodel.UnitEntity) []OccupiedPositionMode
 	return lo.Map(unit.GetOccupiedPositions(), func(position worldcommonmodel.Position, _ int) OccupiedPositionModel {
 		return OccupiedPositionModel{
 			WorldId: unit.GetWorldId().Uuid(),
-			PosX:    unit.GetPosition().GetX(),
-			PosZ:    unit.GetPosition().GetZ(),
+			PosX:    position.GetX(),
+			PosZ:    position.GetZ(),
 			UnitId:  unit.GetId().Uuid(),
 		}
 	})
