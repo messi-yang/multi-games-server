@@ -8,10 +8,11 @@ import (
 )
 
 type PortalUnitInfoModel struct {
-	Id         uuid.UUID `gorm:"not null"`
-	WorldId    uuid.UUID `gorm:"not null"`
-	TargetPosX *int      `gorm:""`
-	TargetPosZ *int      `gorm:""`
+	Id           uuid.UUID  `gorm:"not null"`
+	WorldId      uuid.UUID  `gorm:"not null"`
+	TargetPosX   *int       `gorm:""`
+	TargetPosZ   *int       `gorm:""`
+	TargetUnitId *uuid.UUID `gorm:"not null"`
 }
 
 func (PortalUnitInfoModel) TableName() string {
@@ -20,6 +21,7 @@ func (PortalUnitInfoModel) TableName() string {
 
 func NewPortalUnitInfoModel(portalUnit portalunitmodel.PortalUnit) PortalUnitInfoModel {
 	targetPosition := portalUnit.GetTargetPosition()
+	targetUnitId := portalUnit.GetTargetUnitId()
 
 	return PortalUnitInfoModel{
 		Id:      portalUnit.GetId().Uuid(),
@@ -33,6 +35,11 @@ func NewPortalUnitInfoModel(portalUnit portalunitmodel.PortalUnit) PortalUnitInf
 			targetPosition == nil,
 			func() *int { return nil },
 			func() *int { return commonutil.ToPointer(targetPosition.GetZ()) },
+		),
+		TargetUnitId: lo.TernaryF(
+			targetUnitId == nil,
+			func() *uuid.UUID { return nil },
+			func() *uuid.UUID { return commonutil.ToPointer(targetUnitId.Uuid()) },
 		),
 	}
 }

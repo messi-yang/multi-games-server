@@ -200,6 +200,13 @@ func NewPortalUnitModel(unit portalunitmodel.PortalUnit) UnitModel {
 
 func ParsePortalUnitModels(unitModel UnitModel, portalUnitInfoModel PortalUnitInfoModel) (unit portalunitmodel.PortalUnit, err error) {
 	worldId := globalcommonmodel.NewWorldId(portalUnitInfoModel.WorldId)
+	targetUnitId := lo.TernaryF(
+		portalUnitInfoModel.TargetUnitId == nil,
+		func() *portalunitmodel.PortalUnitId { return nil },
+		func() *portalunitmodel.PortalUnitId {
+			return commonutil.ToPointer(portalunitmodel.NewPortalUnitId(*portalUnitInfoModel.TargetUnitId))
+		},
+	)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
 	targetPosition := lo.TernaryF(
 		portalUnitInfoModel.TargetPosX == nil,
@@ -223,6 +230,7 @@ func ParsePortalUnitModels(unitModel UnitModel, portalUnitInfoModel PortalUnitIn
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		dimension,
 		targetPosition,
+		targetUnitId,
 	), nil
 }
 

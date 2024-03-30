@@ -99,17 +99,22 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		direction,
 		item.GetDimension(),
 		nil,
+		nil,
 	)
 
 	if portalUnitWithNoTarget != nil {
 		newPortalUnit.UpdateTargetPosition(commonutil.ToPointer(portalUnitWithNoTarget.GetPosition()))
+		newPortalUnit.UpdateTargetUnitId(commonutil.ToPointer(portalUnitWithNoTarget.GetId()))
 		portalUnitWithNoTarget.UpdateTargetPosition(&position)
-		if err = portalUnitServe.portalUnitRepo.Update(*portalUnitWithNoTarget); err != nil {
+		portalUnitWithNoTarget.UpdateTargetUnitId(&id)
+		if err = portalUnitServe.portalUnitRepo.Add(newPortalUnit); err != nil {
 			return err
 		}
+		return portalUnitServe.portalUnitRepo.Update(*portalUnitWithNoTarget)
+	} else {
+		return portalUnitServe.portalUnitRepo.Add(newPortalUnit)
 	}
 
-	return portalUnitServe.portalUnitRepo.Add(newPortalUnit)
 }
 
 func (portalUnitServe *portalUnitServe) RotatePortalUnit(id portalunitmodel.PortalUnitId) error {
