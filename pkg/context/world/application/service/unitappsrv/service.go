@@ -21,9 +21,6 @@ type Service interface {
 
 	RotateUnit(RotateUnitCommand) error
 
-	CreateStaticUnit(CreateStaticUnitCommand) error
-	RemoveStaticUnit(RemoveStaticUnitCommand) error
-
 	CreateFenceUnit(CreateFenceUnitCommand) error
 	RemoveFenceUnit(RemoveFenceUnitCommand) error
 }
@@ -73,20 +70,6 @@ func (serve *serve) GetUnits(query GetUnitsQuery) (
 	})
 
 	return unitDtos, err
-}
-
-func (serve *serve) CreateStaticUnit(command CreateStaticUnitCommand) error {
-	return serve.staticUnitService.CreateStaticUnit(
-		staticunitmodel.NewStaticUnitId(command.Id),
-		globalcommonmodel.NewWorldId(command.WorldId),
-		worldcommonmodel.NewItemId(command.ItemId),
-		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
-		worldcommonmodel.NewDirection(command.Direction),
-	)
-}
-
-func (serve *serve) RemoveStaticUnit(command RemoveStaticUnitCommand) error {
-	return serve.staticUnitService.RemoveStaticUnit(staticunitmodel.NewStaticUnitId(command.Id))
 }
 
 func (serve *serve) CreateFenceUnit(command CreateFenceUnitCommand) error {

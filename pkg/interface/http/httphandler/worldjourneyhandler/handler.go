@@ -16,6 +16,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/portalunitappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/staticunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
@@ -471,8 +472,8 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 ) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.CreateStaticUnit(unitappsrv.CreateStaticUnitCommand{
+	staticUnitAppService := world_provide_dependency.ProvideStaticUnitAppService(uow)
+	if err := staticUnitAppService.CreateStaticUnit(staticunitappsrv.CreateStaticUnitCommand{
 		Id:        idDto,
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
@@ -489,8 +490,8 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 func (httpHandler *HttpHandler) executeRemoveStaticUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.RemoveStaticUnit(unitappsrv.RemoveStaticUnitCommand{
+	staticUnitAppService := world_provide_dependency.ProvideStaticUnitAppService(uow)
+	if err := staticUnitAppService.RemoveStaticUnit(staticunitappsrv.RemoveStaticUnitCommand{
 		Id: idDto,
 	}); err != nil {
 		uow.RevertChanges()

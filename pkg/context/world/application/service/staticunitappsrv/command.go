@@ -1,11 +1,11 @@
-package unitappsrv
+package staticunitappsrv
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/google/uuid"
 )
 
-type CreateFenceUnitCommand struct {
+type CreateStaticUnitCommand struct {
 	Id        uuid.UUID
 	WorldId   uuid.UUID
 	ItemId    uuid.UUID
@@ -13,10 +13,6 @@ type CreateFenceUnitCommand struct {
 	Direction int8
 }
 
-type RemoveFenceUnitCommand struct {
-	Id uuid.UUID
-}
-
-type RotateUnitCommand struct {
+type RemoveStaticUnitCommand struct {
 	Id uuid.UUID
 }
