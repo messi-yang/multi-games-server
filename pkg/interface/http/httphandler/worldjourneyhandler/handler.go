@@ -12,6 +12,7 @@ import (
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/embedunitappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/fenceunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
@@ -510,8 +511,8 @@ func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
 ) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.CreateFenceUnit(unitappsrv.CreateFenceUnitCommand{
+	fenceUnitAppService := world_provide_dependency.ProvideFenceUnitAppService(uow)
+	if err := fenceUnitAppService.CreateFenceUnit(fenceunitappsrv.CreateFenceUnitCommand{
 		Id:        idDto,
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
@@ -528,8 +529,8 @@ func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
 func (httpHandler *HttpHandler) executeRemoveFenceUnitCommand(unidIdDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.RemoveFenceUnit(unitappsrv.RemoveFenceUnitCommand{
+	fenceUnitAppService := world_provide_dependency.ProvideFenceUnitAppService(uow)
+	if err := fenceUnitAppService.RemoveFenceUnit(fenceunitappsrv.RemoveFenceUnitCommand{
 		Id: unidIdDto,
 	}); err != nil {
 		uow.RevertChanges()

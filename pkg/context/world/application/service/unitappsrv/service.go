@@ -10,7 +10,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
 	"github.com/samber/lo"
@@ -20,9 +19,6 @@ type Service interface {
 	GetUnits(GetUnitsQuery) (unitDtos []dto.UnitDto, err error)
 
 	RotateUnit(RotateUnitCommand) error
-
-	CreateFenceUnit(CreateFenceUnitCommand) error
-	RemoveFenceUnit(RemoveFenceUnitCommand) error
 }
 
 type serve struct {
@@ -70,20 +66,6 @@ func (serve *serve) GetUnits(query GetUnitsQuery) (
 	})
 
 	return unitDtos, err
-}
-
-func (serve *serve) CreateFenceUnit(command CreateFenceUnitCommand) error {
-	return serve.fenceUnitService.CreateFenceUnit(
-		fenceunitmodel.NewFenceUnitId(command.Id),
-		globalcommonmodel.NewWorldId(command.WorldId),
-		worldcommonmodel.NewItemId(command.ItemId),
-		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
-		worldcommonmodel.NewDirection(command.Direction),
-	)
-}
-
-func (serve *serve) RemoveFenceUnit(command RemoveFenceUnitCommand) error {
-	return serve.fenceUnitService.RemoveFenceUnit(fenceunitmodel.NewFenceUnitId(command.Id))
 }
 
 func (serve *serve) RotateUnit(command RotateUnitCommand) error {
