@@ -100,9 +100,8 @@ ALTER TABLE public.occupied_positions OWNER TO main;
 
 CREATE TABLE public.portal_unit_infos (
     world_id uuid NOT NULL,
-    target_pos_x integer,
-    target_pos_z integer,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    target_unit_id uuid
 );
 
 
@@ -364,13 +363,6 @@ ALTER TABLE ONLY public.worlds
 
 
 --
--- Name: portal_unit_infos_world_id_target_pos_x_target_pos_z; Type: INDEX; Schema: public; Owner: main
---
-
-CREATE INDEX portal_unit_infos_world_id_target_pos_x_target_pos_z ON public.portal_unit_infos USING btree (world_id, target_pos_x, target_pos_z);
-
-
---
 -- Name: unit_world_id_pos_x_pos_z; Type: INDEX; Schema: public; Owner: main
 --
 
@@ -478,6 +470,14 @@ ALTER TABLE ONLY public.occupied_positions
 
 ALTER TABLE ONLY public.occupied_positions
     ADD CONSTRAINT occupied_positions_world_id_fkey FOREIGN KEY (world_id) REFERENCES public.worlds(id);
+
+
+--
+-- Name: portal_unit_infos portal_unit_info_fk_target_unit_id; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.portal_unit_infos
+    ADD CONSTRAINT portal_unit_info_fk_target_unit_id FOREIGN KEY (target_unit_id) REFERENCES public.units(id);
 
 
 --

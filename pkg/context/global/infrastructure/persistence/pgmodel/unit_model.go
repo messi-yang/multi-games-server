@@ -208,15 +208,6 @@ func ParsePortalUnitModels(unitModel UnitModel, portalUnitInfoModel PortalUnitIn
 		},
 	)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
-	targetPosition := lo.TernaryF(
-		portalUnitInfoModel.TargetPosX == nil,
-		func() *worldcommonmodel.Position {
-			return nil
-		},
-		func() *worldcommonmodel.Position {
-			return commonutil.ToPointer(worldcommonmodel.NewPosition(*portalUnitInfoModel.TargetPosX, *portalUnitInfoModel.TargetPosZ))
-		},
-	)
 	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
 	if err != nil {
 		return unit, err
@@ -229,7 +220,6 @@ func ParsePortalUnitModels(unitModel UnitModel, portalUnitInfoModel PortalUnitIn
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		dimension,
-		targetPosition,
 		targetUnitId,
 	), nil
 }

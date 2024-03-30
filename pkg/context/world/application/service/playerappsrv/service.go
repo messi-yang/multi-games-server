@@ -119,12 +119,18 @@ func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) er
 	if err != nil {
 		return err
 	}
-	targetPosition := portalUnit.GetTargetPosition()
-	if targetPosition != nil {
-		player.Teleport(targetPosition.PrecisePosition())
-	} else {
-		return nil
+	targetPortalUnitId := portalUnit.GetTargetUnitId()
+	if targetPortalUnitId == nil {
+		return fmt.Errorf("the portal unit has no target portal unit")
 	}
+
+	targetPortalUnit, err := serve.portalUnitRepo.Get(*targetPortalUnitId)
+	if err != nil {
+		return err
+	}
+
+	targetPosition := targetPortalUnit.GetPosition()
+	player.Teleport(targetPosition.PrecisePosition())
 
 	return serve.playerRepo.Update(player)
 }

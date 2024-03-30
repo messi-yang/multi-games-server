@@ -2,7 +2,6 @@ package pgrepo
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
@@ -60,46 +59,6 @@ func (repo *portalUnitRepo) Get(id portalunitmodel.PortalUnitId) (unit portaluni
 	}
 
 	return pgmodel.ParsePortalUnitModels(unitModel, portalUnitInfoModel)
-}
-
-func (repo *portalUnitRepo) Find(
-	worldId globalcommonmodel.WorldId,
-	position worldcommonmodel.Position,
-) (*portalunitmodel.PortalUnit, error) {
-	unitModels := []pgmodel.UnitModel{}
-	unitModel := pgmodel.UnitModel{}
-	portalUnitInfoModel := pgmodel.PortalUnitInfoModel{}
-
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
-			worldId.Uuid(),
-			position.GetX(),
-			position.GetZ(),
-		).Limit(1).Find(&unitModels).Error; err != nil {
-			return err
-		}
-
-		if len(unitModels) == 0 {
-			return nil
-		}
-
-		unitModel = unitModels[0]
-
-		return transaction.Where(
-			"id = ?",
-			unitModel.Id,
-		).First(&portalUnitInfoModel).Error
-	}); err != nil {
-		return nil, err
-	}
-
-	portalUnit, err := pgmodel.ParsePortalUnitModels(unitModel, portalUnitInfoModel)
-	if err != nil {
-		return nil, err
-	}
-
-	return &portalUnit, nil
 }
 
 func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error {
@@ -163,7 +122,7 @@ func (repo *portalUnitRepo) GetTopLeftMostUnitWithoutTarget(worldId globalcommon
 		return transaction.Select("units.pos_x, units.pos_z, portal_unit_infos.*").Joins(
 			"left join units on units.id = portal_unit_infos.id",
 		).Where(
-			"portal_unit_infos.world_id = ? AND portal_unit_infos.target_pos_x IS NULL AND portal_unit_infos.target_pos_z IS NULL",
+			"portal_unit_infos.world_id = ? AND portal_unit_infos.target_unit_id IS NULL",
 			worldId.Uuid(),
 		).Order("units.pos_z asc, units.pos_x asc").Limit(1).Find(&portalUnitInfoModels).Error
 	}); err != nil {

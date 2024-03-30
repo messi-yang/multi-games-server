@@ -99,13 +99,10 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		direction,
 		item.GetDimension(),
 		nil,
-		nil,
 	)
 
 	if portalUnitWithNoTarget != nil {
-		newPortalUnit.UpdateTargetPosition(commonutil.ToPointer(portalUnitWithNoTarget.GetPosition()))
 		newPortalUnit.UpdateTargetUnitId(commonutil.ToPointer(portalUnitWithNoTarget.GetId()))
-		portalUnitWithNoTarget.UpdateTargetPosition(&position)
 		portalUnitWithNoTarget.UpdateTargetUnitId(&id)
 		if err = portalUnitServe.portalUnitRepo.Add(newPortalUnit); err != nil {
 			return err
@@ -133,20 +130,15 @@ func (portalUnitServe *portalUnitServe) RemovePortalUnit(id portalunitmodel.Port
 		return err
 	}
 
-	targetPosition := unit.GetTargetPosition()
-	if targetPosition != nil {
-		unitAtTargetPosition, err := portalUnitServe.portalUnitRepo.Find(
-			unit.GetWorldId(),
-			*targetPosition,
-		)
+	targetUnitId := unit.GetTargetUnitId()
+	if targetUnitId != nil {
+		targetUnit, err := portalUnitServe.portalUnitRepo.Get(*targetUnitId)
 		if err != nil {
 			return err
 		}
-		if unitAtTargetPosition != nil {
-			unitAtTargetPosition.UpdateTargetPosition(nil)
-			if err = portalUnitServe.portalUnitRepo.Update(*unitAtTargetPosition); err != nil {
-				return err
-			}
+		targetUnit.UpdateTargetUnitId(nil)
+		if err = portalUnitServe.portalUnitRepo.Update(targetUnit); err != nil {
+			return err
 		}
 	}
 

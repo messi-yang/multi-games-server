@@ -12,8 +12,7 @@ import (
 
 type PortalUnit struct {
 	unitmodel.UnitEntity
-	targetPosition *worldcommonmodel.Position
-	targetUnitId   *PortalUnitId
+	targetUnitId *PortalUnitId
 }
 
 // Interface Implementation Check
@@ -26,7 +25,6 @@ func NewPortalUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 	dimension worldcommonmodel.Dimension,
-	targetPosition *worldcommonmodel.Position,
 	targetUnitId *PortalUnitId,
 ) PortalUnit {
 	return PortalUnit{
@@ -41,8 +39,7 @@ func NewPortalUnit(
 			worldcommonmodel.NewPortalUnitType(),
 			nil,
 		),
-		targetPosition: targetPosition,
-		targetUnitId:   targetUnitId,
+		targetUnitId: targetUnitId,
 	}
 }
 
@@ -53,7 +50,6 @@ func LoadPortalUnit(
 	itemId worldcommonmodel.ItemId,
 	direction worldcommonmodel.Direction,
 	dimension worldcommonmodel.Dimension,
-	targetPosition *worldcommonmodel.Position,
 	targetUnitId *PortalUnitId,
 ) PortalUnit {
 	return PortalUnit{
@@ -68,21 +64,12 @@ func LoadPortalUnit(
 			worldcommonmodel.NewPortalUnitType(),
 			nil,
 		),
-		targetPosition: targetPosition,
-		targetUnitId:   targetUnitId,
+		targetUnitId: targetUnitId,
 	}
 }
 
 func (unit *PortalUnit) GetId() PortalUnitId {
 	return NewPortalUnitId(unit.UnitEntity.GetId().Uuid())
-}
-
-func (unit *PortalUnit) GetTargetPosition() *worldcommonmodel.Position {
-	return unit.targetPosition
-}
-
-func (unit *PortalUnit) UpdateTargetPosition(targetPosition *worldcommonmodel.Position) {
-	unit.targetPosition = targetPosition
 }
 
 func (unit *PortalUnit) GetTargetUnitId() *PortalUnitId {
@@ -94,20 +81,12 @@ func (unit *PortalUnit) UpdateTargetUnitId(targetUnitId *PortalUnitId) {
 }
 
 func (unit *PortalUnit) GetInfoSnapshot() PortalUnitInfo {
-	if unit.targetPosition == nil {
+	if unit.targetUnitId == nil {
 		return PortalUnitInfo{
-			TargetPos:    nil,
 			TargetUnitId: nil,
 		}
 	} else {
 		return PortalUnitInfo{
-			TargetPos: &struct {
-				X int `json:"x"`
-				Z int `json:"z"`
-			}{
-				X: unit.targetPosition.GetX(),
-				Z: unit.targetPosition.GetZ(),
-			},
 			TargetUnitId: lo.TernaryF(
 				unit.targetUnitId == nil,
 				func() *uuid.UUID { return nil },
