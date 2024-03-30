@@ -15,6 +15,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/portalunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
@@ -546,8 +547,8 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 ) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.CreatePortalUnit(unitappsrv.CreatePortalUnitCommand{
+	portalUnitAppService := world_provide_dependency.ProvidePortalUnitAppService(uow)
+	if err := portalUnitAppService.CreatePortalUnit(portalunitappsrv.CreatePortalUnitCommand{
 		Id:        idDto,
 		WorldId:   worldIdDto,
 		ItemId:    itemIdDto,
@@ -564,8 +565,8 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 func (httpHandler *HttpHandler) executeRemovePortalUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.RemovePortalUnit(unitappsrv.RemovePortalUnitCommand{
+	portalUnitAppService := world_provide_dependency.ProvidePortalUnitAppService(uow)
+	if err := portalUnitAppService.RemovePortalUnit(portalunitappsrv.RemovePortalUnitCommand{
 		Id: idDto,
 	}); err != nil {
 		uow.RevertChanges()

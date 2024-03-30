@@ -29,19 +29,6 @@ type RemoveFenceUnitCommand struct {
 	Id uuid.UUID
 }
 
-type CreatePortalUnitCommand struct {
-	Id             uuid.UUID
-	WorldId        uuid.UUID
-	ItemId         uuid.UUID
-	Position       dto.PositionDto
-	Direction      int8
-	TargetPosition *dto.PositionDto
-}
-
-type RemovePortalUnitCommand struct {
-	Id uuid.UUID
-}
-
 type RotateUnitCommand struct {
 	Id uuid.UUID
 }

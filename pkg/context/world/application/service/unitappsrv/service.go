@@ -26,9 +26,6 @@ type Service interface {
 
 	CreateFenceUnit(CreateFenceUnitCommand) error
 	RemoveFenceUnit(RemoveFenceUnitCommand) error
-
-	CreatePortalUnit(CreatePortalUnitCommand) error
-	RemovePortalUnit(RemovePortalUnitCommand) error
 }
 
 type serve struct {
@@ -104,20 +101,6 @@ func (serve *serve) CreateFenceUnit(command CreateFenceUnitCommand) error {
 
 func (serve *serve) RemoveFenceUnit(command RemoveFenceUnitCommand) error {
 	return serve.fenceUnitService.RemoveFenceUnit(fenceunitmodel.NewFenceUnitId(command.Id))
-}
-
-func (serve *serve) CreatePortalUnit(command CreatePortalUnitCommand) error {
-	return serve.portalUnitService.CreatePortalUnit(
-		portalunitmodel.NewPortalUnitId(command.Id),
-		globalcommonmodel.NewWorldId(command.WorldId),
-		worldcommonmodel.NewItemId(command.ItemId),
-		worldcommonmodel.NewPosition(command.Position.X, command.Position.Z),
-		worldcommonmodel.NewDirection(command.Direction),
-	)
-}
-
-func (serve *serve) RemovePortalUnit(command RemovePortalUnitCommand) error {
-	return serve.portalUnitService.RemovePortalUnit(portalunitmodel.NewPortalUnitId(command.Id))
 }
 
 func (serve *serve) RotateUnit(command RotateUnitCommand) error {
