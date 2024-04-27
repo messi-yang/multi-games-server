@@ -8,7 +8,6 @@ import (
 type commandName string
 
 const (
-	pingCommandName                 commandName = "PING"
 	addPlayerCommandName            commandName = "ADD_PLAYER"
 	changePlayerActionCommandName   commandName = "CHANGE_PLAYER_ACTION"
 	sendPlayerIntoPortalCommandName commandName = "SEND_PLAYER_INTO_PORTAL"

@@ -77,8 +77,8 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		closeConnFlag.Done()
 	}
 	sendError := func(err error) {
-		sendMessage(erroredEvent{
-			Name:    erroredEventName,
+		sendMessage(erroredServerEvent{
+			Name:    erroredServerEventName,
 			Message: err.Error(),
 		})
 	}
@@ -103,8 +103,8 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			if err != nil {
 				return
 			}
-			sendMessage(commandSucceededEvent{
-				Name:    commandSucceededEventName,
+			sendMessage(commandSucceededServerEvent{
+				Name:    commandSucceededServerEventName,
 				Command: command,
 			})
 		},
@@ -156,261 +156,306 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				return
 			}
 
-			command, err := jsonutil.Unmarshal[command](message)
+			clientEvent, err := jsonutil.Unmarshal[clientEvent](message)
 			if err != nil {
 				closeConnectionOnError(err)
 				return
 			}
 
-			switch command.Name {
-			case pingCommandName:
-				continue
-			case changePlayerActionCommandName:
-				commandDto, err := jsonutil.Unmarshal[changePlayerActionCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if commandDto.PlayerId != playerIdDto {
-					closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
-					return
-				}
-				if err = httpHandler.executeChangePlayerActionCommand(
-					worldIdDto, commandDto.PlayerId, commandDto.Action,
-				); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case sendPlayerIntoPortalCommandName:
-				commandDto, err := jsonutil.Unmarshal[sendPlayerIntoPortalCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if commandDto.PlayerId != playerIdDto {
-					closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
-					return
-				}
-				if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.UnitId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case changePlayerHeldItemCommandName:
-				commandDto, err := jsonutil.Unmarshal[changePlayerHeldItemCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if commandDto.PlayerId != playerIdDto {
-					closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
-					return
-				}
-				if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, commandDto.PlayerId, commandDto.ItemId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case createStaticUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[createStaticUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeCreateStaticUnitCommand(
-					commandDto.UnitId,
-					worldIdDto,
-					commandDto.ItemId,
-					commandDto.Position,
-					commandDto.Direction,
-				); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case createFenceUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[createFenceUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeCreateFenceUnitCommand(
-					commandDto.UnitId,
-					worldIdDto,
-					commandDto.ItemId,
-					commandDto.Position,
-					commandDto.Direction,
-				); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case createPortalUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[createPortalUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeCreatePortalUnitCommand(
-					commandDto.UnitId,
-					worldIdDto,
-					commandDto.ItemId,
-					commandDto.Position,
-					commandDto.Direction,
-				); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case createLinkUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[createLinkUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeCreateLinkUnitCommand(
-					commandDto.UnitId,
-					worldIdDto,
-					commandDto.ItemId,
-					commandDto.Position,
-					commandDto.Direction,
-					commandDto.Label,
-					commandDto.Url,
-				); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case createEmbedUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[createEmbedUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeCreateEmbedUnitCommand(
-					commandDto.UnitId,
-					worldIdDto,
-					commandDto.ItemId,
-					commandDto.Position,
-					commandDto.Direction,
-					commandDto.Label,
-					commandDto.EmbedCode,
-				); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case rotateUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[rotateUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeRotateUnitCommand(commandDto.UnitId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case removeStaticUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[removeStaticUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeRemoveStaticUnitCommand(commandDto.UnitId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case removeFenceUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[removeFenceUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeRemoveFenceUnitCommand(commandDto.UniId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case removePortalUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[removePortalUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeRemovePortalUnitCommand(commandDto.UnitId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case removeLinkUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[removeLinkUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.UnitId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			case removeEmbedUnitCommandName:
-				commandDto, err := jsonutil.Unmarshal[removeEmbedUnitCommand](message)
-				if err != nil {
-					closeConnectionOnError(err)
-					return
-				}
-				if err = httpHandler.executeRemoveEmbedUnitCommand(commandDto.UnitId); err != nil {
-					sendError(err)
-					break
-				}
-				httpHandler.redisServerMessageMediator.Send(
-					newWorldServerMessageChannel(worldIdDto),
-					jsonutil.Marshal(commandDto),
-				)
-			default:
+			sendCommandFailedServerEvent := func(commandId uuid.UUID, err error) {
+				sendMessage(commandFailedServerEvent{
+					Name:         commandFailedServerEventName,
+					CommandId:    commandId,
+					ErrorMessage: err.Error(),
+				})
 			}
+
+			switch clientEvent.Name {
+			case pingClientEventName:
+				continue
+			case commandRequestedClientEventName:
+				genericCommandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[command]](message)
+				if err != nil {
+					closeConnectionOnError(err)
+					return
+				}
+				switch genericCommandRequestedClientEvent.Command.Name {
+				case changePlayerActionCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[changePlayerActionCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if commandDto.PlayerId != playerIdDto {
+						closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
+						return
+					}
+					if err = httpHandler.executeChangePlayerActionCommand(
+						worldIdDto, commandDto.PlayerId, commandDto.Action,
+					); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case sendPlayerIntoPortalCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[sendPlayerIntoPortalCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if commandDto.PlayerId != playerIdDto {
+						closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
+						return
+					}
+					if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.UnitId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case changePlayerHeldItemCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[changePlayerHeldItemCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if commandDto.PlayerId != playerIdDto {
+						closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
+						return
+					}
+					if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, commandDto.PlayerId, commandDto.ItemId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case createStaticUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createStaticUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeCreateStaticUnitCommand(
+						commandDto.UnitId,
+						worldIdDto,
+						commandDto.ItemId,
+						commandDto.Position,
+						commandDto.Direction,
+					); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case createFenceUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createFenceUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeCreateFenceUnitCommand(
+						commandDto.UnitId,
+						worldIdDto,
+						commandDto.ItemId,
+						commandDto.Position,
+						commandDto.Direction,
+					); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case createPortalUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createPortalUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeCreatePortalUnitCommand(
+						commandDto.UnitId,
+						worldIdDto,
+						commandDto.ItemId,
+						commandDto.Position,
+						commandDto.Direction,
+					); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case createLinkUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createLinkUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeCreateLinkUnitCommand(
+						commandDto.UnitId,
+						worldIdDto,
+						commandDto.ItemId,
+						commandDto.Position,
+						commandDto.Direction,
+						commandDto.Label,
+						commandDto.Url,
+					); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case createEmbedUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createEmbedUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeCreateEmbedUnitCommand(
+						commandDto.UnitId,
+						worldIdDto,
+						commandDto.ItemId,
+						commandDto.Position,
+						commandDto.Direction,
+						commandDto.Label,
+						commandDto.EmbedCode,
+					); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case rotateUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[rotateUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeRotateUnitCommand(commandDto.UnitId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case removeStaticUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeStaticUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeRemoveStaticUnitCommand(commandDto.UnitId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case removeFenceUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeFenceUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeRemoveFenceUnitCommand(commandDto.UniId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case removePortalUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removePortalUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeRemovePortalUnitCommand(commandDto.UnitId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case removeLinkUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeLinkUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.UnitId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				case removeEmbedUnitCommandName:
+					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeEmbedUnitCommand]](message)
+					if err != nil {
+						closeConnectionOnError(err)
+						return
+					}
+					commandDto := commandRequestedClientEvent.Command
+
+					if err = httpHandler.executeRemoveEmbedUnitCommand(commandDto.UnitId); err != nil {
+						sendCommandFailedServerEvent(commandDto.Id, err)
+						break
+					}
+					httpHandler.redisServerMessageMediator.Send(
+						newWorldServerMessageChannel(worldIdDto),
+						jsonutil.Marshal(commandDto),
+					)
+				default:
+				}
+			}
+
 		}
 	}()
 
@@ -760,8 +805,8 @@ func (httpHandler *HttpHandler) sendEnterWorldCommandResponse(worldIdDto uuid.UU
 		return err
 	}
 
-	sendMessage(worldEnteredEvent{
-		Name:       worldEnteredEventName,
+	sendMessage(worldEnteredServerEvent{
+		Name:       worldEnteredServerEventName,
 		World:      viewmodel.WorldViewModel(worldDto),
 		Units:      unitDtos,
 		MyPlayerId: playerIdDto,
