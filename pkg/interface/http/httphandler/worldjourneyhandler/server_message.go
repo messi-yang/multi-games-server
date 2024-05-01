@@ -9,3 +9,8 @@ import (
 func newWorldServerMessageChannel(worldIdDto uuid.UUID) string {
 	return fmt.Sprintf("WORLD_%s_CHANNEL", worldIdDto)
 }
+
+type worldServerEventMessage struct {
+	SenderId    uuid.UUID `json:"senderId"`
+	ServerEvent any       `json:"serverEvent"`
+}
