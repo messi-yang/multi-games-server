@@ -96,17 +96,55 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	worldServerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		newWorldServerMessageChannel(worldIdDto),
 		func(serverMessageBytes []byte) {
-			command, err := jsonutil.Unmarshal[any](serverMessageBytes)
+			serverEvent, err := jsonutil.Unmarshal[any](serverMessageBytes)
 			if err != nil {
 				return
 			}
-			sendMessage(commandSucceededServerEvent{
-				Name:    commandSucceededServerEventName,
-				Command: command,
-			})
+			sendMessage(serverEvent)
 		},
 	)
 	defer worldServerMessageUnusbscriber()
+
+	broadcastPlayerJoinedServerEvent := func(playerDto world_dto.PlayerDto) {
+		httpHandler.redisServerMessageMediator.Send(
+			newWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(playerJoinedServerEvent{
+				Name:   playerJoinedServerEventName,
+				Player: playerDto,
+			}),
+		)
+	}
+
+	broadcastPlayerLeftServerEvent := func(playerIdDto uuid.UUID) {
+		httpHandler.redisServerMessageMediator.Send(
+			newWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(playerLeftServerEvent{
+				Name:     playerLeftServerEventName,
+				PlayerId: playerIdDto,
+			}),
+		)
+	}
+
+	broadcastCommandSucceededServerEvent := func(command any) {
+		httpHandler.redisServerMessageMediator.Send(
+			newWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(commandSucceededServerEvent{
+				Name:    commandSucceededServerEventName,
+				Command: command,
+			}),
+		)
+	}
+
+	broadcastCommandFailedServerEvent := func(commandId uuid.UUID, err error) {
+		httpHandler.redisServerMessageMediator.Send(
+			newWorldServerMessageChannel(worldIdDto),
+			jsonutil.Marshal(commandFailedServerEvent{
+				Name:         commandFailedServerEventName,
+				CommandId:    commandId,
+				ErrorMessage: err.Error(),
+			}),
+		)
+	}
 
 	playerIdDto, err = httpHandler.enterWorld(worldIdDto, authorizedUserIdDto)
 	if err != nil {
@@ -118,15 +156,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
 			fmt.Println(err)
 		}
-		httpHandler.redisServerMessageMediator.Send(
-			newWorldServerMessageChannel(worldIdDto),
-			jsonutil.Marshal(removePlayerCommand{
-				Id:        uuid.New(),
-				Timestamp: time.Now().UnixMilli(),
-				Name:      removePlayerCommandName,
-				PlayerId:  playerIdDto,
-			}),
-		)
+		broadcastCommandSucceededServerEvent(removePlayerCommand{
+			Id:        uuid.New(),
+			Timestamp: time.Now().UnixMilli(),
+			Name:      removePlayerCommandName,
+			PlayerId:  playerIdDto,
+		})
+		broadcastPlayerLeftServerEvent(playerIdDto)
 	}
 	defer safelyLeaveWorldInAllCases()
 
@@ -137,15 +173,18 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}
 
 	playerDto, err := httpHandler.queryPlayer(worldIdDto, playerIdDto)
-	httpHandler.redisServerMessageMediator.Send(
-		newWorldServerMessageChannel(worldIdDto),
-		jsonutil.Marshal(addPlayerCommand{
-			Id:        uuid.New(),
-			Timestamp: time.Now().UnixMilli(),
-			Name:      addPlayerCommandName,
-			Player:    playerDto,
-		}),
-	)
+	if err != nil {
+		sendErroredServerEvent(err)
+		closeConnection()
+		return
+	}
+	broadcastCommandSucceededServerEvent(addPlayerCommand{
+		Id:        uuid.New(),
+		Timestamp: time.Now().UnixMilli(),
+		Name:      addPlayerCommandName,
+		Player:    playerDto,
+	})
+	broadcastPlayerJoinedServerEvent(playerDto)
 
 	go func() {
 		for {
@@ -159,14 +198,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			if err != nil {
 				sendErroredServerEvent(err)
 				return
-			}
-
-			sendCommandFailedServerEvent := func(commandId uuid.UUID, err error) {
-				sendMessage(commandFailedServerEvent{
-					Name:         commandFailedServerEventName,
-					CommandId:    commandId,
-					ErrorMessage: err.Error(),
-				})
 			}
 
 			switch clientEvent.Name {
@@ -194,13 +225,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					if err = httpHandler.executeChangePlayerActionCommand(
 						worldIdDto, commandDto.PlayerId, commandDto.Action,
 					); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case sendPlayerIntoPortalCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[sendPlayerIntoPortalCommand]](message)
 					if err != nil {
@@ -214,13 +242,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						return
 					}
 					if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.UnitId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case changePlayerHeldItemCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[changePlayerHeldItemCommand]](message)
 					if err != nil {
@@ -234,13 +259,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						return
 					}
 					if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, commandDto.PlayerId, commandDto.ItemId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case createStaticUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createStaticUnitCommand]](message)
 					if err != nil {
@@ -256,13 +278,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						commandDto.Position,
 						commandDto.Direction,
 					); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					fmt.Println("======")
+					fmt.Println(commandDto)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case createFenceUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createFenceUnitCommand]](message)
 					if err != nil {
@@ -278,13 +299,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						commandDto.Position,
 						commandDto.Direction,
 					); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case createPortalUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createPortalUnitCommand]](message)
 					if err != nil {
@@ -300,13 +318,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						commandDto.Position,
 						commandDto.Direction,
 					); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case createLinkUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createLinkUnitCommand]](message)
 					if err != nil {
@@ -324,13 +339,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						commandDto.Label,
 						commandDto.Url,
 					); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case createEmbedUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createEmbedUnitCommand]](message)
 					if err != nil {
@@ -348,13 +360,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						commandDto.Label,
 						commandDto.EmbedCode,
 					); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case rotateUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[rotateUnitCommand]](message)
 					if err != nil {
@@ -364,13 +373,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeRotateUnitCommand(commandDto.UnitId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case removeStaticUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeStaticUnitCommand]](message)
 					if err != nil {
@@ -380,13 +386,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeRemoveStaticUnitCommand(commandDto.UnitId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case removeFenceUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeFenceUnitCommand]](message)
 					if err != nil {
@@ -396,13 +399,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeRemoveFenceUnitCommand(commandDto.UniId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case removePortalUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removePortalUnitCommand]](message)
 					if err != nil {
@@ -412,13 +412,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeRemovePortalUnitCommand(commandDto.UnitId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case removeLinkUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeLinkUnitCommand]](message)
 					if err != nil {
@@ -428,13 +425,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.UnitId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				case removeEmbedUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeEmbedUnitCommand]](message)
 					if err != nil {
@@ -444,13 +438,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeRemoveEmbedUnitCommand(commandDto.UnitId); err != nil {
-						sendCommandFailedServerEvent(commandDto.Id, err)
+						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					httpHandler.redisServerMessageMediator.Send(
-						newWorldServerMessageChannel(worldIdDto),
-						jsonutil.Marshal(commandDto),
-					)
+					broadcastCommandSucceededServerEvent(commandDto)
 				default:
 				}
 			}

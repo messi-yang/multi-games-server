@@ -10,6 +10,8 @@ type serverEventName string
 
 const (
 	worldEnteredServerEventName     serverEventName = "WORLD_ENTERED"
+	playerJoinedServerEventName     serverEventName = "PLAYER_JOINED"
+	playerLeftServerEventName       serverEventName = "PLAYER_LEFT"
 	commandSucceededServerEventName serverEventName = "COMMAND_SUCCEEDED"
 	commandFailedServerEventName    serverEventName = "COMMAND_FAILED"
 	erroredServerEventName          serverEventName = "ERRORED"
@@ -21,6 +23,16 @@ type worldEnteredServerEvent struct {
 	Units      []dto.UnitDto            `json:"units"`
 	MyPlayerId uuid.UUID                `json:"myPlayerId"`
 	Players    []dto.PlayerDto          `json:"players"`
+}
+
+type playerJoinedServerEvent struct {
+	Name   serverEventName `json:"name"`
+	Player dto.PlayerDto
+}
+
+type playerLeftServerEvent struct {
+	Name     serverEventName `json:"name"`
+	PlayerId uuid.UUID
 }
 
 type commandSucceededServerEvent struct {
