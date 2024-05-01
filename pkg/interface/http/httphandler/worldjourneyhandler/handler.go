@@ -76,15 +76,11 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	closeConnection := func() {
 		closeConnFlag.Done()
 	}
-	sendError := func(err error) {
+	sendErroredServerEvent := func(err error) {
 		sendMessage(erroredServerEvent{
 			Name:    erroredServerEventName,
 			Message: err.Error(),
 		})
-	}
-	closeConnectionOnError := func(err error) {
-		sendError(err)
-		closeConnection()
 	}
 
 	var worldIdDto uuid.UUID
@@ -92,7 +88,8 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
 
 	if worldIdDto, err = uuid.Parse(c.Request.URL.Query().Get("id")); err != nil {
-		closeConnectionOnError(err)
+		sendErroredServerEvent(err)
+		closeConnection()
 		return
 	}
 
@@ -111,9 +108,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	)
 	defer worldServerMessageUnusbscriber()
 
-	playerIdDto, err = httpHandler.executeEnterWorldCommand(worldIdDto, authorizedUserIdDto)
+	playerIdDto, err = httpHandler.enterWorld(worldIdDto, authorizedUserIdDto)
 	if err != nil {
-		closeConnectionOnError(err)
+		sendErroredServerEvent(err)
+		closeConnection()
 		return
 	}
 	safelyLeaveWorldInAllCases := func() {
@@ -132,8 +130,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}
 	defer safelyLeaveWorldInAllCases()
 
-	if err = httpHandler.sendEnterWorldCommandResponse(worldIdDto, playerIdDto, sendMessage); err != nil {
-		closeConnectionOnError(err)
+	if err = httpHandler.sendWorldEnteredResponse(worldIdDto, playerIdDto, sendMessage); err != nil {
+		sendErroredServerEvent(err)
+		closeConnection()
 		return
 	}
 
@@ -152,13 +151,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		for {
 			_, message, err := socketConn.ReadMessage()
 			if err != nil {
-				closeConnectionOnError(err)
+				sendErroredServerEvent(err)
 				return
 			}
 
 			clientEvent, err := jsonutil.Unmarshal[clientEvent](message)
 			if err != nil {
-				closeConnectionOnError(err)
+				sendErroredServerEvent(err)
 				return
 			}
 
@@ -176,20 +175,20 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			case commandRequestedClientEventName:
 				genericCommandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[command]](message)
 				if err != nil {
-					closeConnectionOnError(err)
+					sendErroredServerEvent(err)
 					return
 				}
 				switch genericCommandRequestedClientEvent.Command.Name {
 				case changePlayerActionCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[changePlayerActionCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
 
 					if commandDto.PlayerId != playerIdDto {
-						closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
+						sendErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer)
 						return
 					}
 					if err = httpHandler.executeChangePlayerActionCommand(
@@ -205,13 +204,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case sendPlayerIntoPortalCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[sendPlayerIntoPortalCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
 
 					if commandDto.PlayerId != playerIdDto {
-						closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
+						sendErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer)
 						return
 					}
 					if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.UnitId); err != nil {
@@ -225,13 +224,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case changePlayerHeldItemCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[changePlayerHeldItemCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
 
 					if commandDto.PlayerId != playerIdDto {
-						closeConnectionOnError(ErrCommandIsNotExecutedByOwnPlayer)
+						sendErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer)
 						return
 					}
 					if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, commandDto.PlayerId, commandDto.ItemId); err != nil {
@@ -245,7 +244,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case createStaticUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createStaticUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -267,7 +266,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case createFenceUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createFenceUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -289,7 +288,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case createPortalUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createPortalUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -311,7 +310,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case createLinkUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createLinkUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -335,7 +334,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case createEmbedUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createEmbedUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -359,7 +358,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case rotateUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[rotateUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -375,7 +374,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case removeStaticUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeStaticUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -391,7 +390,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case removeFenceUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeFenceUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -407,7 +406,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case removePortalUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removePortalUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -423,7 +422,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case removeLinkUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeLinkUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -439,7 +438,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				case removeEmbedUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[removeEmbedUnitCommand]](message)
 					if err != nil {
-						closeConnectionOnError(err)
+						sendErroredServerEvent(err)
 						return
 					}
 					commandDto := commandRequestedClientEvent.Command
@@ -721,7 +720,18 @@ func (httpHandler *HttpHandler) executeRotateUnitCommand(idDto uuid.UUID) error 
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (playerIdDto uuid.UUID, err error) {
+func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+	playerAppService := world_provide_dependency.ProvidePlayerAppService()
+	if err := playerAppService.LeaveWorld(playerappsrv.LeaveWorldCommand{
+		WorldId:  worldIdDto,
+		PlayerId: playerIdDto,
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (httpHandler *HttpHandler) enterWorld(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (playerIdDto uuid.UUID, err error) {
 	uow := pguow.NewUow()
 
 	playerAppService := world_provide_dependency.ProvidePlayerAppService()
@@ -760,18 +770,7 @@ func (httpHandler *HttpHandler) executeEnterWorldCommand(worldIdDto uuid.UUID, u
 	return playerIdDto, nil
 }
 
-func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.LeaveWorld(playerappsrv.LeaveWorldCommand{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
-	}); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (httpHandler *HttpHandler) sendEnterWorldCommandResponse(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
+func (httpHandler *HttpHandler) sendWorldEnteredResponse(worldIdDto uuid.UUID, playerIdDto uuid.UUID, sendMessage func(any)) error {
 	uow := pguow.NewDummyUow()
 
 	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
