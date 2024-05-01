@@ -191,6 +191,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			_, message, err := socketConn.ReadMessage()
 			if err != nil {
 				sendErroredServerEvent(err)
+				closeConnection()
 				return
 			}
 
@@ -281,8 +282,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						broadcastCommandFailedServerEvent(commandDto.Id, err)
 						break
 					}
-					fmt.Println("======")
-					fmt.Println(commandDto)
 					broadcastCommandSucceededServerEvent(commandDto)
 				case createFenceUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createFenceUnitCommand]](message)
