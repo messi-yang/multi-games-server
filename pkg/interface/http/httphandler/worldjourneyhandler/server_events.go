@@ -9,12 +9,14 @@ import (
 type serverEventName string
 
 const (
-	worldEnteredServerEventName     serverEventName = "WORLD_ENTERED"
-	playerJoinedServerEventName     serverEventName = "PLAYER_JOINED"
-	playerLeftServerEventName       serverEventName = "PLAYER_LEFT"
-	commandSucceededServerEventName serverEventName = "COMMAND_SUCCEEDED"
-	commandFailedServerEventName    serverEventName = "COMMAND_FAILED"
-	erroredServerEventName          serverEventName = "ERRORED"
+	worldEnteredServerEventName      serverEventName = "WORLD_ENTERED"
+	playerJoinedServerEventName      serverEventName = "PLAYER_JOINED"
+	playerLeftServerEventName        serverEventName = "PLAYER_LEFT"
+	commandSucceededServerEventName  serverEventName = "COMMAND_SUCCEEDED"
+	commandFailedServerEventName     serverEventName = "COMMAND_FAILED"
+	p2pOfferReceivedServerEventName  serverEventName = "P2P_OFFER_RECEIVED"
+	p2pAnswerReceivedServerEventName serverEventName = "P2P_ANSWER_RECEIVED"
+	erroredServerEventName           serverEventName = "ERRORED"
 )
 
 type worldEnteredServerEvent struct {
@@ -27,12 +29,12 @@ type worldEnteredServerEvent struct {
 
 type playerJoinedServerEvent struct {
 	Name   serverEventName `json:"name"`
-	Player dto.PlayerDto
+	Player dto.PlayerDto   `json:"player"`
 }
 
 type playerLeftServerEvent struct {
 	Name     serverEventName `json:"name"`
-	PlayerId uuid.UUID
+	PlayerId uuid.UUID       `json:"playerId"`
 }
 
 type commandSucceededServerEvent struct {
@@ -44,6 +46,22 @@ type commandFailedServerEvent struct {
 	Name         serverEventName `json:"name"`
 	CommandId    uuid.UUID       `json:"commandId"`
 	ErrorMessage string          `json:"errorMessage"`
+}
+
+type p2pOfferReceivedServerEvent struct {
+	Name serverEventName `json:"name"`
+	// Player that wanted to build connection with you
+	PeerPlayerId  uuid.UUID `json:"peerPlayerId"`
+	IceCandidates []any     `json:"iceCandidates"`
+	Offer         any       `json:"offer"`
+}
+
+type p2pAnswerReceivedServerEvent struct {
+	Name serverEventName `json:"name"`
+	// Player that wanted to build connection with you
+	PeerPlayerId  uuid.UUID `json:"peerPlayerId"`
+	IceCandidates []any     `json:"iceCandidates"`
+	Answer        any       `json:"answer"`
 }
 
 type erroredServerEvent struct {
