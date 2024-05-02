@@ -12,7 +12,7 @@ const (
 	worldEnteredServerEventName      serverEventName = "WORLD_ENTERED"
 	playerJoinedServerEventName      serverEventName = "PLAYER_JOINED"
 	playerLeftServerEventName        serverEventName = "PLAYER_LEFT"
-	commandSucceededServerEventName  serverEventName = "COMMAND_SUCCEEDED"
+	commandReceivedServerEventName   serverEventName = "COMMAND_RECEIVED"
 	commandFailedServerEventName     serverEventName = "COMMAND_FAILED"
 	p2pOfferReceivedServerEventName  serverEventName = "P2P_OFFER_RECEIVED"
 	p2pAnswerReceivedServerEventName serverEventName = "P2P_ANSWER_RECEIVED"
@@ -37,7 +37,7 @@ type playerLeftServerEvent struct {
 	PlayerId uuid.UUID       `json:"playerId"`
 }
 
-type commandSucceededServerEvent struct {
+type commandReceivedServerEvent struct {
 	Name    serverEventName `json:"name"`
 	Command any             `json:"command"`
 }

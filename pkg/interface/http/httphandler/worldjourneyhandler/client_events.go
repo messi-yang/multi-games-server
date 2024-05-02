@@ -6,6 +6,7 @@ type clientEventName string
 
 const (
 	pingClientEventName             clientEventName = "PING"
+	commandSentClientEventName      clientEventName = "COMMAND_SENT"
 	commandRequestedClientEventName clientEventName = "COMMAND_REQUESTED"
 	p2pOfferSentClientEventName     clientEventName = "P2P_OFFER_SENT"
 	p2pAnswerSentClientEventName    clientEventName = "P2P_ANSWER_SENT"
@@ -13,6 +14,13 @@ const (
 
 type clientEvent struct {
 	Name clientEventName `json:"name"`
+}
+
+// This command is used when the P2P connection with the peer player fails
+type commandSentClientEvent struct {
+	Name         clientEventName `json:"name"`
+	PeerPlayerId uuid.UUID       `json:"peerPlayerId"`
+	Command      any             `json:"command"`
 }
 
 type commandRequestedClientEvent[T any] struct {

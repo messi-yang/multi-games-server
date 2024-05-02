@@ -173,9 +173,9 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		}
 	}
 
-	generateCommandSucceededServerEvent := func(command any) commandSucceededServerEvent {
-		return commandSucceededServerEvent{
-			Name:    commandSucceededServerEventName,
+	generateCommandReceivedServerEvent := func(command any) commandReceivedServerEvent {
+		return commandReceivedServerEvent{
+			Name:    commandReceivedServerEventName,
 			Command: command,
 		}
 	}
@@ -210,7 +210,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
 			fmt.Println(err)
 		}
-		serverEvent := generateCommandSucceededServerEvent(removePlayerCommand{
+		serverEvent := generateCommandReceivedServerEvent(removePlayerCommand{
 			Id:        uuid.New(),
 			Timestamp: time.Now().UnixMilli(),
 			Name:      removePlayerCommandName,
@@ -234,7 +234,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		closeConnection()
 		return
 	}
-	serverEvent := generateCommandSucceededServerEvent(addPlayerCommand{
+	serverEvent := generateCommandReceivedServerEvent(addPlayerCommand{
 		Id:        uuid.New(),
 		Timestamp: time.Now().UnixMilli(),
 		Name:      addPlayerCommandName,
@@ -275,6 +275,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				sendServerEventToPlayer(clientEvent.PeerPlayerId, generateP2pAnswerReceivedServerEvent(playerIdDto, clientEvent.IceCandidates, clientEvent.Answer))
+			case commandSentClientEventName:
+				clientEvent, err := jsonutil.Unmarshal[commandSentClientEvent](message)
+				if err != nil {
+					respondErroredServerEvent(err)
+					return
+				}
+				sendServerEventToPlayer(clientEvent.PeerPlayerId, generateCommandReceivedServerEvent(clientEvent.Command))
 			case commandRequestedClientEventName:
 				clientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[command]](message)
 				if err != nil {
@@ -295,7 +302,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						return
 					}
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeChangePlayerActionCommand(
 						worldIdDto, commandDto.PlayerId, commandDto.Action,
 					); err != nil {
@@ -315,7 +321,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						return
 					}
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.UnitId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
@@ -333,7 +338,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 						return
 					}
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, commandDto.PlayerId, commandDto.ItemId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
@@ -346,7 +350,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeCreateStaticUnitCommand(
 						commandDto.UnitId,
 						worldIdDto,
@@ -365,7 +368,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeCreateFenceUnitCommand(
 						commandDto.UnitId,
 						worldIdDto,
@@ -384,7 +386,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeCreatePortalUnitCommand(
 						commandDto.UnitId,
 						worldIdDto,
@@ -403,7 +404,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeCreateLinkUnitCommand(
 						commandDto.UnitId,
 						worldIdDto,
@@ -424,7 +424,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeCreateEmbedUnitCommand(
 						commandDto.UnitId,
 						worldIdDto,
@@ -445,7 +444,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeRotateUnitCommand(commandDto.UnitId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
@@ -458,7 +456,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeRemoveStaticUnitCommand(commandDto.UnitId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
@@ -471,7 +468,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeRemoveFenceUnitCommand(commandDto.UniId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
@@ -484,7 +480,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeRemovePortalUnitCommand(commandDto.UnitId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
@@ -497,7 +492,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.UnitId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
@@ -510,7 +504,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					broadcastServerEvent(generateCommandSucceededServerEvent(commandDto))
 					if err = httpHandler.executeRemoveEmbedUnitCommand(commandDto.UnitId); err != nil {
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id, err))
 						break
