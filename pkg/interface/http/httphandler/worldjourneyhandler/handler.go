@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
@@ -209,13 +208,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
 			fmt.Println(err)
 		}
-		serverEvent := generateCommandReceivedServerEvent(removePlayerCommand{
-			Id:        uuid.New(),
-			Timestamp: time.Now().UnixMilli(),
-			Name:      removePlayerCommandName,
-			PlayerId:  playerIdDto,
-		})
-		broadcastServerEvent(serverEvent)
 		broadcastServerEvent(generatePlayerLeftServerEvent(playerIdDto))
 
 	}
@@ -233,13 +225,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		closeConnection()
 		return
 	}
-	serverEvent := generateCommandReceivedServerEvent(addPlayerCommand{
-		Id:        uuid.New(),
-		Timestamp: time.Now().UnixMilli(),
-		Name:      addPlayerCommandName,
-		Player:    playerDto,
-	})
-	broadcastServerEvent(serverEvent)
 	broadcastServerEvent(generatePlayerJoinedServerEvent(playerDto))
 
 	go func() {
