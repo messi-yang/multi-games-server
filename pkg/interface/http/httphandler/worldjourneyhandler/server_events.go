@@ -43,9 +43,8 @@ type commandReceivedServerEvent struct {
 }
 
 type commandFailedServerEvent struct {
-	Name         serverEventName `json:"name"`
-	CommandId    uuid.UUID       `json:"commandId"`
-	ErrorMessage string          `json:"errorMessage"`
+	Name      serverEventName `json:"name"`
+	CommandId uuid.UUID       `json:"commandId"`
 }
 
 type p2pOfferReceivedServerEvent struct {
