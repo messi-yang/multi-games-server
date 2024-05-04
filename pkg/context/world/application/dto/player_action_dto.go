@@ -1,24 +1,19 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type PlayerActionDto struct {
-	Name            string             `json:"name"`
-	PrecisePosition PrecisePositionDto `json:"precisePosition"`
-	Direction       int8               `json:"direction"`
-	Time            int64              `json:"time"`
+	Name      string `json:"name"`
+	Direction int8   `json:"direction"`
 }
 
 func NewPlayerActionDto(playerAction playermodel.PlayerAction) PlayerActionDto {
 	return PlayerActionDto{
-		Name:            string(playerAction.GetName()),
-		PrecisePosition: NewPrecisePositionDto(playerAction.GetPrecisePosition()),
-		Time:            playerAction.GetTime().UnixMilli(),
+		Name:      string(playerAction.GetName()),
+		Direction: playerAction.GetDirection().Int8(),
 	}
 }
 
@@ -29,8 +24,6 @@ func ParsePlayerActionDto(dto PlayerActionDto) (playermodel.PlayerAction, error)
 	}
 	return playermodel.NewPlayerAction(
 		actionName,
-		worldcommonmodel.NewPrecisePosition(dto.PrecisePosition.X, dto.PrecisePosition.Z),
 		worldcommonmodel.NewDirection(dto.Direction),
-		time.UnixMilli(dto.Time),
 	), nil
 }

@@ -1,28 +1,22 @@
 package playermodel
 
 import (
-	"time"
-
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 )
 
 type PlayerAction struct {
-	name            PlayerActionNameEnum
-	precisePosition worldcommonmodel.PrecisePosition
-	direction       worldcommonmodel.Direction
-	time            time.Time
+	name      PlayerActionNameEnum
+	direction worldcommonmodel.Direction
 }
 
 // Interface Implementation Check
 var _ domain.ValueObject[PlayerAction] = (*PlayerAction)(nil)
 
-func NewPlayerAction(name PlayerActionNameEnum, precisePosition worldcommonmodel.PrecisePosition, direction worldcommonmodel.Direction, time time.Time) PlayerAction {
+func NewPlayerAction(name PlayerActionNameEnum, direction worldcommonmodel.Direction) PlayerAction {
 	return PlayerAction{
-		name:            name,
-		precisePosition: precisePosition,
-		direction:       direction,
-		time:            time,
+		name:      name,
+		direction: direction,
 	}
 }
 
@@ -38,26 +32,10 @@ func (playerAction PlayerAction) GetName() PlayerActionNameEnum {
 	return playerAction.name
 }
 
-func (playerAction PlayerAction) GetPrecisePosition() worldcommonmodel.PrecisePosition {
-	return playerAction.precisePosition
-}
-
-func (playerAction PlayerAction) UpdatePrecisePosition(precisePosition worldcommonmodel.PrecisePosition) PlayerAction {
-	return NewPlayerAction(playerAction.name, precisePosition, playerAction.direction, playerAction.time)
-}
-
 func (playerAction PlayerAction) GetDirection() worldcommonmodel.Direction {
 	return playerAction.direction
 }
 
 func (playerAction PlayerAction) UpdateDirection(direction worldcommonmodel.Direction) PlayerAction {
-	return NewPlayerAction(playerAction.name, playerAction.precisePosition, direction, playerAction.time)
-}
-
-func (playerAction PlayerAction) GetTime() time.Time {
-	return playerAction.time
-}
-
-func (playerAction PlayerAction) UpdateTime(time time.Time) PlayerAction {
-	return NewPlayerAction(playerAction.name, playerAction.precisePosition, playerAction.direction, time)
+	return NewPlayerAction(playerAction.name, direction)
 }

@@ -37,9 +37,7 @@ func NewPlayer(
 		heldItemId: heldItemId,
 		action: NewPlayerAction(
 			PlayerActionNameEnumStand,
-			worldcommonmodel.NewPrecisePosition(0, 0),
 			worldcommonmodel.NewDirection(0),
-			time.Now(),
 		),
 		precisePosition: worldcommonmodel.NewPrecisePosition(0, 0),
 		createdAt:       time.Now(),
@@ -105,8 +103,12 @@ func (player *Player) GetPrecisePosition() worldcommonmodel.PrecisePosition {
 	return player.precisePosition
 }
 
+func (player *Player) UpdatePrecisePosition(precisePosition worldcommonmodel.PrecisePosition) {
+	player.precisePosition = precisePosition
+}
+
 func (player *Player) Teleport(precisePosition worldcommonmodel.PrecisePosition) {
-	player.action = player.action.UpdatePrecisePosition(precisePosition)
+	player.UpdatePrecisePosition(precisePosition)
 }
 
 func (player *Player) ChangeAction(action PlayerAction) {
