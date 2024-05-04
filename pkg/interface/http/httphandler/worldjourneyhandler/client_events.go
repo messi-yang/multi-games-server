@@ -20,7 +20,8 @@ type clientEvent struct {
 type commandSentClientEvent struct {
 	Name         clientEventName `json:"name"`
 	PeerPlayerId uuid.UUID       `json:"peerPlayerId"`
-	Command      any             `json:"command"`
+	// The command will possibly be client-only command, so we use type "any" here
+	Command any `json:"command"`
 }
 
 type commandRequestedClientEvent[T any] struct {
