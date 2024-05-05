@@ -12,6 +12,7 @@ INSERT INTO unit_types (name)
 INSERT INTO items (id, name, traversable, created_at, updated_at, thumbnail_src, model_sources, compatible_unit_type, dimension_width, dimension_depth)
     VALUES
         ('fb030c79-25a4-48c6-955a-b1188ed409f7', 'fence', FALSE, Now(), Now(), '/asset/item/fence/thumbnail.png', '{/asset/item/fence/model_1.gltf, /asset/item/fence/model_2.gltf, /asset/item/fence/model_3.gltf, /asset/item/fence/model_4.gltf}', 'fence', 1, 1),
+        ('f128dfb1-2efc-4595-9eeb-47f0fbef5c88', 'stone wall', FALSE, Now(), Now(), '/asset/item/stone_wall/thumbnail.png', '{/asset/item/stone_wall/model_1.gltf, /asset/item/stone_wall/model_2.gltf, /asset/item/stone_wall/model_3.gltf, /asset/item/stone_wall/model_4.gltf}', 'fence', 1, 1),
         ('c64f732c-9494-4693-b17b-43a2736aa67b', 'portal', TRUE, Now(), Now(), '/asset/item/portal/thumbnail.png', '{/asset/item/portal/model.gltf}', 'portal', 1, 1),
         ('1b9ba8b1-c13e-4524-bddc-7cc6d981ee2c', 'trash bin', FALSE, Now(), Now(), '/asset/item/trash_bin/thumbnail.png', '{/asset/item/trash_bin/model.gltf}', 'static', 1, 1),
         ('2b6ab30d-0a2a-4424-b245-99ec2c301844', 'chair A', FALSE, Now(), Now(), '/asset/item/chair/thumbnail.png', '{/asset/item/chair/model.gltf}', 'static', 1, 1),
