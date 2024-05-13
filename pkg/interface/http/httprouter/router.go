@@ -69,8 +69,8 @@ func Run() error {
 
 	authHttpHandler := authhttphandler.NewHttpHandler()
 	authRouterGroup := router.Group("/api/auth")
-	authRouterGroup.GET("/oauth2/google", authHttpHandler.GoToGoogleAuthUrl)
-	authRouterGroup.GET("/oauth2/google/redirect", authHttpHandler.HandleGoogleAuthCallback)
+	authRouterGroup.GET("/oauth2/google", authHttpHandler.RedirectToGoogleOauthUrl)
+	authRouterGroup.GET("/oauth2/google/redirect", authHttpHandler.HandleGoogleOauthCallback)
 
 	userHttpHandler := userhttphandler.NewHttpHandler()
 	userRouterGroup := router.Group("/api/users")
