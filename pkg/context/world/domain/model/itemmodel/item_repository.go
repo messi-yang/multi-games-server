@@ -7,7 +7,7 @@ type ItemRepo interface {
 	Update(item Item) error
 	Get(itemId worldcommonmodel.ItemId) (Item, error)
 	GetAll() ([]Item, error)
-	GetItemsOfIds(itemIds []worldcommonmodel.ItemId) ([]Item, error)
+	GetItemsWithIds(itemIds []worldcommonmodel.ItemId) ([]Item, error)
 	GetItemsOfCompatibleUnitType(compatibleUnitType worldcommonmodel.UnitType) ([]Item, error)
 	GetFirstItem() (Item, error)
 }

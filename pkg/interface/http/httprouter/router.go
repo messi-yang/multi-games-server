@@ -101,7 +101,7 @@ func Run() error {
 	itemRouterGroup := router.Group("/api/items")
 	itemRouterGroup.Use(parseHttpAccessTokenMiddleware)
 	itemRouterGroup.GET("/", itemHttpHandler.QueryItems)
-	itemRouterGroup.GET("/with-ids", itemHttpHandler.GetItemsOfIds)
+	itemRouterGroup.GET("/with-ids", itemHttpHandler.GetItemsWithIds)
 
 	linkUnitHttpHandler := linkunithttphandler.NewHttpHandler()
 	linkUnitRouterGroup := router.Group("/api/link-units")

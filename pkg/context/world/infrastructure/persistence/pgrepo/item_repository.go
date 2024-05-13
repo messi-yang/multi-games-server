@@ -66,7 +66,7 @@ func (repo *itemRepo) GetAll() (items []itemmodel.Item, err error) {
 	})
 }
 
-func (repo *itemRepo) GetItemsOfIds(itemIds []worldcommonmodel.ItemId) (items []itemmodel.Item, err error) {
+func (repo *itemRepo) GetItemsWithIds(itemIds []worldcommonmodel.ItemId) (items []itemmodel.Item, err error) {
 	itemIdDtos := lo.Map(itemIds, func(itemId worldcommonmodel.ItemId, _ int) uuid.UUID {
 		return itemId.Uuid()
 	})
