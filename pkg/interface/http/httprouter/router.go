@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/embedunithttphandler"
@@ -38,9 +37,7 @@ func Run() error {
 		}
 		accessToken := strings.Split(authorizationHeader, " ")[1]
 
-		pgUow := pguow.NewDummyUow()
-
-		authAppService := providedependency.ProvideAuthAppService(pgUow)
+		authAppService := providedependency.ProvideAuthAppService()
 		userId, err := authAppService.Validate(accessToken)
 		if err != nil {
 			ctx.Next()
@@ -54,9 +51,7 @@ func Run() error {
 	parseSocketAccessTokenMiddleware := func(ctx *gin.Context) {
 		accessToken := ctx.Request.URL.Query().Get("access-token")
 
-		pgUow := pguow.NewDummyUow()
-
-		authAppService := providedependency.ProvideAuthAppService(pgUow)
+		authAppService := providedependency.ProvideAuthAppService()
 		userId, err := authAppService.Validate(accessToken)
 		if err != nil {
 			ctx.Next()
