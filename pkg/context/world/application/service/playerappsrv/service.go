@@ -9,7 +9,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -21,7 +20,6 @@ var (
 type Service interface {
 	GetPlayers(GetPlayersQuery) (playerDtos []dto.PlayerDto, err error)
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
-	EnterWorld(EnterWorldCommand) (playerId uuid.UUID, err error)
 	ChangePlayerAction(ChangePlayerActionCommand) error
 	SendPlayerIntoPortal(SendPlayerIntoPortalCommand) error
 	LeaveWorld(LeaveWorldCommand) error
@@ -66,24 +64,6 @@ func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, er
 		return playerDto, err
 	}
 	return dto.NewPlayerDto(player), nil
-}
-
-func (serve *serve) EnterWorld(command EnterWorldCommand) (plyaerIdDto uuid.UUID, err error) {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	playerHeldItemId := worldcommonmodel.NewItemId(command.PlayerHeldItemId)
-
-	direction := worldcommonmodel.NewDownDirection()
-	newPlayer := playermodel.NewPlayer(
-		worldId,
-		command.PlayerName,
-		direction,
-		&playerHeldItemId,
-	)
-
-	if err = serve.playerRepo.Add(newPlayer); err != nil {
-		return plyaerIdDto, err
-	}
-	return newPlayer.GetId().Uuid(), nil
 }
 
 func (serve *serve) ChangePlayerAction(command ChangePlayerActionCommand) error {

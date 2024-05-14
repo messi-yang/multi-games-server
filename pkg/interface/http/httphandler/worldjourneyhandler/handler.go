@@ -5,14 +5,12 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/userappsrv"
-	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/embedunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/fenceunitappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/itemappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/portalunitappsrv"
@@ -166,7 +164,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		return
 	}
 
-	playerIdDto, err = httpHandler.enterWorld(worldIdDto, authorizedUserIdDto)
+	playerIdDto, err = httpHandler.addPlayerToWorld(worldIdDto, authorizedUserIdDto)
 	if err != nil {
 		respondServerEvent(generateErroredServerEvent(err))
 		closeConnection()
@@ -786,43 +784,18 @@ func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) enterWorld(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (playerIdDto uuid.UUID, err error) {
+func (httpHandler *HttpHandler) addPlayerToWorld(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (playerIdDto uuid.UUID, err error) {
 	uow := pguow.NewUow()
 
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	itemAppService := world_provide_dependency.ProvideItemAppService(uow)
-	userAppService := iam_provide_dependency.ProvideUserAppService(uow)
-
-	itemDtos, err := itemAppService.QueryItems(itemappsrv.QueryItemsQuery{})
+	addPlayerToWorldUseCase := usecase.ProvideAddPlayerToWorldUseCase(uow)
+	newPlayerIdDto, err := addPlayerToWorldUseCase.Execute(worldIdDto, userIdDto)
 	if err != nil {
 		uow.RevertChanges()
 		return playerIdDto, err
 	}
-
-	playerName := "Guest"
-	if userIdDto != nil {
-		user, err := userAppService.GetUser(userappsrv.GetUserQuery{
-			UserId: *userIdDto,
-		})
-		if err != nil {
-			uow.RevertChanges()
-			return playerIdDto, err
-		}
-		playerName = user.FriendlyName
-	}
-
-	if playerIdDto, err = playerAppService.EnterWorld(playerappsrv.EnterWorldCommand{
-		WorldId:          worldIdDto,
-		PlayerName:       playerName,
-		PlayerHeldItemId: itemDtos[0].Id,
-	}); err != nil {
-		uow.RevertChanges()
-		return playerIdDto, err
-	}
-
 	uow.SaveChanges()
 
-	return playerIdDto, nil
+	return newPlayerIdDto, nil
 }
 
 func (httpHandler *HttpHandler) respondWorldEnteredServerEvent(worldIdDto uuid.UUID, playerIdDto uuid.UUID, respondMessage func(any)) error {

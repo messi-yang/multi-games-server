@@ -11,12 +11,6 @@ type ChangePlayerHeldItemCommand struct {
 	ItemId   uuid.UUID
 }
 
-type EnterWorldCommand struct {
-	WorldId          uuid.UUID
-	PlayerName       string
-	PlayerHeldItemId uuid.UUID
-}
-
 type ChangePlayerActionCommand struct {
 	WorldId  uuid.UUID
 	PlayerId uuid.UUID

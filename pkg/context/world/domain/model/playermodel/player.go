@@ -87,6 +87,10 @@ func (player *Player) GetName() string {
 	return player.name
 }
 
+func (player *Player) UpdateName(name string) {
+	player.name = name
+}
+
 func (player *Player) ChangeHeldItem(itemId worldcommonmodel.ItemId) {
 	player.heldItemId = &itemId
 }
