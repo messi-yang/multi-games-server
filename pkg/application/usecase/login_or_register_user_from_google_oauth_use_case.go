@@ -14,7 +14,7 @@ import (
 	world_pgrepo "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 )
 
-type RegisterUserFromGoogleOauthUseCase struct {
+type LoginOrRegisterUserFromGoogleOauthUseCase struct {
 	userRepo                usermodel.UserRepo
 	worldAccountRepo        worldaccountmodel.WorldAccountRepo
 	userService             iam_service.UserService
@@ -22,13 +22,13 @@ type RegisterUserFromGoogleOauthUseCase struct {
 	googleOauthInfraService googleoauthinfrasrv.Service
 }
 
-func NewRegisterUserFromGoogleOauthUseCase(userRepo usermodel.UserRepo, worldAccountRepo worldaccountmodel.WorldAccountRepo,
+func NewLoginOrRegisterUserFromGoogleOauthUseCase(userRepo usermodel.UserRepo, worldAccountRepo worldaccountmodel.WorldAccountRepo,
 	userService iam_service.UserService, authService iam_service.AuthService, googleOauthInfraService googleoauthinfrasrv.Service,
-) RegisterUserFromGoogleOauthUseCase {
-	return RegisterUserFromGoogleOauthUseCase{userRepo, worldAccountRepo, userService, authService, googleOauthInfraService}
+) LoginOrRegisterUserFromGoogleOauthUseCase {
+	return LoginOrRegisterUserFromGoogleOauthUseCase{userRepo, worldAccountRepo, userService, authService, googleOauthInfraService}
 }
 
-func ProvideRegisterUserFromGoogleOauthUseCase(uow pguow.Uow) RegisterUserFromGoogleOauthUseCase {
+func ProvideLoginOrRegisterUserFromGoogleOauthUseCase(uow pguow.Uow) LoginOrRegisterUserFromGoogleOauthUseCase {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	userRepo := iam_pgrepo.NewUserRepo(uow, domainEventDispatcher)
 	worldAccountRepo := world_pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)
@@ -36,7 +36,7 @@ func ProvideRegisterUserFromGoogleOauthUseCase(uow pguow.Uow) RegisterUserFromGo
 	authService := iam_service.NewAuthService(os.Getenv("AUTH_SECRET"))
 	googleOauthInfraService := googleoauthinfrasrv.NewService()
 
-	return NewRegisterUserFromGoogleOauthUseCase(
+	return NewLoginOrRegisterUserFromGoogleOauthUseCase(
 		userRepo,
 		worldAccountRepo,
 		userService,
@@ -45,9 +45,12 @@ func ProvideRegisterUserFromGoogleOauthUseCase(uow pguow.Uow) RegisterUserFromGo
 	)
 }
 
-func (useCase *RegisterUserFromGoogleOauthUseCase) Execute(code string, oauthStateString string) (redirectPath string, err error) {
+func (useCase *LoginOrRegisterUserFromGoogleOauthUseCase) Execute(code string, oauthStateString string) (redirectPath string, err error) {
+	clientUrl := os.Getenv("CLIENT_URL")
+
 	googleUserEmailAddress, err := useCase.googleOauthInfraService.GetUserEmailAddress(code)
 	if err != nil {
+		fmt.Println(code, err)
 		return
 	}
 
@@ -56,8 +59,27 @@ func (useCase *RegisterUserFromGoogleOauthUseCase) Execute(code string, oauthSta
 		return
 	}
 
+	existingUser, err := useCase.userRepo.GetUserByEmailAddress(googleUserEmailAddress)
+	if err != nil {
+		return redirectPath, err
+	}
+	if existingUser != nil {
+		accessToken, err := useCase.authService.GenerateAccessToken(existingUser.GetId())
+		if err != nil {
+			return redirectPath, err
+		}
+
+		return fmt.Sprintf(
+			"%s/auth/sign-in-success/?access_token=%v&client_redirect_path=%v",
+			clientUrl,
+			accessToken,
+			googleOauthState.ClientRedirectPath,
+		), nil
+	}
+
 	newUserId, err := useCase.userService.CreateUser(googleUserEmailAddress)
 	if err != nil {
+		fmt.Println(err)
 		return redirectPath, err
 	}
 
@@ -73,7 +95,6 @@ func (useCase *RegisterUserFromGoogleOauthUseCase) Execute(code string, oauthSta
 		return redirectPath, err
 	}
 
-	clientUrl := os.Getenv("CLIENT_URL")
 	return fmt.Sprintf(
 		"%s/auth/sign-in-success/?access_token=%v&client_redirect_path=%v",
 		clientUrl,

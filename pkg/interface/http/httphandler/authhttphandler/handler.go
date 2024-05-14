@@ -31,8 +31,8 @@ func (httpHandler *HttpHandler) RedirectToGoogleOauthUrl(c *gin.Context) {
 func (httpHandler *HttpHandler) HandleGoogleOauthCallback(c *gin.Context) {
 	pgUow := pguow.NewUow()
 
-	registerUserFromGoogleUseCase := usecase.ProvideRegisterUserFromGoogleOauthUseCase(pgUow)
-	redirectPath, err := registerUserFromGoogleUseCase.Execute(c.Query("code"), c.Query("state"))
+	loginOrRegisterUserFromGoogleOauthUseCase := usecase.ProvideLoginOrRegisterUserFromGoogleOauthUseCase(pgUow)
+	redirectPath, err := loginOrRegisterUserFromGoogleOauthUseCase.Execute(c.Query("code"), c.Query("state"))
 	if err != nil {
 		pgUow.RevertChanges()
 		return

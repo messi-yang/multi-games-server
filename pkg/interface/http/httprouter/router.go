@@ -3,8 +3,8 @@ package httprouter
 import (
 	"strings"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/embedunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
@@ -37,28 +37,28 @@ func Run() error {
 		}
 		accessToken := strings.Split(authorizationHeader, " ")[1]
 
-		authAppService := providedependency.ProvideAuthAppService()
-		userId, err := authAppService.Validate(accessToken)
+		validateAccessTokenUseCase := usecase.ProvideValidateAccessTokenUseCase()
+		userIdDto, err := validateAccessTokenUseCase.Execute(accessToken)
 		if err != nil {
 			ctx.Next()
 			return
 		}
 
-		httpsession.SetAuthrorizedUserId(ctx, userId)
+		httpsession.SetAuthrorizedUserId(ctx, userIdDto)
 		ctx.Next()
 	}
 
 	parseSocketAccessTokenMiddleware := func(ctx *gin.Context) {
 		accessToken := ctx.Request.URL.Query().Get("access-token")
 
-		authAppService := providedependency.ProvideAuthAppService()
-		userId, err := authAppService.Validate(accessToken)
+		validateAccessTokenUseCase := usecase.ProvideValidateAccessTokenUseCase()
+		userIdDto, err := validateAccessTokenUseCase.Execute(accessToken)
 		if err != nil {
 			ctx.Next()
 			return
 		}
 
-		httpsession.SetAuthrorizedUserId(ctx, userId)
+		httpsession.SetAuthrorizedUserId(ctx, userIdDto)
 		ctx.Next()
 	}
 

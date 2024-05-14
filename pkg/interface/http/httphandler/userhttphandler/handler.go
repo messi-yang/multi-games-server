@@ -3,9 +3,8 @@ package userhttphandler
 import (
 	"net/http"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/userappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
@@ -26,11 +25,8 @@ func (httpHandler *HttpHandler) GetMyUser(c *gin.Context) {
 	}
 
 	pgUow := pguow.NewDummyUow()
-	userAppService := providedependency.ProvideUserAppService(pgUow)
-
-	userDto, err := userAppService.GetUser(userappsrv.GetUserQuery{
-		UserId: *authorizedUserIdDto,
-	})
+	getUserUseCase := usecase.ProvideGetUserUseCase(pgUow)
+	userDto, err := getUserUseCase.Execute(*authorizedUserIdDto)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -53,27 +49,14 @@ func (httpHandler *HttpHandler) UpdateMyUser(c *gin.Context) {
 	}
 
 	pgUow := pguow.NewUow()
-	userAppService := providedependency.ProvideUserAppService(pgUow)
-
-	if err := userAppService.UpdateUser(userappsrv.UpdateUserCommand{
-		UserId:       *authorizedUserIdDto,
-		Username:     requestBody.Username,
-		FriendlyName: requestBody.FriendlyName,
-	}); err != nil {
-		pgUow.RevertChanges()
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	updatedUserDto, err := userAppService.GetUser(userappsrv.GetUserQuery{
-		UserId: *authorizedUserIdDto,
-	})
+	updateUserUseCase := usecase.ProvideUpdateUserUseCase(pgUow)
+	updatedUserDto, err := updateUserUseCase.Execute(*authorizedUserIdDto, requestBody.Username, requestBody.FriendlyName)
 	if err != nil {
 		pgUow.RevertChanges()
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-
 	pgUow.SaveChanges()
+
 	c.JSON(http.StatusOK, updateMyUserResponse(viewmodel.UserViewModel(updatedUserDto)))
 }
