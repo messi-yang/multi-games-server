@@ -1,9 +1,6 @@
 package worldaccountappsrv
 
 import (
-	"fmt"
-
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
@@ -11,8 +8,6 @@ import (
 )
 
 type Service interface {
-	GetWorldAccountOfUser(GetWorldAccountOfUserQuery) (dto.WorldAccountDto, error)
-	CreateWorldAccount(CreateWorldAccountCommand) error
 	QueryWorldAccounts(QueryWorldAccountsQuery) ([]dto.WorldAccountDto, error)
 	HandleWorldCreatedDomainEvent(worldmodel.WorldCreated) error
 	HandleWorldDeletedDomainEvent(worldmodel.WorldDeleted) error
@@ -28,29 +23,6 @@ func NewService(
 	return &serve{
 		worldAccountRepo: worldAccountRepo,
 	}
-}
-
-func (serve *serve) GetWorldAccountOfUser(query GetWorldAccountOfUserQuery) (worldAccountDto dto.WorldAccountDto, err error) {
-	userId := globalcommonmodel.NewUserId(query.UserId)
-	worldAccount, err := serve.worldAccountRepo.GetWorldAccountOfUser(userId)
-	if err != nil {
-		return worldAccountDto, err
-	}
-
-	return dto.NewWorldAccountDto(worldAccount), nil
-}
-
-func (serve *serve) CreateWorldAccount(command CreateWorldAccountCommand) (err error) {
-	userId := globalcommonmodel.NewUserId(command.UserId)
-	worldAccount, err := serve.worldAccountRepo.GetWorldAccountByUserId(userId)
-	if err != nil {
-		return err
-	}
-	if worldAccount != nil {
-		return fmt.Errorf("already has a worldAccount with userId of %s", userId.Uuid().String())
-	}
-	newWorldAccount := worldaccountmodel.NewWorldAccount(userId)
-	return serve.worldAccountRepo.Add(newWorldAccount)
 }
 
 func (serve *serve) QueryWorldAccounts(query QueryWorldAccountsQuery) (itemDtos []dto.WorldAccountDto, err error) {
