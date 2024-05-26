@@ -6,7 +6,3 @@ type GetWorldMemberOfUserQuery struct {
 	WorldId uuid.UUID
 	UserId  uuid.UUID
 }
-
-type GetWorldMembersQuery struct {
-	WorldId uuid.UUID
-}
