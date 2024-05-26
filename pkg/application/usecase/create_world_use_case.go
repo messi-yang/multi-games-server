@@ -42,6 +42,7 @@ func (useCase *CreateWorldUseCase) Execute(useIdDto uuid.UUID, name string) (wor
 		return worldDto, err
 	}
 
+	// TODO - Please do add new role in WOORLD_CREATED domain event handler
 	worldRole, err := globalcommonmodel.NewWorldRole("owner")
 	if err != nil {
 		return worldDto, err
