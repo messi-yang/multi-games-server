@@ -7,7 +7,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
 )
 
@@ -19,7 +18,6 @@ type Service interface {
 	GetWorld(GetWorldQuery) (dto.WorldDto, error)
 	GetMyWorlds(GetMyWorldsQuery) ([]dto.WorldDto, error)
 	QueryWorlds(QueryWorldsQuery) ([]dto.WorldDto, error)
-	CreateWorld(CreateWorldCommand) (uuid.UUID, error)
 	UpdateWorld(UpdateWorldCommand) error
 	DeleteWorld(DeleteWorldCommand) error
 }
@@ -69,16 +67,6 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 	return lo.Map(worlds, func(world worldmodel.World, _ int) dto.WorldDto {
 		return dto.NewWorldDto(world)
 	}), nil
-}
-
-func (serve *serve) CreateWorld(command CreateWorldCommand) (newWorldIdDto uuid.UUID, err error) {
-	userId := globalcommonmodel.NewUserId(command.UserId)
-	newWorldId, err := serve.worldService.CreateWorld(userId, command.Name)
-	if err != nil {
-		return newWorldIdDto, err
-	}
-
-	return newWorldId.Uuid(), nil
 }
 
 func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {

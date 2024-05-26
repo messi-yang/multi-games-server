@@ -7,7 +7,6 @@ import (
 )
 
 type Service interface {
-	AddWorldMember(AddWorldMemberCommand) error
 	DeleteAllWorldMembersInWorld(DeleteAllWorldMembersInWorldCommand) error
 }
 
@@ -21,19 +20,6 @@ func NewService(worldMemberRepo worldaccessmodel.WorldMemberRepo, userRepo userm
 		worldMemberRepo: worldMemberRepo,
 		userRepo:        userRepo,
 	}
-}
-
-func (serve *serve) AddWorldMember(command AddWorldMemberCommand) error {
-	worldRole, err := globalcommonmodel.NewWorldRole(string(command.Role))
-	if err != nil {
-		return err
-	}
-	newWorldMember := worldaccessmodel.NewWorldMember(
-		globalcommonmodel.NewWorldId(command.WorldId),
-		globalcommonmodel.NewUserId(command.UserId),
-		worldRole,
-	)
-	return serve.worldMemberRepo.Add(newWorldMember)
 }
 
 func (serve *serve) DeleteAllWorldMembersInWorld(command DeleteAllWorldMembersInWorldCommand) error {

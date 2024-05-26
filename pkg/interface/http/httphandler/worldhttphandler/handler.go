@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
@@ -121,34 +122,8 @@ func (httpHandler *HttpHandler) CreateWorld(c *gin.Context) {
 	}
 
 	pgUow := pguow.NewUow()
-
-	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-	worldMemberAppService := iam_provide_dependency.ProvideWorldMemberAppService(pgUow)
-
-	newWorldIdDto, err := worldAppService.CreateWorld(
-		worldappsrv.CreateWorldCommand{
-			UserId: *authorizedUserIdDto,
-			Name:   requestBody.Name,
-		},
-	)
-	if err != nil {
-		pgUow.RevertChanges()
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	// TODO - handle this side effects by using integration events
-	if err := worldMemberAppService.AddWorldMember(worldmemberappsrv.AddWorldMemberCommand{
-		UserId:  *authorizedUserIdDto,
-		WorldId: newWorldIdDto,
-		Role:    "owner",
-	}); err != nil {
-		pgUow.RevertChanges()
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: newWorldIdDto})
+	createWorldUseCase := usecase.ProvideCreateWorldUseCase(pgUow)
+	worldDto, err := createWorldUseCase.Execute(*authorizedUserIdDto, requestBody.Name)
 	if err != nil {
 		pgUow.RevertChanges()
 		c.String(http.StatusBadRequest, err.Error())

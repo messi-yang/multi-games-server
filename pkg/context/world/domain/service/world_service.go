@@ -21,7 +21,7 @@ var (
 )
 
 type WorldService interface {
-	CreateWorld(userId globalcommonmodel.UserId, name string) (globalcommonmodel.WorldId, error)
+	CreateWorld(userId globalcommonmodel.UserId, name string) (worldmodel.World, error)
 	DeleteWorld(worldId globalcommonmodel.WorldId) error
 }
 
@@ -49,13 +49,13 @@ func NewWorldService(
 	}
 }
 
-func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name string) (worldId globalcommonmodel.WorldId, err error) {
+func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name string) (newWorld worldmodel.World, err error) {
 	worldAccount, err := worldServe.worldAccountRepo.GetWorldAccountOfUser(userId)
 	if err != nil {
-		return worldId, err
+		return newWorld, err
 	}
 	if !worldAccount.CanAddNewWorld() {
-		return worldId, ErrWorldsCountReachLimit
+		return newWorld, ErrWorldsCountReachLimit
 	}
 
 	worldBound, err := worldcommonmodel.NewBound(
@@ -63,19 +63,19 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 		worldcommonmodel.NewPosition(50, 50),
 	)
 	if err != nil {
-		return worldId, err
+		return newWorld, err
 	}
 
-	newWorld := worldmodel.NewWorld(userId, name, worldBound)
-	worldId = newWorld.GetId()
+	newWorld = worldmodel.NewWorld(userId, name, worldBound)
+	worldId := newWorld.GetId()
 
 	if err = worldServe.worldRepo.Add(newWorld); err != nil {
-		return worldId, err
+		return newWorld, err
 	}
 
 	itemsForStaticUnitType, err := worldServe.itemRepo.GetItemsOfCompatibleUnitType(worldcommonmodel.NewStaticUnitType())
 	if err != nil {
-		return worldId, err
+		return newWorld, err
 	}
 
 	if err = commonutil.RangeMatrix(100, 100, func(x int, z int) error {
@@ -96,10 +96,10 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 		}
 		return nil
 	}); err != nil {
-		return worldId, err
+		return newWorld, err
 	}
 
-	return newWorld.GetId(), nil
+	return newWorld, nil
 }
 
 func (worldServe *worldServe) DeleteWorld(worldId globalcommonmodel.WorldId) error {
