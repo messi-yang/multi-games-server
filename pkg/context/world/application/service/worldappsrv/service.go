@@ -19,7 +19,6 @@ type Service interface {
 	GetMyWorlds(GetMyWorldsQuery) ([]dto.WorldDto, error)
 	QueryWorlds(QueryWorldsQuery) ([]dto.WorldDto, error)
 	UpdateWorld(UpdateWorldCommand) error
-	DeleteWorld(DeleteWorldCommand) error
 }
 
 type serve struct {
@@ -77,9 +76,4 @@ func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
 	}
 	world.ChangeName(command.Name)
 	return serve.worldRepo.Update(world)
-}
-
-func (serve *serve) DeleteWorld(command DeleteWorldCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	return serve.worldService.DeleteWorld(worldId)
 }

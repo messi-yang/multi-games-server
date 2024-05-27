@@ -103,5 +103,6 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 }
 
 func (worldServe *worldServe) DeleteWorld(worldId globalcommonmodel.WorldId) error {
+	// TODO - We need to figure out if it's a good idea to totally delete a world from database, maybe we can just flag it as archived
 	return ErrDeleteNotWorking
 }

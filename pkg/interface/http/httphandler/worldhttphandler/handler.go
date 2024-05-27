@@ -7,7 +7,6 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldmemberappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
 	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
@@ -211,47 +210,13 @@ func (httpHandler *HttpHandler) DeleteWorld(c *gin.Context) {
 	}
 
 	pgUow := pguow.NewUow()
-
-	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-	worldMemberAppService := iam_provide_dependency.ProvideWorldMemberAppService(pgUow)
-	worldPermissionAppService := iam_provide_dependency.ProvideWorldPermissionAppService(pgUow)
-
-	canDeleteWorld, err := worldPermissionAppService.CanDeleteWorld(worldpermissionappsrv.CanDeleteWorldQuery{
-		WorldId: worldIdDto,
-		UserId:  *authorizedUserIdDto,
-	})
-	if err != nil {
+	deleteWorldUseCase := usecase.ProvideDeleteWorldUseCase(pgUow)
+	if err = deleteWorldUseCase.Execute(*authorizedUserIdDto, worldIdDto); err != nil {
 		pgUow.RevertChanges()
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	if !canDeleteWorld {
-		pgUow.RevertChanges()
-		c.String(http.StatusForbidden, "not permitted")
-		return
-	}
-
-	// TODO - handle this side effects by using integration events
-	if err := worldMemberAppService.DeleteAllWorldMembersInWorld(worldmemberappsrv.DeleteAllWorldMembersInWorldCommand{
-		WorldId: worldIdDto,
-	}); err != nil {
-		pgUow.RevertChanges()
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if err = worldAppService.DeleteWorld(worldappsrv.DeleteWorldCommand{
-		WorldId: worldIdDto,
-	}); err != nil {
-		pgUow.RevertChanges()
-		if errors.Is(err, worldappsrv.ErrNotPermitted) {
-			c.String(http.StatusForbidden, err.Error())
-		} else {
-			c.String(http.StatusBadRequest, err.Error())
-		}
-		return
-	}
-
 	pgUow.SaveChanges()
+
 	c.String(http.StatusOK, "")
 }
