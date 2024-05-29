@@ -77,7 +77,6 @@ func Run() error {
 	worldRouterGroup.Use(parseHttpAccessTokenMiddleware)
 
 	worldRouterGroup.GET("/:worldId", worldHttpHandler.GetWorld)
-	worldRouterGroup.GET("/", worldHttpHandler.QueryWorlds)
 	worldRouterGroup.GET("/mine", worldHttpHandler.GetMyWorlds)
 	worldRouterGroup.POST("/", worldHttpHandler.CreateWorld)
 	worldRouterGroup.PATCH("/:worldId", worldHttpHandler.UpdateWorld)

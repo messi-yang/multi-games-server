@@ -17,7 +17,6 @@ var (
 type Service interface {
 	GetWorld(GetWorldQuery) (dto.WorldDto, error)
 	GetMyWorlds(GetMyWorldsQuery) ([]dto.WorldDto, error)
-	QueryWorlds(QueryWorldsQuery) ([]dto.WorldDto, error)
 }
 
 type serve struct {
@@ -47,17 +46,6 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldDto dto.WorldDto, err er
 func (serve *serve) GetMyWorlds(query GetMyWorldsQuery) (worldDtos []dto.WorldDto, err error) {
 	userId := globalcommonmodel.NewUserId(query.UserId)
 	worlds, err := serve.worldRepo.GetWorldsOfUser(userId)
-	if err != nil {
-		return worldDtos, err
-	}
-
-	return lo.Map(worlds, func(world worldmodel.World, _ int) dto.WorldDto {
-		return dto.NewWorldDto(world)
-	}), nil
-}
-
-func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDto, err error) {
-	worlds, err := serve.worldRepo.Query(query.Limit, query.Offset)
 	if err != nil {
 		return worldDtos, err
 	}

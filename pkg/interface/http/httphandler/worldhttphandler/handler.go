@@ -2,7 +2,6 @@ package worldhttphandler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
@@ -42,40 +41,6 @@ func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 	c.JSON(http.StatusOK, getWorldResponse(
 		viewmodel.WorldViewModel(worldDto),
 	))
-}
-
-func (httpHandler *HttpHandler) QueryWorlds(c *gin.Context) {
-	limitQuery := c.Query("limit")
-	limit, err := strconv.Atoi(limitQuery)
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-	offsetQuery := c.Query("offset")
-	offset, err := strconv.Atoi(offsetQuery)
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	pgUow := pguow.NewDummyUow()
-
-	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-
-	worldDtos, err := worldAppService.QueryWorlds(worldappsrv.QueryWorldsQuery{
-		Limit:  limit,
-		Offset: offset,
-	})
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	worldViewModels := lo.Map(worldDtos, func(worldDto dto.WorldDto, _ int) viewmodel.WorldViewModel {
-		return viewmodel.WorldViewModel(worldDto)
-	})
-
-	c.JSON(http.StatusOK, queryWorldsResponse(worldViewModels))
 }
 
 func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
