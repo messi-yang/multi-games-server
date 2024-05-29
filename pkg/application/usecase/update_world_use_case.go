@@ -10,33 +10,26 @@ import (
 	iam_pgrepo "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
 	world_pgrepo "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 	"github.com/google/uuid"
 )
 
 type UpdateWorldUseCase struct {
 	worldRepo       worldmodel.WorldRepo
-	worldService    service.WorldService
 	worldMemberRepo worldaccessmodel.WorldMemberRepo
 }
 
-func NewUpdateWorldUseCase(worldRepo worldmodel.WorldRepo, worldService service.WorldService, worldMemberRepo worldaccessmodel.WorldMemberRepo) UpdateWorldUseCase {
-	return UpdateWorldUseCase{worldRepo, worldService, worldMemberRepo}
+func NewUpdateWorldUseCase(worldRepo worldmodel.WorldRepo, worldMemberRepo worldaccessmodel.WorldMemberRepo) UpdateWorldUseCase {
+	return UpdateWorldUseCase{worldRepo, worldMemberRepo}
 }
 
 func ProvideUpdateWorldUseCase(uow pguow.Uow) UpdateWorldUseCase {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
-	worldAccountRepo := world_pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)
 	worldRepo := world_pgrepo.NewWorldRepo(uow, domainEventDispatcher)
-	itemRepo := world_pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	unitRepo := world_pgrepo.NewUnitRepo(uow, domainEventDispatcher)
-	staticUnitRepo := world_pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
-	worldService := service.NewWorldService(worldAccountRepo, worldRepo, unitRepo, staticUnitRepo, itemRepo)
 
 	worldMemberRepo := iam_pgrepo.NewWorldMemberRepo(uow, domainEventDispatcher)
 
-	return NewUpdateWorldUseCase(worldRepo, worldService, worldMemberRepo)
+	return NewUpdateWorldUseCase(worldRepo, worldMemberRepo)
 }
 
 func (useCase *UpdateWorldUseCase) Execute(useIdDto uuid.UUID, worldIdDto uuid.UUID, worldName string) (
