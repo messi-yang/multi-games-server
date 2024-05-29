@@ -52,11 +52,8 @@ func (httpHandler *HttpHandler) GetMyWorlds(c *gin.Context) {
 
 	pgUow := pguow.NewDummyUow()
 
-	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-
-	worldDtos, err := worldAppService.GetMyWorlds(worldappsrv.GetMyWorldsQuery{
-		UserId: *authorizedUserIdDto,
-	})
+	getMyWorldsUseCase := usecase.ProvideGetMyWorldsUseCase(pgUow)
+	worldDtos, err := getMyWorldsUseCase.Execute(*authorizedUserIdDto)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return

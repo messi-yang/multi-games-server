@@ -6,8 +6,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
-	"github.com/samber/lo"
 )
 
 var (
@@ -16,21 +14,17 @@ var (
 
 type Service interface {
 	GetWorld(GetWorldQuery) (dto.WorldDto, error)
-	GetMyWorlds(GetMyWorldsQuery) ([]dto.WorldDto, error)
 }
 
 type serve struct {
-	worldRepo    worldmodel.WorldRepo
-	worldService service.WorldService
+	worldRepo worldmodel.WorldRepo
 }
 
 func NewService(
 	worldRepo worldmodel.WorldRepo,
-	worldService service.WorldService,
 ) Service {
 	return &serve{
-		worldRepo:    worldRepo,
-		worldService: worldService,
+		worldRepo: worldRepo,
 	}
 }
 
@@ -41,16 +35,4 @@ func (serve *serve) GetWorld(query GetWorldQuery) (worldDto dto.WorldDto, err er
 		return worldDto, err
 	}
 	return dto.NewWorldDto(world), nil
-}
-
-func (serve *serve) GetMyWorlds(query GetMyWorldsQuery) (worldDtos []dto.WorldDto, err error) {
-	userId := globalcommonmodel.NewUserId(query.UserId)
-	worlds, err := serve.worldRepo.GetWorldsOfUser(userId)
-	if err != nil {
-		return worldDtos, err
-	}
-
-	return lo.Map(worlds, func(world worldmodel.World, _ int) dto.WorldDto {
-		return dto.NewWorldDto(world)
-	}), nil
 }
