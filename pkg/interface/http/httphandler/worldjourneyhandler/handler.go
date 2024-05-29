@@ -9,12 +9,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/embedunitappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/fenceunitappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/linkunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/portalunitappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/staticunitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
@@ -569,15 +564,8 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 	directionDto int8,
 ) error {
 	uow := pguow.NewUow()
-
-	staticUnitAppService := world_provide_dependency.ProvideStaticUnitAppService(uow)
-	if err := staticUnitAppService.CreateStaticUnit(staticunitappsrv.CreateStaticUnitCommand{
-		Id:        idDto,
-		WorldId:   worldIdDto,
-		ItemId:    itemIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-	}); err != nil {
+	createStaticUnitUseCase := usecase.ProvideCreateStaticUnitUseCase(uow)
+	if err := createStaticUnitUseCase.Execute(idDto, worldIdDto, itemIdDto, positionDto, directionDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -587,11 +575,8 @@ func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 
 func (httpHandler *HttpHandler) executeRemoveStaticUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
-
-	staticUnitAppService := world_provide_dependency.ProvideStaticUnitAppService(uow)
-	if err := staticUnitAppService.RemoveStaticUnit(staticunitappsrv.RemoveStaticUnitCommand{
-		Id: idDto,
-	}); err != nil {
+	removeStaticUnitUseCase := usecase.ProvideRemoveStaticUnitUseCase(uow)
+	if err := removeStaticUnitUseCase.Execute(idDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -607,15 +592,8 @@ func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
 	directionDto int8,
 ) error {
 	uow := pguow.NewUow()
-
-	fenceUnitAppService := world_provide_dependency.ProvideFenceUnitAppService(uow)
-	if err := fenceUnitAppService.CreateFenceUnit(fenceunitappsrv.CreateFenceUnitCommand{
-		Id:        idDto,
-		WorldId:   worldIdDto,
-		ItemId:    itemIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-	}); err != nil {
+	createFenceUnitUseCase := usecase.ProvideCreateFenceUnitUseCase(uow)
+	if err := createFenceUnitUseCase.Execute(idDto, worldIdDto, itemIdDto, positionDto, directionDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -623,13 +601,10 @@ func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeRemoveFenceUnitCommand(unidIdDto uuid.UUID) error {
+func (httpHandler *HttpHandler) executeRemoveFenceUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
-
-	fenceUnitAppService := world_provide_dependency.ProvideFenceUnitAppService(uow)
-	if err := fenceUnitAppService.RemoveFenceUnit(fenceunitappsrv.RemoveFenceUnitCommand{
-		Id: unidIdDto,
-	}); err != nil {
+	removeFenceUnitUseCase := usecase.ProvideRemoveFenceUnitUseCase(uow)
+	if err := removeFenceUnitUseCase.Execute(idDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -645,15 +620,8 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 	directionDto int8,
 ) error {
 	uow := pguow.NewUow()
-
-	portalUnitAppService := world_provide_dependency.ProvidePortalUnitAppService(uow)
-	if err := portalUnitAppService.CreatePortalUnit(portalunitappsrv.CreatePortalUnitCommand{
-		Id:        idDto,
-		WorldId:   worldIdDto,
-		ItemId:    itemIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-	}); err != nil {
+	createPortalUnitUseCase := usecase.ProvideCreatePortalUnitUseCase(uow)
+	if err := createPortalUnitUseCase.Execute(idDto, worldIdDto, itemIdDto, positionDto, directionDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -663,11 +631,8 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 
 func (httpHandler *HttpHandler) executeRemovePortalUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
-
-	portalUnitAppService := world_provide_dependency.ProvidePortalUnitAppService(uow)
-	if err := portalUnitAppService.RemovePortalUnit(portalunitappsrv.RemovePortalUnitCommand{
-		Id: idDto,
-	}); err != nil {
+	removePortalUnitUseCase := usecase.ProvideRemovePortalUnitUseCase(uow)
+	if err := removePortalUnitUseCase.Execute(idDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -681,21 +646,12 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
 	directionDto int8,
-	label *string,
-	url string,
+	labelDto *string,
+	urlDto string,
 ) error {
 	uow := pguow.NewUow()
-
-	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(uow)
-	if err := linkUnitAppService.CreateLinkUnit(linkunitappsrv.CreateLinkUnitCommand{
-		Id:        idDto,
-		WorldId:   worldIdDto,
-		ItemId:    itemIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-		Label:     label,
-		Url:       url,
-	}); err != nil {
+	createLinkUnitUseCase := usecase.ProvideCreateLinkUnitUseCase(uow)
+	if err := createLinkUnitUseCase.Execute(idDto, worldIdDto, itemIdDto, positionDto, directionDto, labelDto, urlDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -705,11 +661,8 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 
 func (httpHandler *HttpHandler) executeRemoveLinkUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
-
-	linkUnitAppService := world_provide_dependency.ProvideLinkUnitAppService(uow)
-	if err := linkUnitAppService.RemoveLinkUnit(linkunitappsrv.RemoveLinkUnitCommand{
-		Id: idDto,
-	}); err != nil {
+	removeLinkUnitUseCase := usecase.ProvideRemoveLinkUnitUseCase(uow)
+	if err := removeLinkUnitUseCase.Execute(idDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -723,21 +676,12 @@ func (httpHandler *HttpHandler) executeCreateEmbedUnitCommand(
 	itemIdDto uuid.UUID,
 	positionDto world_dto.PositionDto,
 	directionDto int8,
-	label *string,
-	embedCode string,
+	labelDto *string,
+	embedCodeDto string,
 ) error {
 	uow := pguow.NewUow()
-
-	embedUnitAppService := world_provide_dependency.ProvideEmbedUnitAppService(uow)
-	if err := embedUnitAppService.CreateEmbedUnit(embedunitappsrv.CreateEmbedUnitCommand{
-		Id:        idDto,
-		WorldId:   worldIdDto,
-		ItemId:    itemIdDto,
-		Position:  positionDto,
-		Direction: directionDto,
-		Label:     label,
-		EmbedCode: embedCode,
-	}); err != nil {
+	createEmbedUnitUseCase := usecase.ProvideCreateEmbedUnitUseCase(uow)
+	if err := createEmbedUnitUseCase.Execute(idDto, worldIdDto, itemIdDto, positionDto, directionDto, labelDto, embedCodeDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
@@ -747,11 +691,8 @@ func (httpHandler *HttpHandler) executeCreateEmbedUnitCommand(
 
 func (httpHandler *HttpHandler) executeRemoveEmbedUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
-
-	embedUnitAppService := world_provide_dependency.ProvideEmbedUnitAppService(uow)
-	if err := embedUnitAppService.RemoveEmbedUnit(embedunitappsrv.RemoveEmbedUnitCommand{
-		Id: idDto,
-	}); err != nil {
+	removeEmbedUnitUseCase := usecase.ProvideRemoveEmbedUnitUseCase(uow)
+	if err := removeEmbedUnitUseCase.Execute(idDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}

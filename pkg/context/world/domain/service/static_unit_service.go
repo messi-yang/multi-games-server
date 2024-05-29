@@ -74,7 +74,7 @@ func (staticUnitServe *staticUnitServe) CreateStaticUnit(
 	}
 
 	if position.IsEqual(worldcommonmodel.NewPosition(0, 0)) {
-		return nil
+		return errUnitCannotBeAtOriginPosition
 	}
 
 	unit, err := staticUnitServe.unitRepo.Find(worldId, position)

@@ -1,22 +1,32 @@
-package providedependency
+package usecase
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/staticunitappsrv"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
+	"github.com/google/uuid"
 )
 
-func ProvideStaticUnitAppService(uow pguow.Uow) staticunitappsrv.Service {
+type RemoveStaticUnitUseCase struct {
+	staticUnitService service.StaticUnitService
+}
+
+func NewRemoveStaticUnitUseCase(staticUnitService service.StaticUnitService) RemoveStaticUnitUseCase {
+	return RemoveStaticUnitUseCase{staticUnitService}
+}
+
+func ProvideRemoveStaticUnitUseCase(uow pguow.Uow) RemoveStaticUnitUseCase {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepo := pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepoUnitService := service.NewStaticUnitService(worldRepo, unitRepo, staticUnitRepo, itemRepo)
-	return staticunitappsrv.NewService(
-		staticUnitRepo,
-		staticUnitRepoUnitService,
-	)
+	return NewRemoveStaticUnitUseCase(staticUnitRepoUnitService)
+}
+
+func (useCase *RemoveStaticUnitUseCase) Execute(idDto uuid.UUID) error {
+	return useCase.staticUnitService.RemoveStaticUnit(staticunitmodel.NewStaticUnitId(idDto))
 }

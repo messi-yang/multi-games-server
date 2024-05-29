@@ -74,7 +74,7 @@ func (fenceUnitServe *fenceUnitServe) CreateFenceUnit(
 	}
 
 	if position.IsEqual(worldcommonmodel.NewPosition(0, 0)) {
-		return nil
+		return errUnitCannotBeAtOriginPosition
 	}
 
 	unit, err := fenceUnitServe.unitRepo.Find(worldId, position)
