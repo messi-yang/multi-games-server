@@ -18,7 +18,6 @@ type Service interface {
 	GetWorld(GetWorldQuery) (dto.WorldDto, error)
 	GetMyWorlds(GetMyWorldsQuery) ([]dto.WorldDto, error)
 	QueryWorlds(QueryWorldsQuery) ([]dto.WorldDto, error)
-	UpdateWorld(UpdateWorldCommand) error
 }
 
 type serve struct {
@@ -66,14 +65,4 @@ func (serve *serve) QueryWorlds(query QueryWorldsQuery) (worldDtos []dto.WorldDt
 	return lo.Map(worlds, func(world worldmodel.World, _ int) dto.WorldDto {
 		return dto.NewWorldDto(world)
 	}), nil
-}
-
-func (serve *serve) UpdateWorld(command UpdateWorldCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	world, err := serve.worldRepo.Get(worldId)
-	if err != nil {
-		return err
-	}
-	world.ChangeName(command.Name)
-	return serve.worldRepo.Update(world)
 }

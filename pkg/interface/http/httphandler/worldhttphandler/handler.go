@@ -1,14 +1,11 @@
 package worldhttphandler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/service/worldpermissionappsrv"
-	iam_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
@@ -153,46 +150,15 @@ func (httpHandler *HttpHandler) UpdateWorld(c *gin.Context) {
 	}
 
 	pgUow := pguow.NewUow()
-
-	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-	worldPermissionAppService := iam_provide_dependency.ProvideWorldPermissionAppService(pgUow)
-
-	canUpdateWorld, err := worldPermissionAppService.CanUpdateWorld(worldpermissionappsrv.CanUpdateWorldQuery{
-		WorldId: worldIdDto,
-		UserId:  *authorizedUserIdDto,
-	})
+	updateWorldUseCase := usecase.ProvideUpdateWorldUseCase(pgUow)
+	updatedWorldDto, err := updateWorldUseCase.Execute(*authorizedUserIdDto, worldIdDto, requestBody.Name)
 	if err != nil {
 		pgUow.RevertChanges()
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	if !canUpdateWorld {
-		pgUow.RevertChanges()
-		c.String(http.StatusForbidden, "not permitted")
-		return
-	}
-
-	if err = worldAppService.UpdateWorld(worldappsrv.UpdateWorldCommand{
-		WorldId: worldIdDto,
-		Name:    requestBody.Name,
-	}); err != nil {
-		pgUow.RevertChanges()
-		if errors.Is(err, worldappsrv.ErrNotPermitted) {
-			c.String(http.StatusForbidden, err.Error())
-		} else {
-			c.String(http.StatusBadRequest, err.Error())
-		}
-		return
-	}
-
-	updatedWorldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
-	if err != nil {
-		pgUow.RevertChanges()
-		c.String(http.StatusBadRequest, err.Error())
-		return
-	}
-
 	pgUow.SaveChanges()
+
 	c.JSON(http.StatusOK, updateWorldResponse(viewmodel.WorldViewModel(updatedWorldDto)))
 }
 
