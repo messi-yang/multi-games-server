@@ -6,8 +6,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
-	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
@@ -29,10 +27,8 @@ func (httpHandler *HttpHandler) GetWorld(c *gin.Context) {
 	}
 
 	pgUow := pguow.NewDummyUow()
-
-	worldAppService := world_provide_dependency.ProvideWorldAppService(pgUow)
-
-	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{WorldId: worldIdDto})
+	getWorldUseCase := usecase.ProvideGetWorldUseCase(pgUow)
+	worldDto, err := getWorldUseCase.Execute(worldIdDto)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
