@@ -10,7 +10,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/linkunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldaccounthttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldjourneyhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldmemberhttphandler"
@@ -72,11 +71,6 @@ func Run() error {
 	userRouterGroup.Use(parseHttpAccessTokenMiddleware)
 	userRouterGroup.GET("/me", userHttpHandler.GetMyUser)
 	userRouterGroup.PATCH("/me", userHttpHandler.UpdateMyUser)
-
-	worldAccountHttpHandler := worldaccounthttphandler.NewHttpHandler()
-	worldAccountsRouterGroup := router.Group("/api/world-accounts")
-	worldAccountsRouterGroup.Use(parseHttpAccessTokenMiddleware)
-	worldAccountsRouterGroup.GET("/", worldAccountHttpHandler.QueryWorldAccounts)
 
 	worldHttpHandler := worldhttphandler.NewHttpHandler()
 	worldRouterGroup := router.Group("/api/worlds")
