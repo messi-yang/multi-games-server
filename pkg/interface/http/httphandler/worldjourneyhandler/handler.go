@@ -9,8 +9,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
-	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/jsonutil"
@@ -604,10 +602,8 @@ func (httpHandler *HttpHandler) executeRemoveEmbedUnitCommand(idDto uuid.UUID) e
 func (httpHandler *HttpHandler) executeRotateUnitCommand(idDto uuid.UUID) error {
 	uow := pguow.NewUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	if err := unitAppService.RotateUnit(unitappsrv.RotateUnitCommand{
-		Id: idDto,
-	}); err != nil {
+	rotateUnitUseCase := usecase.ProvideRotateUnitUseCase(uow)
+	if err := rotateUnitUseCase.Execute(idDto); err != nil {
 		uow.RevertChanges()
 		return err
 	}
