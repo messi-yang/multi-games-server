@@ -6,6 +6,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
 	iam_pg_repo "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/persistence/pgrepo"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
@@ -38,16 +39,16 @@ func ProvideCreatePlayerUseCase(uow pguow.Uow) CreatePlayerUseCase {
 	return NewCreatePlayerUseCase(itemRepo, playerRepo, userRepo, worldRepo)
 }
 
-func (useCase *CreatePlayerUseCase) Execute(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerIdDto uuid.UUID, err error) {
+func (useCase *CreatePlayerUseCase) Execute(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerDto dto.PlayerDto, err error) {
 	worldId := globalcommonmodel.NewWorldId(worldIdDto)
 	_, err = useCase.worldRepo.Get(worldId)
 	if err != nil {
-		return newPlayerIdDto, err
+		return newPlayerDto, err
 	}
 
 	item, err := useCase.itemRepo.GetFirstItem()
 	if err != nil {
-		return newPlayerIdDto, err
+		return newPlayerDto, err
 	}
 
 	direction := worldcommonmodel.NewDownDirection()
@@ -61,14 +62,14 @@ func (useCase *CreatePlayerUseCase) Execute(worldIdDto uuid.UUID, userIdDto *uui
 	if userIdDto != nil {
 		user, err := useCase.userRepo.Get(globalcommonmodel.NewUserId(*userIdDto))
 		if err != nil {
-			return newPlayerIdDto, err
+			return newPlayerDto, err
 		}
 		newPlayer.UpdateName(user.GetFriendlyName().String())
 	}
 
 	if err = useCase.playerRepo.Add(newPlayer); err != nil {
-		return newPlayerIdDto, err
+		return newPlayerDto, err
 	}
 
-	return newPlayer.GetId().Uuid(), nil
+	return dto.NewPlayerDto(newPlayer), nil
 }

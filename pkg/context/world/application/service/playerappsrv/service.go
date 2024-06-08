@@ -9,7 +9,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/samber/lo"
 )
 
 var (
@@ -18,8 +17,6 @@ var (
 )
 
 type Service interface {
-	GetPlayers(GetPlayersQuery) (playerDtos []dto.PlayerDto, err error)
-	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	ChangePlayerAction(ChangePlayerActionCommand) error
 	SendPlayerIntoPortal(SendPlayerIntoPortalCommand) error
 	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
@@ -41,28 +38,6 @@ func NewService(
 		unitRepo:       unitRepo,
 		portalUnitRepo: portalUnitRepo,
 	}
-}
-
-func (serve *serve) GetPlayers(query GetPlayersQuery) (
-	playerDtos []dto.PlayerDto, err error,
-) {
-	players, err := serve.playerRepo.GetPlayersOfWorld(globalcommonmodel.NewWorldId(query.WorldId))
-	if err != nil {
-		return playerDtos, err
-	}
-	playerDtos = lo.Map(players, func(_player playermodel.Player, _ int) dto.PlayerDto {
-		return dto.NewPlayerDto(_player)
-	})
-
-	return playerDtos, nil
-}
-
-func (serve *serve) GetPlayer(query GetPlayerQuery) (playerDto dto.PlayerDto, err error) {
-	player, err := serve.playerRepo.Get(globalcommonmodel.NewWorldId(query.WorldId), playermodel.NewPlayerId(query.PlayerId))
-	if err != nil {
-		return playerDto, err
-	}
-	return dto.NewPlayerDto(player), nil
 }
 
 func (serve *serve) ChangePlayerAction(command ChangePlayerActionCommand) error {

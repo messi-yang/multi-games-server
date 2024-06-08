@@ -8,10 +8,10 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/worldappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
@@ -70,7 +70,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}
 
 	var worldIdDto uuid.UUID
-	var playerIdDto uuid.UUID
+	var myPlayerIdDto uuid.UUID
 	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
 
 	respondServerEvent := func(serverEvent any) {
@@ -81,7 +81,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		httpHandler.redisServerMessageMediator.Send(
 			newWorldMessageChannel(worldIdDto),
 			jsonutil.Marshal(worldMessage{
-				SenderId:    playerIdDto,
+				SenderId:    myPlayerIdDto,
 				ServerEvent: serverEvent,
 			}),
 		)
@@ -105,6 +105,16 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		return playerJoinedServerEvent{
 			Name:   playerJoinedServerEventName,
 			Player: playerDto,
+		}
+	}
+
+	generateWorldEnteredServerEvent := func(worldDto world_dto.WorldDto, unitDtos []world_dto.UnitDto, playerDtos []world_dto.PlayerDto) worldEnteredServerEvent {
+		return worldEnteredServerEvent{
+			Name:       worldEnteredServerEventName,
+			World:      viewmodel.WorldViewModel(worldDto),
+			Units:      unitDtos,
+			MyPlayerId: myPlayerIdDto,
+			Players:    playerDtos,
 		}
 	}
 
@@ -159,12 +169,14 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		return
 	}
 
-	playerIdDto, err = httpHandler.createPlayer(worldIdDto, authorizedUserIdDto)
+	myPlayerDto, err := httpHandler.createPlayer(worldIdDto, authorizedUserIdDto)
 	if err != nil {
 		respondServerEvent(generateErroredServerEvent(err))
 		closeConnection()
 		return
 	}
+	myPlayerIdDto = myPlayerDto.Id
+	broadcastServerEvent(generatePlayerJoinedServerEvent(myPlayerDto))
 
 	// Subscribe to messages broadcasted from other websocket servers
 	worldMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
@@ -174,7 +186,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			if err != nil {
 				return
 			}
-			if message.SenderId == playerIdDto {
+			if message.SenderId == myPlayerIdDto {
 				return
 			}
 
@@ -185,7 +197,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 
 	// Subscribe to messages sent specifically to your player
 	playerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
-		newPlayerMessageChannel(worldIdDto, playerIdDto),
+		newPlayerMessageChannel(worldIdDto, myPlayerIdDto),
 		func(messageBytes []byte) {
 			message, err := jsonutil.Unmarshal[playerMessage](messageBytes)
 			if err != nil {
@@ -198,27 +210,21 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	defer playerMessageUnusbscriber()
 
 	safelyLeaveWorldInAllCases := func() {
-		if err = httpHandler.removePlayer(worldIdDto, playerIdDto); err != nil {
+		if err = httpHandler.removePlayer(worldIdDto, myPlayerIdDto); err != nil {
 			fmt.Println(err)
 		}
-		broadcastServerEvent(generatePlayerLeftServerEvent(playerIdDto))
+		broadcastServerEvent(generatePlayerLeftServerEvent(myPlayerIdDto))
 
 	}
 	defer safelyLeaveWorldInAllCases()
 
-	if err = httpHandler.respondWorldEnteredServerEvent(worldIdDto, playerIdDto, respondMessage); err != nil {
-		respondServerEvent(generateErroredServerEvent(err))
-		closeConnection()
-		return
-	}
-
-	playerDto, err := httpHandler.queryPlayer(worldIdDto, playerIdDto)
+	worldDto, unitDtos, playerDtos, err := httpHandler.getWorldInformation(worldIdDto)
 	if err != nil {
 		respondServerEvent(generateErroredServerEvent(err))
 		closeConnection()
 		return
 	}
-	broadcastServerEvent(generatePlayerJoinedServerEvent(playerDto))
+	respondServerEvent(generateWorldEnteredServerEvent(worldDto, unitDtos, playerDtos))
 
 	go func() {
 		for {
@@ -244,14 +250,14 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					respondServerEvent(generateErroredServerEvent(err))
 					return
 				}
-				sendServerEventToPlayer(clientEvent.PeerPlayerId, generateP2pOfferReceivedServerEvent(playerIdDto, clientEvent.IceCandidates, clientEvent.Offer))
+				sendServerEventToPlayer(clientEvent.PeerPlayerId, generateP2pOfferReceivedServerEvent(myPlayerIdDto, clientEvent.IceCandidates, clientEvent.Offer))
 			case p2pAnswerSentClientEventName:
 				clientEvent, err := jsonutil.Unmarshal[p2pAnswerSentClientEvent](message)
 				if err != nil {
 					respondServerEvent(generateErroredServerEvent(err))
 					return
 				}
-				sendServerEventToPlayer(clientEvent.PeerPlayerId, generateP2pAnswerReceivedServerEvent(playerIdDto, clientEvent.IceCandidates, clientEvent.Answer))
+				sendServerEventToPlayer(clientEvent.PeerPlayerId, generateP2pAnswerReceivedServerEvent(myPlayerIdDto, clientEvent.IceCandidates, clientEvent.Answer))
 			case commandSentClientEventName:
 				clientEvent, err := jsonutil.Unmarshal[commandSentClientEvent](message)
 				if err != nil {
@@ -274,7 +280,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if commandDto.PlayerId != playerIdDto {
+					if commandDto.PlayerId != myPlayerIdDto {
 						respondServerEvent(generateErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer))
 						return
 					}
@@ -294,7 +300,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if commandDto.PlayerId != playerIdDto {
+					if commandDto.PlayerId != myPlayerIdDto {
 						respondServerEvent(generateErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer))
 						return
 					}
@@ -312,7 +318,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if commandDto.PlayerId != playerIdDto {
+					if commandDto.PlayerId != myPlayerIdDto {
 						respondServerEvent(generateErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer))
 						return
 					}
@@ -507,14 +513,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}()
 
 	closeConnFlag.Wait()
-}
-
-func (httpHandler *HttpHandler) queryPlayer(worldIdDto uuid.UUID, playerIdDto uuid.UUID) (playerDto world_dto.PlayerDto, err error) {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	return playerAppService.GetPlayer(playerappsrv.GetPlayerQuery{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
-	})
 }
 
 func (httpHandler *HttpHandler) executeChangePlayerActionCommand(
@@ -724,60 +722,27 @@ func (httpHandler *HttpHandler) removePlayer(worldIdDto uuid.UUID, playerIdDto u
 	return nil
 }
 
-func (httpHandler *HttpHandler) createPlayer(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (playerIdDto uuid.UUID, err error) {
+func (httpHandler *HttpHandler) createPlayer(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerDto dto.PlayerDto, err error) {
 	uow := pguow.NewUow()
 
 	createPlayerUseCase := usecase.ProvideCreatePlayerUseCase(uow)
-	newPlayerIdDto, err := createPlayerUseCase.Execute(worldIdDto, userIdDto)
+	newPlayerDto, err = createPlayerUseCase.Execute(worldIdDto, userIdDto)
 	if err != nil {
 		uow.RevertChanges()
-		return playerIdDto, err
+		return newPlayerDto, err
 	}
 	uow.SaveChanges()
 
-	return newPlayerIdDto, nil
+	fmt.Println(newPlayerDto)
+
+	return newPlayerDto, nil
 }
 
-func (httpHandler *HttpHandler) respondWorldEnteredServerEvent(worldIdDto uuid.UUID, playerIdDto uuid.UUID, respondMessage func(any)) error {
+func (httpHandler *HttpHandler) getWorldInformation(worldIdDto uuid.UUID) (
+	worldDto world_dto.WorldDto, unitDtos []world_dto.UnitDto, playerDtos []world_dto.PlayerDto, err error,
+) {
 	uow := pguow.NewDummyUow()
 
-	unitAppService := world_provide_dependency.ProvideUnitAppService(uow)
-	worldAppService := world_provide_dependency.ProvideWorldAppService(uow)
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-
-	worldDto, err := worldAppService.GetWorld(worldappsrv.GetWorldQuery{
-		WorldId: worldIdDto,
-	})
-	if err != nil {
-		return err
-	}
-
-	unitDtos, err := unitAppService.GetUnits(
-		unitappsrv.GetUnitsQuery{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	playerDtos, err := playerAppService.GetPlayers(
-		playerappsrv.GetPlayersQuery{
-			WorldId:  worldIdDto,
-			PlayerId: playerIdDto,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	respondMessage(worldEnteredServerEvent{
-		Name:       worldEnteredServerEventName,
-		World:      viewmodel.WorldViewModel(worldDto),
-		Units:      unitDtos,
-		MyPlayerId: playerIdDto,
-		Players:    playerDtos,
-	})
-	return nil
+	getWorldInformationUseCase := usecase.ProvideGetWorldInformationUseCase(uow)
+	return getWorldInformationUseCase.Execute(worldIdDto)
 }
