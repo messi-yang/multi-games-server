@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/itemmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
@@ -18,7 +18,7 @@ func NewQueryItemsUseCase(itemRepo itemmodel.ItemRepo) QueryItemsUseCase {
 }
 
 func ProvideQueryItemsUseCase(uow pguow.Uow) QueryItemsUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 
 	return NewQueryItemsUseCase(itemRepo)

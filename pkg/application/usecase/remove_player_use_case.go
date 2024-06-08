@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
@@ -18,7 +18,7 @@ func NewRemovePlayerUseCase(playerRepo playermodel.PlayerRepo) RemovePlayerUseCa
 }
 
 func ProvideRemovePlayerUseCase(uow pguow.Uow) RemovePlayerUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	playerRepo := redisrepo.NewPlayerRepo(domainEventDispatcher)
 
 	return NewRemovePlayerUseCase(playerRepo)

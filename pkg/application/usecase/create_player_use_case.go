@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
@@ -30,7 +30,7 @@ func NewCreatePlayerUseCase(itemRepo itemmodel.ItemRepo, playerRepo playermodel.
 }
 
 func ProvideCreatePlayerUseCase(uow pguow.Uow) CreatePlayerUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := world_pg_repo.NewItemRepo(uow, domainEventDispatcher)
 	playerRepo := redisrepo.NewPlayerRepo(domainEventDispatcher)
 	userRepo := iam_pg_repo.NewUserRepo(uow, domainEventDispatcher)

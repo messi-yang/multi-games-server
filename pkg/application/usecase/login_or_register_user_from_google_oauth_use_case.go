@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
 	iam_service "github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/service"
@@ -29,7 +29,7 @@ func NewLoginOrRegisterUserFromGoogleOauthUseCase(userRepo usermodel.UserRepo, w
 }
 
 func ProvideLoginOrRegisterUserFromGoogleOauthUseCase(uow pguow.Uow) LoginOrRegisterUserFromGoogleOauthUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	userRepo := iam_pgrepo.NewUserRepo(uow, domainEventDispatcher)
 	worldAccountRepo := world_pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)
 	userService := iam_service.NewUserService(userRepo)

@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
@@ -17,7 +17,7 @@ func NewGetLinkUnitUrlUseCase(linkUnitRepo linkunitmodel.LinkUnitRepo) GetLinkUn
 }
 
 func ProvideGetLinkUnitUrlUseCase(uow pguow.Uow) GetLinkUnitUrlUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	linkUnitRepo := pgrepo.NewLinkUnitRepo(uow, domainEventDispatcher)
 	return NewGetLinkUnitUrlUseCase(linkUnitRepo)
 }

@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -18,7 +18,7 @@ func NewRemoveLinkUnitUseCase(linkUnitService service.LinkUnitService) RemoveLin
 }
 
 func ProvideRemoveLinkUnitUseCase(uow pguow.Uow) RemoveLinkUnitUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)

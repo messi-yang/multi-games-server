@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
@@ -22,7 +22,7 @@ func NewCreateWorldUseCase(worldService service.WorldService, worldMemberRepo wo
 }
 
 func ProvideCreateWorldUseCase(uow pguow.Uow) CreateWorldUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	worldAccountRepo := world_pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)
 	worldRepo := world_pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	itemRepo := world_pgrepo.NewItemRepo(uow, domainEventDispatcher)

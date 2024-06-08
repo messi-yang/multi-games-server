@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/worldaccessmodel"
@@ -24,7 +24,7 @@ func NewUpdateWorldUseCase(worldRepo worldmodel.WorldRepo, worldMemberRepo world
 }
 
 func ProvideUpdateWorldUseCase(uow pguow.Uow) UpdateWorldUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	worldRepo := world_pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 
 	worldMemberRepo := iam_pgrepo.NewWorldMemberRepo(uow, domainEventDispatcher)

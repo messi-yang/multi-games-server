@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/embedunitmodel"
@@ -30,7 +30,7 @@ func NewRotateUnitUseCase(unitRepo unitmodel.UnitRepo, staticUnitService service
 }
 
 func ProvideRotateUnitUseCase(uow pguow.Uow) RotateUnitUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)

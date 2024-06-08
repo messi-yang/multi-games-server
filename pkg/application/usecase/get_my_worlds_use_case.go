@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
@@ -20,7 +20,7 @@ func NewGetMyWorldsUseCase(worldRepo worldmodel.WorldRepo) GetMyWorldsUseCase {
 }
 
 func ProvideGetMyWorldsUseCase(uow pguow.Uow) GetMyWorldsUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 
 	return NewGetMyWorldsUseCase(worldRepo)

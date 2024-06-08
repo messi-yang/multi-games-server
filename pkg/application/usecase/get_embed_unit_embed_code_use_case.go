@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domainevent/memdomainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/embedunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
@@ -17,7 +17,7 @@ func NewGetEmbedUnitEmbedCodeUseCase(embedUnitRepo embedunitmodel.EmbedUnitRepo)
 }
 
 func ProvideGetEmbedUnitEmbedCodeUseCase(uow pguow.Uow) GetEmbedUnitEmbedCodeUseCase {
-	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
+	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	embedUnitRepo := pgrepo.NewEmbedUnitRepo(uow, domainEventDispatcher)
 	return NewGetEmbedUnitEmbedCodeUseCase(embedUnitRepo)
 }
