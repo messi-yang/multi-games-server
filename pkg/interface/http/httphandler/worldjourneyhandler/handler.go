@@ -9,8 +9,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/playerappsrv"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/service/unitappsrv"
 	world_provide_dependency "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/providedependency"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
@@ -101,14 +99,14 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		)
 	}
 
-	generatePlayerJoinedServerEvent := func(playerDto world_dto.PlayerDto) playerJoinedServerEvent {
+	generatePlayerJoinedServerEvent := func(playerDto dto.PlayerDto) playerJoinedServerEvent {
 		return playerJoinedServerEvent{
 			Name:   playerJoinedServerEventName,
 			Player: playerDto,
 		}
 	}
 
-	generateWorldEnteredServerEvent := func(worldDto world_dto.WorldDto, unitDtos []world_dto.UnitDto, playerDtos []world_dto.PlayerDto) worldEnteredServerEvent {
+	generateWorldEnteredServerEvent := func(worldDto dto.WorldDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto) worldEnteredServerEvent {
 		return worldEnteredServerEvent{
 			Name:       worldEnteredServerEventName,
 			World:      viewmodel.WorldViewModel(worldDto),
@@ -272,62 +270,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				switch clientEvent.Command.Name {
-				case changePlayerActionCommandName:
-					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[changePlayerActionCommand]](message)
-					if err != nil {
-						respondServerEvent(generateErroredServerEvent(err))
-						return
-					}
-					commandDto := commandRequestedClientEvent.Command
-
-					if commandDto.PlayerId != myPlayerIdDto {
-						respondServerEvent(generateErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer))
-						return
-					}
-
-					if err = httpHandler.executeChangePlayerActionCommand(
-						worldIdDto, commandDto.PlayerId, commandDto.Action,
-					); err != nil {
-						respondServerEvent(generateErroredServerEvent(err))
-						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
-						break
-					}
-				case sendPlayerIntoPortalCommandName:
-					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[sendPlayerIntoPortalCommand]](message)
-					if err != nil {
-						respondServerEvent(generateErroredServerEvent(err))
-						return
-					}
-					commandDto := commandRequestedClientEvent.Command
-
-					if commandDto.PlayerId != myPlayerIdDto {
-						respondServerEvent(generateErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer))
-						return
-					}
-
-					if err = httpHandler.executeSendPlayerIntoPortalCommand(worldIdDto, commandDto.PlayerId, commandDto.UnitId); err != nil {
-						respondServerEvent(generateErroredServerEvent(err))
-						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
-						break
-					}
-				case changePlayerHeldItemCommandName:
-					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[changePlayerHeldItemCommand]](message)
-					if err != nil {
-						respondServerEvent(generateErroredServerEvent(err))
-						return
-					}
-					commandDto := commandRequestedClientEvent.Command
-
-					if commandDto.PlayerId != myPlayerIdDto {
-						respondServerEvent(generateErroredServerEvent(ErrCommandIsNotExecutedByOwnPlayer))
-						return
-					}
-
-					if err = httpHandler.executeChangePlayerHeldItemCommand(worldIdDto, commandDto.PlayerId, commandDto.ItemId); err != nil {
-						respondServerEvent(generateErroredServerEvent(err))
-						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
-						break
-					}
 				case createStaticUnitCommandName:
 					commandRequestedClientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent[createStaticUnitCommand]](message)
 					if err != nil {
@@ -515,50 +457,11 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	closeConnFlag.Wait()
 }
 
-func (httpHandler *HttpHandler) executeChangePlayerActionCommand(
-	worldIdDto uuid.UUID, playerIdDto uuid.UUID, actionDto world_dto.PlayerActionDto,
-) error {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.ChangePlayerAction(playerappsrv.ChangePlayerActionCommand{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
-		Action:   actionDto,
-	}); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (httpHandler *HttpHandler) executeSendPlayerIntoPortalCommand(
-	worldIdDto uuid.UUID,
-	playerIdDto uuid.UUID,
-	unitIdDto uuid.UUID,
-) error {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	return playerAppService.SendPlayerIntoPortal(playerappsrv.SendPlayerIntoPortalCommand{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
-		UnitId:   unitIdDto,
-	})
-}
-
-func (httpHandler *HttpHandler) executeChangePlayerHeldItemCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID, itemIdDto uuid.UUID) error {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.ChangePlayerHeldItem(playerappsrv.ChangePlayerHeldItemCommand{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
-		ItemId:   itemIdDto,
-	}); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (httpHandler *HttpHandler) executeCreateStaticUnitCommand(
 	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
+	positionDto dto.PositionDto,
 	directionDto int8,
 ) error {
 	uow := pguow.NewUow()
@@ -586,7 +489,7 @@ func (httpHandler *HttpHandler) executeCreateFenceUnitCommand(
 	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
+	positionDto dto.PositionDto,
 	directionDto int8,
 ) error {
 	uow := pguow.NewUow()
@@ -614,7 +517,7 @@ func (httpHandler *HttpHandler) executeCreatePortalUnitCommand(
 	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
+	positionDto dto.PositionDto,
 	directionDto int8,
 ) error {
 	uow := pguow.NewUow()
@@ -642,7 +545,7 @@ func (httpHandler *HttpHandler) executeCreateLinkUnitCommand(
 	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
+	positionDto dto.PositionDto,
 	directionDto int8,
 	labelDto *string,
 	urlDto string,
@@ -672,7 +575,7 @@ func (httpHandler *HttpHandler) executeCreateEmbedUnitCommand(
 	idDto uuid.UUID,
 	worldIdDto uuid.UUID,
 	itemIdDto uuid.UUID,
-	positionDto world_dto.PositionDto,
+	positionDto dto.PositionDto,
 	directionDto int8,
 	labelDto *string,
 	embedCodeDto string,
@@ -739,7 +642,7 @@ func (httpHandler *HttpHandler) createPlayer(worldIdDto uuid.UUID, userIdDto *uu
 }
 
 func (httpHandler *HttpHandler) getWorldInformation(worldIdDto uuid.UUID) (
-	worldDto world_dto.WorldDto, unitDtos []world_dto.UnitDto, playerDtos []world_dto.PlayerDto, err error,
+	worldDto dto.WorldDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto, err error,
 ) {
 	uow := pguow.NewDummyUow()
 
