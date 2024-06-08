@@ -22,7 +22,6 @@ type Service interface {
 	GetPlayer(GetPlayerQuery) (dto.PlayerDto, error)
 	ChangePlayerAction(ChangePlayerActionCommand) error
 	SendPlayerIntoPortal(SendPlayerIntoPortalCommand) error
-	LeaveWorld(LeaveWorldCommand) error
 	ChangePlayerHeldItem(ChangePlayerHeldItemCommand) error
 }
 
@@ -113,17 +112,6 @@ func (serve *serve) SendPlayerIntoPortal(command SendPlayerIntoPortalCommand) er
 	player.Teleport(targetPosition.PrecisePosition())
 
 	return serve.playerRepo.Update(player)
-}
-
-func (serve *serve) LeaveWorld(command LeaveWorldCommand) error {
-	worldId := globalcommonmodel.NewWorldId(command.WorldId)
-	playerId := playermodel.NewPlayerId(command.PlayerId)
-
-	player, err := serve.playerRepo.Get(worldId, playerId)
-	if err != nil {
-		return err
-	}
-	return serve.playerRepo.Delete(player)
 }
 
 func (serve *serve) ChangePlayerHeldItem(command ChangePlayerHeldItemCommand) error {

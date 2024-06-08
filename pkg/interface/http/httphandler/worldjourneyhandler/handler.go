@@ -198,7 +198,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	defer playerMessageUnusbscriber()
 
 	safelyLeaveWorldInAllCases := func() {
-		if err = httpHandler.executeLeaveWorldCommand(worldIdDto, playerIdDto); err != nil {
+		if err = httpHandler.removePlayer(worldIdDto, playerIdDto); err != nil {
 			fmt.Println(err)
 		}
 		broadcastServerEvent(generatePlayerLeftServerEvent(playerIdDto))
@@ -714,14 +714,13 @@ func (httpHandler *HttpHandler) executeRotateUnitCommand(idDto uuid.UUID) error 
 	return nil
 }
 
-func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
-	playerAppService := world_provide_dependency.ProvidePlayerAppService()
-	if err := playerAppService.LeaveWorld(playerappsrv.LeaveWorldCommand{
-		WorldId:  worldIdDto,
-		PlayerId: playerIdDto,
-	}); err != nil {
-		return err
+func (httpHandler *HttpHandler) removePlayer(worldIdDto uuid.UUID, playerIdDto uuid.UUID) error {
+	uow := pguow.NewUow()
+	removePlayerUseCase := usecase.ProvideRemovePlayerUseCase(uow)
+	if err := removePlayerUseCase.Execute(worldIdDto, playerIdDto); err != nil {
+		uow.RevertChanges()
 	}
+	uow.SaveChanges()
 	return nil
 }
 

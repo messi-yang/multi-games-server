@@ -22,8 +22,3 @@ type SendPlayerIntoPortalCommand struct {
 	PlayerId uuid.UUID
 	UnitId   uuid.UUID
 }
-
-type LeaveWorldCommand struct {
-	WorldId  uuid.UUID
-	PlayerId uuid.UUID
-}
