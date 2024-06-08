@@ -1,7 +1,7 @@
 package viewmodel
 
 import (
-	world_dto "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 )
 
-type WorldViewModel world_dto.WorldDto
+type WorldViewModel dto.WorldDto

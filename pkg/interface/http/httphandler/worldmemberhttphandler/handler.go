@@ -3,9 +3,9 @@ package worldmemberhttphandler
 import (
 	"net/http"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"

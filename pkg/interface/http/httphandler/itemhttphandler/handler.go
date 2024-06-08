@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/gin-gonic/gin"

@@ -1,7 +1,7 @@
 package worldjourneyhandler
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/google/uuid"
 )

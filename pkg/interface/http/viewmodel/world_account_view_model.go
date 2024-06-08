@@ -1,5 +1,5 @@
 package viewmodel
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/world/application/dto"
+import "github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 
 type WorldAccountViewModel dto.WorldAccountDto
