@@ -159,7 +159,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		return
 	}
 
-	playerIdDto, err = httpHandler.addPlayerToWorld(worldIdDto, authorizedUserIdDto)
+	playerIdDto, err = httpHandler.createPlayer(worldIdDto, authorizedUserIdDto)
 	if err != nil {
 		respondServerEvent(generateErroredServerEvent(err))
 		closeConnection()
@@ -725,11 +725,11 @@ func (httpHandler *HttpHandler) executeLeaveWorldCommand(worldIdDto uuid.UUID, p
 	return nil
 }
 
-func (httpHandler *HttpHandler) addPlayerToWorld(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (playerIdDto uuid.UUID, err error) {
+func (httpHandler *HttpHandler) createPlayer(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (playerIdDto uuid.UUID, err error) {
 	uow := pguow.NewUow()
 
-	addPlayerToWorldUseCase := usecase.ProvideAddPlayerToWorldUseCase(uow)
-	newPlayerIdDto, err := addPlayerToWorldUseCase.Execute(worldIdDto, userIdDto)
+	createPlayerUseCase := usecase.ProvideCreatePlayerUseCase(uow)
+	newPlayerIdDto, err := createPlayerUseCase.Execute(worldIdDto, userIdDto)
 	if err != nil {
 		uow.RevertChanges()
 		return playerIdDto, err

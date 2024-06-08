@@ -16,29 +16,29 @@ import (
 	"github.com/google/uuid"
 )
 
-type AddPlayerToWorldUseCase struct {
+type CreatePlayerUseCase struct {
 	itemRepo   itemmodel.ItemRepo
 	playerRepo playermodel.PlayerRepo
 	userRepo   usermodel.UserRepo
 	worldRepo  worldmodel.WorldRepo
 }
 
-func NewAddPlayerToWorldUseCase(itemRepo itemmodel.ItemRepo, playerRepo playermodel.PlayerRepo,
-	userRepo usermodel.UserRepo, worldRepo worldmodel.WorldRepo) AddPlayerToWorldUseCase {
-	return AddPlayerToWorldUseCase{itemRepo, playerRepo, userRepo, worldRepo}
+func NewCreatePlayerUseCase(itemRepo itemmodel.ItemRepo, playerRepo playermodel.PlayerRepo,
+	userRepo usermodel.UserRepo, worldRepo worldmodel.WorldRepo) CreatePlayerUseCase {
+	return CreatePlayerUseCase{itemRepo, playerRepo, userRepo, worldRepo}
 }
 
-func ProvideAddPlayerToWorldUseCase(uow pguow.Uow) AddPlayerToWorldUseCase {
+func ProvideCreatePlayerUseCase(uow pguow.Uow) CreatePlayerUseCase {
 	domainEventDispatcher := memdomainevent.NewDispatcher(uow)
 	itemRepo := world_pg_repo.NewItemRepo(uow, domainEventDispatcher)
 	playerRepo := redisrepo.NewPlayerRepo(domainEventDispatcher)
 	userRepo := iam_pg_repo.NewUserRepo(uow, domainEventDispatcher)
 	worldRepo := world_pg_repo.NewWorldRepo(uow, domainEventDispatcher)
 
-	return NewAddPlayerToWorldUseCase(itemRepo, playerRepo, userRepo, worldRepo)
+	return NewCreatePlayerUseCase(itemRepo, playerRepo, userRepo, worldRepo)
 }
 
-func (useCase *AddPlayerToWorldUseCase) Execute(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerIdDto uuid.UUID, err error) {
+func (useCase *CreatePlayerUseCase) Execute(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerIdDto uuid.UUID, err error) {
 	worldId := globalcommonmodel.NewWorldId(worldIdDto)
 	_, err = useCase.worldRepo.Get(worldId)
 	if err != nil {
