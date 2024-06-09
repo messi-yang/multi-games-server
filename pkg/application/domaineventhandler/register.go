@@ -2,11 +2,11 @@ package domaineventhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
 )
 
 func RegisterEvents() {
 	domainEventRegister := memdomaineventhandler.NewRegister()
-	domainEventRegister.Register(worldmodel.WorldCreated{}, ProvideWorldCreatedHandler())
-	domainEventRegister.Register(worldmodel.WorldDeleted{}, ProvideWorldDeletedHandler())
+	domainEventRegister.Register(domainevent.WorldCreated{}, ProvideWorldCreatedHandler())
+	domainEventRegister.Register(domainevent.WorldDeleted{}, ProvideWorldDeletedHandler())
 }

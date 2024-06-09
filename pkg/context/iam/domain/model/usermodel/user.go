@@ -17,7 +17,7 @@ type User struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[globalcommonmodel.UserId] = (*User)(nil)
+var _ domain.Aggregate = (*User)(nil)
 
 func NewUser(
 	id globalcommonmodel.UserId,

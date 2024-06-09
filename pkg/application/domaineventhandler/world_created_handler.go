@@ -4,7 +4,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 )
 
@@ -19,7 +20,7 @@ func ProvideWorldCreatedHandler() memdomaineventhandler.Handler {
 }
 
 func (handler WorldCreatedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
-	worldCreated := domainEvent.(worldmodel.WorldCreated)
+	worldCreated := domainEvent.(domainevent.WorldCreated)
 
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	worldAccountRepo := pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)

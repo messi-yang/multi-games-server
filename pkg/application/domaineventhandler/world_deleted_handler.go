@@ -4,7 +4,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 )
 
@@ -19,7 +19,7 @@ func ProvideWorldDeletedHandler() memdomaineventhandler.Handler {
 }
 
 func (handler WorldDeletedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
-	worldDeleted := domainEvent.(worldmodel.WorldDeleted)
+	worldDeleted := domainEvent.(domainevent.WorldDeleted)
 
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	worldAccountRepo := pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)

@@ -16,7 +16,7 @@ type Item struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[worldcommonmodel.ItemId] = (*Item)(nil)
+var _ domain.Aggregate = (*Item)(nil)
 
 func LoadItem(
 	id worldcommonmodel.ItemId,

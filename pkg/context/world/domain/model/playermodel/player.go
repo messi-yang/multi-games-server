@@ -22,7 +22,7 @@ type Player struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[PlayerId] = (*Player)(nil)
+var _ domain.Aggregate = (*Player)(nil)
 
 func NewPlayer(
 	worldId globalcommonmodel.WorldId,

@@ -13,7 +13,7 @@ type EmbedUnit struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[EmbedUnitId] = (*EmbedUnit)(nil)
+var _ domain.Aggregate = (*EmbedUnit)(nil)
 
 func NewEmbedUnit(
 	id EmbedUnitId,

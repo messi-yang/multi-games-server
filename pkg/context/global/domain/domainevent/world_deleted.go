@@ -1,4 +1,4 @@
-package worldmodel
+package domainevent
 
 import (
 	"time"

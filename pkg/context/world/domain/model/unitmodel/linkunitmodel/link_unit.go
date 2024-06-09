@@ -13,7 +13,7 @@ type LinkUnit struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[LinkUnitId] = (*LinkUnit)(nil)
+var _ domain.Aggregate = (*LinkUnit)(nil)
 
 func NewLinkUnit(
 	id LinkUnitId,

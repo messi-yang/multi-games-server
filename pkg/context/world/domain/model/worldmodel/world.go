@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/google/uuid"
@@ -20,7 +21,6 @@ type World struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[globalcommonmodel.WorldId] = (*World)(nil)
 var _ domain.DomainEventDispatchableAggregate = (*World)(nil)
 
 func NewWorld(
@@ -37,7 +37,7 @@ func NewWorld(
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	newWorld.domainEventCollector.Add(NewWorldCreated(
+	newWorld.domainEventCollector.Add(domainevent.NewWorldCreated(
 		newWorld.id,
 		newWorld.userId,
 	))
@@ -96,7 +96,7 @@ func (world *World) GetUpdatedAt() time.Time {
 }
 
 func (world *World) Delete() {
-	world.domainEventCollector.Add(NewWorldDeleted(
+	world.domainEventCollector.Add(domainevent.NewWorldCreated(
 		world.id,
 		world.userId,
 	))

@@ -12,7 +12,7 @@ type FenceUnit struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[FenceUnitId] = (*FenceUnit)(nil)
+var _ domain.Aggregate = (*FenceUnit)(nil)
 
 func NewFenceUnit(
 	id FenceUnitId,

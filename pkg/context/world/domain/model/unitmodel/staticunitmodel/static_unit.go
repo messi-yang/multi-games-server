@@ -12,7 +12,7 @@ type StaticUnit struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[StaticUnitId] = (*StaticUnit)(nil)
+var _ domain.Aggregate = (*StaticUnit)(nil)
 
 func NewStaticUnit(
 	id StaticUnitId,

@@ -18,7 +18,7 @@ type WorldMember struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[WorldMemberId] = (*WorldMember)(nil)
+var _ domain.Aggregate = (*WorldMember)(nil)
 
 func NewWorldMember(
 	worldId globalcommonmodel.WorldId,

@@ -1,5 +1,3 @@
 package domain
 
-type Aggregate[T any] interface {
-	GetId() T
-}
+type Aggregate interface{}

@@ -13,7 +13,7 @@ type Unit struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[UnitId] = (*Unit)(nil)
+var _ domain.Aggregate = (*Unit)(nil)
 
 func LoadUnit(
 	id UnitId,

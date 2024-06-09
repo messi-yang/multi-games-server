@@ -16,7 +16,7 @@ type PortalUnit struct {
 }
 
 // Interface Implementation Check
-var _ domain.Aggregate[PortalUnitId] = (*PortalUnit)(nil)
+var _ domain.Aggregate = (*PortalUnit)(nil)
 
 func NewPortalUnit(
 	id PortalUnitId,
