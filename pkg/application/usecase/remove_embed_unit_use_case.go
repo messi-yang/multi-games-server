@@ -20,10 +20,9 @@ func NewRemoveEmbedUnitUseCase(embedUnitService service.EmbedUnitService) Remove
 func ProvideRemoveEmbedUnitUseCase(uow pguow.Uow) RemoveEmbedUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	embedUnitRepo := pgrepo.NewEmbedUnitRepo(uow, domainEventDispatcher)
-	embedUnitRepoUnitService := service.NewEmbedUnitService(worldRepo, unitRepo, embedUnitRepo, itemRepo)
+	embedUnitRepoUnitService := service.NewEmbedUnitService(unitRepo, embedUnitRepo, itemRepo)
 	return NewRemoveEmbedUnitUseCase(embedUnitRepoUnitService)
 }
 

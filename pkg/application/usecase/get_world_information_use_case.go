@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/redisrepo"
@@ -34,30 +35,46 @@ func ProvideGetWorldInformationUseCase(uow pguow.Uow) GetWorldInformationUseCase
 }
 
 func (useCase *GetWorldInformationUseCase) Execute(worldIdDto uuid.UUID) (
-	worldDto dto.WorldDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto, err error) {
+	worldDto dto.WorldDto, blockDtos []dto.BlockDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto, err error) {
 	worldId := globalcommonmodel.NewWorldId(worldIdDto)
 
 	world, err := useCase.worldRepo.Get(worldId)
 	if err != nil {
-		return worldDto, unitDtos, playerDtos, err
+		return worldDto, blockDtos, unitDtos, playerDtos, err
 	}
 	worldDto = dto.NewWorldDto(world)
 
-	units, err := useCase.unitRepo.GetUnitsOfWorld(worldId)
-	if err != nil {
-		return worldDto, unitDtos, playerDtos, err
+	units := []unitmodel.Unit{}
+
+	blocks := []worldcommonmodel.Block{
+		worldcommonmodel.NewBlock(-1, -1),
+		worldcommonmodel.NewBlock(-1, 0),
+		worldcommonmodel.NewBlock(0, -1),
+		worldcommonmodel.NewBlock(0, 0),
 	}
+	for _, block := range blocks {
+		unitsInBlock, err := useCase.unitRepo.GetUnitsInBlock(worldId, block)
+		if err != nil {
+			return worldDto, blockDtos, unitDtos, playerDtos, err
+		}
+		units = append(units, unitsInBlock...)
+	}
+
+	blockDtos = lo.Map(blocks, func(block worldcommonmodel.Block, _ int) dto.BlockDto {
+		return dto.NewBlockDto(block)
+	})
+
 	unitDtos = lo.Map(units, func(unit unitmodel.Unit, _ int) dto.UnitDto {
 		return dto.NewUnitDto(unit)
 	})
 
 	players, err := useCase.playerRepo.GetPlayersOfWorld(worldId)
 	if err != nil {
-		return worldDto, unitDtos, playerDtos, err
+		return worldDto, blockDtos, unitDtos, playerDtos, err
 	}
 	playerDtos = lo.Map(players, func(_player playermodel.Player, _ int) dto.PlayerDto {
 		return dto.NewPlayerDto(_player)
 	})
 
-	return worldDto, unitDtos, playerDtos, nil
+	return worldDto, blockDtos, unitDtos, playerDtos, nil
 }

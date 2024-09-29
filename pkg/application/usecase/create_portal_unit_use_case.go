@@ -23,10 +23,9 @@ func NewCreatePortalUnitUseCase(portalUnitService service.PortalUnitService) Cre
 func ProvideCreatePortalUnitUseCase(uow pguow.Uow) CreatePortalUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
-	portalUnitRepoUnitService := service.NewPortalUnitService(worldRepo, unitRepo, portalUnitRepo, itemRepo)
+	portalUnitRepoUnitService := service.NewPortalUnitService(unitRepo, portalUnitRepo, itemRepo)
 	return NewCreatePortalUnitUseCase(portalUnitRepoUnitService)
 }
 

@@ -90,3 +90,26 @@ func (repo *unitRepo) GetUnitsOfWorld(
 		return pgmodel.ParseUnitModel(unitModel)
 	})
 }
+
+func (repo *unitRepo) GetUnitsInBlock(worldId globalcommonmodel.WorldId, block worldcommonmodel.Block) (units []unitmodel.Unit, err error) {
+	blockFrom := block.GetBound().GetFrom()
+	blockTo := block.GetBound().GetTo()
+
+	var unitModels []pgmodel.UnitModel
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND pos_x >= ? AND pos_z >= ? AND pos_x <= ? AND pos_z <= ?",
+			worldId.Uuid(),
+			blockFrom.GetX(),
+			blockFrom.GetZ(),
+			blockTo.GetX(),
+			blockTo.GetZ(),
+		).Find(&unitModels, pgmodel.UnitModel{}).Error
+	}); err != nil {
+		return units, err
+	}
+
+	return commonutil.MapWithError(unitModels, func(_ int, unitModel pgmodel.UnitModel) (unitmodel.Unit, error) {
+		return pgmodel.ParseUnitModel(unitModel)
+	})
+}

@@ -1,6 +1,9 @@
 package worldjourneyhandler
 
-import "github.com/google/uuid"
+import (
+	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
+	"github.com/google/uuid"
+)
 
 type clientEventName string
 
@@ -8,6 +11,7 @@ const (
 	pingClientEventName             clientEventName = "PING"
 	commandSentClientEventName      clientEventName = "COMMAND_SENT"
 	commandRequestedClientEventName clientEventName = "COMMAND_REQUESTED"
+	unitsFetchedClientEventName     clientEventName = "UNITS_FETCHED"
 	p2pOfferSentClientEventName     clientEventName = "P2P_OFFER_SENT"
 	p2pAnswerSentClientEventName    clientEventName = "P2P_ANSWER_SENT"
 )
@@ -27,6 +31,11 @@ type commandSentClientEvent struct {
 type commandRequestedClientEvent[T any] struct {
 	Name    clientEventName `json:"name"`
 	Command T               `json:"command"`
+}
+
+type unitsFetchedClientEvent struct {
+	Name   clientEventName `json:"name"`
+	Blocks []dto.BlockDto  `json:"blocks"`
 }
 
 type p2pOfferSentClientEvent struct {

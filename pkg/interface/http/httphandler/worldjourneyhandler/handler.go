@@ -104,10 +104,11 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		}
 	}
 
-	generateWorldEnteredServerEvent := func(worldDto dto.WorldDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto) worldEnteredServerEvent {
+	generateWorldEnteredServerEvent := func(worldDto dto.WorldDto, blockDtos []dto.BlockDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto) worldEnteredServerEvent {
 		return worldEnteredServerEvent{
 			Name:       worldEnteredServerEventName,
 			World:      viewmodel.WorldViewModel(worldDto),
+			Blocks:     blockDtos,
 			Units:      unitDtos,
 			MyPlayerId: myPlayerIdDto,
 			Players:    playerDtos,
@@ -135,6 +136,14 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		}
 	}
 
+	generateUnitsReturnedServerEvent := func(blockDtos []dto.BlockDto, unitDtos []dto.UnitDto) unitsReturnedServerEvent {
+		return unitsReturnedServerEvent{
+			Name:   unitsReturnedServerEventName,
+			Blocks: blockDtos,
+			Units:  unitDtos,
+		}
+	}
+
 	generateP2pOfferReceivedServerEvent := func(peerPlayerId uuid.UUID, iceCandidates []any, offer any) p2pOfferReceivedServerEvent {
 		return p2pOfferReceivedServerEvent{
 			Name:          p2pOfferReceivedServerEventName,
@@ -152,6 +161,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 			Answer:        offer,
 		}
 	}
+
 	generateErroredServerEvent := func(err error) erroredServerEvent {
 		return erroredServerEvent{
 			Name:    erroredServerEventName,
@@ -214,13 +224,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}
 	defer safelyLeaveWorldInAllCases()
 
-	worldDto, unitDtos, playerDtos, err := httpHandler.getWorldInformation(worldIdDto)
+	worldDto, blockDtos, unitDtos, playerDtos, err := httpHandler.getWorldInformation(worldIdDto)
 	if err != nil {
 		respondServerEvent(generateErroredServerEvent(err))
 		closeConnection()
 		return
 	}
-	respondServerEvent(generateWorldEnteredServerEvent(worldDto, unitDtos, playerDtos))
+	respondServerEvent(generateWorldEnteredServerEvent(worldDto, blockDtos, unitDtos, playerDtos))
 
 	go func() {
 		for {
@@ -447,6 +457,18 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 				default:
 				}
+			case unitsFetchedClientEventName:
+				clientEvent, err := jsonutil.Unmarshal[unitsFetchedClientEvent](message)
+				if err != nil {
+					respondServerEvent(generateErroredServerEvent(err))
+					return
+				}
+				unitDtos, err := httpHandler.fetchUnitsInBlocks(worldIdDto, clientEvent.Blocks)
+				if err != nil {
+					respondServerEvent(generateErroredServerEvent(err))
+					return
+				}
+				respondServerEvent(generateUnitsReturnedServerEvent(clientEvent.Blocks, unitDtos))
 			}
 
 		}
@@ -632,16 +654,23 @@ func (httpHandler *HttpHandler) createPlayer(worldIdDto uuid.UUID, userIdDto *uu
 	}
 	uow.SaveChanges()
 
-	fmt.Println(newPlayerDto)
-
 	return newPlayerDto, nil
 }
 
 func (httpHandler *HttpHandler) getWorldInformation(worldIdDto uuid.UUID) (
-	worldDto dto.WorldDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto, err error,
+	worldDto dto.WorldDto, blockDtos []dto.BlockDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto, err error,
 ) {
 	uow := pguow.NewDummyUow()
 
 	getWorldInformationUseCase := usecase.ProvideGetWorldInformationUseCase(uow)
 	return getWorldInformationUseCase.Execute(worldIdDto)
+}
+
+func (httpHandler *HttpHandler) fetchUnitsInBlocks(worldIdDto uuid.UUID, blockDtos []dto.BlockDto) (
+	unitDtos []dto.UnitDto, err error,
+) {
+	uow := pguow.NewDummyUow()
+
+	fetchUnitsInBlocksUseCase := usecase.ProvideFetchUnitsInBlocksUseCase(uow)
+	return fetchUnitsInBlocksUseCase.Execute(worldIdDto, blockDtos)
 }

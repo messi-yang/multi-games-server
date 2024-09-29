@@ -7,8 +7,8 @@ import (
 )
 
 type ErrInvalidDimension struct {
-	width int8
-	depth int8
+	width int
+	depth int
 }
 
 func (e *ErrInvalidDimension) Error() string {
@@ -16,14 +16,14 @@ func (e *ErrInvalidDimension) Error() string {
 }
 
 type Dimension struct {
-	width int8
-	depth int8
+	width int
+	depth int
 }
 
 // Interface Implementation Check
 var _ domain.ValueObject[Dimension] = (*Dimension)(nil)
 
-func NewDimension(width int8, depth int8) (Dimension, error) {
+func NewDimension(width int, depth int) (Dimension, error) {
 	if width < 1 || depth < 1 {
 		return Dimension{}, &ErrInvalidDimension{width: width, depth: depth}
 	}
@@ -38,11 +38,11 @@ func (dimension Dimension) IsEqual(otherDimension Dimension) bool {
 	return dimension.width == otherDimension.width && dimension.depth == otherDimension.depth
 }
 
-func (dimension Dimension) GetWidth() int8 {
+func (dimension Dimension) GetWidth() int {
 	return dimension.width
 }
 
-func (dimension Dimension) GetDepth() int8 {
+func (dimension Dimension) GetDepth() int {
 	return dimension.depth
 }
 

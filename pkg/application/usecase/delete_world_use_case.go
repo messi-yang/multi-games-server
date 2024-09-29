@@ -58,7 +58,6 @@ func (useCase *DeleteWorldUseCase) Execute(useIdDto uuid.UUID, worldIdDto uuid.U
 	if err != nil {
 		return err
 	}
-	fmt.Println(worldMembersInWorld)
 	for _, worldMember := range worldMembersInWorld {
 		if err = useCase.worldMemberRepo.Delete(worldMember); err != nil {
 			return err

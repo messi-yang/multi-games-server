@@ -5,6 +5,7 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
@@ -65,7 +66,7 @@ func (repo *worldRepo) Get(worldId globalcommonmodel.WorldId) (world worldmodel.
 	}); err != nil {
 		return world, err
 	}
-	return pgmodel.ParseWorldModel(worldModel)
+	return pgmodel.ParseWorldModel(worldModel), nil
 }
 
 func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, err error) {
@@ -77,9 +78,9 @@ func (repo *worldRepo) Query(limit int, offset int) (worlds []worldmodel.World, 
 		return worlds, err
 	}
 
-	return commonutil.MapWithError[pgmodel.WorldModel](worldModels, func(_ int, worldModel pgmodel.WorldModel) (worldmodel.World, error) {
+	return lo.Map(worldModels, func(worldModel pgmodel.WorldModel, _ int) worldmodel.World {
 		return pgmodel.ParseWorldModel(worldModel)
-	})
+	}), nil
 }
 
 func (repo *worldRepo) GetWorldsOfUser(userId globalcommonmodel.UserId) (worlds []worldmodel.World, err error) {
@@ -97,6 +98,6 @@ func (repo *worldRepo) GetWorldsOfUser(userId globalcommonmodel.UserId) (worlds 
 	}
 
 	return commonutil.MapWithError[pgmodel.WorldModel](worldModels, func(_ int, worldModel pgmodel.WorldModel) (worldmodel.World, error) {
-		return pgmodel.ParseWorldModel(worldModel)
+		return pgmodel.ParseWorldModel(worldModel), nil
 	})
 }

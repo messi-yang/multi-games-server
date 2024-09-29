@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/google/uuid"
 )
 
@@ -14,7 +13,6 @@ type World struct {
 	id                   globalcommonmodel.WorldId
 	userId               globalcommonmodel.UserId
 	name                 string
-	bound                worldcommonmodel.Bound
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -26,13 +24,11 @@ var _ domain.DomainEventDispatchableAggregate = (*World)(nil)
 func NewWorld(
 	userId globalcommonmodel.UserId,
 	name string,
-	bound worldcommonmodel.Bound,
 ) World {
 	newWorld := World{
 		id:                   globalcommonmodel.NewWorldId(uuid.New()),
 		userId:               userId,
 		name:                 name,
-		bound:                bound,
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -48,7 +44,6 @@ func LoadWorld(
 	worldId globalcommonmodel.WorldId,
 	userId globalcommonmodel.UserId,
 	name string,
-	bound worldcommonmodel.Bound,
 	createdAt time.Time,
 	updatedAt time.Time,
 ) World {
@@ -56,7 +51,6 @@ func LoadWorld(
 		id:                   worldId,
 		userId:               userId,
 		name:                 name,
-		bound:                bound,
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -77,10 +71,6 @@ func (world *World) GetUserId() globalcommonmodel.UserId {
 
 func (world *World) GetName() string {
 	return world.name
-}
-
-func (world *World) GetBound() worldcommonmodel.Bound {
-	return world.bound
 }
 
 func (world *World) ChangeName(name string) {

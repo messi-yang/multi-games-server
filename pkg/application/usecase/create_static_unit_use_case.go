@@ -23,10 +23,9 @@ func NewCreateStaticUnitUseCase(staticUnitService service.StaticUnitService) Cre
 func ProvideCreateStaticUnitUseCase(uow pguow.Uow) CreateStaticUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepo := pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
-	staticUnitRepoUnitService := service.NewStaticUnitService(worldRepo, unitRepo, staticUnitRepo, itemRepo)
+	staticUnitRepoUnitService := service.NewStaticUnitService(unitRepo, staticUnitRepo, itemRepo)
 	return NewCreateStaticUnitUseCase(staticUnitRepoUnitService)
 }
 

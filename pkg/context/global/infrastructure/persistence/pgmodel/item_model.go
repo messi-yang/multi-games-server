@@ -16,8 +16,8 @@ type ItemModel struct {
 	Id                 uuid.UUID      `gorm:"primaryKey"`
 	CompatibleUnitType UnitTypeEnum   `gorm:"not null"`
 	Name               string         `gorm:"not null"`
-	DimensionWidth     int8           `gorm:"not null"`
-	DimensionDepth     int8           `gorm:"not null"`
+	DimensionWidth     int            `gorm:"not null"`
+	DimensionDepth     int            `gorm:"not null"`
 	Traversable        bool           `gorm:"not null"`
 	ModelSources       pq.StringArray `gorm:"not null;type:text[]"`
 	ThumbnailSrc       string         `gorm:"not null"`

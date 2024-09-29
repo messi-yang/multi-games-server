@@ -20,10 +20,9 @@ func NewRemoveLinkUnitUseCase(linkUnitService service.LinkUnitService) RemoveLin
 func ProvideRemoveLinkUnitUseCase(uow pguow.Uow) RemoveLinkUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	linkUnitRepo := pgrepo.NewLinkUnitRepo(uow, domainEventDispatcher)
-	linkUnitRepoUnitService := service.NewLinkUnitService(worldRepo, unitRepo, linkUnitRepo, itemRepo)
+	linkUnitRepoUnitService := service.NewLinkUnitService(unitRepo, linkUnitRepo, itemRepo)
 	return NewRemoveLinkUnitUseCase(linkUnitRepoUnitService)
 }
 

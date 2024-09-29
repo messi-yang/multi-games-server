@@ -23,10 +23,9 @@ func NewCreateFenceUnitUseCase(fenceUnitService service.FenceUnitService) Create
 func ProvideCreateFenceUnitUseCase(uow pguow.Uow) CreateFenceUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	fenceUnitRepo := pgrepo.NewFenceUnitRepo(uow, domainEventDispatcher)
-	fenceUnitRepoUnitService := service.NewFenceUnitService(worldRepo, unitRepo, fenceUnitRepo, itemRepo)
+	fenceUnitRepoUnitService := service.NewFenceUnitService(unitRepo, fenceUnitRepo, itemRepo)
 	return NewCreateFenceUnitUseCase(fenceUnitRepoUnitService)
 }
 

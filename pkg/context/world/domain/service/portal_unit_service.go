@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 )
 
@@ -29,20 +28,17 @@ type PortalUnitService interface {
 }
 
 type portalUnitServe struct {
-	worldRepo      worldmodel.WorldRepo
 	unitRepo       unitmodel.UnitRepo
 	portalUnitRepo portalunitmodel.PortalUnitRepo
 	itemRepo       itemmodel.ItemRepo
 }
 
 func NewPortalUnitService(
-	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
 	portalUnitRepo portalunitmodel.PortalUnitRepo,
 	itemRepo itemmodel.ItemRepo,
 ) PortalUnitService {
 	return &portalUnitServe{
-		worldRepo:      worldRepo,
 		unitRepo:       unitRepo,
 		portalUnitRepo: portalUnitRepo,
 		itemRepo:       itemRepo,
@@ -56,11 +52,6 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 	position worldcommonmodel.Position,
 	direction worldcommonmodel.Direction,
 ) error {
-	world, err := portalUnitServe.worldRepo.Get(worldId)
-	if err != nil {
-		return err
-	}
-
 	item, err := portalUnitServe.itemRepo.Get(itemId)
 	if err != nil {
 		return err
@@ -68,10 +59,6 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 
 	if !item.GetCompatibleUnitType().IsPortal() {
 		return errItemIsNotForPortalUnit
-	}
-
-	if !world.GetBound().CoversPosition(position) {
-		return errUnitExceededBoundary
 	}
 
 	if position.IsEqual(worldcommonmodel.NewPosition(0, 0)) {

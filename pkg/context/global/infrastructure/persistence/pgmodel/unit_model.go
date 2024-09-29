@@ -22,8 +22,8 @@ type UnitModel struct {
 	PosZ           int          `gorm:"not null"`
 	ItemId         uuid.UUID    `gorm:"not null"`
 	Direction      int8         `gorm:"not null"`
-	DimensionWidth int8         `gorm:"not null"`
-	DimensionDepth int8         `gorm:"not null"`
+	DimensionWidth int          `gorm:"not null"`
+	DimensionDepth int          `gorm:"not null"`
 	Label          *string      `gorm:""`
 	Type           UnitTypeEnum `gorm:"not null"`
 	InfoSnapshot   pgtype.JSONB `gorm:"type:jsonb;not null"`

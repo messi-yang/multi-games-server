@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/embedunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 )
 
 var (
@@ -30,20 +29,17 @@ type EmbedUnitService interface {
 }
 
 type embedUnitServe struct {
-	worldRepo     worldmodel.WorldRepo
 	unitRepo      unitmodel.UnitRepo
 	embedUnitRepo embedunitmodel.EmbedUnitRepo
 	itemRepo      itemmodel.ItemRepo
 }
 
 func NewEmbedUnitService(
-	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
 	embedUnitRepo embedunitmodel.EmbedUnitRepo,
 	itemRepo itemmodel.ItemRepo,
 ) EmbedUnitService {
 	return &embedUnitServe{
-		worldRepo:     worldRepo,
 		unitRepo:      unitRepo,
 		embedUnitRepo: embedUnitRepo,
 		itemRepo:      itemRepo,
@@ -59,11 +55,6 @@ func (embedUnitServe *embedUnitServe) CreateEmbedUnit(
 	label *string,
 	embedCode worldcommonmodel.EmbedCode,
 ) error {
-	world, err := embedUnitServe.worldRepo.Get(worldId)
-	if err != nil {
-		return err
-	}
-
 	item, err := embedUnitServe.itemRepo.Get(itemId)
 	if err != nil {
 		return err
@@ -71,10 +62,6 @@ func (embedUnitServe *embedUnitServe) CreateEmbedUnit(
 
 	if !item.GetCompatibleUnitType().IsEmbed() {
 		return errItemIsNotForEmbedUnit
-	}
-
-	if !world.GetBound().CoversPosition(position) {
-		return errUnitExceededBoundary
 	}
 
 	if position.IsEqual(worldcommonmodel.NewPosition(0, 0)) {

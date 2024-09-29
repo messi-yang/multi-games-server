@@ -8,7 +8,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 )
 
 var (
@@ -30,20 +29,17 @@ type LinkUnitService interface {
 }
 
 type linkUnitServe struct {
-	worldRepo    worldmodel.WorldRepo
 	unitRepo     unitmodel.UnitRepo
 	linkUnitRepo linkunitmodel.LinkUnitRepo
 	itemRepo     itemmodel.ItemRepo
 }
 
 func NewLinkUnitService(
-	worldRepo worldmodel.WorldRepo,
 	unitRepo unitmodel.UnitRepo,
 	linkUnitRepo linkunitmodel.LinkUnitRepo,
 	itemRepo itemmodel.ItemRepo,
 ) LinkUnitService {
 	return &linkUnitServe{
-		worldRepo:    worldRepo,
 		unitRepo:     unitRepo,
 		linkUnitRepo: linkUnitRepo,
 		itemRepo:     itemRepo,
@@ -59,11 +55,6 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 	label *string,
 	url globalcommonmodel.Url,
 ) error {
-	world, err := linkUnitServe.worldRepo.Get(worldId)
-	if err != nil {
-		return err
-	}
-
 	item, err := linkUnitServe.itemRepo.Get(itemId)
 	if err != nil {
 		return err
@@ -71,10 +62,6 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 
 	if !item.GetCompatibleUnitType().IsLink() {
 		return errItemIsNotForLinkUnit
-	}
-
-	if !world.GetBound().CoversPosition(position) {
-		return errUnitExceededBoundary
 	}
 
 	if position.IsEqual(worldcommonmodel.NewPosition(0, 0)) {

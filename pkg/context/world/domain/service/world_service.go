@@ -58,15 +58,7 @@ func (worldServe *worldServe) CreateWorld(userId globalcommonmodel.UserId, name 
 		return newWorld, ErrWorldsCountReachLimit
 	}
 
-	worldBound, err := worldcommonmodel.NewBound(
-		worldcommonmodel.NewPosition(-50, -50),
-		worldcommonmodel.NewPosition(50, 50),
-	)
-	if err != nil {
-		return newWorld, err
-	}
-
-	newWorld = worldmodel.NewWorld(userId, name, worldBound)
+	newWorld = worldmodel.NewWorld(userId, name)
 	worldId := newWorld.GetId()
 
 	if err = worldServe.worldRepo.Add(newWorld); err != nil {

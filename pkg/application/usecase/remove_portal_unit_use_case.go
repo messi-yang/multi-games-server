@@ -20,10 +20,9 @@ func NewRemovePortalUnitUseCase(portalUnitService service.PortalUnitService) Rem
 func ProvideRemovePortalUnitUseCase(uow pguow.Uow) RemovePortalUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
-	portalUnitRepoUnitService := service.NewPortalUnitService(worldRepo, unitRepo, portalUnitRepo, itemRepo)
+	portalUnitRepoUnitService := service.NewPortalUnitService(unitRepo, portalUnitRepo, itemRepo)
 	return NewRemovePortalUnitUseCase(portalUnitRepoUnitService)
 }
 

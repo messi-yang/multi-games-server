@@ -208,11 +208,7 @@ CREATE TABLE public.worlds (
     user_id uuid NOT NULL,
     name character varying(50) NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    bound_from_x integer DEFAULT '-50'::integer,
-    bound_from_z integer DEFAULT '-50'::integer,
-    bound_to_x integer DEFAULT 50,
-    bound_to_z integer DEFAULT 50
+    updated_at timestamp with time zone NOT NULL
 );
 
 

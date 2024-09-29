@@ -32,18 +32,17 @@ func NewRotateUnitUseCase(unitRepo unitmodel.UnitRepo, staticUnitService service
 func ProvideRotateUnitUseCase(uow pguow.Uow) RotateUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepo := pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
 	fenceUnitRepo := pgrepo.NewFenceUnitRepo(uow, domainEventDispatcher)
 	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
 	linkUnitRepo := pgrepo.NewLinkUnitRepo(uow, domainEventDispatcher)
 	embedUnitRepo := pgrepo.NewEmbedUnitRepo(uow, domainEventDispatcher)
-	staticUnitService := service.NewStaticUnitService(worldRepo, unitRepo, staticUnitRepo, itemRepo)
-	fenceUnitService := service.NewFenceUnitService(worldRepo, unitRepo, fenceUnitRepo, itemRepo)
-	portalUnitService := service.NewPortalUnitService(worldRepo, unitRepo, portalUnitRepo, itemRepo)
-	linkUnitService := service.NewLinkUnitService(worldRepo, unitRepo, linkUnitRepo, itemRepo)
-	embedUnitService := service.NewEmbedUnitService(worldRepo, unitRepo, embedUnitRepo, itemRepo)
+	staticUnitService := service.NewStaticUnitService(unitRepo, staticUnitRepo, itemRepo)
+	fenceUnitService := service.NewFenceUnitService(unitRepo, fenceUnitRepo, itemRepo)
+	portalUnitService := service.NewPortalUnitService(unitRepo, portalUnitRepo, itemRepo)
+	linkUnitService := service.NewLinkUnitService(unitRepo, linkUnitRepo, itemRepo)
+	embedUnitService := service.NewEmbedUnitService(unitRepo, embedUnitRepo, itemRepo)
 	return NewRotateUnitUseCase(unitRepo, staticUnitService, fenceUnitService, portalUnitService, linkUnitService, embedUnitService)
 }
 

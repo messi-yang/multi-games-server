@@ -11,7 +11,6 @@ type WorldDto struct {
 	Id        uuid.UUID `json:"id"`
 	UserId    uuid.UUID `json:"userId"`
 	Name      string    `json:"name"`
-	Bound     BoundDto  `json:"bound"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -21,7 +20,6 @@ func NewWorldDto(world worldmodel.World) WorldDto {
 		Id:        world.GetId().Uuid(),
 		UserId:    world.GetUserId().Uuid(),
 		Name:      world.GetName(),
-		Bound:     NewBoundDto(world.GetBound()),
 		CreatedAt: world.GetCreatedAt(),
 		UpdatedAt: world.GetUpdatedAt(),
 	}

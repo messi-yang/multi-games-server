@@ -5,8 +5,8 @@ import (
 )
 
 type DimensionDto struct {
-	Width int8 `json:"width"`
-	Depth int8 `json:"depth"`
+	Width int `json:"width"`
+	Depth int `json:"depth"`
 }
 
 func NewDimensionDto(dimension worldcommonmodel.Dimension) DimensionDto {

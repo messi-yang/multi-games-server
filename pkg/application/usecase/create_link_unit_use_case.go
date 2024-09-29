@@ -23,10 +23,9 @@ func NewCreateLinkUnitUseCase(linkUnitService service.LinkUnitService) CreateLin
 func ProvideCreateLinkUnitUseCase(uow pguow.Uow) CreateLinkUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	itemRepo := pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 	linkUnitRepo := pgrepo.NewLinkUnitRepo(uow, domainEventDispatcher)
-	linkUnitRepoUnitService := service.NewLinkUnitService(worldRepo, unitRepo, linkUnitRepo, itemRepo)
+	linkUnitRepoUnitService := service.NewLinkUnitService(unitRepo, linkUnitRepo, itemRepo)
 	return NewCreateLinkUnitUseCase(linkUnitRepoUnitService)
 }
 
