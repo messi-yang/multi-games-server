@@ -1,24 +1,19 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/blockmodel"
 )
 
 type BlockDto struct {
-	X int `json:"x"`
-	Z int `json:"z"`
+	Id BlockIdDto `json:"id"`
 }
 
-func NewBlockDto(block worldcommonmodel.Block) BlockDto {
+func NewBlockDto(block blockmodel.Block) BlockDto {
 	return BlockDto{
-		X: block.GetX(),
-		Z: block.GetZ(),
+		Id: BlockIdDto{
+			WorldId: block.GetId().GetWorldId().Uuid(),
+			X:       block.GetX(),
+			Z:       block.GetZ(),
+		},
 	}
-}
-
-func (dto BlockDto) ToValueObject() (block worldcommonmodel.Block) {
-	return worldcommonmodel.NewBlock(
-		dto.X,
-		dto.Z,
-	)
 }

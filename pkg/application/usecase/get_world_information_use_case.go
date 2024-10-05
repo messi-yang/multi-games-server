@@ -5,9 +5,9 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/blockmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/redisrepo"
@@ -46,11 +46,11 @@ func (useCase *GetWorldInformationUseCase) Execute(worldIdDto uuid.UUID) (
 
 	units := []unitmodel.Unit{}
 
-	blocks := []worldcommonmodel.Block{
-		worldcommonmodel.NewBlock(-1, -1),
-		worldcommonmodel.NewBlock(-1, 0),
-		worldcommonmodel.NewBlock(0, -1),
-		worldcommonmodel.NewBlock(0, 0),
+	blocks := []blockmodel.Block{
+		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, -1, -1)),
+		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, -1, 0)),
+		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, 0, -1)),
+		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, 0, 0)),
 	}
 	for _, block := range blocks {
 		unitsInBlock, err := useCase.unitRepo.GetUnitsInBlock(worldId, block)
@@ -60,7 +60,7 @@ func (useCase *GetWorldInformationUseCase) Execute(worldIdDto uuid.UUID) (
 		units = append(units, unitsInBlock...)
 	}
 
-	blockDtos = lo.Map(blocks, func(block worldcommonmodel.Block, _ int) dto.BlockDto {
+	blockDtos = lo.Map(blocks, func(block blockmodel.Block, _ int) dto.BlockDto {
 		return dto.NewBlockDto(block)
 	})
 

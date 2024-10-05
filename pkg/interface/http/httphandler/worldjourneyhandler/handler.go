@@ -463,12 +463,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					respondServerEvent(generateErroredServerEvent(err))
 					return
 				}
-				unitDtos, err := httpHandler.fetchUnitsInBlocks(worldIdDto, clientEvent.Blocks)
+				unitDtos, blockDtos, err := httpHandler.fetchUnitsInBlocks(worldIdDto, clientEvent.BlockIds)
 				if err != nil {
 					respondServerEvent(generateErroredServerEvent(err))
 					return
 				}
-				respondServerEvent(generateUnitsReturnedServerEvent(clientEvent.Blocks, unitDtos))
+				respondServerEvent(generateUnitsReturnedServerEvent(blockDtos, unitDtos))
 			}
 
 		}
@@ -666,11 +666,11 @@ func (httpHandler *HttpHandler) getWorldInformation(worldIdDto uuid.UUID) (
 	return getWorldInformationUseCase.Execute(worldIdDto)
 }
 
-func (httpHandler *HttpHandler) fetchUnitsInBlocks(worldIdDto uuid.UUID, blockDtos []dto.BlockDto) (
-	unitDtos []dto.UnitDto, err error,
+func (httpHandler *HttpHandler) fetchUnitsInBlocks(worldIdDto uuid.UUID, blockIdDtos []dto.BlockIdDto) (
+	unitDtos []dto.UnitDto, blockDtos []dto.BlockDto, err error,
 ) {
 	uow := pguow.NewDummyUow()
 
 	fetchUnitsInBlocksUseCase := usecase.ProvideFetchUnitsInBlocksUseCase(uow)
-	return fetchUnitsInBlocksUseCase.Execute(worldIdDto, blockDtos)
+	return fetchUnitsInBlocksUseCase.Execute(worldIdDto, blockIdDtos)
 }

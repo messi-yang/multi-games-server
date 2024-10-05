@@ -5,8 +5,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/blockmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -27,20 +27,20 @@ func ProvideFetchUnitsInBlocksUseCase(uow pguow.Uow) FetchUnitsInBlocksUseCase {
 	return NewFetchUnitsInBlocksUseCase(unitRepo)
 }
 
-func (useCase *FetchUnitsInBlocksUseCase) Execute(worldIdDto uuid.UUID, blockDtos []dto.BlockDto) (
-	unitDtos []dto.UnitDto, err error) {
+func (useCase *FetchUnitsInBlocksUseCase) Execute(worldIdDto uuid.UUID, blockIdDtos []dto.BlockIdDto) (
+	unitDtos []dto.UnitDto, blockDtos []dto.BlockDto, err error) {
 	worldId := globalcommonmodel.NewWorldId(worldIdDto)
 
 	units := []unitmodel.Unit{}
 
-	blocks := lo.Map(blockDtos, func(blockDto dto.BlockDto, _ int) worldcommonmodel.Block {
-		return blockDto.ToValueObject()
+	blocks := lo.Map(blockIdDtos, func(blockIdDto dto.BlockIdDto, _ int) blockmodel.Block {
+		return blockmodel.LoadBlock(blockIdDto.ToValueObject())
 	})
 
 	for _, block := range blocks {
 		unitsInBlock, err := useCase.unitRepo.GetUnitsInBlock(worldId, block)
 		if err != nil {
-			return unitDtos, err
+			return unitDtos, blockDtos, err
 		}
 		units = append(units, unitsInBlock...)
 	}
@@ -49,5 +49,9 @@ func (useCase *FetchUnitsInBlocksUseCase) Execute(worldIdDto uuid.UUID, blockDto
 		return dto.NewUnitDto(unit)
 	})
 
-	return unitDtos, nil
+	blockDtos = lo.Map(blocks, func(block blockmodel.Block, _ int) dto.BlockDto {
+		return dto.NewBlockDto(block)
+	})
+
+	return unitDtos, blockDtos, nil
 }

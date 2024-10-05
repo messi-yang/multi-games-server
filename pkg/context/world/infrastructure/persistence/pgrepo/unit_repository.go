@@ -1,6 +1,7 @@
 package pgrepo
 
 import (
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/blockmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -91,7 +92,7 @@ func (repo *unitRepo) GetUnitsOfWorld(
 	})
 }
 
-func (repo *unitRepo) GetUnitsInBlock(worldId globalcommonmodel.WorldId, block worldcommonmodel.Block) (units []unitmodel.Unit, err error) {
+func (repo *unitRepo) GetUnitsInBlock(worldId globalcommonmodel.WorldId, block blockmodel.Block) (units []unitmodel.Unit, err error) {
 	blockFrom := block.GetBound().GetFrom()
 	blockTo := block.GetBound().GetTo()
 

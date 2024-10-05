@@ -34,8 +34,8 @@ type commandRequestedClientEvent[T any] struct {
 }
 
 type unitsFetchedClientEvent struct {
-	Name   clientEventName `json:"name"`
-	Blocks []dto.BlockDto  `json:"blocks"`
+	Name     clientEventName  `json:"name"`
+	BlockIds []dto.BlockIdDto `json:"blockIds"`
 }
 
 type p2pOfferSentClientEvent struct {
