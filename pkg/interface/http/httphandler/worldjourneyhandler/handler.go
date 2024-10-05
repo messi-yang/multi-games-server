@@ -287,11 +287,11 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeCreateStaticUnitCommand(
-						commandDto.UnitId,
+						commandDto.Payload.UnitId,
 						worldIdDto,
-						commandDto.ItemId,
-						commandDto.Position,
-						commandDto.Direction,
+						commandDto.Payload.ItemId,
+						commandDto.Payload.UnitPosition,
+						commandDto.Payload.UnitDirection,
 					); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
@@ -306,11 +306,11 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeCreateFenceUnitCommand(
-						commandDto.UnitId,
+						commandDto.Paylaod.UnitId,
 						worldIdDto,
-						commandDto.ItemId,
-						commandDto.Position,
-						commandDto.Direction,
+						commandDto.Paylaod.ItemId,
+						commandDto.Paylaod.UnitPosition,
+						commandDto.Paylaod.UnitDirection,
 					); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
@@ -325,11 +325,11 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeCreatePortalUnitCommand(
-						commandDto.UnitId,
+						commandDto.Paylaod.UnitId,
 						worldIdDto,
-						commandDto.ItemId,
-						commandDto.Position,
-						commandDto.Direction,
+						commandDto.Paylaod.ItemId,
+						commandDto.Paylaod.UnitPosition,
+						commandDto.Paylaod.UnitDirection,
 					); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
@@ -344,13 +344,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeCreateLinkUnitCommand(
-						commandDto.UnitId,
+						commandDto.Paylaod.UnitId,
 						worldIdDto,
-						commandDto.ItemId,
-						commandDto.Position,
-						commandDto.Direction,
-						commandDto.Label,
-						commandDto.Url,
+						commandDto.Paylaod.ItemId,
+						commandDto.Paylaod.UnitPosition,
+						commandDto.Paylaod.UnitDirection,
+						commandDto.Paylaod.UnitLabel,
+						commandDto.Paylaod.UnitUrl,
 					); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
@@ -365,13 +365,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					commandDto := commandRequestedClientEvent.Command
 
 					if err = httpHandler.executeCreateEmbedUnitCommand(
-						commandDto.UnitId,
+						commandDto.Paylaod.UnitId,
 						worldIdDto,
-						commandDto.ItemId,
-						commandDto.Position,
-						commandDto.Direction,
-						commandDto.Label,
-						commandDto.EmbedCode,
+						commandDto.Paylaod.ItemId,
+						commandDto.Paylaod.UnitPosition,
+						commandDto.Paylaod.UnitDirection,
+						commandDto.Paylaod.UnitLabel,
+						commandDto.Paylaod.UnitEmbedCode,
 					); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
@@ -385,7 +385,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if err = httpHandler.executeRotateUnitCommand(commandDto.UnitId); err != nil {
+					if err = httpHandler.executeRotateUnitCommand(commandDto.Paylaod.UnitId); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
 						break
@@ -398,7 +398,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if err = httpHandler.executeRemoveStaticUnitCommand(commandDto.UnitId); err != nil {
+					if err = httpHandler.executeRemoveStaticUnitCommand(commandDto.Paylaod.UnitId); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
 						break
@@ -411,7 +411,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if err = httpHandler.executeRemoveFenceUnitCommand(commandDto.UniId); err != nil {
+					if err = httpHandler.executeRemoveFenceUnitCommand(commandDto.Paylaod.UniId); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
 						break
@@ -424,7 +424,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if err = httpHandler.executeRemovePortalUnitCommand(commandDto.UnitId); err != nil {
+					if err = httpHandler.executeRemovePortalUnitCommand(commandDto.Paylaod.UnitId); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
 						break
@@ -437,7 +437,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.UnitId); err != nil {
+					if err = httpHandler.executeRemoveLinkUnitCommand(commandDto.Paylaod.UnitId); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
 						break
@@ -450,7 +450,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					}
 					commandDto := commandRequestedClientEvent.Command
 
-					if err = httpHandler.executeRemoveEmbedUnitCommand(commandDto.UnitId); err != nil {
+					if err = httpHandler.executeRemoveEmbedUnitCommand(commandDto.Paylaod.UnitId); err != nil {
 						respondServerEvent(generateErroredServerEvent(err))
 						respondAndBroadcastServerEvent(generateCommandFailedServerEvent(commandDto.Id))
 						break

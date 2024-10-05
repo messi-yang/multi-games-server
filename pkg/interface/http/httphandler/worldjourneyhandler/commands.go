@@ -31,121 +31,149 @@ type command struct {
 }
 
 type changePlayerActionCommand struct {
-	Id        uuid.UUID           `json:"id"`
-	Timestamp int64               `json:"timestamp"`
-	Name      commandName         `json:"name"`
-	PlayerId  uuid.UUID           `json:"playerId"`
-	Action    dto.PlayerActionDto `json:"action"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	Payload   struct {
+		PlayerId     uuid.UUID           `json:"playerId"`
+		PlayerAction dto.PlayerActionDto `json:"action"`
+	} `json:"payload"`
 }
 
 type sendPlayerIntoPortalCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	PlayerId  uuid.UUID   `json:"playerId"`
-	UnitId    uuid.UUID   `json:"unitId"`
+	Payload   struct {
+		PlayerId uuid.UUID `json:"playerId"`
+		UnitId   uuid.UUID `json:"unitId"`
+	} `json:"payload"`
 }
 
 type changePlayerHeldItemCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	PlayerId  uuid.UUID   `json:"playerId"`
-	ItemId    uuid.UUID   `json:"itemId"`
+	Payload   struct {
+		PlayerId uuid.UUID `json:"playerId"`
+		ItemId   uuid.UUID `json:"itemId"`
+	} `json:"payload"`
 }
 
 type createStaticUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	UnitId    uuid.UUID       `json:"unitId"`
-	ItemId    uuid.UUID       `json:"itemId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	Payload   struct {
+		UnitId        uuid.UUID       `json:"unitId"`
+		ItemId        uuid.UUID       `json:"itemId"`
+		UnitPosition  dto.PositionDto `json:"unitPosition"`
+		UnitDirection int8            `json:"unitDirection"`
+	} `json:"payload"`
 }
 
 type removeStaticUnitCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	UnitId    uuid.UUID   `json:"unitId"`
+	Paylaod   struct {
+		UnitId uuid.UUID `json:"unitId"`
+	} `json:"payload"`
 }
 
 type createFenceUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	UnitId    uuid.UUID       `json:"unitId"`
-	ItemId    uuid.UUID       `json:"itemId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	Paylaod   struct {
+		UnitId        uuid.UUID       `json:"unitId"`
+		ItemId        uuid.UUID       `json:"itemId"`
+		UnitPosition  dto.PositionDto `json:"unitPosition"`
+		UnitDirection int8            `json:"unitDirection"`
+	} `json:"payload"`
 }
 
 type removeFenceUnitCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	UniId     uuid.UUID   `json:"unitId"`
+	Paylaod   struct {
+		UniId uuid.UUID `json:"unitId"`
+	} `json:"payload"`
 }
 
 type createPortalUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	UnitId    uuid.UUID       `json:"unitId"`
-	ItemId    uuid.UUID       `json:"itemId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	Paylaod   struct {
+		UnitId        uuid.UUID       `json:"unitId"`
+		ItemId        uuid.UUID       `json:"itemId"`
+		UnitPosition  dto.PositionDto `json:"unitPosition"`
+		UnitDirection int8            `json:"unitDirection"`
+	} `json:"payload"`
 }
 
 type removePortalUnitCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	UnitId    uuid.UUID   `json:"unitId"`
+	Paylaod   struct {
+		UnitId uuid.UUID `json:"unitId"`
+	} `json:"payload"`
 }
 
 type createLinkUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	UnitId    uuid.UUID       `json:"unitId"`
-	ItemId    uuid.UUID       `json:"itemId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
-	Label     *string         `json:"label"`
-	Url       string          `json:"url"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	Paylaod   struct {
+		UnitId        uuid.UUID       `json:"unitId"`
+		ItemId        uuid.UUID       `json:"itemId"`
+		UnitPosition  dto.PositionDto `json:"unitPosition"`
+		UnitDirection int8            `json:"unitDirection"`
+		UnitLabel     *string         `json:"unitLabel"`
+		UnitUrl       string          `json:"unitUrl"`
+	} `json:"payload"`
 }
 
 type removeLinkUnitCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	UnitId    uuid.UUID   `json:"unitId"`
+	Paylaod   struct {
+		UnitId uuid.UUID `json:"unitId"`
+	} `json:"payload"`
 }
 
 type createEmbedUnitCommand struct {
-	Id        uuid.UUID       `json:"id"`
-	Timestamp int64           `json:"timestamp"`
-	Name      commandName     `json:"name"`
-	UnitId    uuid.UUID       `json:"unitId"`
-	ItemId    uuid.UUID       `json:"itemId"`
-	Position  dto.PositionDto `json:"position"`
-	Direction int8            `json:"direction"`
-	Label     *string         `json:"label"`
-	EmbedCode string          `json:"embedCode"`
+	Id        uuid.UUID   `json:"id"`
+	Timestamp int64       `json:"timestamp"`
+	Name      commandName `json:"name"`
+	Paylaod   struct {
+		UnitId        uuid.UUID       `json:"unitId"`
+		ItemId        uuid.UUID       `json:"itemId"`
+		UnitPosition  dto.PositionDto `json:"unitPosition"`
+		UnitDirection int8            `json:"unitDirection"`
+		UnitLabel     *string         `json:"unitLabel"`
+		UnitEmbedCode string          `json:"unitEmbedCode"`
+	} `json:"payload"`
 }
 
 type removeEmbedUnitCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	UnitId    uuid.UUID   `json:"unitId"`
+	Paylaod   struct {
+		UnitId uuid.UUID `json:"unitId"`
+	} `json:"payload"`
 }
 
 type rotateUnitCommand struct {
 	Id        uuid.UUID   `json:"id"`
 	Timestamp int64       `json:"timestamp"`
 	Name      commandName `json:"name"`
-	UnitId    uuid.UUID   `json:"unitId"`
+	Paylaod   struct {
+		UnitId uuid.UUID `json:"unitId"`
+	} `json:"payload"`
 }
