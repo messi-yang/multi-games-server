@@ -13,9 +13,7 @@ func TestBlock(t *testing.T) {
 	t.Run("LoadBlock", func(t *testing.T) {
 		blockId := NewBlockId(globalcommonmodel.NewWorldId(uuid.New()), 10, 10)
 		block := LoadBlock(blockId)
-		assert.Equal(t, block.GetId(), blockId)
-		assert.Equal(t, block.GetX(), 10)
-		assert.Equal(t, block.GetZ(), 10)
+		assert.True(t, block.GetId().IsEqual(blockId))
 	})
 
 	t.Run("GetDimension", func(t *testing.T) {

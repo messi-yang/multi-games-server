@@ -10,10 +10,6 @@ type BlockDto struct {
 
 func NewBlockDto(block blockmodel.Block) BlockDto {
 	return BlockDto{
-		Id: BlockIdDto{
-			WorldId: block.GetId().GetWorldId().Uuid(),
-			X:       block.GetX(),
-			Z:       block.GetZ(),
-		},
+		Id: NewBlockIdDto(block.GetId()),
 	}
 }
