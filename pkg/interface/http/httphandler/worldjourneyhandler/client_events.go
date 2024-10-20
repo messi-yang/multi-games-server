@@ -20,17 +20,15 @@ type clientEvent struct {
 	Name clientEventName `json:"name"`
 }
 
-// This command is used when the P2P connection with the peer player fails
 type commandSentClientEvent struct {
 	Name         clientEventName `json:"name"`
 	PeerPlayerId uuid.UUID       `json:"peerPlayerId"`
-	// The command will possibly be client-only command, so we use type "any" here
-	Command any `json:"command"`
+	Command      dto.CommandDto  `json:"command"`
 }
 
-type commandRequestedClientEvent[T any] struct {
+type commandRequestedClientEvent struct {
 	Name    clientEventName `json:"name"`
-	Command T               `json:"command"`
+	Command dto.CommandDto  `json:"command"`
 }
 
 type unitsFetchedClientEvent struct {
@@ -39,17 +37,15 @@ type unitsFetchedClientEvent struct {
 }
 
 type p2pOfferSentClientEvent struct {
-	Name clientEventName `json:"name"`
-	// Player that the client wanted to build connection with
-	PeerPlayerId  uuid.UUID `json:"peerPlayerId"`
-	IceCandidates []any     `json:"iceCandidates"`
-	Offer         any       `json:"offer"`
+	Name          clientEventName `json:"name"`
+	PeerPlayerId  uuid.UUID       `json:"peerPlayerId"`
+	IceCandidates []any           `json:"iceCandidates"`
+	Offer         any             `json:"offer"`
 }
 
 type p2pAnswerSentClientEvent struct {
-	Name clientEventName `json:"name"`
-	// Player that the client wanted to build connection with
-	PeerPlayerId  uuid.UUID `json:"peerPlayerId"`
-	IceCandidates []any     `json:"iceCandidates"`
-	Answer        any       `json:"answer"`
+	Name          clientEventName `json:"name"`
+	PeerPlayerId  uuid.UUID       `json:"peerPlayerId"`
+	IceCandidates []any           `json:"iceCandidates"`
+	Answer        any             `json:"answer"`
 }
