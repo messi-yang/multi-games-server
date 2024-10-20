@@ -9,6 +9,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/embedunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/linkunithttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/portalunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldjourneyhandler"
@@ -94,6 +95,10 @@ func Run() error {
 	linkUnitHttpHandler := linkunithttphandler.NewHttpHandler()
 	linkUnitRouterGroup := router.Group("/api/link-units")
 	linkUnitRouterGroup.GET("/:id", linkUnitHttpHandler.GetLinkUnitUrl)
+
+	portalUnitHttpHandler := portalunithttphandler.NewHttpHandler()
+	portalUnitRouterGroup := router.Group("/api/link-units")
+	portalUnitRouterGroup.GET("/:id/target-position", portalUnitHttpHandler.GetPortalUnitTargetPosition)
 
 	embedUnitHttpHandler := embedunithttphandler.NewHttpHandler()
 	embedUnitRouterGroup := router.Group("/api/embed-units")
