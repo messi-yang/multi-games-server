@@ -82,7 +82,7 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 			staticunitmodel.NewStaticUnitId(payload.UnitId),
 			globalcommonmodel.NewWorldId(worldIdDto),
 			worldcommonmodel.NewItemId(payload.ItemId),
-			worldcommonmodel.NewPosition(payload.UnitPosition.X, payload.UnitPosition.Z),
+			payload.UnitPosition.ToValueObject(),
 			worldcommonmodel.NewDirection(payload.UnitDirection),
 		)
 		if err != nil {
@@ -98,7 +98,7 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 			fenceunitmodel.NewFenceUnitId(payload.UnitId),
 			globalcommonmodel.NewWorldId(worldIdDto),
 			worldcommonmodel.NewItemId(payload.ItemId),
-			worldcommonmodel.NewPosition(payload.UnitPosition.X, payload.UnitPosition.Z),
+			payload.UnitPosition.ToValueObject(),
 			worldcommonmodel.NewDirection(payload.UnitDirection),
 		)
 		if err != nil {
@@ -114,7 +114,7 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 			portalunitmodel.NewPortalUnitId(payload.UnitId),
 			globalcommonmodel.NewWorldId(worldIdDto),
 			worldcommonmodel.NewItemId(payload.ItemId),
-			worldcommonmodel.NewPosition(payload.UnitPosition.X, payload.UnitPosition.Z),
+			payload.UnitPosition.ToValueObject(),
 			worldcommonmodel.NewDirection(payload.UnitDirection),
 		)
 		if err != nil {
@@ -134,7 +134,7 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 			linkunitmodel.NewLinkUnitId(payload.UnitId),
 			globalcommonmodel.NewWorldId(worldIdDto),
 			worldcommonmodel.NewItemId(payload.ItemId),
-			worldcommonmodel.NewPosition(payload.UnitPosition.X, payload.UnitPosition.Z),
+			payload.UnitPosition.ToValueObject(),
 			worldcommonmodel.NewDirection(payload.UnitDirection),
 			payload.UnitLabel,
 			url,
@@ -157,7 +157,7 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 			embedunitmodel.NewEmbedUnitId(payload.UnitId),
 			globalcommonmodel.NewWorldId(worldIdDto),
 			worldcommonmodel.NewItemId(payload.ItemId),
-			worldcommonmodel.NewPosition(payload.UnitPosition.X, payload.UnitPosition.Z),
+			payload.UnitPosition.ToValueObject(),
 			worldcommonmodel.NewDirection(payload.UnitDirection),
 			payload.UnitLabel,
 			embedCode,

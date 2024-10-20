@@ -13,3 +13,10 @@ func NewPositionDto(position worldcommonmodel.Position) PositionDto {
 		Z: position.GetZ(),
 	}
 }
+
+func (dto PositionDto) ToValueObject() (bound worldcommonmodel.Position) {
+	return worldcommonmodel.NewPosition(
+		dto.X,
+		dto.Z,
+	)
+}
