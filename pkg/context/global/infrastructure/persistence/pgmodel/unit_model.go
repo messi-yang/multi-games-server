@@ -3,6 +3,7 @@ package pgmodel
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/colorunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/embedunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
@@ -257,5 +258,48 @@ func ParseStaticUnitModels(unitModel UnitModel) (unit staticunitmodel.StaticUnit
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		dimension,
+	), nil
+}
+
+func NewColorUnitModel(unit colorunitmodel.ColorUnit) UnitModel {
+	unitInfoSnapshotJsonb := pgtype.JSONB{}
+	unitInfoSnapshotJsonb.Set(unit.GetInfoSnapshot())
+
+	return UnitModel{
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Label:          unit.GetLabel(),
+		Type:           UnitTypeEnumColor,
+		Id:             unit.GetId().Uuid(),
+		InfoSnapshot:   unitInfoSnapshotJsonb,
+	}
+}
+
+func ParseColorUnitModels(unitModel UnitModel, colorUnitInfoModel ColorUnitInfoModel) (unit colorunitmodel.ColorUnit, err error) {
+	worldId := globalcommonmodel.NewWorldId(colorUnitInfoModel.WorldId)
+	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
+	color, err := globalcommonmodel.NewColorFromHexString(colorUnitInfoModel.Color)
+	if err != nil {
+		return unit, err
+	}
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
+
+	return colorunitmodel.LoadColorUnit(
+		colorunitmodel.NewColorUnitId(colorUnitInfoModel.Id),
+		worldId,
+		pos,
+		worldcommonmodel.NewItemId(unitModel.ItemId),
+		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
+		unitModel.Label,
+		color,
 	), nil
 }

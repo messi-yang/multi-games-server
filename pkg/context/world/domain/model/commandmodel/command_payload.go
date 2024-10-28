@@ -79,6 +79,19 @@ type RemoveEmbedUnitCommandPayloadJson struct {
 	UnitId uuid.UUID `json:"unitId"`
 }
 
+type CreateColorUnitCommandPayloadJson struct {
+	UnitId        uuid.UUID       `json:"unitId"`
+	ItemId        uuid.UUID       `json:"itemId"`
+	UnitPosition  dto.PositionDto `json:"unitPosition"`
+	UnitDirection int8            `json:"unitDirection"`
+	UnitLabel     *string         `json:"unitLabel"`
+	UnitColor     string          `json:"unitColor"`
+}
+
+type RemoveColorUnitCommandPayloadJson struct {
+	UnitId uuid.UUID `json:"unitId"`
+}
+
 type RotateUnitCommandPayloadJson struct {
 	UnitId uuid.UUID `json:"unitId"`
 }

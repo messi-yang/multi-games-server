@@ -8,4 +8,5 @@ const (
 	UnitTypeEnumPortal UnitTypeEnum = "portal"
 	UnitTypeEnumLink   UnitTypeEnum = "link"
 	UnitTypeEnumEmbed  UnitTypeEnum = "embed"
+	UnitTypeEnumColor  UnitTypeEnum = "color"
 )

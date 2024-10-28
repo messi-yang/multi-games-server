@@ -7,6 +7,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/commandmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/colorunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/embedunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
@@ -25,17 +26,18 @@ type ExecuteCommandUseCase struct {
 	linkUnitService   service.LinkUnitService
 	portalUnitService service.PortalUnitService
 	embedUnitService  service.EmbedUnitService
+	colorUnitService  service.ColorUnitService
 }
 
 func NewExecuteCommandUseCase(
 	unitRepo unitmodel.UnitRepo,
 	staticUnitService service.StaticUnitService, fenceUnitService service.FenceUnitService, linkUnitService service.LinkUnitService,
-	portalUnitService service.PortalUnitService, embedUnitService service.EmbedUnitService,
+	portalUnitService service.PortalUnitService, embedUnitService service.EmbedUnitService, colorUnitService service.ColorUnitService,
 ) ExecuteCommandUseCase {
 	return ExecuteCommandUseCase{
 		unitRepo,
 		staticUnitService, fenceUnitService, linkUnitService,
-		portalUnitService, embedUnitService,
+		portalUnitService, embedUnitService, colorUnitService,
 	}
 }
 
@@ -48,15 +50,17 @@ func ProvideExecuteCommandUseCase(uow pguow.Uow) ExecuteCommandUseCase {
 	linkUnitRepo := pgrepo.NewLinkUnitRepo(uow, domainEventDispatcher)
 	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
 	embedUnitRepo := pgrepo.NewEmbedUnitRepo(uow, domainEventDispatcher)
+	colorUnitRepo := pgrepo.NewColorUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepoUnitService := service.NewStaticUnitService(unitRepo, staticUnitRepo, itemRepo)
 	fenceUnitRepoUnitService := service.NewFenceUnitService(unitRepo, fenceUnitRepo, itemRepo)
 	linkUnitRepoUnitService := service.NewLinkUnitService(unitRepo, linkUnitRepo, itemRepo)
 	portalUnitRepoUnitService := service.NewPortalUnitService(unitRepo, portalUnitRepo, itemRepo)
 	embedUnitRepoUnitService := service.NewEmbedUnitService(unitRepo, embedUnitRepo, itemRepo)
+	colorUnitRepoUnitService := service.NewColorUnitService(unitRepo, colorUnitRepo, itemRepo)
 	return NewExecuteCommandUseCase(
 		unitRepo,
 		staticUnitRepoUnitService, fenceUnitRepoUnitService, linkUnitRepoUnitService,
-		portalUnitRepoUnitService, embedUnitRepoUnitService,
+		portalUnitRepoUnitService, embedUnitRepoUnitService, colorUnitRepoUnitService,
 	)
 }
 
@@ -165,6 +169,29 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 		if err != nil {
 			return err
 		}
+	} else if commandName.IsCreateColorUnitCommandName() {
+		payload, err := command.GetCreateColorUnitCommandPayload()
+		if err != nil {
+			return err
+		}
+
+		color, err := globalcommonmodel.NewColorFromHexString(payload.UnitColor)
+		if err != nil {
+			return err
+		}
+
+		err = useCase.colorUnitService.CreateColorUnit(
+			colorunitmodel.NewColorUnitId(payload.UnitId),
+			globalcommonmodel.NewWorldId(worldIdDto),
+			worldcommonmodel.NewItemId(payload.ItemId),
+			payload.UnitPosition.ToValueObject(),
+			worldcommonmodel.NewDirection(payload.UnitDirection),
+			payload.UnitLabel,
+			color,
+		)
+		if err != nil {
+			return err
+		}
 	} else if commandName.IsRotateUnitCommandName() {
 		payload, err := command.GetRotateUnitCommandPayload()
 		if err != nil {
@@ -187,6 +214,8 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 			err = useCase.linkUnitService.RotateLinkUnit(linkunitmodel.NewLinkUnitId(payload.UnitId))
 		} else if unit.GetType().IsEmbed() {
 			err = useCase.embedUnitService.RotateEmbedUnit(embedunitmodel.NewEmbedUnitId(payload.UnitId))
+		} else if unit.GetType().IsColor() {
+			err = useCase.colorUnitService.RotateColorUnit(colorunitmodel.NewColorUnitId(payload.UnitId))
 		}
 		if err != nil {
 			return err
@@ -239,6 +268,16 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 		}
 
 		err = useCase.embedUnitService.RemoveEmbedUnit(embedunitmodel.NewEmbedUnitId(payload.UnitId))
+		if err != nil {
+			return err
+		}
+	} else if commandName.IsRemoveColorUnitCommandName() {
+		payload, err := command.GetRemoveColorUnitCommandPayload()
+		if err != nil {
+			return err
+		}
+
+		err = useCase.colorUnitService.RemoveColorUnit(colorunitmodel.NewColorUnitId(payload.UnitId))
 		if err != nil {
 			return err
 		}

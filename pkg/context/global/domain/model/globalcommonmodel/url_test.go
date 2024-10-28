@@ -23,4 +23,14 @@ func TestUrl(t *testing.T) {
 			assert.NoError(t, err)
 		})
 	})
+
+	t.Run("IsEqual", func(t *testing.T) {
+		t.Run("Should compare urls correctly", func(t *testing.T) {
+			url1, _ := NewUrl("https://google.com")
+			url2, _ := NewUrl("https://google.com")
+			url3, _ := NewUrl("https://google.com/hello")
+			assert.True(t, url1.IsEqual(url2))
+			assert.False(t, url1.IsEqual(url3))
+		})
+	})
 }

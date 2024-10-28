@@ -98,6 +98,12 @@ func (command *CommandEntity) GetCreateEmbedUnitCommandPayload() (CreateEmbedUni
 func (command *CommandEntity) GetRemoveEmbedUnitCommandPayload() (RemoveEmbedUnitCommandPayloadJson, error) {
 	return jsonutil.Unmarshal[RemoveEmbedUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
 }
+func (command *CommandEntity) GetCreateColorUnitCommandPayload() (CreateColorUnitCommandPayloadJson, error) {
+	return jsonutil.Unmarshal[CreateColorUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
+}
+func (command *CommandEntity) GetRemoveColorUnitCommandPayload() (RemoveColorUnitCommandPayloadJson, error) {
+	return jsonutil.Unmarshal[RemoveColorUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
+}
 func (command *CommandEntity) GetRotateUnitCommandPayload() (RotateUnitCommandPayloadJson, error) {
 	return jsonutil.Unmarshal[RotateUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
 }

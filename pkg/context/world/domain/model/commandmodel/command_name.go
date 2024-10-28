@@ -22,6 +22,8 @@ const (
 	removeLinkUnitCommandName       commandNameValue = "REMOVE_LINK_UNIT"
 	createEmbedUnitCommandName      commandNameValue = "CREATE_EMBED_UNIT"
 	removeEmbedUnitCommandName      commandNameValue = "REMOVE_EMBED_UNIT"
+	createColorUnitCommandName      commandNameValue = "CREATE_COLOR_UNIT"
+	removeColorUnitCommandName      commandNameValue = "REMOVE_COLOR_UNIT"
 	rotateUnitCommandName           commandNameValue = "ROTATE_UNIT"
 )
 
@@ -86,6 +88,14 @@ func NewCommandName(value string) (CommandName, error) {
 		return CommandName{
 			value: removeEmbedUnitCommandName,
 		}, nil
+	case "CREATE_COLOR_UNIT":
+		return CommandName{
+			value: createColorUnitCommandName,
+		}, nil
+	case "REMOVE_COLOR_UNIT":
+		return CommandName{
+			value: removeColorUnitCommandName,
+		}, nil
 	case "ROTATE_UNIT":
 		return CommandName{
 			value: rotateUnitCommandName,
@@ -145,6 +155,14 @@ func (commandName CommandName) IsCreateEmbedUnitCommandName() bool {
 
 func (commandName CommandName) IsRemoveEmbedUnitCommandName() bool {
 	return commandName.value == removeEmbedUnitCommandName
+}
+
+func (commandName CommandName) IsCreateColorUnitCommandName() bool {
+	return commandName.value == createColorUnitCommandName
+}
+
+func (commandName CommandName) IsRemoveColorUnitCommandName() bool {
+	return commandName.value == removeColorUnitCommandName
 }
 
 func (commandName CommandName) IsRotateUnitCommandName() bool {

@@ -3,11 +3,16 @@ package globalcommonmodel
 import (
 	"fmt"
 	"net/url"
+
+	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 )
 
 type Url struct {
 	value string
 }
+
+// Interface Implementation Check
+var _ domain.ValueObject[Url] = (*Url)(nil)
 
 func NewUrl(rawUrl string) (u Url, err error) {
 	parsedUrl, err := url.Parse(rawUrl)
@@ -26,6 +31,10 @@ func NewUrl(rawUrl string) (u Url, err error) {
 	return Url{value: rawUrl}, nil
 }
 
-func (u Url) String() string {
-	return u.value
+func (url Url) IsEqual(otherUrl Url) bool {
+	return url == otherUrl
+}
+
+func (url Url) String() string {
+	return url.value
 }
