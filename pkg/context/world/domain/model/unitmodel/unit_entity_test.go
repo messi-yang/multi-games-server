@@ -23,6 +23,7 @@ func TestUnitEntity(t *testing.T) {
 					worldcommonmodel.NewDirection(0),
 					dimension,
 					nil,
+					nil,
 					worldcommonmodel.NewStaticUnitType(),
 					nil,
 				)
@@ -50,6 +51,7 @@ func TestUnitEntity(t *testing.T) {
 					worldcommonmodel.NewDirection(0),
 					dimension,
 					nil,
+					nil,
 					worldcommonmodel.NewStaticUnitType(),
 					nil,
 				)
@@ -67,6 +69,7 @@ func TestUnitEntity(t *testing.T) {
 					worldcommonmodel.NewItemId(uuid.New()),
 					worldcommonmodel.NewDirection(1),
 					dimension,
+					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
 					nil,
@@ -94,6 +97,7 @@ func TestUnitEntity(t *testing.T) {
 				worldcommonmodel.NewDownDirection(),
 				dimension,
 				nil,
+				nil,
 				worldcommonmodel.NewStaticUnitType(),
 				nil,
 			)
@@ -113,6 +117,7 @@ func TestUnitEntity(t *testing.T) {
 					worldcommonmodel.NewItemId(uuid.New()),
 					worldcommonmodel.NewDownDirection(),
 					dimension,
+					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
 					nil,
@@ -134,6 +139,7 @@ func TestUnitEntity(t *testing.T) {
 					worldcommonmodel.NewRightDirection(),
 					dimension,
 					nil,
+					nil,
 					worldcommonmodel.NewStaticUnitType(),
 					nil,
 				)
@@ -154,6 +160,7 @@ func TestUnitEntity(t *testing.T) {
 					worldcommonmodel.NewUpDirection(),
 					dimension,
 					nil,
+					nil,
 					worldcommonmodel.NewStaticUnitType(),
 					nil,
 				)
@@ -173,6 +180,7 @@ func TestUnitEntity(t *testing.T) {
 					worldcommonmodel.NewItemId(uuid.New()),
 					worldcommonmodel.NewLeftDirection(),
 					dimension,
+					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
 					nil,

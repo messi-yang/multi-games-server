@@ -25,14 +25,10 @@ func NewColorUnitRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDis
 }
 
 func (repo *colorUnitRepo) Add(colorUnit colorunitmodel.ColorUnit) error {
-	colorUnitInfoModel := pgmodel.NewColorUnitInfoModel(colorUnit)
 	unitModel := pgmodel.NewColorUnitModel(colorUnit)
 	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(colorUnit.UnitEntity)
 
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
-		if err := transaction.Create(&colorUnitInfoModel).Error; err != nil {
-			return err
-		}
 		if err := transaction.Create(&unitModel).Error; err != nil {
 			return err
 		}
@@ -42,29 +38,21 @@ func (repo *colorUnitRepo) Add(colorUnit colorunitmodel.ColorUnit) error {
 
 func (repo *colorUnitRepo) Get(id colorunitmodel.ColorUnitId) (unit colorunitmodel.ColorUnit, err error) {
 	unitModel := pgmodel.UnitModel{}
-	colorUnitInfoModel := pgmodel.ColorUnitInfoModel{}
 
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		if err := transaction.Where(
+		return transaction.Where(
 			"id = ? AND type = ?",
 			id.Uuid(),
 			pgmodel.UnitTypeEnumColor,
-		).First(&unitModel).Error; err != nil {
-			return err
-		}
-		return transaction.Where(
-			"id = ?",
-			unitModel.Id,
-		).First(&colorUnitInfoModel).Error
+		).First(&unitModel).Error
 	}); err != nil {
 		return unit, err
 	}
 
-	return pgmodel.ParseColorUnitModels(unitModel, colorUnitInfoModel)
+	return pgmodel.ParseColorUnitModels(unitModel)
 }
 
 func (repo *colorUnitRepo) Update(colorUnit colorunitmodel.ColorUnit) error {
-	colorUnitInfoModel := pgmodel.NewColorUnitInfoModel(colorUnit)
 	unitModel := pgmodel.NewColorUnitModel(colorUnit)
 	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(colorUnit.UnitEntity)
 
@@ -78,19 +66,13 @@ func (repo *colorUnitRepo) Update(colorUnit colorunitmodel.ColorUnit) error {
 		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
 			return err
 		}
-		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
+		return transaction.Model(&pgmodel.UnitModel{}).Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			colorUnit.GetWorldId().Uuid(),
 			colorUnit.GetPosition().GetX(),
 			colorUnit.GetPosition().GetZ(),
 			pgmodel.UnitTypeEnumColor,
-		).Select("*").Updates(unitModel).Error; err != nil {
-			return err
-		}
-		return transaction.Model(&pgmodel.ColorUnitInfoModel{}).Where(
-			"id = ?",
-			colorUnit.GetId().Uuid(),
-		).Select("*").Updates(colorUnitInfoModel).Error
+		).Select("*").Updates(unitModel).Error
 	})
 }
 
@@ -102,18 +84,12 @@ func (repo *colorUnitRepo) Delete(colorUnit colorunitmodel.ColorUnit) error {
 		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
 			return err
 		}
-		if err := transaction.Where(
+		return transaction.Where(
 			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
 			colorUnit.GetWorldId().Uuid(),
 			colorUnit.GetPosition().GetX(),
 			colorUnit.GetPosition().GetZ(),
 			pgmodel.UnitTypeEnumColor,
-		).Delete(&pgmodel.UnitModel{}).Error; err != nil {
-			return err
-		}
-		return transaction.Where(
-			"id = ?",
-			colorUnit.GetId().Uuid(),
-		).Delete(&pgmodel.ColorUnitInfoModel{}).Error
+		).Delete(&pgmodel.UnitModel{}).Error
 	})
 }

@@ -23,6 +23,7 @@ func LoadUnit(
 	direction worldcommonmodel.Direction,
 	dimension worldcommonmodel.Dimension,
 	label *string,
+	color *globalcommonmodel.Color,
 	_type worldcommonmodel.UnitType,
 	info any,
 ) Unit {
@@ -34,6 +35,7 @@ func LoadUnit(
 			direction,
 			dimension,
 			label,
+			color,
 			_type,
 			info,
 		),

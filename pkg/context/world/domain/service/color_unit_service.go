@@ -76,7 +76,7 @@ func (colorUnitServe *colorUnitServe) CreateColorUnit(
 		return errPositionAlreadyHasUnit
 	}
 
-	newColorUnit := colorunitmodel.NewColorUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, color)
+	newColorUnit := colorunitmodel.NewColorUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, &color)
 	return colorUnitServe.colorUnitRepo.Add(newColorUnit)
 }
 

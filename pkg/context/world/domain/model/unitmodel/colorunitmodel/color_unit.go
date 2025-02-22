@@ -23,7 +23,7 @@ func NewColorUnit(
 	direction worldcommonmodel.Direction,
 	dimension worldcommonmodel.Dimension,
 	label *string,
-	color globalcommonmodel.Color,
+	color *globalcommonmodel.Color,
 ) ColorUnit {
 	return ColorUnit{
 		UnitEntity: unitmodel.NewUnitEntity(
@@ -34,10 +34,11 @@ func NewColorUnit(
 			direction,
 			dimension,
 			label,
+			color,
 			worldcommonmodel.NewColorUnitType(),
 			nil,
 		),
-		color: color,
+		color: *color,
 	}
 }
 
@@ -49,7 +50,7 @@ func LoadColorUnit(
 	direction worldcommonmodel.Direction,
 	dimension worldcommonmodel.Dimension,
 	label *string,
-	color globalcommonmodel.Color,
+	color *globalcommonmodel.Color,
 ) ColorUnit {
 	return ColorUnit{
 		UnitEntity: unitmodel.LoadUnitEntity(
@@ -60,10 +61,11 @@ func LoadColorUnit(
 			direction,
 			dimension,
 			label,
+			color,
 			worldcommonmodel.NewColorUnitType(),
 			nil,
 		),
-		color: color,
+		color: *color,
 	}
 }
 
@@ -73,12 +75,6 @@ func (unit *ColorUnit) GetId() ColorUnitId {
 
 func (unit *ColorUnit) GetColor() globalcommonmodel.Color {
 	return unit.color
-}
-
-func (unit *ColorUnit) GetInfoSnapshot() ColorUnitInfo {
-	return ColorUnitInfo{
-		Color: unit.color.HexString(),
-	}
 }
 
 func (unit *ColorUnit) Delete() {

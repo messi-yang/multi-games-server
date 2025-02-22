@@ -26,6 +26,7 @@ type UnitModel struct {
 	DimensionWidth int          `gorm:"not null"`
 	DimensionDepth int          `gorm:"not null"`
 	Label          *string      `gorm:""`
+	Color          *string      `gorm:""`
 	Type           UnitTypeEnum `gorm:"not null"`
 	InfoSnapshot   pgtype.JSONB `gorm:"type:jsonb;not null"`
 }
@@ -45,6 +46,17 @@ func ParseUnitModel(unitModel UnitModel) (unit unitmodel.Unit, err error) {
 	if err != nil {
 		return unit, err
 	}
+	color := lo.TernaryF(
+		unitModel.Color == nil,
+		func() *globalcommonmodel.Color { return nil },
+		func() *globalcommonmodel.Color {
+			color, err := globalcommonmodel.NewColorFromHexString(*unitModel.Color)
+			if err != nil {
+				return nil
+			}
+			return commonutil.ToPointer(color)
+		},
+	)
 
 	return unitmodel.LoadUnit(
 		unitmodel.NewUnitId(unitModel.Id),
@@ -54,6 +66,7 @@ func ParseUnitModel(unitModel UnitModel) (unit unitmodel.Unit, err error) {
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		dimension,
 		unitModel.Label,
+		color,
 		unitType,
 		unitModel.InfoSnapshot,
 	), nil
@@ -263,7 +276,7 @@ func ParseStaticUnitModels(unitModel UnitModel) (unit staticunitmodel.StaticUnit
 
 func NewColorUnitModel(unit colorunitmodel.ColorUnit) UnitModel {
 	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set(unit.GetInfoSnapshot())
+	unitInfoSnapshotJsonb.Set("null")
 
 	return UnitModel{
 		WorldId:        unit.GetWorldId().Uuid(),
@@ -274,16 +287,17 @@ func NewColorUnitModel(unit colorunitmodel.ColorUnit) UnitModel {
 		DimensionWidth: unit.GetDimension().GetWidth(),
 		DimensionDepth: unit.GetDimension().GetDepth(),
 		Label:          unit.GetLabel(),
+		Color:          commonutil.ToPointer(unit.GetColor().HexString()),
 		Type:           UnitTypeEnumColor,
 		Id:             unit.GetId().Uuid(),
 		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
-func ParseColorUnitModels(unitModel UnitModel, colorUnitInfoModel ColorUnitInfoModel) (unit colorunitmodel.ColorUnit, err error) {
-	worldId := globalcommonmodel.NewWorldId(colorUnitInfoModel.WorldId)
+func ParseColorUnitModels(unitModel UnitModel) (unit colorunitmodel.ColorUnit, err error) {
+	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
-	color, err := globalcommonmodel.NewColorFromHexString(colorUnitInfoModel.Color)
+	color, err := globalcommonmodel.NewColorFromHexString(*unitModel.Color)
 	if err != nil {
 		return unit, err
 	}
@@ -293,13 +307,13 @@ func ParseColorUnitModels(unitModel UnitModel, colorUnitInfoModel ColorUnitInfoM
 	}
 
 	return colorunitmodel.LoadColorUnit(
-		colorunitmodel.NewColorUnitId(colorUnitInfoModel.Id),
+		colorunitmodel.NewColorUnitId(unitModel.Id),
 		worldId,
 		pos,
 		worldcommonmodel.NewItemId(unitModel.ItemId),
 		worldcommonmodel.NewDirection(unitModel.Direction),
 		dimension,
 		unitModel.Label,
-		color,
+		commonutil.ToPointer(color),
 	), nil
 }

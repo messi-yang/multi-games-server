@@ -14,6 +14,7 @@ type UnitEntity struct {
 	direction worldcommonmodel.Direction
 	dimension worldcommonmodel.Dimension
 	label     *string
+	color     *globalcommonmodel.Color
 	_type     worldcommonmodel.UnitType
 	info      any
 }
@@ -29,6 +30,7 @@ func NewUnitEntity(
 	direction worldcommonmodel.Direction,
 	dimension worldcommonmodel.Dimension,
 	label *string,
+	color *globalcommonmodel.Color,
 	_type worldcommonmodel.UnitType,
 	info any,
 ) UnitEntity {
@@ -40,6 +42,7 @@ func NewUnitEntity(
 		direction: direction,
 		dimension: dimension,
 		label:     label,
+		color:     color,
 		_type:     _type,
 		info:      info,
 	}
@@ -53,6 +56,7 @@ func LoadUnitEntity(
 	direction worldcommonmodel.Direction,
 	dimension worldcommonmodel.Dimension,
 	label *string,
+	color *globalcommonmodel.Color,
 	_type worldcommonmodel.UnitType,
 	info any,
 ) UnitEntity {
@@ -64,6 +68,7 @@ func LoadUnitEntity(
 		direction: direction,
 		dimension: dimension,
 		label:     label,
+		color:     color,
 		_type:     _type,
 		info:      info,
 	}
@@ -95,6 +100,10 @@ func (unit *UnitEntity) GetDimension() worldcommonmodel.Dimension {
 
 func (unit *UnitEntity) GetLabel() *string {
 	return unit.label
+}
+
+func (unit *UnitEntity) GetColor() *globalcommonmodel.Color {
+	return unit.color
 }
 
 func (unit *UnitEntity) GetInfo() any {
