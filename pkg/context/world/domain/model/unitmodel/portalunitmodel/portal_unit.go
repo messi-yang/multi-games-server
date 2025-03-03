@@ -5,9 +5,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
-	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 type PortalUnit struct {
@@ -38,7 +35,6 @@ func NewPortalUnit(
 			nil,
 			nil,
 			worldcommonmodel.NewPortalUnitType(),
-			nil,
 		),
 		targetUnitId: targetUnitId,
 	}
@@ -64,7 +60,6 @@ func LoadPortalUnit(
 			nil,
 			nil,
 			worldcommonmodel.NewPortalUnitType(),
-			nil,
 		),
 		targetUnitId: targetUnitId,
 	}
@@ -80,22 +75,6 @@ func (unit *PortalUnit) GetTargetUnitId() *PortalUnitId {
 
 func (unit *PortalUnit) UpdateTargetUnitId(targetUnitId *PortalUnitId) {
 	unit.targetUnitId = targetUnitId
-}
-
-func (unit *PortalUnit) GetInfoSnapshot() PortalUnitInfo {
-	if unit.targetUnitId == nil {
-		return PortalUnitInfo{
-			TargetUnitId: nil,
-		}
-	} else {
-		return PortalUnitInfo{
-			TargetUnitId: lo.TernaryF(
-				unit.targetUnitId == nil,
-				func() *uuid.UUID { return nil },
-				func() *uuid.UUID { return commonutil.ToPointer(unit.targetUnitId.Uuid()) },
-			),
-		}
-	}
 }
 
 func (unit *PortalUnit) Delete() {

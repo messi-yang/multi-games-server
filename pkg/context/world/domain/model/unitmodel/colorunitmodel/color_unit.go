@@ -36,7 +36,6 @@ func NewColorUnit(
 			label,
 			color,
 			worldcommonmodel.NewColorUnitType(),
-			nil,
 		),
 		color: *color,
 	}
@@ -63,7 +62,6 @@ func LoadColorUnit(
 			label,
 			color,
 			worldcommonmodel.NewColorUnitType(),
-			nil,
 		),
 		color: *color,
 	}

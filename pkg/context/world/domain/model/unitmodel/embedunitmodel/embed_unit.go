@@ -36,7 +36,6 @@ func NewEmbedUnit(
 			label,
 			nil,
 			worldcommonmodel.NewEmbedUnitType(),
-			nil,
 		),
 		embedCode: embedCode,
 	}
@@ -63,7 +62,6 @@ func LoadEmbedUnit(
 			label,
 			nil,
 			worldcommonmodel.NewEmbedUnitType(),
-			nil,
 		),
 		embedCode: embedCode,
 	}

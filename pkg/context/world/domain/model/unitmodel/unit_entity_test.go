@@ -25,7 +25,6 @@ func TestUnitEntity(t *testing.T) {
 					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
-					nil,
 				)
 
 				unitEntity.Rotate()
@@ -53,7 +52,6 @@ func TestUnitEntity(t *testing.T) {
 					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
-					nil,
 				)
 
 				unitEntity1.Rotate()
@@ -72,7 +70,6 @@ func TestUnitEntity(t *testing.T) {
 					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
-					nil,
 				)
 
 				unitEntity2.Rotate()
@@ -99,7 +96,6 @@ func TestUnitEntity(t *testing.T) {
 				nil,
 				nil,
 				worldcommonmodel.NewStaticUnitType(),
-				nil,
 			)
 
 			occupiedPositions := unitEntity.GetOccupiedPositions()
@@ -120,7 +116,6 @@ func TestUnitEntity(t *testing.T) {
 					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
-					nil,
 				)
 
 				occupiedPositions := unitEntity1.GetOccupiedPositions()
@@ -141,7 +136,6 @@ func TestUnitEntity(t *testing.T) {
 					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
-					nil,
 				)
 
 				occupiedPositions := unitEntity1.GetOccupiedPositions()
@@ -162,7 +156,6 @@ func TestUnitEntity(t *testing.T) {
 					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
-					nil,
 				)
 
 				occupiedPositions := unitEntity1.GetOccupiedPositions()
@@ -183,7 +176,6 @@ func TestUnitEntity(t *testing.T) {
 					nil,
 					nil,
 					worldcommonmodel.NewStaticUnitType(),
-					nil,
 				)
 
 				occupiedPositions := unitEntity1.GetOccupiedPositions()

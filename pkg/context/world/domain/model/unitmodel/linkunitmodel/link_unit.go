@@ -36,7 +36,6 @@ func NewLinkUnit(
 			label,
 			nil,
 			worldcommonmodel.NewLinkUnitType(),
-			nil,
 		),
 		url: url,
 	}
@@ -63,7 +62,6 @@ func LoadLinkUnit(
 			label,
 			nil,
 			worldcommonmodel.NewLinkUnitType(),
-			nil,
 		),
 		url: url,
 	}

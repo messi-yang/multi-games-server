@@ -33,7 +33,6 @@ func NewStaticUnit(
 			nil,
 			nil,
 			worldcommonmodel.NewStaticUnitType(),
-			nil,
 		),
 	}
 }
@@ -57,7 +56,6 @@ func LoadStaticUnit(
 			nil,
 			nil,
 			worldcommonmodel.NewStaticUnitType(),
-			nil,
 		),
 	}
 }

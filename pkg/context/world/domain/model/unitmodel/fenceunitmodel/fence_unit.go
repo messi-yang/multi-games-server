@@ -33,7 +33,6 @@ func NewFenceUnit(
 			nil,
 			nil,
 			worldcommonmodel.NewFenceUnitType(),
-			nil,
 		),
 	}
 }
@@ -57,7 +56,6 @@ func LoadFenceUnit(
 			nil,
 			nil,
 			worldcommonmodel.NewFenceUnitType(),
-			nil,
 		),
 	}
 }

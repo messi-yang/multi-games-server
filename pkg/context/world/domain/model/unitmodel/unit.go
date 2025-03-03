@@ -25,7 +25,6 @@ func LoadUnit(
 	label *string,
 	color *globalcommonmodel.Color,
 	_type worldcommonmodel.UnitType,
-	info any,
 ) Unit {
 	return Unit{
 		NewUnitEntity(id,
@@ -37,7 +36,6 @@ func LoadUnit(
 			label,
 			color,
 			_type,
-			info,
 		),
 	}
 }

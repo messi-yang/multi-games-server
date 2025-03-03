@@ -16,7 +16,6 @@ type UnitEntity struct {
 	label     *string
 	color     *globalcommonmodel.Color
 	_type     worldcommonmodel.UnitType
-	info      any
 }
 
 // Interface Implementation Check
@@ -32,7 +31,6 @@ func NewUnitEntity(
 	label *string,
 	color *globalcommonmodel.Color,
 	_type worldcommonmodel.UnitType,
-	info any,
 ) UnitEntity {
 	return UnitEntity{
 		id:        id,
@@ -44,7 +42,6 @@ func NewUnitEntity(
 		label:     label,
 		color:     color,
 		_type:     _type,
-		info:      info,
 	}
 }
 
@@ -58,7 +55,6 @@ func LoadUnitEntity(
 	label *string,
 	color *globalcommonmodel.Color,
 	_type worldcommonmodel.UnitType,
-	info any,
 ) UnitEntity {
 	return UnitEntity{
 		id:        id,
@@ -70,7 +66,6 @@ func LoadUnitEntity(
 		label:     label,
 		color:     color,
 		_type:     _type,
-		info:      info,
 	}
 }
 
@@ -104,10 +99,6 @@ func (unit *UnitEntity) GetLabel() *string {
 
 func (unit *UnitEntity) GetColor() *globalcommonmodel.Color {
 	return unit.color
-}
-
-func (unit *UnitEntity) GetInfo() any {
-	return unit.info
 }
 
 func (unit *UnitEntity) GetType() worldcommonmodel.UnitType {

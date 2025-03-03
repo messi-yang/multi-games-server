@@ -12,7 +12,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
 	"github.com/samber/lo"
 )
 
@@ -28,7 +27,6 @@ type UnitModel struct {
 	Label          *string      `gorm:""`
 	Color          *string      `gorm:""`
 	Type           UnitTypeEnum `gorm:"not null"`
-	InfoSnapshot   pgtype.JSONB `gorm:"type:jsonb;not null"`
 }
 
 func (UnitModel) TableName() string {
@@ -68,14 +66,10 @@ func ParseUnitModel(unitModel UnitModel) (unit unitmodel.Unit, err error) {
 		unitModel.Label,
 		color,
 		unitType,
-		unitModel.InfoSnapshot,
 	), nil
 }
 
 func NewEmbedUnitModel(unit embedunitmodel.EmbedUnit) UnitModel {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-
 	return UnitModel{
 		WorldId:        unit.GetWorldId().Uuid(),
 		PosX:           unit.GetPosition().GetX(),
@@ -87,7 +81,6 @@ func NewEmbedUnitModel(unit embedunitmodel.EmbedUnit) UnitModel {
 		Label:          unit.GetLabel(),
 		Type:           UnitTypeEnumEmbed,
 		Id:             unit.GetId().Uuid(),
-		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -116,9 +109,6 @@ func ParseEmbedUnitModels(unitModel UnitModel, embedUnitInfoModel EmbedUnitInfoM
 }
 
 func NewFenceUnitModel(unit fenceunitmodel.FenceUnit) UnitModel {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-
 	return UnitModel{
 		Id:             unit.GetId().Uuid(),
 		WorldId:        unit.GetWorldId().Uuid(),
@@ -129,7 +119,6 @@ func NewFenceUnitModel(unit fenceunitmodel.FenceUnit) UnitModel {
 		DimensionWidth: unit.GetDimension().GetWidth(),
 		DimensionDepth: unit.GetDimension().GetDepth(),
 		Type:           UnitTypeEnumFence,
-		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -152,9 +141,6 @@ func ParseFenceUnitModels(unitModel UnitModel) (unit fenceunitmodel.FenceUnit, e
 }
 
 func NewLinkUnitModel(unit linkunitmodel.LinkUnit) UnitModel {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-
 	return UnitModel{
 		WorldId:        unit.GetWorldId().Uuid(),
 		PosX:           unit.GetPosition().GetX(),
@@ -166,7 +152,6 @@ func NewLinkUnitModel(unit linkunitmodel.LinkUnit) UnitModel {
 		Label:          unit.GetLabel(),
 		Type:           UnitTypeEnumLink,
 		Id:             unit.GetId().Uuid(),
-		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -195,9 +180,6 @@ func ParseLinkUnitModels(unitModel UnitModel, linkUnitInfoModel LinkUnitInfoMode
 }
 
 func NewPortalUnitModel(unit portalunitmodel.PortalUnit) UnitModel {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set(unit.GetInfoSnapshot())
-
 	return UnitModel{
 		Id:             unit.GetId().Uuid(),
 		WorldId:        unit.GetWorldId().Uuid(),
@@ -208,7 +190,6 @@ func NewPortalUnitModel(unit portalunitmodel.PortalUnit) UnitModel {
 		DimensionWidth: unit.GetDimension().GetWidth(),
 		DimensionDepth: unit.GetDimension().GetDepth(),
 		Type:           UnitTypeEnumPortal,
-		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -239,9 +220,6 @@ func ParsePortalUnitModels(unitModel UnitModel, portalUnitInfoModel PortalUnitIn
 }
 
 func NewStaticUnitModel(unit staticunitmodel.StaticUnit) UnitModel {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-
 	return UnitModel{
 		Id:             unit.GetId().Uuid(),
 		WorldId:        unit.GetWorldId().Uuid(),
@@ -252,7 +230,6 @@ func NewStaticUnitModel(unit staticunitmodel.StaticUnit) UnitModel {
 		DimensionWidth: unit.GetDimension().GetWidth(),
 		DimensionDepth: unit.GetDimension().GetDepth(),
 		Type:           UnitTypeEnumStatic,
-		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 
@@ -275,9 +252,6 @@ func ParseStaticUnitModels(unitModel UnitModel) (unit staticunitmodel.StaticUnit
 }
 
 func NewColorUnitModel(unit colorunitmodel.ColorUnit) UnitModel {
-	unitInfoSnapshotJsonb := pgtype.JSONB{}
-	unitInfoSnapshotJsonb.Set("null")
-
 	return UnitModel{
 		WorldId:        unit.GetWorldId().Uuid(),
 		PosX:           unit.GetPosition().GetX(),
@@ -290,7 +264,6 @@ func NewColorUnitModel(unit colorunitmodel.ColorUnit) UnitModel {
 		Color:          commonutil.ToPointer(unit.GetColor().HexString()),
 		Type:           UnitTypeEnumColor,
 		Id:             unit.GetId().Uuid(),
-		InfoSnapshot:   unitInfoSnapshotJsonb,
 	}
 }
 

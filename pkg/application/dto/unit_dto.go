@@ -16,7 +16,6 @@ type UnitDto struct {
 	Label     *string      `json:"label"`
 	Color     *string      `json:"color"`
 	Type      string       `json:"type"`
-	Info      any          `json:"info"`
 }
 
 func NewUnitDto(unit unitmodel.Unit) UnitDto {
@@ -34,6 +33,5 @@ func NewUnitDto(unit unitmodel.Unit) UnitDto {
 		Label:     unit.GetLabel(),
 		Color:     color,
 		Type:      unit.GetType().String(),
-		Info:      unit.GetInfo(),
 	}
 }
