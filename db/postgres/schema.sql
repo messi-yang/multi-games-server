@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.0
--- Dumped by pg_dump version 15.0
+-- Dumped from database version 15.12
+-- Dumped by pg_dump version 15.12
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -141,11 +141,11 @@ CREATE TABLE public.units (
     item_id uuid NOT NULL,
     direction integer NOT NULL,
     id uuid NOT NULL,
-    info_snapshot jsonb NOT NULL,
     type character varying(20) DEFAULT 'static'::character varying NOT NULL,
     label character varying(20),
     dimension_width integer DEFAULT 1 NOT NULL,
-    dimension_depth integer DEFAULT 1 NOT NULL
+    dimension_depth integer DEFAULT 1 NOT NULL,
+    color character varying(7)
 );
 
 
