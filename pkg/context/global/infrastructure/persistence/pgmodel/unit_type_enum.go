@@ -9,4 +9,5 @@ const (
 	UnitTypeEnumLink   UnitTypeEnum = "link"
 	UnitTypeEnumEmbed  UnitTypeEnum = "embed"
 	UnitTypeEnumColor  UnitTypeEnum = "color"
+	UnitTypeEnumSign   UnitTypeEnum = "sign"
 )

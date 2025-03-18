@@ -8,6 +8,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/signunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
@@ -253,6 +254,7 @@ func ParseStaticUnitModels(unitModel UnitModel) (unit staticunitmodel.StaticUnit
 
 func NewColorUnitModel(unit colorunitmodel.ColorUnit) UnitModel {
 	return UnitModel{
+		Id:             unit.GetId().Uuid(),
 		WorldId:        unit.GetWorldId().Uuid(),
 		PosX:           unit.GetPosition().GetX(),
 		PosZ:           unit.GetPosition().GetZ(),
@@ -263,7 +265,6 @@ func NewColorUnitModel(unit colorunitmodel.ColorUnit) UnitModel {
 		Label:          unit.GetLabel(),
 		Color:          commonutil.ToPointer(unit.GetColor().HexString()),
 		Type:           UnitTypeEnumColor,
-		Id:             unit.GetId().Uuid(),
 	}
 }
 
@@ -288,5 +289,39 @@ func ParseColorUnitModels(unitModel UnitModel) (unit colorunitmodel.ColorUnit, e
 		dimension,
 		unitModel.Label,
 		commonutil.ToPointer(color),
+	), nil
+}
+
+func NewSignUnitModel(unit signunitmodel.SignUnit) UnitModel {
+	return UnitModel{
+		Id:             unit.GetId().Uuid(),
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Label:          commonutil.ToPointer(unit.GetLabel()),
+		Type:           UnitTypeEnumSign,
+	}
+}
+
+func ParseSignUnitModels(unitModel UnitModel) (unit signunitmodel.SignUnit, err error) {
+	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
+	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
+	dimension, err := worldcommonmodel.NewDimension(unitModel.DimensionWidth, unitModel.DimensionDepth)
+	if err != nil {
+		return unit, err
+	}
+
+	return signunitmodel.LoadSignUnit(
+		signunitmodel.NewSignUnitId(unitModel.Id),
+		worldId,
+		pos,
+		worldcommonmodel.NewItemId(unitModel.ItemId),
+		worldcommonmodel.NewDirection(unitModel.Direction),
+		dimension,
+		*unitModel.Label,
 	), nil
 }

@@ -104,6 +104,12 @@ func (command *CommandEntity) GetCreateColorUnitCommandPayload() (CreateColorUni
 func (command *CommandEntity) GetRemoveColorUnitCommandPayload() (RemoveColorUnitCommandPayloadJson, error) {
 	return jsonutil.Unmarshal[RemoveColorUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
 }
+func (command *CommandEntity) GetCreateSignUnitCommandPayload() (CreateSignUnitCommandPayloadJson, error) {
+	return jsonutil.Unmarshal[CreateSignUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
+}
+func (command *CommandEntity) GetRemoveSignUnitCommandPayload() (RemoveSignUnitCommandPayloadJson, error) {
+	return jsonutil.Unmarshal[RemoveSignUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
+}
 func (command *CommandEntity) GetRotateUnitCommandPayload() (RotateUnitCommandPayloadJson, error) {
 	return jsonutil.Unmarshal[RotateUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/fenceunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/linkunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/signunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/staticunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/service"
@@ -27,17 +28,20 @@ type ExecuteCommandUseCase struct {
 	portalUnitService service.PortalUnitService
 	embedUnitService  service.EmbedUnitService
 	colorUnitService  service.ColorUnitService
+	signUnitService   service.SignUnitService
 }
 
 func NewExecuteCommandUseCase(
 	unitRepo unitmodel.UnitRepo,
 	staticUnitService service.StaticUnitService, fenceUnitService service.FenceUnitService, linkUnitService service.LinkUnitService,
 	portalUnitService service.PortalUnitService, embedUnitService service.EmbedUnitService, colorUnitService service.ColorUnitService,
+	signUnitService service.SignUnitService,
 ) ExecuteCommandUseCase {
 	return ExecuteCommandUseCase{
 		unitRepo,
 		staticUnitService, fenceUnitService, linkUnitService,
 		portalUnitService, embedUnitService, colorUnitService,
+		signUnitService,
 	}
 }
 
@@ -51,16 +55,19 @@ func ProvideExecuteCommandUseCase(uow pguow.Uow) ExecuteCommandUseCase {
 	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
 	embedUnitRepo := pgrepo.NewEmbedUnitRepo(uow, domainEventDispatcher)
 	colorUnitRepo := pgrepo.NewColorUnitRepo(uow, domainEventDispatcher)
+	signUnitRepo := pgrepo.NewSignUnitRepo(uow, domainEventDispatcher)
 	staticUnitRepoUnitService := service.NewStaticUnitService(unitRepo, staticUnitRepo, itemRepo)
 	fenceUnitRepoUnitService := service.NewFenceUnitService(unitRepo, fenceUnitRepo, itemRepo)
 	linkUnitRepoUnitService := service.NewLinkUnitService(unitRepo, linkUnitRepo, itemRepo)
 	portalUnitRepoUnitService := service.NewPortalUnitService(unitRepo, portalUnitRepo, itemRepo)
 	embedUnitRepoUnitService := service.NewEmbedUnitService(unitRepo, embedUnitRepo, itemRepo)
 	colorUnitRepoUnitService := service.NewColorUnitService(unitRepo, colorUnitRepo, itemRepo)
+	signUnitRepoUnitService := service.NewSignUnitService(unitRepo, signUnitRepo, itemRepo)
 	return NewExecuteCommandUseCase(
 		unitRepo,
 		staticUnitRepoUnitService, fenceUnitRepoUnitService, linkUnitRepoUnitService,
 		portalUnitRepoUnitService, embedUnitRepoUnitService, colorUnitRepoUnitService,
+		signUnitRepoUnitService,
 	)
 }
 
@@ -192,6 +199,23 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 		if err != nil {
 			return err
 		}
+	} else if commandName.IsCreateSignUnitCommandName() {
+		payload, err := command.GetCreateSignUnitCommandPayload()
+		if err != nil {
+			return err
+		}
+
+		err = useCase.signUnitService.CreateSignUnit(
+			signunitmodel.NewSignUnitId(payload.UnitId),
+			globalcommonmodel.NewWorldId(worldIdDto),
+			worldcommonmodel.NewItemId(payload.ItemId),
+			payload.UnitPosition.ToValueObject(),
+			worldcommonmodel.NewDirection(payload.UnitDirection),
+			payload.UnitLabel,
+		)
+		if err != nil {
+			return err
+		}
 	} else if commandName.IsRotateUnitCommandName() {
 		payload, err := command.GetRotateUnitCommandPayload()
 		if err != nil {
@@ -278,6 +302,16 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 		}
 
 		err = useCase.colorUnitService.RemoveColorUnit(colorunitmodel.NewColorUnitId(payload.UnitId))
+		if err != nil {
+			return err
+		}
+	} else if commandName.IsRemoveSignUnitCommandName() {
+		payload, err := command.GetRemoveSignUnitCommandPayload()
+		if err != nil {
+			return err
+		}
+
+		err = useCase.signUnitService.RemoveSignUnit(signunitmodel.NewSignUnitId(payload.UnitId))
 		if err != nil {
 			return err
 		}
