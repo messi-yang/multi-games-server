@@ -39,7 +39,7 @@ INSERT INTO items (id, name, traversable, created_at, updated_at, thumbnail_src,
         ('8e529a50-60b0-4b50-b165-49e0b5dbddc2', 'television', FALSE, Now(), Now(), '/asset/item/television/thumbnail.png', '{/asset/item/television/model.gltf}', 'embed', 1, 1),
         ('2b712f0b-6556-47ab-804e-409981062c8c', 'bed', FALSE, Now(), Now(), '/asset/item/bed/thumbnail.png', '{/asset/item/bed/model.gltf}', 'static', 1, 2),
         ('b0fee5ea-0e86-418f-94ed-17e136966a7b', 'sofa', FALSE, Now(), Now(), '/asset/item/sofa/thumbnail.png', '{/asset/item/sofa/model.gltf}', 'static', 2, 1),
-        ('64af9bf4-99fe-4161-b62d-c2d639dc3795', 'sign', FALSE, Now(), Now(), '/asset/item/sofa/thumbnail.png', '{/asset/item/sofa/model.gltf}', 'sign', 1, 1),
+        ('64af9bf4-99fe-4161-b62d-c2d639dc3795', 'sign', FALSE, Now(), Now(), '/asset/item/sign/thumbnail.png', '{/asset/item/sign/model.gltf}', 'sign', 1, 1),
         ('b21ca8ad-115b-4483-88fd-1a3ba8e5d5df', 'pond', FALSE, Now(), Now(), '/asset/item/pond/thumbnail.png', '{/asset/item/pond/model.gltf}', 'static', 2, 2),
         ('267dd9f0-dac7-4827-a431-bba9c439652b', 'cube', FALSE, Now(), Now(), '/asset/item/cube/thumbnail.png', '{/asset/item/cube/model.gltf}', 'color', 1, 1)
     ON CONFLICT (id) DO UPDATE
