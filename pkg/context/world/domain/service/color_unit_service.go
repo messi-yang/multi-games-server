@@ -68,15 +68,16 @@ func (colorUnitServe *colorUnitServe) CreateColorUnit(
 		return nil
 	}
 
-	unit, err := colorUnitServe.unitRepo.Find(worldId, position)
+	newColorUnit := colorunitmodel.NewColorUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, &color)
+
+	hasUnitsInBound, err := colorUnitServe.unitRepo.HasUnitsInBound(worldId, newColorUnit.GetOccupiedBound())
 	if err != nil {
 		return err
 	}
-	if unit != nil {
-		return errPositionAlreadyHasUnit
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
 	}
 
-	newColorUnit := colorunitmodel.NewColorUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, &color)
 	return colorUnitServe.colorUnitRepo.Add(newColorUnit)
 }
 

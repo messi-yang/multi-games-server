@@ -24,5 +24,15 @@ func (u *unitServe) MoveUnit(unitId unitmodel.UnitId, position worldcommonmodel.
 	}
 
 	unit.Move(position)
+
+	hasUnitsInBound, err := u.unitRepo.HasUnitsInBound(unit.GetWorldId(), unit.GetOccupiedBound())
+	if err != nil {
+		return err
+	}
+
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
+	}
+
 	return u.unitRepo.Update(unit)
 }

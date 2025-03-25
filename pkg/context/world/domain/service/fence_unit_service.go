@@ -64,15 +64,16 @@ func (fenceUnitServe *fenceUnitServe) CreateFenceUnit(
 		return errUnitCannotBeAtOriginPosition
 	}
 
-	unit, err := fenceUnitServe.unitRepo.Find(worldId, position)
+	newFenceUnit := fenceunitmodel.NewFenceUnit(id, worldId, position, itemId, direction, item.GetDimension())
+
+	hasUnitsInBound, err := fenceUnitServe.unitRepo.HasUnitsInBound(worldId, newFenceUnit.GetOccupiedBound())
 	if err != nil {
 		return err
 	}
-	if unit != nil {
-		return errPositionAlreadyHasUnit
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
 	}
 
-	newFenceUnit := fenceunitmodel.NewFenceUnit(id, worldId, position, itemId, direction, item.GetDimension())
 	return fenceUnitServe.fenceUnitRepo.Add(newFenceUnit)
 }
 

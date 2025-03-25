@@ -38,45 +38,39 @@ func (repo *unitRepo) Get(id unitmodel.UnitId) (unit unitmodel.Unit, err error) 
 	return pgmodel.ParseUnitModel(unitModel)
 }
 
-func (repo *unitRepo) Find(
-	worldId globalcommonmodel.WorldId,
-	position worldcommonmodel.Position,
-) (*unitmodel.Unit, error) {
+func (repo *unitRepo) HasUnitsInBound(worldId globalcommonmodel.WorldId, bound worldcommonmodel.Bound) (bool, error) {
 	occupiedPositionModels := []pgmodel.OccupiedPositionModel{}
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ?",
+			"world_id = ? AND pos_x >= ? AND pos_z >= ? AND pos_x <= ? AND pos_z <= ?",
 			worldId.Uuid(),
-			position.GetX(),
-			position.GetZ(),
-		).Limit(1).Find(&occupiedPositionModels).Error
+			bound.GetFrom().GetX(),
+			bound.GetFrom().GetZ(),
+			bound.GetTo().GetX(),
+			bound.GetTo().GetZ(),
+		).Find(&occupiedPositionModels, pgmodel.OccupiedPositionModel{}).Error
 	}); err != nil {
-		return nil, err
+		return false, err
 	}
 
-	if len(occupiedPositionModels) == 0 {
-		return nil, nil
-	}
-
-	unitId := occupiedPositionModels[0].UnitId
-	unitModel := pgmodel.UnitModel{Id: unitId}
-	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.First(&unitModel).Error
-	}); err != nil {
-		return nil, err
-	}
-
-	unit, err := pgmodel.ParseUnitModel(unitModel)
-	if err != nil {
-		return nil, err
-	}
-
-	return commonutil.ToPointer(unit), nil
+	return len(occupiedPositionModels) > 0, nil
 }
 
 func (repo *unitRepo) Update(unit unitmodel.Unit) error {
 	unitModel := pgmodel.NewUnitModel(unit)
+	occupiedPositionModels := pgmodel.NewOccupiedPositionModels(unit.UnitEntity)
+
 	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"unit_id = ?",
+			unit.GetId().Uuid(),
+		).Delete(&pgmodel.OccupiedPositionModel{}).Error; err != nil {
+			return err
+		}
+		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
+			return err
+		}
+
 		return transaction.Save(&unitModel).Error
 	})
 }

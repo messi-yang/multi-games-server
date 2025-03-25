@@ -68,15 +68,16 @@ func (embedUnitServe *embedUnitServe) CreateEmbedUnit(
 		return nil
 	}
 
-	unit, err := embedUnitServe.unitRepo.Find(worldId, position)
+	newEmbedUnit := embedunitmodel.NewEmbedUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, embedCode)
+
+	hasUnitsInBound, err := embedUnitServe.unitRepo.HasUnitsInBound(worldId, newEmbedUnit.GetOccupiedBound())
 	if err != nil {
 		return err
 	}
-	if unit != nil {
-		return errPositionAlreadyHasUnit
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
 	}
 
-	newEmbedUnit := embedunitmodel.NewEmbedUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, embedCode)
 	return embedUnitServe.embedUnitRepo.Add(newEmbedUnit)
 }
 

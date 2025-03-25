@@ -64,15 +64,16 @@ func (staticUnitServe *staticUnitServe) CreateStaticUnit(
 		return errUnitCannotBeAtOriginPosition
 	}
 
-	unit, err := staticUnitServe.unitRepo.Find(worldId, position)
+	newStaticUnit := staticunitmodel.NewStaticUnit(id, worldId, position, itemId, direction, item.GetDimension())
+
+	hasUnitsInBound, err := staticUnitServe.unitRepo.HasUnitsInBound(worldId, newStaticUnit.GetOccupiedBound())
 	if err != nil {
 		return err
 	}
-	if unit != nil {
-		return errPositionAlreadyHasUnit
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
 	}
 
-	newStaticUnit := staticunitmodel.NewStaticUnit(id, worldId, position, itemId, direction, item.GetDimension())
 	return staticUnitServe.staticUnitRepo.Add(newStaticUnit)
 }
 

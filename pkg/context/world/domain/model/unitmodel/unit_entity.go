@@ -105,7 +105,7 @@ func (unit *UnitEntity) GetType() worldcommonmodel.UnitType {
 	return unit._type
 }
 
-func (unit *UnitEntity) getOccupiedBound() worldcommonmodel.Bound {
+func (unit *UnitEntity) GetOccupiedBound() worldcommonmodel.Bound {
 	occupiedBoundFromPos := unit.position
 	var occupiedBoundToPos worldcommonmodel.Position
 
@@ -129,7 +129,7 @@ func (unit *UnitEntity) getOccupiedBound() worldcommonmodel.Bound {
 // Get all the positions occupied by the unit
 func (unit *UnitEntity) GetOccupiedPositions() []worldcommonmodel.Position {
 	occupiedPositions := make([]worldcommonmodel.Position, 0)
-	unit.getOccupiedBound().Iterate(func(position worldcommonmodel.Position) {
+	unit.GetOccupiedBound().Iterate(func(position worldcommonmodel.Position) {
 		occupiedPositions = append(occupiedPositions, position)
 	})
 

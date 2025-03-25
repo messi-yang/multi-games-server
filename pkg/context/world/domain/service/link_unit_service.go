@@ -68,15 +68,16 @@ func (linkUnitServe *linkUnitServe) CreateLinkUnit(
 		return nil
 	}
 
-	unit, err := linkUnitServe.unitRepo.Find(worldId, position)
+	newLinkUnit := linkunitmodel.NewLinkUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, url)
+
+	hasUnitsInBound, err := linkUnitServe.unitRepo.HasUnitsInBound(worldId, newLinkUnit.GetOccupiedBound())
 	if err != nil {
 		return err
 	}
-	if unit != nil {
-		return errPositionAlreadyHasUnit
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
 	}
 
-	newLinkUnit := linkunitmodel.NewLinkUnit(id, worldId, position, itemId, direction, item.GetDimension(), label, url)
 	return linkUnitServe.linkUnitRepo.Add(newLinkUnit)
 }
 

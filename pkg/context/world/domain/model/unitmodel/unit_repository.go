@@ -9,7 +9,7 @@ import (
 type UnitRepo interface {
 	Get(UnitId) (Unit, error)
 	Update(Unit) error
-	Find(globalcommonmodel.WorldId, worldcommonmodel.Position) (unit *Unit, err error)
+	HasUnitsInBound(globalcommonmodel.WorldId, worldcommonmodel.Bound) (bool, error)
 	GetUnitsOfWorld(globalcommonmodel.WorldId) ([]Unit, error)
 	GetUnitsInBlock(globalcommonmodel.WorldId, blockmodel.Block) ([]Unit, error)
 }

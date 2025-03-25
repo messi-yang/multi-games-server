@@ -66,15 +66,16 @@ func (signUnitServe *signUnitServe) CreateSignUnit(
 		return nil
 	}
 
-	unit, err := signUnitServe.unitRepo.Find(worldId, position)
+	newSignUnit := signunitmodel.NewSignUnit(id, worldId, position, itemId, direction, item.GetDimension(), label)
+
+	hasUnitsInBound, err := signUnitServe.unitRepo.HasUnitsInBound(worldId, newSignUnit.GetOccupiedBound())
 	if err != nil {
 		return err
 	}
-	if unit != nil {
-		return errPositionAlreadyHasUnit
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
 	}
 
-	newSignUnit := signunitmodel.NewSignUnit(id, worldId, position, itemId, direction, item.GetDimension(), label)
 	return signUnitServe.signUnitRepo.Add(newSignUnit)
 }
 

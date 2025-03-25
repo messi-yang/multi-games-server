@@ -65,14 +65,6 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		return nil
 	}
 
-	unit, err := portalUnitServe.unitRepo.Find(worldId, position)
-	if err != nil {
-		return err
-	}
-	if unit != nil {
-		return errPositionAlreadyHasUnit
-	}
-
 	portalUnitWithNoTarget, err := portalUnitServe.portalUnitRepo.GetTopLeftMostUnitWithoutTarget(worldId)
 	if err != nil {
 		return err
@@ -87,6 +79,14 @@ func (portalUnitServe *portalUnitServe) CreatePortalUnit(
 		item.GetDimension(),
 		nil,
 	)
+
+	hasUnitsInBound, err := portalUnitServe.unitRepo.HasUnitsInBound(worldId, newPortalUnit.GetOccupiedBound())
+	if err != nil {
+		return err
+	}
+	if hasUnitsInBound {
+		return errBoundAlreadyHasUnit
+	}
 
 	if portalUnitWithNoTarget != nil {
 		newPortalUnit.UpdateTargetUnitId(commonutil.ToPointer(portalUnitWithNoTarget.GetId()))
