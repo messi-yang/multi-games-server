@@ -107,3 +107,13 @@ type RemoveSignUnitCommandPayloadJson struct {
 type RotateUnitCommandPayloadJson struct {
 	UnitId uuid.UUID `json:"unitId"`
 }
+
+type MoveUnitCommandPayloadJson struct {
+	UnitId        uuid.UUID       `json:"unitId"`
+	UnitType      string          `json:"unitType"`
+	ItemId        uuid.UUID       `json:"itemId"`
+	UnitPosition  dto.PositionDto `json:"unitPosition"`
+	UnitDirection int8            `json:"unitDirection"`
+	UnitLabel     *string         `json:"unitLabel"`
+	UnitColor     *string         `json:"unitColor"`
+}

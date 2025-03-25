@@ -29,6 +29,7 @@ type ExecuteCommandUseCase struct {
 	embedUnitService  service.EmbedUnitService
 	colorUnitService  service.ColorUnitService
 	signUnitService   service.SignUnitService
+	unitService       service.UnitService
 }
 
 func NewExecuteCommandUseCase(
@@ -36,12 +37,14 @@ func NewExecuteCommandUseCase(
 	staticUnitService service.StaticUnitService, fenceUnitService service.FenceUnitService, linkUnitService service.LinkUnitService,
 	portalUnitService service.PortalUnitService, embedUnitService service.EmbedUnitService, colorUnitService service.ColorUnitService,
 	signUnitService service.SignUnitService,
+	unitService service.UnitService,
 ) ExecuteCommandUseCase {
 	return ExecuteCommandUseCase{
 		unitRepo,
 		staticUnitService, fenceUnitService, linkUnitService,
 		portalUnitService, embedUnitService, colorUnitService,
 		signUnitService,
+		unitService,
 	}
 }
 
@@ -63,11 +66,13 @@ func ProvideExecuteCommandUseCase(uow pguow.Uow) ExecuteCommandUseCase {
 	embedUnitRepoUnitService := service.NewEmbedUnitService(unitRepo, embedUnitRepo, itemRepo)
 	colorUnitRepoUnitService := service.NewColorUnitService(unitRepo, colorUnitRepo, itemRepo)
 	signUnitRepoUnitService := service.NewSignUnitService(unitRepo, signUnitRepo, itemRepo)
+	unitRepoUnitService := service.NewUnitService(unitRepo)
 	return NewExecuteCommandUseCase(
 		unitRepo,
 		staticUnitRepoUnitService, fenceUnitRepoUnitService, linkUnitRepoUnitService,
 		portalUnitRepoUnitService, embedUnitRepoUnitService, colorUnitRepoUnitService,
 		signUnitRepoUnitService,
+		unitRepoUnitService,
 	)
 }
 
@@ -240,11 +245,23 @@ func (useCase *ExecuteCommandUseCase) Execute(worldIdDto uuid.UUID, commandDto d
 			err = useCase.embedUnitService.RotateEmbedUnit(embedunitmodel.NewEmbedUnitId(payload.UnitId))
 		} else if unit.GetType().IsColor() {
 			err = useCase.colorUnitService.RotateColorUnit(colorunitmodel.NewColorUnitId(payload.UnitId))
+		} else if unit.GetType().IsSign() {
+			err = useCase.signUnitService.RotateSignUnit(signunitmodel.NewSignUnitId(payload.UnitId))
 		}
 		if err != nil {
 			return err
 		}
 
+	} else if commandName.IsMoveUnitCommandName() {
+		payload, err := command.GetMoveUnitCommandPayload()
+		if err != nil {
+			return err
+		}
+
+		err = useCase.unitService.MoveUnit(unitmodel.NewUnitId(payload.UnitId), payload.UnitPosition.ToValueObject())
+		if err != nil {
+			return err
+		}
 	} else if commandName.IsRemoveStaticUnitCommandName() {
 		payload, err := command.GetRemoveStaticUnitCommandPayload()
 		if err != nil {

@@ -43,3 +43,7 @@ func LoadUnit(
 func (unit *Unit) GetId() UnitId {
 	return unit.UnitEntity.GetId()
 }
+
+func (unit *Unit) Move(position worldcommonmodel.Position) {
+	unit.UnitEntity.Move(position)
+}

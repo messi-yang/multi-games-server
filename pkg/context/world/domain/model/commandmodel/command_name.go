@@ -27,6 +27,7 @@ const (
 	createSignUnitCommandName       commandNameValue = "CREATE_SIGN_UNIT"
 	removeSignUnitCommandName       commandNameValue = "REMOVE_SIGN_UNIT"
 	rotateUnitCommandName           commandNameValue = "ROTATE_UNIT"
+	moveUnitCommandName             commandNameValue = "MOVE_UNIT"
 )
 
 type CommandName struct {
@@ -98,10 +99,6 @@ func NewCommandName(value string) (CommandName, error) {
 		return CommandName{
 			value: removeColorUnitCommandName,
 		}, nil
-	case "ROTATE_UNIT":
-		return CommandName{
-			value: rotateUnitCommandName,
-		}, nil
 	case "CREATE_SIGN_UNIT":
 		return CommandName{
 			value: createSignUnitCommandName,
@@ -109,6 +106,14 @@ func NewCommandName(value string) (CommandName, error) {
 	case "REMOVE_SIGN_UNIT":
 		return CommandName{
 			value: removeSignUnitCommandName,
+		}, nil
+	case "ROTATE_UNIT":
+		return CommandName{
+			value: rotateUnitCommandName,
+		}, nil
+	case "MOVE_UNIT":
+		return CommandName{
+			value: moveUnitCommandName,
 		}, nil
 	default:
 		return CommandName{}, fmt.Errorf("invalid CommandName: %s", value)
@@ -177,6 +182,10 @@ func (commandName CommandName) IsRemoveColorUnitCommandName() bool {
 
 func (commandName CommandName) IsRotateUnitCommandName() bool {
 	return commandName.value == rotateUnitCommandName
+}
+
+func (commandName CommandName) IsMoveUnitCommandName() bool {
+	return commandName.value == moveUnitCommandName
 }
 
 func (commandName CommandName) IsCreateSignUnitCommandName() bool {

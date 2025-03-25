@@ -47,13 +47,7 @@ func (repo *fenceUnitRepo) Update(fenceUnit fenceunitmodel.FenceUnit) error {
 		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
 			return err
 		}
-		return transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			unitModel.WorldId,
-			unitModel.PosX,
-			unitModel.PosZ,
-			pgmodel.UnitTypeEnumFence,
-		).Select("*").Updates(unitModel).Error
+		return transaction.Save(&unitModel).Error
 	})
 }
 
@@ -81,11 +75,8 @@ func (repo *fenceUnitRepo) Delete(fenceUnit fenceunitmodel.FenceUnit) error {
 			return err
 		}
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			fenceUnit.GetWorldId().Uuid(),
-			fenceUnit.GetPosition().GetX(),
-			fenceUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumFence,
+			"id = ?",
+			fenceUnit.GetId().Uuid(),
 		).Delete(&pgmodel.UnitModel{}).Error
 	})
 }

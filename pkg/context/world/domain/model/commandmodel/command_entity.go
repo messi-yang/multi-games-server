@@ -113,3 +113,6 @@ func (command *CommandEntity) GetRemoveSignUnitCommandPayload() (RemoveSignUnitC
 func (command *CommandEntity) GetRotateUnitCommandPayload() (RotateUnitCommandPayloadJson, error) {
 	return jsonutil.Unmarshal[RotateUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
 }
+func (command *CommandEntity) GetMoveUnitCommandPayload() (MoveUnitCommandPayloadJson, error) {
+	return jsonutil.Unmarshal[MoveUnitCommandPayloadJson](jsonutil.Marshal(command.payload))
+}

@@ -76,19 +76,10 @@ func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error 
 		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
 			return err
 		}
-		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			portalUnit.GetWorldId().Uuid(),
-			portalUnit.GetPosition().GetX(),
-			portalUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumPortal,
-		).Select("*").Updates(unitModel).Error; err != nil {
+		if err := transaction.Save(&unitModel).Error; err != nil {
 			return err
 		}
-		return transaction.Model(&pgmodel.PortalUnitInfoModel{}).Where(
-			"id = ?",
-			portalUnit.GetId().Uuid(),
-		).Select("*").Updates(portalUnitInfoModel).Error
+		return transaction.Save(&portalUnitInfoModel).Error
 	})
 }
 
@@ -101,11 +92,8 @@ func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error 
 			return err
 		}
 		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			portalUnit.GetWorldId().Uuid(),
-			portalUnit.GetPosition().GetX(),
-			portalUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumPortal,
+			"id = ?",
+			portalUnit.GetId().Uuid(),
 		).Delete(&pgmodel.UnitModel{}).Error; err != nil {
 			return err
 		}

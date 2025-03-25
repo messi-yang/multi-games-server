@@ -78,19 +78,10 @@ func (repo *embedUnitRepo) Update(embedUnit embedunitmodel.EmbedUnit) error {
 		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
 			return err
 		}
-		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			embedUnit.GetWorldId().Uuid(),
-			embedUnit.GetPosition().GetX(),
-			embedUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumEmbed,
-		).Select("*").Updates(unitModel).Error; err != nil {
+		if err := transaction.Save(&unitModel).Error; err != nil {
 			return err
 		}
-		return transaction.Model(&pgmodel.EmbedUnitInfoModel{}).Where(
-			"id = ?",
-			embedUnit.GetId().Uuid(),
-		).Select("*").Updates(embedUnitInfoModel).Error
+		return transaction.Save(&embedUnitInfoModel).Error
 	})
 }
 
@@ -103,11 +94,8 @@ func (repo *embedUnitRepo) Delete(embedUnit embedunitmodel.EmbedUnit) error {
 			return err
 		}
 		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			embedUnit.GetWorldId().Uuid(),
-			embedUnit.GetPosition().GetX(),
-			embedUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumEmbed,
+			"id = ?",
+			embedUnit.GetId().Uuid(),
 		).Delete(&pgmodel.UnitModel{}).Error; err != nil {
 			return err
 		}

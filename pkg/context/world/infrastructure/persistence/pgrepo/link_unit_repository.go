@@ -78,19 +78,10 @@ func (repo *linkUnitRepo) Update(linkUnit linkunitmodel.LinkUnit) error {
 		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
 			return err
 		}
-		if err := transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			linkUnit.GetWorldId().Uuid(),
-			linkUnit.GetPosition().GetX(),
-			linkUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumLink,
-		).Select("*").Updates(unitModel).Error; err != nil {
+		if err := transaction.Save(&unitModel).Error; err != nil {
 			return err
 		}
-		return transaction.Model(&pgmodel.LinkUnitInfoModel{}).Where(
-			"id = ?",
-			linkUnit.GetId().Uuid(),
-		).Select("*").Updates(linkUnitInfoModel).Error
+		return transaction.Save(&linkUnitInfoModel).Error
 	})
 }
 
@@ -103,11 +94,8 @@ func (repo *linkUnitRepo) Delete(linkUnit linkunitmodel.LinkUnit) error {
 			return err
 		}
 		if err := transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			linkUnit.GetWorldId().Uuid(),
-			linkUnit.GetPosition().GetX(),
-			linkUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumLink,
+			"id = ?",
+			linkUnit.GetId().Uuid(),
 		).Delete(&pgmodel.UnitModel{}).Error; err != nil {
 			return err
 		}

@@ -66,13 +66,7 @@ func (repo *colorUnitRepo) Update(colorUnit colorunitmodel.ColorUnit) error {
 		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
 			return err
 		}
-		return transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			colorUnit.GetWorldId().Uuid(),
-			colorUnit.GetPosition().GetX(),
-			colorUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumColor,
-		).Select("*").Updates(unitModel).Error
+		return transaction.Save(&unitModel).Error
 	})
 }
 
@@ -85,11 +79,8 @@ func (repo *colorUnitRepo) Delete(colorUnit colorunitmodel.ColorUnit) error {
 			return err
 		}
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			colorUnit.GetWorldId().Uuid(),
-			colorUnit.GetPosition().GetX(),
-			colorUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumColor,
+			"id = ?",
+			colorUnit.GetId().Uuid(),
 		).Delete(&pgmodel.UnitModel{}).Error
 	})
 }

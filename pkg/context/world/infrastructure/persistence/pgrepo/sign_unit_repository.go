@@ -66,13 +66,7 @@ func (repo *signUnitRepo) Update(signUnit signunitmodel.SignUnit) error {
 		if err := transaction.Create(occupiedPositionModels).Error; err != nil {
 			return err
 		}
-		return transaction.Model(&pgmodel.UnitModel{}).Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			signUnit.GetWorldId().Uuid(),
-			signUnit.GetPosition().GetX(),
-			signUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumSign,
-		).Select("*").Updates(unitModel).Error
+		return transaction.Save(&unitModel).Error
 	})
 }
 
@@ -85,11 +79,8 @@ func (repo *signUnitRepo) Delete(signUnit signunitmodel.SignUnit) error {
 			return err
 		}
 		return transaction.Where(
-			"world_id = ? AND pos_x = ? AND pos_z = ? AND type = ?",
-			signUnit.GetWorldId().Uuid(),
-			signUnit.GetPosition().GetX(),
-			signUnit.GetPosition().GetZ(),
-			pgmodel.UnitTypeEnumSign,
+			"id = ?",
+			signUnit.GetId().Uuid(),
 		).Delete(&pgmodel.UnitModel{}).Error
 	})
 }

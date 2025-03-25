@@ -74,6 +74,13 @@ func (repo *unitRepo) Find(
 	return commonutil.ToPointer(unit), nil
 }
 
+func (repo *unitRepo) Update(unit unitmodel.Unit) error {
+	unitModel := pgmodel.NewUnitModel(unit)
+	return repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Save(&unitModel).Error
+	})
+}
+
 func (repo *unitRepo) GetUnitsOfWorld(
 	worldId globalcommonmodel.WorldId,
 ) (units []unitmodel.Unit, err error) {

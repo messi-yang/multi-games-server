@@ -145,3 +145,7 @@ func (unit *UnitEntity) Rotate() {
 		unit.direction = unit.direction.Rotate().Rotate()
 	}
 }
+
+func (unit *UnitEntity) Move(position worldcommonmodel.Position) {
+	unit.position = position
+}

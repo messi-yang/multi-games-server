@@ -34,6 +34,31 @@ func (UnitModel) TableName() string {
 	return "units"
 }
 
+func NewUnitModel(unit unitmodel.Unit) UnitModel {
+	color := unit.GetColor()
+	colorString := lo.TernaryF(
+		color == nil,
+		func() *string { return nil },
+		func() *string {
+			return commonutil.ToPointer(color.HexString())
+		},
+	)
+
+	return UnitModel{
+		WorldId:        unit.GetWorldId().Uuid(),
+		PosX:           unit.GetPosition().GetX(),
+		PosZ:           unit.GetPosition().GetZ(),
+		ItemId:         unit.GetItemId().Uuid(),
+		Direction:      unit.GetDirection().Int8(),
+		DimensionWidth: unit.GetDimension().GetWidth(),
+		DimensionDepth: unit.GetDimension().GetDepth(),
+		Label:          unit.GetLabel(),
+		Color:          colorString,
+		Type:           UnitTypeEnum(unit.GetType().String()),
+		Id:             unit.GetId().Uuid(),
+	}
+}
+
 func ParseUnitModel(unitModel UnitModel) (unit unitmodel.Unit, err error) {
 	worldId := globalcommonmodel.NewWorldId(unitModel.WorldId)
 	pos := worldcommonmodel.NewPosition(unitModel.PosX, unitModel.PosZ)
