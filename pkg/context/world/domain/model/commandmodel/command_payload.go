@@ -16,8 +16,8 @@ type SendPlayerIntoPortalCommandPayloadJson struct {
 }
 
 type ChangePlayerHeldItemCommandPayloadJson struct {
-	PlayerId uuid.UUID `json:"playerId"`
-	ItemId   uuid.UUID `json:"itemId"`
+	PlayerId uuid.UUID  `json:"playerId"`
+	ItemId   *uuid.UUID `json:"itemId"`
 }
 
 type CreateStaticUnitCommandPayloadJson struct {
