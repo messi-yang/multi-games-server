@@ -98,7 +98,8 @@ func Run() error {
 
 	portalUnitHttpHandler := portalunithttphandler.NewHttpHandler()
 	portalUnitRouterGroup := router.Group("/api/portal-units")
-	portalUnitRouterGroup.GET("/:id/target-position", portalUnitHttpHandler.GetPortalUnitTargetPosition)
+	portalUnitRouterGroup.GET("/", portalUnitHttpHandler.QueryPortalUnits)
+	portalUnitRouterGroup.GET("/:id/target-unit", portalUnitHttpHandler.GetPortalUnitTargetUnit)
 
 	embedUnitHttpHandler := embedunithttphandler.NewHttpHandler()
 	embedUnitRouterGroup := router.Group("/api/embed-units")

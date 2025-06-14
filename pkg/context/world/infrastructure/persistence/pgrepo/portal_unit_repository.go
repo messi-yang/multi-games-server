@@ -1,8 +1,11 @@
 package pgrepo
 
 import (
+	"fmt"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel/portalunitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
@@ -81,6 +84,49 @@ func (repo *portalUnitRepo) Update(portalUnit portalunitmodel.PortalUnit) error 
 		}
 		return transaction.Save(&portalUnitInfoModel).Error
 	})
+}
+
+func (repo *portalUnitRepo) Query(worldId globalcommonmodel.WorldId, limit int, offset int) ([]portalunitmodel.PortalUnit, error) {
+	// query units first
+	var unitModels []pgmodel.UnitModel
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"world_id = ? AND type = ?",
+			worldId.Uuid(),
+			pgmodel.UnitTypeEnumPortal,
+		).Order("pos_z asc, pos_x asc").Limit(limit).Offset(offset).Find(&unitModels).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	unitModelIds := make([]uuid.UUID, len(unitModels))
+	for i, unitModel := range unitModels {
+		unitModelIds[i] = unitModel.Id
+	}
+
+	var portalUnitInfoModels []pgmodel.PortalUnitInfoModel
+	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.Where(
+			"id IN (?)",
+			unitModelIds,
+		).Find(&portalUnitInfoModels).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	fmt.Println("unitModelIds", unitModelIds)
+	fmt.Println("portalUnitInfoModels", portalUnitInfoModels)
+
+	portalUnits := make([]portalunitmodel.PortalUnit, len(unitModels))
+	for i, unitModel := range unitModels {
+		var err error
+		portalUnits[i], err = pgmodel.ParsePortalUnitModels(unitModel, portalUnitInfoModels[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return portalUnits, nil
 }
 
 func (repo *portalUnitRepo) Delete(portalUnit portalunitmodel.PortalUnit) error {

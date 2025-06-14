@@ -10,24 +10,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetPortalUnitTargetPositionUseCase struct {
+type GetPortalUnitTargetUnitUseCase struct {
 	portalUnitRepo portalunitmodel.PortalUnitRepo
 }
 
-func NewGetPortalUnitTargetPositionUseCase(portalUnitRepo portalunitmodel.PortalUnitRepo) GetPortalUnitTargetPositionUseCase {
-	return GetPortalUnitTargetPositionUseCase{portalUnitRepo}
+func NewGetPortalUnitTargetUnitUseCase(portalUnitRepo portalunitmodel.PortalUnitRepo) GetPortalUnitTargetUnitUseCase {
+	return GetPortalUnitTargetUnitUseCase{portalUnitRepo}
 }
 
-func ProvideGetPortalUnitTargetPositionUseCase(uow pguow.Uow) GetPortalUnitTargetPositionUseCase {
+func ProvideGetPortalUnitTargetUnitUseCase(uow pguow.Uow) GetPortalUnitTargetUnitUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	portalUnitRepo := pgrepo.NewPortalUnitRepo(uow, domainEventDispatcher)
-	return NewGetPortalUnitTargetPositionUseCase(portalUnitRepo)
+	return NewGetPortalUnitTargetUnitUseCase(portalUnitRepo)
 }
 
-func (useCase *GetPortalUnitTargetPositionUseCase) Execute(idDto uuid.UUID) (targetPosition *dto.PositionDto, err error) {
+func (useCase *GetPortalUnitTargetUnitUseCase) Execute(idDto uuid.UUID) (targetPortalUnitDto *dto.PortalUnitDto, err error) {
 	portalUnit, err := useCase.portalUnitRepo.Get(portalunitmodel.NewPortalUnitId(idDto))
 	if err != nil {
-		return targetPosition, err
+		return nil, err
 	}
 
 	targetPortalUnitId := portalUnit.GetTargetUnitId()
@@ -37,8 +37,8 @@ func (useCase *GetPortalUnitTargetPositionUseCase) Execute(idDto uuid.UUID) (tar
 
 	targetPortalUnit, err := useCase.portalUnitRepo.Get(*targetPortalUnitId)
 	if err != nil {
-		return targetPosition, err
+		return nil, err
 	}
 
-	return commonutil.ToPointer(dto.NewPositionDto(targetPortalUnit.GetPosition())), nil
+	return commonutil.ToPointer(dto.NewPortalUnitDto(targetPortalUnit)), nil
 }

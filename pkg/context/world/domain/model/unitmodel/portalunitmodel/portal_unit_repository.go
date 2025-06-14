@@ -7,6 +7,7 @@ import (
 type PortalUnitRepo interface {
 	Add(PortalUnit) error
 	Get(PortalUnitId) (PortalUnit, error)
+	Query(worldId globalcommonmodel.WorldId, limit int, offset int) ([]PortalUnit, error)
 	Update(PortalUnit) error
 	Delete(PortalUnit) error
 	GetTopLeftMostUnitWithoutTarget(worldId globalcommonmodel.WorldId) (*PortalUnit, error)
