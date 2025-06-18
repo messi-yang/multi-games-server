@@ -26,10 +26,7 @@ func ProvideDeleteWorldUseCase(uow pguow.Uow) DeleteWorldUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	worldAccountRepo := world_pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)
 	worldRepo := world_pgrepo.NewWorldRepo(uow, domainEventDispatcher)
-	itemRepo := world_pgrepo.NewItemRepo(uow, domainEventDispatcher)
-	unitRepo := world_pgrepo.NewUnitRepo(uow, domainEventDispatcher)
-	staticUnitRepo := world_pgrepo.NewStaticUnitRepo(uow, domainEventDispatcher)
-	worldService := service.NewWorldService(worldAccountRepo, worldRepo, unitRepo, staticUnitRepo, itemRepo)
+	worldService := service.NewWorldService(worldAccountRepo, worldRepo)
 
 	worldMemberRepo := iam_pgrepo.NewWorldMemberRepo(uow, domainEventDispatcher)
 

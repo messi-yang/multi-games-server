@@ -1,6 +1,7 @@
 package authhttphandler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
@@ -29,6 +30,7 @@ func (httpHandler *HttpHandler) RedirectToGoogleOauthUrl(c *gin.Context) {
 }
 
 func (httpHandler *HttpHandler) HandleGoogleOauthCallback(c *gin.Context) {
+	fmt.Println("HandleGoogleOauthCallback")
 	pgUow := pguow.NewUow()
 
 	loginOrRegisterUserFromGoogleOauthUseCase := usecase.ProvideLoginOrRegisterUserFromGoogleOauthUseCase(pgUow)

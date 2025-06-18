@@ -76,7 +76,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	broadcastServerEvent := func(serverEvent any) {
 		httpHandler.redisServerMessageMediator.Send(
 			newWorldMessageChannel(worldIdDto),
-			jsonutil.Marshal(worldMessage{
+			jsonutil.Marshal(worldMessage[any]{
 				SenderId:    myPlayerIdDto,
 				ServerEvent: serverEvent,
 			}),
@@ -91,7 +91,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	sendServerEventToPlayer := func(playerIdDto uuid.UUID, serverEvent any) {
 		httpHandler.redisServerMessageMediator.Send(
 			newPlayerMessageChannel(worldIdDto, playerIdDto),
-			jsonutil.Marshal(playerMessage{
+			jsonutil.Marshal(playerMessage[any]{
 				ServerEvent: serverEvent,
 			}),
 		)
@@ -104,12 +104,10 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		}
 	}
 
-	generateWorldEnteredServerEvent := func(worldDto dto.WorldDto, blockDtos []dto.BlockDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto) worldEnteredServerEvent {
+	generateWorldEnteredServerEvent := func(worldDto dto.WorldDto, playerDtos []dto.PlayerDto) worldEnteredServerEvent {
 		return worldEnteredServerEvent{
 			Name:       worldEnteredServerEventName,
 			World:      viewmodel.WorldViewModel(worldDto),
-			Blocks:     blockDtos,
-			Units:      unitDtos,
 			MyPlayerId: myPlayerIdDto,
 			Players:    playerDtos,
 		}
@@ -133,14 +131,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 		return commandFailedServerEvent{
 			Name:      commandFailedServerEventName,
 			CommandId: commandId,
-		}
-	}
-
-	generateUnitsReturnedServerEvent := func(blockDtos []dto.BlockDto, unitDtos []dto.UnitDto) unitsReturnedServerEvent {
-		return unitsReturnedServerEvent{
-			Name:   unitsReturnedServerEventName,
-			Blocks: blockDtos,
-			Units:  unitDtos,
 		}
 	}
 
@@ -188,7 +178,7 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	worldMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		newWorldMessageChannel(worldIdDto),
 		func(messageBytes []byte) {
-			message, err := jsonutil.Unmarshal[worldMessage](messageBytes)
+			message, err := jsonutil.Unmarshal[worldMessage[serverEvent]](messageBytes)
 			if err != nil {
 				return
 			}
@@ -196,7 +186,43 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				return
 			}
 
-			respondMessage(message.ServerEvent)
+			if message.ServerEvent.Name == worldEnteredServerEventName {
+				worldEnteredServerMessage, err := jsonutil.Unmarshal[worldMessage[worldEnteredServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(worldEnteredServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == playerJoinedServerEventName {
+				playerJoinedServerEvent, err := jsonutil.Unmarshal[worldMessage[playerJoinedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(playerJoinedServerEvent.ServerEvent)
+			} else if message.ServerEvent.Name == playerLeftServerEventName {
+				playerLeftServerMessage, err := jsonutil.Unmarshal[worldMessage[playerLeftServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(playerLeftServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == commandReceivedServerEventName {
+				commandReceivedServerMessage, err := jsonutil.Unmarshal[worldMessage[commandReceivedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(commandReceivedServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == commandFailedServerEventName {
+				commandFailedServerMessage, err := jsonutil.Unmarshal[worldMessage[commandFailedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(commandFailedServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == erroredServerEventName {
+				erroredServerMessage, err := jsonutil.Unmarshal[worldMessage[erroredServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(erroredServerMessage.ServerEvent)
+			}
 		},
 	)
 	defer worldMessageUnusbscriber()
@@ -205,12 +231,24 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	playerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		newPlayerMessageChannel(worldIdDto, myPlayerIdDto),
 		func(messageBytes []byte) {
-			message, err := jsonutil.Unmarshal[playerMessage](messageBytes)
+			message, err := jsonutil.Unmarshal[playerMessage[serverEvent]](messageBytes)
 			if err != nil {
 				return
 			}
 
-			respondMessage(message.ServerEvent)
+			if message.ServerEvent.Name == p2pAnswerReceivedServerEventName {
+				p2pAnswerReceivedServerMessage, err := jsonutil.Unmarshal[playerMessage[p2pAnswerReceivedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(p2pAnswerReceivedServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == p2pOfferReceivedServerEventName {
+				p2pOfferReceivedServerMessage, err := jsonutil.Unmarshal[playerMessage[p2pOfferReceivedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(p2pOfferReceivedServerMessage.ServerEvent)
+			}
 		},
 	)
 	defer playerMessageUnusbscriber()
@@ -224,13 +262,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}
 	defer safelyLeaveWorldInAllCases()
 
-	worldDto, blockDtos, unitDtos, playerDtos, err := httpHandler.getWorldInformation(worldIdDto)
+	worldDto, playerDtos, err := httpHandler.getWorldInformation(worldIdDto)
 	if err != nil {
 		respondServerEvent(generateErroredServerEvent(err))
 		closeConnection()
 		return
 	}
-	respondServerEvent(generateWorldEnteredServerEvent(worldDto, blockDtos, unitDtos, playerDtos))
+	respondServerEvent(generateWorldEnteredServerEvent(worldDto, playerDtos))
 
 	go func() {
 		for {
@@ -271,8 +309,8 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					return
 				}
 				sendServerEventToPlayer(clientEvent.PeerPlayerId, generateCommandReceivedServerEvent(clientEvent.Command))
-			case commandRequestedClientEventName:
-				clientEvent, err := jsonutil.Unmarshal[commandRequestedClientEvent](message)
+			case commandExecutedClientEventName:
+				clientEvent, err := jsonutil.Unmarshal[commandExecutedClientEvent](message)
 				if err != nil {
 					respondServerEvent(generateErroredServerEvent(err))
 					return
@@ -282,18 +320,6 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 					respondServerEvent(generateErroredServerEvent(err))
 					respondAndBroadcastServerEvent(generateCommandFailedServerEvent(clientEvent.Command.Id))
 				}
-			case unitsFetchedClientEventName:
-				clientEvent, err := jsonutil.Unmarshal[unitsFetchedClientEvent](message)
-				if err != nil {
-					respondServerEvent(generateErroredServerEvent(err))
-					return
-				}
-				unitDtos, blockDtos, err := httpHandler.fetchUnitsInBlocks(worldIdDto, clientEvent.BlockIds)
-				if err != nil {
-					respondServerEvent(generateErroredServerEvent(err))
-					return
-				}
-				respondServerEvent(generateUnitsReturnedServerEvent(blockDtos, unitDtos))
 			}
 
 		}
@@ -341,19 +367,10 @@ func (httpHandler *HttpHandler) createPlayer(worldIdDto uuid.UUID, userIdDto *uu
 }
 
 func (httpHandler *HttpHandler) getWorldInformation(worldIdDto uuid.UUID) (
-	worldDto dto.WorldDto, blockDtos []dto.BlockDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto, err error,
+	worldDto dto.WorldDto, playerDtos []dto.PlayerDto, err error,
 ) {
 	uow := pguow.NewDummyUow()
 
 	getWorldInformationUseCase := usecase.ProvideGetWorldInformationUseCase(uow)
 	return getWorldInformationUseCase.Execute(worldIdDto)
-}
-
-func (httpHandler *HttpHandler) fetchUnitsInBlocks(worldIdDto uuid.UUID, blockIdDtos []dto.BlockIdDto) (
-	unitDtos []dto.UnitDto, blockDtos []dto.BlockDto, err error,
-) {
-	uow := pguow.NewDummyUow()
-
-	fetchUnitsInBlocksUseCase := usecase.ProvideFetchUnitsInBlocksUseCase(uow)
-	return fetchUnitsInBlocksUseCase.Execute(worldIdDto, blockIdDtos)
 }

@@ -6,10 +6,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/embedunithttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/itemhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/linkunithttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/portalunithttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldjourneyhandler"
@@ -85,25 +81,6 @@ func Run() error {
 
 	worldMemberHttpHandler := worldmemberhttphandler.NewHttpHandler()
 	worldRouterGroup.GET("/:worldId/members", worldMemberHttpHandler.GetWorldMembers)
-
-	itemHttpHandler := itemhttphandler.NewHttpHandler()
-	itemRouterGroup := router.Group("/api/items")
-	itemRouterGroup.Use(parseHttpAccessTokenMiddleware)
-	itemRouterGroup.GET("/", itemHttpHandler.QueryItems)
-	itemRouterGroup.GET("/with-ids", itemHttpHandler.GetItemsWithIds)
-
-	linkUnitHttpHandler := linkunithttphandler.NewHttpHandler()
-	linkUnitRouterGroup := router.Group("/api/link-units")
-	linkUnitRouterGroup.GET("/:id", linkUnitHttpHandler.GetLinkUnitUrl)
-
-	portalUnitHttpHandler := portalunithttphandler.NewHttpHandler()
-	portalUnitRouterGroup := router.Group("/api/portal-units")
-	portalUnitRouterGroup.GET("/", portalUnitHttpHandler.QueryPortalUnits)
-	portalUnitRouterGroup.GET("/:id/target-unit", portalUnitHttpHandler.GetPortalUnitTargetUnit)
-
-	embedUnitHttpHandler := embedunithttphandler.NewHttpHandler()
-	embedUnitRouterGroup := router.Group("/api/embed-units")
-	embedUnitRouterGroup.GET("/:id", embedUnitHttpHandler.GetEmbedUnitEmbedCode)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
 	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)

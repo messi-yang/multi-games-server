@@ -14,17 +14,18 @@ const (
 	playerLeftServerEventName        serverEventName = "PLAYER_LEFT"
 	commandReceivedServerEventName   serverEventName = "COMMAND_RECEIVED"
 	commandFailedServerEventName     serverEventName = "COMMAND_FAILED"
-	unitsReturnedServerEventName     serverEventName = "UNITS_RETURNED"
 	p2pOfferReceivedServerEventName  serverEventName = "P2P_OFFER_RECEIVED"
 	p2pAnswerReceivedServerEventName serverEventName = "P2P_ANSWER_RECEIVED"
 	erroredServerEventName           serverEventName = "ERRORED"
 )
 
+type serverEvent struct {
+	Name serverEventName `json:"name"`
+}
+
 type worldEnteredServerEvent struct {
 	Name       serverEventName          `json:"name"`
 	World      viewmodel.WorldViewModel `json:"world"`
-	Blocks     []dto.BlockDto           `json:"blocks"`
-	Units      []dto.UnitDto            `json:"units"`
 	MyPlayerId uuid.UUID                `json:"myPlayerId"`
 	Players    []dto.PlayerDto          `json:"players"`
 }
@@ -47,12 +48,6 @@ type commandReceivedServerEvent struct {
 type commandFailedServerEvent struct {
 	Name      serverEventName `json:"name"`
 	CommandId uuid.UUID       `json:"commandId"`
-}
-
-type unitsReturnedServerEvent struct {
-	Name   serverEventName `json:"name"`
-	Blocks []dto.BlockDto  `json:"blocks"`
-	Units  []dto.UnitDto   `json:"units"`
 }
 
 type p2pOfferReceivedServerEvent struct {

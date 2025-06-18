@@ -13,8 +13,7 @@ type Player struct {
 	id              PlayerId                  // Id of the player
 	worldId         globalcommonmodel.WorldId // The id of the world the player belongs to
 	userId          *globalcommonmodel.UserId
-	name            string                   // The name of the player
-	heldItemId      *worldcommonmodel.ItemId // Optional, The item held by the player
+	name            string // The name of the player
 	action          PlayerAction
 	precisePosition worldcommonmodel.PrecisePosition
 	createdAt       time.Time
@@ -28,13 +27,11 @@ func NewPlayer(
 	worldId globalcommonmodel.WorldId,
 	name string,
 	direction worldcommonmodel.Direction,
-	heldItemId *worldcommonmodel.ItemId,
 ) Player {
 	return Player{
-		id:         NewPlayerId(uuid.New()),
-		worldId:    worldId,
-		name:       name,
-		heldItemId: heldItemId,
+		id:      NewPlayerId(uuid.New()),
+		worldId: worldId,
+		name:    name,
 		action: NewPlayerAction(
 			PlayerActionNameEnumStand,
 			worldcommonmodel.NewDirection(0),
@@ -51,7 +48,6 @@ func LoadPlayer(
 	userId *globalcommonmodel.UserId,
 	name string,
 	direction worldcommonmodel.Direction,
-	heldItemId *worldcommonmodel.ItemId,
 	action PlayerAction,
 	precisePosition worldcommonmodel.PrecisePosition,
 	createdAt time.Time,
@@ -62,7 +58,6 @@ func LoadPlayer(
 		worldId:         worldId,
 		userId:          userId,
 		name:            name,
-		heldItemId:      heldItemId,
 		action:          action,
 		precisePosition: precisePosition,
 		createdAt:       createdAt,
@@ -89,14 +84,6 @@ func (player *Player) GetName() string {
 
 func (player *Player) UpdateName(name string) {
 	player.name = name
-}
-
-func (player *Player) ChangeHeldItem(itemId worldcommonmodel.ItemId) {
-	player.heldItemId = &itemId
-}
-
-func (player *Player) GetHeldItemId() *worldcommonmodel.ItemId {
-	return player.heldItemId
 }
 
 func (player *Player) GetAction() PlayerAction {

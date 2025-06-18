@@ -5,9 +5,7 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/blockmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/unitmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/redisrepo"
@@ -18,63 +16,37 @@ import (
 type GetWorldInformationUseCase struct {
 	worldRepo  worldmodel.WorldRepo
 	playerRepo playermodel.PlayerRepo
-	unitRepo   unitmodel.UnitRepo
 }
 
-func NewGetWorldInformationUseCase(worldRepo worldmodel.WorldRepo, playerRepo playermodel.PlayerRepo, unitRepo unitmodel.UnitRepo) GetWorldInformationUseCase {
-	return GetWorldInformationUseCase{worldRepo, playerRepo, unitRepo}
+func NewGetWorldInformationUseCase(worldRepo worldmodel.WorldRepo, playerRepo playermodel.PlayerRepo) GetWorldInformationUseCase {
+	return GetWorldInformationUseCase{worldRepo, playerRepo}
 }
 
 func ProvideGetWorldInformationUseCase(uow pguow.Uow) GetWorldInformationUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	worldRepo := pgrepo.NewWorldRepo(uow, domainEventDispatcher)
 	playerRepo := redisrepo.NewPlayerRepo(domainEventDispatcher)
-	unitRepo := pgrepo.NewUnitRepo(uow, domainEventDispatcher)
 
-	return NewGetWorldInformationUseCase(worldRepo, playerRepo, unitRepo)
+	return NewGetWorldInformationUseCase(worldRepo, playerRepo)
 }
 
 func (useCase *GetWorldInformationUseCase) Execute(worldIdDto uuid.UUID) (
-	worldDto dto.WorldDto, blockDtos []dto.BlockDto, unitDtos []dto.UnitDto, playerDtos []dto.PlayerDto, err error) {
+	worldDto dto.WorldDto, playerDtos []dto.PlayerDto, err error) {
 	worldId := globalcommonmodel.NewWorldId(worldIdDto)
 
 	world, err := useCase.worldRepo.Get(worldId)
 	if err != nil {
-		return worldDto, blockDtos, unitDtos, playerDtos, err
+		return worldDto, playerDtos, err
 	}
 	worldDto = dto.NewWorldDto(world)
 
-	units := []unitmodel.Unit{}
-
-	blocks := []blockmodel.Block{
-		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, -1, -1)),
-		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, -1, 0)),
-		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, 0, -1)),
-		blockmodel.LoadBlock(blockmodel.NewBlockId(worldId, 0, 0)),
-	}
-	for _, block := range blocks {
-		unitsInBlock, err := useCase.unitRepo.GetUnitsInBlock(worldId, block)
-		if err != nil {
-			return worldDto, blockDtos, unitDtos, playerDtos, err
-		}
-		units = append(units, unitsInBlock...)
-	}
-
-	blockDtos = lo.Map(blocks, func(block blockmodel.Block, _ int) dto.BlockDto {
-		return dto.NewBlockDto(block)
-	})
-
-	unitDtos = lo.Map(units, func(unit unitmodel.Unit, _ int) dto.UnitDto {
-		return dto.NewUnitDto(unit)
-	})
-
 	players, err := useCase.playerRepo.GetPlayersOfWorld(worldId)
 	if err != nil {
-		return worldDto, blockDtos, unitDtos, playerDtos, err
+		return worldDto, playerDtos, err
 	}
 	playerDtos = lo.Map(players, func(_player playermodel.Player, _ int) dto.PlayerDto {
 		return dto.NewPlayerDto(_player)
 	})
 
-	return worldDto, blockDtos, unitDtos, playerDtos, nil
+	return worldDto, playerDtos, nil
 }

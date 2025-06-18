@@ -8,12 +8,11 @@ import (
 type clientEventName string
 
 const (
-	pingClientEventName             clientEventName = "PING"
-	commandSentClientEventName      clientEventName = "COMMAND_SENT"
-	commandRequestedClientEventName clientEventName = "COMMAND_REQUESTED"
-	unitsFetchedClientEventName     clientEventName = "UNITS_FETCHED"
-	p2pOfferSentClientEventName     clientEventName = "P2P_OFFER_SENT"
-	p2pAnswerSentClientEventName    clientEventName = "P2P_ANSWER_SENT"
+	pingClientEventName            clientEventName = "PING"
+	commandSentClientEventName     clientEventName = "COMMAND_SENT"
+	commandExecutedClientEventName clientEventName = "COMMAND_EXECUTED"
+	p2pOfferSentClientEventName    clientEventName = "P2P_OFFER_SENT"
+	p2pAnswerSentClientEventName   clientEventName = "P2P_ANSWER_SENT"
 )
 
 type clientEvent struct {
@@ -26,14 +25,9 @@ type commandSentClientEvent struct {
 	Command      dto.CommandDto  `json:"command"`
 }
 
-type commandRequestedClientEvent struct {
+type commandExecutedClientEvent struct {
 	Name    clientEventName `json:"name"`
 	Command dto.CommandDto  `json:"command"`
-}
-
-type unitsFetchedClientEvent struct {
-	Name     clientEventName  `json:"name"`
-	BlockIds []dto.BlockIdDto `json:"blockIds"`
 }
 
 type p2pOfferSentClientEvent struct {

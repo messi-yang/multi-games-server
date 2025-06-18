@@ -48,6 +48,9 @@ func ProvideLoginOrRegisterUserFromGoogleOauthUseCase(uow pguow.Uow) LoginOrRegi
 func (useCase *LoginOrRegisterUserFromGoogleOauthUseCase) Execute(code string, oauthStateString string) (redirectPath string, err error) {
 	clientUrl := os.Getenv("CLIENT_URL")
 
+	fmt.Println("code", code)
+	fmt.Println("oauthStateString", oauthStateString)
+
 	googleUserEmailAddress, err := useCase.googleOauthInfraService.GetUserEmailAddress(code)
 	if err != nil {
 		fmt.Println(code, err)
