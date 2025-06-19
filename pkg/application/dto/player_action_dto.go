@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamecommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/playermodel"
 )
 
 type PlayerActionDto struct {
@@ -24,6 +24,6 @@ func ParsePlayerActionDto(dto PlayerActionDto) (playermodel.PlayerAction, error)
 	}
 	return playermodel.NewPlayerAction(
 		actionName,
-		worldcommonmodel.NewDirection(dto.Direction),
+		gamecommonmodel.NewDirection(dto.Direction),
 	), nil
 }

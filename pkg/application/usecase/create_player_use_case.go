@@ -4,47 +4,47 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamecommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/playermodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/roommodel"
+	game_pg_repo "github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/persistence/pgrepo"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/persistence/redisrepo"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
 	iam_pg_repo "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/persistence/pgrepo"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldmodel"
-	world_pg_repo "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/redisrepo"
 	"github.com/google/uuid"
 )
 
 type CreatePlayerUseCase struct {
 	playerRepo playermodel.PlayerRepo
 	userRepo   usermodel.UserRepo
-	worldRepo  worldmodel.WorldRepo
+	roomRepo   roommodel.RoomRepo
 }
 
 func NewCreatePlayerUseCase(playerRepo playermodel.PlayerRepo,
-	userRepo usermodel.UserRepo, worldRepo worldmodel.WorldRepo) CreatePlayerUseCase {
-	return CreatePlayerUseCase{playerRepo, userRepo, worldRepo}
+	userRepo usermodel.UserRepo, roomRepo roommodel.RoomRepo) CreatePlayerUseCase {
+	return CreatePlayerUseCase{playerRepo, userRepo, roomRepo}
 }
 
 func ProvideCreatePlayerUseCase(uow pguow.Uow) CreatePlayerUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	playerRepo := redisrepo.NewPlayerRepo(domainEventDispatcher)
 	userRepo := iam_pg_repo.NewUserRepo(uow, domainEventDispatcher)
-	worldRepo := world_pg_repo.NewWorldRepo(uow, domainEventDispatcher)
+	roomRepo := game_pg_repo.NewRoomRepo(uow, domainEventDispatcher)
 
-	return NewCreatePlayerUseCase(playerRepo, userRepo, worldRepo)
+	return NewCreatePlayerUseCase(playerRepo, userRepo, roomRepo)
 }
 
-func (useCase *CreatePlayerUseCase) Execute(worldIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerDto dto.PlayerDto, err error) {
-	worldId := globalcommonmodel.NewWorldId(worldIdDto)
-	_, err = useCase.worldRepo.Get(worldId)
+func (useCase *CreatePlayerUseCase) Execute(roomIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerDto dto.PlayerDto, err error) {
+	roomId := globalcommonmodel.NewRoomId(roomIdDto)
+	_, err = useCase.roomRepo.Get(roomId)
 	if err != nil {
 		return newPlayerDto, err
 	}
 
-	direction := worldcommonmodel.NewDownDirection()
+	direction := gamecommonmodel.NewDownDirection()
 	newPlayer := playermodel.NewPlayer(
-		worldId,
+		roomId,
 		"Guest",
 		direction,
 	)

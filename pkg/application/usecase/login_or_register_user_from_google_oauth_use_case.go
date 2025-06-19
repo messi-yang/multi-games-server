@@ -6,39 +6,39 @@ import (
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gameaccountmodel"
+	game_pgrepo "github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/model/usermodel"
 	iam_service "github.com/dum-dum-genius/zossi-server/pkg/context/iam/domain/service"
 	iam_pgrepo "github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/persistence/pgrepo"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/iam/infrastructure/service/googleoauthinfrasrv"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldaccountmodel"
-	world_pgrepo "github.com/dum-dum-genius/zossi-server/pkg/context/world/infrastructure/persistence/pgrepo"
 )
 
 type LoginOrRegisterUserFromGoogleOauthUseCase struct {
 	userRepo                usermodel.UserRepo
-	worldAccountRepo        worldaccountmodel.WorldAccountRepo
+	gameAccountRepo         gameaccountmodel.GameAccountRepo
 	userService             iam_service.UserService
 	authService             iam_service.AuthService
 	googleOauthInfraService googleoauthinfrasrv.Service
 }
 
-func NewLoginOrRegisterUserFromGoogleOauthUseCase(userRepo usermodel.UserRepo, worldAccountRepo worldaccountmodel.WorldAccountRepo,
+func NewLoginOrRegisterUserFromGoogleOauthUseCase(userRepo usermodel.UserRepo, gameAccountRepo gameaccountmodel.GameAccountRepo,
 	userService iam_service.UserService, authService iam_service.AuthService, googleOauthInfraService googleoauthinfrasrv.Service,
 ) LoginOrRegisterUserFromGoogleOauthUseCase {
-	return LoginOrRegisterUserFromGoogleOauthUseCase{userRepo, worldAccountRepo, userService, authService, googleOauthInfraService}
+	return LoginOrRegisterUserFromGoogleOauthUseCase{userRepo, gameAccountRepo, userService, authService, googleOauthInfraService}
 }
 
 func ProvideLoginOrRegisterUserFromGoogleOauthUseCase(uow pguow.Uow) LoginOrRegisterUserFromGoogleOauthUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	userRepo := iam_pgrepo.NewUserRepo(uow, domainEventDispatcher)
-	worldAccountRepo := world_pgrepo.NewWorldAccountRepo(uow, domainEventDispatcher)
+	gameAccountRepo := game_pgrepo.NewGameAccountRepo(uow, domainEventDispatcher)
 	userService := iam_service.NewUserService(userRepo)
 	authService := iam_service.NewAuthService(os.Getenv("AUTH_SECRET"))
 	googleOauthInfraService := googleoauthinfrasrv.NewService()
 
 	return NewLoginOrRegisterUserFromGoogleOauthUseCase(
 		userRepo,
-		worldAccountRepo,
+		gameAccountRepo,
 		userService,
 		authService,
 		googleOauthInfraService,
@@ -87,8 +87,8 @@ func (useCase *LoginOrRegisterUserFromGoogleOauthUseCase) Execute(code string, o
 	}
 
 	// TODO - handle this side effects by using integration events
-	newWorldAccount := worldaccountmodel.NewWorldAccount(newUserId)
-	err = useCase.worldAccountRepo.Add(newWorldAccount)
+	newGameAccount := gameaccountmodel.NewGameAccount(newUserId)
+	err = useCase.gameAccountRepo.Add(newGameAccount)
 	if err != nil {
 		return redirectPath, err
 	}

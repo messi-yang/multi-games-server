@@ -6,10 +6,10 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/roomhttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/roomjourneyhandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/roommemberhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldjourneyhandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/worldmemberhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -69,24 +69,24 @@ func Run() error {
 	userRouterGroup.GET("/me", userHttpHandler.GetMyUser)
 	userRouterGroup.PATCH("/me", userHttpHandler.UpdateMyUser)
 
-	worldHttpHandler := worldhttphandler.NewHttpHandler()
-	worldRouterGroup := router.Group("/api/worlds")
-	worldRouterGroup.Use(parseHttpAccessTokenMiddleware)
+	roomHttpHandler := roomhttphandler.NewHttpHandler()
+	roomRouterGroup := router.Group("/api/rooms")
+	roomRouterGroup.Use(parseHttpAccessTokenMiddleware)
 
-	worldRouterGroup.GET("/:worldId", worldHttpHandler.GetWorld)
-	worldRouterGroup.GET("/mine", worldHttpHandler.GetMyWorlds)
-	worldRouterGroup.POST("/", worldHttpHandler.CreateWorld)
-	worldRouterGroup.PATCH("/:worldId", worldHttpHandler.UpdateWorld)
-	worldRouterGroup.DELETE("/:worldId", worldHttpHandler.DeleteWorld)
+	roomRouterGroup.GET("/:roomId", roomHttpHandler.GetRoom)
+	roomRouterGroup.GET("/mine", roomHttpHandler.GetMyRooms)
+	roomRouterGroup.POST("/", roomHttpHandler.CreateRoom)
+	roomRouterGroup.PATCH("/:roomId", roomHttpHandler.UpdateRoom)
+	roomRouterGroup.DELETE("/:roomId", roomHttpHandler.DeleteRoom)
 
-	worldMemberHttpHandler := worldmemberhttphandler.NewHttpHandler()
-	worldRouterGroup.GET("/:worldId/members", worldMemberHttpHandler.GetWorldMembers)
+	roomMemberHttpHandler := roommemberhttphandler.NewHttpHandler()
+	roomRouterGroup.GET("/:roomId/members", roomMemberHttpHandler.GetRoomMembers)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
-	worldJourneyHandler := worldjourneyhandler.NewHttpHandler(redisServerMessageMediator)
-	worldJourneyGroup := router.Group("/api/world-journey")
-	worldJourneyGroup.Use(parseSocketAccessTokenMiddleware)
-	worldJourneyGroup.GET("/", worldJourneyHandler.StartJourney)
+	roomJourneyHandler := roomjourneyhandler.NewHttpHandler(redisServerMessageMediator)
+	roomJourneyGroup := router.Group("/api/room-journey")
+	roomJourneyGroup.Use(parseSocketAccessTokenMiddleware)
+	roomJourneyGroup.GET("/", roomJourneyHandler.StartJourney)
 
 	return router.Run()
 }

@@ -7,6 +7,6 @@ import (
 
 func RegisterEvents() {
 	domainEventRegister := memdomaineventhandler.NewRegister()
-	domainEventRegister.Register(domainevent.WorldCreated{}, ProvideWorldCreatedHandler())
-	domainEventRegister.Register(domainevent.WorldDeleted{}, ProvideWorldDeletedHandler())
+	domainEventRegister.Register(domainevent.RoomCreated{}, ProvideRoomCreatedHandler())
+	domainEventRegister.Register(domainevent.RoomDeleted{}, ProvideRoomDeletedHandler())
 }

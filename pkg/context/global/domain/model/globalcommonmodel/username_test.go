@@ -8,9 +8,9 @@ import (
 
 func TestUsername(t *testing.T) {
 	t.Run("NewUsername", func(t *testing.T) {
-		username, err := NewUsername("hello_world")
+		username, err := NewUsername("hello_room")
 		assert.NoError(t, err)
-		assert.Equal(t, "hello_world", username.String())
+		assert.Equal(t, "hello_room", username.String())
 
 		t.Run("Validation", func(t *testing.T) {
 			t.Run("Can only have lower cases and underscores", func(t *testing.T) {
@@ -64,9 +64,9 @@ func TestUsername(t *testing.T) {
 
 	t.Run("Username", func(t *testing.T) {
 		t.Run("IsEqual", func(t *testing.T) {
-			username1, _ := NewUsername("hello_world")
-			username2, _ := NewUsername("hello_world")
-			username3, _ := NewUsername("hello_world_another")
+			username1, _ := NewUsername("hello_room")
+			username2, _ := NewUsername("hello_room")
+			username3, _ := NewUsername("hello_room_another")
 			assert.True(t, username1.IsEqual(username2))
 			assert.False(t, username1.IsEqual(username3))
 		})

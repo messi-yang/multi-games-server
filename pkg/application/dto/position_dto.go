@@ -1,21 +1,21 @@
 package dto
 
-import "github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
+import "github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamecommonmodel"
 
 type PositionDto struct {
 	X int `json:"x"`
 	Z int `json:"z"`
 }
 
-func NewPositionDto(position worldcommonmodel.Position) PositionDto {
+func NewPositionDto(position gamecommonmodel.Position) PositionDto {
 	return PositionDto{
 		X: position.GetX(),
 		Z: position.GetZ(),
 	}
 }
 
-func (dto PositionDto) ToValueObject() (bound worldcommonmodel.Position) {
-	return worldcommonmodel.NewPosition(
+func (dto PositionDto) ToValueObject() (bound gamecommonmodel.Position) {
+	return gamecommonmodel.NewPosition(
 		dto.X,
 		dto.Z,
 	)

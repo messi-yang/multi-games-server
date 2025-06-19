@@ -3,9 +3,9 @@ package dto
 import (
 	"time"
 
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamecommonmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/playermodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/world/domain/model/worldcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -13,7 +13,7 @@ import (
 
 type PlayerDto struct {
 	Id              uuid.UUID          `json:"id"`
-	WorldId         uuid.UUID          `json:"worldId"`
+	RoomId          uuid.UUID          `json:"roomId"`
 	UserId          *uuid.UUID         `json:"userId"`
 	Name            string             `json:"name"`
 	Direction       int8               `json:"direction"`
@@ -25,8 +25,8 @@ type PlayerDto struct {
 
 func NewPlayerDto(player playermodel.Player) PlayerDto {
 	dto := PlayerDto{
-		Id:      player.GetId().Uuid(),
-		WorldId: player.GetWorldId().Uuid(),
+		Id:     player.GetId().Uuid(),
+		RoomId: player.GetRoomId().Uuid(),
 		UserId: lo.TernaryF(
 			player.GetUserId() == nil,
 			func() *uuid.UUID { return nil },
@@ -49,7 +49,7 @@ func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) 
 
 	return playermodel.LoadPlayer(
 		playermodel.NewPlayerId(playerDto.Id),
-		globalcommonmodel.NewWorldId(playerDto.WorldId),
+		globalcommonmodel.NewRoomId(playerDto.RoomId),
 		lo.TernaryF(
 			playerDto.UserId == nil,
 			func() *globalcommonmodel.UserId { return nil },
@@ -58,9 +58,9 @@ func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) 
 			},
 		),
 		playerDto.Name,
-		worldcommonmodel.NewDirection(playerDto.Direction),
+		gamecommonmodel.NewDirection(playerDto.Direction),
 		action,
-		worldcommonmodel.NewPrecisePosition(playerDto.PrecisePosition.X, playerDto.PrecisePosition.Z),
+		gamecommonmodel.NewPrecisePosition(playerDto.PrecisePosition.X, playerDto.PrecisePosition.Z),
 		playerDto.CreatedAt,
 		playerDto.UpdatedAt,
 	), nil
