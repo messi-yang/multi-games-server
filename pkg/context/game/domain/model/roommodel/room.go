@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/google/uuid"
 )
@@ -33,7 +32,7 @@ func NewRoom(
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
-	newRoom.domainEventCollector.Add(domainevent.NewRoomCreated(
+	newRoom.domainEventCollector.Add(NewRoomCreated(
 		newRoom.id,
 		newRoom.userId,
 	))
@@ -86,7 +85,7 @@ func (room *Room) GetUpdatedAt() time.Time {
 }
 
 func (room *Room) Delete() {
-	room.domainEventCollector.Add(domainevent.NewRoomCreated(
+	room.domainEventCollector.Add(NewRoomDeleted(
 		room.id,
 		room.userId,
 	))

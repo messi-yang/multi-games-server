@@ -4,8 +4,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/roommodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/persistence/pgrepo"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
 )
 
 type RoomDeletedHandler struct{}
@@ -19,7 +19,7 @@ func ProvideRoomDeletedHandler() memdomaineventhandler.Handler {
 }
 
 func (handler RoomDeletedHandler) Handle(uow pguow.Uow, domainEvent domain.DomainEvent) error {
-	roomDeleted := domainEvent.(domainevent.RoomDeleted)
+	roomDeleted := domainEvent.(roommodel.RoomDeleted)
 
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	gameAccountRepo := pgrepo.NewGameAccountRepo(uow, domainEventDispatcher)

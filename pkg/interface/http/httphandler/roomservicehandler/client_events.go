@@ -1,4 +1,4 @@
-package roomjourneyhandler
+package roomservicehandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"

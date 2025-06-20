@@ -1,15 +1,14 @@
-package roomjourneyhandler
+package roomservicehandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/google/uuid"
 )
 
 type serverEventName string
 
 const (
-	roomEnteredServerEventName       serverEventName = "ROOM_ENTERED"
+	roomJoinedServerEventName        serverEventName = "ROOM_JOINED"
 	playerJoinedServerEventName      serverEventName = "PLAYER_JOINED"
 	playerLeftServerEventName        serverEventName = "PLAYER_LEFT"
 	commandReceivedServerEventName   serverEventName = "COMMAND_RECEIVED"
@@ -23,11 +22,13 @@ type serverEvent struct {
 	Name serverEventName `json:"name"`
 }
 
-type roomEnteredServerEvent struct {
-	Name       serverEventName         `json:"name"`
-	Room       viewmodel.RoomViewModel `json:"room"`
-	MyPlayerId uuid.UUID               `json:"myPlayerId"`
-	Players    []dto.PlayerDto         `json:"players"`
+type roomJoinedServerEvent struct {
+	Name       serverEventName  `json:"name"`
+	Game       dto.GameDto      `json:"game"`
+	Room       dto.RoomDto      `json:"room"`
+	Commands   []dto.CommandDto `json:"commands"`
+	MyPlayerId uuid.UUID        `json:"myPlayerId"`
+	Players    []dto.PlayerDto  `json:"players"`
 }
 
 type playerJoinedServerEvent struct {

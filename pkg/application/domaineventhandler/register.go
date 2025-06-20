@@ -2,11 +2,11 @@ package domaineventhandler
 
 import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/domainevent"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/roommodel"
 )
 
 func RegisterEvents() {
 	domainEventRegister := memdomaineventhandler.NewRegister()
-	domainEventRegister.Register(domainevent.RoomCreated{}, ProvideRoomCreatedHandler())
-	domainEventRegister.Register(domainevent.RoomDeleted{}, ProvideRoomDeletedHandler())
+	domainEventRegister.Register(roommodel.RoomCreated{}, ProvideRoomCreatedHandler())
+	domainEventRegister.Register(roommodel.RoomDeleted{}, ProvideRoomDeletedHandler())
 }

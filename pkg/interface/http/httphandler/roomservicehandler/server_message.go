@@ -1,4 +1,4 @@
-package roomjourneyhandler
+package roomservicehandler
 
 import (
 	"fmt"

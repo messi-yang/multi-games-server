@@ -1,4 +1,4 @@
-package roomjourneyhandler
+package roomservicehandler
 
 import (
 	"fmt"
@@ -10,7 +10,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/util/jsonutil"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -39,7 +38,7 @@ func NewHttpHandler(redisServerMessageMediator redisservermessagemediator.Mediat
 	}
 }
 
-func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
+func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 	socketConn, err := websocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		c.String(http.StatusBadRequest, "failed to upgrade http to socket")
@@ -108,12 +107,12 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 				return
 			}
 
-			if message.ServerEvent.Name == roomEnteredServerEventName {
-				roomEnteredServerMessage, err := jsonutil.Unmarshal[roomMessage[roomEnteredServerEvent]](messageBytes)
+			if message.ServerEvent.Name == roomJoinedServerEventName {
+				roomJoinedServerMessage, err := jsonutil.Unmarshal[roomMessage[roomJoinedServerEvent]](messageBytes)
 				if err != nil {
 					return
 				}
-				respondMessage(roomEnteredServerMessage.ServerEvent)
+				respondMessage(roomJoinedServerMessage.ServerEvent)
 			} else if message.ServerEvent.Name == playerJoinedServerEventName {
 				playerJoinedServerEvent, err := jsonutil.Unmarshal[roomMessage[playerJoinedServerEvent]](messageBytes)
 				if err != nil {
@@ -212,13 +211,13 @@ func (httpHandler *HttpHandler) StartJourney(c *gin.Context) {
 	}
 	defer safelyLeaveRoomInAllCases()
 
-	roomDto, playerDtos, err := httpHandler.getRoomInformation(roomIdDto)
+	roomDto, gameDto, commandDtos, playerDtos, err := httpHandler.getRoomInformation(roomIdDto)
 	if err != nil {
 		respondServerEvent(httpHandler.generateErroredServerEvent(err))
 		closeConnection()
 		return
 	}
-	respondServerEvent(httpHandler.generateRoomEnteredServerEvent(roomDto, myPlayerIdDto, playerDtos))
+	respondServerEvent(httpHandler.generateRoomJoinedServerEvent(roomDto, gameDto, commandDtos, myPlayerIdDto, playerDtos))
 
 	go func() {
 		for {
@@ -324,7 +323,7 @@ func (httpHandler *HttpHandler) getRoomPlayers(roomIdDto uuid.UUID) (
 }
 
 func (httpHandler *HttpHandler) getRoomInformation(roomIdDto uuid.UUID) (
-	roomDto dto.RoomDto, playerDtos []dto.PlayerDto, err error,
+	roomDto dto.RoomDto, gameDto dto.GameDto, commandDtos []dto.CommandDto, playerDtos []dto.PlayerDto, err error,
 ) {
 	uow := pguow.NewDummyUow()
 
@@ -348,10 +347,12 @@ func (httpHandler *HttpHandler) generatePlayerJoinedServerEvent(playerDto dto.Pl
 	}
 }
 
-func (httpHandler *HttpHandler) generateRoomEnteredServerEvent(roomDto dto.RoomDto, myPlayerIdDto uuid.UUID, playerDtos []dto.PlayerDto) roomEnteredServerEvent {
-	return roomEnteredServerEvent{
-		Name:       roomEnteredServerEventName,
-		Room:       viewmodel.RoomViewModel(roomDto),
+func (httpHandler *HttpHandler) generateRoomJoinedServerEvent(roomDto dto.RoomDto, gameDto dto.GameDto, commandDtos []dto.CommandDto, myPlayerIdDto uuid.UUID, playerDtos []dto.PlayerDto) roomJoinedServerEvent {
+	return roomJoinedServerEvent{
+		Name:       roomJoinedServerEventName,
+		Game:       gameDto,
+		Commands:   commandDtos,
+		Room:       roomDto,
 		MyPlayerId: myPlayerIdDto,
 		Players:    playerDtos,
 	}

@@ -6,7 +6,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +31,7 @@ func (httpHandler *HttpHandler) GetMyUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, getMyUserResponse(viewmodel.UserViewModel(userDto)))
+	c.JSON(http.StatusOK, userDto)
 }
 
 func (httpHandler *HttpHandler) UpdateMyUser(c *gin.Context) {
@@ -58,5 +57,5 @@ func (httpHandler *HttpHandler) UpdateMyUser(c *gin.Context) {
 	}
 	pgUow.SaveChanges()
 
-	c.JSON(http.StatusOK, updateMyUserResponse(viewmodel.UserViewModel(updatedUserDto)))
+	c.JSON(http.StatusOK, updatedUserDto)
 }

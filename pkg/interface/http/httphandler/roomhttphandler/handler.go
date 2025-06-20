@@ -3,14 +3,11 @@ package roomhttphandler
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 type HttpHandler struct{}
@@ -34,9 +31,7 @@ func (httpHandler *HttpHandler) GetRoom(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, getRoomResponse(
-		viewmodel.RoomViewModel(roomDto),
-	))
+	c.JSON(http.StatusOK, roomDto)
 }
 
 func (httpHandler *HttpHandler) GetMyRooms(c *gin.Context) {
@@ -55,11 +50,7 @@ func (httpHandler *HttpHandler) GetMyRooms(c *gin.Context) {
 		return
 	}
 
-	roomViewModels := lo.Map(roomDtos, func(roomDto dto.RoomDto, _ int) viewmodel.RoomViewModel {
-		return viewmodel.RoomViewModel(roomDto)
-	})
-
-	c.JSON(http.StatusOK, getMyRoomsResponse(roomViewModels))
+	c.JSON(http.StatusOK, roomDtos)
 }
 
 func (httpHandler *HttpHandler) CreateRoom(c *gin.Context) {
@@ -85,7 +76,7 @@ func (httpHandler *HttpHandler) CreateRoom(c *gin.Context) {
 	}
 
 	pgUow.SaveChanges()
-	c.JSON(http.StatusOK, createRoomResponse(viewmodel.RoomViewModel(roomDto)))
+	c.JSON(http.StatusOK, roomDto)
 }
 
 func (httpHandler *HttpHandler) UpdateRoom(c *gin.Context) {
@@ -117,7 +108,7 @@ func (httpHandler *HttpHandler) UpdateRoom(c *gin.Context) {
 	}
 	pgUow.SaveChanges()
 
-	c.JSON(http.StatusOK, updateRoomResponse(viewmodel.RoomViewModel(updatedRoomDto)))
+	c.JSON(http.StatusOK, updatedRoomDto)
 }
 
 func (httpHandler *HttpHandler) DeleteRoom(c *gin.Context) {

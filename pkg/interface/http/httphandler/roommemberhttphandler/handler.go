@@ -3,14 +3,11 @@ package roommemberhttphandler
 import (
 	"net/http"
 
-	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/application/usecase"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/viewmodel"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 )
 
 type HttpHandler struct{}
@@ -40,9 +37,5 @@ func (httpHandler *HttpHandler) GetRoomMembers(c *gin.Context) {
 		return
 	}
 
-	roomMemberViewModels := lo.Map(roomMemberDtos, func(roomMemberDto dto.RoomMemberDto, _ int) viewmodel.RoomMemberViewModel {
-		return viewmodel.RoomMemberViewModel(roomMemberDto)
-	})
-
-	c.JSON(http.StatusOK, getRoomMembersResponse(roomMemberViewModels))
+	c.JSON(http.StatusOK, roomMemberDtos)
 }

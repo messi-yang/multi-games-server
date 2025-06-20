@@ -4,7 +4,6 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamecommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/roommodel"
 	game_pg_repo "github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/persistence/pgrepo"
@@ -42,11 +41,9 @@ func (useCase *CreatePlayerUseCase) Execute(roomIdDto uuid.UUID, userIdDto *uuid
 		return newPlayerDto, err
 	}
 
-	direction := gamecommonmodel.NewDownDirection()
 	newPlayer := playermodel.NewPlayer(
 		roomId,
 		"Guest",
-		direction,
 	)
 
 	if userIdDto != nil {

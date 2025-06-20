@@ -1,4 +1,4 @@
-package domainevent
+package roommodel
 
 import (
 	"time"

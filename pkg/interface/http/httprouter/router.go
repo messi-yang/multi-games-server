@@ -7,8 +7,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/messaging/redisservermessagemediator"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/authhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/roomhttphandler"
-	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/roomjourneyhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/roommemberhttphandler"
+	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/roomservicehandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httphandler/userhttphandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/interface/http/httpsession"
 	"github.com/gin-contrib/cors"
@@ -83,10 +83,10 @@ func Run() error {
 	roomRouterGroup.GET("/:roomId/members", roomMemberHttpHandler.GetRoomMembers)
 
 	redisServerMessageMediator := redisservermessagemediator.NewMediator()
-	roomJourneyHandler := roomjourneyhandler.NewHttpHandler(redisServerMessageMediator)
-	roomJourneyGroup := router.Group("/api/room-journey")
-	roomJourneyGroup.Use(parseSocketAccessTokenMiddleware)
-	roomJourneyGroup.GET("/", roomJourneyHandler.StartJourney)
+	roomServiceHandler := roomservicehandler.NewHttpHandler(redisServerMessageMediator)
+	roomServiceGroup := router.Group("/api/room-service")
+	roomServiceGroup.Use(parseSocketAccessTokenMiddleware)
+	roomServiceGroup.GET("/", roomServiceHandler.StartService)
 
 	return router.Run()
 }

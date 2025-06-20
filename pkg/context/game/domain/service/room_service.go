@@ -52,6 +52,10 @@ func (roomServe *roomServe) CreateRoom(userId globalcommonmodel.UserId, name str
 }
 
 func (roomServe *roomServe) DeleteRoom(roomId globalcommonmodel.RoomId) error {
-	// TODO - We need to figure out if it's a good idea to totally delete a game from database, maybe we can just flag it as archived
-	return ErrDeleteNotWorking
+	room, err := roomServe.roomRepo.Get(roomId)
+	if err != nil {
+		return err
+	}
+	room.Delete()
+	return roomServe.roomRepo.Delete(room)
 }

@@ -5,6 +5,8 @@ import (
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/commandmodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamemodel"
+	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/playermodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/infrastructure/persistence/redisrepo"
 )
 
@@ -27,6 +29,8 @@ func ProvideSaveCommandUseCase(uow pguow.Uow) SaveCommandUseCase {
 func (useCase *SaveCommandUseCase) Execute(commandDto dto.CommandDto) error {
 	command := commandmodel.CreateCommand(
 		commandmodel.NewCommandId(commandDto.Id),
+		gamemodel.NewGameId(commandDto.GameId),
+		playermodel.NewPlayerId(commandDto.PlayerId),
 		commandDto.Timestamp,
 		commandDto.Name,
 		commandDto.Payload,
