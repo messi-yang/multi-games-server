@@ -73,6 +73,29 @@ func (repo *playerRepo) Get(roomId globalcommonmodel.RoomId, playerId playermode
 	return dto.ParsePlayerDto(playerDto)
 }
 
+func (repo *playerRepo) GetPlayerOfUser(roomId globalcommonmodel.RoomId, userId globalcommonmodel.UserId) (player *playermodel.Player, err error) {
+	playerDtoStrings, err := repo.redisCache.Scan(getRoomPlayersScanPattern(roomId))
+	if err != nil {
+		return player, err
+	}
+
+	for _, playerDtoString := range playerDtoStrings {
+		playerDto, err := jsonutil.Unmarshal[dto.PlayerDto]([]byte(playerDtoString))
+		if err != nil {
+			return player, err
+		}
+		if playerDto.UserId != nil && *playerDto.UserId == userId.Uuid() {
+			parsedPlayer, err := dto.ParsePlayerDto(playerDto)
+			if err != nil {
+				return player, err
+			}
+			return &parsedPlayer, nil
+		}
+	}
+
+	return player, nil
+}
+
 func (repo *playerRepo) GetPlayersOfRoom(roomId globalcommonmodel.RoomId) (players []playermodel.Player, err error) {
 	playerDtoStrings, err := repo.redisCache.Scan(getRoomPlayersScanPattern(roomId))
 	if err != nil {

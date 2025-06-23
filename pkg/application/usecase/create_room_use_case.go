@@ -25,7 +25,8 @@ func ProvideCreateRoomUseCase(uow pguow.Uow) CreateRoomUseCase {
 	domainEventDispatcher := memdomaineventhandler.NewDispatcher(uow)
 	gameAccountRepo := game_pgrepo.NewGameAccountRepo(uow, domainEventDispatcher)
 	roomRepo := game_pgrepo.NewRoomRepo(uow, domainEventDispatcher)
-	roomService := service.NewRoomService(gameAccountRepo, roomRepo)
+	gameRepo := game_pgrepo.NewGameRepo(uow, domainEventDispatcher)
+	roomService := service.NewRoomService(gameAccountRepo, roomRepo, gameRepo)
 
 	roomMemberRepo := iam_pgrepo.NewRoomMemberRepo(uow, domainEventDispatcher)
 

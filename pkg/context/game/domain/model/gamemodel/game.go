@@ -13,7 +13,6 @@ type Game struct {
 	roomId               globalcommonmodel.RoomId
 	name                 string
 	started              bool
-	selected             bool
 	state                map[string]interface{}
 	createdAt            time.Time
 	updatedAt            time.Time
@@ -26,20 +25,28 @@ var _ domain.DomainEventDispatchableAggregate = (*Game)(nil)
 func NewGame(
 	roomId globalcommonmodel.RoomId,
 	name string,
-	state map[string]interface{},
 ) Game {
 	newGame := Game{
 		id:                   NewGameId(uuid.New()),
 		roomId:               roomId,
 		name:                 name,
 		started:              false,
-		selected:             true,
-		state:                state,
+		state:                map[string]interface{}{},
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
 	}
+	newGame.domainEventCollector.Add(NewGameCreated(
+		newGame.id,
+		newGame.roomId,
+	))
 	return newGame
+}
+
+func NewDefaultGame(
+	roomId globalcommonmodel.RoomId,
+) Game {
+	return NewGame(roomId, "default")
 }
 
 func LoadGame(
@@ -47,7 +54,6 @@ func LoadGame(
 	roomId globalcommonmodel.RoomId,
 	name string,
 	started bool,
-	selected bool,
 	state map[string]interface{},
 	createdAt time.Time,
 	updatedAt time.Time,
@@ -57,7 +63,6 @@ func LoadGame(
 		roomId:               roomId,
 		name:                 name,
 		started:              started,
-		selected:             selected,
 		state:                state,
 		createdAt:            createdAt,
 		updatedAt:            updatedAt,
@@ -89,16 +94,12 @@ func (game *Game) SetStarted(started bool) {
 	game.started = started
 }
 
-func (game *Game) GetSelected() bool {
-	return game.selected
-}
-
-func (game *Game) SetSelected(selected bool) {
-	game.selected = selected
-}
-
 func (game *Game) GetState() map[string]interface{} {
 	return game.state
+}
+
+func (game *Game) SetState(state map[string]interface{}) {
+	game.state = state
 }
 
 func (game *Game) GetCreatedAt() time.Time {

@@ -38,7 +38,6 @@ func NewCommandRepo(domainEventDispatcher domain.DomainEventDispatcher) (reposit
 func (repo *commandRepo) Add(command commandmodel.Command) error {
 	commandDto := dto.NewCommandDto(command)
 	commandDtoBytes := string(jsonutil.Marshal(commandDto))
-	fmt.Println(commandDto)
 	return repo.redisCache.Set(
 		getCommandCacheKey(command.GetGameId(), command.GetId()),
 		commandDtoBytes,

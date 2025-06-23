@@ -1,15 +1,14 @@
 package pgrepo
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/game/domain/model/gamemodel"
-	"github.com/dum-dum-genius/zossi-server/pkg/util/commonutil"
 	"gorm.io/gorm"
 
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/domain"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
-	"github.com/dum-dum-genius/zossi-server/pkg/context/global/domain/model/globalcommonmodel"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/global/infrastructure/persistence/pgmodel"
 )
 
@@ -25,8 +24,19 @@ func NewGameRepo(uow pguow.Uow, domainEventDispatcher domain.DomainEventDispatch
 	}
 }
 
+func (repo *gameRepo) Get(gameId gamemodel.GameId) (game gamemodel.Game, err error) {
+	gameModel := pgmodel.GameModel{Id: gameId.Uuid()}
+	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
+		return transaction.First(&gameModel).Error
+	}); err != nil {
+		return game, err
+	}
+	return pgmodel.ParseGameModel(gameModel), nil
+}
+
 func (repo *gameRepo) Add(game gamemodel.Game) error {
 	gameModel := pgmodel.NewGameModel(game)
+	fmt.Println("Game model", gameModel)
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
 		return transaction.Create(&gameModel).Error
 	}); err != nil {
@@ -39,7 +49,7 @@ func (repo *gameRepo) Update(game gamemodel.Game) error {
 	gameModel := pgmodel.NewGameModel(game)
 	gameModel.UpdatedAt = time.Now()
 	if err := repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Model(&pgmodel.RoomModel{}).Where(
+		return transaction.Model(&pgmodel.GameModel{}).Where(
 			"id = ?",
 			game.GetId().Uuid(),
 		).Select("*").Updates(&gameModel).Error
@@ -47,32 +57,4 @@ func (repo *gameRepo) Update(game gamemodel.Game) error {
 		return err
 	}
 	return repo.domainEventDispatcher.Dispatch(&game)
-}
-
-func (repo *gameRepo) GetSelectedGameByRoomId(roomId globalcommonmodel.RoomId) (game gamemodel.Game, err error) {
-	gameModel := pgmodel.GameModel{RoomId: roomId.Uuid(), Selected: true}
-	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.First(&gameModel).Error
-	}); err != nil {
-		return game, err
-	}
-	return pgmodel.ParseGameModel(gameModel), nil
-}
-
-func (repo *gameRepo) GetSelectedGamesByRoomId(roomId globalcommonmodel.RoomId) (games []gamemodel.Game, err error) {
-	gameModels := []pgmodel.GameModel{}
-	if err = repo.uow.Execute(func(transaction *gorm.DB) error {
-		return transaction.Where(
-			"room_id = ?",
-			roomId.Uuid(),
-		).Where(
-			"selected = ?",
-			true,
-		).Find(&gameModels).Error
-	}); err != nil {
-		return games, err
-	}
-	return commonutil.MapWithError[pgmodel.GameModel](gameModels, func(_ int, gameModel pgmodel.GameModel) (gamemodel.Game, error) {
-		return pgmodel.ParseGameModel(gameModel), nil
-	})
 }

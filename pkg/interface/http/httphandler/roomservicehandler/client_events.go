@@ -8,15 +8,29 @@ import (
 type clientEventName string
 
 const (
-	pingClientEventName            clientEventName = "PING"
-	commandSentClientEventName     clientEventName = "COMMAND_SENT"
-	commandExecutedClientEventName clientEventName = "COMMAND_EXECUTED"
-	p2pOfferSentClientEventName    clientEventName = "P2P_OFFER_SENT"
-	p2pAnswerSentClientEventName   clientEventName = "P2P_ANSWER_SENT"
+	pingClientEventName                  clientEventName = "PING"
+	startGameRequestedClientEventName    clientEventName = "START_GAME_REQUESTED"
+	setupNewGameRequestedClientEventName clientEventName = "SETUP_NEW_GAME_REQUESTED"
+	commandSentClientEventName           clientEventName = "COMMAND_SENT"
+	commandExecutedClientEventName       clientEventName = "COMMAND_EXECUTED"
+	p2pOfferSentClientEventName          clientEventName = "P2P_OFFER_SENT"
+	p2pAnswerSentClientEventName         clientEventName = "P2P_ANSWER_SENT"
+	p2pConnectedClientEventName          clientEventName = "P2P_CONNECTED"
 )
 
 type clientEvent struct {
 	Name clientEventName `json:"name"`
+}
+
+type startGameRequestedClientEvent struct {
+	Name      clientEventName        `json:"name"`
+	GameId    uuid.UUID              `json:"gameId"`
+	GameState map[string]interface{} `json:"gameState"`
+}
+
+type setupNewGameRequestedClientEvent struct {
+	Name     clientEventName `json:"name"`
+	GameName string          `json:"gameName"`
 }
 
 type commandSentClientEvent struct {
@@ -42,4 +56,9 @@ type p2pAnswerSentClientEvent struct {
 	PeerPlayerId  uuid.UUID       `json:"peerPlayerId"`
 	IceCandidates []any           `json:"iceCandidates"`
 	Answer        any             `json:"answer"`
+}
+
+type p2pConnectedClientEvent struct {
+	Name         clientEventName `json:"name"`
+	PeerPlayerId uuid.UUID       `json:"peerPlayerId"`
 }

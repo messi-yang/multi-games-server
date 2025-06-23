@@ -11,12 +11,13 @@ import (
 )
 
 type PlayerDto struct {
-	Id        uuid.UUID  `json:"id"`
-	RoomId    uuid.UUID  `json:"roomId"`
-	UserId    *uuid.UUID `json:"userId"`
-	Name      string     `json:"name"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+	Id           uuid.UUID  `json:"id"`
+	RoomId       uuid.UUID  `json:"roomId"`
+	UserId       *uuid.UUID `json:"userId"`
+	Name         string     `json:"name"`
+	HostPriority float64    `json:"hostPriority"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	UpdatedAt    time.Time  `json:"updatedAt"`
 }
 
 func NewPlayerDto(player playermodel.Player) PlayerDto {
@@ -28,9 +29,10 @@ func NewPlayerDto(player playermodel.Player) PlayerDto {
 			func() *uuid.UUID { return nil },
 			func() *uuid.UUID { return commonutil.ToPointer((*player.GetUserId()).Uuid()) },
 		),
-		Name:      player.GetName(),
-		CreatedAt: player.GetCreatedAt(),
-		UpdatedAt: player.GetCreatedAt(),
+		Name:         player.GetName(),
+		HostPriority: player.GetHostPriority(),
+		CreatedAt:    player.GetCreatedAt(),
+		UpdatedAt:    player.GetCreatedAt(),
 	}
 	return dto
 }
@@ -47,6 +49,7 @@ func ParsePlayerDto(playerDto PlayerDto) (player playermodel.Player, err error) 
 			},
 		),
 		playerDto.Name,
+		playerDto.HostPriority,
 		playerDto.CreatedAt,
 		playerDto.UpdatedAt,
 	), nil

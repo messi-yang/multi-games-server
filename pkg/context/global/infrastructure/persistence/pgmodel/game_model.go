@@ -14,7 +14,6 @@ type GameModel struct {
 	RoomId    uuid.UUID     `gorm:"not null"`
 	Name      string        `gorm:"not null"`
 	Started   bool          `gorm:"not null"`
-	Selected  bool          `gorm:"not null"`
 	State     pgmodel.JSONB `gorm:"type:jsonb;not null"`
 	CreatedAt time.Time     `gorm:"autoCreateTime;not null"`
 	UpdatedAt time.Time     `gorm:"autoUpdateTime;not null"`
@@ -30,7 +29,6 @@ func NewGameModel(game gamemodel.Game) GameModel {
 		RoomId:    game.GetRoomId().Uuid(),
 		Name:      game.GetName(),
 		Started:   game.GetStarted(),
-		Selected:  game.GetSelected(),
 		State:     pgmodel.JSONB(game.GetState()),
 		UpdatedAt: game.GetUpdatedAt(),
 		CreatedAt: game.GetCreatedAt(),
@@ -43,7 +41,6 @@ func ParseGameModel(gameModel GameModel) (game gamemodel.Game) {
 		globalcommonmodel.NewRoomId(gameModel.RoomId),
 		gameModel.Name,
 		gameModel.Started,
-		gameModel.Selected,
 		gameModel.State,
 		gameModel.CreatedAt,
 		gameModel.UpdatedAt,

@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/dum-dum-genius/zossi-server/pkg/application/dto"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/domaineventhandler/memdomaineventhandler"
 	"github.com/dum-dum-genius/zossi-server/pkg/context/common/infrastructure/persistence/pguow"
@@ -46,7 +48,12 @@ func (useCase *GetRoomInformationUseCase) Execute(roomIdDto uuid.UUID) (
 	}
 	roomDto = dto.NewRoomDto(room)
 
-	game, err := useCase.gameRepo.GetSelectedGameByRoomId(roomId)
+	currentGameId := room.GetCurrentGameId()
+	if currentGameId == nil {
+		return roomDto, gameDto, commandDtos, playerDtos, errors.New("this room has no current game")
+	}
+
+	game, err := useCase.gameRepo.Get(*currentGameId)
 	if err != nil {
 		return roomDto, gameDto, commandDtos, playerDtos, err
 	}

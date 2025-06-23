@@ -92,9 +92,6 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 		return
 	}
 
-	// nonPeeredRoomPlayerIds is a map of player ids that are not yet peered with the current player
-	nonPeeredRoomPlayerIds := make(map[uuid.UUID]bool)
-
 	// Subscribe to messages broadcasted from other websocket servers
 	roomMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		newRoomMessageChannel(roomIdDto),
@@ -113,14 +110,23 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 					return
 				}
 				respondMessage(roomJoinedServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == gameStartedServerEventName {
+				gameStartedServerMessage, err := jsonutil.Unmarshal[roomMessage[gameStartedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(gameStartedServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == newGameSetupServerEventName {
+				newGameSetupServerMessage, err := jsonutil.Unmarshal[roomMessage[newGameSetupServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(newGameSetupServerMessage.ServerEvent)
 			} else if message.ServerEvent.Name == playerJoinedServerEventName {
 				playerJoinedServerEvent, err := jsonutil.Unmarshal[roomMessage[playerJoinedServerEvent]](messageBytes)
 				if err != nil {
 					return
 				}
-
-				// Add the player to the nonPeeredRoomPlayerIds map
-				nonPeeredRoomPlayerIds[playerJoinedServerEvent.ServerEvent.Player.Id] = true
 
 				respondMessage(playerJoinedServerEvent.ServerEvent)
 			} else if message.ServerEvent.Name == playerLeftServerEventName {
@@ -128,9 +134,6 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 				if err != nil {
 					return
 				}
-
-				// Remove the player from the nonPeeredRoomPlayerIds map
-				delete(nonPeeredRoomPlayerIds, playerLeftServerMessage.ServerEvent.PlayerId)
 
 				respondMessage(playerLeftServerMessage.ServerEvent)
 			} else if message.ServerEvent.Name == commandReceivedServerEventName {
@@ -156,15 +159,7 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 	)
 	defer roomMessageUnusbscriber()
 
-	currentRoomPlayers, err := httpHandler.getRoomPlayers(roomIdDto)
-	if err != nil {
-		respondServerEvent(httpHandler.generateErroredServerEvent(err))
-		closeConnection()
-		return
-	}
-	for _, playerDto := range currentRoomPlayers {
-		nonPeeredRoomPlayerIds[playerDto.Id] = true
-	}
+	fmt.Println("Ready to create player")
 
 	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
 	myPlayerDto, err := httpHandler.createPlayer(roomIdDto, authorizedUserIdDto)
@@ -173,6 +168,8 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 		closeConnection()
 		return
 	}
+
+	fmt.Println("Player created")
 	myPlayerIdDto = myPlayerDto.Id
 	broadcastServerEvent(httpHandler.generatePlayerJoinedServerEvent(myPlayerDto))
 
@@ -237,6 +234,28 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 			switch clientEvent.Name {
 			case pingClientEventName:
 				continue
+			case startGameRequestedClientEventName:
+				clientEvent, err := jsonutil.Unmarshal[startGameRequestedClientEvent](message)
+				if err != nil {
+					respondServerEvent(httpHandler.generateErroredServerEvent(err))
+					return
+				}
+				if gameDto, err = httpHandler.startGame(roomIdDto, clientEvent.GameId, clientEvent.GameState); err != nil {
+					respondServerEvent(httpHandler.generateErroredServerEvent(err))
+					return
+				}
+				respondAndBroadcastServerEvent(httpHandler.generateGameStartedServerEvent(gameDto))
+			case setupNewGameRequestedClientEventName:
+				clientEvent, err := jsonutil.Unmarshal[setupNewGameRequestedClientEvent](message)
+				if err != nil {
+					respondServerEvent(httpHandler.generateErroredServerEvent(err))
+					return
+				}
+				if gameDto, err = httpHandler.setupNewGame(roomIdDto, clientEvent.GameName); err != nil {
+					respondServerEvent(httpHandler.generateErroredServerEvent(err))
+					return
+				}
+				respondAndBroadcastServerEvent(httpHandler.generateNewGameSetupServerEvent(gameDto))
 			case p2pOfferSentClientEventName:
 				clientEvent, err := jsonutil.Unmarshal[p2pOfferSentClientEvent](message)
 				if err != nil {
@@ -251,6 +270,13 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 					return
 				}
 				httpHandler.sendServerEventToPlayer(roomIdDto, clientEvent.PeerPlayerId, httpHandler.generateP2pAnswerReceivedServerEvent(myPlayerIdDto, clientEvent.IceCandidates, clientEvent.Answer))
+			case p2pConnectedClientEventName:
+				_, err := jsonutil.Unmarshal[p2pConnectedClientEvent](message)
+				if err != nil {
+					respondServerEvent(httpHandler.generateErroredServerEvent(err))
+					return
+				}
+				// TODO: Must have something that we can do with it
 			case commandSentClientEventName:
 				clientEvent, err := jsonutil.Unmarshal[commandSentClientEvent](message)
 				if err != nil {
@@ -331,6 +357,18 @@ func (httpHandler *HttpHandler) getRoomInformation(roomIdDto uuid.UUID) (
 	return getRoomInformationUseCase.Execute(roomIdDto)
 }
 
+func (httpHandler *HttpHandler) startGame(roomIdDto uuid.UUID, gameId uuid.UUID, gameState map[string]interface{}) (gameDto dto.GameDto, err error) {
+	uow := pguow.NewDummyUow()
+	startGameUseCase := usecase.ProvideStartGameUseCase(uow)
+	return startGameUseCase.Execute(roomIdDto, gameId, gameState)
+}
+
+func (httpHandler *HttpHandler) setupNewGame(roomId uuid.UUID, gameName string) (gameDto dto.GameDto, err error) {
+	uow := pguow.NewDummyUow()
+	setupNewGameUseCase := usecase.ProvideSetupNewGameUseCase(uow)
+	return setupNewGameUseCase.Execute(roomId, gameName)
+}
+
 func (httpHandler *HttpHandler) sendServerEventToPlayer(roomIdDto uuid.UUID, playerIdDto uuid.UUID, serverEvent any) {
 	httpHandler.redisServerMessageMediator.Send(
 		newPlayerMessageChannel(roomIdDto, playerIdDto),
@@ -365,7 +403,7 @@ func (httpHandler *HttpHandler) generatePlayerLeftServerEvent(playerIdDto uuid.U
 	}
 }
 
-func (httpHandler *HttpHandler) generateCommandReceivedServerEvent(command any) commandReceivedServerEvent {
+func (httpHandler *HttpHandler) generateCommandReceivedServerEvent(command dto.CommandDto) commandReceivedServerEvent {
 	return commandReceivedServerEvent{
 		Name:    commandReceivedServerEventName,
 		Command: command,
@@ -376,6 +414,20 @@ func (httpHandler *HttpHandler) generateCommandFailedServerEvent(commandId uuid.
 	return commandFailedServerEvent{
 		Name:      commandFailedServerEventName,
 		CommandId: commandId,
+	}
+}
+
+func (httpHandler *HttpHandler) generateGameStartedServerEvent(gameDto dto.GameDto) gameStartedServerEvent {
+	return gameStartedServerEvent{
+		Name: gameStartedServerEventName,
+		Game: gameDto,
+	}
+}
+
+func (httpHandler *HttpHandler) generateNewGameSetupServerEvent(gameDto dto.GameDto) newGameSetupServerEvent {
+	return newGameSetupServerEvent{
+		Name: newGameSetupServerEventName,
+		Game: gameDto,
 	}
 }
 

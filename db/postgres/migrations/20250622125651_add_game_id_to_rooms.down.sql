@@ -1,0 +1,4 @@
+ALTER TABLE games ADD COLUMN selected BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE rooms DROP CONSTRAINT fk_rooms_games;
+ALTER TABLE rooms DROP COLUMN current_game_id;

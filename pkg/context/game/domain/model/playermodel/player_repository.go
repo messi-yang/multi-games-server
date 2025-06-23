@@ -9,5 +9,6 @@ type PlayerRepo interface {
 	Update(Player) error
 	Delete(Player) error
 	Get(globalcommonmodel.RoomId, PlayerId) (Player, error)
+	GetPlayerOfUser(globalcommonmodel.RoomId, globalcommonmodel.UserId) (*Player, error)
 	GetPlayersOfRoom(globalcommonmodel.RoomId) ([]Player, error)
 }

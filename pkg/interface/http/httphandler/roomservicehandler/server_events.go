@@ -9,6 +9,8 @@ type serverEventName string
 
 const (
 	roomJoinedServerEventName        serverEventName = "ROOM_JOINED"
+	gameStartedServerEventName       serverEventName = "GAME_STARTED"
+	newGameSetupServerEventName      serverEventName = "NEW_GAME_SETUP"
 	playerJoinedServerEventName      serverEventName = "PLAYER_JOINED"
 	playerLeftServerEventName        serverEventName = "PLAYER_LEFT"
 	commandReceivedServerEventName   serverEventName = "COMMAND_RECEIVED"
@@ -31,6 +33,16 @@ type roomJoinedServerEvent struct {
 	Players    []dto.PlayerDto  `json:"players"`
 }
 
+type gameStartedServerEvent struct {
+	Name serverEventName `json:"name"`
+	Game dto.GameDto     `json:"game"`
+}
+
+type newGameSetupServerEvent struct {
+	Name serverEventName `json:"name"`
+	Game dto.GameDto     `json:"game"`
+}
+
 type playerJoinedServerEvent struct {
 	Name   serverEventName `json:"name"`
 	Player dto.PlayerDto   `json:"player"`
@@ -43,7 +55,7 @@ type playerLeftServerEvent struct {
 
 type commandReceivedServerEvent struct {
 	Name    serverEventName `json:"name"`
-	Command any             `json:"command"`
+	Command dto.CommandDto  `json:"command"`
 }
 
 type commandFailedServerEvent struct {
