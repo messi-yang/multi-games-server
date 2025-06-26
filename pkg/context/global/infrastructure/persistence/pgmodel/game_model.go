@@ -45,22 +45,17 @@ func NewGameModel(game gamemodel.Game) GameModel {
 }
 
 func ParseGameModel(gameModel GameModel) (game gamemodel.Game) {
-	stateJson := gameModel.State
-
 	return gamemodel.LoadGame(
 		gamemodel.NewGameId(gameModel.Id),
 		globalcommonmodel.NewRoomId(gameModel.RoomId),
 		gameModel.Name,
 		gameModel.Started,
 		lo.TernaryF(
-			stateJson == nil,
+			gameModel.State == nil,
 			func() *map[string]interface{} { return nil },
 			func() *map[string]interface{} {
-				state, err := stateJson.Value()
-				if err != nil {
-					return nil
-				}
-				return commonutil.ToPointer(state.(map[string]interface{}))
+				var _state map[string]interface{} = *gameModel.State
+				return commonutil.ToPointer(_state)
 			}),
 		gameModel.CreatedAt,
 		gameModel.UpdatedAt,
