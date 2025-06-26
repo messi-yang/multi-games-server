@@ -8,13 +8,13 @@ import (
 )
 
 type GameDto struct {
-	Id        uuid.UUID              `json:"id"`
-	RoomId    uuid.UUID              `json:"roomId"`
-	Name      string                 `json:"name"`
-	Started   bool                   `json:"started"`
-	State     map[string]interface{} `json:"state"`
-	CreatedAt time.Time              `json:"createdAt"`
-	UpdatedAt time.Time              `json:"updatedAt"`
+	Id        uuid.UUID               `json:"id"`
+	RoomId    uuid.UUID               `json:"roomId"`
+	Name      string                  `json:"name"`
+	Started   bool                    `json:"started"`
+	State     *map[string]interface{} `json:"state"`
+	CreatedAt time.Time               `json:"createdAt"`
+	UpdatedAt time.Time               `json:"updatedAt"`
 }
 
 func NewGameDto(game gamemodel.Game) GameDto {

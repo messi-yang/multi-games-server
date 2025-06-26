@@ -13,7 +13,7 @@ type Game struct {
 	roomId               globalcommonmodel.RoomId
 	name                 string
 	started              bool
-	state                map[string]interface{}
+	state                *map[string]interface{}
 	createdAt            time.Time
 	updatedAt            time.Time
 	domainEventCollector *domain.DomainEventCollector
@@ -31,7 +31,7 @@ func NewGame(
 		roomId:               roomId,
 		name:                 name,
 		started:              false,
-		state:                map[string]interface{}{},
+		state:                nil,
 		createdAt:            time.Now(),
 		updatedAt:            time.Now(),
 		domainEventCollector: domain.NewDomainEventCollector(),
@@ -48,7 +48,7 @@ func LoadGame(
 	roomId globalcommonmodel.RoomId,
 	name string,
 	started bool,
-	state map[string]interface{},
+	state *map[string]interface{},
 	createdAt time.Time,
 	updatedAt time.Time,
 ) Game {
@@ -88,11 +88,11 @@ func (game *Game) SetStarted(started bool) {
 	game.started = started
 }
 
-func (game *Game) GetState() map[string]interface{} {
+func (game *Game) GetState() *map[string]interface{} {
 	return game.state
 }
 
-func (game *Game) SetState(state map[string]interface{}) {
+func (game *Game) SetState(state *map[string]interface{}) {
 	game.state = state
 }
 

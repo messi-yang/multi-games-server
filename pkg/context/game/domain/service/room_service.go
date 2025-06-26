@@ -90,7 +90,7 @@ func (roomServe *roomServe) StartGame(roomId globalcommonmodel.RoomId, gameId ga
 	}
 
 	game.SetStarted(true)
-	game.SetState(gameState)
+	game.SetState(&gameState)
 
 	err = roomServe.gameRepo.Update(game)
 	if err != nil {
