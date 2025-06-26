@@ -43,12 +43,6 @@ func NewGame(
 	return newGame
 }
 
-func NewDefaultGame(
-	roomId globalcommonmodel.RoomId,
-) Game {
-	return NewGame(roomId, "default")
-}
-
 func LoadGame(
 	id GameId,
 	roomId globalcommonmodel.RoomId,

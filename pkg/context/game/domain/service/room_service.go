@@ -55,7 +55,7 @@ func (roomServe *roomServe) CreateRoom(userId globalcommonmodel.UserId, name str
 		return newRoom, err
 	}
 
-	game := gamemodel.NewDefaultGame(newRoom.GetId())
+	game := gamemodel.NewGame(newRoom.GetId(), "maze_battle")
 	err = roomServe.gameRepo.Add(game)
 	if err != nil {
 		return newRoom, err

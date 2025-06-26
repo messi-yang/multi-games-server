@@ -159,8 +159,6 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 	)
 	defer roomMessageUnusbscriber()
 
-	fmt.Println("Ready to create player")
-
 	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
 	myPlayerDto, err := httpHandler.createPlayer(roomIdDto, authorizedUserIdDto)
 	if err != nil {
@@ -169,7 +167,6 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Player created")
 	myPlayerIdDto = myPlayerDto.Id
 	broadcastServerEvent(httpHandler.generatePlayerJoinedServerEvent(myPlayerDto))
 
