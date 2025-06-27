@@ -92,6 +92,66 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 		return
 	}
 
+	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
+	myPlayerDto, err := httpHandler.createPlayer(roomIdDto, authorizedUserIdDto)
+	if err != nil {
+		respondServerEvent(httpHandler.generateErroredServerEvent(err))
+		closeConnection()
+		return
+	}
+
+	myPlayerIdDto = myPlayerDto.Id
+	broadcastServerEvent(httpHandler.generatePlayerJoinedServerEvent(myPlayerDto))
+
+	safelyLeaveRoomInAllCases := func() {
+		if err = httpHandler.removePlayer(roomIdDto, myPlayerIdDto); err != nil {
+			fmt.Println(err)
+		}
+		broadcastServerEvent(httpHandler.generatePlayerLeftServerEvent(myPlayerIdDto))
+
+	}
+	defer safelyLeaveRoomInAllCases()
+
+	roomDto, gameDto, commandDtos, playerDtos, err := httpHandler.getRoomInformation(roomIdDto)
+	if err != nil {
+		respondServerEvent(httpHandler.generateErroredServerEvent(err))
+		closeConnection()
+		return
+	}
+	respondServerEvent(httpHandler.generateRoomJoinedServerEvent(roomDto, gameDto, commandDtos, myPlayerIdDto, playerDtos))
+
+	// Subscribe to messages sent specifically to your player
+	playerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
+		newPlayerMessageChannel(roomIdDto, myPlayerIdDto),
+		func(messageBytes []byte) {
+			message, err := jsonutil.Unmarshal[playerMessage[serverEvent]](messageBytes)
+			if err != nil {
+				return
+			}
+
+			if message.ServerEvent.Name == p2pAnswerReceivedServerEventName {
+				p2pAnswerReceivedServerMessage, err := jsonutil.Unmarshal[playerMessage[p2pAnswerReceivedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(p2pAnswerReceivedServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == p2pOfferReceivedServerEventName {
+				p2pOfferReceivedServerMessage, err := jsonutil.Unmarshal[playerMessage[p2pOfferReceivedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(p2pOfferReceivedServerMessage.ServerEvent)
+			} else if message.ServerEvent.Name == commandReceivedServerEventName {
+				commandReceivedServerMessage, err := jsonutil.Unmarshal[playerMessage[commandReceivedServerEvent]](messageBytes)
+				if err != nil {
+					return
+				}
+				respondMessage(commandReceivedServerMessage.ServerEvent)
+			}
+		},
+	)
+	defer playerMessageUnusbscriber()
+
 	// Subscribe to messages broadcasted from other websocket servers
 	roomMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
 		newRoomMessageChannel(roomIdDto),
@@ -158,60 +218,6 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 		},
 	)
 	defer roomMessageUnusbscriber()
-
-	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
-	myPlayerDto, err := httpHandler.createPlayer(roomIdDto, authorizedUserIdDto)
-	if err != nil {
-		respondServerEvent(httpHandler.generateErroredServerEvent(err))
-		closeConnection()
-		return
-	}
-
-	myPlayerIdDto = myPlayerDto.Id
-	broadcastServerEvent(httpHandler.generatePlayerJoinedServerEvent(myPlayerDto))
-
-	// Subscribe to messages sent specifically to your player
-	playerMessageUnusbscriber := httpHandler.redisServerMessageMediator.Receive(
-		newPlayerMessageChannel(roomIdDto, myPlayerIdDto),
-		func(messageBytes []byte) {
-			message, err := jsonutil.Unmarshal[playerMessage[serverEvent]](messageBytes)
-			if err != nil {
-				return
-			}
-
-			if message.ServerEvent.Name == p2pAnswerReceivedServerEventName {
-				p2pAnswerReceivedServerMessage, err := jsonutil.Unmarshal[playerMessage[p2pAnswerReceivedServerEvent]](messageBytes)
-				if err != nil {
-					return
-				}
-				respondMessage(p2pAnswerReceivedServerMessage.ServerEvent)
-			} else if message.ServerEvent.Name == p2pOfferReceivedServerEventName {
-				p2pOfferReceivedServerMessage, err := jsonutil.Unmarshal[playerMessage[p2pOfferReceivedServerEvent]](messageBytes)
-				if err != nil {
-					return
-				}
-				respondMessage(p2pOfferReceivedServerMessage.ServerEvent)
-			}
-		},
-	)
-	defer playerMessageUnusbscriber()
-
-	safelyLeaveRoomInAllCases := func() {
-		if err = httpHandler.removePlayer(roomIdDto, myPlayerIdDto); err != nil {
-			fmt.Println(err)
-		}
-		broadcastServerEvent(httpHandler.generatePlayerLeftServerEvent(myPlayerIdDto))
-
-	}
-	defer safelyLeaveRoomInAllCases()
-
-	roomDto, gameDto, commandDtos, playerDtos, err := httpHandler.getRoomInformation(roomIdDto)
-	if err != nil {
-		respondServerEvent(httpHandler.generateErroredServerEvent(err))
-		closeConnection()
-		return
-	}
-	respondServerEvent(httpHandler.generateRoomJoinedServerEvent(roomDto, gameDto, commandDtos, myPlayerIdDto, playerDtos))
 
 	go func() {
 		for {
