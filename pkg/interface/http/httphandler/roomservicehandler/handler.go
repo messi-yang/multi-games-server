@@ -46,6 +46,11 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 	}
 	defer socketConn.Close()
 
+	guestPlayerName := c.Request.URL.Query().Get("name")
+	if guestPlayerName == "" {
+		guestPlayerName = "Guest"
+	}
+
 	respondMessageLocker := &sync.RWMutex{}
 	respondMessage := func(jsonObj any) {
 		respondMessageLocker.Lock()
@@ -93,7 +98,7 @@ func (httpHandler *HttpHandler) StartService(c *gin.Context) {
 	}
 
 	authorizedUserIdDto := httpsession.GetAuthorizedUserId(c)
-	myPlayerDto, err := httpHandler.createPlayer(roomIdDto, authorizedUserIdDto)
+	myPlayerDto, err := httpHandler.createPlayer(roomIdDto, authorizedUserIdDto, guestPlayerName)
 	if err != nil {
 		respondServerEvent(httpHandler.generateErroredServerEvent(err))
 		closeConnection()
@@ -329,11 +334,11 @@ func (httpHandler *HttpHandler) removePlayer(roomIdDto uuid.UUID, playerIdDto uu
 	return nil
 }
 
-func (httpHandler *HttpHandler) createPlayer(roomIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerDto dto.PlayerDto, err error) {
+func (httpHandler *HttpHandler) createPlayer(roomIdDto uuid.UUID, userIdDto *uuid.UUID, guestPlayerName string) (newPlayerDto dto.PlayerDto, err error) {
 	uow := pguow.NewUow()
 
 	createPlayerUseCase := usecase.ProvideCreatePlayerUseCase(uow)
-	newPlayerDto, err = createPlayerUseCase.Execute(roomIdDto, userIdDto)
+	newPlayerDto, err = createPlayerUseCase.Execute(roomIdDto, userIdDto, guestPlayerName)
 	if err != nil {
 		uow.RevertChanges()
 		return newPlayerDto, err

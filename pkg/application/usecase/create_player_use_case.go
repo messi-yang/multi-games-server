@@ -43,14 +43,14 @@ func ProvideCreatePlayerUseCase(uow pguow.Uow) CreatePlayerUseCase {
 	return NewCreatePlayerUseCase(playerRepo, roomAccessRepo, userRepo, roomRepo)
 }
 
-func (useCase *CreatePlayerUseCase) Execute(roomIdDto uuid.UUID, userIdDto *uuid.UUID) (newPlayerDto dto.PlayerDto, err error) {
+func (useCase *CreatePlayerUseCase) Execute(roomIdDto uuid.UUID, userIdDto *uuid.UUID, guestPlayerName string) (newPlayerDto dto.PlayerDto, err error) {
 	roomId := globalcommonmodel.NewRoomId(roomIdDto)
 	_, err = useCase.roomRepo.Get(roomId)
 	if err != nil {
 		return newPlayerDto, err
 	}
 
-	var name string = "Guest"
+	var name string = guestPlayerName
 	var hostPriority float64 = rand.Float64() * 9999999
 	var userId *globalcommonmodel.UserId = nil
 
